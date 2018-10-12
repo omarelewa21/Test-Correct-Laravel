@@ -1,0 +1,142 @@
+<?php namespace tcCore;
+
+use Closure;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Lib\Models\AccessCheckable;
+use tcCore\Lib\Models\BaseModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use tcCore\Lib\Repositories\SchoolYearRepository;
+use tcCore\Lib\User\Roles;
+
+class Period extends BaseModel implements AccessCheckable {
+
+    use SoftDeletes;
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'periods';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['school_year_id', 'name', 'start_date', 'end_date'];
+
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
+    protected $hidden = [];
+
+    public function schoolYear() {
+        return $this->belongsTo('tcCore\SchoolYear');
+    }
+
+    public function tests() {
+        return $this->hasMany('tcCore\Tests');
+    }
+
+    public function testTakes() {
+        return $this->hasMany('tcCore\TestTakes');
+    }
+
+    public function pValues() {
+        return $this->hasMany('tcCore\PValue');
+    }
+
+    public function ratings() {
+        return $this->hasMany('tcCore\Rating');
+    }
+
+    public function scopeFiltered($query, $filters = [], $sorting = [])
+    {
+        $roles = Roles::getUserRoles();
+        if (!in_array('Administrator', $roles)) {
+            $query->whereIn('school_year_id', function ($query) {
+                $query->select('id')->from(with(new SchoolYear())->getTable())->whereNull('deleted_at');
+                with(new SchoolYear())->scopeFiltered($query);
+            });
+        }
+
+        foreach($filters as $key => $value) {
+            switch($key) {
+                case 'current_school_year':
+                    if ($value != true) {
+                        break;
+                    }
+
+                    $schoolYearRepository = new SchoolYearRepository();
+                    $currentSchoolYear = $schoolYearRepository->getCurrentOrPreviousSchoolYear();
+                    if ($currentSchoolYear instanceof SchoolYear) {
+                        $query->where('school_year_id', '=', $currentSchoolYear->getKey());
+                    }
+                    break;
+                case 'school_year_id':
+                    if (is_array($value)) {
+                        $query->whereIn('school_year_id', $value);
+                    } else {
+                        $query->where('school_year_id', '=', $value);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        foreach($sorting as $key => $value) {
+            switch(strtolower($value)) {
+                case 'id':
+                case 'name':
+                    $key = $value;
+                    $value = 'asc';
+                    break;
+                case 'asc':
+                case 'desc':
+                    break;
+                default:
+                    $value = 'asc';
+            }
+
+            switch(strtolower($key)) {
+                case 'id':
+                case 'name':
+                    $query->orderBy($key, $value);
+                    break;
+            }
+        }
+
+        return $query;
+    }
+
+    public function canAccess()
+    {
+        $roles = Roles::getUserRoles();
+        if (in_array('Administrator', $roles)) {
+            return true;
+        }
+
+        return SchoolYear::filtered(['id' => $this->getAttribute('school_year_id')])->count() > 0;
+    }
+
+    public function canAccessBoundResource($request, Closure $next) {
+        return $this->canAccess();
+    }
+
+    public function getAccessDeniedResponse($request, Closure $next)
+    {
+        throw new AccessDeniedHttpException('Access to period denied');
+    }
+}

@@ -1,0 +1,47 @@
+<?php
+
+namespace tcCore\Jobs;
+
+use Illuminate\Support\Facades\Log;
+use tcCore\Jobs\Job;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Bus\SelfHandling;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use tcCore\User;
+
+class CountTeacherTests extends Job implements SelfHandling, ShouldQueue
+{
+    use InteractsWithQueue, SerializesModels;
+    /**
+     * @var User
+     */
+    protected $user;
+
+    /**
+     * Create a new job instance.
+     *
+     * @param User $user
+     * @return void
+     */
+    public function __construct(User $user)
+    {
+        //
+        $this->user = $user;
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        $count = $this->user->tests()->where('is_system_test', 0)->count();
+
+        Log::debug('Teacher #'.$this->user->getKey().' -> count_tests: '.$count);
+
+        $this->user->setAttribute('count_tests', $count);
+        $this->user->save();
+    }
+}

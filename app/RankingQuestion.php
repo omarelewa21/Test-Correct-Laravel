@@ -1,0 +1,157 @@
+<?php namespace tcCore;
+
+use Illuminate\Support\Facades\Log;
+use tcCore\Lib\Question\QuestionInterface;
+
+class RankingQuestion extends Question implements QuestionInterface {
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
+
+    /**
+     * The database table used by the model.
+     *
+     * @var string
+     */
+    protected $table = 'ranking_questions';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['random_order'];
+
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
+    protected $hidden = [];
+
+    public function question() {
+        return $this->belongsTo('tcCore\Question', $this->getKeyName());
+    }
+
+    public function rankingQuestionAnswerLinks() {
+        return $this->hasMany('tcCore\RankingQuestionAnswerLink', 'ranking_question_id');
+    }
+
+    public function rankingQuestionAnswers() {
+        return $this->belongsToMany('tcCore\RankingQuestionAnswer', 'ranking_question_answer_links', 'ranking_question_id', 'ranking_question_answer_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order', 'correct_order'])->wherePivot($this->getDeletedAtColumn(), null)->orderBy('ranking_question_answer_links.order');
+    }
+
+    public function reorder(RankingQuestionAnswerLink $movedAnswer, $attribute) {
+        $answers = $this->rankingQuestionAnswerLinks()->orderBy($attribute)->get();
+
+        $this->performReorder($answers, $movedAnswer, $attribute);
+    }
+
+    public function loadRelated()
+    {
+        $this->load('rankingQuestionAnswers');
+    }
+
+    public function duplicate(array $attributes, $ignore = null) {
+        $question = $this->replicate();
+
+        $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
+        if ($question->parentInstance === false) {
+            return false;
+        }
+
+        $question->fill($attributes);
+
+        if ($question->save() === false) {
+            return false;
+        }
+
+        foreach($this->rankingQuestionAnswerLinks as $rankingQuestionAnswerLink) {
+            if ($ignore instanceof RankingQuestionAnswer && $ignore->getKey() == $rankingQuestionAnswerLink->getAttribute('ranking_question_answer_id')) {
+                continue;
+            }
+
+            if ($ignore instanceof RankingQuestionAnswerLink
+                && $ignore->getAttribute('ranking_question_answer_id') == $rankingQuestionAnswerLink->getAttribute('ranking_question_answer_id')
+                && $ignore->getAttribute('ranking_question_id') == $rankingQuestionAnswerLink->getAttribute('ranking_question_id')) {
+                continue;
+            }
+
+            if($rankingQuestionAnswerLink->duplicate($question, []) === false) {
+                return false;
+            }
+        }
+
+        return $question;
+    }
+
+    public function canCheckAnswer() {
+        return true;
+    }
+
+    public function checkAnswer($answer) {
+        $answers = json_decode($answer->getAttribute('json'), true);
+        if(!$answers) {
+            return 0;
+        }
+        asort($answers);
+
+        $prev = null;
+        $beforeAndAfterAnswers = [];
+        foreach($answers as $answerId => $order) {
+            if ($prev) {
+                $beforeAndAfterAnswers[$prev]['before'] = $answerId;
+                $beforeAndAfterAnswers[$answerId] = ['after' => $prev, 'before' => null];
+            } else {
+                $beforeAndAfterAnswers[$answerId] = ['after' => null, 'before' => null];
+            }
+
+            $prev = $answerId;
+        }
+
+        $rankingQuestionAnswers = $this->RankingQuestionAnswerLinks;
+
+        $orderAnswers = [];
+        foreach($rankingQuestionAnswers as $rankingQuestionAnswer) {
+            if (array_key_exists($rankingQuestionAnswer->getAttribute('order'), $orderAnswers)) {
+                return false;
+            }
+
+            $orderAnswers[$rankingQuestionAnswer->getAttribute('order')] = $rankingQuestionAnswer->getAttribute('ranking_question_answer_id');
+        }
+
+        ksort($orderAnswers);
+        $beforeAndAfter = [];
+        $prev = null;
+        foreach($orderAnswers as $answerId) {
+            if ($prev) {
+                $beforeAndAfter[$prev]['before'] = $answerId;
+                $beforeAndAfter[$answerId] = ['after' => $prev, 'before' => null];
+            } else {
+                $beforeAndAfter[$answerId] = ['after' => null, 'before' => null];
+            }
+
+            $prev = $answerId;
+        }
+
+        $correct = 0;
+        foreach($beforeAndAfter as $key => $correctAnswer) {
+            if (array_key_exists($key, $beforeAndAfterAnswers) && $correctAnswer['after'] == $beforeAndAfterAnswers[$key]['after'] && $correctAnswer['before'] == $beforeAndAfterAnswers[$key]['before']) {
+                $correct++;
+            }
+        }
+
+
+        $score = $this->getAttribute('score') * ($correct / count($orderAnswers));
+        if ($this->getAttribute('decimal_score') == true) {
+            $score = floor($score * 2) / 2;
+        } else {
+            $score = floor($score);
+        }
+        return $score;
+    }
+}
