@@ -1,6 +1,8 @@
 <?php namespace tcCore\Http;
 
+
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use tcCore\Http\Middleware\RequestLogger;
 
 class Kernel extends HttpKernel {
 
@@ -16,6 +18,7 @@ class Kernel extends HttpKernel {
 		//'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse',
 		//'Illuminate\Session\Middleware\StartSession',
 		//'Illuminate\View\Middleware\ShareErrorsFromSession',
+		RequestLogger::class,
 	];
 
 	/**
