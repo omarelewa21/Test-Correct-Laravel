@@ -349,6 +349,7 @@ class Question extends MtiBaseModel {
         //Log::debug('Derived Questions = '.$uses);
 
         $testQuestions = TestQuestion::withTrashed()->where('question_id', $this->getKey());
+
         if ($ignoreRelationTo instanceof TestQuestion) {
             $testQuestions->where($ignoreRelationTo->getKeyName(), '!=', $ignoreRelationTo->getKey());
         }
@@ -703,5 +704,9 @@ class Question extends MtiBaseModel {
             $movedEntity->save();
             $movedEntity->setReorder(true);
         }
+    }
+
+    public function extractAnswers(){
+
     }
 }

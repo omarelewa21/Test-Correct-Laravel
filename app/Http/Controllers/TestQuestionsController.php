@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\DrawingQuestion;
 use tcCore\GroupQuestion;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -66,51 +67,88 @@ class TestQuestionsController extends Controller {
      */
     public function store(CreateTestQuestionRequest $request)
     {
-        if ($request->get('question_id') === null) {
-            $question = Factory::makeQuestion($request->get('type'));
-            if (!$question) {
-                return Response::make('Failed to create question with factory', 500);
-            }
+        DB::beginTransaction();
+        try{
+            if ($request->get('question_id') === null) {
+                $question = Factory::makeQuestion($request->get('type'));
+                if (!$question) {
+                    throw new \Exception('Failed to create question with factory', 500);
+                }
 
-            $testQuestion = new TestQuestion();
-            $testQuestion->fill($request->all());
-            $test = $testQuestion->test;
+                $testQuestion = new TestQuestion();
+                $testQuestion->fill($request->all());
+                $test = $testQuestion->test;
 
-            $question->fill($request->all());
+                $qHelper = new QuestionHelper();
+                $questionData = [];
+                if($request->get('type') == 'CompletionQuestion') {
+                    $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+                }
 
-            $questionInstance = $question->getQuestionInstance();
-            if ($questionInstance->getAttribute('subject_id') === null) {
-                $questionInstance->setAttribute('subject_id', $test->subject->getKey());
-            }
+                $question->fill(array_merge($request->all(),$questionData));
 
-            if ($questionInstance->getAttribute('education_level_id') === null) {
-                $questionInstance->setAttribute('education_level_id', $test->educationLevel->getKey());
-            }
+                $questionInstance = $question->getQuestionInstance();
+                if ($questionInstance->getAttribute('subject_id') === null) {
+                    $questionInstance->setAttribute('subject_id', $test->subject->getKey());
+                }
 
-            if ($questionInstance->getAttribute('education_level_year') === null) {
-                $questionInstance->setAttribute('education_level_year', $test->getAttribute('education_level_year'));
-            }
+                if ($questionInstance->getAttribute('education_level_id') === null) {
+                    $questionInstance->setAttribute('education_level_id', $test->educationLevel->getKey());
+                }
 
-            if ($question->save()) {
-                $testQuestion->setAttribute('question_id', $question->getKey());
+                if ($questionInstance->getAttribute('education_level_year') === null) {
+                    $questionInstance->setAttribute('education_level_year', $test->getAttribute('education_level_year'));
+                }
+
+                if ($question->save()) {
+                    $testQuestion->setAttribute('question_id', $question->getKey());
+
+                    if ($testQuestion->save()) {
+                        if ($request->get('type') == 'CompletionQuestion') {
+                            /**
+                             * we don't need to check if this works, as there's an exception thrown on failure
+                             */
+                            $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
+                        }
+                    }else{
+                        throw new \Exception('Failed to create test question');
+                    }
+
+                } else {
+                    throw new \Exception('Failed to create question');
+                }
+            } else {
+                $testQuestion = new TestQuestion();
+
+                $qHelper = new QuestionHelper();
+                $questionData = [];
+                if($request->get('type') == 'CompletionQuestion') {
+                    $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+                }
+
+                $testQuestion->fill(array_merge($request->all(),$questionData));
+
+                if($request->get('type') == 'CompletionQuestion') {
+                    /**
+                     * we don't need to check if this works, as there's an exception thrown on failure
+                     */
+                    $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
+                }
 
                 if ($testQuestion->save()) {
                     return Response::make($testQuestion, 200);
                 } else {
-                    return Response::make('Failed to create test question', 500);
+                    throw new \Exception('Failed to create test question');
                 }
-            } else {
-                return Response::make('Failed to create question', 500);
-            }
-        } else {
-            $testQuestion = new TestQuestion();
-            $testQuestion->fill($request->all());
-            if ($testQuestion->save()) {
-                return Response::make($testQuestion, 200);
-            } else {
-                return Response::make('Failed to create test question', 500);
             }
         }
+        catch(\Exception $e){
+            DB::rollback();
+            return Response::make($e->getMessage(),500);
+        }
+        DB::commit();
+        return Response::make($testQuestion, 200);
+
     }
 
     /**
@@ -143,34 +181,56 @@ class TestQuestionsController extends Controller {
         // Fill and check if question is modified
         $question = $testQuestion->question;
 
-        $question->fill($request->all());
-        $questionInstance = $question->getQuestionInstance();
+        DB::beginTransaction();
+        try {
+            $qHelper = new QuestionHelper();
+            $questionData = [];
+            if($question->type == 'CompletionQuestion') {
+                $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+            }
 
-        $testQuestion->fill($request->all());
+            $question->fill(array_merge($request->all(),$questionData));
+            $questionInstance = $question->getQuestionInstance();
 
-        // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-        if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
-            if ($question->isUsed($testQuestion)) {
-                $question = $question->duplicate($request->all());
-                if ($question === false) {
-                    return Response::make('Failed to duplicate question', 500);
+            $testQuestion->fill($request->all());
+
+            // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
+            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+                if ($question->isUsed($testQuestion)) {
+                    $question = $question->duplicate($request->all());
+                    if ($question === false) {
+                        throw new \Exception('Failed to duplicate question');
+                    }
+
+                    $testQuestion->setAttribute('question_id', $question->getKey());
+                } elseif (!$questionInstance->save() || !$question->save()) {
+                    throw new \Exception('Failed to save question');
                 }
+            }
 
-                $testQuestion->setAttribute('question_id', $question->getKey());
-            } elseif(!$questionInstance->save() || !$question->save()) {
-                return Response::make('Failed to save question', 500);
+//            Log::debug($testQuestion->toSql());
+//            DB::enableQueryLog();
+            // Save the link
+            if ($testQuestion->save()) {
+                if($request->get('type') == 'CompletionQuestion') {
+                    // delete old answers
+                    $qHelper->deleteCompletionQuestionAnswers($question);
+
+                    // add new answers
+                    $qHelper->storeAnswersForCompletionQuestion($testQuestion,$questionData);
+                }
+//                Log::debug(DB::getQueryLog());
+                return Response::make($testQuestion, 200);
+            } else {
+                throw new \Exception('Failed to update test question');
             }
         }
-
-        Log::debug($testQuestion->toSql());
-        DB::enableQueryLog();
-        // Save the link
-        if ($testQuestion->save()) {
-            Log::debug(DB::getQueryLog());
-            return Response::make($testQuestion, 200);
-        } else {
-            return Response::make('Failed to update test question', 500);
+        catch(\Exception $e){
+            DB::rollback();
+            return Response::make($e->getMessage(),500);
         }
+        DB::commit();
+        return Response::make($testQuestion, 200);
     }
 
     /**

@@ -54,6 +54,10 @@ class UpdateQuestionRequest extends Request {
 		];
 	}
 
+	protected function getExtraRulesClass($type){
+		return 'tcCore\Http\Requests\Update' . $type . 'Request';
+	}
+
 	/**
 	 * Get the validation rules that apply to the request.
 	 *
@@ -62,7 +66,7 @@ class UpdateQuestionRequest extends Request {
 	public function rules()
 	{
 		if ($this->has('type') && $this->input('type') !== 'Question') {
-			$rules = 'tcCore\Http\Requests\Update' . $this->input('type') . 'Request';
+			$rules = $this->getExtraRulesClass($this->input['tpye']);
 			if (class_exists($rules) && method_exists($rules, 'rules')) {
 				return (new $rules($this->route))->rules();
 			}
@@ -84,6 +88,36 @@ class UpdateQuestionRequest extends Request {
 	public function sanitize()
 	{
 		return $this->all();
+	}
+
+	/**
+	 * Get the validator instance for the request and
+	 * add attach callbacks to be run after validation
+	 * is completed.
+	 *
+	 * @return \Illuminate\Contracts\Validation\Validator
+	 */
+	protected function getValidatorInstance()
+	{
+		$validator = parent::getValidatorInstance();
+		$this->withValidator($validator);
+		return $validator;
+	}
+
+	/**
+	 * Configure the validator instance.
+	 *
+	 * @param  \Illuminate\Validation\Validator $validator
+	 * @return void
+	 */
+	// on version 5.7 this method is called but needs to be public.
+	// You need to remove the protected function getValidatorInstance() if that is the case.
+	private function withValidator($validator)
+	{
+		$extraRulesClass = $this->getExtraRulesClass($this->input('type'));
+		if (class_exists($extraRulesClass) && method_exists($extraRulesClass, 'getWithValidator')) {
+			(new $extraRulesClass())->getWithValidator($validator);
+		}
 	}
 
 }

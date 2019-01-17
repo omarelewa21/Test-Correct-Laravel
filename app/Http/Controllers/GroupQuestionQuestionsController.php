@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\DrawingQuestion;
 use tcCore\GroupQuestion;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
@@ -75,59 +76,95 @@ class GroupQuestionQuestionsController extends Controller {
         }
 
         $groupQuestion = $this->getAndValidateQuestionFromGroupQuestionQuestionManager($groupQuestionQuestionManager);
+        DB::beginTransaction();
+        try{
+            if ($request->get('question_id') === null) {
 
-        if ($request->get('question_id') === null) {
-            $question = Factory::makeQuestion($request->get('type'));
-            if (!$question) {
-                return Response::make('Failed to create question with factory', 500);
-            }
+                $question = Factory::makeQuestion($request->get('type'));
+                if (!$question) {
+                    return Response::make('Failed to create question with factory', 500);
+                }
 
-            $groupQuestionQuestion = new GroupQuestionQuestion();
-            $groupQuestionQuestion->fill($request->all());
-            $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
-            $groupQuestion = $groupQuestionQuestion->groupQuestion;
+                $groupQuestionQuestion = new GroupQuestionQuestion();
+                $groupQuestionQuestion->fill($request->all());
+                $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
+                $groupQuestion = $groupQuestionQuestion->groupQuestion;
 
-            $question->fill($request->all());
+                $qHelper = new QuestionHelper();
+                $questionData = [];
+                if($request->get('type') == 'CompletionQuestion') {
+                    $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+                }
 
-            $questionInstance = $question->getQuestionInstance();
-            if ($questionInstance->getAttribute('subject_id') === null) {
-                $questionInstance->setAttribute('subject_id', $groupQuestion->subject->getKey());
-            }
+                $question->fill(array_merge($request->all(),$questionData));
 
-            if ($questionInstance->getAttribute('education_level_id') === null) {
-                $questionInstance->setAttribute('education_level_id', $groupQuestion->educationLevel->getKey());
-            }
+                $questionInstance = $question->getQuestionInstance();
+                if ($questionInstance->getAttribute('subject_id') === null) {
+                    $questionInstance->setAttribute('subject_id', $groupQuestion->subject->getKey());
+                }
 
-            if ($questionInstance->getAttribute('education_level_year') === null) {
-                $questionInstance->setAttribute('education_level_year', $groupQuestion->getAttribute('education_level_year'));
-            }
+                if ($questionInstance->getAttribute('education_level_id') === null) {
+                    $questionInstance->setAttribute('education_level_id', $groupQuestion->educationLevel->getKey());
+                }
 
-            $questionInstance->setAttribute('is_subquestion', 1);
+                if ($questionInstance->getAttribute('education_level_year') === null) {
+                    $questionInstance->setAttribute('education_level_year', $groupQuestion->getAttribute('education_level_year'));
+                }
 
-            if ($question->save()) {
+                $questionInstance->setAttribute('is_subquestion', 1);
 
-                $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
+                if ($question->save()) {
 
+                    $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
+
+                    if($request->get('type') == 'CompletionQuestion') {
+                        /**
+                         * we don't need to check if this works, as there's an exception thrown on failure
+                         */
+                        $qHelper->storeAnswersForCompletionQuestion($groupQuestionQuestion, $questionData['answers']);
+                    }
+
+                    if ($groupQuestionQuestion->save()) {
+                        $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+                        return Response::make($groupQuestionQuestion, 200);
+                    } else {
+                        return Response::make('Failed to create group question question', 500);
+                    }
+                } else {
+                    return Response::make('Failed to create question', 500);
+                }
+
+            } else {
+                $groupQuestionQuestion = new GroupQuestionQuestion();
+                $qHelper = new QuestionHelper();
+                $questionData = [];
+                if($request->get('type') == 'CompletionQuestion') {
+                    $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+                }
+                $groupQuestionQuestion->fill(array_merge($request->all(),$questionData));
+
+                if($request->get('type') == 'CompletionQuestion') {
+                    /**
+                     * we don't need to check if this works, as there's an exception thrown on failure
+                     */
+                    $qHelper->storeAnswersForCompletionQuestion($groupQuestionQuestion, $questionData['answers']);
+                }
+
+                $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
                 if ($groupQuestionQuestion->save()) {
                     $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
                     return Response::make($groupQuestionQuestion, 200);
                 } else {
-                    return Response::make('Failed to create group question question', 500);
+                    throw new \Exception('Failed to create group question question', 500);
                 }
-            } else {
-                return Response::make('Failed to create question', 500);
-            }
-        } else {
-            $groupQuestionQuestion = new GroupQuestionQuestion();
-            $groupQuestionQuestion->fill($request->all());
-            $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
-            if ($groupQuestionQuestion->save()) {
-                $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
-                return Response::make($groupQuestionQuestion, 200);
-            } else {
-                return Response::make('Failed to create group question question', 500);
             }
         }
+        catch(\Exception $e){
+            DB::rollback();
+            return Response::make($e->getMessage(),500);
+        }
+        DB::commit();
+        return Response::make($groupQuestionQuestion,200);
     }
 
     /**

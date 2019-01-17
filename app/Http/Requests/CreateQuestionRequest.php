@@ -37,23 +37,57 @@ class CreateQuestionRequest extends Request {
 		$baseRules = $this->baseRules();
 
 		if ($this->has('type') && $this->input('type') !== 'Question') {
-			$extraRules = 'tcCore\Http\Requests\Create' . $this->input('type') . 'Request';
-			if (class_exists($extraRules) && method_exists($extraRules, 'rules')) {
-				return array_merge($baseRules, (new $extraRules())->rules());
+			$extraRulesClass = $this->getExtraRulesClass($this->input('type'));
+			if (class_exists($extraRulesClass) && method_exists($extraRulesClass, 'rules')) {
+				return array_merge($baseRules, (new $extraRulesClass())->rules());
 			}
 		}
 
 		return $baseRules;
 	}
 
+	protected function getExtraRulesClass($type){
+		return 'tcCore\Http\Requests\Create' . $type . 'Request';
+	}
+
 	/**
 	 * Get the sanitized input for the request.
 	 *
-	 * @return array
+	 * @return array172
 	 */
 	public function sanitize()
 	{
 		return $this->all();
+	}
+
+	/**
+	 * Get the validator instance for the request and
+	 * add attach callbacks to be run after validation
+	 * is completed.
+	 *
+	 * @return \Illuminate\Contracts\Validation\Validator
+	 */
+	protected function getValidatorInstance()
+	{
+		$validator = parent::getValidatorInstance();
+		$this->withValidator($validator);
+		return $validator;
+	}
+
+	/**
+	 * Configure the validator instance.
+	 *
+	 * @param  \Illuminate\Validation\Validator $validator
+	 * @return void
+	 */
+	// on version 5.7 this method is called but needs to be public.
+	// You need to remove the protected function getValidatorInstance() if that is the case.
+	private function withValidator($validator)
+	{
+		$extraRulesClass = $this->getExtraRulesClass($this->input('type'));
+		if (class_exists($extraRulesClass) && method_exists($extraRulesClass, 'getWithValidator')) {
+			(new $extraRulesClass())->getWithValidator($validator);
+		}
 	}
 
 }

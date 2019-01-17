@@ -159,4 +159,25 @@ class CompletionQuestion extends Question implements QuestionInterface {
 
         return $score;
     }
+
+//    /**
+//     * transform if needed for test, meaning that if there are no
+//     * answers available and it is a completion question, it means
+//     * that there's still some transformation needed towards
+//     * [aa] => [1]
+//     */
+//    public function transformIfNeededForTest()
+//    {
+//        if($this->subtype == 'completion' && $this->completionQuestionAnswerLinks->count() === 0) {
+//            $count = (object)['nr' => 0];
+//            $this->getQuestionInstance()->question = preg_replace_callback(
+//                '/\[(.*?)\]/i',
+//                function ($matches) use ($count) {
+//                    $count->nr++;
+//                    return '[' . $count->nr . ']';
+//                },
+//                $this->getQuestionInstance()->question
+//            );
+//        }
+//    }
 }

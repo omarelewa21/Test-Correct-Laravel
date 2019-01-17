@@ -39,7 +39,6 @@ class AnswersController extends Controller {
 						}
 					}
 				}
-				return Response::make($answers, 200);
 				break;
 			case 'paginate':
 			default:
@@ -51,9 +50,13 @@ class AnswersController extends Controller {
 						}
 					}
 				}
-				return Response::make($answers, 200);
 				break;
 		}
+
+//		foreach($answers as $answer){
+//			$answer->question->transformIfNeededForTest();
+//		}
+		return Response::make($answers, 200);
 	}
 
 	/**

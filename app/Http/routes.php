@@ -31,8 +31,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds']], fun
 	Route::resource('test_question', 'TestQuestionsController', ['except' => ['create', 'edit']]);
 	Route::resource('test_question.attachment', 'TestQuestions\AttachmentsController', ['except' => ['create', 'edit']]);
 
-	Route::delete('test_question/{test_question}/completion_question_answer', ['as' => 'test_question.completion_question_answer.destroy_all', 'uses' => 'TestQuestions\CompletionQuestionAnswersController@destroyAll']);
-	Route::resource('test_question.completion_question_answer', 'TestQuestions\CompletionQuestionAnswersController', ['except' => ['create', 'edit']]);
+//	Route::delete('test_question/{test_question}/completion_question_answer', ['as' => 'test_question.completion_question_answer.destroy_all', 'uses' => 'TestQuestions\CompletionQuestionAnswersController@destroyAll']);
+//	Route::resource('test_question.completion_question_answer', 'TestQuestions\CompletionQuestionAnswersController', ['except' => ['create', 'edit']]);
 
 	Route::delete('test_question/{test_question}/matching_question_answer', ['as' => 'test_question.matching_question_answer.destroy_all', 'uses' => 'TestQuestions\MatchingQuestionAnswersController@destroyAll']);
 	Route::resource('test_question.matching_question_answer', 'TestQuestions\MatchingQuestionAnswersController', ['except' => ['create', 'edit']]);
@@ -45,7 +45,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds']], fun
 
 	Route::resource('group_question_question.attachment', 'GroupQuestionQuestions\AttachmentsController', ['except' => ['create', 'edit']]);
 
-	Route::delete('group_question_question/{group_question_question}/completion_question_answer', ['as' => 'group_question_question.completion_question_answer.destroy_all', 'uses' => 'GroupQuestionQuestions\CompletionQuestionAnswersController@destroyAll']);
+//	Route::delete('group_question_question/{group_question_question}/completion_question_answer', ['as' => 'group_question_question.completion_question_answer.destroy_all', 'uses' => 'GroupQuestionQuestions\CompletionQuestionAnswersController@destroyAll']);
 	Route::resource('group_question_question.completion_question_answer', 'GroupQuestionQuestions\CompletionQuestionAnswersController', ['except' => ['create', 'edit']]);
 
 	Route::delete('group_question_question/{group_question_question}/matching_question_answer', ['as' => 'group_question_question.matching_question_answer.destroy_all', 'uses' => 'GroupQuestionQuestions\MatchingQuestionAnswersController@destroyAll']);
@@ -161,411 +161,411 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds']], fun
 	Route::resource('tag', 'TagsController', ['only' => ['index', 'show']]);
 });
 
-Route::bind('address', function($id) {
-	try {
-		return tcCore\Address::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Address not found');
-	}
-});
-
-Route::bind('answer_rating', function($id) {
-	try {
-		return tcCore\AnswerRating::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Answer rating not found');
-	}
-});
-
-Route::bind('answer', function($id) {
-	try {
-		return tcCore\Answer::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Answer not found');
-	}
-});
-
-Route::bind('attachment', function($id) {
-	try {
-		return tcCore\Attachment::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Attachment not found');
-	}
-});
-
-Route::bind('attainment', function($id) {
-	try {
-		return tcCore\Attainment::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Attainment not found');
-	}
-});
-
-Route::bind('base_subject', function($id) {
-	try {
-		return tcCore\Question::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Base subject not found');
-	}
-});
-
-Route::bind('completion_question_answer', function($id) {
-	try {
-		return tcCore\CompletionQuestionAnswer::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Completion question answer not found');
-	}
-});
-
-Route::bind('completion_question', function($id) {
-	try {
-		return tcCore\CompletionQuestion::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Completion question not found');
-	}
-});
-
-Route::bind('contact', function($id) {
-	try {
-		return tcCore\Contact::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Contact not found');
-	}
-});
-
-Route::bind('drawing_question', function($id) {
-	try {
-		return tcCore\DrawingQuestion::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Drawing question not found');
-	}
-});
-
-Route::bind('education_level', function($id) {
-	try {
-		return tcCore\EducationLevel::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Education level not found');
-	}
-});
-
-Route::bind('grading_score', function($id) {
-	try {
-		return tcCore\GradingScale::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Grading scale not found');
-	}
-});
-
-Route::bind('group_question', function($id) {
-	try {
-		return tcCore\GroupQuestion::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Group question not found');
-	}
-});
-
-Route::bind('group_question_question', function($id) {
-	try {
-		return tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstance($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Group question question path not found');
-	}
-});
-
-Route::bind('group_question_question_id', function($id) {
-	try {
-		return tcCore\GroupQuestionQuestion::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Group question question not found');
-	}
-});
-
-/**
-Route::bind('invigilator', function($id) {
-try {
-return tcCore\Invigilator::findOrFail($id);
-} catch(ModelNotFoundException $e) {
-throw new NotFoundHttpException('Invigilator not found');
-}
-});
-*/
-
-Route::bind('license', function($id) {
-	try {
-		return tcCore\License::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('License not found');
-	}
-});
-
-Route::bind('matching_question_answer', function($id) {
-	try {
-		return tcCore\MatchingQuestionAnswer::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Matching question answer not found');
-	}
-});
-
-Route::bind('matching_question', function($id) {
-	try {
-		return tcCore\MatchingQuestion::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Matching question not found');
-	}
-});
-
-Route::bind('message', function($id) {
-	try {
-		return tcCore\Message::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Message not found');
-	}
-});
-
-Route::bind('multiple_choice_question_answer', function($id) {
-	try {
-		return tcCore\MultipleChoiceQuestionAnswer::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Multiple choice question answer not found');
-	}
-});
-
-Route::bind('multiple_choice_question', function($id) {
-	try {
-		return tcCore\MultipleChoiceQuestion::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Multiple choice question not found');
-	}
-});
-
-Route::bind('open_question', function($id) {
-	try {
-		return tcCore\OpenQuestion::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Open question not found');
-	}
-});
-
-Route::bind('period', function($id) {
-	try {
-		return tcCore\Period::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Period not found');
-	}
-});
-
-Route::bind('question', function($id) {
-	try {
-		return tcCore\Question::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Question not found');
-	}
-});
-
-Route::bind('ranking_question_answer', function($id) {
-	try {
-		return tcCore\RankingQuestionAnswer::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Ranking question answer not found');
-	}
-});
-
-Route::bind('ranking_question', function($id) {
-	try {
-		return tcCore\RankingQuestion::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Ranking question not found');
-	}
-});
-
-Route::bind('role', function($id) {
-	try {
-		return tcCore\Role::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Role not found');
-	}
-});
-
-Route::bind('sales_organisation', function($id) {
-	try {
-		return tcCore\SalesOrganization::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Sales organization not found');
-	}
-});
-
-Route::bind('school_class', function($id) {
-	try {
-		return tcCore\SchoolClass::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('School class not found');
-	}
-});
-
-Route::bind('school_location', function($id) {
-	try {
-		return tcCore\SchoolLocation::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('School location not found');
-	}
-});
-
-Route::bind('school_location_ip', function($id) {
-	try {
-		return tcCore\SchoolLocationIp::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('School location ip not found');
-	}
-});
-
-Route::bind('school_year', function($id) {
-	try {
-		return tcCore\SchoolYear::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('School year not found');
-	}
-});
-
-Route::bind('school', function($id) {
-	try {
-		return tcCore\School::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('School not found');
-	}
-});
-
-Route::bind('section', function($id) {
-	try {
-		return tcCore\Section::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Section not found');
-	}
-});
-
-/**
-Route::bind('student', function($id) {
-	try {
-		return tcCore\Student::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Student not found');
-	}
-});
-*/
-
-Route::bind('subject', function($id) {
-	try {
-		return tcCore\Subject::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Subject not found');
-	}
-});
-
-Route::bind('tag', function($id) {
-	try {
-		return tcCore\Tag::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Tag not found');
-	}
-});
-
-
-Route::bind('teacher', function($id) {
-	try {
-		return tcCore\Teacher::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Teacher not found');
-	}
-});
-
-
-
-Route::bind('test_kind', function($id) {
-	try {
-		return tcCore\TestKind::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Test kind not found');
-	}
-});
-
-Route::bind('test_participant', function($id) {
-	try {
-		return tcCore\TestParticipant::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Test participant not found');
-	}
-});
-
-Route::bind('test_question', function($id) {
-	try {
-		return tcCore\TestQuestion::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Test question not found');
-	}
-});
-
-Route::bind('test_take_event', function($id) {
-	try {
-		return tcCore\TestTakeEvent::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Test take event not found');
-	}
-});
-
-Route::bind('test_take_event_type', function($id) {
-	try {
-		return tcCore\TestTakeEventType::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Test take event type not found');
-	}
-});
-
-Route::bind('test_take_status', function($id) {
-	try {
-		return tcCore\TestTakeStatus::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Test take status not found');
-	}
-});
-
-Route::bind('test_take', function($id) {
-	try {
-		return tcCore\TestTake::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Test take not found');
-	}
-});
-
-Route::bind('test', function($id) {
-	try {
-		return tcCore\Test::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Test not found');
-	}
-});
-
-Route::bind('umbrella_organization', function($id) {
-	try {
-		return tcCore\UmbrellaOrganization::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Umbrella organization not found');
-	}
-});
-
-/**
-Route::bind('user_role', function($id) {
-	try {
-		return tcCore\UserRole::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('User role not found');
-	}
-});
-*/
-
-Route::bind('user', function($id) {
-	try {
-		return tcCore\User::findOrFail($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('User not found');
-	}
-});
+//Route::bind('address', function($id) {
+//	try {
+//		return tcCore\Address::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Address not found');
+//	}
+//});
+//
+//Route::bind('answer_rating', function($id) {
+//	try {
+//		return tcCore\AnswerRating::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Answer rating not found');
+//	}
+//});
+//
+//Route::bind('answer', function($id) {
+//	try {
+//		return tcCore\Answer::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Answer not found');
+//	}
+//});
+//
+//Route::bind('attachment', function($id) {
+//	try {
+//		return tcCore\Attachment::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Attachment not found');
+//	}
+//});
+//
+//Route::bind('attainment', function($id) {
+//	try {
+//		return tcCore\Attainment::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Attainment not found');
+//	}
+//});
+//
+//Route::bind('base_subject', function($id) {
+//	try {
+//		return tcCore\Question::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Base subject not found');
+//	}
+//});
+//
+//Route::bind('completion_question_answer', function($id) {
+//	try {
+//		return tcCore\CompletionQuestionAnswer::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Completion question answer not found');
+//	}
+//});
+//
+//Route::bind('completion_question', function($id) {
+//	try {
+//		return tcCore\CompletionQuestion::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Completion question not found');
+//	}
+//});
+//
+//Route::bind('contact', function($id) {
+//	try {
+//		return tcCore\Contact::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Contact not found');
+//	}
+//});
+//
+//Route::bind('drawing_question', function($id) {
+//	try {
+//		return tcCore\DrawingQuestion::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Drawing question not found');
+//	}
+//});
+//
+//Route::bind('education_level', function($id) {
+//	try {
+//		return tcCore\EducationLevel::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Education level not found');
+//	}
+//});
+//
+//Route::bind('grading_score', function($id) {
+//	try {
+//		return tcCore\GradingScale::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Grading scale not found');
+//	}
+//});
+//
+//Route::bind('group_question', function($id) {
+//	try {
+//		return tcCore\GroupQuestion::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Group question not found');
+//	}
+//});
+//
+//Route::bind('group_question_question', function($id) {
+//	try {
+//		return tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstance($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Group question question path not found');
+//	}
+//});
+//
+//Route::bind('group_question_question_id', function($id) {
+//	try {
+//		return tcCore\GroupQuestionQuestion::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Group question question not found');
+//	}
+//});
+//
+///**
+//Route::bind('invigilator', function($id) {
+//try {
+//return tcCore\Invigilator::findOrFail($id);
+//} catch(ModelNotFoundException $e) {
+//throw new NotFoundHttpException('Invigilator not found');
+//}
+//});
+//*/
+//
+//Route::bind('license', function($id) {
+//	try {
+//		return tcCore\License::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('License not found');
+//	}
+//});
+//
+//Route::bind('matching_question_answer', function($id) {
+//	try {
+//		return tcCore\MatchingQuestionAnswer::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Matching question answer not found');
+//	}
+//});
+//
+//Route::bind('matching_question', function($id) {
+//	try {
+//		return tcCore\MatchingQuestion::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Matching question not found');
+//	}
+//});
+//
+//Route::bind('message', function($id) {
+//	try {
+//		return tcCore\Message::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Message not found');
+//	}
+//});
+//
+//Route::bind('multiple_choice_question_answer', function($id) {
+//	try {
+//		return tcCore\MultipleChoiceQuestionAnswer::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Multiple choice question answer not found');
+//	}
+//});
+//
+//Route::bind('multiple_choice_question', function($id) {
+//	try {
+//		return tcCore\MultipleChoiceQuestion::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Multiple choice question not found');
+//	}
+//});
+//
+//Route::bind('open_question', function($id) {
+//	try {
+//		return tcCore\OpenQuestion::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Open question not found');
+//	}
+//});
+//
+//Route::bind('period', function($id) {
+//	try {
+//		return tcCore\Period::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Period not found');
+//	}
+//});
+//
+//Route::bind('question', function($id) {
+//	try {
+//		return tcCore\Question::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Question not found');
+//	}
+//});
+//
+//Route::bind('ranking_question_answer', function($id) {
+//	try {
+//		return tcCore\RankingQuestionAnswer::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Ranking question answer not found');
+//	}
+//});
+//
+//Route::bind('ranking_question', function($id) {
+//	try {
+//		return tcCore\RankingQuestion::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Ranking question not found');
+//	}
+//});
+//
+//Route::bind('role', function($id) {
+//	try {
+//		return tcCore\Role::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Role not found');
+//	}
+//});
+//
+//Route::bind('sales_organisation', function($id) {
+//	try {
+//		return tcCore\SalesOrganization::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Sales organization not found');
+//	}
+//});
+//
+//Route::bind('school_class', function($id) {
+//	try {
+//		return tcCore\SchoolClass::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('School class not found');
+//	}
+//});
+//
+//Route::bind('school_location', function($id) {
+//	try {
+//		return tcCore\SchoolLocation::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('School location not found');
+//	}
+//});
+//
+//Route::bind('school_location_ip', function($id) {
+//	try {
+//		return tcCore\SchoolLocationIp::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('School location ip not found');
+//	}
+//});
+//
+//Route::bind('school_year', function($id) {
+//	try {
+//		return tcCore\SchoolYear::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('School year not found');
+//	}
+//});
+//
+//Route::bind('school', function($id) {
+//	try {
+//		return tcCore\School::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('School not found');
+//	}
+//});
+//
+//Route::bind('section', function($id) {
+//	try {
+//		return tcCore\Section::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Section not found');
+//	}
+//});
+//
+///**
+//Route::bind('student', function($id) {
+//	try {
+//		return tcCore\Student::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Student not found');
+//	}
+//});
+//*/
+//
+//Route::bind('subject', function($id) {
+//	try {
+//		return tcCore\Subject::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Subject not found');
+//	}
+//});
+//
+//Route::bind('tag', function($id) {
+//	try {
+//		return tcCore\Tag::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Tag not found');
+//	}
+//});
+//
+//
+//Route::bind('teacher', function($id) {
+//	try {
+//		return tcCore\Teacher::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Teacher not found');
+//	}
+//});
+//
+//
+//
+//Route::bind('test_kind', function($id) {
+//	try {
+//		return tcCore\TestKind::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Test kind not found');
+//	}
+//});
+//
+//Route::bind('test_participant', function($id) {
+//	try {
+//		return tcCore\TestParticipant::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Test participant not found');
+//	}
+//});
+//
+//Route::bind('test_question', function($id) {
+//	try {
+//		return tcCore\TestQuestion::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Test question not found');
+//	}
+//});
+//
+//Route::bind('test_take_event', function($id) {
+//	try {
+//		return tcCore\TestTakeEvent::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Test take event not found');
+//	}
+//});
+//
+//Route::bind('test_take_event_type', function($id) {
+//	try {
+//		return tcCore\TestTakeEventType::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Test take event type not found');
+//	}
+//});
+//
+//Route::bind('test_take_status', function($id) {
+//	try {
+//		return tcCore\TestTakeStatus::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Test take status not found');
+//	}
+//});
+//
+//Route::bind('test_take', function($id) {
+//	try {
+//		return tcCore\TestTake::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Test take not found');
+//	}
+//});
+//
+//Route::bind('test', function($id) {
+//	try {
+//		return tcCore\Test::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Test not found');
+//	}
+//});
+//
+//Route::bind('umbrella_organization', function($id) {
+//	try {
+//		return tcCore\UmbrellaOrganization::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Umbrella organization not found');
+//	}
+//});
+//
+///**
+//Route::bind('user_role', function($id) {
+//	try {
+//		return tcCore\UserRole::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('User role not found');
+//	}
+//});
+//*/
+//
+//Route::bind('user', function($id) {
+//	try {
+//		return tcCore\User::findOrFail($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('User not found');
+//	}
+//});

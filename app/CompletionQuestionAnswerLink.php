@@ -5,7 +5,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
 
-class CompletionQuestionAnswerLink extends CompositePrimaryKeyModel {
+class CompletionQuestionAnswerLink extends CompositePrimaryKeyModel
+{
 
     use CompositePrimaryKeyModelSoftDeletes;
 

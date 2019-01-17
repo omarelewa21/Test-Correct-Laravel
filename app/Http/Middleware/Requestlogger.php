@@ -47,7 +47,7 @@ class RequestLogger
             'created_at' => date("Y-m-d H:i:s"),
             'user_id' => Auth::user() ? Auth::user()->id : null,
             'user_agent' => $request->header('User-Agent'),
-            'success' => $response->status() === 200
+            'success' => $response->getStatusCode() === 200
         ];
         Log::create($record);
     }

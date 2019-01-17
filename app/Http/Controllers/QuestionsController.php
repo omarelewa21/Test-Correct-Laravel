@@ -46,6 +46,8 @@ class QuestionsController extends Controller {
             $question->loadRelated();
         }
 
+//        $question->transformIfNeededForTest();
+
         return Response::make($question, 200);
     }
 
