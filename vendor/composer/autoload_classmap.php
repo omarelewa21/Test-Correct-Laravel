@@ -53,6 +53,7 @@ return array(
     'CreateFailedJobsTable' => $baseDir . '/database/migrations/2015_10_30_093146_create_failed_jobs_table.php',
     'CreateInvigilatorsTable' => $baseDir . '/database/migrations/2015_03_11_081125_create_invigilators_table.php',
     'CreateLicensesTable' => $baseDir . '/database/migrations/2015_03_11_081125_create_licenses_table.php',
+    'CreateLogsTable' => $baseDir . '/database/migrations/2018_12_20_160256_create_logs_table.php',
     'CreateMatchingQuestionAnswersTable' => $baseDir . '/database/migrations/2015_03_11_081125_create_matching_question_answers_table.php',
     'CreateMatchingQuestionsTable' => $baseDir . '/database/migrations/2015_03_11_081125_create_matching_questions_table.php',
     'CreateMultipleChoiceQuestionAnswersTable' => $baseDir . '/database/migrations/2015_03_11_081125_create_multiple_choice_question_answers_table.php',
