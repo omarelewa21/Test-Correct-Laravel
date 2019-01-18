@@ -706,7 +706,13 @@ class Question extends MtiBaseModel {
         }
     }
 
-    public function extractAnswers(){
+    public function deleteAnswers(){}
 
-    }
+    /**
+     * @param $mainQuestion either TestQuestion or GroupQuestionQuestion
+     * @param $answers
+     * @return array
+     * @throws \Exception
+     */
+    public function addAnswers($mainQuestion, $answers){}
 }

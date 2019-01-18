@@ -160,6 +160,67 @@ class CompletionQuestion extends Question implements QuestionInterface {
         return $score;
     }
 
+    public function deleteAnswers(){
+        $this->completionQuestionAnswerLinks->each(function($cQAL){
+            if (!$cQAL->delete()) {
+                throw new \Exception('Failed to delete completion question answer link', 500);
+            }
+
+            if ($cQAL->completionQuestionAnswer->isUsed($cQAL, false)) {
+                throw new \Exception(sprintf('Failed to delete the question answer, completionQuestionAnswer with id %d is still used',$cQAL->completionQuestionAnswer->id),500);
+            } else {
+                if (!$cQAL->completionQuestionAnswer->delete()) {
+                    throw new \Exception('Failed to delete completion question answer', 500);
+                }
+            }
+        });
+        return true;
+    }
+
+    /**
+     * @param $mainQuestion either TestQuestion or GroupQuestionQuestion
+     * @param $answers
+     * @return CompletionQuestion model
+     * @throws \Exception
+     */
+    public function addAnswers($mainQuestion,$answers){
+        $question = $this;
+        if ($this->isUsed($mainQuestion)) {
+            $question = $this->duplicate([]);
+            if ($question === false) {
+                throw new \Exception('Failed to duplicate question');
+            }
+            $mainQuestion->setAttribute('question_id', $question->getKey());
+
+            if (!$mainQuestion->save()) {
+                throw new \Exception('Failed to update test question');
+            }
+        }
+
+        if (!QuestionAuthor::addAuthorToQuestion($question)) {
+            throw new \Exception('Failed to attach author to question');
+        }
+
+        $returnAnswers = [];
+        foreach($answers as $answerDetails) {
+            $completionQuestionAnswer = new CompletionQuestionAnswer();
+
+            $completionQuestionAnswer->fill($answerDetails);
+            if (!$completionQuestionAnswer->save()) {
+                throw new \Exception('Failed to create completion question answer');
+            }
+
+            $completionQuestionAnswerLink = new CompletionQuestionAnswerLink();
+            $completionQuestionAnswerLink->setAttribute('completion_question_id', $question->getKey());
+            $completionQuestionAnswerLink->setAttribute('completion_question_answer_id', $completionQuestionAnswer->getKey());
+
+            if (!$completionQuestionAnswerLink->save()) {
+                throw new \Exception('Failed to create completion question answer link');
+            }
+        }
+        return true;
+    }
+
 //    /**
 //     * transform if needed for test, meaning that if there are no
 //     * answers available and it is a completion question, it means

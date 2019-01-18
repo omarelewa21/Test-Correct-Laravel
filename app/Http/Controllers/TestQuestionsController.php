@@ -176,7 +176,8 @@ class TestQuestionsController extends Controller {
      * @param UpdateTestQuestionRequest $request
      * @return Response
      */
-    public function update(TestQuestion $testQuestion, UpdateTestQuestionRequest $request)
+    // UpdateTestQuestionRequest
+    public function update(TestQuestion $testQuestion,  UpdateTestQuestionRequest $request)
     {
         // Fill and check if question is modified
         $question = $testQuestion->question;
@@ -185,7 +186,7 @@ class TestQuestionsController extends Controller {
         try {
             $qHelper = new QuestionHelper();
             $questionData = [];
-            if($question->type == 'CompletionQuestion') {
+            if($question->getQuestionInstance()->type == 'CompletionQuestion') {
                 $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
             }
 
@@ -212,15 +213,15 @@ class TestQuestionsController extends Controller {
 //            DB::enableQueryLog();
             // Save the link
             if ($testQuestion->save()) {
-                if($request->get('type') == 'CompletionQuestion') {
+                if($questionInstance->type == 'CompletionQuestion') {
                     // delete old answers
-                    $qHelper->deleteCompletionQuestionAnswers($question);
+                    $question->deleteAnswers($question);
 
                     // add new answers
-                    $qHelper->storeAnswersForCompletionQuestion($testQuestion,$questionData);
+                    $question->addAnswers($testQuestion,$questionData['answers']);
                 }
 //                Log::debug(DB::getQueryLog());
-                return Response::make($testQuestion, 200);
+//                return Response::make($testQuestion, 200);
             } else {
                 throw new \Exception('Failed to update test question');
             }

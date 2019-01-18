@@ -101,17 +101,15 @@ class QuestionHelper extends BaseHelper
 
     public function deleteCompletionQuestionAnswers(CompletionQuestion $question)
     {
-        $completionQuestionAnswerLink = $question->completionQuestionAnswerLink;
-        if (!$completionQuestionAnswerLink->delete()) {
-            throw new \Exception('Failed to delete completion question answer link', 500);
-        }
+        $question->completionQuestionAnswerLinks->each(function($cQAL){
+            if (!$cQAL->delete()) {
+                throw new \Exception('Failed to delete completion question answer link', 500);
+            }
 
-        $question->completionQuestionAnswers->each(function($completionQuestionAnswer) use ($completionQuestionAnswerLink) {
-
-            if ($completionQuestionAnswer->isUsed($completionQuestionAnswerLink)) {
-                throw new \Exception($completionQuestionAnswer);
+            if ($cQAL->completionQuestionAnswer->isUsed($cQAL, false)) {
+                throw new \Exception(sprintf('Failed to delete the question answer, completionQuestionAnswer with id %d is still used',$cQAL->completionQuestionAnswer->id),500);
             } else {
-                if (!$completionQuestionAnswer->delete()) {
+                if (!$cQAL->completionQuestionAnswer->delete()) {
                     throw new \Exception('Failed to delete completion question answer', 500);
                 }
             }

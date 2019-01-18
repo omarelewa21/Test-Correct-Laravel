@@ -81,8 +81,13 @@ class CompletionQuestionAnswer extends BaseModel {
     }
 
 
-    public function isUsed($ignoreRelationTo) {
-        $uses = $this->completionQuestionAnswerLinks()->withTrashed();
+    public function isUsed($ignoreRelationTo, $withTrashed = true) {
+        if($withTrashed) {
+            $uses = $this->completionQuestionAnswerLinks()->withTrashed();
+        }
+        else{
+            $uses = $this->completionQuestionAnswerLinks();
+        }
 
         if ($ignoreRelationTo instanceof CompletionQuestion) {
             $ignoreRelationTo->where('completion_question_id', '!=', $ignoreRelationTo->getKey());
