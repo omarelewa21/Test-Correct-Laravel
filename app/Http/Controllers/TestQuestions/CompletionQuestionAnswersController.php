@@ -56,25 +56,25 @@ class CompletionQuestionAnswersController extends Controller {
             if ($question->isUsed($testQuestion)) {
                 $question = $question->duplicate([]);
                 if ($question === false) {
-                    return Response::make('Failed to duplicate question', 500);
+                    return Response::make('Failed to duplicate question', 422);
                 }
 
                 $testQuestion->setAttribute('question_id', $question->getKey());
 
                 if (!$testQuestion->save()) {
-                    return Response::make('Failed to update test question', 500);
+                    return Response::make('Failed to update test question', 422);
                 }
             }
 
             if (!QuestionAuthor::addAuthorToQuestion($question)) {
-                return Response::make('Failed to attach author to question', 500);
+                return Response::make('Failed to attach author to question', 422);
             }
 
             $completionQuestionAnswer = new CompletionQuestionAnswer();
 
             $completionQuestionAnswer->fill($request->only($completionQuestionAnswer->getFillable()));
             if (!$completionQuestionAnswer->save()) {
-                return Response::make('Failed to create completion question answer', 500);
+                return Response::make('Failed to create completion question answer', 422);
             }
 
             $completionQuestionAnswerLink = new CompletionQuestionAnswerLink();
@@ -85,7 +85,7 @@ class CompletionQuestionAnswersController extends Controller {
             if($completionQuestionAnswerLink->save()) {
                 return Response::make($completionQuestionAnswer, 200);
             } else {
-                return Response::make('Failed to create completion question answer link', 500);
+                return Response::make('Failed to create completion question answer link', 422);
             }
         }
     }
@@ -135,24 +135,24 @@ class CompletionQuestionAnswersController extends Controller {
                 if (($questionDuplicated = $question->isUsed($testQuestion))) {
                     $question = $question->duplicate([], $completionQuestionAnswer);
                     if ($question === false) {
-                        return Response::make('Failed to duplicate question', 500);
+                        return Response::make('Failed to duplicate question', 422);
                     }
 
                     if ($completionQuestionAnswer->isDirty()) {
                         $completionQuestionAnswer = $completionQuestionAnswer->duplicate($question, $request->all());
                         if ($completionQuestionAnswer === false) {
-                            return Response::make('Failed to duplicate and update completion question answer', 500);
+                            return Response::make('Failed to duplicate and update completion question answer', 422);
                         }
                         $completionQuestionAnswerLink->setAttribute('completion_question_answer_id', $completionQuestionAnswer->getKey());
                     }
 
                     if (!QuestionAuthor::addAuthorToQuestion($question)) {
-                        return Response::make('Failed to attach author to question', 500);
+                        return Response::make('Failed to attach author to question', 4422);
                     }
 
                     $testQuestion->setAttribute('question_id', $question->getKey());
                     if ($questionDuplicated && !$testQuestion->save()) {
-                        return Response::make('Failed to update test question', 500);
+                        return Response::make('Failed to update test question', 422);
                     } else {
                         return Response::make($completionQuestionAnswer, 200);
                     }
@@ -160,19 +160,19 @@ class CompletionQuestionAnswersController extends Controller {
                     if ($completionQuestionAnswer->isDirty()) {
                         $completionQuestionAnswer = $completionQuestionAnswer->duplicate($question, $request->all());
                         if ($completionQuestionAnswer === false) {
-                            return Response::make('Failed to duplicate and update completion question answer', 500);
+                            return Response::make('Failed to duplicate and update completion question answer', 422);
                         }
                         $completionQuestionAnswerLink->setAttribute('completion_question_answer_id', $completionQuestionAnswer->getKey());
                     }
 
                     if (!QuestionAuthor::addAuthorToQuestion($question)) {
-                        return Response::make('Failed to attach author to question', 500);
+                        return Response::make('Failed to attach author to question', 422);
                     }
 
                     if ($question->completionQuestionAnswers()->save($completionQuestionAnswer) !== false) {
                         return Response::make($completionQuestionAnswer, 200);
                     } else {
-                        return Response::make('Failed to update completion question answer', 500);
+                        return Response::make('Failed to update completion question answer', 422);
                     }
                 }
             } else {
@@ -200,22 +200,22 @@ class CompletionQuestionAnswersController extends Controller {
             if ($question->isUsed($testQuestion)) {
                 $question = $question->duplicate([], $completionQuestionAnswer);
                 if ($question === false) {
-                    return Response::make('Failed to duplicate question', 500);
+                    return Response::make('Failed to duplicate question', 422);
                 }
 
                 $testQuestion->setAttribute('question_id', $question->getKey());
                 if (!$testQuestion->save()) {
-                    return Response::make('Failed to update test question', 500);
+                    return Response::make('Failed to update test question', 422);
                 }
             }
 
             if (!QuestionAuthor::addAuthorToQuestion($question)) {
-                return Response::make('Failed to attach author to question', 500);
+                return Response::make('Failed to attach author to question', 422);
             }
 
             $completionQuestionAnswerLink = $question->completionQuestionAnswers()->withTrashed()->where('completion_question_answer_id', $completionQuestionAnswer->getKey())->first();
             if (!$completionQuestionAnswerLink->delete()) {
-                return Response::make('Failed to delete completion question answer link', 500);
+                return Response::make('Failed to delete completion question answer link', 422);
             }
 
             if ($completionQuestionAnswer->isUsed($completionQuestionAnswerLink)) {
@@ -224,7 +224,7 @@ class CompletionQuestionAnswersController extends Controller {
                 if ($completionQuestionAnswer->delete() ) {
                     return Response::make($completionQuestionAnswer, 200);
                 } else {
-                    return Response::make('Failed to delete completion question answer', 500);
+                    return Response::make('Failed to delete completion question answer', 422);
                 }
             }
         }
@@ -238,12 +238,12 @@ class CompletionQuestionAnswersController extends Controller {
             if ($question->isUsed($testQuestion)) {
                 $question = $question->duplicate([], null);
                 if ($question === false) {
-                    return Response::make('Failed to duplicate question', 500);
+                    return Response::make('Failed to duplicate question', 422);
                 }
             }
 
             if (!QuestionAuthor::addAuthorToQuestion($question)) {
-                return Response::make('Failed to attach author to question', 500);
+                return Response::make('Failed to attach author to question', 422);
             }
 
             $completionQuestionAnswerLinks = $question->completionQuestionAnswerLinks()->with('completionQuestionAnswer')->get();
@@ -254,12 +254,12 @@ class CompletionQuestionAnswersController extends Controller {
                 //     $completionQuestionAnswer = $completionQuestionAnswerLink->completionQuestionAnswer;
 
                 //     if($completionQuestionAnswer->isUsed($completionQuestionAnswerLink) && !$completionQuestionAnswer->delete()) {
-                //         Response::make('Failed to delete completion question answer', 500);
+                //         Response::make('Failed to delete completion question answer', 422);
                 //     }
                 // }
                 return Response::make($completionQuestionAnswerLinks, 200);
             } else {
-                return Response::make('Failed to delete completion question answers', 500);
+                return Response::make('Failed to delete completion question answers', 422);
             }
         }
     }

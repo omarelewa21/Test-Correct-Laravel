@@ -2,6 +2,7 @@
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use tcCore\Jobs\SendExceptionMail;
 
 class Handler extends ExceptionHandler {
 
@@ -40,6 +41,13 @@ class Handler extends ExceptionHandler {
 		{
 			return $this->renderHttpException($e);
 		}
+		else if($e instanceof QuestionException){
+            dispatch(
+                new SendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails())
+            );
+
+            throw new HttpResponseException($e,422);
+        }
 		else
 		{
 			return parent::render($request, $e);

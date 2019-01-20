@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\DrawingQuestion;
+use tcCore\Exceptions\QuestionException;
 use tcCore\GroupQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests;
@@ -82,7 +83,7 @@ class GroupQuestionQuestionsController extends Controller {
 
                 $question = Factory::makeQuestion($request->get('type'));
                 if (!$question) {
-                    return Response::make('Failed to create question with factory', 500);
+                    throw new QuestionException('Failed to create question with factory', 500);
                 }
 
                 $groupQuestionQuestion = new GroupQuestionQuestion();
@@ -117,21 +118,28 @@ class GroupQuestionQuestionsController extends Controller {
 
                     $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
 
-                    if($request->get('type') == 'CompletionQuestion') {
-                        /**
-                         * we don't need to check if this works, as there's an exception thrown on failure
-                         */
-                        $qHelper->storeAnswersForCompletionQuestion($groupQuestionQuestion, $questionData['answers']);
-                    }
+//                    if($request->get('type') == 'CompletionQuestion') {
+//                        /**
+//                         * we don't need to check if this works, as there's an exception thrown on failure
+//                         */
+//                        $qHelper->storeAnswersForCompletionQuestion($groupQuestionQuestion, $questionData['answers']);
+//                    }
 
                     if ($groupQuestionQuestion->save()) {
+                        if($request->get('type') == 'CompletionQuestion') {
+//                        // delete old answers
+//                        $question->deleteAnswers($question);
+
+                            // add new answers
+                            $groupQuestionQuestion->question->addAnswers($groupQuestionQuestion,$questionData['answers']);
+                        }
                         $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
-                        return Response::make($groupQuestionQuestion, 200);
+//                        return Response::make($groupQuestionQuestion, 200);
                     } else {
-                        return Response::make('Failed to create group question question', 500);
+                        throw new QuestionException('Failed to create group question question', 500);
                     }
                 } else {
-                    return Response::make('Failed to create question', 500);
+                    throw new QuestionException('Failed to create question', 500);
                 }
 
             } else {
@@ -143,19 +151,27 @@ class GroupQuestionQuestionsController extends Controller {
                 }
                 $groupQuestionQuestion->fill(array_merge($request->all(),$questionData));
 
-                if($request->get('type') == 'CompletionQuestion') {
-                    /**
-                     * we don't need to check if this works, as there's an exception thrown on failure
-                     */
-                    $qHelper->storeAnswersForCompletionQuestion($groupQuestionQuestion, $questionData['answers']);
-                }
+//                if($request->get('type') == 'CompletionQuestion') {
+//                    /**
+//                     * we don't need to check if this works, as there's an exception thrown on failure
+//                     */
+//                    $qHelper->storeAnswersForCompletionQuestion($groupQuestionQuestion, $questionData['answers']);
+//                }
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
                 if ($groupQuestionQuestion->save()) {
+                    if($request->get('type') == 'CompletionQuestion') {
+//                        // delete old answers
+//                        $question->deleteAnswers($question);
+
+                        // add new answers
+                        $groupQuestionQuestion->question->addAnswers($groupQuestionQuestion,$questionData['answers']);
+                    }
+
                     $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
-                    return Response::make($groupQuestionQuestion, 200);
+//                    return Response::make($groupQuestionQuestion, 200);
                 } else {
-                    throw new \Exception('Failed to create group question question', 500);
+                    throw new QuestionException('Failed to create group question question', 500);
                 }
             }
         }
@@ -204,61 +220,83 @@ class GroupQuestionQuestionsController extends Controller {
 
         // Fill and check if question is modified
         $question = $groupQuestionQuestion->question;
+        DB::beginTransaction();
+        try {
+            $qHelper = new QuestionHelper();
+            $questionData = [];
+            if ($question->getQuestionInstance()->type == 'CompletionQuestion') {
+                $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+            }
 
-        $question->fill($request->all());
-        $questionInstance = $question->getQuestionInstance();
-
-        $groupQuestionQuestionOriginal = $groupQuestionQuestion;
-        $groupQuestionQuestion->fill($request->all());
-
-        // $groupQuestionQuestionManager->isUsed();
-
-
-        if ( 
-            ( $groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion) ) && 
-            ( $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
-            // return Response::make(var_dump($groupQuestionQuestionManager), 500);
-            $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
-            $groupQuestionQuestion = $groupQuestionQuestion->duplicate(
-                $groupQuestionQuestionManager->getQuestionLink()->question,
-                [
-                    'group_question_id' => $groupQuestionQuestionManager->getQuestionLink()->getAttribute('group_question')
-                ]
-            );
-
-            $question = $groupQuestionQuestion->question;
             $question->fill($request->all());
             $questionInstance = $question->getQuestionInstance();
 
-             $groupQuestionQuestion->setAttribute('group_question_id', $testQuestion->getAttribute('question_id'));
+            $groupQuestionQuestionOriginal = $groupQuestionQuestion;
+            $groupQuestionQuestion->fill($request->all());
 
-            // return Response::make(json_encode($testQuestion->getAttribute('question_id')), 500);
-        }
+            // $groupQuestionQuestionManager->isUsed();
 
-        // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-        if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
-            if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
-                $question = $question->duplicate($request->all());
-                if ($question === false) {
-                    return Response::make('Failed to duplicate question', 500);
+
+            if (
+                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) &&
+                ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
+                // return Response::make(var_dump($groupQuestionQuestionManager), 500);
+                $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
+                $groupQuestionQuestion = $groupQuestionQuestion->duplicate(
+                    $groupQuestionQuestionManager->getQuestionLink()->question,
+                    [
+                        'group_question_id' => $groupQuestionQuestionManager->getQuestionLink()->getAttribute('group_question')
+                    ]
+                );
+
+                $question = $groupQuestionQuestion->question;
+                $question->fill($request->all());
+                $questionInstance = $question->getQuestionInstance();
+
+                $groupQuestionQuestion->setAttribute('group_question_id', $testQuestion->getAttribute('question_id'));
+
+                // return Response::make(json_encode($testQuestion->getAttribute('question_id')), 500);
+            }
+
+            // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
+            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+                if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
+                    $question = $question->duplicate($request->all());
+                    if ($question === false) {
+                        throw new QuestionException('Failed to duplicate question', 422);
+                    }
+
+                    $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
+                } elseif (!$questionInstance->save() || !$question->save()) {
+                    throw new QuestionException('Failed to save question', 422);
                 }
+            }
+            // return Response::make(var_dump( $groupQuestionQuestionManager->getQuestionLink()->getAttribute('question_id') ), 500);
 
-                $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
-            } elseif(!$questionInstance->save() || !$question->save()) {
-                return Response::make('Failed to save question', 500);
+            // $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+
+            // Save the link
+            if ($groupQuestionQuestion->save()) {
+                if ($questionInstance->type == 'CompletionQuestion') {
+                    // delete old answers
+                    $question->deleteAnswers($question);
+
+                    // add new answers
+                    $question->addAnswers($testQuestion, $questionData['answers']);
+                }
+                $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+//                return Response::make($groupQuestionQuestion, 200);
+            } else {
+                throw new QuestionException('Failed to update group question question', 422);
             }
         }
-        // return Response::make(var_dump( $groupQuestionQuestionManager->getQuestionLink()->getAttribute('question_id') ), 500);
-
-        // $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
-
-        // Save the link
-        if ($groupQuestionQuestion->save()) {
-            $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
-            return Response::make($groupQuestionQuestion, 200);
-        } else {
-            return Response::make('Failed to update group question question', 500);
+        catch(QuestionException $e){
+            DB::rollback();
+            $e->sendExceptionMail();
+            return Response::make($e->getMessage(),422);
         }
+        DB::commit();
+        return Response::make($groupQuestionQuestion, 200);
     }
 
     /**

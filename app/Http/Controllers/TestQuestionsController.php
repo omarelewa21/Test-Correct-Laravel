@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\DrawingQuestion;
+use tcCore\Exceptions\QuestionException;
 use tcCore\GroupQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests;
@@ -72,7 +73,7 @@ class TestQuestionsController extends Controller {
             if ($request->get('question_id') === null) {
                 $question = Factory::makeQuestion($request->get('type'));
                 if (!$question) {
-                    throw new \Exception('Failed to create question with factory', 500);
+                    throw new QuestionException('Failed to create question with factory', 500);
                 }
 
                 $testQuestion = new TestQuestion();
@@ -104,18 +105,25 @@ class TestQuestionsController extends Controller {
                     $testQuestion->setAttribute('question_id', $question->getKey());
 
                     if ($testQuestion->save()) {
-                        if ($request->get('type') == 'CompletionQuestion') {
-                            /**
-                             * we don't need to check if this works, as there's an exception thrown on failure
-                             */
-                            $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
+//                        if ($request->get('type') == 'CompletionQuestion') {
+//                            /**
+//                             * we don't need to check if this works, as there's an exception thrown on failure
+//                             */
+//                            $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
+//                        }
+                        if($request->get('type') == 'CompletionQuestion') {
+//                        // delete old answers
+//                        $question->deleteAnswers($question);
+
+                            // add new answers
+                            $testQuestion->question->addAnswers($testQuestion,$questionData['answers']);
                         }
                     }else{
-                        throw new \Exception('Failed to create test question');
+                        throw new QuestionException('Failed to create test question');
                     }
 
                 } else {
-                    throw new \Exception('Failed to create question');
+                    throw new QuestionException('Failed to create question');
                 }
             } else {
                 $testQuestion = new TestQuestion();
@@ -128,17 +136,24 @@ class TestQuestionsController extends Controller {
 
                 $testQuestion->fill(array_merge($request->all(),$questionData));
 
-                if($request->get('type') == 'CompletionQuestion') {
-                    /**
-                     * we don't need to check if this works, as there's an exception thrown on failure
-                     */
-                    $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
-                }
+//                if($request->get('type') == 'CompletionQuestion') {
+//                    /**
+//                     * we don't need to check if this works, as there's an exception thrown on failure
+//                     */
+//                    $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
+//                }
 
                 if ($testQuestion->save()) {
+                    if($request->get('type') == 'CompletionQuestion') {
+//                        // delete old answers
+//                        $question->deleteAnswers($question);
+
+                        // add new answers
+                        $testQuestion->question->addAnswers($testQuestion,$questionData['answers']);
+                    }
                     return Response::make($testQuestion, 200);
                 } else {
-                    throw new \Exception('Failed to create test question');
+                    throw new QuestionException('Failed to create test question');
                 }
             }
         }
@@ -200,12 +215,12 @@ class TestQuestionsController extends Controller {
                 if ($question->isUsed($testQuestion)) {
                     $question = $question->duplicate($request->all());
                     if ($question === false) {
-                        throw new \Exception('Failed to duplicate question');
+                        throw new QuestionException('Failed to duplicate question');
                     }
 
                     $testQuestion->setAttribute('question_id', $question->getKey());
                 } elseif (!$questionInstance->save() || !$question->save()) {
-                    throw new \Exception('Failed to save question');
+                    throw new QuestionException('Failed to save question');
                 }
             }
 
@@ -223,12 +238,13 @@ class TestQuestionsController extends Controller {
 //                Log::debug(DB::getQueryLog());
 //                return Response::make($testQuestion, 200);
             } else {
-                throw new \Exception('Failed to update test question');
+                throw new QuestionException('Failed to update test question');
             }
         }
-        catch(\Exception $e){
+        catch(QuestionException $e){
             DB::rollback();
-            return Response::make($e->getMessage(),500);
+            $e->sendExceptionMail();
+            return Response::make($e->getMessage(),422);
         }
         DB::commit();
         return Response::make($testQuestion, 200);

@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use tcCore\Exceptions\QuestionException;
 use tcCore\Lib\Question\QuestionInterface;
 
 class CompletionQuestion extends Question implements QuestionInterface {
@@ -163,14 +164,14 @@ class CompletionQuestion extends Question implements QuestionInterface {
     public function deleteAnswers(){
         $this->completionQuestionAnswerLinks->each(function($cQAL){
             if (!$cQAL->delete()) {
-                throw new \Exception('Failed to delete completion question answer link', 500);
+                throw new QuestionException('Failed to delete completion question answer link', 422);
             }
 
             if ($cQAL->completionQuestionAnswer->isUsed($cQAL, false)) {
-                throw new \Exception(sprintf('Failed to delete the question answer, completionQuestionAnswer with id %d is still used',$cQAL->completionQuestionAnswer->id),500);
+                throw new QuestionException(sprintf('Failed to delete the question answer, completionQuestionAnswer with id %d is still used',$cQAL->completionQuestionAnswer->id),422);
             } else {
                 if (!$cQAL->completionQuestionAnswer->delete()) {
-                    throw new \Exception('Failed to delete completion question answer', 500);
+                    throw new QuestionException('Failed to delete completion question answer', 422);
                 }
             }
         });
@@ -188,17 +189,17 @@ class CompletionQuestion extends Question implements QuestionInterface {
         if ($this->isUsed($mainQuestion)) {
             $question = $this->duplicate([]);
             if ($question === false) {
-                throw new \Exception('Failed to duplicate question');
+                throw new QuestionException('Failed to duplicate question',422);
             }
             $mainQuestion->setAttribute('question_id', $question->getKey());
 
             if (!$mainQuestion->save()) {
-                throw new \Exception('Failed to update test question');
+                throw new QuestionException('Failed to update test question',422);
             }
         }
 
         if (!QuestionAuthor::addAuthorToQuestion($question)) {
-            throw new \Exception('Failed to attach author to question');
+            throw new QuestionException('Failed to attach author to question',422);
         }
 
         $returnAnswers = [];
@@ -207,7 +208,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
 
             $completionQuestionAnswer->fill($answerDetails);
             if (!$completionQuestionAnswer->save()) {
-                throw new \Exception('Failed to create completion question answer');
+                throw new QuestionException('Failed to create completion question answer',422);
             }
 
             $completionQuestionAnswerLink = new CompletionQuestionAnswerLink();
@@ -215,7 +216,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
             $completionQuestionAnswerLink->setAttribute('completion_question_answer_id', $completionQuestionAnswer->getKey());
 
             if (!$completionQuestionAnswerLink->save()) {
-                throw new \Exception('Failed to create completion question answer link');
+                throw new QuestionException('Failed to create completion question answer link',422);
             }
         }
         return true;
