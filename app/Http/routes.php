@@ -265,13 +265,13 @@ Route::bind('group_question', function($id) {
 	}
 });
 
-Route::bind('group_question_question', function($id) {
-	try {
-		return tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstance($id);
-	} catch(ModelNotFoundException $e) {
-		throw new NotFoundHttpException('Group question question path not found');
-	}
-});
+//Route::bind('group_question_question', function($id) {
+//	try {
+//		return tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstance($id);
+//	} catch(ModelNotFoundException $e) {
+//		throw new NotFoundHttpException('Group question question path not found');
+//	}
+//});
 
 Route::bind('group_question_question_id', function($id) {
 	try {

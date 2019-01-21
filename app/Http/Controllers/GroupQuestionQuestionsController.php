@@ -228,7 +228,8 @@ class GroupQuestionQuestionsController extends Controller {
                 $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
             }
 
-            $question->fill($request->all());
+//            $question->fill($request->all());
+            $question->fill(array_merge($request->all(),$questionData));
             $questionInstance = $question->getQuestionInstance();
 
             $groupQuestionQuestionOriginal = $groupQuestionQuestion;
