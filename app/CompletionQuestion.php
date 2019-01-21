@@ -167,8 +167,9 @@ class CompletionQuestion extends Question implements QuestionInterface {
                 throw new QuestionException('Failed to delete completion question answer link', 422);
             }
 
-            if ($cQAL->completionQuestionAnswer->isUsed($cQAL, false)) {
-                throw new QuestionException(sprintf('Failed to delete the question answer, completionQuestionAnswer with id %d is still used',$cQAL->completionQuestionAnswer->id),422);
+            if ($cQAL->completionQuestionAnswer->isUsed($cQAL)) {
+                // all okay, this one should be kept
+//                throw new QuestionException(sprintf('Failed to delete the question answer, completionQuestionAnswer with id %d is still used',$cQAL->completionQuestionAnswer->id),422);
             } else {
                 if (!$cQAL->completionQuestionAnswer->delete()) {
                     throw new QuestionException('Failed to delete completion question answer', 422);
