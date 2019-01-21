@@ -282,7 +282,7 @@ class GroupQuestionQuestionsController extends Controller {
                     $question->deleteAnswers($question);
 
                     // add new answers
-                    $question->addAnswers($testQuestion, $questionData['answers']);
+                    $question->addAnswers($groupQuestionQuestion, $questionData['answers']);
                 }
                 $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
 //                return Response::make($groupQuestionQuestion, 200);
