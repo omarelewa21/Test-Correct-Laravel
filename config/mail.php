@@ -2,6 +2,10 @@
 
 return [
 
+    /**
+     * Development email address for errors
+     */
+    'mail_dev_address' => env('MAIL_DEV_ADDRESS', 'dev.tlc@sobit.nl'),
 	/*
 	|--------------------------------------------------------------------------
 	| Mail Driver

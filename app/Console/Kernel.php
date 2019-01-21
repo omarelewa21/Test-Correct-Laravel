@@ -2,6 +2,7 @@
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use tcCore\Console\Commands\RefreshDatabase;
 
 class Kernel extends ConsoleKernel {
 
@@ -14,7 +15,8 @@ class Kernel extends ConsoleKernel {
 		'tcCore\Console\Commands\Inspire',
 		'tcCore\Console\Commands\GenerateUser',
 		'tcCore\Console\Commands\StartLicenseJobs',
-		'tcCore\Console\Commands\StartActiveTeacherJobs'
+		'tcCore\Console\Commands\StartActiveTeacherJobs',
+        RefreshDatabase::class,
 	];
 
 	/**

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Response;
 use tcCore\CompletionQuestion;
 use tcCore\CompletionQuestionAnswer;
 use tcCore\CompletionQuestionAnswerLink;
+use tcCore\Exceptions\QuestionException;
 use tcCore\QuestionAuthor;
 use tcCore\TestQuestion;
 
@@ -55,25 +56,26 @@ class QuestionHelper extends BaseHelper
      */
     public function storeAnswersForCompletionQuestion($mainQuestion, $answers)
     {
+
         $question = $mainQuestion->question;
         if (($response = $this->validateCompletionQuestion($question)) !== true) {
-            throw new \Exception($response);
+            throw new QuestionException($response);
         } else {
 
             if ($question->isUsed($mainQuestion)) {
                 $question = $question->duplicate([]);
                 if ($question === false) {
-                    throw new \Exception('Failed to duplicate question');
+                    throw new QuestionException('Failed to duplicate question');
                 }
                 $mainQuestion->setAttribute('question_id', $question->getKey());
 
                 if (!$mainQuestion->save()) {
-                    throw new \Exception('Failed to update test question');
+                    throw new QuestionException('Failed to update test question');
                 }
             }
 
             if (!QuestionAuthor::addAuthorToQuestion($question)) {
-                throw new \Exception('Failed to attach author to question');
+                throw new QuestionException('Failed to attach author to question');
             }
 
             $returnAnswers = [];
@@ -82,7 +84,7 @@ class QuestionHelper extends BaseHelper
 
                 $completionQuestionAnswer->fill($answerDetails);
                 if (!$completionQuestionAnswer->save()) {
-                    throw new \Exception('Failed to create completion question answer');
+                    throw new QuestionException('Failed to create completion question answer');
                 }
 
                 $completionQuestionAnswerLink = new CompletionQuestionAnswerLink();
@@ -92,7 +94,7 @@ class QuestionHelper extends BaseHelper
                 if ($completionQuestionAnswerLink->save()) {
                     $returnAnswers[] = $completionQuestionAnswerLink;
                 } else {
-                    throw new \Exception('Failed to create completion question answer link');
+                    throw new QuestionException('Failed to create completion question answer link');
                 }
             }
             return $returnAnswers;
@@ -103,14 +105,14 @@ class QuestionHelper extends BaseHelper
     {
         $question->completionQuestionAnswerLinks->each(function($cQAL){
             if (!$cQAL->delete()) {
-                throw new \Exception('Failed to delete completion question answer link', 500);
+                throw new QuestionException('Failed to delete completion question answer link', 500);
             }
 
             if ($cQAL->completionQuestionAnswer->isUsed($cQAL, false)) {
-                throw new \Exception(sprintf('Failed to delete the question answer, completionQuestionAnswer with id %d is still used',$cQAL->completionQuestionAnswer->id),500);
+                throw new QuestionException(sprintf('Failed to delete the question answer, completionQuestionAnswer with id %d is still used',$cQAL->completionQuestionAnswer->id),500);
             } else {
                 if (!$cQAL->completionQuestionAnswer->delete()) {
-                    throw new \Exception('Failed to delete completion question answer', 500);
+                    throw new QuestionException('Failed to delete completion question answer', 500);
                 }
             }
         });
@@ -124,7 +126,7 @@ class QuestionHelper extends BaseHelper
      */
     protected function validateCompletionQuestion($question) {
         if (!method_exists($question, 'completionQuestionAnswers')) {
-            throw new \Exception('Question does not allow completion question answers.', 404);
+            throw new QuestionException('Question does not allow completion question answers.', 404);
         }
 
         return true;

@@ -26,7 +26,7 @@ return [
 	|
 	*/
 
-	'default' => 'mysql',
+    'default' => env('DB_CONNECTION', 'mysql'),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -48,8 +48,9 @@ return [
 
 		'sqlite' => [
 			'driver'   => 'sqlite',
-			'database' => storage_path().'/database.sqlite',
+			'database' => ':memory:',database_path().'/seeds/test.db',
 			'prefix'   => '',
+            'foreign_key_constraints' => true,
 		],
 
 		'mysql' => [
