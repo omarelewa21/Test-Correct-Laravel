@@ -185,6 +185,55 @@ class TestQuestionsController extends Controller {
     }
 
     /**
+     * Update the specified question order in storage.
+     *
+     * @param  Question $question
+     * @param UpdateTestQuestionRequest $request
+     * @return Response
+     */
+    // UpdateTestQuestionRequest
+    public function updateOrder(TestQuestion $testQuestion,  UpdateTestQuestionRequest $request)
+    {
+        // Fill and check if question is modified
+        $question = $testQuestion->question;
+
+        DB::beginTransaction();
+        try {
+            $question->fill($request->all());
+            $questionInstance = $question->getQuestionInstance();
+
+            $testQuestion->fill($request->all());
+
+            // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
+            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+                if ($question->isUsed($testQuestion)) {
+                    $question = $question->duplicate($request->all());
+                    if ($question === false) {
+                        throw new QuestionException('Failed to duplicate question');
+                    }
+
+                    $testQuestion->setAttribute('question_id', $question->getKey());
+                } elseif (!$questionInstance->save() || !$question->save()) {
+                    throw new QuestionException('Failed to save question');
+                }
+            }
+
+            if ($testQuestion->save()) {
+            } else {
+                throw new QuestionException('Failed to update test question');
+            }
+        }
+        catch(QuestionException $e){
+            DB::rollback();
+            $e->sendExceptionMail();
+            return Response::make($e->getMessage(),422);
+        }
+        DB::commit();
+        return Response::make($testQuestion, 200);
+    }
+
+
+    /**
      * Update the specified question in storage.
      *
      * @param  Question $question

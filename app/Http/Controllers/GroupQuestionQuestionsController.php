@@ -206,6 +206,89 @@ class GroupQuestionQuestionsController extends Controller {
     }
 
     /**
+     * Update the specified question order in storage.
+     *
+     * @param  Question $question
+     * @param UpdateGroupQuestionQuestionRequest $request
+     * @return Response
+     */
+    public function updateOrder(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $groupQuestionQuestion, UpdateGroupQuestionQuestionRequest $request)
+    {
+        if (!$groupQuestionQuestionManager->isChild($groupQuestionQuestion)) {
+            return Response::make('Group question question not found', 404);
+        }
+
+        // Fill and check if question is modified
+        $question = $groupQuestionQuestion->question;
+        DB::beginTransaction();
+        try {
+            $qHelper = new QuestionHelper();
+
+            $question->fill($request->all());
+            $questionInstance = $question->getQuestionInstance();
+
+            $groupQuestionQuestionOriginal = $groupQuestionQuestion;
+            $groupQuestionQuestion->fill($request->all());
+
+            // $groupQuestionQuestionManager->isUsed();
+
+
+            if (
+                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) &&
+                ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
+                // return Response::make(var_dump($groupQuestionQuestionManager), 500);
+                $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
+                $groupQuestionQuestion = $groupQuestionQuestion->duplicate(
+                    $groupQuestionQuestionManager->getQuestionLink()->question,
+                    [
+                        'group_question_id' => $groupQuestionQuestionManager->getQuestionLink()->getAttribute('group_question')
+                    ]
+                );
+
+                $question = $groupQuestionQuestion->question;
+                $question->fill($request->all());
+                $questionInstance = $question->getQuestionInstance();
+
+                $groupQuestionQuestion->setAttribute('group_question_id', $testQuestion->getAttribute('question_id'));
+
+                // return Response::make(json_encode($testQuestion->getAttribute('question_id')), 500);
+            }
+
+            // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
+            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+                if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
+                    $question = $question->duplicate($request->all());
+                    if ($question === false) {
+                        throw new QuestionException('Failed to duplicate question', 422);
+                    }
+
+                    $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
+                } elseif (!$questionInstance->save() || !$question->save()) {
+                    throw new QuestionException('Failed to save question', 422);
+                }
+            }
+            // return Response::make(var_dump( $groupQuestionQuestionManager->getQuestionLink()->getAttribute('question_id') ), 500);
+
+            // $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+
+            // Save the link
+            if ($groupQuestionQuestion->save()) {
+                $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+//                return Response::make($groupQuestionQuestion, 200);
+            } else {
+                throw new QuestionException('Failed to update group question question', 422);
+            }
+        }
+        catch(QuestionException $e){
+            DB::rollback();
+            $e->sendExceptionMail();
+            return Response::make($e->getMessage(),422);
+        }
+        DB::commit();
+        return Response::make($groupQuestionQuestion, 200);
+    }
+
+    /**
      * Update the specified question in storage.
      *
      * @param  Question $question

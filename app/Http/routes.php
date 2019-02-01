@@ -28,6 +28,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds']], fun
 	Route::post('test/{test}/duplicate', ['as' => 'test.duplicate', 'uses' => 'TestsController@duplicate']);
 	Route::resource('test', 'TestsController', ['except' => ['create', 'edit']]);
 
+	Route::put('test_question/{test_question}/reorder', 'TestQuestionsController@updateOrder');
 	Route::resource('test_question', 'TestQuestionsController', ['except' => ['create', 'edit']]);
 	Route::resource('test_question.attachment', 'TestQuestions\AttachmentsController', ['except' => ['create', 'edit']]);
 
@@ -60,6 +61,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds']], fun
 	Route::get('group_question_question/{group_question_question}', ['as' => 'group_question_question.index', 'uses' => 'GroupQuestionQuestionsController@index']);
 	Route::post('group_question_question/{group_question_question}', ['as' => 'group_question_question.store', 'uses' => 'GroupQuestionQuestionsController@store']);
 	Route::get('group_question_question/{group_question_question}/{group_question_question_id}', ['as' => 'group_question_question.index', 'uses' => 'GroupQuestionQuestionsController@show']);
+	Route::put('group_question_question/{group_question_question}/{group_question_question_id}/reorder', ['as' => 'group_question_question.updateOrder', 'uses' => 'GroupQuestionQuestionsController@updateOrder']);
 	Route::put('group_question_question/{group_question_question}/{group_question_question_id}', ['as' => 'group_question_question.update', 'uses' => 'GroupQuestionQuestionsController@update']);
 	Route::patch('group_question_question/{group_question_question}/{group_question_question_id}', ['uses' => 'GroupQuestionQuestionsController@update']);
 	Route::delete('group_question_question/{group_question_question}/{group_question_question_id}', ['as' => 'group_question_question.destroy', 'uses' => 'GroupQuestionQuestionsController@destroy']);
