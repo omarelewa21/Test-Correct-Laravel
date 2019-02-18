@@ -151,7 +151,8 @@ class TestQuestionsController extends Controller {
                         // add new answers
                         $testQuestion->question->addAnswers($testQuestion,$questionData['answers']);
                     }
-                    return Response::make($testQuestion, 200);
+                    // don't return here as the DB::commit() needs to be done first.
+                    //return Response::make($testQuestion, 200);
                 } else {
                     throw new QuestionException('Failed to create test question');
                 }
