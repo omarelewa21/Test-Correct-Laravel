@@ -1072,7 +1072,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	}
 
 	public function generateSessionHash() {
-		return str_random(100);
+		// didn't work out to be safe
+		// return str_random(100);
+		// new
+		return sprintf('%s%d',str_random(85),$this->id);
 	}
 
 
