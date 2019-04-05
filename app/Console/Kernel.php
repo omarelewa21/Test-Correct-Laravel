@@ -2,6 +2,7 @@
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use tcCore\Console\Commands\ClearOldRequestLogs;
 use tcCore\Console\Commands\RefreshDatabase;
 
 class Kernel extends ConsoleKernel {
@@ -17,6 +18,7 @@ class Kernel extends ConsoleKernel {
 		'tcCore\Console\Commands\StartLicenseJobs',
 		'tcCore\Console\Commands\StartActiveTeacherJobs',
         RefreshDatabase::class,
+        ClearOldRequestLogs::class
 	];
 
 	/**
@@ -31,6 +33,8 @@ class Kernel extends ConsoleKernel {
 				 ->daily();
 		$schedule->command('cron:teacher')
 			->daily();
+		$schedule->command('requestlog:clear 5 --silent')
+            ->dailyAt('04:00');
 	}
 
 }
