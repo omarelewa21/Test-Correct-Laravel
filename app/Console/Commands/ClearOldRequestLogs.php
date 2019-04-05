@@ -40,6 +40,7 @@ class ClearOldRequestLogs extends Command
      */
     public function handle()
     {
+        $start = microtime(true);
         $days = $this->argument('days') ? (int) $this->argument('days') : 5;
         if(!$this->option('silent')) $this->info(sprintf('going to clear all the records older than %d days',$days));
         if(!$this->option('silent')) $this->info('this can take some time');
@@ -47,6 +48,7 @@ class ClearOldRequestLogs extends Command
         $date->modify(sprintf('-%d days',$days));
         $formatted = $date->format('Y-m-d H:i:s');
         $rows = Log::where('created_at','<',$formatted)->delete();
-        if(!$this->option('silent')) $this->info(sprintf('done, %d records deleted',$rows));
+        $duration = microtime(true) - $start;
+        if(!$this->option('silent')) $this->info(sprintf('done, deleted %d records in %f seconds',$rows, $duration));
     }
 }
