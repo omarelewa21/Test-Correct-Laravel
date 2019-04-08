@@ -26,6 +26,10 @@ class RequestLogger
     }
 
     public function terminate($request, $response){
+        if($request->path() == 'fpm-status' || $request->path() == 'nginx_status'){
+            return true;
+        }
+
         $end = microtime(true) * 1000;
         $ip = $request->ip();
 
