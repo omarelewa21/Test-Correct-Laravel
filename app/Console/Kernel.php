@@ -29,10 +29,10 @@ class Kernel extends ConsoleKernel {
 	 */
 	protected function schedule(Schedule $schedule)
 	{
-		$schedule->command('cron:license')
-				 ->daily();
-		$schedule->command('cron:teacher')
-			->daily();
+//		$schedule->command('cron:license')
+//				 ->daily();
+//		$schedule->command('cron:teacher')
+//			->daily();
 		$schedule->command('requestlog:clear 5 --silent')
             ->dailyAt('04:00');
 	}
