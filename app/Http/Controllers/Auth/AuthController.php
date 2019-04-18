@@ -5,12 +5,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use tcCore\Http\Controllers\Controller;
-use tcCore\Lib\User\Roles;
 use tcCore\User;
 
 class AuthController extends Controller {
-
-    protected $text2speechPriceRoles = ['Teacher','Administrator','School manager','School management','Mentor'];
 
 	function __construct(User $user, Guard $auth)
 	{
@@ -40,23 +37,9 @@ class AuthController extends Controller {
 
 			$user->setHidden($hidden);
 
-			if($this->canHaveGeneralText2SpeechPrice($user)){
-                $user->setAttribute('general_text2speech_price',config('custom.text2speech.price'));
-            }
-
 			return new JsonResponse($user);
 		} else {
 			return \Response::make("Invalid credentials.", 403);
 		}
 	}
-
-	protected function canHaveGeneralText2SpeechPrice($user){
-        $roles = Roles::getUserRoles($user);
-        foreach($roles as $role){
-            if(in_array($role,$this->text2speechPriceRoles)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

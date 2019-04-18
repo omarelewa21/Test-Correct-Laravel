@@ -7,7 +7,6 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
     protected $baseUrl = 'http://test-correct.test';
 
     const USER_TEACHER = 'p.vries@31.com';
-    const USER_ACCOUNTMANAGER = 'fioretti+schoolbeheerder@test-correct.nl';
 
     /**
      * Creates the application.
@@ -25,31 +24,9 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
 
     public static function getAuthRequestData($overrides = [])
     {
-
-        $user = \tcCore\User::where('username','=',static::USER_TEACHER)->get()->first();
-        if(!$user->session_hash) {
-            $user->session_hash = $user->generateSessionHash();
-            $user->save();
-        }
-
         return array_merge([
-            'session_hash' => $user->session_hash,
+            'session_hash' => '5mTzff9qk9TObgv0NfsU7JjLDgnBsRRYSDfASpPEYLb2GjZHSQh1aePy1vhnBq1gFsjWprSU0dsCUgKTJhJVzbIHEEd7Mzw2Y1Y',
             'user'         => static::USER_TEACHER,
-        ], $overrides);
-    }
-
-    public static function getAuthRequestDataForAccountManager($overrides = [])
-    {
-
-        $user = \tcCore\User::where('username','=',static::USER_ACCOUNTMANAGER)->get()->first();
-        if(!$user->session_hash) {
-            $user->session_hash = $user->generateSessionHash();
-            $user->save();
-        }
-
-        return array_merge([
-            'session_hash' => $user->session_hash,
-            'user'         => static::USER_ACCOUNTMANAGER,
         ], $overrides);
     }
 

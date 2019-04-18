@@ -41,14 +41,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	 */
 	protected $table = 'users';
 
-    protected $appends = ['has_text2speech','active_text2speech'];
-
 	/**
 	 * The attributes that are mass assignable.
 	 *
 	 * @var array
 	 */
-	protected $fillable = ['sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name', 'password', 'external_id', 'gender', 'time_dispensation', 'text2speech','abbreviation', 'note'];
+	protected $fillable = ['sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name', 'password', 'external_id', 'gender', 'time_dispensation', 'abbreviation', 'note'];
 
 	/**
 	 * The attributes excluded from the model's JSON form.
@@ -190,31 +188,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		}
 	}
 
-    public function text2SpeechDetails(){
-        return $this->hasOne(Text2speech::class);
-    }
-
-    public function text2SpeechLog(){
-        return $this->hasMany(Text2speechLog::class);
-    }
-
-	public function hasText2Speech(){
-	    return (bool) $this->text2speech;
-    }
-
-    public function hasActiveText2Speech(){
-	    if(!$this->hasText2Speech()) return false;
-	    return (bool) $this->text2SpeechDetails->active;
-    }
-
-    public function getHasText2speechAttribute(){
-	    return $this->hasText2Speech();
-    }
-
-    public function getActiveText2speechAttribute(){
-	    return $this->hasActiveText2Speech();
-    }
-
 	public static function boot()
 	{
 		parent::boot();
@@ -238,37 +211,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		// Progress additional answers
 		static::saved(function(User $user)
 		{
-		    $oldText2Speech = (bool) $user->getOriginal('text2speech');
-		    if(!$oldText2Speech && (bool) request()->input('text2speech')){
-		        // we've got a new user with time dispensation
-                Text2speech::create([
-                    'user_id'   => $user->getKey(),
-                    'active'    => true,
-                    'acceptedby'=> Auth::user()->getKey(),
-                    'price'     => config('custom.text2speech.price')
-                ]);
-                Text2speechLog::create([
-                   'user_id'    => $user->getKey(),
-                   'action'     => 'ACCEPTED',
-                   'who'        => Auth::user()->getKey()
-                ]);
-            } else if($oldText2Speech && request()->has('active_text2speech')){
-                // we've got a student with time dispensation and there might be a change in the active status
-                // we only change these settings if there is a active_time_dispensation value, otherwise it would be changed on password update as well for instance
-                $newActiveText2Speech = (bool) request()->input('active_text2speech');
-                $oldActiveText2Speech = (bool) $user->hasActiveText2Speech();
-                if($newActiveText2Speech !== $oldActiveText2Speech){
-                    $user->text2SpeechDetails->active = $newActiveText2Speech;
-                    $user->text2SpeechDetails->save();
-
-                    Text2speechLog::create([
-                        'user_id'    => $user->getKey(),
-                        'action'     => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
-                        'who'        => Auth::user()->getKey()
-                    ]);
-                }
-            }
-
 			if ($user->userRoles !== null) {
 				$user->saveUserRoles();
 			}
@@ -746,7 +688,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		return $this->hasMany('tcCore\AverageRating');
 	}
 
-
 	/**
 	 * Returns the private API key for the user, or false on failure.
 	 *
@@ -1141,7 +1082,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	public function canAccess()
 	{
 		$roles = Roles::getUserRoles();
-
 		if (in_array('Administrator', $roles)) {
 			return true;
 		}
