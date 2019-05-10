@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use tcCore\Exceptions\QuestionException;
 use tcCore\Lib\Question\QuestionInterface;
 
 class MatchingQuestion extends Question implements QuestionInterface {
@@ -137,5 +138,50 @@ class MatchingQuestion extends Question implements QuestionInterface {
         }
 
         return $score;
+    }
+
+    /**
+     * @param $mainQuestion either TestQuestion or GroupQuestionQuestion
+     * @param $answers
+     * @return boolean
+     * @throws \Exception
+     */
+    public function addAnswers($mainQuestion,$answers){
+        $question = $this;
+        if ($this->isUsed($mainQuestion)) {
+            $question = $this->duplicate([]);
+            if ($question === false) {
+                throw new QuestionException('Failed to duplicate question',422);
+            }
+            $mainQuestion->setAttribute('question_id', $question->getKey());
+
+            if (!$mainQuestion->save()) {
+                throw new QuestionException('Failed to update test question',422);
+            }
+        }
+
+        if (!QuestionAuthor::addAuthorToQuestion($question)) {
+            throw new QuestionException('Failed to attach author to question',422);
+        }
+
+        foreach($answers as $order => $answerDetails) {
+            $answerDetailsCollection = collect($answerDetails);
+            $matchingQuestionAnswer = new MatchingQuestionAnswer();
+
+            $matchingQuestionAnswer->fill($answerDetailsCollection->only($matchingQuestionAnswer->getFillable()));
+            if (!$matchingQuestionAnswer->save()) {
+                throw new QuestionException('Failed to create matching question answer', 500);
+            }
+
+            $matchingQuestionAnswerLink = new MatchingQuestionAnswerLink();
+            $matchingQuestionAnswerLink->fill($answerDetailsCollection->only($matchingQuestionAnswerLink->getFillable()));
+            $matchingQuestionAnswerLink->setAttribute('matching_question_id', $question->getKey());
+            $matchingQuestionAnswerLink->setAttribute('matching_question_answer_id', $matchingQuestionAnswer->getKey());
+
+            if(!$matchingQuestionAnswerLink->save()) {
+                throw new QuestionException('Failed to create matching question answer link',422);
+            }
+        }
+        return true;
     }
 }

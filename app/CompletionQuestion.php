@@ -182,7 +182,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
     /**
      * @param $mainQuestion either TestQuestion or GroupQuestionQuestion
      * @param $answers
-     * @return CompletionQuestion model
+     * @return boolean
      * @throws \Exception
      */
     public function addAnswers($mainQuestion,$answers){
