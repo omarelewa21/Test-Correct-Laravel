@@ -199,10 +199,15 @@ class UsersController extends Controller {
 	 */
 	public function destroy(User $user)
 	{
-		if ($user->delete()) {
-			return Response::make($user, 200);
-		} else {
-			return Response::make('Failed to delete user', 500);
-		}
+	    // 20190515 security issue with users deleting users just by id, see trello
+        // for safety now disabled
+        // @TODO fix security issue with deletion of users (as well update/ add and such)
+	    return Response::make($user,200);
+
+//		if ($user->delete()) {
+//			return Response::make($user, 200);
+//		} else {
+//			return Response::make('Failed to delete user', 500);
+//		}
 	}
 }
