@@ -52,6 +52,6 @@ class RestoreUser extends Command
             return;
         }
         $user->restore();
-        $this->info(sprintf('user %s %s %s restored',$user->first_name, $user->name_suffix, $user->name));
+        $this->info(sprintf('user %s %s %s restored',$user->name_first, $user->name_suffix, $user->name));
     }
 }
