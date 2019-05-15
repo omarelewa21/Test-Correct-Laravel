@@ -15,7 +15,7 @@ class RestoreUser extends Command
      *
      * @var string
      */
-    protected $signature = 'user:restore {user: the id of the user}';
+    protected $signature = 'user:restore {user}';
 
     /**
      * The console command description.
@@ -48,7 +48,7 @@ class RestoreUser extends Command
         }
         $user = User::withTrashed()->find($id);
         if(!$user){
-            $this->error('the user coundn\'t be found');
+            $this->error('the user couldn\'t be found');
             return;
         }
         $user->restore();
