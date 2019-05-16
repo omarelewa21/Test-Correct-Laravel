@@ -1,17 +1,16 @@
 <?php
 
-class ExampleTest extends TestCase {
+class CompletionQuestionTest extends TestCase {
+
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
 	/**
 	 * A basic functional test example.
+     * @test
 	 *
 	 * @return void
 	 */
-//    use \Illuminate\Foundation\Testing\DatabaseTransactions;
-
-
-
-	public function testBasicExample()
+	public function should_add_valid_completionQuestion()
 	{
 
         $this->post('/test_question', static::getAuthRequestData([
@@ -62,30 +61,6 @@ class ExampleTest extends TestCase {
 
         $author = $question->authors[0];
         $this->assertEquals(static::USER_TEACHER, $author->username);
-
-
-        $this->delete(
-            sprintf(
-                '/test_question/%d/completion_question_answer?user=%s',
-                $magicId,
-                static::USER_TEACHER
-            )
-        );
-
-        $response = json_decode($this->response->getContent());
-        $this->assertEquals([], $response);
-
-
-
-
-
-
-//        dd($response);
-
-//        $response->
-
-
-
 	}
 
 }

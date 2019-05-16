@@ -147,6 +147,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
      * @throws \Exception
      */
     public function addAnswers($mainQuestion,$answers){
+
         $question = $this;
         if ($this->isUsed($mainQuestion)) {
             $question = $this->duplicate([]);
@@ -165,23 +166,61 @@ class MatchingQuestion extends Question implements QuestionInterface {
         }
 
         foreach($answers as $order => $answerDetails) {
-            $answerDetailsCollection = collect($answerDetails);
-            $matchingQuestionAnswer = new MatchingQuestionAnswer();
+            $answerDetails = (object) $answerDetails;
+            if(!$answerDetails->left || !$answerDetails->right) continue;
+            $details = [
+                'left' => [
+                   'order' => (int) $answerDetails->order,
+                   'answer' => $answerDetails->left,
+                    'type'  => 'left',
+                ],
+                'right' => [
+                    'order' => (int) $answerDetails->order,
+                    'answer' => $answerDetails->right,
+                    'type'  => 'right',
+                    'correct_answer_id' => ''
+                ]
+            ];
 
-            $matchingQuestionAnswer->fill($answerDetailsCollection->only($matchingQuestionAnswer->getFillable()));
-            if (!$matchingQuestionAnswer->save()) {
-                throw new QuestionException('Failed to create matching question answer', 500);
-            }
+            $lastId = false;
+            foreach($details as $detail){
+                if($detail['type'] == 'right'){
+                    $detail['correct_answer_id'] = $lastId; // right needs the corresponding correct answer which is de left
+                }
+                $detail = collect($detail);
 
-            $matchingQuestionAnswerLink = new MatchingQuestionAnswerLink();
-            $matchingQuestionAnswerLink->fill($answerDetailsCollection->only($matchingQuestionAnswerLink->getFillable()));
-            $matchingQuestionAnswerLink->setAttribute('matching_question_id', $question->getKey());
-            $matchingQuestionAnswerLink->setAttribute('matching_question_answer_id', $matchingQuestionAnswer->getKey());
+                $matchingQuestionAnswer = new MatchingQuestionAnswer();
 
-            if(!$matchingQuestionAnswerLink->save()) {
-                throw new QuestionException('Failed to create matching question answer link',422);
+                $matchingQuestionAnswer->fill($detail->only($matchingQuestionAnswer->getFillable())->toArray());
+                if (!$matchingQuestionAnswer->save()) {
+                    throw new QuestionException('Failed to create matching question answer', 500);
+                }
+                $matchingQuestionAnswerLink = new MatchingQuestionAnswerLink();
+                $matchingQuestionAnswerLink->fill($detail->only($matchingQuestionAnswerLink->getFillable())->toArray());
+                $matchingQuestionAnswerLink->setAttribute('matching_question_id', $question->getKey());
+                $matchingQuestionAnswerLink->setAttribute('matching_question_answer_id', $matchingQuestionAnswer->getKey());
+
+                if(!$matchingQuestionAnswerLink->save()) {
+                    throw new QuestionException('Failed to create matching question answer link',422);
+                }
+                $lastId = $matchingQuestionAnswer->getKey();
             }
         }
+        return true;
+    }
+
+    public function deleteAnswers(){
+        $this->matchingQuestionAnswerLinks->each(function($qAL){
+            if (!$qAL->matchingQuestionAnswer->isUsed($qAL)) {
+                if (!$qAL->matchingQuestionAnswer->delete()) {
+                    throw new QuestionException('Failed to delete matching question answer', 422);
+                }
+            }
+
+            if (!$qAL->delete()) {
+                throw new QuestionException('Failed to delete matching question answer link', 422);
+            }
+        });
         return true;
     }
 }

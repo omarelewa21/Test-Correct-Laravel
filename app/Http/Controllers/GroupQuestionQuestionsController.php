@@ -126,7 +126,7 @@ class GroupQuestionQuestionsController extends Controller {
 //                    }
 
                     if ($groupQuestionQuestion->save()) {
-                        if($request->get('type') == 'CompletionQuestion') {
+                        if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -160,7 +160,7 @@ class GroupQuestionQuestionsController extends Controller {
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
                 if ($groupQuestionQuestion->save()) {
-                    if($request->get('type') == 'CompletionQuestion') {
+                    if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
