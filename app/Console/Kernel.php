@@ -4,6 +4,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use tcCore\Console\Commands\ClearOldRequestLogs;
 use tcCore\Console\Commands\RefreshDatabase;
+use tcCore\Console\Commands\RestoreUser;
 
 class Kernel extends ConsoleKernel {
 
@@ -18,7 +19,8 @@ class Kernel extends ConsoleKernel {
 		'tcCore\Console\Commands\StartLicenseJobs',
 		'tcCore\Console\Commands\StartActiveTeacherJobs',
         RefreshDatabase::class,
-        ClearOldRequestLogs::class
+        ClearOldRequestLogs::class,
+        RestoreUser::class
 	];
 
 	/**
