@@ -19,7 +19,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
 
         $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
-        $this->baseUrl = env('LOGIN_URL');
+        $this->baseUrl = env('URL_LOGIN');
 
         return $app;
     }
