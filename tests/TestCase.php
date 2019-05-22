@@ -4,7 +4,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
 
 
-    protected $baseUrl = 'http://test-correct.test';
+    protected $baseUrl = false;
 
     const USER_TEACHER = 'p.vries@31.com';
 
@@ -18,6 +18,8 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
         $app = require __DIR__ . '/../bootstrap/app.php';
 
         $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+
+        $this->baseUrl = env('LOGIN_URL');
 
         return $app;
     }
