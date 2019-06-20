@@ -3,6 +3,7 @@
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use tcCore\Console\Commands\ClearOldRequestLogs;
+use tcCore\Console\Commands\CountOnlineUsers;
 use tcCore\Console\Commands\RefreshDatabase;
 use tcCore\Console\Commands\RestoreUser;
 
@@ -20,7 +21,8 @@ class Kernel extends ConsoleKernel {
 		'tcCore\Console\Commands\StartActiveTeacherJobs',
         RefreshDatabase::class,
         ClearOldRequestLogs::class,
-        RestoreUser::class
+        RestoreUser::class,
+        CountOnlineUsers::class,
 	];
 
 	/**
