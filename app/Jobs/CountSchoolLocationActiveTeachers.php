@@ -4,16 +4,14 @@ namespace tcCore\Jobs;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\Role;
 use tcCore\SchoolLocation;
 use tcCore\UserRole;
 
-class CountSchoolLocationActiveTeachers extends Job implements SelfHandling, ShouldQueue
+class CountSchoolLocationActiveTeachers extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**

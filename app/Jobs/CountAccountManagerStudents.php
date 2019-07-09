@@ -3,17 +3,15 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
-class CountAccountManagerStudents extends Job implements SelfHandling, ShouldQueue
+class CountAccountManagerStudents extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**

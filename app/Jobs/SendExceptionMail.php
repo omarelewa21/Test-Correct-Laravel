@@ -2,17 +2,12 @@
 
 namespace tcCore\Jobs;
 
-use Illuminate\Mail\Mailer;
-use tcCore\Jobs\Job;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use tcCore\Lib\User\Factory;
-use tcCore\Lib\User\Roles;
-use tcCore\User;
+use Illuminate\Mail\Mailer;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
-class SendExceptionMail extends Job implements SelfHandling, ShouldQueue
+class SendExceptionMail extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -50,11 +45,11 @@ class SendExceptionMail extends Job implements SelfHandling, ShouldQueue
         $serverDetails = $_SERVER;
         unset($serverDetails['MAIL_PASSWORD']);
 
-        $mailer->send($template, [  'errMessage' => $this->errMessage,
-                                    'file' => $this->file,
-                                    'lineNr' => $this->lineNr,
-                                    'details' => $this->details,
-                                    'server' => $_SERVER], function ($m) {
+        $mailer->send($template, ['errMessage' => $this->errMessage,
+                                  'file'       => $this->file,
+                                  'lineNr'     => $this->lineNr,
+                                  'details'    => $this->details,
+                                  'server'     => $_SERVER], function ($m) {
             $m->to(
                 config('mail.mail_dev_address')
             )->subject('test-correct exception');

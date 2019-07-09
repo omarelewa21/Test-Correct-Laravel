@@ -7,14 +7,11 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use tcCore\Answer;
 use tcCore\Jobs\Job;
-use Illuminate\Contracts\Bus\SelfHandling;
 use tcCore\PValue;
-use tcCore\PValueAttainment;
-use tcCore\PValueUser;
 use tcCore\QuestionAttainment;
 use tcCore\Teacher;
 
-class CalculatePValueForAnswer extends Job implements SelfHandling, ShouldQueue
+class CalculatePValueForAnswer extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -108,7 +105,7 @@ class CalculatePValueForAnswer extends Job implements SelfHandling, ShouldQueue
 
         $pValue->fill($pvalueData);
 
-        if($pValue->save() !== true) {
+        if ($pValue->save() !== true) {
             throw new \Exception('Failed to save p-value!');
         }
     }

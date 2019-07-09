@@ -4,7 +4,7 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
 {
 
 
-    protected $baseUrl = http://test-correct.test;
+    protected $baseUrl = 'http://test-correct.test';
 
     const USER_TEACHER = 'p.vries@31.com';
 

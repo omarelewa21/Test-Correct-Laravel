@@ -3,14 +3,12 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\UmbrellaOrganization;
 
-class CountUmbrellaOrganizationActiveTeachers extends Job implements SelfHandling, ShouldQueue
+class CountUmbrellaOrganizationActiveTeachers extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -39,7 +37,7 @@ class CountUmbrellaOrganizationActiveTeachers extends Job implements SelfHandlin
     {
         $count = $this->umbrellaOrganization->schools()->sum('count_active_teachers');
 
-        Log::debug('Umbrella Organization #'.$this->umbrellaOrganization->getKey().' -> count_active_teachers: '.$count);
+        Log::debug('Umbrella Organization #' . $this->umbrellaOrganization->getKey() . ' -> count_active_teachers: ' . $count);
 
         $this->umbrellaOrganization->setAttribute('count_active_teachers', $count);
         $this->umbrellaOrganization->save();

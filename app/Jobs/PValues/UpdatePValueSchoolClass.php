@@ -2,15 +2,13 @@
 
 namespace tcCore\Jobs;
 
-use tcCore\Jobs\Job;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use tcCore\PValue;
 use tcCore\SchoolClass;
 
-class UpdatePValueSchoolClass extends Job implements SelfHandling, ShouldQueue
+class UpdatePValueSchoolClass extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 

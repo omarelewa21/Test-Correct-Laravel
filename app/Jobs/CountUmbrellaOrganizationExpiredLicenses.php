@@ -3,14 +3,12 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\UmbrellaOrganization;
 
-class CountUmbrellaOrganizationExpiredLicenses extends Job implements SelfHandling, ShouldQueue
+class CountUmbrellaOrganizationExpiredLicenses extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -39,7 +37,7 @@ class CountUmbrellaOrganizationExpiredLicenses extends Job implements SelfHandli
     {
         $count = $this->umbrellaOrganization->schools()->sum('count_expired_licenses');
 
-        Log::debug('Umbrella Organization #'.$this->umbrellaOrganization->getKey().' -> count_expired_licenses: '.$count);
+        Log::debug('Umbrella Organization #' . $this->umbrellaOrganization->getKey() . ' -> count_expired_licenses: ' . $count);
 
         $this->umbrellaOrganization->setAttribute('count_expired_licenses', $count);
         $this->umbrellaOrganization->save();

@@ -3,16 +3,14 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
 
-class CountTeacherTestTaken extends Job implements SelfHandling, ShouldQueue
+class CountTeacherTestTaken extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**

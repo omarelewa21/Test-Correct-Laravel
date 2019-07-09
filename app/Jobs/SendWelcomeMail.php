@@ -3,16 +3,14 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Mail\Mailer;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use tcCore\User;
 
-class SendWelcomeMail extends Job implements SelfHandling, ShouldQueue
+class SendWelcomeMail extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 

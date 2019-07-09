@@ -53,7 +53,7 @@ abstract class CompositePrimaryKeyModel extends BaseModel {
      * @param  array  $with
      * @return $this
      */
-    public function fresh(array $with = array())
+    public function fresh($with = array())
     {
         $key = $this->getKeyName();
 

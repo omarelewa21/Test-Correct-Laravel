@@ -3,18 +3,13 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Mail\Mailer;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use tcCore\Message;
-use tcCore\User;
-use tcCore\UserRole;
 
-class SendMessageMail extends Job implements SelfHandling, ShouldQueue
+class SendMessageMail extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -39,7 +34,7 @@ class SendMessageMail extends Job implements SelfHandling, ShouldQueue
     {
         $message = Message::with('user', 'messageReceivers', 'messageReceivers.user')->findOrFail($this->messageId);
 
-        foreach($message->messageReceivers as $messageReceiver) {
+        foreach ($message->messageReceivers as $messageReceiver) {
             $email = $messageReceiver->user->getEmailForPasswordReset();
             $name = $messageReceiver->user->getNameFullAttribute();
 

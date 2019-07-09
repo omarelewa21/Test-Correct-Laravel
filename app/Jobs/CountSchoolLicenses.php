@@ -3,14 +3,12 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\School;
 
-class CountSchoolLicenses extends Job implements SelfHandling, ShouldQueue
+class CountSchoolLicenses extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -39,7 +37,7 @@ class CountSchoolLicenses extends Job implements SelfHandling, ShouldQueue
     {
         $count = $this->school->schoolLocations()->sum('count_licenses');
 
-        Log::debug('School #'.$this->school->getKey().' -> count_licenses: '.$count);
+        Log::debug('School #' . $this->school->getKey() . ' -> count_licenses: ' . $count);
 
         $this->school->setAttribute('count_licenses', $count);
         $this->school->save();

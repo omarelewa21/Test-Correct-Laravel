@@ -54,6 +54,9 @@ class ProcessTest extends \PHPUnit_Framework_TestCase
 
     public function testThatProcessDoesNotThrowWarningDuringRun()
     {
+        if ('\\' === DIRECTORY_SEPARATOR) {
+            $this->markTestSkipped('This test is transient on Windows');
+        }
         @trigger_error('Test Error', E_USER_NOTICE);
         $process = $this->getProcess(self::$phpBin." -r 'sleep(3)'");
         $process->run();
@@ -281,24 +284,6 @@ class ProcessTest extends \PHPUnit_Framework_TestCase
             array(null, null),
             array('24.5', 24.5),
             array('input data', 'input data'),
-        );
-    }
-
-    /**
-     * @dataProvider provideLegacyInputValues
-     * @group legacy
-     */
-    public function testLegacyValidInput($expected, $value)
-    {
-        $process = $this->getProcess(self::$phpBin.' -v');
-        $process->setInput($value);
-        $this->assertSame($expected, $process->getInput());
-    }
-
-    public function provideLegacyInputValues()
-    {
-        return array(
-            array('stringifiable', new Stringifiable()),
         );
     }
 
@@ -1180,7 +1165,8 @@ class ProcessTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideVariousIncrementals
      */
-    public function testIncrementalOutputDoesNotRequireAnotherCall($stream, $method) {
+    public function testIncrementalOutputDoesNotRequireAnotherCall($stream, $method)
+    {
         $process = $this->getProcess(self::$phpBin.' -r '.escapeshellarg('$n = 0; while ($n < 3) { file_put_contents(\''.$stream.'\', $n, 1); $n++; usleep(1000); }'), null, null, null, null);
         $process->start();
         $result = '';
@@ -1195,7 +1181,8 @@ class ProcessTest extends \PHPUnit_Framework_TestCase
         $process->stop();
     }
 
-    public function provideVariousIncrementals() {
+    public function provideVariousIncrementals()
+    {
         return array(
             array('php://stdout', 'getIncrementalOutput'),
             array('php://stderr', 'getIncrementalErrorOutput'),
@@ -1224,7 +1211,7 @@ class ProcessTest extends \PHPUnit_Framework_TestCase
             } catch (RuntimeException $e) {
                 $this->assertSame('This PHP has been compiled with --enable-sigchild. You must use setEnhanceSigchildCompatibility() to use this method.', $e->getMessage());
                 if ($enhance) {
-                    $process->setEnhanceSigChildCompatibility(true);
+                    $process->setEnhanceSigchildCompatibility(true);
                 } else {
                     self::$notEnhancedSigchild = true;
                 }
@@ -1247,14 +1234,6 @@ class ProcessTest extends \PHPUnit_Framework_TestCase
                 $this->setExpectedException('Symfony\Component\Process\Exception\RuntimeException', 'This PHP has been compiled with --enable-sigchild.');
             }
         }
-    }
-}
-
-class Stringifiable
-{
-    public function __toString()
-    {
-        return 'stringifiable';
     }
 }
 

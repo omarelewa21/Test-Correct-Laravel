@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Closure;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -31,8 +32,10 @@ use tcCore\Lib\User\Roles;
 
 class User extends BaseModel implements AuthenticatableContract, CanResetPasswordContract, AccessCheckable {
 
-	use Authenticatable;
-	use SoftDeletes;
+    use Authenticatable,
+        SoftDeletes,
+        Authorizable,
+        CanResetPassword;
 
 	/**
 	 * The database table used by the model.
@@ -84,6 +87,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	 * @var array Array with student user IDs, for saving
 	 */
 	protected $studentParentsOf;
+
 
 	/**
 	 * @var

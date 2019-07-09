@@ -3,17 +3,15 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
-class CountAccountManagerAccounts extends Job implements SelfHandling, ShouldQueue
+class CountAccountManagerAccounts extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -49,7 +47,7 @@ class CountAccountManagerAccounts extends Job implements SelfHandling, ShouldQue
 
         $count += SchoolLocation::where('user_id', $this->user->getKey())->whereNotIn('school_id', $schoolIds)->count();
 
-        Log::debug('Accountmanager #'.$this->user->getKey().' -> count_accounts: '.$count);
+        Log::debug('Accountmanager #' . $this->user->getKey() . ' -> count_accounts: ' . $count);
 
         $this->user->setAttribute('count_accounts', $count);
         $this->user->save();
