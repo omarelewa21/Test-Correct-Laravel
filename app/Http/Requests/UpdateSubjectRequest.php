@@ -15,7 +15,7 @@ class UpdateSubjectRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->subject = $route->getParameter('subject');
+		$this->subject = $route->parameter('subject');
 	}
 
 	/**

@@ -244,7 +244,20 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map()
     {
-        $this->loadRoutesFrom(app_path('Http/routes.php'));
+        $this->mapApiRoutes();
+//        $this->mapWebRoutes();
+        //
+    }
+
+    /**
+     * Define the api routes for the application.
+     *
+     * @return void
+     */
+    protected function mapApiRoutes()
+    {
+        Route::namespace($this->namespace)
+            ->group(base_path('routes/api.php'));
     }
 
 }

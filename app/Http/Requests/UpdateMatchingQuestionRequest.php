@@ -16,7 +16,7 @@ class UpdateMatchingQuestionRequest extends UpdateQuestionRequest {
 	 */
 	function __construct(Route $route)
 	{
-		$this->matchingQuestion = $route->getParameter('matching_question');
+		$this->matchingQuestion = $route->parameter('matching_question');
 		if ($this->matchingQuestion instanceof MatchingQuestion) {
 			$this->question = $this->matchingQuestion->getQuestionInstance();
 		}

@@ -15,7 +15,7 @@ class UpdateContactRequest extends Request {
      */
     function __construct(Route $route)
     {
-        $this->contact = $route->getParameter('contact');
+        $this->contact = $route->parameter('contact');
     }
 
     /**

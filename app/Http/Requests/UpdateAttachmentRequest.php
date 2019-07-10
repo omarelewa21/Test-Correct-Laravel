@@ -15,7 +15,7 @@ class UpdateAttachmentRequest extends Request {
      */
     function __construct(Route $route)
     {
-        $this->attachment = $route->getParameter('attachment');
+        $this->attachment = $route->parameter('attachment');
     }
 
     /**

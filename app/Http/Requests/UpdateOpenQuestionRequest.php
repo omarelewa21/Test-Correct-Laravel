@@ -16,7 +16,7 @@ class UpdateOpenQuestionRequest extends UpdateQuestionRequest {
 	 */
 	function __construct(Route $route)
 	{
-		$this->openQuestion = $route->getParameter('open_question');
+		$this->openQuestion = $route->parameter('open_question');
 		if ($this->openQuestion instanceof OpenQuestion) {
 			$this->question = $this->openQuestion->getQuestionInstance();
 		}

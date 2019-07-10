@@ -15,7 +15,7 @@ class UpdateLicenseRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->license = $route->getParameter('license');
+		$this->license = $route->parameter('license');
 	}
 
 	/**

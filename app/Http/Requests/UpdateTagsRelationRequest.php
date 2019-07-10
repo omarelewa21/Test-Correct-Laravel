@@ -15,7 +15,7 @@ class UpdateTagsRelationRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->tagsRelation = $route->getParameter('tags_relation');
+		$this->tagsRelation = $route->parameter('tags_relation');
 	}
 
 	/**

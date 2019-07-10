@@ -15,7 +15,7 @@ class UpdateSectionRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->section = $route->getParameter('section');
+		$this->section = $route->parameter('section');
 	}
 
 	/**

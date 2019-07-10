@@ -15,7 +15,7 @@ class UpdateSchoolYearRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->schoolYear = $route->getParameter('school_year');
+		$this->schoolYear = $route->parameter('school_year');
 	}
 
 	/**

@@ -15,7 +15,7 @@ class UpdateTestTakeStatusRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->testTakeStatus = $route->getParameter('test_take_status');
+		$this->testTakeStatus = $route->parameter('test_take_status');
 	}
 
 	/**

@@ -15,7 +15,7 @@ class UpdateTestKindRequest extends Request {
      */
     function __construct(Route $route)
     {
-        $this->testKind = $route->getParameter('test_kind');
+        $this->testKind = $route->eter('test_kind');
     }
 
     /**

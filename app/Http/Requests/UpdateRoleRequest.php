@@ -15,7 +15,7 @@ class UpdateRoleRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->role = $route->getParameter('role');
+		$this->role = $route->parameter('role');
 	}
 
 	/**

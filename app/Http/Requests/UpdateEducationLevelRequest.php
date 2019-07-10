@@ -15,7 +15,7 @@ class UpdateEducationLevelRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->educationLevel = $route->getParameter('education_level');
+		$this->educationLevel = $route->parameter('education_level');
 	}
 
 	/**

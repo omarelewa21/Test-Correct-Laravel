@@ -156,6 +156,7 @@ return [
         'Illuminate\Validation\ValidationServiceProvider',
         'Illuminate\View\ViewServiceProvider',
         'Illuminate\Notifications\NotificationServiceProvider',
+        Laravel\Tinker\TinkerServiceProvider::class,
 
         /*
          * Application Service Providers...

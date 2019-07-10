@@ -18,7 +18,7 @@ class UpdateUserRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->user = $route->getParameter('user');
+		$this->user = $route->parameter('user');
 	}
 
 	/**
