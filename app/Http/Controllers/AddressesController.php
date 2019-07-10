@@ -2,9 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
 use tcCore\Address;
-use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateAddressRequest;
 use tcCore\Http\Requests\UpdateAddressRequest;
 
@@ -24,7 +22,7 @@ class AddressesController extends Controller {
                 return Response::make($addresses->get(), 200);
                 break;
             case 'list':
-                return Response::make($addresses->lists('name', 'id'), 200);
+                return Response::make($addresses->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:

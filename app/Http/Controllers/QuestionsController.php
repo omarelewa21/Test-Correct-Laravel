@@ -21,7 +21,7 @@ class QuestionsController extends Controller {
                 return Response::make($questions->get(['questions.*']), 200);
                 break;
             case 'list':
-                return Response::make($questions->list('questions.question', 'questions.id'), 200);
+                return Response::make($questions->pluck('questions.question', 'questions.id'), 200);
                 break;
             case 'paginate':
             default:

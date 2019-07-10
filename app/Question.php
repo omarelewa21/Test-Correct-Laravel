@@ -56,7 +56,7 @@ class Question extends MtiBaseModel {
             if(array_key_exists('authors', $attributes)) {
                 $this->authors = $attributes['authors'];
             } elseif(array_key_exists('add_author', $attributes) || array_key_exists('delete_author', $attributes)) {
-                $this->authors = $this->questionAuthors()->lists('user_id')->all();
+                $this->authors = $this->questionAuthors()->pluck('user_id')->all();
                 if (array_key_exists('add_author', $attributes)) {
                     array_push($this->authors, $attributes['add_author']);
                 }
@@ -75,7 +75,7 @@ class Question extends MtiBaseModel {
 
                 $this->attainments = $attributes['attainments'];
             } elseif(array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment', $attributes)) {
-                $this->attainment = $this->questionAttainments()->lists('attainment_id')->all();
+                $this->attainment = $this->questionAttainments()->pluck('attainment_id')->all();
                 if (array_key_exists('add_attainment', $attributes)) {
                     array_push($this->attainments, $attributes['add_attainment']);
                 }
@@ -94,7 +94,7 @@ class Question extends MtiBaseModel {
 
                 $this->tags = Tag::findOrCreateByName($attributes['tags']);
             } elseif (array_key_exists('add_tag', $attributes) || array_key_exists('delete_tag', $attributes)) {
-                $this->tags = $this->tagRelations()->lists('tag_id')->all();
+                $this->tags = $this->tagRelations()->pluck('tag_id')->all();
                 if (array_key_exists('add_tag', $attributes)) {
                     $tagId = Tag::where('name', $attributes['add_tag'])->value('id');
                     if ($tagId) {
@@ -253,11 +253,11 @@ class Question extends MtiBaseModel {
             }
         }
 
-        $question->authors = $this->questionAuthors()->lists('user_id')->all();
+        $question->authors = $this->questionAuthors()->pluck('user_id')->all();
         $question->saveAuthors();
 
         if (!array_key_exists('tags', $attributes)) {
-            $tags = $this->tags()->lists('id')->all();
+            $tags = $this->tags()->pluck('id')->all();
 
             if (array_key_exists('add_tag', $attributes)) {
                 $tagId = Tag::where('name', $attributes['add_tag'])->value('id');
@@ -301,7 +301,7 @@ class Question extends MtiBaseModel {
             return false;
         }
 
-        $attainments = $this->questionAttainments()->lists('attainment_id')->all();
+        $attainments = $this->questionAttainments()->pluck('attainment_id')->all();
 
         if (count($this->attainments) != count($attainments) || array_diff($this->attainments, $attainments)) {
             return true;
@@ -324,7 +324,7 @@ class Question extends MtiBaseModel {
             return false;
         }
 
-        $tags = $this->tagRelations()->lists('tag_id')->all();
+        $tags = $this->tagRelations()->pluck('tag_id')->all();
 
         if (count($this->tags) != count($tags) || array_diff($this->tags, $tags)) {
             return true;
@@ -426,7 +426,7 @@ class Question extends MtiBaseModel {
             }
 
             // Join tags
-            $tags = Tag::whereIn('name', $value)->lists('name', 'id')->all();
+            $tags = Tag::whereIn('name', $value)->pluck('name', 'id')->all();
             if ($tags) {
                 $tags = array_map('strtolower', $tags);
                 $subQuery = DB::table('tag_relations')->where('deleted_at', null)->where('tag_relation_type', 'tcCore\Question')->whereIn('tag_id', array_keys($tags))->select(['tag_relation_id', DB::raw('CONCAT(\' \', GROUP_CONCAT(tag_id SEPARATOR \' \'), \' \') as tags')])->groupBy('tag_relation_id');

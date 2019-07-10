@@ -25,7 +25,7 @@ class SubjectsController extends Controller {
                 return Response::make($subjects->get(), 200);
                 break;
             case 'list':
-                return Response::make($subjects->lists('name', 'id'), 200);
+                return Response::make($subjects->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:

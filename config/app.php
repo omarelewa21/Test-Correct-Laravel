@@ -1,6 +1,16 @@
 <?php
 
 return [
+    /*
+    |--------------------------------------------------------------------------
+    | Application Name
+    |--------------------------------------------------------------------------
+    |
+    | This value is the name of your application. This value is used when the
+    | framework needs to place the application's name in a notification or
+    | any other location as required by the application or its packages.
+    */
+    'name' => 'Test-Correct',
 
     /*
     |--------------------------------------------------------------------------
@@ -12,7 +22,7 @@ return [
     | services your application utilizes. Set this in your ".env" file.
     |
     */
-    'env' => env('APP_ENV', 'production'),
+    'env'  => env('APP_ENV', 'production'),
 
     /*
     |--------------------------------------------------------------------------
@@ -145,6 +155,7 @@ return [
         'Illuminate\Translation\TranslationServiceProvider',
         'Illuminate\Validation\ValidationServiceProvider',
         'Illuminate\View\ViewServiceProvider',
+        'Illuminate\Notifications\NotificationServiceProvider',
 
         /*
          * Application Service Providers...
@@ -175,39 +186,40 @@ return [
 
     'aliases' => [
 
-        'App'       => 'Illuminate\Support\Facades\App',
-        'Artisan'   => 'Illuminate\Support\Facades\Artisan',
-        'Auth'      => 'Illuminate\Support\Facades\Auth',
-        'Blade'     => 'Illuminate\Support\Facades\Blade',
-        'Cache'     => 'Illuminate\Support\Facades\Cache',
-        'Config'    => 'Illuminate\Support\Facades\Config',
-        'Cookie'    => 'Illuminate\Support\Facades\Cookie',
-        'Crypt'     => 'Illuminate\Support\Facades\Crypt',
-        'DB'        => 'Illuminate\Support\Facades\DB',
-        'Event'     => 'Illuminate\Support\Facades\Event',
-        'File'      => 'Illuminate\Support\Facades\File',
-        'Hash'      => 'Illuminate\Support\Facades\Hash',
-        'Input'     => 'Illuminate\Support\Facades\Input',
-        'Inspiring' => 'Illuminate\Foundation\Inspiring',
-        'Lang'      => 'Illuminate\Support\Facades\Lang',
-        'Log'       => 'Illuminate\Support\Facades\Log',
-        'Mail'      => 'Illuminate\Support\Facades\Mail',
-        'Paginator' => 'Illuminate\Support\Facades\Paginator',
-        'Password'  => 'Illuminate\Support\Facades\Password',
-        'Queue'     => 'Illuminate\Support\Facades\Queue',
-        'Redirect'  => 'Illuminate\Support\Facades\Redirect',
-        'Redis'     => 'Illuminate\Support\Facades\Redis',
-        'Request'   => 'Illuminate\Support\Facades\Request',
-        'Response'  => 'Illuminate\Support\Facades\Response',
-        'Route'     => 'Illuminate\Support\Facades\Route',
-        'Schema'    => 'Illuminate\Support\Facades\Schema',
-        'Session'   => 'Illuminate\Support\Facades\Session',
-        'URL'       => 'Illuminate\Support\Facades\URL',
-        'Validator' => 'Illuminate\Support\Facades\Validator',
-        'View'      => 'Illuminate\Support\Facades\View',
+        'App'          => 'Illuminate\Support\Facades\App',
+        'Artisan'      => 'Illuminate\Support\Facades\Artisan',
+        'Auth'         => 'Illuminate\Support\Facades\Auth',
+        'Blade'        => 'Illuminate\Support\Facades\Blade',
+        'Cache'        => 'Illuminate\Support\Facades\Cache',
+        'Config'       => 'Illuminate\Support\Facades\Config',
+        'Cookie'       => 'Illuminate\Support\Facades\Cookie',
+        'Crypt'        => 'Illuminate\Support\Facades\Crypt',
+        'DB'           => 'Illuminate\Support\Facades\DB',
+        'Event'        => 'Illuminate\Support\Facades\Event',
+        'File'         => 'Illuminate\Support\Facades\File',
+        'Hash'         => 'Illuminate\Support\Facades\Hash',
+        'Input'        => 'Illuminate\Support\Facades\Input',
+        'Inspiring'    => 'Illuminate\Foundation\Inspiring',
+        'Lang'         => 'Illuminate\Support\Facades\Lang',
+        'Log'          => 'Illuminate\Support\Facades\Log',
+        'Mail'         => 'Illuminate\Support\Facades\Mail',
+        'Notification' => Illuminate\Support\Facades\Notification::class,
+        'Paginator'    => 'Illuminate\Support\Facades\Paginator',
+        'Password'     => 'Illuminate\Support\Facades\Password',
+        'Queue'        => 'Illuminate\Support\Facades\Queue',
+        'Redirect'     => 'Illuminate\Support\Facades\Redirect',
+        'Redis'        => 'Illuminate\Support\Facades\Redis',
+        'Request'      => 'Illuminate\Support\Facades\Request',
+        'Response'     => 'Illuminate\Support\Facades\Response',
+        'Route'        => 'Illuminate\Support\Facades\Route',
+        'Schema'       => 'Illuminate\Support\Facades\Schema',
+        'Session'      => 'Illuminate\Support\Facades\Session',
+        'URL'          => 'Illuminate\Support\Facades\URL',
+        'Validator'    => 'Illuminate\Support\Facades\Validator',
+        'View'         => 'Illuminate\Support\Facades\View',
 
         // Excel generator
-        'Excel'     => Maatwebsite\Excel\Facades\Excel::class
+        'Excel'        => Maatwebsite\Excel\Facades\Excel::class
 
     ],
 

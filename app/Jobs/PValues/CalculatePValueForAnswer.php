@@ -100,8 +100,8 @@ class CalculatePValueForAnswer extends Job implements ShouldQueue
         $pvalueData['education_level_id'] = $educationLevel->getKey();
         $pvalueData['education_level_year'] = $schoolClass->getAttribute('education_level_year');
 
-        $pvalueData['users'] = Teacher::where('subject_id', $subject->getKey())->where('class_id', $schoolClass->getKey())->lists('user_id')->all();
-        $pvalueData['attainments'] = QuestionAttainment::where('question_id', $question->getKey())->lists('attainment_id')->all();
+        $pvalueData['users'] = Teacher::where('subject_id', $subject->getKey())->where('class_id', $schoolClass->getKey())->pluck('user_id')->all();
+        $pvalueData['attainments'] = QuestionAttainment::where('question_id', $question->getKey())->pluck('attainment_id')->all();
 
         $pValue->fill($pvalueData);
 

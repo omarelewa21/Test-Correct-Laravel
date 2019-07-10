@@ -125,7 +125,7 @@ class PValue extends BaseModel {
         if (array_key_exists('users', $attributes)) {
             $this->users = $attributes['users'];
         } elseif(array_key_exists('add_user', $attributes) || array_key_exists('delete_user', $attributes)) {
-            $this->users = $this->users()->lists('user_id')->all();
+            $this->users = $this->users()->pluck('user_id')->all();
             if (array_key_exists('add_user', $attributes)) {
                 array_push($this->users, $attributes['add_user']);
             }
@@ -140,7 +140,7 @@ class PValue extends BaseModel {
         if (array_key_exists('attainments', $attributes)) {
             $this->attainments = $attributes['attainments'];
         } elseif(array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment', $attributes)) {
-            $this->attainments = $this->attainments()->lists('attainment_id')->all();
+            $this->attainments = $this->attainments()->pluck('attainment_id')->all();
             if (array_key_exists('add_attainment', $attributes)) {
                 array_push($this->attainments, $attributes['add_attainment']);
             }

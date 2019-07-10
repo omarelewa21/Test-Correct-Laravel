@@ -2,12 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\SchoolLocation;
-use tcCore\Section;
-use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSectionRequest;
 use tcCore\Http\Requests\UpdateSectionRequest;
+use tcCore\SchoolLocation;
+use tcCore\Section;
 
 class SectionsController extends Controller {
     /**
@@ -24,7 +22,7 @@ class SectionsController extends Controller {
                 return Response::make($schoolSections->get(), 200);
                 break;
             case 'list':
-                return Response::make($schoolSections->lists('name', 'id'), 200);
+                return Response::make($schoolSections->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:

@@ -2,8 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\Http\Controllers\Controller;
 use tcCore\Tag;
 
 class TagsController extends Controller {
@@ -21,7 +19,7 @@ class TagsController extends Controller {
 				return Response::make($tags->get(), 200);
 				break;
 			case 'list':
-				return Response::make($tags->lists('name', 'id'), 200);
+				return Response::make($tags->pluck('name', 'id'), 200);
 				break;
 			case 'paginate':
 			default:

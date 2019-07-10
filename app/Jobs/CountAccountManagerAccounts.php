@@ -38,11 +38,11 @@ class CountAccountManagerAccounts extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $umbrellaOrganizationIds = UmbrellaOrganization::where('user_id', $this->user->getKey())->lists('id')->all();
+        $umbrellaOrganizationIds = UmbrellaOrganization::where('user_id', $this->user->getKey())->pluck('id')->all();
         $count = count($umbrellaOrganizationIds);
 
 
-        $schoolIds = School::where('user_id', $this->user->getKey())->whereNotIn('umbrella_organization_id', $umbrellaOrganizationIds)->lists('id')->all();
+        $schoolIds = School::where('user_id', $this->user->getKey())->whereNotIn('umbrella_organization_id', $umbrellaOrganizationIds)->pluck('id')->all();
         $count += count($schoolIds);
 
         $count += SchoolLocation::where('user_id', $this->user->getKey())->whereNotIn('school_id', $schoolIds)->count();

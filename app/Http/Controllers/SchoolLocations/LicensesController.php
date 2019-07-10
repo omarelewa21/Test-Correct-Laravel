@@ -2,14 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\License;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateLicenseRequest;
 use tcCore\Http\Requests\UpdateLicenseRequest;
+use tcCore\License;
 use tcCore\SchoolLocation;
 
-class LicensesController extends Controller {
+class LicensesController extends Controller
+{
     /**
      * Display a listing of the licenses.
      * @param SchoolLocation $schoolLocation
@@ -19,12 +19,12 @@ class LicensesController extends Controller {
     public function index(SchoolLocation $schoolLocation, Request $request)
     {
         $licenses = $schoolLocation->licenses()->filtered($request->get('filter', []), $request->get('order', []));
-        switch(strtolower($request->get('mode', 'paginate'))) {
+        switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 return Response::make($licenses->get(), 200);
                 break;
             case 'list':
-                return Response::make($licenses->lists('name', 'id'), 200);
+                return Response::make($licenses->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:

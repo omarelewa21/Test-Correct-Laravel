@@ -2,12 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\SchoolLocation;
-use tcCore\SchoolYear;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolYearRequest;
 use tcCore\Http\Requests\UpdateSchoolYearRequest;
+use tcCore\SchoolLocation;
+use tcCore\SchoolYear;
 
 /**
  * Class SchoolYearsController
@@ -28,7 +27,7 @@ class SchoolYearsController extends Controller {
                 return Response::make($schoolYears->get(), 200);
                 break;
             case 'list':
-                return Response::make($schoolYears->lists('year', 'id'), 200);
+                return Response::make($schoolYears->pluck('year', 'id'), 200);
                 break;
             case 'paginate':
             default:

@@ -2,11 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\SchoolClass;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolClassRequest;
 use tcCore\Http\Requests\UpdateSchoolClassRequest;
+use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 
 class SchoolClassesController extends Controller {
@@ -24,7 +23,7 @@ class SchoolClassesController extends Controller {
                 return Response::make($schoolClasses->get(), 200);
                 break;
             case 'list':
-                return Response::make($schoolClasses->lists('name', 'id'), 200);
+                return Response::make($schoolClasses->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:

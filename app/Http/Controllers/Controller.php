@@ -8,7 +8,6 @@ use tcCore\Lib\User\Roles;
 
 abstract class Controller extends BaseController
 {
-
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     protected function getUserRoles()

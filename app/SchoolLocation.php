@@ -76,7 +76,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('school_years', $attributes)) {
             $this->schoolYears = $attributes['school_years'];
         } elseif(array_key_exists('add_school_year', $attributes) || array_key_exists('delete_school_year', $attributes)) {
-            $this->schoolYears = $this->schoolLocationSchoolYears()->lists('school_year_id')->all();
+            $this->schoolYears = $this->schoolLocationSchoolYears()->pluck('school_year_id')->all();
             if (array_key_exists('add_school_year', $attributes)) {
                 array_push($this->schoolYears, $attributes['add_school_year']);
             }
@@ -91,7 +91,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('sections', $attributes)) {
             $this->sections = $attributes['sections'];
         } elseif(array_key_exists('add_section', $attributes) || array_key_exists('delete_section', $attributes)) {
-            $this->sections = $this->schoolLocationSections()->lists('section_id')->all();
+            $this->sections = $this->schoolLocationSections()->pluck('section_id')->all();
             if (array_key_exists('add_section', $attributes)) {
                 array_push($this->sections, $attributes['add_section']);
             }
@@ -106,7 +106,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('education_levels', $attributes)) {
             $this->educationLevels = $attributes['education_levels'];
         } elseif(array_key_exists('add_education_level', $attributes) || array_key_exists('delete_education_level', $attributes)) {
-            $this->educationLevels = $this->schoolLocationEducationLevels()->lists('education_level_id')->all();
+            $this->educationLevels = $this->schoolLocationEducationLevels()->pluck('education_level_id')->all();
             if (array_key_exists('add_education_level', $attributes)) {
                 array_push($this->educationLevels, $attributes['add_education_level']);
             }
@@ -121,7 +121,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('main_addresses', $attributes)) {
             $this->mainAddresses = $attributes['main_addresses'];
         } elseif(array_key_exists('add_main_address', $attributes) || array_key_exists('delete_main_address', $attributes)) {
-            $this->mainAddresses = $this->schoolLocationAddresses()->where('type', 'MAIN')->lists('address_id')->all();
+            $this->mainAddresses = $this->schoolLocationAddresses()->where('type', 'MAIN')->pluck('address_id')->all();
             if (array_key_exists('add_main_address', $attributes)) {
                 array_push($this->mainAddresses, $attributes['add_main_address']);
             }
@@ -136,7 +136,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('invoice_addresses', $attributes)) {
             $this->invoiceAddresses = $attributes['invoice_addresses'];
         } elseif(array_key_exists('add_invoice_address', $attributes) || array_key_exists('delete_invoice_address', $attributes)) {
-            $this->invoiceAddresses = $this->schoolLocationAddresses()->where('type', 'INVOICE')->lists('address_id')->all();
+            $this->invoiceAddresses = $this->schoolLocationAddresses()->where('type', 'INVOICE')->pluck('address_id')->all();
             if (array_key_exists('add_invoice_address', $attributes)) {
                 array_push($this->invoiceAddresses, $attributes['add_invoice_address']);
             }
@@ -151,7 +151,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('visit_addresses', $attributes)) {
             $this->visitAddresses = $attributes['visit_addresses'];
         } elseif(array_key_exists('add_visit_address', $attributes) || array_key_exists('delete_visit_address', $attributes)) {
-            $this->visitAddresses = $this->schoolLocationAddresses()->where('type', 'VISIT')->lists('address_id')->all();
+            $this->visitAddresses = $this->schoolLocationAddresses()->where('type', 'VISIT')->pluck('address_id')->all();
             if (array_key_exists('add_visit_address', $attributes)) {
                 array_push($this->visitAddresses, $attributes['add_visit_address']);
             }
@@ -166,7 +166,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('other_addresses', $attributes)) {
             $this->otherAddresses = $attributes['other_addresses'];
         } elseif(array_key_exists('add_other_address', $attributes) || array_key_exists('delete_other_address', $attributes)) {
-            $this->otherAddresses = $this->schoolLocationAddresses()->where('type', 'OTHER')->lists('address_id')->all();
+            $this->otherAddresses = $this->schoolLocationAddresses()->where('type', 'OTHER')->pluck('address_id')->all();
             if (array_key_exists('add_other_address', $attributes)) {
                 array_push($this->otherAddresses, $attributes['add_other_address']);
             }
@@ -181,7 +181,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('financial_contacts', $attributes)) {
             $this->financialContacts = $attributes['financial_contacts'];
         } elseif(array_key_exists('add_financial_contact', $attributes) || array_key_exists('delete_financial_contact', $attributes)) {
-            $this->financialContacts = $this->schoolLocationContacts()->where('type', 'FINANCE')->lists('contact_id')->all();
+            $this->financialContacts = $this->schoolLocationContacts()->where('type', 'FINANCE')->pluck('contact_id')->all();
             if (array_key_exists('add_financial_contact', $attributes)) {
                 array_push($this->financialContacts, $attributes['add_financial_contact']);
             }
@@ -196,7 +196,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('technical_contacts', $attributes)) {
             $this->technicalContacts = $attributes['technical_contacts'];
         } elseif(array_key_exists('add_technical_contact', $attributes) || array_key_exists('delete_technical_contact', $attributes)) {
-            $this->technicalContacts = $this->schoolLocationContacts()->where('type', 'TECHNICAL')->lists('contact_id')->all();
+            $this->technicalContacts = $this->schoolLocationContacts()->where('type', 'TECHNICAL')->pluck('contact_id')->all();
             if (array_key_exists('add_technical_contact', $attributes)) {
                 array_push($this->technicalContacts, $attributes['add_technical_contact']);
             }
@@ -211,7 +211,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('implementation_contacts', $attributes)) {
             $this->implementationContacts = $attributes['implementation_contacts'];
         } elseif(array_key_exists('add_implementation_contact', $attributes) || array_key_exists('delete_implementation_contact', $attributes)) {
-            $this->implementationContacts = $this->schoolLocationContacts()->where('type', 'IMPLEMENTATION')->lists('contact_id')->all();
+            $this->implementationContacts = $this->schoolLocationContacts()->where('type', 'IMPLEMENTATION')->pluck('contact_id')->all();
             if (array_key_exists('add_implementation_contact', $attributes)) {
                 array_push($this->implementationContacts, $attributes['add_implementation_contact']);
             }
@@ -226,7 +226,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         if(array_key_exists('other_contacts', $attributes)) {
             $this->otherContacts = $attributes['other_contacts'];
         } elseif(array_key_exists('add_other_contact', $attributes) || array_key_exists('delete_other_contact', $attributes)) {
-            $this->otherContacts = $this->schoolLocationContacts()->where('type', 'OTHER')->lists('contact_id')->all();
+            $this->otherContacts = $this->schoolLocationContacts()->where('type', 'OTHER')->pluck('contact_id')->all();
             if (array_key_exists('add_other_contact', $attributes)) {
                 array_push($this->otherContacts, $attributes['add_other_contact']);
             }
@@ -496,7 +496,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
                         ->where('user_id', $userId)
                         ->whereNull('deleted_at');
                 })->orWhere('user_id', $userId);
-            })->lists('id')->all();
+            })->pluck('id')->all();
 
             $query->where(function ($query) use ($schoolIds, $userId) {
                 $query->whereIn('school_id', $schoolIds)
@@ -564,7 +564,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
                         ->where('user_id', $userId)
                         ->whereNull('deleted_at');
                 })->orWhere('user_id', $userId);
-            })->lists('id')->all();
+            })->pluck('id')->all();
 
             return (in_array($this->getAttribute('school_id'), $schoolIds) || $this->getAttribute('user_id') == $userId);
         }

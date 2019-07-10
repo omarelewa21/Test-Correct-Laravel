@@ -260,7 +260,7 @@ class GroupQuestion extends Question implements QuestionInterface {
             $testQuestion = new TestQuestion();
             $query->from($testQuestion->getTable())->select('test_id')->where('question_id', $groupQuestionId);
         })->whereNotIn('id', $ignoreTests)->get();
-        $ignoreTests = $tests->lists('id');
+        $ignoreTests = $tests->pluck('id');
 
         $ignoreGroupQuestions[] = $this->getKey();
         $groupQuestions = static::whereIn('id', function($query) use ($groupQuestionId) {

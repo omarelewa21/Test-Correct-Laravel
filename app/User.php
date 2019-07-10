@@ -100,7 +100,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		if (array_key_exists('student_school_classes', $attributes)) {
 			$this->studentSchoolClasses = $attributes['student_school_classes'];
 		} elseif(array_key_exists('add_student_school_class', $attributes) || array_key_exists('delete_student_school_class', $attributes)) {
-			$this->studentSchoolClasses = $this->students()->lists('class_id')->all();
+			$this->studentSchoolClasses = $this->students()->pluck('class_id')->all();
 			if (array_key_exists('add_student_school_class', $attributes)) {
 				array_push($this->studentSchoolClasses, $attributes['add_student_school_class']);
 			}
@@ -115,7 +115,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		if (array_key_exists('manager_school_classes', $attributes)) {
 			$this->managerSchoolClasses = $attributes['manager_school_classes'];
 		} elseif(array_key_exists('add_manager_school_class', $attributes) || array_key_exists('delete_manager_school_class', $attributes)) {
-			$this->managerSchoolClasses = $this->managers()->lists('school_class_id')->all();
+			$this->managerSchoolClasses = $this->managers()->pluck('school_class_id')->all();
 			if (array_key_exists('add_manager_school_class', $attributes)) {
 				array_push($this->managerSchoolClasses, $attributes['add_manager_school_class']);
 			}
@@ -130,7 +130,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		if (array_key_exists('mentor_school_classes', $attributes)) {
 			$this->mentorSchoolClasses = $attributes['mentor_school_classes'];
 		} elseif(array_key_exists('add_mentor_school_class', $attributes) || array_key_exists('delete_mentor_school_class', $attributes)) {
-			$this->mentorSchoolClasses = $this->mentors()->lists('school_class_id')->all();
+			$this->mentorSchoolClasses = $this->mentors()->pluck('school_class_id')->all();
 			if (array_key_exists('add_mentor_school_class', $attributes)) {
 				array_push($this->mentorSchoolClasses, $attributes['add_mentor_school_class']);
 			}
@@ -145,7 +145,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		if (array_key_exists('student_parents', $attributes)) {
 			$this->studentParents = $attributes['student_parents'];
 		} elseif(array_key_exists('add_student_parent', $attributes) || array_key_exists('delete_student_parent', $attributes)) {
-			$this->studentParents = $this->studentParents()->lists('student_parent_id')->all();
+			$this->studentParents = $this->studentParents()->pluck('student_parent_id')->all();
 			if (array_key_exists('add_student_parent', $attributes)) {
 				array_push($this->studentParents, $attributes['add_student_parent']);
 			}
@@ -160,7 +160,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		if (array_key_exists('student_parents_of', $attributes)) {
 			$this->studentParentsOf = $attributes['student_parents_of'];
 		} elseif(array_key_exists('add_student_parent_of', $attributes) || array_key_exists('delete_student_parent_of', $attributes)) {
-			$this->studentParentsOf = $this->studentParentsOf()->lists('user_id')->all();
+			$this->studentParentsOf = $this->studentParentsOf()->pluck('user_id')->all();
 			if (array_key_exists('add_student_parent_of', $attributes)) {
 				array_push($this->studentParentsOf, $attributes['add_student_parent_of']);
 			}
@@ -175,7 +175,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		if(array_key_exists('user_roles', $attributes)) {
 			$this->userRoles = $attributes['user_roles'];
 		} elseif(array_key_exists('add_user_role', $attributes) || array_key_exists('delete_user_role', $attributes)) {
-			$this->userRoles = $this->userRoles()->lists('role_id')->all();
+			$this->userRoles = $this->userRoles()->pluck('role_id')->all();
 			if (array_key_exists('add_user_role', $attributes)) {
 				array_push($this->userRoles, $attributes['add_user_role']);
 			}
@@ -767,7 +767,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 					$minRating = null;
 
 					if ($key === 'test_id_made') {
-						$testTakeStatusses = TestTakeStatus::whereIn('name', ['Taking test', 'Handed in', 'Taken away', 'Taken', 'Discussing', 'Discussed', 'Rated'])->list('id');
+						$testTakeStatusses = TestTakeStatus::whereIn('name', ['Taking test', 'Handed in', 'Taken away', 'Taken', 'Discussing', 'Discussed', 'Rated'])->pluck('id');
 						if (array_key_exists('max_rating', $filters)) {
 							$maxRating = $filters['max_rating'];
 						}
@@ -775,7 +775,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 							$minRating = $filters['min_rating'];
 						}
 					} elseif ($key === 'test_take_id_participated')  {
-						$testTakeStatusses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->list('id');
+						$testTakeStatusses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->pluck('id');
 					}
 
 					$subQuery = function ($query) use ($testTakeIds, $testTakeStatusses, $maxRating, $minRating) {
@@ -862,12 +862,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 						->where('user_id', $userId)
 						->whereNull('deleted_at');
 				})->orWhere('user_id', $userId);
-			})->lists('id')->all();
+			})->pluck('id')->all();
 
 			$schoolLocationIds = SchoolLocation::where(function ($query) use ($schoolIds, $userId) {
 				$query->whereIn('school_id', $schoolIds)
 					->orWhere('user_id', $userId);
-			})->lists('id')->all();
+			})->pluck('id')->all();
 
 			$parentIds = StudentParent::whereIn('user_id', function($query) use ($schoolIds, $schoolLocationIds) {
 				$query->select($this->getKeyName())
@@ -877,7 +877,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 						$query->orWhereIn('school_location_id', $schoolLocationIds);
 					})
 					->whereNull('deleted_at');
-			})->lists('parent_id')->all();
+			})->pluck('parent_id')->all();
 
 			$query->where(function ($query) use ($schoolIds, $schoolLocationIds, $parentIds) {
 				$query->whereIn('school_id', $schoolIds);
@@ -892,7 +892,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 			if ($schoolId !== null) {
 				$schoolLocationIds = SchoolLocation::where(function ($query) use ($schoolId, $schoolLocationId) {
 					$query->where('school_id', $schoolId)->orWhere('id', $schoolLocationId);
-				})->lists('id')->all();
+				})->pluck('id')->all();
 			} elseif($schoolLocationId !== null) {
 				$schoolLocationIds = [$schoolLocationId];
 			} else {
@@ -907,7 +907,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 						$query->orWhereIn('school_location_id', $schoolLocationIds);
 					})
 					->whereNull('deleted_at');
-			})->lists('parent_id')->all();
+			})->pluck('parent_id')->all();
 
 			$query->where(function ($query) use ($schoolId, $schoolLocationIds, $parentIds) {
 				if ($schoolId !== null) {
@@ -1100,12 +1100,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 						->where('user_id', $userId)
 						->whereNull('deleted_at');
 				})->orWhere('user_id', $userId);
-			})->lists('id')->all();
+			})->pluck('id')->all();
 
 			$schoolLocationIds = SchoolLocation::where(function ($query) use ($schoolIds, $userId) {
 				$query->whereIn('school_id', $schoolIds)
 					->orWhere('user_id', $userId);
-			})->lists('id')->all();
+			})->pluck('id')->all();
 
 			if (!in_array($this->getAttribute('school_id'), $schoolIds) && !in_array($this->getAttribute('school_location_id'), $schoolLocationIds)){
 				$parentCount = StudentParent::whereIn('user_id', function($query) use ($schoolIds, $schoolLocationIds) {
@@ -1132,7 +1132,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 			if ($schoolId !== null) {
 				$schoolLocationIds = SchoolLocation::where(function ($query) use ($schoolId, $schoolLocationId) {
 					$query->where('school_id', $schoolId)->orWhere('id', $schoolLocationId);
-				})->lists('id')->all();
+				})->pluck('id')->all();
 			} elseif($schoolLocationId !== null) {
 				$schoolLocationIds = [$schoolLocationId];
 			} else {

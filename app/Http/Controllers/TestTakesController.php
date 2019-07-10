@@ -313,7 +313,7 @@ class TestTakesController extends Controller {
 					$parents .= $discussingParentQuestions->getAttribute('group_question_id');
 				}
 
-				$testParticipantUserIds = $testTake->testParticipants->lists('id', 'user_id')->all();
+				$testParticipantUserIds = $testTake->testParticipants->pluck('id', 'user_id')->all();
 				$activeAnswerRatingsPerTestParticipant = [];
 				$ratedAnswerRatingsPerTestParticipant = [];
 				$testParticipantAbnormalities = [];
@@ -446,7 +446,7 @@ class TestTakesController extends Controller {
 			$testTake->setAttribute('avg_rating', (count($ratings) > 0) ? array_sum($ratings) / count($ratings) : 0);
 			$testTake->setAttribute('mix_rating', min($ratings));
 
-			$testTakeStatusesRetake = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->lists('id');
+			$testTakeStatusesRetake = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->pluck('id');
 
 			$testTake->load(['testParticipants' => function ($query) use ($testTakeStatusesRetake) {
 				$query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'user_id', 'rating', 'retake_rating']);

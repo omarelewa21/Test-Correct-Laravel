@@ -36,7 +36,7 @@ class AverageRatingRepository {
         $allSchoolClasses = Collection::make(array_unique($allSchoolClasses));
 
         // Get all student in all classes
-        $students = Student::whereIn('class_id', $allSchoolClasses->lists('id'))->with('user')->get();
+        $students = Student::whereIn('class_id', $allSchoolClasses->pluck('id'))->with('user')->get();
         $usersSchoolClassIds = [];
         $studentCount = [];
         foreach($students as $student) {
@@ -213,7 +213,7 @@ class AverageRatingRepository {
                 return;
             }
 
-            $subjectIds = $baseSubjectOrSubject->subjects()->lists('id')->all();
+            $subjectIds = $baseSubjectOrSubject->subjects()->pluck('id')->all();
             foreach($subjects as $subject) {
                 if(($key = array_search($subject->getKey(), $subjectIds)) !== false) {
                     unset($subjectIds[$key]);
@@ -235,7 +235,7 @@ class AverageRatingRepository {
         }
 
         // Get ratings with subjects within period ids OR (within dates but then only from the student)
-        $schoolClassIds = Rating::whereIn('period_id', $periodIds)->whereIn('subject_id', $subjectIds)->where('user_id', $student->getKey())->distinct()->lists('school_class_id');
+        $schoolClassIds = Rating::whereIn('period_id', $periodIds)->whereIn('subject_id', $subjectIds)->where('user_id', $student->getKey())->distinct()->pluck('school_class_id');
         $ratings = Rating::whereIn('ratings.school_class_id', $schoolClassIds)
             ->whereIn('subject_id', $subjectIds)
             ->join('test_participants', 'test_participants.id', '=', 'ratings.test_participant_id')

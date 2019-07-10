@@ -42,11 +42,11 @@ class CountTeacherTestTaken extends Job implements ShouldQueue
         $teacherIds = $user->teacher()->get(['id', 'class_id', 'subject_id'])->keyBy('id');
 
         // Get wanted statuses
-        $testTakeFinishedStatusIds = TestTakeStatus::whereIn('name', ['Taken', 'Discussing', 'Discussed', 'Rated'])->lists('id')->all();
+        $testTakeFinishedStatusIds = TestTakeStatus::whereIn('name', ['Taken', 'Discussing', 'Discussed', 'Rated'])->pluck('id')->all();
 
         // Get the unique test takes which contain students in the teacher's classes
         $count = TestTake::select('test_takes.id')
-            ->where(function($query) use ($teacherIds) {
+            ->where(function ($query) use ($teacherIds) {
                 foreach ($teacherIds as $teacherId => $data) {
                     $query->orWhere(function ($query) use ($data) {
                         $query->where('test_participants.school_class_id', $data['class_id'])
@@ -60,7 +60,7 @@ class CountTeacherTestTaken extends Job implements ShouldQueue
             ->join('tests', 'tests.id', '=', 'test_takes.test_id')
             ->join('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')->distinct('test_takes.id')->count('test_takes.id');
 
-        Log::debug('Teacher #'.$user->getKey().' -> count_tests_taken: '.$count);
+        Log::debug('Teacher #' . $user->getKey() . ' -> count_tests_taken: ' . $count);
 
         $this->user->setAttribute('count_tests_taken', $count);
         $this->user->save();

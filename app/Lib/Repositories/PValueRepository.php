@@ -123,7 +123,7 @@ class PValueRepository {
                 }
 
                 if ($subjectIds !== null) {
-                    $subjectIds = $baseSubjectOrSubject->subjects()->lists('id')->all();
+                    $subjectIds = $baseSubjectOrSubject->subjects()->pluck('id')->all();
                     foreach ($subjects as $subject) {
                         if (($key = array_search($subject->getKey(), $subjectIds)) !== false) {
                             unset($subjectIds[$key]);
@@ -147,7 +147,7 @@ class PValueRepository {
         }
 
         // Get all pvalues and join attainments
-        $pValues = PValue::whereIn('test_participant_id', $student->testParticipants()->lists('id'))->with('attainments');
+        $pValues = PValue::whereIn('test_participant_id', $student->testParticipants()->pluck('id'))->with('attainments');
         if ($subjectIds !== null) {
             $pValues->whereIn('subject_id', $subjectIds);
         }

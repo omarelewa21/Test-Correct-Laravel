@@ -2,8 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\Http\Controllers\Controller;
 use tcCore\GradingScale;
 use tcCore\Http\Requests\CreateGradingScaleRequest;
 use tcCore\Http\Requests\UpdateGradingScaleRequest;
@@ -24,7 +22,7 @@ class GradingScalesController extends Controller {
 				return Response::make($gradingScales->get(), 200);
 				break;
 			case 'list':
-				return Response::make($gradingScales->lists('name', 'id'), 200);
+				return Response::make($gradingScales->pluck('name', 'id'), 200);
 				break;
 			case 'paginate':
 			default:

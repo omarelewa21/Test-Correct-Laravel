@@ -3,12 +3,13 @@
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
-class MtiBuilder extends Builder {
+class MtiBuilder extends Builder
+{
 
     /**
      * Get the hydrated models without eager loading.
      *
-     * @param  array  $columns
+     * @param  array $columns
      * @return \Illuminate\Database\Eloquent\Model[]
      */
     public function getModels($columns = array('*'))
@@ -112,41 +113,41 @@ class MtiBuilder extends Builder {
         }
     }
 
-    public function processColumns($columns) {
+    public function processColumns($columns)
+    {
         $results = array();
 
-        foreach($columns as $column) {
+        foreach ($columns as $column) {
             if (($column == '*' || strpos($column, '.') === false) && strpos($column, '(') === false) {
-                $results[] = $this->model->getTable().'.'.$column;
+                $results[] = $this->model->getTable() . '.' . $column;
             } else {
                 $results[] = $column;
             }
         }
         $parent = $this->model->mtiBaseClass;
         $parent = new $parent();
-        $results[] = $parent->getTable().'.'.$parent->mtiClassField;
+        $results[] = $parent->getTable() . '.' . $parent->mtiClassField;
 
         return $results;
     }
 
     /**
      * Get an array with the values of a given column.
-     *
-     * @param  string  $column
-     * @param  string  $key
+     * old version later replaced by pluck due to migration to laravel 5.3.
+     * TODO may be removed in later versions. Note was added at 10 Jul 2019
+     * @param  string $column
+     * @param  string $key
      * @return array
      */
     public function lists($column, $key = null)
     {
-        $results = $this->query->lists($column, $key);
+        $results = $this->query->pluck($column, $key);
 
         // If the model has a mutator for the requested column, we will spin through
         // the results and mutate the values so that the mutated version of these
         // columns are returned as you would expect from these Eloquent models.
-        if ($this->model->hasGetMutator($column))
-        {
-            foreach ($results as $key => &$value)
-            {
+        if ($this->model->hasGetMutator($column)) {
+            foreach ($results as $key => &$value) {
                 $fill = [$column => $value];
 
                 $value = $this->model->newFromBuilder($fill)->$column;
@@ -156,10 +157,36 @@ class MtiBuilder extends Builder {
         return collect($results);
     }
 
-    protected function getModelNamespace() {
-        $slices = explode('\\',get_class($this->model));
+    /**
+     * Get an array with the values of a given column.
+     *
+     * @param  string $column
+     * @param  string $key
+     * @return array
+     */
+    public function pluck($column, $key = null)
+    {
+        $results = $this->query->pluck($column, $key);
+
+        // If the model has a mutator for the requested column, we will spin through
+        // the results and mutate the values so that the mutated version of these
+        // columns are returned as you would expect from these Eloquent models.
+        if ($this->model->hasGetMutator($column)) {
+            foreach ($results as $key => &$value) {
+                $fill = [$column => $value];
+
+                $value = $this->model->newFromBuilder($fill)->$column;
+            }
+        }
+
+        return collect($results);
+    }
+
+    protected function getModelNamespace()
+    {
+        $slices = explode('\\', get_class($this->model));
         if (count($slices) > 1) {
-            return implode('\\', array_slice($slices, 0, -1)).'\\';
+            return implode('\\', array_slice($slices, 0, -1)) . '\\';
         } else {
             return '';
         }

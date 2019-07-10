@@ -2,12 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\SchoolLocation;
-use tcCore\SchoolLocationIp;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolLocationIpRequest;
 use tcCore\Http\Requests\UpdateSchoolLocationIpRequest;
+use tcCore\SchoolLocation;
+use tcCore\SchoolLocationIp;
 
 class SchoolLocationIpsController extends Controller {
     /**
@@ -24,7 +23,7 @@ class SchoolLocationIpsController extends Controller {
                 return Response::make($schoolLocationIps->get(), 200);
                 break;
             case 'list':
-                return Response::make($schoolLocationIps->lists('ip', 'id'), 200);
+                return Response::make($schoolLocationIps->pluck('ip', 'id'), 200);
                 break;
             case 'paginate':
             default:
