@@ -38,7 +38,7 @@ class GenerateUser extends Command {
 	 *
 	 * @return mixed
 	 */
-	public function fire()
+	public function handle()
 	{
 		$username = $this->argument('username');
 		$password = $this->argument('password');

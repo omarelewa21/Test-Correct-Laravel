@@ -42,7 +42,7 @@ class SchoolsController extends Controller {
         $school = new School();
 
         $school->fill($request->all());
-        if (!$request->has('user_id')) {
+        if (!$request->filled('user_id')) {
             $school->setAttribute('user_id', Auth::user()->getKey());
         }
 

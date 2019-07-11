@@ -180,7 +180,7 @@ class UsersController extends Controller {
 	{
 		$user->fill($request->all());
 
-		if ($request->has('password')) {
+		if ($request->filled('password')) {
 			$user->setAttribute('password', \Hash::make($request->get('password')));
 		}
 

@@ -675,7 +675,7 @@ class TestTakesController extends Controller {
 		}]);
 		$ignoreQuestions = $request->get('ignore_questions');
 
-		if ($request->has('ppp') || $request->has('epp') || $request->has('wanted_average') || $request->has('n_term')) {
+		if ($request->filled('ppp') || $request->filled('epp') || $request->filled('wanted_average') || $request->filled('n_term')) {
 			$testTake->setAttribute('ppp', null);
 			$testTake->setAttribute('epp', null);
 			$testTake->setAttribute('wanted_average', null);
@@ -683,31 +683,31 @@ class TestTakesController extends Controller {
 			$testTake->setAttribute('pass_mark', null);
 		}
 
-		Log::debug('preview', [$request->has('preview'), $request->get('preview'), $request->all()]);
+		Log::debug('preview', [$request->filled('preview'), $request->get('preview'), $request->all()]);
 
 		$questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 		if (
 			(
 				(
-					!$request->has('ppp')
+					!$request->filled('ppp')
 					&& $testTake->getAttribute('ppp') === null
 				)
 				&& (
-					$request->has('epp')
+					$request->filled('epp')
 					|| $testTake->getAttribute('epp')
 				)
 			)
 			|| (
 				(
-					!$request->has('ppp')
+					!$request->filled('ppp')
 					&& $testTake->getAttribute('ppp') === null
-					&& !$request->has('epp')
+					&& !$request->filled('epp')
 					&& $testTake->getAttribute('epp') === null
-					&& !$request->has('wanted_average')
+					&& !$request->filled('wanted_average')
 					&& $testTake->getAttribute('wanted_average') === null
 				)
 				&& (
-					$request->has('n_term')
+					$request->filled('n_term')
 					|| (
 						$testTake->getAttribute('n_term') !== null
 					)
@@ -774,11 +774,11 @@ class TestTakesController extends Controller {
 			$testParticipant->setRelations($relations);
 		}
 
-		if ($request->has('ppp') || $testTake->getAttribute('ppp') !== null) {
-			$ppp = ($request->has('ppp')) ? $request->get('ppp') : $testTake->getAttribute('ppp');
+		if ($request->filled('ppp') || $testTake->getAttribute('ppp') !== null) {
+			$ppp = ($request->filled('ppp')) ? $request->get('ppp') : $testTake->getAttribute('ppp');
 			
 			$testTake->setAttribute('ppp', $ppp);
-			if (!$request->has('preview') || $request->get('preview') != true) {
+			if (!$request->filled('preview') || $request->get('preview') != true) {
 				$testTake->save();
 			}
 
@@ -794,17 +794,17 @@ class TestTakesController extends Controller {
 					}
 
 					$testParticipant->setAttribute('rating', round($rate, 1));
-					if (!$request->has('preview') || $request->get('preview') != true) {
+					if (!$request->filled('preview') || $request->get('preview') != true) {
 						$testParticipant->save();
 					}
 					$testParticipant->setAttribute('score', $score);
 				}
 			}
-		} elseif ($request->has('epp') || $testTake->getAttribute('epp') !== null) {
-			$epp = ($request->has('epp')) ? $request->get('epp') : $testTake->getAttribute('epp');
+		} elseif ($request->filled('epp') || $testTake->getAttribute('epp') !== null) {
+			$epp = ($request->filled('epp')) ? $request->get('epp') : $testTake->getAttribute('epp');
 			
 			$testTake->setAttribute('epp', $epp);
-			if (!$request->has('preview') || $request->get('preview') != true) {
+			if (!$request->filled('preview') || $request->get('preview') != true) {
 				$testTake->save();
 			}
 
@@ -820,17 +820,17 @@ class TestTakesController extends Controller {
 					}
 
 					$testParticipant->setAttribute('rating', round($rate, 1));
-					if (!$request->has('preview') || $request->get('preview') != true) {
+					if (!$request->filled('preview') || $request->get('preview') != true) {
 						$testParticipant->save();
 					}
 					$testParticipant->setAttribute('score', $score);
 				}
 			}
-		} elseif ($request->has('wanted_average') || $testTake->getAttribute('wanted_average') !== null) {
-			$average = ($request->has('wanted_average')) ? $request->get('wanted_average') : $testTake->getAttribute('wanted_average');
+		} elseif ($request->filled('wanted_average') || $testTake->getAttribute('wanted_average') !== null) {
+			$average = ($request->filled('wanted_average')) ? $request->get('wanted_average') : $testTake->getAttribute('wanted_average');
 
 			$testTake->setAttribute('wanted_average', $average);
-			if (!$request->has('preview') || $request->get('preview') != true) {
+			if (!$request->filled('preview') || $request->get('preview') != true) {
 				$testTake->save();
 			}
 
@@ -849,20 +849,20 @@ class TestTakesController extends Controller {
 						}
 
 						$testParticipant->setAttribute('rating', round($rate, 1));
-						if (!$request->has('preview') || $request->get('preview') != true) {
+						if (!$request->filled('preview') || $request->get('preview') != true) {
 							$testParticipant->save();
 						}
 						$testParticipant->setAttribute('score', $score);
 					}
 				}
 			}
-		} elseif ($request->has('n_term') && $request->has('pass_mark') || ($testTake->getAttribute('n_term') !== null && $testTake->getAttribute('pass_mark') !== null)) {
-			$nTerm = ($request->has('n_term')) ? $request->get('n_term') : $testTake->getAttribute('n_term');
-			$passMark = ($request->has('pass_mark')) ? $request->get('pass_mark') : $testTake->getAttribute('pass_mark');
+		} elseif ($request->filled('n_term') && $request->filled('pass_mark') || ($testTake->getAttribute('n_term') !== null && $testTake->getAttribute('pass_mark') !== null)) {
+			$nTerm = ($request->filled('n_term')) ? $request->get('n_term') : $testTake->getAttribute('n_term');
+			$passMark = ($request->filled('pass_mark')) ? $request->get('pass_mark') : $testTake->getAttribute('pass_mark');
 			
 			$testTake->setAttribute('n_term', $nTerm);
 			$testTake->setAttribute('pass_mark', $passMark);
-			if (!$request->has('preview') || $request->get('preview') != true) {
+			if (!$request->filled('preview') || $request->get('preview') != true) {
 				$testTake->save();
 			}
 
@@ -890,17 +890,17 @@ class TestTakesController extends Controller {
 					}
 
 					$testParticipant->setAttribute('rating', round($rate, 1));
-					if (!$request->has('preview') || $request->get('preview') != true) {
+					if (!$request->filled('preview') || $request->get('preview') != true) {
 						$testParticipant->save();
 					}
 					$testParticipant->setAttribute('score', $score);
 				}
 			}
-		} elseif ($request->has('n_term') || $testTake->getAttribute('n_term') !== null) {
-			$nTerm = ($request->has('n_term')) ? $request->get('n_term') : $testTake->getAttribute('n_term');
+		} elseif ($request->filled('n_term') || $testTake->getAttribute('n_term') !== null) {
+			$nTerm = ($request->filled('n_term')) ? $request->get('n_term') : $testTake->getAttribute('n_term');
 
 			$testTake->setAttribute('n_term', $nTerm);
-			if (!$request->has('preview') || $request->get('preview') != true) {
+			if (!$request->filled('preview') || $request->get('preview') != true) {
 				$testTake->save();
 			}
 
@@ -939,7 +939,7 @@ class TestTakesController extends Controller {
 					}
 
 					$testParticipant->setAttribute('rating', round($rate, 1));
-					if (!$request->has('preview') || $request->get('preview') != true) {
+					if (!$request->filled('preview') || $request->get('preview') != true) {
 						$testParticipant->save();
 					}
 					$testParticipant->setAttribute('score', $score);

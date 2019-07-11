@@ -3,16 +3,17 @@
 namespace Illuminate\Cache;
 
 use Closure;
-use DateTime;
 use ArrayAccess;
-use Carbon\Carbon;
+use DateTimeInterface;
 use BadMethodCallException;
+use Illuminate\Support\Carbon;
 use Illuminate\Cache\Events\CacheHit;
 use Illuminate\Contracts\Cache\Store;
 use Illuminate\Cache\Events\KeyWritten;
 use Illuminate\Cache\Events\CacheMissed;
 use Illuminate\Support\Traits\Macroable;
 use Illuminate\Cache\Events\KeyForgotten;
+use Illuminate\Support\InteractsWithTime;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Cache\Repository as CacheContract;
 
@@ -21,6 +22,7 @@ use Illuminate\Contracts\Cache\Repository as CacheContract;
  */
 class Repository implements CacheContract, ArrayAccess
 {
+    use InteractsWithTime;
     use Macroable {
         __call as macroCall;
     }
@@ -117,6 +119,20 @@ class Repository implements CacheContract, ArrayAccess
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getMultiple($keys, $default = null)
+    {
+        $defaults = [];
+
+        foreach ($keys as $key) {
+            $defaults[$key] = $default;
+        }
+
+        return $this->many($defaults);
+    }
+
+    /**
      * Handle a result for the "many" method.
      *
      * @param  array  $keys
@@ -162,7 +178,7 @@ class Repository implements CacheContract, ArrayAccess
      *
      * @param  string  $key
      * @param  mixed   $value
-     * @param  \DateTime|float|int  $minutes
+     * @param  \DateTimeInterface|\DateInterval|float|int  $minutes
      * @return void
      */
     public function put($key, $value, $minutes = null)
@@ -179,10 +195,18 @@ class Repository implements CacheContract, ArrayAccess
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function set($key, $value, $ttl = null)
+    {
+        $this->put($key, $value, $ttl);
+    }
+
+    /**
      * Store multiple items in the cache for a given number of minutes.
      *
      * @param  array  $values
-     * @param  float|int  $minutes
+     * @param  \DateTimeInterface|\DateInterval|float|int  $minutes
      * @return void
      */
     public function putMany(array $values, $minutes)
@@ -197,11 +221,19 @@ class Repository implements CacheContract, ArrayAccess
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function setMultiple($values, $ttl = null)
+    {
+        $this->putMany(is_array($values) ? $values : iterator_to_array($values), $ttl);
+    }
+
+    /**
      * Store an item in the cache if the key does not exist.
      *
      * @param  string  $key
      * @param  mixed   $value
-     * @param  \DateTime|float|int  $minutes
+     * @param  \DateTimeInterface|\DateInterval|float|int  $minutes
      * @return bool
      */
     public function add($key, $value, $minutes)
@@ -273,7 +305,7 @@ class Repository implements CacheContract, ArrayAccess
      * Get an item from the cache, or store the default value.
      *
      * @param  string  $key
-     * @param  \DateTime|float|int  $minutes
+     * @param  \DateTimeInterface|\DateInterval|float|int  $minutes
      * @param  \Closure  $callback
      * @return mixed
      */
@@ -339,6 +371,34 @@ class Repository implements CacheContract, ArrayAccess
         return tap($this->store->forget($this->itemKey($key)), function () use ($key) {
             $this->event(new KeyForgotten($key));
         });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function delete($key)
+    {
+        return $this->forget($key);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function deleteMultiple($keys)
+    {
+        foreach ($keys as $key) {
+            $this->forget($key);
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function clear()
+    {
+        return $this->store->flush();
     }
 
     /**
@@ -480,13 +540,15 @@ class Repository implements CacheContract, ArrayAccess
     /**
      * Calculate the number of minutes with the given duration.
      *
-     * @param  \DateTime|float|int  $duration
+     * @param  \DateTimeInterface|\DateInterval|float|int  $duration
      * @return float|int|null
      */
     protected function getMinutes($duration)
     {
-        if ($duration instanceof DateTime) {
-            $duration = Carbon::now()->diffInSeconds(Carbon::instance($duration), false) / 60;
+        $duration = $this->parseDateInterval($duration);
+
+        if ($duration instanceof DateTimeInterface) {
+            $duration = Carbon::now()->diffInRealSeconds($duration, false) / 60;
         }
 
         return (int) ($duration * 60) > 0 ? $duration : null;

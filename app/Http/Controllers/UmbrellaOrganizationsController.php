@@ -43,7 +43,7 @@ class UmbrellaOrganizationsController extends Controller {
 		$umbrellaOrganization = new UmbrellaOrganization();
 
 		$umbrellaOrganization->fill($request->all());
-		if (!$request->has('user_id')) {
+		if (!$request->filled('user_id')) {
 			$umbrellaOrganization->setAttribute('user_id', Auth::user()->getKey());
 		}
 

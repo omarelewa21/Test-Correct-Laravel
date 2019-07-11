@@ -371,7 +371,7 @@ class TestParticipantsController extends Controller {
 		$testParticipant->setAttribute('heartbeat_at', Carbon::now());
 		$testParticipant->setAttribute('ip_address', $request->get('ip_address'));
 
-		if ($request->has('answer_id')) {
+		if ($request->filled('answer_id')) {
 			$testParticipant->setAttribute('answer_id', $request->get('answer_id'));
 		}
 
