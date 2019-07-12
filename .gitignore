@@ -1,4 +1,12 @@
+/node_modules
+/public/hot
+/public/storage
 .env
 .idea
-/storage/*
+/storage/*.key
 composer.lock
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
