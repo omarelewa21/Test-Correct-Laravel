@@ -33,6 +33,7 @@ class ComposerStaticInite79998656366833e308fa00a0988b22d
         '58571171fd5812e6e447dce228f52f4d' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/helpers.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
+        '0d8253363903f0ac7b0978dcde4e28a0' => __DIR__ . '/..' . '/beyondcode/laravel-dump-server/helpers.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -164,6 +165,10 @@ class ComposerStaticInite79998656366833e308fa00a0988b22d
         'C' => 
         array (
             'Cron\\' => 5,
+        ),
+        'B' => 
+        array (
+            'BeyondCode\\DumpServer\\' => 22,
         ),
     );
 
@@ -436,6 +441,10 @@ class ComposerStaticInite79998656366833e308fa00a0988b22d
         array (
             0 => __DIR__ . '/..' . '/dragonmantank/cron-expression/src/Cron',
         ),
+        'BeyondCode\\DumpServer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/beyondcode/laravel-dump-server/src',
+        ),
     );
 
     public static $fallbackDirsPsr4 = array (
@@ -510,6 +519,10 @@ class ComposerStaticInite79998656366833e308fa00a0988b22d
         'AddForeignKeysToUserRolesTable' => __DIR__ . '/../..' . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_user_roles_table.php',
         'AddForeignKeysToUsersTable' => __DIR__ . '/../..' . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_users_table.php',
         'AddTestsDiscussedCounter' => __DIR__ . '/../..' . '/database/migrations/2015_11_02_095418_add_tests_discussed_counter.php',
+        'BeyondCode\\DumpServer\\DumpServerCommand' => __DIR__ . '/..' . '/beyondcode/laravel-dump-server/src/DumpServerCommand.php',
+        'BeyondCode\\DumpServer\\DumpServerServiceProvider' => __DIR__ . '/..' . '/beyondcode/laravel-dump-server/src/DumpServerServiceProvider.php',
+        'BeyondCode\\DumpServer\\Dumper' => __DIR__ . '/..' . '/beyondcode/laravel-dump-server/src/Dumper.php',
+        'BeyondCode\\DumpServer\\RequestContextProvider' => __DIR__ . '/..' . '/beyondcode/laravel-dump-server/src/RequestContextProvider.php',
         'Carbon\\Carbon' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/Carbon.php',
         'Carbon\\CarbonInterval' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/CarbonInterval.php',
         'Carbon\\CarbonPeriod' => __DIR__ . '/..' . '/nesbot/carbon/src/Carbon/CarbonPeriod.php',
@@ -4529,6 +4542,7 @@ class ComposerStaticInite79998656366833e308fa00a0988b22d
         'Symfony\\Polyfill\\Util\\TestListenerForV6' => __DIR__ . '/..' . '/symfony/polyfill-util/TestListenerForV6.php',
         'Symfony\\Polyfill\\Util\\TestListenerForV7' => __DIR__ . '/..' . '/symfony/polyfill-util/TestListenerForV7.php',
         'Symfony\\Polyfill\\Util\\TestListenerTrait' => __DIR__ . '/..' . '/symfony/polyfill-util/TestListenerTrait.php',
+        'Tests\\Feature\\ChangePasswordTest' => __DIR__ . '/../..' . '/tests/Feature/ChangePasswordTest.php',
         'Text_Template' => __DIR__ . '/..' . '/phpunit/php-text-template/src/Template.php',
         'TheSeer\\Tokenizer\\Exception' => __DIR__ . '/..' . '/theseer/tokenizer/src/Exception.php',
         'TheSeer\\Tokenizer\\NamespaceUri' => __DIR__ . '/..' . '/theseer/tokenizer/src/NamespaceUri.php',

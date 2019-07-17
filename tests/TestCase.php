@@ -1,26 +1,20 @@
 <?php
 
-class TestCase extends Illuminate\Foundation\Testing\TestCase
-{
+namespace Tests;
 
+use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+
+abstract class TestCase extends BaseTestCase
+{
+    use CreatesApplication;
 
     protected $baseUrl = 'http://test-correct.test';
 
     const USER_TEACHER = 'p.vries@31.com';
 
-    /**
-     * Creates the application.
-     *
-     * @return \Illuminate\Foundation\Application
-     */
-    public function createApplication()
-    {
-        $app = require __DIR__ . '/../bootstrap/app.php';
+    const USER_BEHEERDER = 'schoolbeheerder@connected-software.com';
+    const USER_BEHEERDER_SESSION_HASH = 'CXLtEIpVFXUrR8QjN9OYS4flMP0j6KFDrIML0Z1LABX3HXPmBBOQpUNGrQHQoELFcd2tLI3gRaXzm2sXonuPypynJpwBao7bP5PW';
 
-        $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
-
-        return $app;
-    }
 
     public static function getAuthRequestData($overrides = [])
     {
@@ -29,5 +23,26 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase
             'user'         => static::USER_TEACHER,
         ], $overrides);
     }
+
+    public static function AuthBeheerderGetRequest($url, $params=[]) {
+
+        return sprintf(
+            '%s/?session_hash=%s&signature=aaebbf4a062594c979128ec2f2ef477d4f7d08893c6940cc736b62b106f6498f&user=%s&%s',
+            $url,
+            static::USER_BEHEERDER_SESSION_HASH,
+            static::USER_BEHEERDER,
+            http_build_query($params, '', '&')
+        );
+    }
+
+    public static function getBeheerderAuthRequestData($overrides = [])
+    {
+        return array_merge([
+            'session_hash' => 'CXLtEIpVFXUrR8QjN9OYS4flMP0j6KFDrIML0Z1LABX3HXPmBBOQpUNGrQHQoELFcd2tLI3gRaXzm2sXonuPypynJpwBao7bP5PW',
+            'user'         => static::USER_BEHEERDER,
+        ], $overrides);
+    }
+
+
 
 }

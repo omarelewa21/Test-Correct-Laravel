@@ -23,7 +23,7 @@ Route::post('auth', ['uses' => 'Auth\AuthController@getApiKey']);
 Route::post('send_password_reset', ['uses' => 'Auth\PasswordController@sendPasswordReset']);
 Route::post('password_reset', ['uses' => 'Auth\PasswordController@passwordReset']);
 
-Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds']], function(){
+Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 	// Tests + children
 	Route::post('test/{test}/duplicate', ['as' => 'test.duplicate', 'uses' => 'TestsController@duplicate']);
 	Route::resource('test', 'TestsController', ['except' => ['create', 'edit']]);

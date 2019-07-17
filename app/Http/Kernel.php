@@ -31,6 +31,7 @@ class Kernel extends HttpKernel {
 		//'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
 		//'guest' => 'tcCore\Http\Middleware\RedirectIfAuthenticated',
 		//'csrf' => 'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken',
+        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
 		'api' => 'tcCore\Http\Middleware\ApiKey',
 		'dl' => 'tcCore\Http\Middleware\DuplicateLogin',
 		'authorize' => 'tcCore\Http\Middleware\Authorize',

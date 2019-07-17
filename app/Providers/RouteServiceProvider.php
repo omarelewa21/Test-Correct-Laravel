@@ -232,9 +232,9 @@ class RouteServiceProvider extends ServiceProvider
          * });
          */
 
-        Route::model('user', 'tcCore\User', function () {
-            throw new NotFoundHttpException('User not found');
-        });
+//        Route::model('user', 'tcCore\User', function () {
+//            throw new NotFoundHttpException('User not found');
+//        });
     }
 
     /**

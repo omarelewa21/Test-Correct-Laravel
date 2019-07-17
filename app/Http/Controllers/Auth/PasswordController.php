@@ -91,7 +91,7 @@ class PasswordController extends Controller {
 	 */
 	protected function resetPassword($user, $password)
 	{
-		$user->password = bcrypt($password);
+	    $user->password = bcrypt($password);
 
 		$user->save();
 	}
