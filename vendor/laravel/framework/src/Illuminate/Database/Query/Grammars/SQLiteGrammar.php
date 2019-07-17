@@ -171,38 +171,11 @@ class SQLiteGrammar extends Grammar
      */
     public function compileInsert(Builder $query, array $values)
     {
-        // Essentially we will force every insert to be treated as a batch insert which
-        // simply makes creating the SQL easier for us since we can utilize the same
-        // basic routine regardless of an amount of records given to us to insert.
         $table = $this->wrapTable($query->from);
 
-        if (! is_array(reset($values))) {
-            $values = [$values];
-        }
-
-        // If there is only one record being inserted, we will just use the usual query
-        // grammar insert builder because no special syntax is needed for the single
-        // row inserts in SQLite. However, if there are multiples, we'll continue.
-        if (count($values) === 1) {
-            return empty(reset($values))
-                    ? "insert into $table default values"
-                    : parent::compileInsert($query, reset($values));
-        }
-
-        $names = $this->columnize(array_keys(reset($values)));
-
-        $columns = [];
-
-        // SQLite requires us to build the multi-row insert as a listing of select with
-        // unions joining them together. So we'll build out this list of columns and
-        // then join them all together with select unions to complete the queries.
-        foreach (array_keys(reset($values)) as $column) {
-            $columns[] = '? as '.$this->wrap($column);
-        }
-
-        $columns = array_fill(0, count($values), implode(', ', $columns));
-
-        return "insert into $table ($names) select ".implode(' union all select ', $columns);
+        return empty($values)
+                ? "insert into {$table} DEFAULT VALUES"
+                : parent::compileInsert($query, $values);
     }
 
     /**
@@ -254,9 +227,7 @@ class SQLiteGrammar extends Grammar
     public function compileDelete(Builder $query)
     {
         if (isset($query->joins) || isset($query->limit)) {
-            $selectSql = parent::compileSelect($query->select("{$query->from}.rowid"));
-
-            return "delete from {$this->wrapTable($query->from)} where {$this->wrap('rowid')} in ({$selectSql})";
+            return $this->compileDeleteWithJoinsOrLimit($query);
         }
 
         $wheres = is_array($query->wheres) ? $this->compileWheres($query) : '';
@@ -265,18 +236,20 @@ class SQLiteGrammar extends Grammar
     }
 
     /**
-     * Prepare the bindings for a delete statement.
+     * Compile a delete statement with joins or limit into SQL.
      *
-     * @param  array  $bindings
-     * @return array
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @return string
      */
-    public function prepareBindingsForDelete(array $bindings)
+    protected function compileDeleteWithJoinsOrLimit(Builder $query)
     {
-        $cleanBindings = Arr::except($bindings, ['select', 'join']);
+        $segments = preg_split('/\s+as\s+/i', $query->from);
 
-        return array_values(
-            array_merge($bindings['join'], Arr::flatten($cleanBindings))
-        );
+        $alias = $segments[1] ?? $segments[0];
+
+        $selectSql = parent::compileSelect($query->select($alias.'.rowid'));
+
+        return "delete from {$this->wrapTable($query->from)} where {$this->wrap('rowid')} in ({$selectSql})";
     }
 
     /**
@@ -301,11 +274,7 @@ class SQLiteGrammar extends Grammar
      */
     protected function wrapJsonSelector($value)
     {
-        $parts = explode('->', $value, 2);
-
-        $field = $this->wrap($parts[0]);
-
-        $path = count($parts) > 1 ? ', '.$this->wrapJsonPath($parts[1]) : '';
+        [$field, $path] = $this->wrapJsonFieldAndPath($value);
 
         return 'json_extract('.$field.$path.')';
     }
