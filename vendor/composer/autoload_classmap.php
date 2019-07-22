@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'AddBloomToQuestionsTable' => $baseDir . '/database/migrations/2019_06_03_173845_add_bloom_to_questions_table.php',
     'AddForeignKeysToAnswerRatingsTable' => $baseDir . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_answer_ratings_table.php',
     'AddForeignKeysToAnswersTable' => $baseDir . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_answers_table.php',
     'AddForeignKeysToAttachmentsTable' => $baseDir . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_attachments_table.php',
@@ -41,6 +42,7 @@ return array(
     'AddForeignKeysToUserRolesTable' => $baseDir . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_user_roles_table.php',
     'AddForeignKeysToUsersTable' => $baseDir . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_users_table.php',
     'AddTestsDiscussedCounter' => $baseDir . '/database/migrations/2015_11_02_095418_add_tests_discussed_counter.php',
+    'AddUserAndUpdatedIndexToLogs' => $baseDir . '/database/migrations/2019_06_20_085203_add_user_and_updated_index_to_logs.php',
     'ChangeCoreArchitecture' => $baseDir . '/database/migrations/2015_04_09_132611_change_core_architecture.php',
     'CreateAnswerRatingsTable' => $baseDir . '/database/migrations/2015_03_11_081125_create_answer_ratings_table.php',
     'CreateAnswersTable' => $baseDir . '/database/migrations/2015_03_11_081125_create_answers_table.php',

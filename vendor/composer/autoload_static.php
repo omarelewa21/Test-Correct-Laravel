@@ -332,6 +332,7 @@ class ComposerStaticInitcc2bfd89f884756098bc365d602d82e1
     );
 
     public static $classMap = array (
+        'AddBloomToQuestionsTable' => __DIR__ . '/../..' . '/database/migrations/2019_06_03_173845_add_bloom_to_questions_table.php',
         'AddForeignKeysToAnswerRatingsTable' => __DIR__ . '/../..' . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_answer_ratings_table.php',
         'AddForeignKeysToAnswersTable' => __DIR__ . '/../..' . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_answers_table.php',
         'AddForeignKeysToAttachmentsTable' => __DIR__ . '/../..' . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_attachments_table.php',
@@ -367,6 +368,7 @@ class ComposerStaticInitcc2bfd89f884756098bc365d602d82e1
         'AddForeignKeysToUserRolesTable' => __DIR__ . '/../..' . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_user_roles_table.php',
         'AddForeignKeysToUsersTable' => __DIR__ . '/../..' . '/database/migrations/2015_03_11_081128_add_foreign_keys_to_users_table.php',
         'AddTestsDiscussedCounter' => __DIR__ . '/../..' . '/database/migrations/2015_11_02_095418_add_tests_discussed_counter.php',
+        'AddUserAndUpdatedIndexToLogs' => __DIR__ . '/../..' . '/database/migrations/2019_06_20_085203_add_user_and_updated_index_to_logs.php',
         'ChangeCoreArchitecture' => __DIR__ . '/../..' . '/database/migrations/2015_04_09_132611_change_core_architecture.php',
         'CreateAnswerRatingsTable' => __DIR__ . '/../..' . '/database/migrations/2015_03_11_081125_create_answer_ratings_table.php',
         'CreateAnswersTable' => __DIR__ . '/../..' . '/database/migrations/2015_03_11_081125_create_answers_table.php',
