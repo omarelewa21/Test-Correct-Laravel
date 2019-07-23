@@ -60,7 +60,6 @@ class RefreshDatabase extends Command
                 break;
             case 'mysql':
             default:
-                $this->rollbackMigrations();
                 $this->handleSqlFiles($sqlImports);
                 break;
         }
@@ -85,7 +84,8 @@ class RefreshDatabase extends Command
         foreach ($sqlImports as $file) {
             $this->output->write(sprintf('<info>  o importing %s...</info>',$file),false);
             $command = sprintf(
-                'mysql -u %s -p%s %s < database/seeds/%s',
+                'mysql -h %s -u %s -p%s %s < database/seeds/%s',
+                DB::connection()->getConfig('host'),
                 DB::connection()->getConfig('username'),
                 DB::connection()->getConfig('password'),
                 DB::connection()->getConfig('database'),
