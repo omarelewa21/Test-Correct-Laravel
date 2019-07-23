@@ -40,11 +40,16 @@ class RefreshDatabase extends Command
      */
     public function handle()
     {
+        if (config('app.env') !== 'local') {
+            $this->error('You cannot perform this action on this environment! only with APP_ENV set to local!!');
+            return false;
+        }
+
         // this might be slow, so give us some time
         ini_set('max_execution_time', 180); //3 minutes
 
         $sqlImports = [
-            'tccore_dev_safe.sql',
+            'testdb.sql',
         ];
 
         $this->info('start refreshing database...(this can take some time as in several minutes)');

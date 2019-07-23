@@ -4907,3 +4907,15 @@
 #43 /home/vagrant/ssd/test-correct/public/index.php(298): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
 #44 {main}
 "} 
+[2019-07-23 14:11:18] local.ERROR: syntax error, unexpected '{', expecting function (T_FUNCTION) or const (T_CONST) {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): syntax error, unexpected '{', expecting function (T_FUNCTION) or const (T_CONST) at /home/vagrant/ssd/test-correct/app/Console/Commands/RefreshDB.php:9)
+[stacktrace]
+#0 /home/vagrant/ssd/test-correct/vendor/composer/ClassLoader.php(322): Composer\\Autoload\\includeFile('/home/vagrant/s...')
+#1 [internal function]: Composer\\Autoload\\ClassLoader->loadClass('tcCore\\\\Console\\\\...')
+#2 [internal function]: spl_autoload_call('tcCore\\\\Console\\\\...')
+#3 /home/vagrant/ssd/test-correct/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(241): is_subclass_of('tcCore\\\\Console\\\\...', 'Illuminate\\\\Cons...')
+#4 /home/vagrant/ssd/test-correct/app/Console/Kernel.php(54): Illuminate\\Foundation\\Console\\Kernel->load(Array)
+#5 /home/vagrant/ssd/test-correct/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(328): tcCore\\Console\\Kernel->commands()
+#6 /home/vagrant/ssd/test-correct/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(131): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 /home/vagrant/ssd/test-correct/artisan(33): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
