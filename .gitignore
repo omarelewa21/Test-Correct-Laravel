@@ -4,6 +4,7 @@
 .env
 .idea
 /storage/*.key
+/storage/logs
 composer.lock
 .phpunit.result.cache
 Homestead.json
