@@ -22,7 +22,7 @@ class CreateQuestionRequest extends Request {
 			'maintain_position' => 'required|in:0,1',
 			'discuss' => 'required|in:0,1',
 			'decimal_score' => 'required|in:0,1',
-			'rtti' => 'in:R,T1,T2,I',
+			'rtti' => 'in:R,T1,T2,I|nullable',
 			'add_to_database' => 'required|in:0,1'
 		];
 	}
@@ -67,12 +67,12 @@ class CreateQuestionRequest extends Request {
 	 *
 	 * @return \Illuminate\Contracts\Validation\Validator
 	 */
-	protected function getValidatorInstance()
-	{
-		$validator = parent::getValidatorInstance();
-		$this->withValidator($validator);
-		return $validator;
-	}
+//	protected function getValidatorInstance()
+//	{
+//		$validator = parent::getValidatorInstance();
+//		//$this->withValidator($validator);
+//		return $validator;
+//	}
 
 	/**
 	 * Configure the validator instance.
@@ -82,7 +82,7 @@ class CreateQuestionRequest extends Request {
 	 */
 	// on version 5.7 this method is called but needs to be public.
 	// You need to remove the protected function getValidatorInstance() if that is the case.
-	private function withValidator($validator)
+	public function withValidator($validator)
 	{
 		$extraRulesClass = $this->getExtraRulesClass($this->input('type'));
 		if (class_exists($extraRulesClass) && method_exists($extraRulesClass, 'getWithValidator')) {

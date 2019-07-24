@@ -20,23 +20,21 @@ class ScheduleTestTest extends TestCase
         $cntTestTaken = count($this->getListOfScheduledTests());
 
         $newTestTakeData = [
-            'date'                => '19-07-2019',
-            'period_id'           => 47,
-            'invigilators'        => [529],
-            'class_id'            => 204,
-            'test_id'             => 1177,
+            'date'                => Carbon::now()->format('d-m-Y'),
+            'period_id'           => 1,
+            'invigilators'        => [1486],
+            'class_id'            => 1,
+            'test_id'             => 1,
             'weight'              => 1,
             'invigilator_note'    => '',
-            'time_start'          => '2019-07-19 00:00:00',
+            'time_start'          => Carbon::now()->format('Y-m-d H:i:s'),
             'retake'              => 0,
             'test_take_status_id' => 1,
-            'school_classes'      => [204],
         ];
-
 
         $response = $this->post(
             'test_take',
-            static::getAuthFiorettiRequestData($newTestTakeData)
+            static::getTeacherOneAuthRequestData($newTestTakeData)
         );
 
         $response->assertStatus(200);
@@ -61,11 +59,11 @@ class ScheduleTestTest extends TestCase
 
             'filter' => [
                 'test_take_status_id' => 1,
-                'invigilator_id'      => 529,
+                'invigilator_id'      => 1486,
             ],
         ];
 
-        $response = $this->get(static::AuthFiorettiRequest('test_take', $listData));
+        $response = $this->get(static::authTeacherOneGetRequest('test_take', $listData));
 
         return $response->decodeResponseJson()['data'];
     }

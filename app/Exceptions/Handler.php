@@ -22,7 +22,7 @@ class Handler extends ExceptionHandler
         AuthorizationException::class,
         HttpException::class,
         ModelNotFoundException::class,
-        ValidationException::class,
+//        ValidationException::class,
     ];
 
     /**
@@ -74,6 +74,25 @@ class Handler extends ExceptionHandler
         }
 
         return redirect()->guest('login');
+    }
+
+    /**
+     * Create a response object from the given validation exception.
+     * always return invalid json also when headers are not properly set.
+     * This hack/function overload was put here after problems with validation responses giving
+     * Symfony\Component\HttpFoundation\RedirectResponse
+     *
+     * @param  \Illuminate\Validation\ValidationException  $e
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function convertValidationExceptionToResponse(ValidationException $e, $request)
+    {
+        if ($e->response) {
+            return $e->response;
+        }
+
+        return $this->invalidJson($request, $e);
     }
 
 }

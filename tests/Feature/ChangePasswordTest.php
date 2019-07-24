@@ -15,15 +15,13 @@ class ChangePasswordTest extends TestCase
     /** @test */
     public function it_should_change_the_password()
     {
-        $this->withoutExceptionHandling();
-
-        $deVries = User::whereUsername(static::USER_TEACHER)->first();
-        $oldPassword = $deVries->password;
+        $teacher1 = User::whereUsername('d1@test-correct.nl')->first();
+        $oldPassword = $teacher1->password;
 
         $response = $this->put(
-            sprintf('/user/%d', $deVries->getKey()),
-            static::getAuthRequestData([
-                'password_old' => 'p.vries@31.com',
+            sprintf('/user/%d', $teacher1->getKey()),
+            static::getTeacherOneAuthRequestData([
+                'password_old' => 'Sobit4456',
                 'password'     => 'p.vries@31.com1',
                 'password_new' => 'p.vries@31.com1',
             ])
@@ -31,9 +29,9 @@ class ChangePasswordTest extends TestCase
 
         $response->assertStatus(200);
 
-        $deVries->refresh();
+        $teacher1->refresh();
         $this->assertNotEquals(
-            $deVries->password,
+            $teacher1->password,
             $oldPassword
         );
     }

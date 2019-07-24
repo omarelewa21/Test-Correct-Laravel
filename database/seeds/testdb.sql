@@ -5516,7 +5516,7 @@ VALUES
 	('2015_11_02_095418_add_tests_discussed_counter',18),
 	('2015_11_17_154142_extend_attainments',19),
 	('2016_07_28_124905_add_discussed_user_id_on_test_take',20),
-	('2018_12_20_160256_create_logs_table',21);
+ 	('2018_12_20_160256_create_logs_table',21);
 
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
