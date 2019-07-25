@@ -32,29 +32,6 @@ abstract class TestCase extends BaseTestCase
         ], $overrides);
     }
 
-    public static function getAuthFiorettiRequestData($overrides = [])
-    {
-        $user = User::where('username', static::FIORETTI_TEACHER)->first();
-
-        return array_merge([
-            'session_hash' => $user->session_hash,
-            'user'         => $user->username,
-        ], $overrides);
-    }
-
-    public static function AuthFiorettiRequest($url, $params=[])
-    {
-        $user = User::where('username', static::FIORETTI_TEACHER)->first();
-
-        return sprintf(
-            '%s/?session_hash=%s&signature=aaebbf4a062594c979128ec2f2ef477d4f7d08893c6940cc736b62b106f6498f&user=%s&%s',
-            $url,
-            $user->session_hash,
-            $user->username,
-            http_build_query($params, '', '&')
-        );
-    }
-
     public static function AuthBeheerderGetRequest($url, $params=[]) {
 
         return sprintf(

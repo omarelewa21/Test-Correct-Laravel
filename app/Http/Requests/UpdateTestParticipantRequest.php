@@ -55,7 +55,7 @@ class UpdateTestParticipantRequest extends Request {
 	public function getAllowedTestTakeStatusIds()
 	{
 		$roles = $this->getUserRoles();
-		$statusses = TestTakeStatus::lists('id', 'name')->all();
+		$statusses = TestTakeStatus::pluck('id', 'name')->all();
 		$status = $this->testParticipant->testTakeStatus->name;
 		if (in_array('Student', $roles) && $this->testParticipant->getAttribute('user_id') == Auth::id()) {
 			if ($status === 'Planned' || $status === 'Test not taken') {
