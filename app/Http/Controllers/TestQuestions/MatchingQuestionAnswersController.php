@@ -49,31 +49,29 @@ class MatchingQuestionAnswersController extends Controller {
 	 */
 	public function store(TestQuestion $testQuestion, CreateMatchingQuestionAnswerRequest $request)
 	{
-		$question = $testQuestion->question;
-		if (($response = $this->validateQuestion($question)) !== true) {
-			return $response;
-		} else {
-			$matchingQuestionAnswer = new MatchingQuestionAnswer();
+        $question = $testQuestion->question;
+        if (($response = $this->validateQuestion($question)) !== true) {
+            return $response;
+        } else {
+            $matchingQuestionAnswer = new MatchingQuestionAnswer();
 
-			$matchingQuestionAnswer->fill($request->only($matchingQuestionAnswer->getFillable()));
+            $matchingQuestionAnswer->fill($request->only($matchingQuestionAnswer->getFillable()));
+            if ($question->isUsed($testQuestion)) {
+                $question = $question->duplicate([]);
+                if ($question === false) {
+                    return Response::make('Failed to duplicate question', 500);
+                }
 
-			if ($question->isUsed($testQuestion)) {
-				$question = $question->duplicate([]);
-				if ($question === false) {
-					return Response::make('Failed to duplicate question', 500);
-				}
+                $testQuestion->setAttribute('question_id', $question->getKey());
 
-				$testQuestion->setAttribute('question_id', $question->getKey());
+                if (!$testQuestion->save()) {
+                    return Response::make('Failed to update test question', 500);
+                }
+            }
 
-				if (!$testQuestion->save()) {
-					return Response::make('Failed to update test question', 500);
-				}
-			}
-
-			if (!QuestionAuthor::addAuthorToQuestion($question)) {
-				return Response::make('Failed to attach author to question', 500);
-			}
-
+            if (!QuestionAuthor::addAuthorToQuestion($question)) {
+                return Response::make('Failed to attach author to question', 500);
+            }
 			$matchingQuestionAnswer = new MatchingQuestionAnswer();
 
 			$matchingQuestionAnswer->fill($request->only($matchingQuestionAnswer->getFillable()));

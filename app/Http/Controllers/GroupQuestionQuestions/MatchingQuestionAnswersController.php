@@ -51,7 +51,7 @@ class MatchingQuestionAnswersController extends Controller {
 	 */
 	public function store(GroupQuestionQuestionManager $groupQuestionQuestionManager, CreateMatchingQuestionAnswerRequest $request)
 	{
-		$groupQuestionQuestion = $groupQuestionQuestionManager->getQuestionLink();
+	    $groupQuestionQuestion = $groupQuestionQuestionManager->getQuestionLink();
 		$question = $groupQuestionQuestion->question;
 		if (($response = $this->validateQuestion($question)) !== true) {
 			return $response;

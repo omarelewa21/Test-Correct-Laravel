@@ -344,7 +344,11 @@ class Question extends MtiBaseModel {
     }
 
     public function isUsed($ignoreRelationTo) {
-        $uses = Question::withTrashed()->where('derived_question_id', $this->getKey())->count();
+
+        //$uses = Question::withTrashed()->where('derived_question_id', $this->getKey())->count();
+
+        $uses = (new Question)->withTrashed()->where('derived_question_id', $this->getKey())->count();
+
         //Log::debug('Is used for question #'.$this->getKey());
         //Log::debug('Derived Questions = '.$uses);
 
