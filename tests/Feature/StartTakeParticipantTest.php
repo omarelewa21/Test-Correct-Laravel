@@ -29,6 +29,7 @@ class StartTakeParticipantTest extends TestCase
             'time_start'          => Carbon::now()->format('Y-m-d H:i:s'),
             'retake'              => 0,
             'test_take_status_id' => 1,
+            "school_classes"      => ["1"],
         ];
 
         $scheduledResponse = $this->post(
@@ -40,8 +41,6 @@ class StartTakeParticipantTest extends TestCase
         $this->toetsActiveren($scheduledResponse->decodeResponseJson()['id']);
         $this->toetsInleveren($scheduledResponse->decodeResponseJson()['id']);
     }
-
-
 
 
 }

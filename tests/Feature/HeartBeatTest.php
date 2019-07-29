@@ -13,10 +13,10 @@ use Tests\TestCase;
 
 class HeartBeatTest extends TestCase
 {
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
     /** @test */
-    public function it_should_return_a_heart_beat()
+    public function it_should_return_a_heart_beat_when_a_user_is_registered_for_a_test()
     {
         $newTestTakeData = [
             'date'                => Carbon::now()->format('d-m-Y'),
@@ -40,18 +40,43 @@ class HeartBeatTest extends TestCase
 
         $this->toetsActiveren($scheduledResponse->decodeResponseJson()['id']);
 
-        // get all participants for this test;
-        dd($scheduledResponse->decodeResponseJson()['id']);
 
+        $testTakeId = $scheduledResponse->decodeResponseJson()['id'];
+        $testParticipant = TestParticipant::where('test_take_id', $testTakeId)->get()
+            ->filter(function ($participant) {
+                return User::where('username', 's1@test-correct.nl')->first()->is($participant->user);
+            });
+
+        $uri = sprintf(
+            'test_take/%d/test_participant/%d/heartbeat',
+            $testTakeId,
+            $testParticipant->first()->id
+        );
 
         $response = $this->post(
-            'test_take/4/test_participant/9/heartbeat',
+            $uri,
             static::getStudentOneAuthRequestData([
                 'ip_address' => $_SERVER['DB_HOST'],
             ])
         );
 
         $response->assertStatus(200);
+
+        //start_take_participant
+        $uri = sprintf(
+            'http://test-correct.test/test_take/%d/test_participant/%d',
+            $testTakeId,
+            $testParticipant->first()->id
+        );
+        $startByStudentResponse = $this->put(
+            $uri,
+            self::getStudentOneAuthRequestData([
+                'test_take_status_id' => 3,
+            ])
+        );
+
+        $startByStudentResponse->assertStatus(200);
+
 
 
     }
