@@ -365,11 +365,11 @@ class TestParticipantsController extends Controller {
 		if ($testParticipant->test_take_id !== $testTake->getKey()) {
 			return Response::make('Test participant not found', 404);
 		}
-
 		$testParticipant->load('testTake', 'testTake.discussingParentQuestions', 'testTake.testTakeStatus', 'testTakeStatus', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
 
 		$testParticipant->setAttribute('heartbeat_at', Carbon::now());
 		$testParticipant->setAttribute('ip_address', $request->get('ip_address'));
+
 
 		if ($request->filled('answer_id')) {
 			$testParticipant->setAttribute('answer_id', $request->get('answer_id'));

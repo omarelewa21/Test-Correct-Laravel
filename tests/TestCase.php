@@ -51,29 +51,70 @@ abstract class TestCase extends BaseTestCase
         ], $overrides);
     }
 
+    public static function getStudentOneAuthRequestData($overrides = [])
+    {
+        return self::getUserAuthRequestData(
+            User::where('username', 's1@test-correct.nl')->first(),
+            $overrides
+        );
+    }
+
     public static function getTeacherOneAuthRequestData($overrides = [])
     {
-        $teacher1 = User::where('username', 'd1@test-correct.nl')->first();
+        return self::getUserAuthRequestData(
+            User::where('username', 'd1@test-correct.nl')->first(),
+            $overrides
+        );
+    }
 
-        return array_merge([
-            'session_hash' =>  $teacher1->session_hash,
-            'user'         =>  $teacher1->username,
-        ], $overrides);
+    public static function authStudentOneGetRequest($url, $params=[]) {
+
+        return self::authUserGetRequest(
+            $url,
+            $params,
+            User::where('username', 's1@test-correct.nl')->first()
+        );
     }
 
     public static function authTeacherOneGetRequest($url, $params=[]) {
 
-        $teacher1 = User::where('username', 'd1@test-correct.nl')->first();
+        return self::authUserGetRequest(
+            $url,
+            $params,
+            User::where('username', 'd1@test-correct.nl')->first()
+        );
+    }
 
+    /**
+     * @param $url
+     * @param $params
+     * @param $user
+     */
+    private static function authUserGetRequest($url, $params, $user)
+    {
         return sprintf(
             '%s/?session_hash=%s&signature=%s&user=%s&%s',
             $url,
-            $teacher1->session_hash,
+            $user->session_hash,
             '58500ec4dc43d4e57fb0c1b1edadc31086cba65cd8c7adc52aa22d569f9a89cf',
-            $teacher1->username,
+            $user->username,
             http_build_query($params, '', '&')
         );
     }
+
+    /**
+     * @param $user
+     * @param $overrides
+     * @return array
+     */
+    private static function getUserAuthRequestData($user, $overrides=[])
+    {
+        return array_merge([
+            'session_hash' => $user->session_hash,
+            'user'         => $user->username,
+        ], $overrides);
+    }
+
 
     protected function setUp(): void
     {
@@ -90,8 +131,33 @@ abstract class TestCase extends BaseTestCase
                 $this->artisan('test:refreshdb');
             }
         }
+    }
 
+    protected function toetsActiveren($id) {
+        $this->updateTestTakeStatus($id, 3);
+    }
 
+    protected function toetsInleveren($id) {
+
+        $this->updateTestTakeStatus($id, 9);
+    }
+
+    private function updateTestTakeStatus($testTakeId, $status) {
+        $response = $this->put(
+            sprintf(
+                'test_take/%d',
+                $testTakeId
+            ),
+            static::getTeacherOneAuthRequestData(
+                ['test_take_status_id' => $status]
+            )
+        );
+        $this->assertEquals(
+            $status,
+            $response->decodeResponseJson()['test_take_status_id']
+        );
+
+        $response->assertStatus(200);
     }
 
 
