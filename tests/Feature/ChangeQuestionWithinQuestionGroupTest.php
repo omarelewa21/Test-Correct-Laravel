@@ -11,30 +11,19 @@ use Tests\TestCase;
 
 class ChangeQuestionWithinQuestionGroupTest extends TestCase
 {
-    //    use DatabaseTransactions;
+    use DatabaseTransactions;
 
 
     /** @test */
     public function a_teacher_can_change_the_properties_of_a_question_within_a_question_group(): void
     {
-//        //$var = \tcCore\GroupQuestionQuestion::find(1);
-//
-//        //dd($var);
-//
-//        $response = $this->get(
-//           static::authTeacherOneGetRequest(
-//           'group_question_question/1/1',
-//           []
-//           )
-//
-//       );
-////       $response->assertStatus(200);
-//
-//       dd($response);;//->decodeResponseJson());
+        $response = $this->get(
+           static::authTeacherOneGetRequest(
+           'group_question_question/20/2',
+           []
+           )
 
+       );
+       $response->assertStatus(200);
     }
-
-
-
-
 }

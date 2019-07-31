@@ -190,8 +190,9 @@ class GroupQuestionQuestionsController extends Controller
      * @param  GroupQuestionQuestion $question
      * @return Response
      */
-    public function show(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $groupQuestionQuestion)
+    public function show(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id)
     {
+        $groupQuestionQuestion = $group_question_question_id;
         if (!$groupQuestionQuestionManager->isChild($groupQuestionQuestion)) {
             return Response::make('Group question question not found', 404);
         }
