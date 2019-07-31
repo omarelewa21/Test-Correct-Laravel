@@ -112,7 +112,7 @@ class UpdateQuestionRequest extends Request {
 	 */
 	// on version 5.7 this method is called but needs to be public.
 	// You need to remove the protected function getValidatorInstance() if that is the case.
-	private function withValidator($validator)
+	public function withValidator($validator)
 	{
 		$extraRulesClass = $this->getExtraRulesClass($this->input('type'));
 		if (class_exists($extraRulesClass) && method_exists($extraRulesClass, 'getWithValidator')) {

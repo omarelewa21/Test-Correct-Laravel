@@ -34,6 +34,8 @@ class CreateTestQuestionRequest extends CreateQuestionRequest {
         $rules['maintain_position'] = 'required|in:0,1';
         $rules['discuss'] = 'required|in:0,1';
 
+        $rules = $this->removeAttributesThatDontApplyWhenGroupQuestion($rules);
+
         return $rules;
     }
 
@@ -54,6 +56,19 @@ class CreateTestQuestionRequest extends CreateQuestionRequest {
     public function sanitize()
     {
         return $this->all();
+    }
+
+    private function removeAttributesThatDontApplyWhenGroupQuestion(array $rules)
+    {
+        $keys = ['decimal_score', 'score'];
+
+        if (request()->type === 'GroupQuestion') {
+            foreach($keys as $key) {
+                unset($rules[$key]);
+            }
+        }
+
+        return $rules;
     }
 
 }
