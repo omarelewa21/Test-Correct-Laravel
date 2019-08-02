@@ -70,6 +70,18 @@ class StresstestSetup extends Command
 
         $this->info(PHP_EOL);
 
+        $this->info('going to set env settings to production');
+        $this->printSubItem('make backup of '.$envFile.' to '.$envBackupFileWhileStresstest);
+        $envContents = file_get_contents($envFile);
+        $this->info('done');
+        $this->printSubItem('set app_env  to production and debug to false');
+        file_put_contents($envBackupFileWhileStresstest,$envContents);
+        $envContents = str_replace('APP_ENV=local','APP_ENV=production',$envContents);
+        $envContents = str_replace('APP_DEBUG=true','APP_DEBUG=false',$envContents);
+        $envContents = str_replace('QUEUE_DRIVER=sync','QUEUE_DRIVER=database',$envContents);
+        file_put_contents($envFile,$envContents);
+        $this->info('done');
+
         $this->info('Start caching');
         foreach(['route','config','view'] as $type){
             $this->printSubItem($type.' cache');
@@ -80,17 +92,8 @@ class StresstestSetup extends Command
         $this->info('caching complete');
 
         $this->info(PHP_EOL);
+        $this->info(PHP_EOL);
 
-        $this->info('going to set env settings to production');
-        $this->printSubItem('make backup of '.$envFile.' to '.$envBackupFileWhileStresstest);
-        $envContents = file_get_contents($envFile);
-        $this->info('done');
-        $this->printSubItem('set app_env  to production and debug to false');
-        file_put_contents($envBackupFileWhileStresstest,$envContents);
-        $envContents = str_replace('APP_ENV=local','APP_ENV=production',$envContents);
-        $envContents = str_replace('APP_DEBUG=true','APP_DEBUG=false',$envContents);
-        file_put_contents($envFile,$envContents);
-        $this->info('done'.PHP_EOL.PHP_EOL);
         $this->alert('You\'re ready to do the stresstest, DON\'T forget to do a stresstest:teardown afterwards, or before the next stresstest run');
     }
 
