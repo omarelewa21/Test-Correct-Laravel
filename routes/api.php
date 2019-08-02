@@ -88,6 +88,11 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Test participant children
 	Route::resource('test_participant.answer', 'TestParticipants\AnswersController', ['except' => ['create', 'edit']]);
 
+	/**
+     * Updated 2019
+     */
+	Route::put('test_participant/{test_participant}/answer2019/{answer}', ['uses' => 'TestParticipants\Answers2019Controller@update']);
+
 	// Education level
 	Route::resource('education_level', 'EducationLevelsController', ['except' => ['create', 'edit']]);
 
