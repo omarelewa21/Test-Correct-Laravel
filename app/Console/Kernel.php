@@ -5,8 +5,11 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use tcCore\Console\Commands\ClearOldRequestLogs;
 use tcCore\Console\Commands\DeleteUsersForStresstest;
 use tcCore\Console\Commands\GenerateUsersForStresstest;
+use tcCore\Console\Commands\ProductionPullFromGit;
+use tcCore\Console\Commands\StresstestSetup;
 use tcCore\Console\Commands\RefreshDatabase;
 use tcCore\Console\Commands\RestoreUser;
+use tcCore\Console\Commands\StresstestTeardown;
 
 class Kernel extends ConsoleKernel
 {
@@ -25,7 +28,10 @@ class Kernel extends ConsoleKernel
         ClearOldRequestLogs::class,
         RestoreUser::class,
         GenerateUsersForStresstest::class,
-        DeleteUsersForStresstest::class
+        DeleteUsersForStresstest::class,
+        StresstestSetup::class,
+        StresstestTeardown::class,
+        ProductionPullFromGit::class
     ];
 
     /**
