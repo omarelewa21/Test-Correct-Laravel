@@ -14,6 +14,31 @@ use tcCore\TestParticipant;
 
 class Answers2019Controller extends Controller {
 
+    public function showQuestionAndAnswer(TestParticipant $testParticipant, Question $question, Request $request){
+        $answer = Answer::where('test_participant_id',$testParticipant->getKey())
+                            ->where('question_id',$question->getKey())
+                            ->with('answerParentQuestions','Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments')
+                            ->first();
+
+//        if ($answer && $answer->question instanceof QuestionInterface) {
+//            $answer->question->loadRelated();
+//        }
+
+        $question->getQuestionInstance()->load(['attachments', 'attainments', 'authors', 'tags', 'pValue' => function($query) {
+            $query->select('question_id', 'education_level_id', 'education_level_year', DB::raw('(SUM(score) / SUM(max_score)) as p_value'), DB::raw('count(1) as p_value_count'))->groupBy('education_level_id')->groupBy('education_level_year');
+        }, 'pValue.educationLevel']);
+
+        if($question instanceof QuestionInterface) {
+            $question->loadRelated();
+        }
+
+        return Response::make([
+            'answer' => $answer,
+            'question' => $question
+            ],
+            200);
+    }
+
     protected function hasNextQuestion(TestParticipant $testParticipant, $currentIndex)
     {
         return $currentIndex+1 < Answer::where('test_participant_id',$testParticipant->getKey())->count();
