@@ -41,10 +41,11 @@ class ProductionPullFromGit extends Command
     public function handle()
     {
 
-//        if (config('app.env') !== 'production') {
-//            $this->error('You cannot perform this action on this environment! only with APP_ENV set to production');
-//            return false;
-//        }
+        if (config('app.env') !== 'production') {
+            $this->error('You cannot perform this action on this environment! only with APP_ENV set to production');
+            return false;
+        }
+        
         $this->info('Going to pull the latest info from git');
             if(!exec('git pull')){
                 $this->error('I\'m sorry, but we couldn\'t pull the latest data from git, please fix this first');
