@@ -20,18 +20,19 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        'tcCore\Console\Commands\Inspire',
-        'tcCore\Console\Commands\GenerateUser',
-        'tcCore\Console\Commands\StartLicenseJobs',
-        'tcCore\Console\Commands\StartActiveTeacherJobs',
-        RefreshDatabase::class,
-        ClearOldRequestLogs::class,
-        RestoreUser::class,
-        GenerateUsersForStresstest::class,
-        DeleteUsersForStresstest::class,
-        StresstestSetup::class,
-        StresstestTeardown::class,
-        ProductionPullAndDeploy::class
+        // can be turned off migrating to larvel 5.x
+//        'tcCore\Console\Commands\Inspire',
+//        'tcCore\Console\Commands\GenerateUser',
+//        'tcCore\Console\Commands\StartLicenseJobs',
+//        'tcCore\Console\Commands\StartActiveTeacherJobs',
+//        RefreshDatabase::class,
+//        ClearOldRequestLogs::class,
+//        RestoreUser::class,
+//        GenerateUsersForStresstest::class,
+//        DeleteUsersForStresstest::class,
+//        StresstestSetup::class,
+//        StresstestTeardown::class,
+//        ProductionPullAndDeploy::class
     ];
 
     /**
