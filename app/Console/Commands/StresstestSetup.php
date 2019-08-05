@@ -44,8 +44,21 @@ class StresstestSetup extends Command
         $envBackupFileWhileStresstest = ".envBackupWhileStresstest";
 
         if (env('APP_ENV') !== 'local') {
-            $this->error('You cannot perform this action on this environment! only with APP_ENV set to local AND not in production (read config:cache && route:cache)!!');
-            return false;
+            if(!file_exists($envBackupFileWhileStresstest)) {
+                $this->error('You cannot perform this action on this environment! only with APP_ENV set to local AND not in production (read config:cache && route:cache)!!');
+                return false;
+            }
+            else{
+                if($this->confirm('You didn\'t do a teardown first, do you want to prepare for another stresstest?')){
+                    $this->error('Stresstest setup was cancelled by you');
+                    return false;
+                }
+                else{
+                    $this->info('we\'re going to do a teardown first');
+                    Artisan::call(sprintf('stresstest:teardown'));
+                    $this->info('teardown done');
+                }
+            }
         }
 
         // this might be slow, so give us some time

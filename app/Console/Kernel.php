@@ -5,7 +5,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use tcCore\Console\Commands\ClearOldRequestLogs;
 use tcCore\Console\Commands\DeleteUsersForStresstest;
 use tcCore\Console\Commands\GenerateUsersForStresstest;
-use tcCore\Console\Commands\ProductionPullFromGit;
+use tcCore\Console\Commands\ProductionPullAndDeploy;
 use tcCore\Console\Commands\StresstestSetup;
 use tcCore\Console\Commands\RefreshDatabase;
 use tcCore\Console\Commands\RestoreUser;
@@ -31,7 +31,7 @@ class Kernel extends ConsoleKernel
         DeleteUsersForStresstest::class,
         StresstestSetup::class,
         StresstestTeardown::class,
-        ProductionPullFromGit::class
+        ProductionPullAndDeploy::class
     ];
 
     /**

@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Process;
 
-class ProductionPullFromGit extends Command
+class ProductionPullAndDeploy extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'production:pull';
+    protected $signature = 'production:pullAndDeploy';
 
     /**
      * The console command description.
@@ -22,6 +22,8 @@ class ProductionPullFromGit extends Command
      * @var string
      */
     protected $description = 'Pull from git and refresh config, routes, views and reinit queue';
+
+    protected $defaultDeployBranchName = 'master';
 
     /**
      * Create a new command instance.
@@ -46,11 +48,19 @@ class ProductionPullFromGit extends Command
             return false;
         }
 
-        $this->info('Going to pull the latest info from git');
-            if(!exec('git pull')){
-                $this->error('I\'m sorry, but we couldn\'t pull the latest data from git, please fix this first');
+        $currentBranch = exec('git branch | grep \* | cut -d \' \' -f2');
+        if($currentBranch != $this->defaultDeployBranchName){
+            if(!$this->confirm('Are you sure you want to pull from the `'.$currentBranch.'` branch'.PHP_EOL.' this is NOT the `'.$this->deployBranchName.'`` branch?',false)){
+                $this->error('stop due to your call NOT to pull from  the `'.$currentBranch.'` branch`');
                 return false;
-            };
+            }
+        }
+
+        $this->info('Going to pull the latest info from git');
+        if(!exec('git pull')){
+            $this->error('I\'m sorry, but we couldn\'t pull the latest data from git, please fix this first');
+            return false;
+        };
         $this->info('done');
 
         $this->info(PHP_EOL);
@@ -65,6 +75,9 @@ class ProductionPullFromGit extends Command
 
 
         $this->info('Start caching');
+        $this->printSubItem('cache clear');
+        Artisan::call('cache:clear');
+        $this->info('done');
         foreach(['route','config','view'] as $type){
             $this->printSubItem($type.' cache');
             Artisan::call(sprintf('%s:clear',$type));
