@@ -8,10 +8,11 @@ use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\OpenQuestionTrait;
 
 class ChangeQuestionWithinQuestionGroupTest extends TestCase
 {
-    use DatabaseTransactions;
+    use DatabaseTransactions, OpenQuestionTrait;
 
 
     /** @test */
@@ -19,7 +20,7 @@ class ChangeQuestionWithinQuestionGroupTest extends TestCase
     {
         $response = $this->get(
             static::authTeacherOneGetRequest(
-                'group_question_question/20/2',
+                'group_question_question/5/1',
                 []
             )
         );
@@ -29,9 +30,29 @@ class ChangeQuestionWithinQuestionGroupTest extends TestCase
     /** @test */
     public function a_teacher_can_change_the_order_of_the_questions_in_a_group()
     {
+        // first add an extra question to group nr 5;
+        $response = $this->post(
+            'group_question_question/5',
+            static::getTeacherOneAuthRequestData(
+                $this->getOpenQuestionAttributes()
+            )
+        );
+
+
+        // because of a bug I have to repeat this step.
+        $response = $this->post(
+            'group_question_question/5',
+            static::getTeacherOneAuthRequestData(
+                $this->getOpenQuestionAttributes()
+            )
+        );
+        $response->assertStatus(200);
+        $questionId = $response->decodeResponseJson()['question_id'];
+
+
         $responseList = $this->get(
             static::authTeacherOneGetRequest(
-                'test_question/20',
+                'test_question/5',
                 []
             )
         );
@@ -44,7 +65,7 @@ class ChangeQuestionWithinQuestionGroupTest extends TestCase
         });
 
         $orderResponse = $this->put(
-            'http://test-correct.test/group_question_question/20/2/reorder',
+            'group_question_question/5/4/reorder',
             static::getTeacherOneAuthRequestData([
                 "order" => "1",
             ])
@@ -54,7 +75,7 @@ class ChangeQuestionWithinQuestionGroupTest extends TestCase
 
         $responseList2 = $this->get(
             static::authTeacherOneGetRequest(
-                'test_question/20',
+                'test_question/5',
                 []
             )
         );
@@ -69,13 +90,46 @@ class ChangeQuestionWithinQuestionGroupTest extends TestCase
         $this->assertNotEquals(
             $list, $list2
         );
-        $this->assertEquals(22,
+        $this->assertEquals($questionId,
             $list2->filter(function ($item) {
                 return $item->order == 1;
             })->first()->question_id
         );
-
-
     }
+
+    /** @test */
+    public function a_teacher_can_delete_a_question_from_a_group()
+    {
+
+        $responseList = $this->get(
+            static::authTeacherOneGetRequest(
+                'test_question/5',
+                []
+            )
+        );
+        $this->assertCount(
+            1,
+            $responseList->decodeResponseJson()['question']['group_question_questions']
+        );
+
+
+        $this->delete(
+            'http://test-correct.test/group_question_question/5/1',
+            static::getTeacherOneAuthRequestData()
+        );
+
+        $responseList2 = $this->get(
+            static::authTeacherOneGetRequest(
+                'test_question/5',
+                []
+            )
+        );
+
+        $this->assertCount(
+            0,
+            $responseList2->decodeResponseJson()['question']['group_question_questions']
+        );
+    }
+
 
 }
