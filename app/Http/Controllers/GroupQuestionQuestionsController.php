@@ -390,8 +390,9 @@ class GroupQuestionQuestionsController extends Controller
      * @param  Question $question
      * @return Response
      */
-    public function destroy(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $groupQuestionQuestion)
+    public function destroy(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id)
     {
+        $groupQuestionQuestion = $group_question_question_id;
         if (!$groupQuestionQuestionManager->isChild($groupQuestionQuestion)) {
             return Response::make('Group question question not found', 404);
         }
