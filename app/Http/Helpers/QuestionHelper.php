@@ -9,16 +9,34 @@
 namespace tcCore\Http\Helpers;
 
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use tcCore\CompletionQuestion;
 use tcCore\CompletionQuestionAnswer;
 use tcCore\CompletionQuestionAnswerLink;
 use tcCore\Exceptions\QuestionException;
+use tcCore\Lib\Question\QuestionInterface;
 use tcCore\QuestionAuthor;
 use tcCore\TestQuestion;
 
 class QuestionHelper extends BaseHelper
 {
+
+    /**
+     * method to get all related data for this question
+     * @param $question
+     * @return mixed
+     */
+    public function getTotalQuestion($question){
+        $question->getQuestionInstance()->load(['attachments', 'attainments', 'authors', 'tags', 'pValue' => function($query) {
+            $query->select('question_id', 'education_level_id', 'education_level_year', DB::raw('(SUM(score) / SUM(max_score)) as p_value'), DB::raw('count(1) as p_value_count'))->groupBy('education_level_id')->groupBy('education_level_year');
+        }, 'pValue.educationLevel']);
+
+        if($question instanceof QuestionInterface) {
+            $question->loadRelated();
+        }
+        return $question;
+    }
 
     public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question)
     {

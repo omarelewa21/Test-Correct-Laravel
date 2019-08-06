@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use tcCore\DrawingQuestion;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Question;
@@ -38,17 +39,17 @@ class QuestionsController extends Controller {
      */
     public function show($question)
     {
-        $question->getQuestionInstance()->load(['attachments', 'attainments', 'authors', 'tags', 'pValue' => function($query) {
-            $query->select('question_id', 'education_level_id', 'education_level_year', DB::raw('(SUM(score) / SUM(max_score)) as p_value'), DB::raw('count(1) as p_value_count'))->groupBy('education_level_id')->groupBy('education_level_year');
-        }, 'pValue.educationLevel']);
-
-        if($question instanceof QuestionInterface) {
-            $question->loadRelated();
-        }
+//        $question->getQuestionInstance()->load(['attachments', 'attainments', 'authors', 'tags', 'pValue' => function($query) {
+//            $query->select('question_id', 'education_level_id', 'education_level_year', DB::raw('(SUM(score) / SUM(max_score)) as p_value'), DB::raw('count(1) as p_value_count'))->groupBy('education_level_id')->groupBy('education_level_year');
+//        }, 'pValue.educationLevel']);
+//
+//        if($question instanceof QuestionInterface) {
+//            $question->loadRelated();
+//        }
 
 //        $question->transformIfNeededForTest();
 
-        return Response::make($question, 200);
+        return Response::make((new QuestionHelper())->getTotalQuestion($question), 200);
     }
 
     /**
