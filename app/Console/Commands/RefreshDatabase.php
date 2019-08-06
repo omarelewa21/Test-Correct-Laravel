@@ -50,6 +50,7 @@ class RefreshDatabase extends Command
 
         $sqlImports = [
             'testdb.sql',
+            'attainments.sql',
         ];
 
         $this->info('start refreshing database...(this can take some time as in several minutes)');
