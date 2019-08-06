@@ -11,9 +11,43 @@ use tcCore\Http\Requests\UpdateAnswerRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Question;
 use tcCore\TestParticipant;
+use tcCore\TestTake;
 
 class Answers2019Controller extends Controller {
 
+    /**
+     * WITHOUT test take
+     * @param TestParticipant $testParticipant
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getAnswersAndStatus(TestParticipant $testParticipant, Request $request){
+        $answers = Answer::where('test_participant_id',$testParticipant->getKey())->orderBy('order')->get();
+        return Response::make([
+            'answers' => $answers,
+            'participant_test_take_status_id' => $testParticipant->test_take_status_id,
+        ],
+            200);
+
+    }
+
+    /**
+     * WITH test take
+     * @param TestParticipant $testParticipant
+     * @param TestTake $testTake
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getAnswersStatusAndTestTake(TestParticipant $testParticipant, TestTake $testTake, Request $request){
+        $answers = Answer::where('test_participant_id',$testParticipant->getKey())->orderBy('order')->get();
+        return Response::make([
+            'answers' => $answers,
+            'test_take' => $testTake,
+            'participant_test_take_status_id' => $testParticipant->test_take_status_id,
+        ],
+            200);
+
+    }
     public function showQuestionAndAnswer(TestParticipant $testParticipant, Question $question, Request $request){
         $answer = Answer::where('test_participant_id',$testParticipant->getKey())
                             ->where('question_id',$question->getKey())
