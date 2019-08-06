@@ -44,14 +44,8 @@ class StresstestSetup extends Command
     {
         $envFile = '.env';
         $envBackupFileWhileStresstest = ".envBackupWhileStresstest";
-        if(file_exists($envBackupFileWhileStresstest)) {
-            print_r([
-                config('app.env'),
-            ]);
-            exit;
-        }
-        if (config('app.env') !== 'local') {
 
+        if (config('app.env') !== 'local') {
             if(!file_exists($envBackupFileWhileStresstest)) {
                 $this->error('You cannot perform this action on this environment! only with APP_ENV set to local AND not in production (read config:cache && route:cache)!!');
                 return false;
@@ -133,7 +127,7 @@ class StresstestSetup extends Command
 
     protected function addMigrations(){
         $this->printSubItem('going to put the migrations on top');
-        Artisan::call('migrate');
+        $this->call('migrate',['--force' => true,]);
         $this->info('done');
     }
 

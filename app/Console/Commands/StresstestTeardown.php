@@ -58,7 +58,7 @@ class StresstestTeardown extends Command
 
         if(!file_exists($envBackupFileWhileStresstest)){
             $this->error('could not find the '.$envBackupFileWhileStresstest.' file');
-            $this->error('it seems like you ditn\'t do a proper setup, please reset the '.$envFile.' file yourself');
+            $this->error('it seems like you didn\'t do a proper setup, please reset the '.$envFile.' file yourself');
             $this->error('APP_ENV=local && APP_DEBUG=true');
             return false;
         }
