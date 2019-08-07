@@ -387,6 +387,7 @@ return array(
     'Illuminate\\Contracts\\Queue\\QueueableEntity' => $vendorDir . '/laravel/framework/src/Illuminate/Contracts/Queue/QueueableEntity.php',
     'Illuminate\\Contracts\\Queue\\ShouldQueue' => $vendorDir . '/laravel/framework/src/Illuminate/Contracts/Queue/ShouldQueue.php',
     'Illuminate\\Contracts\\Redis\\Connection' => $vendorDir . '/laravel/framework/src/Illuminate/Contracts/Redis/Connection.php',
+    'Illuminate\\Contracts\\Redis\\Connector' => $vendorDir . '/laravel/framework/src/Illuminate/Contracts/Redis/Connector.php',
     'Illuminate\\Contracts\\Redis\\Factory' => $vendorDir . '/laravel/framework/src/Illuminate/Contracts/Redis/Factory.php',
     'Illuminate\\Contracts\\Redis\\LimiterTimeoutException' => $vendorDir . '/laravel/framework/src/Illuminate/Contracts/Redis/LimiterTimeoutException.php',
     'Illuminate\\Contracts\\Routing\\BindingRegistrar' => $vendorDir . '/laravel/framework/src/Illuminate/Contracts/Routing/BindingRegistrar.php',

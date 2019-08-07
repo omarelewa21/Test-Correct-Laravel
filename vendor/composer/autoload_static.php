@@ -721,6 +721,7 @@ class ComposerStaticInite79998656366833e308fa00a0988b22d
         'Illuminate\\Contracts\\Queue\\QueueableEntity' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Contracts/Queue/QueueableEntity.php',
         'Illuminate\\Contracts\\Queue\\ShouldQueue' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Contracts/Queue/ShouldQueue.php',
         'Illuminate\\Contracts\\Redis\\Connection' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Contracts/Redis/Connection.php',
+        'Illuminate\\Contracts\\Redis\\Connector' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Contracts/Redis/Connector.php',
         'Illuminate\\Contracts\\Redis\\Factory' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Contracts/Redis/Factory.php',
         'Illuminate\\Contracts\\Redis\\LimiterTimeoutException' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Contracts/Redis/LimiterTimeoutException.php',
         'Illuminate\\Contracts\\Routing\\BindingRegistrar' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Contracts/Routing/BindingRegistrar.php',
