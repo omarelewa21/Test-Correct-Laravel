@@ -69,9 +69,9 @@ class DevPullAndDeploy extends Command
             $this->addMigrations();
         }
 
-//        if($this->confirm('Do you wan\'t to do a composer install if needed?')){
-//            $this->composerInstall();
-//        }
+        if($this->confirm('Do you wan\'t to do a composer install if needed?')){
+            $this->composerInstall();
+        }
 
 
         $this->info('Start caching');
