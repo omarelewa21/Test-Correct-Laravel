@@ -70,7 +70,7 @@ class DevPullAndDeploy extends Command
         }
 
         if($this->confirm('Do you wan\'t to do a composer install if needed?')){
-            $this->composerInstall();
+            $this->composerInstallWithDev();
         }
 
 
@@ -94,6 +94,16 @@ class DevPullAndDeploy extends Command
 //        Artisan::call('queue:restart');
         $this->info('done');
 
+    }
+
+    protected function composerInstallWithDev()
+    {
+        $this->info('going to do a composer install');
+        if (!exec('composer install --optimize-autoloader')) {
+            $this->error('an error occured while doing a composer install, please take care manually');
+        }
+        $this->info('done');
+        $this->info(PHP_EOL);
     }
 
     protected function composerInstall()
