@@ -69,8 +69,8 @@ class DevPullAndDeploy extends Command
             $this->addMigrations();
         }
 
-        if($this->confirm('Do you wan\'t to do a composer install if needed?')){
-            if($this->confirm('with dev [yes] without dev [no/default]?')) {
+        if ($this->confirm('Do you wan\'t to do a composer install if needed?')) {
+            if ($this->confirm('with dev [yes] without dev [no/default]?')) {
                 $this->composerInstallWithDev();
             } else {
                 $this->composerInstall();
