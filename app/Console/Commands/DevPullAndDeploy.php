@@ -103,7 +103,7 @@ class DevPullAndDeploy extends Command
     protected function composerInstallWithDev()
     {
         $this->info('going to do a composer install');
-        if (!exec('composer install --optimize-autoloader')) {
+        if (!exec('php composer.phar install --optimize-autoloader')) {
             $this->error('an error occured while doing a composer install, please take care manually');
         }
         $this->info('done');
@@ -113,7 +113,7 @@ class DevPullAndDeploy extends Command
     protected function composerInstall()
     {
         $this->info('going to do a composer install');
-        if (!exec('composer install --optimize-autoloader --no-dev')) {
+        if (!exec('php composer.phar install --optimize-autoloader --no-dev')) {
             $this->error('an error occured while doing a composer install, please take care manually');
         }
         $this->info('done');
