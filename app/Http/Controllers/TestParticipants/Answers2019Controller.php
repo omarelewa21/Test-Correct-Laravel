@@ -18,8 +18,14 @@ class Answers2019Controller extends Controller {
 
     public function getAnswersStatusAndQuestions(TestParticipant $testParticipant, Request $request){
         $answers = Answer::where('test_participant_id',$testParticipant->getKey())->orderBy('order')->get();
+        $questions = collect([]);
+        $qh = new QuestionHelper();
+        $answers->each(function($answer) use ($questions,$qh){
+            $questions->add($qh->getTotalQuestion($answer->question));
+        });
         return Response::make([
             'answers' => $answers,
+            'questions' => $questions,
             'participant_test_take_status_id' => $testParticipant->test_take_status_id,
         ],
             200);
@@ -34,21 +40,15 @@ class Answers2019Controller extends Controller {
      */
     public function getAnswersAndStatus(TestParticipant $testParticipant, Request $request){
         $answers = Answer::where('test_participant_id',$testParticipant->getKey())->orderBy('order')->get();
-        $questions = collect([]);
-        $qh = new QuestionHelper();
-        $answers->each(function($question) use ($questions, $qh){
-            $questions->add($qh->getTotalQuestion($question));
-        });
         return Response::make([
             'answers' => $answers,
-            'questions' => $questions,
             'participant_test_take_status_id' => $testParticipant->test_take_status_id,
         ],
             200);
 
     }
 
-    /**
+     /**
      * WITH test take
      * @param TestParticipant $testParticipant
      * @param TestTake $testTake
