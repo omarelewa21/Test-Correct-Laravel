@@ -19,21 +19,7 @@ class Kernel extends ConsoleKernel
      *
      * @var array
      */
-    protected $commands = [
-        // can be turned off migrating to larvel 5.x
-//        'tcCore\Console\Commands\Inspire',
-//        'tcCore\Console\Commands\GenerateUser',
-//        'tcCore\Console\Commands\StartLicenseJobs',
-//        'tcCore\Console\Commands\StartActiveTeacherJobs',
-//        RefreshDatabase::class,
-//        ClearOldRequestLogs::class,
-//        RestoreUser::class,
-//        GenerateUsersForStresstest::class,
-//        DeleteUsersForStresstest::class,
-//        StresstestSetup::class,
-//        StresstestTeardown::class,
-//        ProductionPullAndDeploy::class
-    ];
+    protected $commands = [];
 
     /**
      * Define the application's command schedule.
@@ -49,6 +35,7 @@ class Kernel extends ConsoleKernel
 //			->daily();
         $schedule->command('requestlog:clear 5 --silent')
             ->dailyAt('04:00');
+        $schedule->command('telescope:prune')->daily();
     }
 
     /**
@@ -58,7 +45,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
         require base_path('routes/console.php');
     }
 
