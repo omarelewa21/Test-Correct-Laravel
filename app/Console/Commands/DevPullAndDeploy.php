@@ -83,7 +83,7 @@ class DevPullAndDeploy extends Command
         Artisan::call('cache:clear');
         $this->info('done');
         foreach (['route', 'config', 'view'] as $type) {
-            $this->printSubItem($type . ' cache');
+            $this->printSubItem($type . ' cache clear');
             Artisan::call(sprintf('%s:clear', $type));
             // do not perform route:cache, config:cache and view:cache on dev.
 //            Artisan::call(sprintf('%s:cache',$type));
