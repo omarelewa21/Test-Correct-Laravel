@@ -50,7 +50,7 @@ class ProductionPullAndDeploy extends Command
 
         $currentBranch = exec('git branch | grep \* | cut -d \' \' -f2');
         if($currentBranch != $this->defaultDeployBranchName){
-            if(!$this->confirm('Are you sure you want to pull from the `'.$currentBranch.'` branch'.PHP_EOL.' this is NOT the `'.$this->deployBranchName.'`` branch?',false)){
+            if(!$this->confirm('Are you sure you want to pull from the `'.$currentBranch.'` branch'.PHP_EOL.' this is NOT the `'.$this->defaultDeployBranchName.'`` branch?',false)){
                 $this->error('stop due to your call NOT to pull from  the `'.$currentBranch.'` branch`');
                 return false;
             }
