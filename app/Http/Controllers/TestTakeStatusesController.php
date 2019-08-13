@@ -2,11 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\Http\Controllers\Controller;
-use tcCore\TestTakeStatus;
 use tcCore\Http\Requests\CreateTestTakeStatusRequest;
 use tcCore\Http\Requests\UpdateTestTakeStatusRequest;
+use tcCore\TestTakeStatus;
 
 class TestTakeStatusesController extends Controller {
 
@@ -24,7 +22,7 @@ class TestTakeStatusesController extends Controller {
 				return Response::make($testTakeStatuses->get(), 200);
 				break;
 			case 'list':
-				return Response::make($testTakeStatuses->list('name', 'id'), 200);
+				return Response::make($testTakeStatuses->pluck('name', 'id'), 200);
 				break;
 			case 'paginate':
 			default:

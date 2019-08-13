@@ -15,7 +15,7 @@ class UpdateAnswerRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->answer = $route->getParameter('answer');
+		$this->answer = $route->parameter('answer');
 	}
 
 	/**

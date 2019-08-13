@@ -55,7 +55,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         if (array_key_exists('student_users', $attributes)) {
             $this->students = $attributes['student_users'];
         } elseif(array_key_exists('add_student_user', $attributes) || array_key_exists('delete_student_user', $attributes)) {
-            $this->students = $this->students()->withTrashed()->lists('user_id')->all();
+            $this->students = $this->students()->withTrashed()->pluck('user_id')->all();
             if (array_key_exists('add_student_user', $attributes)) {
                 array_push($this->students, $attributes['add_student_user']);
             }
@@ -70,7 +70,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         if (array_key_exists('mentor_users', $attributes)) {
             $this->mentors = $attributes['mentors'];
         } elseif(array_key_exists('add_mentor_user', $attributes) || array_key_exists('delete_mentor_user', $attributes)) {
-            $this->mentors = $this->mentors()->withTrashed()->lists('user_id')->all();
+            $this->mentors = $this->mentors()->withTrashed()->pluck('user_id')->all();
             if (array_key_exists('add_mentor_user', $attributes)) {
                 array_push($this->mentors, $attributes['add_mentor_user']);
             }
@@ -85,7 +85,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         if (array_key_exists('manager_users', $attributes)) {
             $this->managers = $attributes['manager_users'];
         } elseif(array_key_exists('add_manager_user', $attributes) || array_key_exists('delete_manager_user', $attributes)) {
-            $this->managers = $this->managers()->withTrashed()->lists('user_id')->all();
+            $this->managers = $this->managers()->withTrashed()->pluck('user_id')->all();
             if (array_key_exists('add_manager_user', $attributes)) {
                 array_push($this->managers, $attributes['add_manager_user']);
             }

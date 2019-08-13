@@ -2,13 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
 use tcCore\Contact;
-use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateContactRequest;
 use tcCore\Http\Requests\UpdateContactRequest;
 
-class ContactsController extends Controller {
+class ContactsController extends Controller
+{
 
     /**
      * Display a listing of the contacts.
@@ -19,12 +18,12 @@ class ContactsController extends Controller {
     {
         $contacts = Contact::filtered($request->get('filter', []), $request->get('order', []));
 
-        switch(strtolower($request->get('mode', 'paginate'))) {
+        switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 return Response::make($contacts->get(), 200);
                 break;
             case 'list':
-                return Response::make($contacts->lists('name', 'id'), 200);
+                return Response::make($contacts->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:
@@ -53,7 +52,7 @@ class ContactsController extends Controller {
     /**
      * Display the specified contact.
      *
-     * @param  Contact  $contact
+     * @param  Contact $contact
      * @return Response
      */
     public function show(Contact $contact)
@@ -82,7 +81,7 @@ class ContactsController extends Controller {
     /**
      * Remove the specified contact from storage.
      *
-     * @param  Contact  $contact
+     * @param  Contact $contact
      * @return Response
      */
     public function destroy(Contact $contact)

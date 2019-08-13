@@ -16,7 +16,7 @@ class UpdateDrawingQuestionRequest extends UpdateQuestionRequest {
      */
     function __construct(Route $route)
     {
-        $this->drawingQuestion = $route->getParameter('drawing_question');
+        $this->drawingQuestion = $route->parameter('drawing_question');
         if ($this->drawingQuestion instanceof DrawingQuestion) {
             $this->question = $this->drawingQuestion->getQuestionInstance();
         }

@@ -5,18 +5,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use tcCore\AnswerRating;
-use tcCore\GroupQuestion;
-use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Http\Requests\CreateTestParticipantRequest;
 use tcCore\Http\Requests\HeartbeatTestParticipantRequest;
+use tcCore\Http\Requests\UpdateTestParticipantRequest;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Lib\TestParticipant\Factory;
 use tcCore\TestParticipant;
-use tcCore\Http\Requests\CreateTestParticipantRequest;
-use tcCore\Http\Requests\UpdateTestParticipantRequest;
 use tcCore\TestTake;
-use tcCore\TestTakeStatus;
 
 class TestParticipantsController extends Controller {
 
@@ -53,8 +50,8 @@ class TestParticipantsController extends Controller {
 
 				$testParticipants = $testParticipants->get();
 				if ($isTeacherOrInvigilator && is_array($request->get('with')) && in_array('statistics', $request->get('with'))) {
-					$testParticipantUserIds = $testParticipants->lists('id', 'user_id')->all();
-					$userHasRated = AnswerRating::where('type', 'STUDENT')->where('test_take_id', $testTake->getKey())->whereNotNull('rating')->distinct()->lists('user_id')->all();
+					$testParticipantUserIds = $testParticipants->pluck('id', 'user_id')->all();
+					$userHasRated = AnswerRating::where('type', 'STUDENT')->where('test_take_id', $testTake->getKey())->whereNotNull('rating')->distinct()->pluck('user_id')->all();
 					$testParticipantAbnormalities = [];
 
 					$questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
@@ -368,13 +365,13 @@ class TestParticipantsController extends Controller {
 		if ($testParticipant->test_take_id !== $testTake->getKey()) {
 			return Response::make('Test participant not found', 404);
 		}
-
 		$testParticipant->load('testTake', 'testTake.discussingParentQuestions', 'testTake.testTakeStatus', 'testTakeStatus', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
 
 		$testParticipant->setAttribute('heartbeat_at', Carbon::now());
 		$testParticipant->setAttribute('ip_address', $request->get('ip_address'));
 
-		if ($request->has('answer_id')) {
+
+		if ($request->filled('answer_id')) {
 			$testParticipant->setAttribute('answer_id', $request->get('answer_id'));
 		}
 

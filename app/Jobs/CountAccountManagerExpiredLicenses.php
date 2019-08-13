@@ -4,10 +4,8 @@ namespace tcCore\Jobs;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\License;
 use tcCore\School;
@@ -15,7 +13,7 @@ use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
-class CountAccountManagerExpiredLicenses extends Job implements SelfHandling, ShouldQueue
+class CountAccountManagerExpiredLicenses extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -62,7 +60,7 @@ class CountAccountManagerExpiredLicenses extends Job implements SelfHandling, Sh
             $count += $schoolLocation->getAttribute('count_expired_licenses');
         }
 
-        Log::debug('Accountmanager #'.$this->user->getKey().' -> count_expired_licenses: '.$count);
+        Log::debug('Accountmanager #' . $this->user->getKey() . ' -> count_expired_licenses: ' . $count);
 
         $this->user->setAttribute('count_expired_licenses', $count);
         $this->user->save();

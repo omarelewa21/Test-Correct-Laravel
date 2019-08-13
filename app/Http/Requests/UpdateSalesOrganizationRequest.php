@@ -15,7 +15,7 @@ class UpdateSalesOrganizationRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->salesOrganization = $route->getParameter('sales_organization');
+		$this->salesOrganization = $route->parameter('sales_organization');
 	}
 
 	/**

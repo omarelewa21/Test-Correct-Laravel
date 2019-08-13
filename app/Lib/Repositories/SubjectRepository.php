@@ -7,15 +7,18 @@ use tcCore\SchoolLocation;
 use tcCore\Subject;
 use tcCore\User;
 
-class SubjectRepository {
+class SubjectRepository
+{
     // Get subjects of student with base subject
-    public static function getSubjectsOfStudent(User $student) {
-        $subjectIds = AverageRating::where('user_id', $student->getKey())->distinct()->lists('subject_id');
+    public static function getSubjectsOfStudent(User $student)
+    {
+        $subjectIds = AverageRating::where('user_id', $student->getKey())->distinct()->pluck('subject_id');
         return Subject::whereIn('id', $subjectIds)->with('baseSubject')->get();
     }
 
     // Get subjects of school location(s)
-    public static function getSubjectsOfSchoolLocation(SchoolLocation $schoolLocation) {
+    public static function getSubjectsOfSchoolLocation(SchoolLocation $schoolLocation)
+    {
         return Subject::join('sections', 'sections.id', '=', 'subjects.section_id')
             ->join('school_location_sections', 'sections.id', '=', 'school_location_sections.section_id')
             ->join('school_locations', 'school_locations.id', '=', 'school_location_sections.school_location_id')
@@ -25,7 +28,8 @@ class SubjectRepository {
     }
 
     // Get subjects of school
-    public static function getSubjectsOfSchool(School $school) {
+    public static function getSubjectsOfSchool(School $school)
+    {
         return Subject::join('sections', 'sections.id', '=', 'subjects.section_id')
             ->join('school_location_sections', 'school_location_sections.section_id', '=', 'sections.id')
             ->join('school_locations', 'school_locations.id', '=', 'school_location_sections.school_location_id')

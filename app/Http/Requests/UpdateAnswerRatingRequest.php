@@ -15,7 +15,7 @@ class UpdateAnswerRatingRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->answerRating = $route->getParameter('answer_rating');
+		$this->answerRating = $route->parameter('answer_rating');
 	}
 
 	/**

@@ -405,7 +405,7 @@ class Test extends BaseModel {
     public function userDuplicate(array $attributes, $authorId = null) {
         if (!array_key_exists('name', $attributes)) {
             $copy = 1;
-            $names = static::where('author_id', $authorId)->where('name', 'LIKE', 'Kopie #% '.$this->getAttribute('name'))->lists('name')->all();
+            $names = static::where('author_id', $authorId)->where('name', 'LIKE', 'Kopie #% '.$this->getAttribute('name'))->pluck('name')->all();
             while(in_array('Kopie #'.$copy.' '.$this->getAttribute('name'), $names)) {
                 $copy++;
             }
@@ -450,7 +450,7 @@ class Test extends BaseModel {
 
         $test->reorder();
 
-        $tags = $this->tags()->lists('id')->all();
+        $tags = $this->tags()->pluck('id')->all();
         if ($tags) {
             $test->tags()->attach($tags);
         }

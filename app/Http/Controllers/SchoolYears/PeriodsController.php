@@ -2,11 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
-use tcCore\Period;
 use tcCore\Http\Requests\CreatePeriodRequest;
 use tcCore\Http\Requests\UpdatePeriodRequest;
+use tcCore\Period;
 use tcCore\SchoolYear;
 
 class PeriodsController extends Controller {
@@ -25,7 +24,7 @@ class PeriodsController extends Controller {
 				return Response::make($periods->get(), 200);
 				break;
 			case 'list':
-				return Response::make($periods->lists('name', 'id'), 200);
+				return Response::make($periods->pluck('name', 'id'), 200);
 				break;
 			case 'paginate':
 			default:
@@ -111,7 +110,7 @@ class PeriodsController extends Controller {
 	 * @return Response
 	 */
 	public function lists(SchoolYear $schoolYear) {
-		return Response::make($schoolYear->periods()->orderBy('name', 'asc')->lists('name', 'id'));
+		return Response::make($schoolYear->periods()->orderBy('name', 'asc')->pluck('name', 'id'));
 	}
 
 }

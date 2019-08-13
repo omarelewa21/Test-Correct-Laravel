@@ -2,9 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\Http\Controllers\Controller;
 use tcCore\BaseSubject;
+
 //use tcCore\Http\Requests\CreateBaseSubjectRequest;
 //use tcCore\Http\Requests\UpdateBaseSubjectRequest;
 
@@ -24,7 +23,7 @@ class BaseSubjectsController extends Controller {
                 return Response::make($baseSubjects->get(), 200);
                 break;
             case 'list':
-                return Response::make($baseSubjects->lists('name', 'id'), 200);
+                return Response::make($baseSubjects->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:

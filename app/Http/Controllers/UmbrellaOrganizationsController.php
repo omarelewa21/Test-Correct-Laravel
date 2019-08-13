@@ -3,11 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\UmbrellaOrganization;
-use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateUmbrellaOrganizationRequest;
 use tcCore\Http\Requests\UpdateUmbrellaOrganizationRequest;
+use tcCore\UmbrellaOrganization;
 
 class UmbrellaOrganizationsController extends Controller {
 
@@ -25,7 +23,7 @@ class UmbrellaOrganizationsController extends Controller {
 				return Response::make($umbrellaOrganizations->get(), 200);
 				break;
 			case 'list':
-				return Response::make($umbrellaOrganizations->lists('name', 'id'), 200);
+				return Response::make($umbrellaOrganizations->pluck('name', 'id'), 200);
 				break;
 			case 'paginate':
 			default:
@@ -45,7 +43,7 @@ class UmbrellaOrganizationsController extends Controller {
 		$umbrellaOrganization = new UmbrellaOrganization();
 
 		$umbrellaOrganization->fill($request->all());
-		if (!$request->has('user_id')) {
+		if (!$request->filled('user_id')) {
 			$umbrellaOrganization->setAttribute('user_id', Auth::user()->getKey());
 		}
 

@@ -87,6 +87,6 @@ class TestKindsController extends Controller {
      * @return Response
      */
     public function lists() {
-        return Response::make(TestKind::orderBy('name', 'asc')->lists('name', 'id'));
+        return Response::make(TestKind::orderBy('name', 'asc')->pluck('name', 'id'));
     }
 }

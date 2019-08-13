@@ -40,22 +40,27 @@ class RefreshDatabase extends Command
      */
     public function handle()
     {
+        if (!in_array(env('APP_ENV'), ['local', 'testing'])) {
+            $this->error('You cannot perform this action on this environment! only with APP_ENV set to local!!');
+            return false;
+        }
+
         // this might be slow, so give us some time
         ini_set('max_execution_time', 180); //3 minutes
 
         $sqlImports = [
-            'tccore_dev_safe.sql',
+            'testdb.sql',
+            'attainments.sql',
         ];
 
         $this->info('start refreshing database...(this can take some time as in several minutes)');
         // only needed when using mysql database, not when sqlite setup is needed
-        switch(DB::connection()->getConfig('name')){
+        switch (DB::connection()->getConfig('name')) {
             case 'sqlite':
                 // do nothing
                 break;
             case 'mysql':
             default:
-                $this->rollbackMigrations();
                 $this->handleSqlFiles($sqlImports);
                 break;
         }
@@ -64,23 +69,27 @@ class RefreshDatabase extends Command
         $this->info('refresh database complete');
     }
 
-    protected function addMigrations(){
-        $this->output->write('<info>  o going to put the migrations on top...</info>',false);
+    protected function addMigrations()
+    {
+        $this->output->write('<info>  o going to put the migrations on top...</info>', false);
         Artisan::call('migrate');
         $this->info('done');
     }
 
-    protected function rollbackMigrations(){
-        $this->output->write('<info>  o start rollback migrations...</info>',false);
+    protected function rollbackMigrations()
+    {
+        $this->output->write('<info>  o start rollback migrations...</info>', false);
         Artisan::call('migrate:rollback');
         $this->info('done');
     }
 
-    protected function handleSqlFiles($sqlImports = []){
+    protected function handleSqlFiles($sqlImports = [])
+    {
         foreach ($sqlImports as $file) {
-            $this->output->write(sprintf('<info>  o importing %s...</info>',$file),false);
+            $this->output->write(sprintf('<info>  o importing %s...</info>', $file), false);
             $command = sprintf(
-                'mysql -u %s -p%s %s < database/seeds/%s',
+                'mysql -h %s -u %s -p%s %s < database/seeds/%s',
+                DB::connection()->getConfig('host'),
                 DB::connection()->getConfig('username'),
                 DB::connection()->getConfig('password'),
                 DB::connection()->getConfig('database'),

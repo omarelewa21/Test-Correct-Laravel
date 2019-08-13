@@ -2,16 +2,13 @@
 
 namespace tcCore\Jobs;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Mail\Mailer;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\TestTake;
 
-class SendTestRatedMail extends Job implements SelfHandling, ShouldQueue
+class SendTestRatedMail extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -38,7 +35,7 @@ class SendTestRatedMail extends Job implements SelfHandling, ShouldQueue
     {
         $urlLogin = getenv('URL_LOGIN');
         if ($this->testTake->testTakeStatus->name === 'Rated') {
-            foreach($this->testTake->testParticipants as $testParticipant) {
+            foreach ($this->testTake->testParticipants as $testParticipant) {
                 if ($testParticipant->getAttribute('rating') === null) {
                     continue;
                 }

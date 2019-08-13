@@ -15,7 +15,7 @@ class UpdateTestTakeEventRequest extends Request {
      */
     function __construct(Route $route)
     {
-        $this->testTakeEvent = $route->getParameter('test_take_event');
+        $this->testTakeEvent = $route->parameter('test_take_event');
     }
 
     /**

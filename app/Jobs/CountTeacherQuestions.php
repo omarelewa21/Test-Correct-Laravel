@@ -3,14 +3,12 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\User;
 
-class CountTeacherQuestions extends Job implements SelfHandling, ShouldQueue
+class CountTeacherQuestions extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -39,7 +37,7 @@ class CountTeacherQuestions extends Job implements SelfHandling, ShouldQueue
     {
         $count = $this->user->questionAuthors()->count();
 
-        Log::debug('Teacher #'.$this->user->getKey().' -> count_questions: '.$count);
+        Log::debug('Teacher #' . $this->user->getKey() . ' -> count_questions: ' . $count);
 
         $this->user->setAttribute('count_questions', $count);
         $this->user->save();

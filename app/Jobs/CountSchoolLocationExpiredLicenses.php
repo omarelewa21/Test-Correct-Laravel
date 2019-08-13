@@ -7,11 +7,10 @@ use Illuminate\Support\Facades\Log;
 use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\SchoolLocation;
 
-class CountSchoolLocationExpiredLicenses extends Job implements SelfHandling, ShouldQueue
+class CountSchoolLocationExpiredLicenses extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -42,7 +41,7 @@ class CountSchoolLocationExpiredLicenses extends Job implements SelfHandling, Sh
 
         $count = $this->schoolLocation->licenses()->whereNotNull('end')->where('end', '<', $date->format('Y-m-d'))->sum('amount');
 
-        Log::debug('Schoollocation #'.$this->schoolLocation->getKey().' -> count_expired_licenses: '.$count);
+        Log::debug('Schoollocation #' . $this->schoolLocation->getKey() . ' -> count_expired_licenses: ' . $count);
 
         $this->schoolLocation->setAttribute('count_expired_licenses', $count);
         $this->schoolLocation->save();

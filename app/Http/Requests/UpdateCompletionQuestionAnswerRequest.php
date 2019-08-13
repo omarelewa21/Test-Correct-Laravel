@@ -15,7 +15,7 @@ class UpdateCompletionQuestionAnswerRequest extends Request {
      */
     function __construct(Route $route)
     {
-        $this->completionQuestionAnswer = $route->getParameter('completion_question_answer');
+        $this->completionQuestionAnswer = $route->parameter('completion_question_answer');
     }
 
     /**

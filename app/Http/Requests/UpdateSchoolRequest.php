@@ -15,7 +15,7 @@ class UpdateSchoolRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->school = $route->getParameter('school');
+		$this->school = $route->parameter('school');
 	}
 
 	/**

@@ -48,7 +48,7 @@ class SchoolYear extends BaseModel implements AccessCheckable {
         if (array_key_exists('school_locations', $attributes)) {
             $this->schoolLocations = $attributes['school_locations'];
         } elseif(array_key_exists('add_school_location', $attributes) || array_key_exists('delete_school_location', $attributes)) {
-            $this->schoolLocations = $this->schoolLocationSchoolYears()->lists('school_location_id')->all();
+            $this->schoolLocations = $this->schoolLocationSchoolYears()->pluck('school_location_id')->all();
             if (array_key_exists('add_school_location', $attributes)) {
                 array_push($this->schoolLocations, $attributes['add_school_location']);
             }

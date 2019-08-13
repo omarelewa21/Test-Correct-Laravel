@@ -59,7 +59,7 @@ class Tag extends BaseModel {
             $names = array($names);
         }
 
-        $tags = $tags->lists('name', 'id')->all();
+        $tags = $tags->pluck('name', 'id')->all();
         $tags = array_map('strtolower', $tags);
 
         foreach($names as $name) {

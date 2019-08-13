@@ -24,7 +24,7 @@ class TestTakeEventTypesController extends Controller {
                 return Response::make($testTakeEventTypes->get(), 200);
                 break;
             case 'list':
-                return Response::make($testTakeEventTypes->list('name', 'id'), 200);
+                return Response::make($testTakeEventTypes->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:

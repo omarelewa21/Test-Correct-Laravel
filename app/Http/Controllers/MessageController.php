@@ -28,7 +28,7 @@ class MessageController extends Controller {
                 return Response::make($messages->get(), 200);
                 break;
             case 'list':
-                return Response::make($messages->lists('subject', 'id'), 200);
+                return Response::make($messages->pluck('subject', 'id'), 200);
                 break;
             case 'paginate':
             default:

@@ -2,16 +2,15 @@
 
 namespace tcCore\Jobs\Rating;
 
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\DB;
 use tcCore\AverageRating;
 use tcCore\Jobs\Job;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\User;
 
-class CalculateRatingForUser extends Job implements SelfHandling, ShouldQueue
+class CalculateRatingForUser extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -40,7 +39,7 @@ class CalculateRatingForUser extends Job implements SelfHandling, ShouldQueue
         $averages = $this->user->ratings()->select('user_id', 'school_class_id', 'subject_id', DB::raw('SUM(`rating` * `weight`) / SUM(`weight`) AS average'))->groupBy('school_class_id', 'subject_id')->with('schoolClass')->get();
 
         $averageRatingIds = array();
-        foreach($averages as $average) {
+        foreach ($averages as $average) {
             $averageRating = AverageRating::firstOrNew(['user_id' => $average->getAttribute('user_id'), 'school_class_id' => $average->getAttribute('school_class_id'), 'subject_id' => $average->getAttribute('subject_id')]);
             $averageRating->setAttribute('rating', $average->getAttribute('average'));
             $averageRating->setAttribute('deleted_at', null);

@@ -24,7 +24,7 @@ class SectionsController extends Controller {
                 return Response::make($schoolSections->get(), 200);
                 break;
             case 'list':
-                return Response::make($schoolSections->lists('year', 'id'), 200);
+                return Response::make($schoolSections->pluck('year', 'id'), 200);
                 break;
             case 'paginate':
             default:

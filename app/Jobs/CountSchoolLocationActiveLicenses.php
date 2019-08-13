@@ -4,14 +4,12 @@ namespace tcCore\Jobs;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\SchoolLocation;
 
-class CountSchoolLocationActiveLicenses extends Job implements SelfHandling, ShouldQueue
+class CountSchoolLocationActiveLicenses extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -40,11 +38,11 @@ class CountSchoolLocationActiveLicenses extends Job implements SelfHandling, Sho
     {
         $date = new Carbon();
 
-        $count = $this->schoolLocation->licenses()->where('start', '<=', $date->format('Y-m-d'))->where(function ($query) use($date) {
+        $count = $this->schoolLocation->licenses()->where('start', '<=', $date->format('Y-m-d'))->where(function ($query) use ($date) {
             $query->whereNull('end')->orWhere('end', '>=', $date->format('Y-m-d'));
         })->sum('amount');
 
-        Log::debug('Schoollocation #'.$this->schoolLocation->getKey().' -> count_active_licenses: '.$count);
+        Log::debug('Schoollocation #' . $this->schoolLocation->getKey() . ' -> count_active_licenses: ' . $count);
 
         $this->schoolLocation->setAttribute('count_active_licenses', $count);
         $this->schoolLocation->save();

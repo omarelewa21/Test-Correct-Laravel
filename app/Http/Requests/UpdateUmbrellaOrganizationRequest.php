@@ -15,7 +15,7 @@ class UpdateUmbrellaOrganizationRequest extends Request {
      */
     function __construct(Route $route)
     {
-        $this->umbrellaOrganization = $route->getParameter('umbrella_organization');
+        $this->umbrellaOrganization = $route->parameter('umbrella_organization');
     }
 
     /**

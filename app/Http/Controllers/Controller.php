@@ -1,17 +1,18 @@
 <?php namespace tcCore\Http\Controllers;
 
-use Illuminate\Foundation\Bus\DispatchesCommands;
-use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Routing\Controller as BaseController;
 use tcCore\Lib\User\Roles;
 
-abstract class Controller extends BaseController {
+abstract class Controller extends BaseController
+{
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-	use DispatchesCommands, ValidatesRequests;
-
-	protected function getUserRoles() {
-		return Roles::getUserRoles();
-	}
+    protected function getUserRoles()
+    {
+        return Roles::getUserRoles();
+    }
 
 }

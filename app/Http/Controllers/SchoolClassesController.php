@@ -30,7 +30,7 @@ class SchoolClassesController extends Controller {
 				return Response::make($schoolClasses, 200);
 				break;
 			case 'list':
-				return Response::make($schoolClasses->lists('name', 'id'), 200);
+				return Response::make($schoolClasses->pluck('name', 'id'), 200);
 				break;
 			case 'paginate':
 			default:
@@ -115,7 +115,7 @@ class SchoolClassesController extends Controller {
 	 * @return Response
 	 */
 	public function lists() {
-		return Response::make(Auth::user()->teacherSchoolClasses()->orderBy('name', 'asc')->lists('name', 'id'));
+		return Response::make(Auth::user()->teacherSchoolClasses()->orderBy('name', 'asc')->pluck('name', 'id'));
 	}
 
 }

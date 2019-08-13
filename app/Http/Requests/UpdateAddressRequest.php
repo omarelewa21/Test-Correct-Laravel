@@ -15,7 +15,7 @@ class UpdateAddressRequest extends Request {
      */
     function __construct(Route $route)
     {
-        $this->address = $route->getParameter('address');
+        $this->address = $route->parameter('address');
     }
 
     /**

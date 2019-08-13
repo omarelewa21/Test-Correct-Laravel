@@ -2,17 +2,15 @@
 
 namespace tcCore\Jobs;
 
-use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 use tcCore\Role;
 use tcCore\School;
 use tcCore\UserRole;
 
-class CountSchoolTeachers extends Job implements SelfHandling, ShouldQueue
+class CountSchoolTeachers extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -39,9 +37,9 @@ class CountSchoolTeachers extends Job implements SelfHandling, ShouldQueue
      */
     public function handle()
     {
-        $count = $this->school->users()->whereIn('id', function($query) {
+        $count = $this->school->users()->whereIn('id', function ($query) {
             $userRole = new UserRole();
-            $query->select('user_id')->from($userRole->getTable())->whereIn('role_id', function($query) {
+            $query->select('user_id')->from($userRole->getTable())->whereIn('role_id', function ($query) {
                 $role = new Role();
                 $query->select($role->getKeyName())->from($role->getTable())->where('name', 'Teacher')->whereNull('deleted_at');
             })->whereNull('deleted_at');
@@ -49,7 +47,7 @@ class CountSchoolTeachers extends Job implements SelfHandling, ShouldQueue
 
         $count += $this->school->schoolLocations()->sum('count_teachers');
 
-        Log::debug('School #'.$this->school->getKey().' -> count_teachers: '.$count);
+        Log::debug('School #' . $this->school->getKey() . ' -> count_teachers: ' . $count);
 
         $this->school->setAttribute('count_teachers', $count);
         $this->school->save();

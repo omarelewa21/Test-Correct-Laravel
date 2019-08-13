@@ -3,17 +3,15 @@
 namespace tcCore\Jobs;
 
 use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
-class CountAccountManagerAccounts extends Job implements SelfHandling, ShouldQueue
+class CountAccountManagerAccounts extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
@@ -40,16 +38,16 @@ class CountAccountManagerAccounts extends Job implements SelfHandling, ShouldQue
      */
     public function handle()
     {
-        $umbrellaOrganizationIds = UmbrellaOrganization::where('user_id', $this->user->getKey())->lists('id')->all();
+        $umbrellaOrganizationIds = UmbrellaOrganization::where('user_id', $this->user->getKey())->pluck('id')->all();
         $count = count($umbrellaOrganizationIds);
 
 
-        $schoolIds = School::where('user_id', $this->user->getKey())->whereNotIn('umbrella_organization_id', $umbrellaOrganizationIds)->lists('id')->all();
+        $schoolIds = School::where('user_id', $this->user->getKey())->whereNotIn('umbrella_organization_id', $umbrellaOrganizationIds)->pluck('id')->all();
         $count += count($schoolIds);
 
         $count += SchoolLocation::where('user_id', $this->user->getKey())->whereNotIn('school_id', $schoolIds)->count();
 
-        Log::debug('Accountmanager #'.$this->user->getKey().' -> count_accounts: '.$count);
+        Log::debug('Accountmanager #' . $this->user->getKey() . ' -> count_accounts: ' . $count);
 
         $this->user->setAttribute('count_accounts', $count);
         $this->user->save();

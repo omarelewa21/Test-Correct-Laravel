@@ -2,6 +2,7 @@
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Support\Facades\Auth;
 use tcCore\User;
 
 class ApiKey {
@@ -40,7 +41,8 @@ class ApiKey {
 			//return \Response::make("Request not properly signed.", 403);
 		}
 
-		$this->auth->onceUsingId($user->id);
+		Auth::setUser($user);
+//		$this->auth->onceUsingId($user->id);
 		return $next($request);
 	}
 

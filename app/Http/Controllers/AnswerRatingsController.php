@@ -52,7 +52,7 @@ class AnswerRatingsController extends Controller {
 				}
 				break;
 			case 'list':
-				return Response::make($answerRatings->lists('answer_id', 'id'), 200);
+				return Response::make($answerRatings->pluck('answer_id', 'id'), 200);
 				break;
 			case 'paginate':
 			default:

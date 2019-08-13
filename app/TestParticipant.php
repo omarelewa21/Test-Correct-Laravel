@@ -118,7 +118,7 @@ class TestParticipant extends BaseModel {
                 $testParticipant->answers()->saveMany($answers);
             }
 
-            $testTakeStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->lists('id')->all();
+            $testTakeStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->pluck('id')->all();
             if ($testParticipant->testTakeStatus->name === 'Taking test' && in_array($testParticipant->getOriginal('test_take_status_id'), $testTakeStatuses)) {
                 // Test participant test event for starting
                 $testTakeEvent = new TestTakeEvent();
@@ -140,7 +140,7 @@ class TestParticipant extends BaseModel {
                 }
             }
 
-            $testTakeStatuses = TestTakeStatus::whereIn('name', ['Handed in', 'Taken away', 'Taken'])->lists('id')->all();
+            $testTakeStatuses = TestTakeStatus::whereIn('name', ['Handed in', 'Taken away', 'Taken'])->pluck('id')->all();
             if ($testParticipant->testTakeStatus->name === 'Taking test' && in_array($testParticipant->getOriginal('test_take_status_id'), $testTakeStatuses)) {
                 // Test participant test event for continueing
                 $testTakeEvent = new TestTakeEvent();

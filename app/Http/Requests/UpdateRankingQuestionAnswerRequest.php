@@ -15,7 +15,7 @@ class UpdateRankingQuestionAnswerRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->rankingQuestionAnswer = $route->getParameter('ranking_question_answer');
+		$this->rankingQuestionAnswer = $route->parameter('ranking_question_answer');
 	}
 
 	/**

@@ -7,14 +7,11 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use tcCore\Answer;
 use tcCore\Jobs\Job;
-use Illuminate\Contracts\Bus\SelfHandling;
 use tcCore\PValue;
-use tcCore\PValueAttainment;
-use tcCore\PValueUser;
 use tcCore\QuestionAttainment;
 use tcCore\Teacher;
 
-class CalculatePValueForAnswer extends Job implements SelfHandling, ShouldQueue
+class CalculatePValueForAnswer extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -103,12 +100,12 @@ class CalculatePValueForAnswer extends Job implements SelfHandling, ShouldQueue
         $pvalueData['education_level_id'] = $educationLevel->getKey();
         $pvalueData['education_level_year'] = $schoolClass->getAttribute('education_level_year');
 
-        $pvalueData['users'] = Teacher::where('subject_id', $subject->getKey())->where('class_id', $schoolClass->getKey())->lists('user_id')->all();
-        $pvalueData['attainments'] = QuestionAttainment::where('question_id', $question->getKey())->lists('attainment_id')->all();
+        $pvalueData['users'] = Teacher::where('subject_id', $subject->getKey())->where('class_id', $schoolClass->getKey())->pluck('user_id')->all();
+        $pvalueData['attainments'] = QuestionAttainment::where('question_id', $question->getKey())->pluck('attainment_id')->all();
 
         $pValue->fill($pvalueData);
 
-        if($pValue->save() !== true) {
+        if ($pValue->save() !== true) {
             throw new \Exception('Failed to save p-value!');
         }
     }

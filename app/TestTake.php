@@ -143,7 +143,7 @@ class TestTake extends BaseModel {
             }
 
             if ($testTake->testTakeStatus->name === 'Taken' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id')) {
-                $testTakeUnfinishedStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Taking test', 'Taken'])->lists('id', 'name')->all();
+                $testTakeUnfinishedStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Taking test', 'Taken'])->pluck('id', 'name')->all();
                 if (array_key_exists('Taken', $testTakeUnfinishedStatuses)) {
                     $testTakenStatusId = $testTakeUnfinishedStatuses['Taken'];
                     unset($testTakeUnfinishedStatuses[$testTakenStatusId]);
@@ -178,7 +178,7 @@ class TestTake extends BaseModel {
                 //test_take_status_id is the ID of 'Discussing'
                 $testParticipantDiscussingStatus = $testTake->getAttribute('test_take_status_id');
 
-                $testTakeDiscussionNotAllowedStatusses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken', 'Taken away'])->lists('id', 'name')->all();
+                $testTakeDiscussionNotAllowedStatusses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken', 'Taken away'])->pluck('id', 'name')->all();
 
                 $testTake->load('testParticipants', 'testParticipants.schoolClass', 'testParticipants.schoolClass.schoolLocation');
                 foreach ($testTake->testParticipants as $testParticipant) {
@@ -231,7 +231,7 @@ class TestTake extends BaseModel {
                 && ($originalTestTakeStatus === null || $originalTestTakeStatus->name === 'Planned' || $originalTestTakeStatus->name === 'Taking test' || $originalTestTakeStatus->name === 'Taken'))
                 || (($testTake->testTakeStatus->name === 'Planned' || $testTake->testTakeStatus->name === 'Taking test' || $testTake->testTakeStatus->name === 'Taken')
                     && ($originalTestTakeStatus === null || $originalTestTakeStatus->name === 'Taken' || $originalTestTakeStatus->name === 'Discussing' || $originalTestTakeStatus->name === 'Discussed' || $originalTestTakeStatus->name === 'Rated'))) {
-                $schoolClassIds = $testTake->testParticipants()->distinct()->lists('school_class_id');
+                $schoolClassIds = $testTake->testParticipants()->distinct()->pluck('school_class_id');
                 $subjectId = $testTake->test->getAttribute('subject_id');
 
                 $users = User::whereIn('id', function ($query) use($schoolClassIds, $subjectId) {
@@ -250,7 +250,7 @@ class TestTake extends BaseModel {
             }
 
             if ($testTake->getAttribute('is_discussed') != $testTake->getOriginal('is_discussed')) {
-                $schoolClassIds = $testTake->testParticipants()->distinct()->lists('school_class_id');
+                $schoolClassIds = $testTake->testParticipants()->distinct()->pluck('school_class_id');
                 $subjectId = $testTake->test->getAttribute('subject_id');
 
                 $users = User::whereIn('id', function ($query) use($schoolClassIds, $subjectId) {
@@ -274,7 +274,7 @@ class TestTake extends BaseModel {
         });
 
         static::deleted(function(TestTake $testTake) {
-            $schoolClassIds = $testTake->testParticipants()->distinct()->lists('school_class_id');
+            $schoolClassIds = $testTake->testParticipants()->distinct()->pluck('school_class_id');
             $subjectId = $testTake->test->getAttribute('subject_id');
 
             $users = User::whereIn('id', function ($query) use($schoolClassIds, $subjectId) {
@@ -562,9 +562,9 @@ class TestTake extends BaseModel {
                     break;
                 case 'school_class_id':
                     if (is_array($value)) {
-                        $query->whereIn($this->getTable().'.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->lists('test_take_id'));
+                        $query->whereIn($this->getTable().'.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->pluck('test_take_id'));
                     } else {
-                        $query->whereIn($this->getTable().'.id', TestParticipant::where('school_class_id', $value)->distinct()->lists('test_take_id'));
+                        $query->whereIn($this->getTable().'.id', TestParticipant::where('school_class_id', $value)->distinct()->pluck('test_take_id'));
                     }
                     break;
                 case 'location':

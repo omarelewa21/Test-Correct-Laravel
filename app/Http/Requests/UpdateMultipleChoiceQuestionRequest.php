@@ -16,7 +16,7 @@ class UpdateMultipleChoiceQuestionRequest extends UpdateQuestionRequest {
 	 */
 	function __construct(Route $route)
 	{
-		$this->multipleChoiceQuestion = $route->getParameter('multiple_choice_question');
+		$this->multipleChoiceQuestion = $route->parameter('multiple_choice_question');
 		if ($this->multipleChoiceQuestion instanceof MultipleChoiceQuestion) {
 			$this->question = $this->multipleChoiceQuestion->getQuestionInstance();
 		}

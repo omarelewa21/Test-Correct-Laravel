@@ -15,7 +15,7 @@ class UpdatePeriodRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->period = $route->getParameter('period');
+		$this->period = $route->parameter('period');
 	}
 
 	/**

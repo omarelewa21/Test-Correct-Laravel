@@ -118,7 +118,7 @@ class UmbrellaOrganization extends BaseModel implements AccessCheckable {
         if(array_key_exists('financial_contacts', $attributes)) {
             $this->financialContacts = $attributes['financial_contacts'];
         } elseif(array_key_exists('add_financial_contact', $attributes) || array_key_exists('delete_financial_contact', $attributes)) {
-            $this->financialContacts = $this->umbrellaOrganizationContacts()->where('type', 'FINANCE')->lists('contact_id')->all();
+            $this->financialContacts = $this->umbrellaOrganizationContacts()->where('type', 'FINANCE')->pluck('contact_id')->all();
             if (array_key_exists('add_financial_contact', $attributes)) {
                 array_push($this->financialContacts, $attributes['add_financial_contact']);
             }
@@ -133,7 +133,7 @@ class UmbrellaOrganization extends BaseModel implements AccessCheckable {
         if(array_key_exists('technical_contacts', $attributes)) {
             $this->technicalContacts = $attributes['technical_contacts'];
         } elseif(array_key_exists('add_technical_contact', $attributes) || array_key_exists('delete_technical_contact', $attributes)) {
-            $this->technicalContacts = $this->umbrellaOrganizationContacts()->where('type', 'TECHNICAL')->lists('contact_id')->all();
+            $this->technicalContacts = $this->umbrellaOrganizationContacts()->where('type', 'TECHNICAL')->pluck('contact_id')->all();
             if (array_key_exists('add_technical_contact', $attributes)) {
                 array_push($this->technicalContacts, $attributes['add_technical_contact']);
             }
@@ -148,7 +148,7 @@ class UmbrellaOrganization extends BaseModel implements AccessCheckable {
         if(array_key_exists('implementation_contacts', $attributes)) {
             $this->implementationContacts = $attributes['implementation_contacts'];
         } elseif(array_key_exists('add_implementation_contact', $attributes) || array_key_exists('delete_implementation_contact', $attributes)) {
-            $this->implementationContacts = $this->umbrellaOrganizationContacts()->where('type', 'IMPLEMENTATION')->lists('contact_id')->all();
+            $this->implementationContacts = $this->umbrellaOrganizationContacts()->where('type', 'IMPLEMENTATION')->pluck('contact_id')->all();
             if (array_key_exists('add_implementation_contact', $attributes)) {
                 array_push($this->implementationContacts, $attributes['add_implementation_contact']);
             }
@@ -163,7 +163,7 @@ class UmbrellaOrganization extends BaseModel implements AccessCheckable {
         if(array_key_exists('other_contacts', $attributes)) {
             $this->otherContacts = $attributes['other_contacts'];
         } elseif(array_key_exists('add_other_contact', $attributes) || array_key_exists('delete_other_contact', $attributes)) {
-            $this->otherContacts = $this->umbrellaOrganizationContacts()->where('type', 'OTHER')->lists('contact_id')->all();
+            $this->otherContacts = $this->umbrellaOrganizationContacts()->where('type', 'OTHER')->pluck('contact_id')->all();
             if (array_key_exists('add_other_contact', $attributes)) {
                 array_push($this->otherContacts, $attributes['add_other_contact']);
             }
@@ -273,14 +273,14 @@ class UmbrellaOrganization extends BaseModel implements AccessCheckable {
         if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
             $userId = $user->getKey();
 
-            $schoolIds = SchoolLocation::where('user_id', $userId)->lists('school_id')->all();
+            $schoolIds = SchoolLocation::where('user_id', $userId)->pluck('school_id')->all();
             $umbrellaOrganizationIds = School::where('user_id', $userId);
 
             if ($schoolIds) {
                 $umbrellaOrganizationIds->orWhereIn('id', $schoolIds);
             }
 
-            $umbrellaOrganizationIds = $umbrellaOrganizationIds->lists('umbrella_organization_id')->all();
+            $umbrellaOrganizationIds = $umbrellaOrganizationIds->pluck('umbrella_organization_id')->all();
 
             if ($umbrellaOrganizationIds) {
                 $query->where(function ($query) use ($userId, $umbrellaOrganizationIds) {
@@ -307,9 +307,9 @@ class UmbrellaOrganization extends BaseModel implements AccessCheckable {
             }
 
             if (is_array($schoolIds)) {
-                $umbrellaOrganizationIds = School::whereIn('id', $schoolIds)->lists('umbrella_organization_id')->all();
+                $umbrellaOrganizationIds = School::whereIn('id', $schoolIds)->pluck('umbrella_organization_id')->all();
             } else {
-                $umbrellaOrganizationIds = School::where('id', $schoolIds)->lists('umbrella_organization_id')->all();
+                $umbrellaOrganizationIds = School::where('id', $schoolIds)->pluck('umbrella_organization_id')->all();
             }
 
             $query->whereIn('id', $umbrellaOrganizationIds);
@@ -356,14 +356,14 @@ class UmbrellaOrganization extends BaseModel implements AccessCheckable {
         if (in_array('Account manager', $roles)) {
             $userId = Auth::user()->getKey();
 
-            $schoolIds = SchoolLocation::where('user_id', $userId)->lists('school_id')->all();
+            $schoolIds = SchoolLocation::where('user_id', $userId)->pluck('school_id')->all();
             $umbrellaOrganizationIds = School::where('user_id', $userId);
 
             if ($schoolIds) {
                 $umbrellaOrganizationIds->orWhereIn('id', $schoolIds);
             }
 
-            $umbrellaOrganizationIds = $umbrellaOrganizationIds->lists('umbrella_organization_id')->all();
+            $umbrellaOrganizationIds = $umbrellaOrganizationIds->pluck('umbrella_organization_id')->all();
 
             return ($this->getAttribute('user_id') == $userId || in_array($this->getKey(), $umbrellaOrganizationIds));
         }
@@ -386,9 +386,9 @@ class UmbrellaOrganization extends BaseModel implements AccessCheckable {
             }
 
             if (is_array($schoolIds)) {
-                $umbrellaOrganizationIds = UmbrellaOrganization::whereIn('id', $schoolIds)->lists('umbrella_organization_id')->all();
+                $umbrellaOrganizationIds = UmbrellaOrganization::whereIn('id', $schoolIds)->pluck('umbrella_organization_id')->all();
             } else {
-                $umbrellaOrganizationIds = UmbrellaOrganization::where('id', $schoolIds)->lists('umbrella_organization_id')->all();
+                $umbrellaOrganizationIds = UmbrellaOrganization::where('id', $schoolIds)->pluck('umbrella_organization_id')->all();
             }
 
             return (in_array($this->getKey(), $umbrellaOrganizationIds));

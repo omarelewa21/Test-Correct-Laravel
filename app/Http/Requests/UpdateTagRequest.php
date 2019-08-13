@@ -15,7 +15,7 @@ class UpdateTagRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-		$this->tag = $route->getParameter('tag');
+		$this->tag = $route->parameter('tag');
 	}
 
 	/**

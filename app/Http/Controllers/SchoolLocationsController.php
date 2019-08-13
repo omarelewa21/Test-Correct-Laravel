@@ -3,12 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
-use tcCore\Http\Requests;
-use tcCore\School;
-use tcCore\SchoolLocation;
-use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolLocationRequest;
 use tcCore\Http\Requests\UpdateSchoolLocationRequest;
+use tcCore\School;
+use tcCore\SchoolLocation;
 
 class SchoolLocationsController extends Controller {
     /**
@@ -24,7 +22,7 @@ class SchoolLocationsController extends Controller {
                 return Response::make($schoolLocations->get(), 200);
                 break;
             case 'list':
-                return Response::make($schoolLocations->lists('name', 'id'), 200);
+                return Response::make($schoolLocations->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:
@@ -44,7 +42,7 @@ class SchoolLocationsController extends Controller {
         $schoolLocation = new SchoolLocation();
 
         $schoolLocation->fill($request->all());
-        if (!$request->has('user_id')) {
+        if (!$request->filled('user_id')) {
             $schoolLocation->setAttribute('user_id', Auth::user()->getKey());
         }
 

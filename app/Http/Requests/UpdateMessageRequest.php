@@ -15,7 +15,7 @@ class UpdateMessageRequest extends Request {
      */
     function __construct(Route $route)
     {
-        $this->message = $route->getParameter('message');
+        $this->message = $route->parameter('message');
     }
 
     /**

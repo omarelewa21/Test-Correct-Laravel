@@ -16,7 +16,7 @@ class UpdateGroupQuestionRequest extends UpdateQuestionRequest {
      */
     function __construct(Route $route)
     {
-        $this->groupQuestion = $route->getParameter('group_question');
+        $this->groupQuestion = $route->parameter('group_question');
         if ($this->groupQuestion instanceof GroupQuestion) {
             $this->question = $this->groupQuestion->getQuestionInstance();
         }

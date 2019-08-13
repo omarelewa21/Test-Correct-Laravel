@@ -2,17 +2,15 @@
 
 namespace tcCore\Jobs\Rating;
 
-use Illuminate\Support\Facades\Log;
-use tcCore\Jobs\Job;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Bus\SelfHandling;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use tcCore\Jobs\Job;
 use tcCore\Lib\Repositories\AnswerRepository;
 use tcCore\Rating;
 use tcCore\TestParticipant;
 
-class CalculateRatingForTestParticipant extends Job implements SelfHandling, ShouldQueue
+class CalculateRatingForTestParticipant extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -111,7 +109,7 @@ class CalculateRatingForTestParticipant extends Job implements SelfHandling, Sho
 
         $rating->fill($ratingData);
 
-        if($rating->save() !== true) {
+        if ($rating->save() !== true) {
             throw new \Exception('Failed to save rating!');
         }
     }

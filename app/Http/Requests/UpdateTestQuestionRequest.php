@@ -17,7 +17,7 @@ class UpdateTestQuestionRequest extends UpdateQuestionRequest {
      */
     function __construct(Route $route)
     {
-        $this->testQuestion = $route->getParameter('test_question');
+        $this->testQuestion = $route->parameter('test_question');
         $this->question = $this->testQuestion->question;
         $this->route = $route;
     }

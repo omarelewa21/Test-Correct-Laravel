@@ -15,7 +15,7 @@ class UpdateGradingScaleRequest extends Request {
      */
     function __construct(Route $route)
     {
-        $this->gradingScale = $route->getParameter('grading_scale');
+        $this->gradingScale = $route->parameter('grading_scale');
     }
 
     /**
