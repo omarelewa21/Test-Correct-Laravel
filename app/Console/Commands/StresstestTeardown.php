@@ -68,11 +68,29 @@ class StresstestTeardown extends Command
         file_put_contents($envFile,$envContents);
         unlink($envBackupFileWhileStresstest);
         $this->info(PHP_EOL);
+
+        $this->info('going to put the default testdb back');
+        exec('php artisan test:refreshdb');
+        $this->info('done');
+        $this->info(PHP_EOL);
+
+        $this->composerInstall();
+
         $this->info('You\'re all done!');
     }
 
     protected function printSubItem($message){
         $this->output->write('<info>  o '.$message.'...</info>',false);
+    }
+
+    // composer install with all options including dev
+    protected function composerInstall(){
+        $this->info('going to do a composer install with all options including dev');
+        if(!exec('php composer.phar install')){
+            $this->error('an error occured while doing a composer install, please take care manually');
+        }
+        $this->info('done');
+        $this->info(PHP_EOL);
     }
 
 }

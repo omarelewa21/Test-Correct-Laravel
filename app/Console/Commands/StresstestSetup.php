@@ -85,6 +85,8 @@ class StresstestSetup extends Command
 
         $this->info(PHP_EOL);
 
+        $this->composerInstall();
+
         if(!file_exists($envBackupFileWhileStresstest)) {
             $this->info('going to set env settings to production');
             $this->printSubItem('make backup of ' . $envFile . ' to ' . $envBackupFileWhileStresstest);
@@ -118,7 +120,7 @@ class StresstestSetup extends Command
         $this->info(PHP_EOL);
         $this->info(PHP_EOL);
 
-        $this->alert('You\'re ready to do the stresstest, DON\'T forget to do a stresstest:teardown afterwards, or before the next stresstest run');
+        $this->alert('You\'re ready to do the stresstest, DON\'T forget to run stresstest:cache as well if you didn\'t do so yet!!');
     }
 
     protected function printSubItem($message){
@@ -161,4 +163,13 @@ class StresstestSetup extends Command
         return true;
     }
 
+    // composer install with --NO-DEV option
+    protected function composerInstall(){
+        $this->info('going to do a composer install with no dev option');
+        if(!exec('php composer.phar install --optimize-autoloader --no-dev')){
+            $this->error('an error occured while doing a composer install, please take care manually');
+        }
+        $this->info('done');
+        $this->info(PHP_EOL);
+    }
 }
