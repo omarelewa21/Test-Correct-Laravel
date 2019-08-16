@@ -361,35 +361,36 @@ class TestParticipantsController extends Controller {
 		}
 	}
 
-	public function heartbeat(TestTake $testTake, TestParticipant $testParticipant, HeartbeatTestParticipantRequest $request) {
-		if ($testParticipant->test_take_id !== $testTake->getKey()) {
-			return Response::make('Test participant not found', 404);
-		}
-		$testParticipant->load('testTake', 'testTake.discussingParentQuestions', 'testTake.testTakeStatus', 'testTakeStatus', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
 
-		$testParticipant->setAttribute('heartbeat_at', Carbon::now());
-		$testParticipant->setAttribute('ip_address', $request->get('ip_address'));
+    public function heartbeat($testTakeId, TestParticipant $testParticipant, HeartbeatTestParticipantRequest $request) {
+        if ($testParticipant->test_take_id !== (int) $testTakeId) {//$testTake->getKey()) {
+            return Response::make('Test participant not found', 404);
+        }
+//        $testParticipant->load('testTake', 'testTake.discussingParentQuestions', 'testTake.testTakeStatus', 'testTakeStatus', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
+        $testParticipant->load('testTake', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
+        $testParticipant->setAttribute('heartbeat_at', Carbon::now());
+        $testParticipant->setAttribute('ip_address', $request->get('ip_address'));
 
 
-		if ($request->filled('answer_id')) {
-			$testParticipant->setAttribute('answer_id', $request->get('answer_id'));
-		}
+        if ($request->filled('answer_id')) {
+            $testParticipant->setAttribute('answer_id', $request->get('answer_id'));
+        }
 
-		if ($testParticipant->save() !== false) {
-			$alert = false;
+        if ($testParticipant->save() !== false) {
+            $alert = false;
 
-			foreach($testParticipant->testTakeEvents as $testTakeEvent) {
-				if ($testTakeEvent->testTakeEventType->requires_confirming == 1 && $testTakeEvent->confirmed == 0) {
-					$alert = true;
-					break;
-				}
-			}
+            foreach($testParticipant->testTakeEvents as $testTakeEvent) {
+                if ($testTakeEvent->testTakeEventType->requires_confirming == 1 && $testTakeEvent->confirmed == 0) {
+                    $alert = true;
+                    break;
+                }
+            }
 
-			$testParticipant->setAttribute('alert', $alert);
-			return Response::make($testParticipant, 200);
-		} else {
-			return Response::make('Failed to process heartbeat of test participant', 500);
-		}
-	}
+            $testParticipant->setAttribute('alert', $alert);
+            return Response::make($testParticipant, 200);
+        } else {
+            return Response::make('Failed to process heartbeat of test participant', 500);
+        }
+    }
 
 }

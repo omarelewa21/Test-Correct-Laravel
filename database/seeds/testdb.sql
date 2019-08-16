@@ -9849,6 +9849,44 @@ VALUES
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
+# Dump of table managers
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `managers`;
+
+CREATE TABLE `managers` (
+                            `school_class_id` int(10) unsigned NOT NULL,
+                            `user_id` int(10) unsigned NOT NULL,
+                            `created_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+                            `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+                            `deleted_at` timestamp NULL DEFAULT NULL,
+                            PRIMARY KEY (`school_class_id`,`user_id`),
+                            KEY `fk_managers_school_classes1_idx` (`school_class_id`),
+                            KEY `fk_managers_users1_idx` (`user_id`),
+                            CONSTRAINT `fk_managers_school_classes1` FOREIGN KEY (`school_class_id`) REFERENCES `school_classes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                            CONSTRAINT `fk_managers_users1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+LOCK TABLES `managers` WRITE;
+/*!40000 ALTER TABLE `managers` DISABLE KEYS */;
+
+INSERT INTO `managers` (`school_class_id`, `user_id`, `created_at`, `updated_at`, `deleted_at`)
+VALUES
+(42,529,'2015-11-03 16:11:58','2015-11-18 11:39:10','2015-11-18 11:39:10'),
+(42,610,'2015-12-03 15:33:15','2016-01-06 18:33:27',NULL),
+(42,612,'2015-11-05 15:32:40','2016-01-21 11:19:01',NULL),
+(42,617,'2015-11-05 15:32:16','2015-11-05 15:32:16',NULL),
+(42,629,'2016-01-06 18:33:37','2016-01-06 18:33:37',NULL),
+(45,555,'2015-11-10 14:25:21','2015-11-10 14:52:40','2015-11-10 14:52:40'),
+(45,610,'2015-11-10 14:54:00','2015-11-10 15:48:15','2015-11-10 15:48:15'),
+(45,615,'2015-11-10 14:55:59','2015-11-10 14:56:46','2015-11-10 14:56:46'),
+(45,653,'2015-11-10 14:20:42','2015-11-10 14:52:43','2015-11-10 14:52:43'),
+(45,655,'2015-11-10 15:47:58','2015-11-10 15:47:58',NULL),
+(65,786,'2018-03-26 15:17:10','2018-03-26 15:17:10',NULL);
+
+/*!40000 ALTER TABLE `managers` ENABLE KEYS */;
+UNLOCK TABLES;
+
 
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
