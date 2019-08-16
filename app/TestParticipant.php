@@ -65,7 +65,9 @@ class TestParticipant extends BaseModel
 
     private function makeEmptyAnswerOptionsFor()
     {
-        if ($this->getOriginal('heartbeat_at') === null && $this->test_take_status_id === 3 && $this->answers()->count() === 0) {
+        // validatie op heartbeat_at was toch niet goed...
+//        if (($this->getOriginal('heartbeat_at') === null || $this->getOriginal('heartbeat_at') === '') && $this->test_take_status_id === 3 && $this->answers()->count() === 0) {
+        if ($this->test_take_status_id === 3 && $this->answers()->count() === 0) {
             $this->load('testTake', 'testTake.test', 'testTake.test.testQuestions', 'testTake.test.testQuestions.question');
 
             $questions = array();
