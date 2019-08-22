@@ -21,7 +21,7 @@ class StresstestTeardown extends Command
      *
      * @var string
      */
-    protected $description = 'Teardown for stresstest';
+    protected $description = 'Teardown for stresstest {--skipDB : skip testdb reload';
 
     /**
      * Create a new command instance.
@@ -69,10 +69,12 @@ class StresstestTeardown extends Command
         unlink($envBackupFileWhileStresstest);
         $this->info(PHP_EOL);
 
-        $this->info('going to put the default testdb back');
-        exec('php artisan test:refreshdb');
-        $this->info('done');
-        $this->info(PHP_EOL);
+        if(!$this->option('skipDB')) {
+            $this->info('going to put the default testdb back');
+            exec('php artisan test:refreshdb');
+            $this->info('done');
+            $this->info(PHP_EOL);
+        }
 
         $this->composerInstall();
 

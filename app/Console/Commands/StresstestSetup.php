@@ -16,7 +16,7 @@ class StresstestSetup extends Command
      *
      * @var string
      */
-    protected $signature = 'stresstest:setup';
+    protected $signature = 'stresstest:setup {--skipDB : skip database}';
 
     /**
      * The console command description.
@@ -71,19 +71,21 @@ class StresstestSetup extends Command
             return false;
         }
 
-        $sqlImports = [
-            'stresstestdb.sql',
-        ];
+        if(!$this->option('skipDB')){
+            $sqlImports = [
+                'stresstestdb.sql',
+            ];
 
-        $this->info('start refreshing database...(this can take some time as in several minutes)');
-        if(!$this->handleSqlFiles($sqlImports)){
-            return false;
+            $this->info('start refreshing database...(this can take some time as in several minutes)');
+            if (!$this->handleSqlFiles($sqlImports)) {
+                return false;
+            }
+
+            $this->addMigrations();
+            $this->info('refresh database complete');
+
+            $this->info(PHP_EOL);
         }
-
-        $this->addMigrations();
-        $this->info('refresh database complete');
-
-        $this->info(PHP_EOL);
 
         $this->composerInstall();
 
