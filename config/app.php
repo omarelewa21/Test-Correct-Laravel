@@ -1,6 +1,7 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -208,5 +209,4 @@ return [
         'Excel'        => Maatwebsite\Excel\Facades\Excel::class
 
     ],
-
 ];

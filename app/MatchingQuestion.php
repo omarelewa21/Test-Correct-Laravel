@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use tcCore\Exceptions\QuestionException;
 use tcCore\Lib\Question\QuestionInterface;
 
 class MatchingQuestion extends Question implements QuestionInterface {
@@ -137,5 +138,89 @@ class MatchingQuestion extends Question implements QuestionInterface {
         }
 
         return $score;
+    }
+
+    /**
+     * @param $mainQuestion either TestQuestion or GroupQuestionQuestion
+     * @param $answers
+     * @return boolean
+     * @throws \Exception
+     */
+    public function addAnswers($mainQuestion,$answers){
+
+        $question = $this;
+        if ($this->isUsed($mainQuestion)) {
+            $question = $this->duplicate([]);
+            if ($question === false) {
+                throw new QuestionException('Failed to duplicate question',422);
+            }
+            $mainQuestion->setAttribute('question_id', $question->getKey());
+
+            if (!$mainQuestion->save()) {
+                throw new QuestionException('Failed to update test question',422);
+            }
+        }
+
+        if (!QuestionAuthor::addAuthorToQuestion($question)) {
+            throw new QuestionException('Failed to attach author to question',422);
+        }
+
+        foreach($answers as $order => $answerDetails) {
+            $answerDetails = (object) $answerDetails;
+            if(!$answerDetails->left || !$answerDetails->right) continue;
+            $details = [
+                'left' => [
+                   'order' => (int) $answerDetails->order,
+                   'answer' => $answerDetails->left,
+                    'type'  => 'left',
+                ],
+                'right' => [
+                    'order' => (int) $answerDetails->order,
+                    'answer' => $answerDetails->right,
+                    'type'  => 'right',
+                    'correct_answer_id' => ''
+                ]
+            ];
+
+            $lastId = false;
+            foreach($details as $detail){
+                if($detail['type'] == 'right'){
+                    $detail['correct_answer_id'] = $lastId; // right needs the corresponding correct answer which is de left
+                }
+                $detail = collect($detail);
+
+                $matchingQuestionAnswer = new MatchingQuestionAnswer();
+
+                $matchingQuestionAnswer->fill($detail->only($matchingQuestionAnswer->getFillable())->toArray());
+                if (!$matchingQuestionAnswer->save()) {
+                    throw new QuestionException('Failed to create matching question answer', 500);
+                }
+                $matchingQuestionAnswerLink = new MatchingQuestionAnswerLink();
+                $matchingQuestionAnswerLink->fill($detail->only($matchingQuestionAnswerLink->getFillable())->toArray());
+                $matchingQuestionAnswerLink->setAttribute('matching_question_id', $question->getKey());
+                $matchingQuestionAnswerLink->setAttribute('matching_question_answer_id', $matchingQuestionAnswer->getKey());
+
+                if(!$matchingQuestionAnswerLink->save()) {
+                    throw new QuestionException('Failed to create matching question answer link',422);
+                }
+                $lastId = $matchingQuestionAnswer->getKey();
+            }
+        }
+        return true;
+    }
+
+    public function deleteAnswers(){
+        $this->matchingQuestionAnswerLinks->each(function($qAL){
+            if (!$qAL->matchingQuestionAnswer->isUsed($qAL)) {
+                if (!$qAL->matchingQuestionAnswer->delete()) {
+                    throw new QuestionException('Failed to delete matching question answer', 422);
+                }
+            }
+
+            if (!$qAL->delete()) {
+                throw new QuestionException('Failed to delete matching question answer link', 422);
+            }
+        });
+        return true;
     }
 }

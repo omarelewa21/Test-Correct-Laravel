@@ -1,18 +1,19 @@
 <?php
 namespace Tests;
 
+class CompletionQuestionTest extends TestCase {
 
-class ExampleTest extends TestCase
-{
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
-    /**
-     * A basic functional test example.
-     *
-     * @return void
-     */
-//    use \Illuminate\Foundation\Testing\DatabaseTransactions;
-    public function testBasicExample()
-    {
+	/**
+	 * A basic functional test example.
+     * @test
+	 *
+	 * @return void
+	 */
+	public function should_add_valid_completionQuestion()
+	{
+
         $this->post('/test_question', static::getAuthRequestData([
             "question"               => "<p>aaa [1] aaa</p>\r\n",
             "type"                   => "CompletionQuestion",
@@ -79,27 +80,4 @@ class ExampleTest extends TestCase
 
 
     }
-
-//    /** @test */
-//    public function when_logged_in_as_pvries31_get_the_teacher_analysis_report_for_user_910_should_not_give_a_error()
-//    {
-//        $uri = 'http://test-correct.test/user/910?session_hash=dmG7qGQuTExW2MWQ8dk9L9V6Zui7NzUy2EWmNJkoh7qMhSJZFYSPsJgKgqQjkOZIqqeRatXKlRSPNn4D7pyre910&signature=7981868a5c4c07ec5fefeb1ba0e6ef4e10fa7401fb1e533390164ccedd9d0e9f&user=p.vries%4031.com&with%5B0%5D=teacherCom';
-//
-//        $attr = [
-//            'with'         => [
-//                'teacherComparison',
-//                'teacherSchoolClassAverages'
-//            ],
-//            'session_hash' => 'dmG7qGQuTExW2MWQ8dk9L9V6Zui7NzUy2EWmNJkoh7qMhSJZFYSPsJgKgqQjkOZIqqeRatXKlRSPNn4D7pyre910',
-//            'user'         => 'p.vries@31.com'
-//        ];
-//
-//        $this->get(
-//            $uri,
-//            $attr
-//        );
-//        $this->assertTrue(true);
-//
-//        dd($this->response);
-//    }
 }

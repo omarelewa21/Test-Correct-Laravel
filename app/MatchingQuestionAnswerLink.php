@@ -53,12 +53,15 @@ class MatchingQuestionAnswerLink extends CompositePrimaryKeyModel {
         static::saved(function($matchingQuestionAnswerLink)
         {
             // If the order of an answer changes,
-            if ($matchingQuestionAnswerLink->doReorder() && ($matchingQuestionAnswerLink->getOriginal('order') != $matchingQuestionAnswerLink->getAttribute('order')
-                    || $matchingQuestionAnswerLink->getOriginal('matching_question_id') != $matchingQuestionAnswerLink->getAttribute('matching_question_id'))) {
-                if ($matchingQuestionAnswerLink->matchingQuestion !== null) {
-                    $matchingQuestionAnswerLink->matchingQuestion->reorder($matchingQuestionAnswerLink);
-                }
-            }
+
+            // 20190513 Not needed anymore as all the answers are saved at once AND we delete all answers first
+
+//            if ($matchingQuestionAnswerLink->doReorder() && ($matchingQuestionAnswerLink->getOriginal('order') != $matchingQuestionAnswerLink->getAttribute('order')
+//                    || $matchingQuestionAnswerLink->getOriginal('matching_question_id') != $matchingQuestionAnswerLink->getAttribute('matching_question_id'))) {
+//                if ($matchingQuestionAnswerLink->matchingQuestion !== null) {
+//                    $matchingQuestionAnswerLink->matchingQuestion->reorder($matchingQuestionAnswerLink);
+//                }
+//            }
         });
     }
 

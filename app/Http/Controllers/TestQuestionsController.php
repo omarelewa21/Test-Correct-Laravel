@@ -15,6 +15,7 @@ use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\Factory;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Question;
+use tcCore\QuestionAuthor;
 use tcCore\TestQuestion;
 
 class TestQuestionsController extends Controller {
@@ -86,7 +87,9 @@ class TestQuestionsController extends Controller {
                     $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
                 }
 
-                $question->fill(array_merge($request->all(),$questionData));
+                $totalData = array_merge($request->all(),$questionData);
+
+                $question->fill($totalData);
 
                 $questionInstance = $question->getQuestionInstance();
                 if ($questionInstance->getAttribute('subject_id') === null) {
@@ -111,12 +114,13 @@ class TestQuestionsController extends Controller {
 //                             */
 //                            $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
 //                        }
-                        if($request->get('type') == 'CompletionQuestion') {
+
+                        if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
                             // add new answers
-                            $testQuestion->question->addAnswers($testQuestion,$questionData['answers']);
+                            $testQuestion->question->addAnswers($testQuestion,$totalData['answers']);
                         }
                     }else{
                         throw new QuestionException('Failed to create test question');
@@ -133,8 +137,8 @@ class TestQuestionsController extends Controller {
                 if($request->get('type') == 'CompletionQuestion') {
                     $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
                 }
-
-                $testQuestion->fill(array_merge($request->all(),$questionData));
+                $totalData = array_merge($request->all(),$questionData);
+                $testQuestion->fill($totalData);
 
 //                if($request->get('type') == 'CompletionQuestion') {
 //                    /**
@@ -144,18 +148,22 @@ class TestQuestionsController extends Controller {
 //                }
 
                 if ($testQuestion->save()) {
-                    if($request->get('type') == 'CompletionQuestion') {
+                    if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
                         // add new answers
-                        $testQuestion->question->addAnswers($testQuestion,$questionData['answers']);
+                        $testQuestion->question->addAnswers($testQuestion,$totalData['answers']);
                     }
                     // don't return here as the DB::commit() needs to be done first.
                     //return Response::make($testQuestion, 200);
                 } else {
                     throw new QuestionException('Failed to create test question');
                 }
+                $question = $testQuestion->question;
+            }
+            if (!QuestionAuthor::addAuthorToQuestion($question)) {
+                throw new QuestionException('Failed to attach author to question');
             }
         }
         catch(\Exception $e){
@@ -255,7 +263,10 @@ class TestQuestionsController extends Controller {
                 $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
             }
 
-            $question->fill(array_merge($request->all(),$questionData));
+            $totalData = array_merge($request->all(),$questionData);
+
+            $question->fill($totalData);
+
             $questionInstance = $question->getQuestionInstance();
 
             $testQuestion->fill($request->all());
@@ -273,18 +284,24 @@ class TestQuestionsController extends Controller {
                 } elseif (!$questionInstance->save() || !$question->save()) {
                     throw new QuestionException('Failed to save question');
                 }
+
+                if (!QuestionAuthor::addAuthorToQuestion($question)) {
+                    throw new QuestionException('Failed to attach author to question');
+                }
             }
+
+
 
 //            Log::debug($testQuestion->toSql());
 //            DB::enableQueryLog();
             // Save the link
             if ($testQuestion->save()) {
-                if($questionInstance->type == 'CompletionQuestion') {
+                if($questionInstance->type == 'CompletionQuestion' || $questionInstance->type == 'MatchingQuestion') {
                     // delete old answers
                     $question->deleteAnswers($question);
 
                     // add new answers
-                    $question->addAnswers($testQuestion,$questionData['answers']);
+                    $question->addAnswers($testQuestion,$totalData['answers']);
                 }
 //                Log::debug(DB::getQueryLog());
 //                return Response::make($testQuestion, 200);
