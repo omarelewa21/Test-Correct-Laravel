@@ -18,8 +18,8 @@ class UpdateUserRequest extends Request {
 	 */
 	function __construct(Route $route)
 	{
-	    logger($route->parameter('user'));
-	    logger(request('user'));
+//	    logger($route->parameter('user'));
+//	    logger(request('user'));
 
 //	    $this->user = $route->parameter('user');
 //	    dd(auth()->user());
