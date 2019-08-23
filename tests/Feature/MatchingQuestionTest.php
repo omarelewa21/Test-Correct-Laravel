@@ -11,12 +11,13 @@ use Tests\TestCase;
 
 class MatchingQuestionTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
 
     /** @test */
     public function a_teacher_can_add_a_matching_question_to_a_test()
     {
+        $this->withExceptionHandling();
         $test = $this->createNewTest();
 
         $addQuestionResponse = $this->post(
@@ -37,53 +38,24 @@ class MatchingQuestionTest extends TestCase
                 'tags'                   => [],
                 'rtti'                   => null,
                 'test_id'                => $test['id'],
+                'answers'               =>[
+                    [
+                        'order'=> '1',
+                        'left'=> 'aa',
+                        'right'=> 'aa',
+                    ],
+                    [
+                        'order'=> '2',
+                        'left'=> 'a1',
+                        'right'=> 'a12',
+                    ]
+                ]
             ])
         );
 
+
+
         $addQuestionResponse->assertStatus(200);
-
-        $questionId = $addQuestionResponse->decodeResponseJson()['id'];
-
-        $options = [
-            [
-                'order'=> '1',
-                'answer'=> 'aa',
-                'type'=> 'left',
-            ],
-            [
-                'order'=> '1',
-                'answer'=> 'aa',
-                'type'=> 'right',
-            ],
-            [
-                'order'=> '2',
-                'answer'=> 'a1',
-                'type'=> 'left',
-            ],
-            [
-                'order'=> '2',
-                'answer'=> 'a12',
-                'type'=> 'right',
-            ]
-        ];
-
-        foreach ($options as $option) {
-            $addMatchingOptionsResponse = $this->post(
-                sprintf('test_question/%d/matching_question_answer', $questionId),
-                static::getTeacherOneAuthRequestData($option)
-            );
-            $this->assertEquals(
-                $option['answer'],
-                $addMatchingOptionsResponse->decodeResponseJson()['answer']
-            );
-             $this->assertEquals(
-                $option['type'],
-                $addMatchingOptionsResponse->decodeResponseJson()['type']
-             );
-
-            $addMatchingOptionsResponse->assertStatus(200);
-        }
-
     }
 
 
