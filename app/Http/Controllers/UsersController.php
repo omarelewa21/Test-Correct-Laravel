@@ -181,7 +181,7 @@ class UsersController extends Controller {
 	    $user->fill($request->all());
 
 		if ($request->filled('password')) {
-		    logger('try updating passwrd '. $request->get('password'));
+//		    logger('try updating passwrd '. $request->get('password'));
 			$user->setAttribute('password', \Hash::make($request->get('password')));
 		}
 
