@@ -39,7 +39,7 @@ class PasswordController extends Controller {
 		$token = $tokens->create($user);
 
 		$url = $request->get('url', null);
-		$urlLogin = getenv('URL_LOGIN');
+		$urlLogin = config('app.url_login');
 
 		$mailer->send('emails.password', compact('token', 'user', 'url', 'urlLogin'), function (Message $m) use ($user, $token) {
 			$m->to($user->getEmailForPasswordReset())

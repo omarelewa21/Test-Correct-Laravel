@@ -33,6 +33,7 @@ class SendMessageMail extends Job implements ShouldQueue
     public function handle(Mailer $mailer)
     {
         $message = Message::with('user', 'messageReceivers', 'messageReceivers.user')->findOrFail($this->messageId);
+        $urlLogin = config('app.url_login');
 
         foreach ($message->messageReceivers as $messageReceiver) {
             $email = $messageReceiver->user->getEmailForPasswordReset();
@@ -45,7 +46,7 @@ class SendMessageMail extends Job implements ShouldQueue
                 $template = 'emails.message.staff';
             }
 
-            $mailer->send($template, ['receiver' => $messageReceiver->user, 'sentMessage' => $message], function ($m) use ($email, $name, $message) {
+            $mailer->send($template, ['receiver' => $messageReceiver->user, 'sentMessage' => $message, 'urlLogin' => $urlLogin], function ($m) use ($email, $name, $message) {
                 $m->to($email, $name);
                 $m->subject($message->getAttribute('subject'));
             });
