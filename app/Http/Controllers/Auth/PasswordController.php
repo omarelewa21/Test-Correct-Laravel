@@ -18,7 +18,7 @@ class PasswordController extends Controller {
 	 * @param TokenRepositoryInterface $tokens
 	 * @return \Illuminate\Http\Response
 	 */
-	public function sendPasswordReset(Request $request, Mailer $mailer, TokenRepositoryInterface $tokens)
+	public function sendPasswordReset(Request $request, Mailer $mailer)
 	{
 		$this->validate($request, [
 			'username' => 'required|email',
@@ -36,7 +36,7 @@ class PasswordController extends Controller {
 		// Once we have the reset token, we are ready to send the message out to this
 		// user with a link to reset their password. We will then redirect back to
 		// the current URI having nothing set in the session to indicate errors.
-		$token = $tokens->create($user);
+		$token = Password::getRepository()->create($user);
 
 		$url = $request->get('url', null);
 		$urlLogin = config('app.url_login');
