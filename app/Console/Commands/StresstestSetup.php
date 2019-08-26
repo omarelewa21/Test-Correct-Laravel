@@ -25,6 +25,8 @@ class StresstestSetup extends Command
      */
     protected $description = 'Prepare for stresstest';
 
+    protected $envFile = '.env';
+    protected $envBackupFileWhileStresstest = ".envBackupWhileStresstest";
     /**
      * Create a new command instance.
      *
@@ -42,11 +44,9 @@ class StresstestSetup extends Command
      */
     public function handle()
     {
-        $envFile = '.env';
-        $envBackupFileWhileStresstest = ".envBackupWhileStresstest";
 
         if (config('app.env') !== 'local') {
-            if(!file_exists($envBackupFileWhileStresstest)) {
+            if(!$this->hasStresstestSetup()) {
                 $this->error('You cannot perform this action on this environment! only with APP_ENV set to local AND not in production (read config:cache && route:cache)!!');
                 return false;
             }
@@ -66,8 +66,8 @@ class StresstestSetup extends Command
         // this might be slow, so give us some time
         ini_set('max_execution_time', 180); //3 minutes
 
-        if(!file_exists($envFile)){
-            $this->error('could not find the '.$envFile.' file');
+        if(!file_exists($this->envFile)){
+            $this->error('could not find the '.$this->envFile.' file');
             return false;
         }
 
@@ -89,14 +89,14 @@ class StresstestSetup extends Command
 
         $this->composerInstall();
 
-        if(!file_exists($envBackupFileWhileStresstest)) {
+        if(!$this->hasStresstestSetup()) {
             $this->info('going to set env settings to production');
-            $this->printSubItem('make backup of ' . $envFile . ' to ' . $envBackupFileWhileStresstest);
-            $envContents = file_get_contents($envFile);
+            $this->printSubItem('make backup of ' . $this->envFile . ' to ' . $this->envBackupFileWhileStresstest);
+            $envContents = file_get_contents($this->envFile);
             $this->info('done');
             $this->printSubItem('set app_env  to production and debug to false');
 
-            file_put_contents($envBackupFileWhileStresstest, $envContents);
+            file_put_contents($this->envBackupFileWhileStresstest, $envContents);
 
             $envContents = str_replace('APP_ENV=local', 'APP_ENV=production', $envContents);
             $envContents = str_replace('APP_DEBUG=true', 'APP_DEBUG=false', $envContents);
@@ -164,6 +164,19 @@ class StresstestSetup extends Command
         }
         return true;
     }
+
+    protected function hasStresstestSetup(){
+        if(!file_exists($this->envBackupFileWhileStresstest)){
+            die('error searching for the '.$this->envBackupFileWhileStresstest.' file');
+        }
+        if(file_get_contents($this->envBackupFileWhileStresstest == 1)){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
 
     // composer install with --NO-DEV option
     protected function composerInstall(){

@@ -279,7 +279,7 @@ class AverageRatingRepository {
                     'classWeightSum' => [],
                     'classAverages' => [],
                     'individualClassStudentAverages' => [],
-                    'object' => $schoolYears->first(function ($key, $value) use ($schoolYearId) {
+                    'object' => $schoolYears->first(function ($value, $key) use ($schoolYearId) {
                         return $value->getKey() == $schoolYearId;
                     })
                 ];
@@ -311,11 +311,11 @@ class AverageRatingRepository {
 
         // Attach average arrays to school year within subject
         if ($baseSubjectOrSubject instanceof BaseSubject) {
-            $baseSubjectOrSubject = $baseSubjects->first(function ($key, $value) use ($baseSubjectOrSubject) {
+            $baseSubjectOrSubject = $baseSubjects->first(function ($value, $key) use ($baseSubjectOrSubject) {
                 return $value->getKey() == $baseSubjectOrSubject->getKey();
             });
         } elseif ($baseSubjectOrSubject instanceof Subject) {
-            $baseSubjectOrSubject = $subjects->first(function ($key, $value) use ($baseSubjectOrSubject) {
+            $baseSubjectOrSubject = $subjects->first(function ($value,$key) use ($baseSubjectOrSubject) {
                 return $value->getKey() == $baseSubjectOrSubject->getKey();
             });
         }

@@ -23,6 +23,9 @@ class StresstestTeardown extends Command
      */
     protected $description = 'Teardown for stresstest {--skipDB : skip testdb reload';
 
+    protected $envFile = '.env';
+    protected $envBackupFileWhileStresstest = ".envBackupWhileStresstest";
+
     /**
      * Create a new command instance.
      *
@@ -43,8 +46,6 @@ class StresstestTeardown extends Command
         // this might be slow, so give us some time
         ini_set('max_execution_time', 180); //3 minutes
 
-        $envFile = '.env';
-        $envBackupFileWhileStresstest = ".envBackupWhileStresstest";
 
         $this->info('Remove caching');
         foreach(['route','config','view'] as $type){
@@ -56,17 +57,16 @@ class StresstestTeardown extends Command
 
         $this->info(PHP_EOL);
 
-        if(!file_exists($envBackupFileWhileStresstest)){
-            $this->error('could not find the '.$envBackupFileWhileStresstest.' file');
-            $this->error('it seems like you didn\'t do a proper setup, please reset the '.$envFile.' file yourself');
+        if(!$this->hasStresstestSetup()){
+            $this->error('it seems like you didn\'t do a proper setup, please reset the '.$this->envFile.' file yourself');
             $this->error('APP_ENV=local && APP_DEBUG=true');
             return false;
         }
 
         $this->info('going to set env settings back to what it was');
-        $envContents = file_get_contents($envBackupFileWhileStresstest);
-        file_put_contents($envFile,$envContents);
-        unlink($envBackupFileWhileStresstest);
+        $envContents = file_get_contents($this->envBackupFileWhileStresstest);
+        file_put_contents($this->envFile,$envContents);
+        file_put_contents($this->envBackupFileWhileStresstest,'1');
         $this->info(PHP_EOL);
 
         if(!$this->option('skipDB')) {
@@ -79,6 +79,18 @@ class StresstestTeardown extends Command
         $this->composerInstall();
 
         $this->info('You\'re all done!');
+    }
+
+    protected function hasStresstestSetup(){
+        if(!file_exists($this->envBackupFileWhileStresstest)){
+            die('error searching for the '.$this->envBackupFileWhileStresstest.' file');
+        }
+        if(file_get_contents($this->envBackupFileWhileStresstest == 1)){
+            return false;
+        }
+        else{
+            return true;
+        }
     }
 
     protected function printSubItem($message){
