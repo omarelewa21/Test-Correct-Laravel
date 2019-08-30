@@ -14,7 +14,7 @@ class StresstestTeardown extends Command
      *
      * @var string
      */
-    protected $signature = 'stresstest:setup {--skipDB : skip database}';
+    protected $signature = 'stresstest:teardown {--skipDB : skip database}';
 
     /**
      * The console command description.
