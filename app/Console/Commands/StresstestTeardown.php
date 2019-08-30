@@ -21,7 +21,7 @@ class StresstestTeardown extends Command
      *
      * @var string
      */
-    protected $description = 'Teardown for stresstest {--skipDB : skip testdb reload';
+    protected $description = 'Teardown for stresstest {--skipDB : skip testdb reload}';
 
     protected $envFile = '.env';
     protected $envBackupFileWhileStresstest = ".envBackupWhileStresstest";
