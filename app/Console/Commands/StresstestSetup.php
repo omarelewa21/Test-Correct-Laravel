@@ -16,7 +16,7 @@ class StresstestSetup extends Command
      *
      * @var string
      */
-    protected $signature = 'stresstest:setup {--skipDB : skip database}';
+    protected $signature = 'stresstest:setup {--skipDB : skip database, --forceTeardown : do we need to force a}';
 
     /**
      * The console command description.
@@ -49,6 +49,11 @@ class StresstestSetup extends Command
             if(!$this->hasStresstestSetup()) {
                 $this->error('You cannot perform this action on this environment! only with APP_ENV set to local AND not in production (read config:cache && route:cache)!!');
                 return false;
+            }
+            else if($this->option('forceTeardown')){
+                $this->info('we\'re going to do a teardown first');
+                Artisan::call(sprintf('stresstest:teardown'));
+                $this->info('teardown done');
             }
             else{
                 if($this->confirm('You didn\'t do a teardown first, do you want to prepare for another stresstest?')){
@@ -102,7 +107,7 @@ class StresstestSetup extends Command
             $envContents = str_replace('APP_DEBUG=true', 'APP_DEBUG=false', $envContents);
             $envContents = str_replace('QUEUE_DRIVER=sync', 'QUEUE_DRIVER=database', $envContents);
 
-            file_put_contents($envFile, $envContents);
+            file_put_contents($this->envFile, $envContents);
 
             $this->info('done');
         }
