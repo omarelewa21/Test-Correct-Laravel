@@ -128,6 +128,7 @@ class StresstestSetup extends Command
         $this->info(PHP_EOL);
 
         $this->alert('You\'re ready to do the stresstest, DON\'T forget to run stresstest:cache as well if you didn\'t do so yet!!');
+        return true;
     }
 
     protected function printSubItem($message){
@@ -174,7 +175,7 @@ class StresstestSetup extends Command
         if(!file_exists($this->envBackupFileWhileStresstest)){
             die('error searching for the '.$this->envBackupFileWhileStresstest.' file');
         }
-        if(file_get_contents($this->envBackupFileWhileStresstest == 1)){
+        if(file_get_contents($this->envBackupFileWhileStresstest) == 1){
             return false;
         }
         else{
