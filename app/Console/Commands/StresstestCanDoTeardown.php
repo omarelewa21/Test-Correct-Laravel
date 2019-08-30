@@ -42,8 +42,8 @@ class StresstestCanDoTeardown extends Command
      */
     public function handle()
     {
-        $envBackupFileWhileStresstest = ".envBackupWhileStresstest";
-        echo (string) config('app.env') === 'production' && file_exists($envBackupFileWhileStresstest);
+        $envBackupWhileStresstest = ".envBackupWhileStresstest";
+        echo (string) config('app.env') === 'production' && file_exists($envBackupWhileStresstest);
     }
 
 }

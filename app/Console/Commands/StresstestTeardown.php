@@ -85,7 +85,7 @@ class StresstestTeardown extends Command
         if(!file_exists($this->envBackupFileWhileStresstest)){
             die('error searching for the '.$this->envBackupFileWhileStresstest.' file');
         }
-        if(file_get_contents($this->envBackupFileWhileStresstest == 1)){
+        if(file_get_contents($this->envBackupFileWhileStresstest) == 1){
             return false;
         }
         else{
