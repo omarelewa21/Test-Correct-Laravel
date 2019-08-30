@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
 use tcCore\BaseSubject;
 use tcCore\Http\Requests;
+use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\PValueRepository;
@@ -198,17 +199,17 @@ class UsersController extends Controller {
 	 * @param  User  $user
 	 * @return Response
 	 */
-	public function destroy(User $user)
+	public function destroy(User $user, DestroyUserRequest $request)
 	{
 	    // 20190515 security issue with users deleting users just by id, see trello
         // for safety now disabled
         // @TODO fix security issue with deletion of users (as well update/ add and such)
-	    return Response::make($user,200);
+//	    return Response::make($user,200);
 
-//		if ($user->delete()) {
-//			return Response::make($user, 200);
-//		} else {
-//			return Response::make('Failed to delete user', 500);
-//		}
+		if ($user->delete()) {
+			return Response::make($user, 200);
+		} else {
+			return Response::make('Failed to delete user', 500);
+		}
 	}
 }
