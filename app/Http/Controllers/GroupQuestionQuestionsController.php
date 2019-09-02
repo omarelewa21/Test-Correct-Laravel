@@ -297,8 +297,10 @@ class GroupQuestionQuestionsController extends Controller
      * @param UpdateGroupQuestionQuestionRequest $request
      * @return Response
      */
-    public function update(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $groupQuestionQuestion, UpdateGroupQuestionQuestionRequest $request)
+    public function update(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id, UpdateGroupQuestionQuestionRequest $request)
     {
+
+        $groupQuestionQuestion = $group_question_question_id;
         if (!$groupQuestionQuestionManager->isChild($groupQuestionQuestion)) {
             return Response::make('Group question question not found', 404);
         }

@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers\TestParticipants;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
@@ -83,6 +84,14 @@ class Answers2019Controller extends Controller {
         if($question instanceof QuestionInterface) {
             $question->loadRelated();
         }
+
+        // added as replacement of hearbeat input 20190830
+        $testParticipant->setAttribute('answer_id',$answer->getKey());
+        $testParticipant->setAttribute('heartbeat_at',Carbon::now());
+        if($request->has('ip_address')){
+            $testParticipant->setAttribute('ip_address', $request->get('ip_address'));
+        }
+        $testParticipant->save();
 
         return Response::make([
             'answer' => $answer,

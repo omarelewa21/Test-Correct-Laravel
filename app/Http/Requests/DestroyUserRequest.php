@@ -13,7 +13,7 @@ class DestroyUserRequest extends Request {
 	 */
 	public function authorize()
 	{
-
+	    // @TODO no check on school or anything at this moment
 		$roles = $this->getUserRoles();
 		if (in_array('School manager', $roles)) {
 			return true;
