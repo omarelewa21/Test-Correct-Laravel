@@ -105,7 +105,7 @@ class GroupQuestion extends Question implements QuestionInterface {
     }
 
     public function groupQuestionQuestions() {
-        return $this->hasMany('tcCore\GroupQuestionQuestion');
+        return $this->hasMany('tcCore\GroupQuestionQuestion')->orderBy('order');
     }
 
     public function question() {
