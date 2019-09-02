@@ -98,8 +98,8 @@ class GroupQuestionQuestionsController extends Controller
                 if ($request->get('type') == 'CompletionQuestion') {
                     $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
                 }
-
-                $question->fill(array_merge($request->all(), $questionData));
+                $totalData = array_merge($request->all(),$questionData);
+                $question->fill(array_merge($totalData));
 
                 $questionInstance = $question->getQuestionInstance();
                 if ($questionInstance->getAttribute('subject_id') === null) {
@@ -133,7 +133,7 @@ class GroupQuestionQuestionsController extends Controller
 //                        $question->deleteAnswers($question);
 
                             // add new answers
-                            $groupQuestionQuestion->question->addAnswers($groupQuestionQuestion, $questionData['answers']);
+                            $groupQuestionQuestion->question->addAnswers($groupQuestionQuestion, $totalData['answers']);
                         }
                         $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
 //                        return Response::make($groupQuestionQuestion, 200);
@@ -315,14 +315,14 @@ class GroupQuestionQuestionsController extends Controller
                 $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
             }
 
-//            $question->fill($request->all());
-            $question->fill(array_merge($request->all(), $questionData));
+            $totalData = array_merge($request->all(),$questionData);
+
+            $question->fill($totalData);
+
             $questionInstance = $question->getQuestionInstance();
 
             $groupQuestionQuestionOriginal = $groupQuestionQuestion;
             $groupQuestionQuestion->fill($request->all());
-
-            // $groupQuestionQuestionManager->isUsed();
 
 
             if (
@@ -370,7 +370,7 @@ class GroupQuestionQuestionsController extends Controller
                     $question->deleteAnswers($question);
 
                     // add new answers
-                    $question->addAnswers($groupQuestionQuestion, $questionData['answers']);
+                    $question->addAnswers($groupQuestionQuestion, $totalData['answers']);
                 }
                 $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
 //                return Response::make($groupQuestionQuestion, 200);
