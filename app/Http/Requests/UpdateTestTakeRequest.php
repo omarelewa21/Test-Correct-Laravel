@@ -1,6 +1,7 @@
 <?php namespace tcCore\Http\Requests;
 
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateTestTakeRequest extends Request {
 
@@ -20,12 +21,18 @@ class UpdateTestTakeRequest extends Request {
 
 	/**
 	 * Determine if the user is authorized to make this request.
+     * only invigilators may change the test take data
 	 *
 	 * @return bool
 	 */
 	public function authorize()
 	{
-		return true;
+	    $authorized = false;
+        if($this->testTake->invigilatorUsers->contains('id',Auth::user()->getKey())){
+         $authorized = true;
+        }
+
+        return $authorized;
 	}
 
 	/**

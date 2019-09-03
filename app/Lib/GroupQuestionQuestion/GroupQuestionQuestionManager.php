@@ -117,7 +117,6 @@ class GroupQuestionQuestionManager {
         if ($i >= 1 && $testQuestion !== null) {
             $testQuestion->save();
         }
-
         return $testQuestion;
 
     }

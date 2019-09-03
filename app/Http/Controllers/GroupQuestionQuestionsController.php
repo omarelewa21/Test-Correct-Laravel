@@ -419,7 +419,7 @@ class GroupQuestionQuestionsController extends Controller
         }
     }
 
-    protected function getAndValidateQuestionFromGroupQuestionQuestionManager($groupQuestionQuestionManager)
+    protected function getAndValidateQuestionFromGroupQuestionQuestionManager(GroupQuestionQuestionManager $groupQuestionQuestionManager)
     {
         $question = $groupQuestionQuestionManager->getQuestionLink()->question;
         if ($question === null) {
