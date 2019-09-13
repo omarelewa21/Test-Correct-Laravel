@@ -2,6 +2,7 @@
 
 use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use tcCore\User;
 
@@ -21,9 +22,20 @@ class UpdateUserRequest extends Request {
 //	    logger($route->parameter('user'));
 //	    logger(request('user'));
 
-//	    $this->user = $route->parameter('user');
+	    $this->user = $route->parameter('user');
+        $authUser = Auth::user();
+        if($this->user == $authUser){
+            return true;
+        }
+
+	    $roles = $this->getUserRoles();
+        if (in_array('School manager', $roles)) {
+            return true;
+        } else {
+            return false;
+        }
 //	    dd(auth()->user());
-        $this->user = auth()->user();
+//        $this->user = auth()->user();
 	}
 
 	/**
