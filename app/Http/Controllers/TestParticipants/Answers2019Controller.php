@@ -152,15 +152,23 @@ class Answers2019Controller extends Controller {
 
             $response = $answer;
 		    if($request->has('take_id') && $request->has('take_question_index') && $request->has('take_id')) {
-		        $nextTakeQuestionIndexNr = $request->input('take_question_index')+1;
-                if($this->hasNextQuestion($testParticipant, $request->input('take_question_index'))) {
-                    $response = json_encode([
-                        'success' => true,
-                        'status' => 'next',
-                        'take_id' => $request->input('take_id'),
-                        'question_id' => $nextTakeQuestionIndexNr
-                    ]);
+		        if(is_numeric($request->input('take_question_index'))){
+                    $nextTakeQuestionIndexNr = $request->input('take_question_index')+1;
+                    if($this->hasNextQuestion($testParticipant, $request->input('take_question_index'))) {
+                        $response = json_encode([
+                            'success' => true,
+                            'status' => 'next',
+                            'take_id' => $request->input('take_id'),
+                            'question_id' => $nextTakeQuestionIndexNr
+                        ]);
+                    }else{
+                        $response = json_encode([
+                            'success' => true,
+                            'status' => 'done'
+                        ]);
+                    }
                 }else{
+		            logger(sprintf('geen numeric value for take_question_index %s',$request->input('take_question_index')));
                     $response = json_encode([
                         'success' => true,
                         'status' => 'done'
