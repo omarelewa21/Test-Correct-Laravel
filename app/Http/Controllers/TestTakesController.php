@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
@@ -168,7 +169,7 @@ class TestTakesController extends Controller {
 			foreach ($testTake->invigilatorUsers as $user) {
 				if ($user->getKey() == Auth::id()) {
 					$isInvigilator = true;
-                    $pdo = DB::connection()->getPdo()->exec(‘SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED’);
+                    $pdo = DB::connection()->getPdo()->exec('SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED');
 					break;
 				}
 			}
