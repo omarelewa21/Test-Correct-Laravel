@@ -168,6 +168,7 @@ class TestTakesController extends Controller {
 			foreach ($testTake->invigilatorUsers as $user) {
 				if ($user->getKey() == Auth::id()) {
 					$isInvigilator = true;
+                    $pdo = DB::connection()->getPdo()->exec(‘SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED’);
 					break;
 				}
 			}
