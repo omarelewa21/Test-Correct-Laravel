@@ -150,6 +150,13 @@ class Answers2019Controller extends Controller {
 
 		if ($testParticipant->answers()->save($answer) !== false) {
 
+            $alert = false;
+            foreach($testParticipant->testTakeEvents as $testTakeEvent) {
+                if ($testTakeEvent->testTakeEventType->requires_confirming == 1 && $testTakeEvent->confirmed == 0) {
+                    $alert = true;
+                }
+            }
+
             $response = $answer;
 		    if($request->has('take_id') && $request->has('take_question_index') && $request->has('take_id')) {
 		        if(is_numeric($request->input('take_question_index'))){
@@ -159,19 +166,22 @@ class Answers2019Controller extends Controller {
                             'success' => true,
                             'status' => 'next',
                             'take_id' => $request->input('take_id'),
-                            'question_id' => $nextTakeQuestionIndexNr
+                            'question_id' => $nextTakeQuestionIndexNr,
+                            'alert' => $alert
                         ]);
                     }else{
                         $response = json_encode([
                             'success' => true,
-                            'status' => 'done'
+                            'status' => 'done',
+                            'alert' => $alert
                         ]);
                     }
                 }else{
 		            logger(sprintf('geen numeric value for take_question_index %s',$request->input('take_question_index')));
                     $response = json_encode([
                         'success' => true,
-                        'status' => 'done'
+                        'status' => 'done',
+                        'alert' => $alert
                     ]);
                 }
             }
