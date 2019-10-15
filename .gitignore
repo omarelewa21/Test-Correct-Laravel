@@ -2,6 +2,7 @@
 /public/hot
 /public/storage
 .env
+.envBackupWhileStresstest
 .idea
 /storage
 /storage/*.key

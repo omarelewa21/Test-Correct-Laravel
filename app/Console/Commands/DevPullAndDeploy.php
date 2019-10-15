@@ -9,6 +9,8 @@ use Symfony\Component\Process\Process;
 
 class DevPullAndDeploy extends Command
 {
+    use CommandsHelperTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -118,19 +120,5 @@ class DevPullAndDeploy extends Command
         }
         $this->info('done');
         $this->info(PHP_EOL);
-    }
-
-
-    protected function addMigrations()
-    {
-        $this->info('going to put the migrations on top');
-        Artisan::call('migrate --force');
-        $this->info('done');
-        $this->info(PHP_EOL);
-    }
-
-    protected function printSubItem($message)
-    {
-        $this->output->write('<info>  o ' . $message . '...</info>', false);
     }
 }

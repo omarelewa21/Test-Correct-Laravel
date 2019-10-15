@@ -9,6 +9,8 @@ use Symfony\Component\Process\Process;
 
 class RefreshDatabase extends Command
 {
+    use CommandsHelperTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -67,40 +69,5 @@ class RefreshDatabase extends Command
 
         $this->addMigrations();
         $this->info('refresh database complete');
-    }
-
-    protected function addMigrations()
-    {
-        $this->output->write('<info>  o going to put the migrations on top...</info>', false);
-        Artisan::call('migrate');
-        $this->info('done');
-    }
-
-    protected function rollbackMigrations()
-    {
-        $this->output->write('<info>  o start rollback migrations...</info>', false);
-        Artisan::call('migrate:rollback');
-        $this->info('done');
-    }
-
-    protected function handleSqlFiles($sqlImports = [])
-    {
-        foreach ($sqlImports as $file) {
-            $this->output->write(sprintf('<info>  o importing %s...</info>', $file), false);
-            $command = sprintf(
-                'mysql -h %s -u %s -p%s %s < database/seeds/%s',
-                DB::connection()->getConfig('host'),
-                DB::connection()->getConfig('username'),
-                DB::connection()->getConfig('password'),
-                DB::connection()->getConfig('database'),
-                $file
-            );
-
-//            $this->info('command runned: '.$command);
-
-            $process = new Process($command);
-            $process->run();
-            $this->info('done');
-        }
     }
 }

@@ -9,6 +9,8 @@ use Symfony\Component\Process\Process;
 
 class StresstestTeardown extends Command
 {
+    use CommandsHelperTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -91,10 +93,6 @@ class StresstestTeardown extends Command
         else{
             return true;
         }
-    }
-
-    protected function printSubItem($message){
-        $this->output->write('<info>  o '.$message.'...</info>',false);
     }
 
     // composer install with all options including dev
