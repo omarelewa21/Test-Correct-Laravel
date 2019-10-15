@@ -3298,7 +3298,7 @@ CREATE TABLE `migrations` (
 
 TRUNCATE TABLE `migrations`;
 
-LOCK TABLES `migrations` WRITE;
+
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
 
 INSERT INTO `migrations` (`migration`, `batch`)
@@ -3413,7 +3413,7 @@ VALUES
 	('2019_07_10_114633_jobs_queue_reserved_reserved_at_index_for_laravel_5_3',22);
 
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
-UNLOCK TABLES;
+
 
 
 # Dump of table multiple_choice_question_answer_links
