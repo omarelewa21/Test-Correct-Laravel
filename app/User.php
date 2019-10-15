@@ -1171,6 +1171,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		throw new AccessDeniedHttpException('Access to user denied');
 	}
 
+	public function resetAndSavePassword($pw){
+	    $this->password = bcrypt($pw);
+	    $this->save();
+    }
+
 	/**
 	 * Get the e-mail address where password reset links are sent.
 	 *
