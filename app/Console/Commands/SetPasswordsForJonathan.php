@@ -45,6 +45,6 @@ class SetPasswordsForJonathan extends Command
             $this->error('You can not set the passwords other than in the devportal');
             exit;
         }
-        User::all()->each->resetAndSavePassword('jonathan3456');
+        User::all()->each->resetAndSavePassword('jonathaN6354');
     }
 }
