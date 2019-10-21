@@ -25,27 +25,22 @@ class PasswordController extends Controller {
 			'url' => 'required|url'
 		]);
 
-		// First we will check to see if we found a user at the given credentials and
-		// if we did not we will redirect back to this current URI with a piece of
-		// "flash" data in the session to indicate to the developers the errors.
 		$user = Password::getUser($request->only('username'));
 		if ($user !== null) {
+            // Once we have the reset token, we are ready to send the message out to this
+            // user with a link to reset their password. We will then redirect back to
+            // the current URI having nothing set in the session to indicate errors.
+            $token = Password::getRepository()->create($user);
 
+            $url = $request->get('url', null);
+            $urlLogin = config('app.url_login');
+
+            $mailer->send('emails.password', compact('token', 'user', 'url', 'urlLogin'), function (Message $m) use ($user, $token) {
+                $m->to($user->getEmailForPasswordReset())
+                    ->subject('Nieuw wachtwoord aangevraagd.');
+            });
 		}
-
-		// Once we have the reset token, we are ready to send the message out to this
-		// user with a link to reset their password. We will then redirect back to
-		// the current URI having nothing set in the session to indicate errors.
-		$token = Password::getRepository()->create($user);
-
-		$url = $request->get('url', null);
-		$urlLogin = config('app.url_login');
-
-		$mailer->send('emails.password', compact('token', 'user', 'url', 'urlLogin'), function (Message $m) use ($user, $token) {
-			$m->to($user->getEmailForPasswordReset())
-				->subject('Nieuw wachtwoord aangevraagd.');
-		});
-
+        // we always sent the ok message as to not show a correct email address or not
 		return Response::make("Ok", 200);
 	}
 
