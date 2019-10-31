@@ -851,8 +851,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
 	public function scopeFiltered($query, $filters = [], $sorting = [])
 	{
-		$roles = Roles::getUserRoles();
-		if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
+//		$roles = Roles::getUserRoles();
+//		if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
+		if($this->hasRole(['Administrator','Account manager'])){
 			$userId = Auth::user()->getKey();
 
 			$schoolIds = School::where(function ($query) use ($userId) {
@@ -884,7 +885,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 				$query->orWhereIn('school_location_id', $schoolLocationIds);
 				$query->orWhereIn('id', $parentIds);
 			});
-		} elseif (!in_array('Administrator', $roles) && (in_array('School manager', $roles) || in_array('Teacher', $roles) || in_array('Invigilator', $roles) || in_array('School management', $roles) || in_array('Mentor', $roles))) {
+//		} elseif (!in_array('Administrator', $roles) && (in_array('School manager', $roles) || in_array('Teacher', $roles) || in_array('Invigilator', $roles) || in_array('School management', $roles) || in_array('Mentor', $roles))) {
+        } elseif (!$this->hasRole('Administrator') &&
+            ($this->hasRole(['School manager','Teacher','Invigilator', 'School management','Mentor']))) {
 			$user = Auth::user();
 			$schoolId = $user->getAttribute('school_id');
 			$schoolLocationId = $user->getAttribute('school_location_id');
@@ -919,7 +922,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 				
 				$query->orWhereIn('id', $parentIds);
 			});
-		} elseif (!in_array('Administrator', $roles)) {
+//		} elseif (!in_array('Administrator', $roles)) {
+        } elseif (!$this->hasRole('Administrator')) {
 			$query->where('id', Auth::user()->getKey());
 		}
 
@@ -1083,14 +1087,31 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	}
 
 
+    public function hasRole($roleName)
+    {
+        $roles = array_map('strtolower',Roles::getUserRoles($this));
+
+        if(!is_array($roleName)){
+            return (in_array(strtolower($roleName), $roles));
+        }
+        else{
+                foreach($roleName as $name){
+                        if(in_array(strtolower($name),$roles)){
+                                return true;
+                        }
+                }
+        }
+        return false;
+    }
+
 	public function canAccess()
 	{
-		$roles = Roles::getUserRoles();
-		if (in_array('Administrator', $roles)) {
+		$roles = Roles::getUserRoles($this);
+		if ($this->hasRole('Administrator')) {
 			return true;
 		}
 
-		if (in_array('Account manager', $roles)) {
+        if ($this->hasRole('Account manager')) {
 			$userId = Auth::user()->getKey();
 
 			$schoolIds = School::where(function ($query) use ($userId) {
@@ -1124,7 +1145,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 			}
 		}
 
-		if (in_array('School manager', $roles) || in_array('Teacher', $roles) || in_array('Invigilator', $roles) || in_array('School management', $roles) || in_array('Mentor', $roles)) {
+		if($this->hasRole(['School manager','Teacher','Invigilator','School management','Mentor'])) {
 			$user = Auth::user();
 			$schoolId = $user->getAttribute('school_id');
 			$schoolLocationId = $user->getAttribute('school_location_id');
@@ -1156,9 +1177,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 			}
 		}
 
-		if ($this->getKey() === Auth::user()->getKey()) {
-			return true;
-		}
+        // As a student you're not allowed to update your details except your password, but that is not limited through this middlewarecall
+        // so only allow show request.
+        if ($this->getKey() === Auth::user()->getKey()){
+            if($this->hasRole('Student')) {
+                //dd(request()->route);
+                if (request()->route()->getName() == 'users.show' || request()->route()->getName() == 'user.update') {
+                    return true;
+                }
+                return false;
+            }
+            return true; // others than students may update their own details
+        }
 		return false;
 	}
 

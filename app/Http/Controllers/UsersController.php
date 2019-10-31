@@ -170,6 +170,29 @@ class UsersController extends Controller {
 		return Response::make($user, 200);
 	}
 
+
+    /**
+    +     * UpdateStudent the specified user in storage.
+    +     *
+    +     * @param  User $user
+    +     * @param UpdateUserRequest $request
+    +     * @return Response
+    +     */
+    public function updateStudent(User $user, UpdateUserRequest $request)
+    {
+
+        if ($request->has('password')) {
+            $user->setAttribute('password', \Hash::make($request->get('password')));
+        }
+
+        if ($user->save()) {
+                return Response::make($user, 200);
+        } else {
+                return Response::make('Failed to update user', 500);
+        }
+    }
+
+
 	/**
 	 * Update the specified user in storage.
 	 *
@@ -179,6 +202,9 @@ class UsersController extends Controller {
 	 */
 	public function update(User $user, UpdateUserRequest $request)
 	{
+
+        if($user->hasRole('Student')) return $this->updateStudent($user,$request);
+
 	    $user->fill($request->all());
 
 		if ($request->filled('password')) {
