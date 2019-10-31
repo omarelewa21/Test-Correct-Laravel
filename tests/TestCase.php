@@ -128,7 +128,7 @@ abstract class TestCase extends BaseTestCase
         // example:
         // phpunit tests/App/FailedLoginTest.php --filter testLoginFailsForEmptyRun ignoredb
         if (!static::$setUpRun) {
-            if (!(array_key_exists(4, $argv) && $argv[4] == 'ignoredb')) {
+            if (!(array_key_exists(5, $argv) && $argv[5] == 'ignoredb')) {
                 $this->artisan('test:refreshdb');
                 static::$setUpRun = true;
             }
