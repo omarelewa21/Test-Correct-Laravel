@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use tcCore\Test;
 use tcCore\User;
 
 abstract class TestCase extends BaseTestCase
@@ -18,26 +19,52 @@ abstract class TestCase extends BaseTestCase
 
     protected $baseUrl = 'http://test-correct.test';
 
-    const USER_TEACHER = 'p.vries@31.com';
+    const USER_TEACHER = 'd1@test-correct.nl';
 
-    const USER_BEHEERDER = 'schoolbeheerder@connected-software.com';
-    const USER_BEHEERDER_SESSION_HASH = 'CXLtEIpVFXUrR8QjN9OYS4flMP0j6KFDrIML0Z1LABX3HXPmBBOQpUNGrQHQoELFcd2tLI3gRaXzm2sXonuPypynJpwBao7bP5PW';
-    const FIORETTI_TEACHER = 'krs@fioretti.nl';
+    const USER_BEHEERDER = 'opensourceschoollocatie1@test-correct.nl';
+    const FIORETTI_TEACHER = 'd1@test-correct.nl';
+    const USER_ACCOUNTMANAGER = 'opensourceschoollocatie1@test-correct.nl';
 
     public static function getAuthRequestData($overrides = [])
     {
+        $user = \tcCore\User::where('username','=',static::USER_TEACHER)->get()->first();
+        if(!$user->session_hash) {
+            $user->session_hash = $user->generateSessionHash();
+            $user->save();
+        }
         return array_merge([
-            'session_hash' => '5mTzff9qk9TObgv0NfsU7JjLDgnBsRRYSDfASpPEYLb2GjZHSQh1aePy1vhnBq1gFsjWprSU0dsCUgKTJhJVzbIHEEd7Mzw2Y1Y',
+            'session_hash' => $user->session_hash,
             'user'         => static::USER_TEACHER,
         ], $overrides);
     }
 
+    public static function getAuthRequestDataForAccountManager($overrides = [])
+    {
+
+        $user = \tcCore\User::where('username','=',static::USER_ACCOUNTMANAGER)->get()->first();
+        if(!$user->session_hash) {
+            $user->session_hash = $user->generateSessionHash();
+            $user->save();
+        }
+
+        return array_merge([
+                'session_hash' => $user->session_hash,
+                'user'         => static::USER_ACCOUNTMANAGER,
+            ], $overrides);
+    }
+
     public static function AuthBeheerderGetRequest($url, $params=[]) {
+
+        $user = \tcCore\User::where('username','=',static::USER_BEHEERDER)->get()->first();
+        if(!$user->session_hash) {
+            $user->session_hash = $user->generateSessionHash();
+            $user->save();
+        }
 
         return sprintf(
             '%s/?session_hash=%s&signature=aaebbf4a062594c979128ec2f2ef477d4f7d08893c6940cc736b62b106f6498f&user=%s&%s',
             $url,
-            static::USER_BEHEERDER_SESSION_HASH,
+            $user->session_hash,
             static::USER_BEHEERDER,
             http_build_query($params, '', '&')
         );
@@ -45,8 +72,14 @@ abstract class TestCase extends BaseTestCase
 
     public static function getBeheerderAuthRequestData($overrides = [])
     {
+        $user = \tcCore\User::where('username','=',static::USER_BEHEERDER)->get()->first();
+        if(!$user->session_hash) {
+            $user->session_hash = $user->generateSessionHash();
+            $user->save();
+        }
+
         return array_merge([
-            'session_hash' => 'CXLtEIpVFXUrR8QjN9OYS4flMP0j6KFDrIML0Z1LABX3HXPmBBOQpUNGrQHQoELFcd2tLI3gRaXzm2sXonuPypynJpwBao7bP5PW',
+            'session_hash' => $user->session_hash,
             'user'         => static::USER_BEHEERDER,
         ], $overrides);
     }
@@ -163,5 +196,13 @@ abstract class TestCase extends BaseTestCase
         $response->assertStatus(200);
     }
 
+    protected function deleteTest($test)
+    {
+        Test::findOrFail($test['id'])->delete();
+    }
+
+    protected function deleteUser($student){
+        User::find($student->getKey())->delete();
+    }
 
 }

@@ -50,6 +50,25 @@ class CountSchoolStudents extends Job implements ShouldQueue
         Log::debug('School #'.$this->school->getKey().' -> count_students: '.$count);
 
         $this->school->setAttribute('count_students', $count);
+
+
+                $countText2Speech = $this->school->users()
+                        ->whereIn('id', function($query) {
+                        $userRole = new UserRole();
+                        $query->select('user_id')->from($userRole->getTable())->whereIn('role_id', function($query) {
+                                $role = new Role();
+                                $query->select($role->getKeyName())->from($role->getTable())->where('name', 'Student')->whereNull('deleted_at');
+                            })->whereNull('deleted_at');
+                    })
+                ->where('text2speech','=',1)
+                ->count();
+
+        $countText2Speech = $this->school->schoolLocations()->sum('count_text2speech');
+
+        Log::debug('School #'.$this->school->getKey().' -> count_text2speech: '.$countText2Speech);
+
+        $this->school->setAttribute('count_text2speech', $countText2Speech);
+        
         $this->school->save();
     }
 }

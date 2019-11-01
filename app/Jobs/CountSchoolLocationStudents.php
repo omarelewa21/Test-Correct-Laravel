@@ -38,17 +38,34 @@ class CountSchoolLocationStudents extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $count = $this->schoolLocation->users()->whereIn('id', function($query) {
+        $count = $this->schoolLocation->users()->whereIn('id', function ($query) {
             $userRole = new UserRole();
-            $query->select('user_id')->from($userRole->getTable())->whereIn('role_id', function($query) {
+            $query->select('user_id')->from($userRole->getTable())->whereIn('role_id', function ($query) {
                 $role = new Role();
                 $query->select($role->getKeyName())->from($role->getTable())->where('name', 'Student')->whereNull('deleted_at');
             })->whereNull('deleted_at');
         })->whereNull('school_id')->count();
 
-        Log::debug('Schoollocation #'.$this->schoolLocation->getKey().' -> count_students: '.$count);
+        Log::debug('Schoollocation #' . $this->schoolLocation->getKey() . ' -> count_students: ' . $count);
 
         $this->schoolLocation->setAttribute('count_students', $count);
+
+        $countText2Speech = $this->schoolLocation->users()
+            ->whereIn('id', function ($query) {
+                $userRole = new UserRole();
+                $query->select('user_id')->from($userRole->getTable())->whereIn('role_id', function ($query) {
+                    $role = new Role();
+                    $query->select($role->getKeyName())->from($role->getTable())->where('name', 'Student')->whereNull('deleted_at');
+                })->whereNull('deleted_at');
+            })
+            ->whereNull('school_id')
+            ->where('text2speech', '=', 1)
+            ->count();
+
+        Log::debug('Schoollocation #' . $this->schoolLocation->getKey() . ' -> count_text2speech: ' . $countText2Speech);
+
+        $this->schoolLocation->setAttribute('count_text2speech', $countText2Speech);
+
         $this->schoolLocation->save();
     }
 }

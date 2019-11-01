@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class StartTakeParticipantTest extends TestCase
 {
-    //use DatabaseTransactions;
+    //use RefreshDatabase;
 
 
     /** @test */

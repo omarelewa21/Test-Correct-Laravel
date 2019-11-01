@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\Test;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -41,6 +42,7 @@ class OpenQuestionTest extends TestCase
             ])
         );
         $response->assertStatus(200);
+        $this->deleteTest($test);
     }
 
     /** @test */
@@ -72,7 +74,7 @@ class OpenQuestionTest extends TestCase
 //        print_r($response->decodeResponseJson());die;
 
         $response->assertStatus(200);
-
+        $this->deleteTest($test);
     }
 
     /** @test */
@@ -103,7 +105,7 @@ class OpenQuestionTest extends TestCase
         );
 
         $response->assertStatus(422);
-        
+        $this->deleteTest($test);
     }
 
     /** @test */
@@ -133,10 +135,13 @@ class OpenQuestionTest extends TestCase
         );
 
         $response->assertStatus(200);
+        $this->deleteTest($test);
     }
 
     private function createNewTest($overrides = [])
     {
+
+
         $attributes = array_merge([
             'name'                   => 'Test Title 1abc',
             'abbreviation'           => 'TT',
@@ -157,6 +162,5 @@ class OpenQuestionTest extends TestCase
 
         return $response->decodeResponseJson();
     }
-
 
 }

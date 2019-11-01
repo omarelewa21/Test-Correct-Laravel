@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
@@ -203,7 +204,9 @@ class UsersController extends Controller {
 	public function update(User $user, UpdateUserRequest $request)
 	{
 
-        if($user->hasRole('Student')) return $this->updateStudent($user,$request);
+        // Je gaat eruit met updateStudent, maar die kan enkel het wachtwoord aanpassen. Ik denk dat je wilt weten wie het update request uitvoert
+        // als dat een student is dan moet die naar updateStudent en anders mag ook de rest....
+	    if(Auth::user()->hasRole('Student')) return $this->updateStudent($user,$request);
 
 	    $user->fill($request->all());
 

@@ -36,6 +36,7 @@ class HeartBeatTest extends TestCase
             'test_take',
             static::getTeacherOneAuthRequestData($newTestTakeData)
         );
+
         $scheduledResponse->assertStatus(200);
 
         $this->toetsActiveren($scheduledResponse->decodeResponseJson()['id']);
@@ -56,7 +57,7 @@ class HeartBeatTest extends TestCase
         $response = $this->post(
             $uri,
             static::getStudentOneAuthRequestData([
-                'ip_address' => $_SERVER['DB_HOST'],
+                'ip_address' => '1.1.1.1'
             ])
         );
 

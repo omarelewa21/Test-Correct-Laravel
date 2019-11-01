@@ -23,6 +23,9 @@ DROP TABLE IF EXISTS `telescope_entries`;
 DROP TABLE IF EXISTS `telescope_entries_tags`;
 DROP TABLE IF EXISTS `telescope_monitoring`;
 
+DROP TABLE IF EXISTS `text2speech`;
+DROP TABLE IF EXISTS `text2speech_log`;
+
 # Dump of table addresses
 # ------------------------------------------------------------
 

@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class MatchingQuestionTest extends TestCase
 {
-//    use DatabaseTransactions;
+//    use RefreshDatabase;
 
 
     /** @test */
@@ -56,6 +56,7 @@ class MatchingQuestionTest extends TestCase
 
 
         $addQuestionResponse->assertStatus(200);
+        $this->deleteTest($test);
     }
 
 
@@ -80,6 +81,7 @@ class MatchingQuestionTest extends TestCase
         );
 
         return $response->decodeResponseJson();
+        $this->deleteTest($test);
     }
 
 

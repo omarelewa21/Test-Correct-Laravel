@@ -25,6 +25,8 @@ class CreateTestTest extends TestCase
         );
 
         $response->assertStatus(200);
+
+        $this->deleteTest($response->decodeResponseJson());
     }
 
     private function getAttributes($overrides = [])
