@@ -1149,16 +1149,27 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	}
 
 
-    public function hasRole($roleName)
+	private $_hasRoleUser = null;
+	private $_hasRoleRoles = null;
+
+    /**
+     * @param $roleName
+     * @param null $user if no user is given, the auth::user is taken
+     * @return bool
+     */
+    public function hasRole($roleName, $user = null)
     {
-        $roles = array_map('strtolower',Roles::getUserRoles($this));
+        if($this->_hasRoleRoles === null || $this->_roleUser != $user) {
+            $this->_hasRoleRoles = array_map('strtolower', Roles::getUserRoles($user));
+            $this->_hasRoleUser = $user;
+        }
 
         if(!is_array($roleName)){
-            return (in_array(strtolower($roleName), $roles));
+            return (in_array(strtolower($roleName), $this->_hasRoleRoles));
         }
         else{
                 foreach($roleName as $name){
-                        if(in_array(strtolower($name),$roles)){
+                        if(in_array(strtolower($name),$this->_hasRoleRoles)){
                                 return true;
                         }
                 }
@@ -1169,11 +1180,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	public function canAccess()
 	{
 		$roles = Roles::getUserRoles($this);
-		if ($this->hasRole('Administrator')) {
+		if ($this->hasRole('Administrator',$this)) {
 			return true;
 		}
 
-        if ($this->hasRole('Account manager')) {
+        if ($this->hasRole('Account manager',$this)) {
 			$userId = Auth::user()->getKey();
 
 			$schoolIds = School::where(function ($query) use ($userId) {
@@ -1207,7 +1218,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 			}
 		}
 
-		if($this->hasRole(['School manager','Teacher','Invigilator','School management','Mentor'])) {
+		if($this->hasRole(['School manager','Teacher','Invigilator','School management','Mentor'],$this)) {
 			$user = Auth::user();
 			$schoolId = $user->getAttribute('school_id');
 			$schoolLocationId = $user->getAttribute('school_location_id');
@@ -1242,7 +1253,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         // As a student you're not allowed to update your details except your password, but that is not limited through this middlewarecall
         // so only allow show request.
         if ($this->getKey() === Auth::user()->getKey()){
-            if($this->hasRole('Student')) {
+            if($this->hasRole('Student',$this)) {
                 //dd(request()->route);
                 if (request()->route()->getName() == 'users.show' || request()->route()->getName() == 'user.update') {
                     return true;
