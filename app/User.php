@@ -1151,7 +1151,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
 	private $_hasRoleUser = null;
 	private $_hasRoleRoles = null;
-
     /**
      * @param $roleName
      * @param null $user if no user is given, the auth::user is taken
