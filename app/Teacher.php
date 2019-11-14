@@ -68,6 +68,10 @@ class Teacher extends BaseModel {
         return $this->belongsTo('tcCore\Subject');
     }
 
+    public function tests() {
+        return $this->hasMany(Test::class,'author_id','user_id');
+    }
+
     public function scopeFiltered($query, $filters = [], $sorting = []) {
         foreach($filters as $key => $value) {
             switch($key) {

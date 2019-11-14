@@ -240,7 +240,7 @@ class Test extends BaseModel {
             }
 
         }elseif (in_array('Teacher', $roles)) {
-            
+
             $query->whereIn('subject_id', function ($query) use ($user) {
                 $user->subjects($query)->select('id');
             });
