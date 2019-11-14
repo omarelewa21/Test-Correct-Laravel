@@ -126,7 +126,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Shortcuts for questions show
 	Route::get('question/{question}/bg', ['as' => 'question.bg', 'uses' => 'QuestionsController@bg']);
 	Route::resource('question', 'QuestionsController', ['only' => ['index', 'show']]);
-	Route::resource('attachment', 'AttachmentsController', ['only' => ['index', 'show']]);
+    Route::resource('attachment', 'AttachmentsController', ['only' => ['index', 'show']]);
+
+    Route::get('question/inlineimage/{image}',['uses' => 'QuestionsController@inlineimage']);
 
 	Route::resource('attainment', 'AttainmentsController', ['only' => ['index', 'show']]);
 
@@ -172,4 +174,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('base_subject', 'BaseSubjectsController', ['only' => ['index']]);
 
 	Route::resource('tag', 'TagsController', ['only' => ['index', 'show']]);
+
+	Route::get('admin/teacher_stats','AdminTeacherStatsController@index')->name('admin_teacher_stats');
 });

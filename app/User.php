@@ -703,6 +703,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		return $this->hasMany('tcCore\Test', 'author_id');
 	}
 
+    public function testTakes() {
+        return $this->hasMany('tcCore\TestTake', 'user_id');
+    }
+
 	public function invigilator() {
 		return $this->hasMany('tcCore\Invigilator');
 	}
@@ -745,6 +749,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	public function schoolLocations() {
 		return $this->hasMany('tcCore\SchoolLocation');
 	}
+
 
 	public function ratings() {
 		return $this->hasMany('tcCore\Rating');

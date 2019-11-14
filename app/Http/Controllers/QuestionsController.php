@@ -12,6 +12,17 @@ use tcCore\Question;
 
 class QuestionsController extends Controller {
 
+    public function inlineimage(Request $request, $image){
+
+        $path = storage_path(sprintf('inlineimages/%s',$image));
+        if(file_exists($path)){
+            echo base64_encode(file_get_contents($path));exit;
+        }
+        else{
+            abort(404);
+        }
+    }
+
     public function index(Request $request) {
         $questions = Question::filtered($request->get('filter', []), $request->get('order', []))->with(['questionAttainments', 'questionAttainments.attainment', 'authors', 'tags']);
 
