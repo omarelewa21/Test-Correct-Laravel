@@ -23,6 +23,7 @@ class AdminTeacherStatsController extends Controller {
 
 	    // nonTeachers => nog geen toets gemaakt
         $nonTeacherUsers = $teacherUsers->filter(function($t){
+
             return $t->tests->count() == 0;
         });
 
