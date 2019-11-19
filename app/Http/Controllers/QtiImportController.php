@@ -130,7 +130,7 @@ class QtiImportController extends Controller
         if(count($this->werkbladen) > 0){
             $werkbladenString = sprintf('<span style="color:red"><strong>Let op:</strong> We hebben de volgende werkbladen gevonden die we niet automatisch konden verwerken:<br />%s</span>',implode('<br />',$this->werkbladen->toArray()));
         }
-        $return = sprintf('<h2>De import is succesvol verlopen! <span style="color:red">Vergeet niet om alle toetsen zelf nog eens te controleren!</span></h2>%s%s',$werkbladenString,$return);
+        $return = sprintf('<h2>De import is succesvol verlopen! <small style="color:red">Vergeet niet om alle toetsen zelf nog eens te controleren!</small></h2>%s%s',$werkbladenString,$return);
         return response()->json(['data' => $return],200);
     }
 
