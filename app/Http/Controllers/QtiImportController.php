@@ -186,12 +186,13 @@ class QtiImportController extends Controller
         }
 
         if($first){
-            $hasWerkbladen = (bool) collect(scandir($dir))->first(function($file){
+            $werkBladDir = collect(scandir($dir))->first(function($file){
                 return (bool) substr_count(strtolower($file),strtolower('werkbladen voor Wintoets en Quayn'));
             });
 
-            if($hasWerkbladen){
-                $werkbladenDir = sprintf('%s/%s',$dir,'Werkbladen voor wintoets en quayn');
+
+            if($werkBladDir){
+                $werkbladenDir = sprintf('%s/%s',$dir,$werkBladDir);
                 $this->werkbladen = collect(scandir($werkbladenDir))->filter(function($file){
                     return $file != '.' && $file !== '..';
                 });
