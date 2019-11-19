@@ -48,6 +48,7 @@ class QtiImportController extends Controller
     {
         $teachers = Teacher::groupBy('user_id')
                         ->join('users', 'teachers.user_id', '=', 'users.id')
+                        ->whereNotNull('users.id')
                         ->orderBy('users.name_first', 'asc')
                         ->get()
                         ->map(function($t){
