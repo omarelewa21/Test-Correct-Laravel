@@ -42,7 +42,7 @@ class UpdateQuestionRequest extends Request {
 	protected function baseRules()
 	{
 		return [
-			'type' => 'sometimes|required|in:CompletionQuestion,DrawingQuestion,MatchingQuestion,MultipleChoiceQuestion,OpenQuestion,RankingQuestion',
+			'type' => 'sometimes|required|in:CompletionQuestion,DrawingQuestion,MatchingQuestion,MultipleChoiceQuestion,OpenQuestion,RankingQuestion,InfoscreenQuestion',
 			'question' => 'sometimes|required',
 			'order' => 'sometimes|required|integer|min:0',
 			'score' => 'sometimes|required|integer|min:0',

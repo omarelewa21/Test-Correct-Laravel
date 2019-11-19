@@ -41,15 +41,18 @@ class SendExceptionMail extends Job implements ShouldQueue
     public function handle(Mailer $mailer)
     {
         $template = 'emails.exception';
-
         $serverDetails = $_SERVER;
-        unset($serverDetails['MAIL_PASSWORD']);
+        $ar = ['MAIL_PASSWORD','APP_KEY','DB_USERNAME','DB_PASSWORD','MAIL_FROM_ADDRESS'];
+        foreach($ar as $a){
+            unset($serverDetails[$a]);
+        }
+
 
         $mailer->send($template, ['errMessage' => $this->errMessage,
                                   'file'       => $this->file,
                                   'lineNr'     => $this->lineNr,
                                   'details'    => $this->details,
-                                  'server'     => $_SERVER], function ($m) {
+                                  'server'     => $serverDetails], function ($m) {
             $m->to(
                 config('mail.mail_dev_address')
             )->subject('test-correct exception');

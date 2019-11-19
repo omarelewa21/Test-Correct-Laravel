@@ -176,4 +176,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('tag', 'TagsController', ['only' => ['index', 'show']]);
 
 	Route::get('admin/teacher_stats','AdminTeacherStatsController@index')->name('admin_teacher_stats');
+    Route::get('qtiimport/data','QtiImportController@data')->name('qtiimport_data');
+    Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
 });

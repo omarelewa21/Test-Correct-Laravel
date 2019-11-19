@@ -2,14 +2,14 @@
 
 use tcCore\Lib\Question\QuestionInterface;
 
-class ScreeninfoQuestion extends Question implements QuestionInterface {
+class InfoscreenQuestion extends Question implements QuestionInterface {
 
     /**
      * The attributes that should be mutated to dates.
      *
      * @var array
      */
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at','created_at','updated_at'];
 
     /**
      * The database table used by the model.
