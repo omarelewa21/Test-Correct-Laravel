@@ -3,6 +3,7 @@
 namespace tcCore\Http\Controllers;
 
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
@@ -59,6 +60,7 @@ class QtiImportController extends Controller
                 'id' => $t->user->id,
                 'name' => str_replace('  ',' ',trim(sprintf('%s %s %s (%s)',$t->user->name_first,$t->user->name_suffix,$t->user->name,$t->user->abbreviation))),
                 'school_location_id' => $t->user->school_location_id,
+                'subject_ids' => $t->user->subjects()->get()->map(function($s){ return $s->id;})->toArray(),
             ];
         });
         
@@ -99,6 +101,18 @@ class QtiImportController extends Controller
             $this->validate($request, [
                 'zip_file' => 'required|mimes:zip',
             ]);
+
+            $schoolLocationId = $request->get('school_location_id');
+            $schoolLocation = SchoolLocation::find($schoolLocationId);
+            $schoolYears = $schoolLocation->schoolLocationSchoolYears->map(function($l) { return $l->school_year_id;});
+            $periods = Period::where('start_date','<=',Carbon::today())->where('end_date','>=',Carbon::today())->whereIn('school_year_id',$schoolYears->toArray())->get();
+            if($periods->count() != 1){
+                Log::error(sprintf('no valid period found for school location %s met id %d',$schoolLocation->name,$schoolLocation->id));
+                return response()->json(['error' => sprintf('no valid period found for school location %s',$schoolLocation->name)]);
+            }
+            $period = $periods->first();
+            $request->request->add(['period_id' => $period->id]);
+
 
             $file = $request->file('zip_file');
             $fileName = $file->getClientOriginalName();
