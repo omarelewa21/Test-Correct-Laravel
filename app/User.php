@@ -918,9 +918,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
 	public function scopeFiltered($query, $filters = [], $sorting = [])
 	{
-//		$roles = Roles::getUserRoles();
-//		if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
-		if($this->hasRole(['Administrator','Account manager'])){
+		$roles = Roles::getUserRoles();
+		if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
+//		if($this->hasRole(['Administrator','Account manager'])){
 			$userId = Auth::user()->getKey();
 
 			$schoolIds = School::where(function ($query) use ($userId) {
@@ -952,9 +952,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 				$query->orWhereIn('school_location_id', $schoolLocationIds);
 				$query->orWhereIn('id', $parentIds);
 			});
-//		} elseif (!in_array('Administrator', $roles) && (in_array('School manager', $roles) || in_array('Teacher', $roles) || in_array('Invigilator', $roles) || in_array('School management', $roles) || in_array('Mentor', $roles))) {
-        } elseif (!$this->hasRole('Administrator') &&
-            ($this->hasRole(['School manager','Teacher','Invigilator', 'School management','Mentor']))) {
+		} elseif (!in_array('Administrator', $roles) && (in_array('School manager', $roles) || in_array('Teacher', $roles) || in_array('Invigilator', $roles) || in_array('School management', $roles) || in_array('Mentor', $roles))) {
+//        } elseif (!$this->hasRole('Administrator') &&
+//            ($this->hasRole(['School manager','Teacher','Invigilator', 'School management','Mentor']))) {
 			$user = Auth::user();
 			$schoolId = $user->getAttribute('school_id');
 			$schoolLocationId = $user->getAttribute('school_location_id');
@@ -989,8 +989,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 				
 				$query->orWhereIn('id', $parentIds);
 			});
-//		} elseif (!in_array('Administrator', $roles)) {
-        } elseif (!$this->hasRole('Administrator')) {
+		} elseif (!in_array('Administrator', $roles)) {
+//        } elseif (!$this->hasRole('Administrator')) {
 			$query->where('id', Auth::user()->getKey());
 		}
 
