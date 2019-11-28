@@ -377,16 +377,8 @@ class TestParticipantsController extends Controller {
         }
 
         if ($testParticipant->save() !== false) {
-            $alert = false;
 
-            foreach($testParticipant->testTakeEvents as $testTakeEvent) {
-                if ($testTakeEvent->testTakeEventType->requires_confirming == 1 && $testTakeEvent->confirmed == 0) {
-                    $alert = true;
-                    break;
-                }
-            }
-
-            $testParticipant->setAttribute('alert', $alert);
+            $testParticipant->setAttribute('alert', $this->getAlertStatusOrParticipant($testParticipant));
             return Response::make($testParticipant, 200);
         } else {
             return Response::make('Failed to process heartbeat of test participant', 500);
