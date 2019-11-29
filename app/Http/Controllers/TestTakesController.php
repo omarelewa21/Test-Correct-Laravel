@@ -1172,6 +1172,11 @@ class TestTakesController extends Controller {
 		$testTake->fill($request->all());
 
 		if ($testTake->save() !== false) {
+		    $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
+
+
+
+
 			return Response::make($testTake, 200);
 		} else {
 			return Response::make('Failed to update test take', 500);
@@ -1192,6 +1197,35 @@ class TestTakesController extends Controller {
 			return Response::make('Failed to delete test take', 500);
 		}
 	}
+
+    private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake)
+    {
+        $testTake->load(['discussingParentQuestions' => function ($query) {
+            $query->orderBy('level');
+        }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
+            $query->orderBy('level');
+        }, 'testParticipants.answers.answerRatings' => function ($query) use ($testTake) {
+            $query->where('test_take_id', $testTake->getKey());
+        }]);
+
+        $questionId = $testTake->getAttribute('discussing_question_id');
+        $parents = null;
+        foreach($testTake->discussingParentQuestions as $discussingParentQuestions) {
+            if ($parents !== null) {
+                $parents .= '.';
+            }
+            $parents .= $discussingParentQuestions->getAttribute('group_question_id');
+        }
+
+        $parentsGlue = $parents;
+        if ($parents !== null) {
+            $parentsGlue .= '.';
+        }
+
+        $someGluedUpVariable = $parentsGlue.$questionId;
+        $newQuestionIdParents = QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $someGluedUpVariable, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']));
+        $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $newQuestionIdParents, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY'])) !== false));
+    }
 
 
 }
