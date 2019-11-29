@@ -116,26 +116,6 @@ class Answers2019Controller extends Controller {
 	 */
 	public function update(TestParticipant $testParticipant, Answer $answer, UpdateAnswerRequest $request)
 	{
-//        $question = $this->AnswersService->getParticipantQuestion($question_id);
-//        $questions = $this->TestTakesService->getParticipantQuestions($participant_id);
-
-//        $data['mode'] = 'all';
-//        $data['with'] = ['question'];
-//
-//        $response = $this->Connector->getRequest('/test_participant/' . $participant_id . '/answer', $data);
-
-
-//        if(isset($questions[$take_question_index + 1])) {
-//            echo json_encode([
-//                'status' => 'next',
-//                'take_id' => $take_id,
-//                'question_id' => ($take_question_index + 1)
-//            ]);
-//        }else{
-//            echo json_encode([
-//                'status' => 'done'
-//            ]);
-//        }
 
         $question = Question::find($request->input('question_id'));
         $question->getQuestionInstance()->load(['attachments', 'attainments', 'authors', 'tags', 'pValue' => function($query) {
@@ -150,13 +130,6 @@ class Answers2019Controller extends Controller {
 
 		if ($testParticipant->answers()->save($answer) !== false) {
 
-            $alert = false;
-            foreach($testParticipant->testTakeEvents as $testTakeEvent) {
-                if ($testTakeEvent->testTakeEventType->requires_confirming == 1 && $testTakeEvent->confirmed == 0) {
-                    $alert = true;
-                }
-            }
-
             $response = $answer;
 		    if($request->has('take_id') && $request->has('take_question_index') && $request->has('take_id')) {
 		        if(is_numeric($request->input('take_question_index'))){
@@ -167,13 +140,13 @@ class Answers2019Controller extends Controller {
                             'status' => 'next',
                             'take_id' => $request->input('take_id'),
                             'question_id' => $nextTakeQuestionIndexNr,
-                            'alert' => $alert
+                            'alert' => $this->getAlertStatusOrParticipant($testParticipant)
                         ]);
                     }else{
                         $response = json_encode([
                             'success' => true,
                             'status' => 'done',
-                            'alert' => $alert
+                            'alert' => $this->getAlertStatusOrParticipant($testParticipant)
                         ]);
                     }
                 }else{

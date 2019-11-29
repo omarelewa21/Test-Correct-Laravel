@@ -235,13 +235,11 @@ class TestTakesController extends Controller {
 					}
 					$testParticipant->setAttribute('made_score', $madeScore);
 
-					$alert = false;
-					foreach($testParticipant->testTakeEvents as $testTakeEvent) {
-						if ($testTakeEvent->testTakeEventType->requires_confirming == 1 && $testTakeEvent->confirmed == 0) {
-							$alert = true;
-							$alertsCount++;
-						}
-					}
+					$alert = $this->getAlertStatusOrParticipant($testParticipant);
+					if($alert === true){
+                        $alertsCount++;
+                    }
+
 					$testParticipant->setAttribute('alert', $alert);
 
 					if(!array_key_exists($testParticipant->schoolClass->getKey(), $schoolClasses)) {
