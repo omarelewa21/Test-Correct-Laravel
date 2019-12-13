@@ -14,6 +14,8 @@
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+Route::get('/edu-k', 'EduK\HomeController@index');
+
 Route::get('/', 'HomeController@index');
 
 /* TEST MULTIPLE QUESTION STUFF */
@@ -22,6 +24,8 @@ Route::get('/testing/{id}', 'HomeController@test');
 Route::post('auth', ['uses' => 'Auth\AuthController@getApiKey']);
 Route::post('send_password_reset', ['uses' => 'Auth\PasswordController@sendPasswordReset']);
 Route::post('password_reset', ['uses' => 'Auth\PasswordController@passwordReset']);
+
+Route::get('/edu-ix/create/{ean}/{session_id}/{signature}', 'EduK\HomeController@create');
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 	// Tests + children
