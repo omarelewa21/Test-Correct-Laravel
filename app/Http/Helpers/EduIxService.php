@@ -8,7 +8,8 @@ use Exception;
 use SoapHeader;
 use stdClass;
 
-class EduIxService {
+class EduIxService
+{
     const EDUROUTEV4_WSDL_PROFILE = 'https://acc-lika.edu-ix.nl/soap/4.0/profile/wsdl';
     const EDUROUTEV4_NAMESPACE_PROFILE = 'urn:edu-ix:profile:4.0';
 
@@ -19,6 +20,12 @@ class EduIxService {
     private $sessionId;
 
     private $digiDeliveryID;
+
+    private $eduProfile;
+
+    private $personCredit;
+
+    private $schoolCredit;
 
     private static function getUsername()
     {
@@ -62,38 +69,49 @@ class EduIxService {
         }
     }
 
-    public function getEduProfile() {
+    public function getEduProfile()
+    {
         # Call uitvoeren om persoonsgegevens op te halen
-        $client_profile = new \SoapClient(self::EDUROUTEV4_WSDL_PROFILE);
-        $client_profile->__setSoapHeaders($this->header);
-        $request = new stdClass();
-        $request->redirectSessionID = $this->sessionId;
+        if (!$this->eduProfile) {
 
-        $result = $client_profile->getEduProfile($request);
-        $this->digiDeliveryID = $result->digiDeliveryID;
+            $client_profile = new \SoapClient(self::EDUROUTEV4_WSDL_PROFILE);
+            $client_profile->__setSoapHeaders($this->header);
+            $request = new stdClass();
+            $request->redirectSessionID = $this->sessionId;
 
-        return $result;
+            $this->eduProfile = $client_profile->getEduProfile($request);
+            $this->digiDeliveryID = $this->eduProfile->digiDeliveryID;
+        }
+
+        return $this->eduProfile;
     }
 
-    public function getSchoolCredit() {
-        # Call uitvoeren om schooltegoeden op te halen
-
-        $client_credit = new \SoapClient(self::EDUROUTEV4_WSDL_CREDIT);
-        $client_credit->__setSoapHeaders($this->header);
-        # Request opstellen voor getSchoolCredit
-        $request = new stdClass();
-        $request->organisationID = $this->getDigiDeliveryID();
-        $request->redirectSessionID = $this->sessionId;
-        return $client_credit->getSchoolCredit($request);
+    public function getSchoolCredit()
+    {
+        if (!$this->schoolCredit) {
+            # Call uitvoeren om schooltegoeden op te halen
+            $client_credit = new \SoapClient(self::EDUROUTEV4_WSDL_CREDIT);
+            $client_credit->__setSoapHeaders($this->header);
+            # Request opstellen voor getSchoolCredit
+            $request = new stdClass();
+            $request->organisationID = $this->getDigiDeliveryID();
+            $request->redirectSessionID = $this->sessionId;
+            $this->schoolCredit = $client_credit->getSchoolCredit($request);
+        }
+        return $this->schoolCredit;
     }
 
-    public function getPersonCredit() {
-        # Call uitvoeren om persoonelijke tegoeden op te halen
-        $client_credit = new \SoapClient(self::EDUROUTEV4_WSDL_CREDIT);
-        $client_credit->__setSoapHeaders($this->header);
-        $request = new stdClass();
-        $request->redirectSessionID = $this->sessionId;
-        return $client_credit->getPersonCredit($request);
+    public function getPersonCredit()
+    {
+        if (!$this->personCredit) {
+            # Call uitvoeren om persoonelijke tegoeden op te halen
+            $client_credit = new \SoapClient(self::EDUROUTEV4_WSDL_CREDIT);
+            $client_credit->__setSoapHeaders($this->header);
+            $request = new stdClass();
+            $request->redirectSessionID = $this->sessionId;
+            $this->personCredit = $client_credit->getPersonCredit($request);
+        }
+        return $this->personCredit;
     }
     //
 
@@ -137,5 +155,15 @@ class EduIxService {
         }
 
         return $this->digiDeliveryID;
+    }
+
+    public function getHomeOrganizationId()
+    {
+        return $this->getEduProfile()->homeOrganizationID;
+    }
+
+    public function getEan()
+    {
+        return $this->getPersonCredit()->personCreditInformation->personCredit->ean;
     }
 }

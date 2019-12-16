@@ -37,6 +37,49 @@ class HomeControllerTest extends TestCase
     }
 
     /** @test */
+    public function ean_code_must_be_registered_in_db()
+    {
+        //remove the ean code;
+        \tcCore\EanCode::where('ean', $this->ean)->delete();
+
+        $validAttributes = $this->validAttributes();
+        unset($validAttributes['password']);
+
+        $response = $this->post(
+            sprintf(
+                'edu-ix/%s/%s/%s',
+                $this->ean,
+                $this->sessionId,
+                $this->signature
+            ),
+            $validAttributes
+        );
+
+        $this->assertResponseHasError($response, 'ean');
+    }
+
+    /** @test */
+    public function when_ean_in_db_no_error_for_ean()
+    {
+        $validAttributes = $this->validAttributes();
+        unset($validAttributes['password']);
+
+        $response = $this->post(
+            sprintf(
+                'edu-ix/%s/%s/%s',
+                $this->ean,
+                $this->sessionId,
+                $this->signature
+            ),
+            $validAttributes
+        );
+
+        $this->assertResponseHasNoError($response, 'ean');
+    }
+
+
+
+    /** @test */
     public function password_confirm_field_is_required()
     {
         $validAttributes = $this->validAttributes();
@@ -188,6 +231,16 @@ class HomeControllerTest extends TestCase
             return;
         }
         $this->assertFalse();
+    }
+
+    private function assertResponseHasNoError(\Illuminate\Foundation\Testing\TestResponse $response, string $field)
+    {
+        $arr = $response->decodeResponseJson();
+        if (array_key_exists('errors', $arr)) {
+            $this->assertArrayNotHasKey($field, $arr['errors']);
+            return;
+        }
+        $this->assertTrue();
     }
 
 }
