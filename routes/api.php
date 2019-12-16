@@ -25,7 +25,11 @@ Route::post('auth', ['uses' => 'Auth\AuthController@getApiKey']);
 Route::post('send_password_reset', ['uses' => 'Auth\PasswordController@sendPasswordReset']);
 Route::post('password_reset', ['uses' => 'Auth\PasswordController@passwordReset']);
 
-Route::get('/edu-ix/create/{ean}/{session_id}/{signature}', 'EduK\HomeController@create');
+Route::get('edu-ix/{ean}/{session_id}/{signature}', 'EduK\HomeController@create');
+Route::post('edu-ix/{ean}/{session_id}/{signature}', 'EduK\HomeController@store');
+
+
+
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 	// Tests + children
@@ -182,4 +186,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::get('admin/teacher_stats','AdminTeacherStatsController@index')->name('admin_teacher_stats');
     Route::get('qtiimport/data','QtiImportController@data')->name('qtiimport_data');
     Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
+
+
 });
