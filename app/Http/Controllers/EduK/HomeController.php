@@ -64,6 +64,7 @@ class HomeController extends Controller
 
     public function index()
     {
+        Log::info('index');
 //        dd(Input::all());
         (new EduIxService(Input::get('redirectSessionID'), Input::get('signature')))->script();
     }
