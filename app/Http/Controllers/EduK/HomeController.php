@@ -5,6 +5,7 @@ namespace tcCore\Http\Controllers\EduK;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rules\In;
 use SoapHeader;
@@ -14,7 +15,9 @@ use tcCore\Http\Helpers\EduIxService;
 use tcCore\Http\Requests\CreateUserEduIxRequest;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Lib\User\Factory;
+use tcCore\SchoolLocation;
 use tcCore\User;
+use tcCore\UserRole;
 
 class HomeController extends Controller
 {
@@ -37,9 +40,20 @@ class HomeController extends Controller
      */
     public function store(CreateUserEduIxRequest $request)
     {
-        $userFactory = new Factory(new User());
+        $service = new EduIxService(
+            request('session_id'),
+            request('edu_ix_signature')
+        );
 
-        $user = $userFactory->generate($request->all());
+
+        $userFactory = new Factory(new User());
+        $user = $userFactory->generate(array_merge(
+            $request->all(), [
+                'school_location_id' =>  SchoolLocation::where('edu_ix_organisation_id', $service->getHomeOrganizationId())->first()->getKey(),
+                'user_roles' => 3,
+            ])
+        );
+
         if ($user !== false) {
             return Response::make($user, 200);
         } else {

@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Requests;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Validator;
 use tcCore\EanCode;
 use tcCore\Http\Helpers\EduIxService;
@@ -9,19 +10,7 @@ use tcCore\User;
 class CreateUserEduIxRequest extends Request
 {
 
-    /**
-     * @var EduIxService
-     */
     private $service;
-
-    public function __construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
-    {
-        parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
-        $this->service = new EduIxService(
-            request('session_id'),
-            request('signature')
-        );
-    }
 
     /**
      * Determine if the user is authorized to make this request.
@@ -52,7 +41,9 @@ class CreateUserEduIxRequest extends Request
             'api_key'          => '',
             'external_id'      => '',
             'gender'           => '',
-            'abbreviation'     => ''
+            'abbreviation'     => '',
+            'session_id'       => '',
+            'edu_ix_signature' => '',
         ];
     }
 
@@ -93,19 +84,18 @@ class CreateUserEduIxRequest extends Request
      */
     public function withValidator($validator)
     {
+        $this->initEduIxServiceOrAddError($validator);
+
         $validator->after(function ($validator) {
-
+            $this->checkDigiDeliveryId($validator);
             $this->checkEan($validator);
-
             $this->checkSchoolLocation($validator);
-
-
         });
     }
 
     private function checkSchoolLocation(Validator $validator)
     {
-        if (!SchoolLocation::where('edu_ix_organisation_id', $this->service->getHomeOrganizationId())) {
+        if (!SchoolLocation::where('edu_ix_organisation_id', $this->service->getHomeOrganizationId())->first()) {
             $validator->errors()->add('school', 'Deze school is kennen wij niet neem contact op met de helpdesk');
         }
     }
@@ -115,6 +105,30 @@ class CreateUserEduIxRequest extends Request
         if (!EanCode::where('ean', $this->service->getEan())->first()) {
             $validator->errors()->add('ean', 'De geassocieerde productcode kennen wij niet, neem contact op met de helpdesk');
         }
+    }
+
+    private function checkDigiDeliveryId($validator)
+    {
+//        if (!EduIxRegistation::valid($this->service->getDigiDeliveryId())) {
+//            $validator->erros()->add('digi_delivery_id', 'Deze licentie is reeds in gebruik');
+//        }
+    }
+
+    /**
+     * @param $validator
+     */
+    private function initEduIxServiceOrAddError($validator): void
+    {
+
+        try {
+            $this->service = new EduIxService(
+                request('session_id'),
+                request('edu_ix_signature')
+            );
+        } catch (Exception $e) {
+            $validator->errors()->add('edu_ix_organisation_id', $e->getMessage());
+        }
+        Log::info('no Error in EduixServiceFromRequest');
     }
 
 }

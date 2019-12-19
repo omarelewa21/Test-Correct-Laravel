@@ -166,4 +166,9 @@ class EduIxService
     {
         return $this->getPersonCredit()->personCreditInformation->personCredit->ean;
     }
+
+//    public function getDigiDeliveryId()
+//    {
+//        return $this->getPersonCredit()->personCreditInformation->personCredit->digiDeliveryID;
+//    }
 }

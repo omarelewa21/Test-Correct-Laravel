@@ -13,7 +13,7 @@ class EduIxServiceTest extends TestCase
 
 
     /** @test */
-    public function is_can_return_a_ean_code()
+    public function is_can_return_a_ean()
     {
         $this->assertEquals(
             '9999999999444',
@@ -22,7 +22,16 @@ class EduIxServiceTest extends TestCase
     }
 
     /** @test */
-    public function is_can_return_a_home_organisation_code()
+    public function is_can_return_a_digi_delivery_id()
+    {
+        $this->assertEquals(
+            '97889c33-18c4-47a8-94ae-37f741fc19ab',
+            $this->service->getDigiDeliveryId()
+        );
+    }
+
+    /** @test */
+    public function is_can_return_a_home_organisation_id()
     {
         $this->assertEquals(
             '35ZZ',
