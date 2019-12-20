@@ -13,7 +13,7 @@ use Tests\TestCase;
 
 class HomeControllerTest extends TestCase
 {
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
     private $ean = '9999999999444';
     private $sessionId = '1tcts328-i7og-ihri-d7ch-o62jhk0oha2f';
@@ -33,6 +33,10 @@ class HomeControllerTest extends TestCase
     /** @test */
     public function valid_params_should_lead_to_a_user_entry()
     {
+        EanCode::create([
+            'ean'         => $this->ean,
+            'description' => 'lorem',
+        ]);
         $this->assertCount(
             0,
             User::whereUsername('123@edu-ix.nl')->get()
@@ -58,19 +62,18 @@ class HomeControllerTest extends TestCase
 
         $this->assertResponseHasError($response, 'password');
     }
-    
+
     /** @test */
     public function when_digi_deliver_id_already_used_it_should_throw_an_error()
     {
-        $response = $this->getTestResponse($this->validAttributes());
+        $this->getTestResponse($this->validAttributes());
+        $response = $this->getTestResponse($this->validAttributes(['username' => 'jtestDummy@test.nl']));
 
-        try{
-            $response = $this->getTestResponse($this->validAttributes());
-        } catch(DigiDeliveryIdException $e) {
-            $this->assertTrue(true);
-        }
-
-        $this->assertTrue(false);
+        $this->assertEquals(
+            "Failed to create user",
+            $response->getContent()
+        );
+        $response->assertStatus(500);
     }
 
     /** @test */
@@ -251,7 +254,7 @@ class HomeControllerTest extends TestCase
             $this->assertArrayHasKey($field, $arr['errors']);
             return;
         }
-        $this->assertFalse();
+        $this->assertFalse(true);
     }
 
     private function assertResponseHasNoError(\Illuminate\Foundation\Testing\TestResponse $response, string $field)
@@ -261,7 +264,7 @@ class HomeControllerTest extends TestCase
             $this->assertArrayNotHasKey($field, $arr['errors']);
             return;
         }
-        $this->assertTrue();
+        $this->assertTrue(true);
     }
 
     /**

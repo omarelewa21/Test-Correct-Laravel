@@ -148,7 +148,7 @@ class EduIxService
         $this->header = new SoapHeader(self::EDUROUTEV4_NAMESPACE_PROFILE, 'authHeader', $headerObj, false);
     }
 
-    private function getDigiDeliveryID()
+    public function getDigiDeliveryID()
     {
         if (!$this->digiDeliveryID) {
             $this->getEduProfile();
@@ -167,8 +167,14 @@ class EduIxService
         return $this->getPersonCredit()->personCreditInformation->personCredit->ean;
     }
 
-//    public function getDigiDeliveryId()
-//    {
-//        return $this->getPersonCredit()->personCreditInformation->personCredit->digiDeliveryID;
-//    }
+    public function asJson()
+    {
+        return json_encode([
+            'eduProfile' => $this->getEduProfile(),
+            'personCredit' => $this->getPersonCredit(),
+            'school_credit' => $this->getSchoolCredit(),
+        ]);
+    }
+
+
 }

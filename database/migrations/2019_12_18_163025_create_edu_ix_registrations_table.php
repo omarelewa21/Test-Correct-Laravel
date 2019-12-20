@@ -16,7 +16,6 @@ class CreateEduIxRegistrationsTable extends Migration
         Schema::create('edu_ix_registrations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('digi_delivery_id');
-            $table->boolean('completed')->default(false);
             $table->text('json')->nullable();
             $table->bigInteger('user_id')->nullable();
             $table->timestamps();
