@@ -211,4 +211,19 @@ return [
         'Excel'        => Maatwebsite\Excel\Facades\Excel::class
 
     ],
+    'debug_blacklist' => [
+        '_ENV' => [
+            'APP_KEY',
+            'DB_PASSWORD',
+        ],
+
+        '_SERVER' => [
+            'APP_KEY',
+            'DB_PASSWORD',
+        ],
+
+        '_POST' => [
+            'password',
+        ],
+    ],
 ];
