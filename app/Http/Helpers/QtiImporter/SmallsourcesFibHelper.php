@@ -66,8 +66,7 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
 
         $list = $this->everything_in_tags('select',$question);
         if(count($list) > 0) {
-
-            if(is_array($_answerBlocks)){
+            if(is_array($_answerBlocks) || is_object($_answerBlocks)){
                 foreach ($_answerBlocks as $answerBlock) {
                     $id = (string)$answerBlock['id'];
                     $tags[] = $id;
@@ -106,7 +105,18 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
             if(substr($question,0,1) != '<'){
                 $question = sprintf('<div>%s</div>',$question);
             }
-            $dom->loadXML($question);
+            try {
+                $dom->loadHTML($question, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); // sometimes loadhtml doesn't work and we need loadxml therefor this construction
+            }
+            catch(\Exception $e){
+                try {
+                    $dom->loadXML($question);
+                }
+                catch (\Exception $e){
+                    throw new \Exception($e);
+                }
+            }
+//            $dom->loadXML($question);//HTML($question, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             $list = $dom->getElementsByTagName('input');
             for($n=$list->length-1;$n>=0;--$n){
                 $nr = $n+1;

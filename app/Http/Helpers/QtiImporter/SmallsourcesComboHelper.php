@@ -97,7 +97,7 @@ class SmallsourcesComboHelper extends QtiBaseQuestionHelper
             if(substr($question,0,1) != '<'){
                 $question = sprintf('<div>%s</div>',$question);
             }
-            $dom->loadXML($question);
+            $dom->loadHTML($question, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             $list = $dom->getElementsByTagName('select');
             for($n=$list->length-1;$n>=0;--$n){
                 $nr = $n+1;

@@ -125,10 +125,10 @@ class QtiImportController extends Controller
             //        $storageDir = $dir = sprintf('%s/%s/uploads', $this->basePath, $this->dateStamp);
 
             $this->checkZipFile(sprintf('%s/%s/%s', $this->basePath, $startDir,$fileName), $startDir,true);
-            $return .= implode('',$this->response);
+            $return .= implode('',$this->responseAr);
         }catch(\Exception $e){
             $logEnd = sprintf('----END %s END----',$this->logRef);
-            Log::error($logEnd);
+            $this->addToLog($logEnd);
             $this->logAr[] = $logEnd;
 
             $return .= $e->getMessage();
