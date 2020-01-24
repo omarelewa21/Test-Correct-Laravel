@@ -249,6 +249,10 @@ class QtiImportController extends Controller
                     $this->afterCheck();
                 }
             }
+            else{
+                $this->addToLog(sprintf('No valid wintoets.xml file found'));
+                throw new \Exception('No wintoets.xml file found');
+            }
         }
 
 
