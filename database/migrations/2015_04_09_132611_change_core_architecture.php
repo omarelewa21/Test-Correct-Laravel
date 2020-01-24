@@ -854,7 +854,19 @@ CHANGE COLUMN `decimal_score` `decimal_score` TINYINT(1) NULL DEFAULT NULL ;');
 		$rankingQuestionAnswers = DB::table('ranking_question_answers')->get();
 		foreach($rankingQuestionAnswers as $rankingQuestionAnswer) {
 			DB::table('ranking_question_answer_links')->insertGetId(
-				['created_at' => $rankingQuestionAnswer->created_at, 'updated_at' => $rankingQuestionAnswer->updated_at, 'deleted_at' => $rankingQuestionAnswer->deleted_at, 'order' => ($rankingQuestionAnswer->order !== null) ? $rankingQuestionAnswer->order : 0, 'correct_order' => ($rankingQuestionAnswer->correct_order !== null) ? $rankingQuestionAnswer->correct_order : ($rankingQuestionAnswer->order !== null) ? $rankingQuestionAnswer->order : 0, 'ranking_question_id' => $rankingQuestionAnswer->ranking_question_id, 'ranking_question_answer_id' => $rankingQuestionAnswer->id]
+				[
+				    'created_at' => $rankingQuestionAnswer->created_at,
+                    'updated_at' => $rankingQuestionAnswer->updated_at,
+                    'deleted_at' => $rankingQuestionAnswer->deleted_at,
+                    'order' => ($rankingQuestionAnswer->order !== null) ? $rankingQuestionAnswer->order : 0,
+                    'correct_order' => ($rankingQuestionAnswer->correct_order !== null)
+                        ? $rankingQuestionAnswer->correct_order
+                        : (($rankingQuestionAnswer->order !== null)
+                            ? $rankingQuestionAnswer->order
+                            : 0),
+                    'ranking_question_id' => $rankingQuestionAnswer->ranking_question_id,
+                    'ranking_question_answer_id' => $rankingQuestionAnswer->id
+                ]
 			);
 		}
 
