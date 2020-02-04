@@ -9,9 +9,19 @@ class ChangeWiskundeQuestionToLongOpenQuestion extends Migration
 {
     protected $tagName = 'voorheen-wiskunde-vraag';
 
-    protected function getTag()
+    protected $extraTagName = 'wiskunde';
+
+    protected function getTag($tagName = null)
     {
-     return \tcCore\Tag::where('name',$this->tagName)->first();
+        if($tagName === null){
+            $tagName = $this->tagName;
+        }
+        return \tcCore\Tag::where('name',$tagName)->first();
+    }
+
+    protected function getExtraTag()
+    {
+        return $this->getTag($this->extraTagName);
     }
     /**
      * Run the migrations.
@@ -27,17 +37,35 @@ class ChangeWiskundeQuestionToLongOpenQuestion extends Migration
             ]);
         }
 
+        if(!$extraTag = $this->getExtraTag()){
+            $extraTag = \tcCore\Tag::create([
+                'name' => $this->extraTagName
+            ]);
+        }
+
         $wiskundeQuestions = \tcCore\OpenQuestion::where('subtype','long')->get();
 
         // add tags to wiskunde questions
-        $wiskundeQuestions->each(function(OpenQuestion $q) use ($tag){
-           $q->tags()->save($tag);
-           $q->subtype = 'Long';
-           $q->save();
+        $wiskundeQuestions->each(function(OpenQuestion $q) use ($tag, $extraTag){
+            if(!$this->questionHasTag($q,$tag)) {
+                $q->tags()->save($tag);
+            }
+            if(!$this->questionHasTag($q,$extraTag)){
+                $q->tags()->save($extraTag);
+            }
+            $q->subtype = 'Long';
+            $q->save();
+
         });
 
         // change subtype of all other medium questions to Long
         \tcCore\OpenQuestion::where('subtype','medium')->update(['subtype' => 'long']);
+    }
+
+    protected function questionHasTag(OpenQuestion $question, $tag){
+        return (bool) $question->tags->first(function($t) use ($tag){
+           return $t->id === $tag->id;
+        });
     }
 
     /**
