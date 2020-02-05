@@ -15,7 +15,8 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\TestParticipant\Factory;
 
-class TestTake extends BaseModel {
+class TestTake extends BaseModel
+{
 
     use SoftDeletes;
 
@@ -38,7 +39,7 @@ class TestTake extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type','is_rtti_test_take', 'exported_to_rtti'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -62,8 +63,7 @@ class TestTake extends BaseModel {
         parent::boot();
 
         // Progress additional answers
-        static::saving(function(TestTake $testTake)
-        {
+        static::saving(function (TestTake $testTake) {
             $test = $testTake->test;
             if ($test === null) {
                 return false;
@@ -72,7 +72,7 @@ class TestTake extends BaseModel {
             if ($test->getAttribute('is_system_test') == 0) {
                 $systemTestId = $test->getAttribute('system_test_id');
                 if (empty($systemTestId)) {
-                    $systemTest = $test->duplicate(['system_test_id' => $test->getKey()], null, function(Test $systemTest) use ($test) {
+                    $systemTest = $test->duplicate(['system_test_id' => $test->getKey()], null, function (Test $systemTest) use ($test) {
                         $systemTest->setAttribute('is_system_test', 1);
                     });
                     $systemTestId = $systemTest->getKey();
@@ -89,8 +89,7 @@ class TestTake extends BaseModel {
             return true;
         });
 
-        static::saved(function(TestTake $testTake)
-        {
+        static::saved(function (TestTake $testTake) {
             $originalTestTakeStatus = TestTakeStatus::find($testTake->getOriginal('test_take_status_id'));
 
             if ($testTake->invigilators !== null) {
@@ -159,7 +158,7 @@ class TestTake extends BaseModel {
                         }
                     }
                 }
-                
+
                 $testTakeEvent = new TestTakeEvent();
                 $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Stop')->value('id'));
 
@@ -195,7 +194,7 @@ class TestTake extends BaseModel {
             }
 
             if (($testTake->testTakeStatus->name === 'Discussing' && $testTake->getAttribute('discussing_question_id') != $testTake->getOriginal('discussing_question_id'))
-                || ($testTake->testTakeStatus->name === 'Discussed' &&  $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id'))) {
+                || ($testTake->testTakeStatus->name === 'Discussed' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id'))) {
                 $inactiveTestParticipant = [];
                 $testTakeDiscussedStatus = TestTakeStatus::where('name', 'Discussing')->value('id');
                 foreach ($testTake->testParticipants as $testParticipant) {
@@ -204,7 +203,7 @@ class TestTake extends BaseModel {
                     }
 
                 }
-                AnswerRating::where('test_take_id', $testTake->getKey())->whereIn('answer_id', function($query) use ($testTake) {
+                AnswerRating::where('test_take_id', $testTake->getKey())->whereIn('answer_id', function ($query) use ($testTake) {
                     $answer = new Answer();
                     $query->select('id')->from($answer->getTable())->where('question_id', $testTake->getOriginal('discussing_question_id'));
                 })->whereIn('user_id', $inactiveTestParticipant)->where('type', 'STUDENT')->whereNull('rating')->delete();
@@ -228,18 +227,18 @@ class TestTake extends BaseModel {
             }
 
             if ((($testTake->testTakeStatus->name === 'Taken' || $testTake->testTakeStatus->name === 'Discussing' || $testTake->testTakeStatus->name === 'Discussed' || $testTake->testTakeStatus->name === 'Rated')
-                && ($originalTestTakeStatus === null || $originalTestTakeStatus->name === 'Planned' || $originalTestTakeStatus->name === 'Taking test' || $originalTestTakeStatus->name === 'Taken'))
+                    && ($originalTestTakeStatus === null || $originalTestTakeStatus->name === 'Planned' || $originalTestTakeStatus->name === 'Taking test' || $originalTestTakeStatus->name === 'Taken'))
                 || (($testTake->testTakeStatus->name === 'Planned' || $testTake->testTakeStatus->name === 'Taking test' || $testTake->testTakeStatus->name === 'Taken')
                     && ($originalTestTakeStatus === null || $originalTestTakeStatus->name === 'Taken' || $originalTestTakeStatus->name === 'Discussing' || $originalTestTakeStatus->name === 'Discussed' || $originalTestTakeStatus->name === 'Rated'))) {
                 $schoolClassIds = $testTake->testParticipants()->distinct()->pluck('school_class_id');
                 $subjectId = $testTake->test->getAttribute('subject_id');
 
-                $users = User::whereIn('id', function ($query) use($schoolClassIds, $subjectId) {
+                $users = User::whereIn('id', function ($query) use ($schoolClassIds, $subjectId) {
                     $teacher = new Teacher();
                     $query->select('user_id')->from($teacher->getTable())->where('subject_id', $subjectId)->whereIn('class_id', $schoolClassIds);
                 })->get();
 
-                foreach($users as $user) {
+                foreach ($users as $user) {
                     Queue::push(new CountTeacherTestTaken($user));
                     Queue::push(new CountTeacherLastTestTaken($user));
                 }
@@ -253,19 +252,18 @@ class TestTake extends BaseModel {
                 $schoolClassIds = $testTake->testParticipants()->distinct()->pluck('school_class_id');
                 $subjectId = $testTake->test->getAttribute('subject_id');
 
-                $users = User::whereIn('id', function ($query) use($schoolClassIds, $subjectId) {
+                $users = User::whereIn('id', function ($query) use ($schoolClassIds, $subjectId) {
                     $teacher = new Teacher();
                     $query->select('user_id')->from($teacher->getTable())->where('subject_id', $subjectId)->whereIn('class_id', $schoolClassIds);
                 })->get();
 
-                foreach($users as $user) {
+                foreach ($users as $user) {
                     Queue::push(new CountTeacherTestDiscussed($user));
                 }
             }
         });
 
-        static::created(function(TestTake $testTake)
-        {
+        static::created(function (TestTake $testTake) {
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
             }
@@ -273,16 +271,16 @@ class TestTake extends BaseModel {
             Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
         });
 
-        static::deleted(function(TestTake $testTake) {
+        static::deleted(function (TestTake $testTake) {
             $schoolClassIds = $testTake->testParticipants()->distinct()->pluck('school_class_id');
             $subjectId = $testTake->test->getAttribute('subject_id');
 
-            $users = User::whereIn('id', function ($query) use($schoolClassIds, $subjectId) {
+            $users = User::whereIn('id', function ($query) use ($schoolClassIds, $subjectId) {
                 $teacher = new Teacher();
                 $query->select('user_id')->from($teacher->getTable())->where('subject_id', $subjectId)->whereIn('class_id', $schoolClassIds);
             })->get();
 
-            foreach($users as $user) {
+            foreach ($users as $user) {
                 Queue::push(new CountTeacherTestTaken($user));
                 Queue::push(new CountTeacherTestDiscussed($user));
                 Queue::push(new CountTeacherLastTestTaken($user));
@@ -290,47 +288,58 @@ class TestTake extends BaseModel {
         });
     }
 
-    public function test() {
+    public function test()
+    {
         return $this->belongsTo('tcCore\Test');
     }
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo('tcCore\User');
     }
 
-    public function retakeTestTake() {
+    public function retakeTestTake()
+    {
         return $this->belongsTo('tcCore\TestTake', 'retake_test_take_id');
     }
 
-    public function testTakeStatus() {
+    public function testTakeStatus()
+    {
         return $this->belongsTo('tcCore\TestTakeStatus');
     }
 
-    public function testTakeEvents() {
+    public function testTakeEvents()
+    {
         return $this->hasMany('tcCore\TestTakeEvent');
     }
 
-    public function period() {
+    public function period()
+    {
         return $this->belongsTo('tcCore\Period');
     }
 
-    public function discussingQuestion() {
+    public function discussingQuestion()
+    {
         return $this->belongsTo('tcCore\Question', 'discussing_question_id');
     }
 
-    public function discussingParentQuestions() {
+    public function discussingParentQuestions()
+    {
         return $this->hasMany('tcCore\DiscussingParentQuestion', 'test_take_id');
     }
 
-    public function testParticipants() {
+    public function testParticipants()
+    {
         return $this->hasMany('tcCore\TestParticipant');
     }
 
-    public function testRatings() {
+    public function testRatings()
+    {
         return $this->hasMany('tcCore\TestRating');
     }
 
-    public function schoolClasses() {
+    public function schoolClasses()
+    {
         $id = $this->getKey();
         return SchoolClass::select()->whereIn('id', function ($query) use ($id) {
             $query->select('school_class_id')
@@ -340,37 +349,42 @@ class TestTake extends BaseModel {
         });
     }
 
-    public function invigilators() {
+    public function invigilators()
+    {
         return $this->hasMany('tcCore\Invigilator');
     }
 
-    public function invigilatorUsers() {
+    public function invigilatorUsers()
+    {
         return $this->belongsToMany('tcCore\User', 'invigilators')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
-    public function fill(array $attributes) {
+    public function fill(array $attributes)
+    {
         parent::fill($attributes);
 
-        if(array_key_exists('invigilators', $attributes)) {
+        if (array_key_exists('invigilators', $attributes)) {
             $this->invigilators = $attributes['invigilators'];
         }
 
-        if(array_key_exists('school_classes', $attributes)) {
+        if (array_key_exists('school_classes', $attributes)) {
             $this->schoolClasses = $attributes['school_classes'];
         }
     }
 
-    private function saveInvigilators() {
+    private function saveInvigilators()
+    {
         $invigilators = $this->invigilators()->withTrashed()->get();
 
-        $this->syncTcRelation($invigilators, $this->invigilators, 'user_id', function($takeTake, $invigilator) {
+        $this->syncTcRelation($invigilators, $this->invigilators, 'user_id', function ($takeTake, $invigilator) {
             Invigilator::create(['user_id' => $invigilator, 'test_take_id' => $takeTake->getKey()]);
         });
 
         $this->invigilators = null;
     }
 
-    public function saveSchoolClassTestTakeParticipants() {
+    public function saveSchoolClassTestTakeParticipants()
+    {
         $testTakeParticipantFactory = new Factory(new TestParticipant());
         $testParticipants = $testTakeParticipantFactory->generateMany($this->getKey(), ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
 
@@ -381,10 +395,9 @@ class TestTake extends BaseModel {
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = $this->getUserRoles();
-
+/** todo: uitzoeken waar het scenario en Teacher en Student overgaat */
         if (in_array('Teacher', $roles) && in_array('Student', $roles)) {
-            $query->where(function($query)
-            {
+            $query->where(function ($query) {
                 $query->whereIn('test_id', function ($query) {
                     $query->select('id')
                         ->from(with(new Test())->getTable())
@@ -392,32 +405,41 @@ class TestTake extends BaseModel {
                         ->where('deleted_at', null);
                 })
                     ->orWhere('user_id', Auth::id())
-                    ->orWhereIn($this->getTable().'.id', function ($query) {
-                    $query->select('test_take_id')
-                        ->from(with(new TestParticipant())->getTable())
-                        ->where('user_id', Auth::id())
-                        ->where('deleted_at', null);
-                });
-            });
-        } elseif (in_array('Teacher', $roles)) {
-            $query->where(function($query)
-            {
-                $query->whereIn('test_id', function ($query) {
-                    $query->select('id')
-                        ->from(with(new Test())->getTable())
-                        ->where('user_id', Auth::id())
-                        ->where('deleted_at', null);
-                })
-                    ->orWhere('user_id', Auth::id())
-                    ->orWhereIn($this->getTable().'.id', function ($query) {
+                    ->orWhereIn($this->getTable() . '.id', function ($query) {
                         $query->select('test_take_id')
-                            ->from(with(new Invigilator())->getTable())
+                            ->from(with(new TestParticipant())->getTable())
                             ->where('user_id', Auth::id())
                             ->where('deleted_at', null);
                     });
             });
+        } elseif (in_array('Teacher', $roles)) {
+            $query->where(function ($query) {
+                $query->whereIn('test_id', function ($query) {
+                    $query->select('id')
+                        ->from(with(new Test())->getTable())
+                        ->where('user_id', Auth::id())
+                        ->where('deleted_at', null);
+                })
+                ->orWhere('user_id', Auth::id())
+                ->orWhereIn($this->getTable() . '.id', function ($query) {
+                    $query->select('test_take_id')
+                        ->from(with(new Invigilator())->getTable())
+                        ->where('user_id', Auth::id())
+                        ->where('deleted_at', null);
+                })
+                ->orWhereIn($this->getTable() . '.id', function ($query) {
+                    $query->select('test_take_id')
+                        ->from(with(new TestParticipant())->getTable())
+                        ->whereIn('school_class_id', function ($query) {
+                            $query->select('class_id')
+                                ->from(with((new Teacher)->getTable()))
+                                ->where('user_id', Auth::id());
+                        });
+                });
+
+            });
         } elseif (in_array('Student', $roles)) {
-            $query->whereIn($this->getTable().'.id', function ($query) {
+            $query->whereIn($this->getTable() . '.id', function ($query) {
                 $query->select('test_take_id')
                     ->from(with(new TestParticipant())->getTable())
                     ->where('user_id', Auth::id())
@@ -426,12 +448,12 @@ class TestTake extends BaseModel {
         }
 
         $testTable = with(new Test())->getTable();
-        $query->select($this->getTable().'.*')
-            ->join($testTable, $testTable.'.id', '=', $this->getTable().'.test_id')
-            ->where($testTable.'.'.with(new Test())->getDeletedAtColumn(), null);
+        $query->select($this->getTable() . '.*')
+            ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id');
+           // ->where($testTable . '.' . with(new Test())->getDeletedAtColumn(), null);
 
-        foreach($filters as $key => $value) {
-            switch($key) {
+        foreach ($filters as $key => $value) {
+            switch ($key) {
                 case 'user_id':
                     if (is_array($value)) {
                         $query->whereIn('user_id', $value);
@@ -446,23 +468,24 @@ class TestTake extends BaseModel {
                         $query->where('test_id', '=', $value);
                     }
                     break;
-                case 'invigilator_id':
-                    $query->whereIn($this->getTable().'.id', function ($query) use ($value) {
-                        $query->select('test_take_id')
-                            ->from(with(new Invigilator())->getTable())
-                            ->where('deleted_at', null);
-                        if (is_array($value)) {
-                            $query->whereIn('user_id', $value);
-                        } else {
-                            $query->where('user_id', '=', $value);
-                        }
-                    });
-                    break;
+                    // 5 feb 2020 TODO: als je dit vindt een maand na deze datum dan blokje verwijderen. uitgezet omdat scopeFiltered gebruikt wordt voor toets overzichten en je niet perse surveillant hoeft te zijn om een toets te kunnen openen, gegeven een bepaalde test_take_status.
+//                case 'invigilator_id':
+//                    $query->whereIn($this->getTable() . '.id', function ($query) use ($value) {
+//                        $query->select('test_take_id')
+//                            ->from(with(new Invigilator())->getTable())
+//                            ->where('deleted_at', null);
+//                        if (is_array($value)) {
+//                            $query->whereIn('user_id', $value);
+//                        } else {
+//                            $query->where('user_id', '=', $value);
+//                        }
+//                    });
+//                    break;
                 case 'period_id':
                     if (is_array($value)) {
-                        $query->whereIn($this->getTable().'.period_id', $value);
+                        $query->whereIn($this->getTable() . '.period_id', $value);
                     } else {
-                        $query->where($this->getTable().'.period_id', '=', $value);
+                        $query->where($this->getTable() . '.period_id', '=', $value);
                     }
                     break;
                 case 'retake':
@@ -514,7 +537,7 @@ class TestTake extends BaseModel {
                         $values['started_to'] = $filters['started_to'];
                         if ($key !== 'started_to') {
                             unset($filters['started_to']);
-                            }
+                        }
                     }
 
                     $query->whereIn($this->getKeyName(), function ($query) use ($values) {
@@ -562,13 +585,13 @@ class TestTake extends BaseModel {
                     break;
                 case 'school_class_id':
                     if (is_array($value)) {
-                        $query->whereIn($this->getTable().'.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->pluck('test_take_id'));
+                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereIn('school_class_id', $value)->distinct()->pluck('test_take_id'));
                     } else {
-                        $query->whereIn($this->getTable().'.id', TestParticipant::where('school_class_id', $value)->distinct()->pluck('test_take_id'));
+                        $query->whereIn($this->getTable() . '.id', TestParticipant::where('school_class_id', $value)->distinct()->pluck('test_take_id'));
                     }
                     break;
                 case 'location':
-                    $query->where('location', 'LIKE', '%'.$value.'%');
+                    $query->where('location', 'LIKE', '%' . $value . '%');
                     break;
                 case 'weight':
                     $query->where('weight', '=', $value);
@@ -577,7 +600,7 @@ class TestTake extends BaseModel {
         }
 
         //Todo: More sorting
-        foreach($sorting as $key => $value) {
+        foreach ($sorting as $key => $value) {
             switch (strtolower($value)) {
                 case 'id':
                 case 'user_id':

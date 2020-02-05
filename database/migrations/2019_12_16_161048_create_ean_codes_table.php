@@ -13,12 +13,12 @@ class CreateEanCodesTable extends Migration
      */
     public function up()
     {
-//        Schema::create('ean_codes', function (Blueprint $table) {
-//            $table->bigIncrements('id');
-//            $table->string('ean');
-//            $table->text('description')->nullable();
-//            $table->timestamps();
-//        });
+        Schema::create('ean_codes', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('ean');
+            $table->text('description')->nullable();
+            $table->timestamps();
+        });
     }
 
     /**

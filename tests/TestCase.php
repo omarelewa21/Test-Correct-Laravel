@@ -161,12 +161,12 @@ abstract class TestCase extends BaseTestCase
         // example:
         // phpunit UserControllerTest tests/Feature/UserControllerTest.php --filter _ ignoredb
         // underscore as that is a common character in all the tests except for single word tests which we don't have
-        if (!static::$setUpRun) {
-            if (!(array_key_exists(5, $argv) && $argv[5] == 'ignoredb')) {
-                $this->artisan('test:refreshdb');
-                static::$setUpRun = true;
-            }
-        }
+//        if (!static::$setUpRun) {
+//            if (!(array_key_exists(5, $argv) && $argv[5] == 'ignoredb')) {
+//                $this->artisan('test:refreshdb');
+//                static::$setUpRun = true;
+//            }
+//        }
     }
 
     protected function toetsActiveren($id) {

@@ -401,9 +401,9 @@ class TestTakesTest extends TestCase
             "select `test_takes`.* from `test_takes` inner join `tests` on `tests`.`id` = `test_takes`.`test_id` where (`test_id` in (select `id` from `tests` where `user_id` = ? and `deleted_at` is null) or `user_id` = ? or `test_takes`.`id` in (select `test_take_id` from `invigilators` where `user_id` = ? and `deleted_at` is null)) and `tests`.`deleted_at` is null and `test_takes`.`id` in (?, ?, ?, ?, ?) and `test_take_status_id` in (?, ?, ?, ?) and `test_takes`.`deleted_at` is null order by `id` desc",
             $qb->toSql()
         );
-
-
     }
+
+
 
 
 }
