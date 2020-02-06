@@ -56,10 +56,10 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
     }
 
     public function canCheckAnswer() {
-        return false;
+        return true;
     }
 
     public function checkAnswer($answer) {
-        return false;
+        return 0;
     }
 }
