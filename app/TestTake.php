@@ -362,7 +362,7 @@ class TestTake extends BaseModel
 
     public function isAllowedToView(User $userToCheck) {
 
-        $value = DB::raw('select
+        $value = count(DB::select("select
         `test_take_id`
       from
         `test_participants`
@@ -373,10 +373,10 @@ class TestTake extends BaseModel
           from
             `teachers`
           where
-            `user_id` = ?
-        ) and test_take.id = ?',
-            [$userToCheck->getKey(), $this->getKey()]
-        )->count();
+            `user_id` = :userId
+        ) and test_take_id = :testTakeId",
+            ['userId' => $userToCheck->getKey(), 'testTakeId' => $this->getKey()]
+        ));
 
         return $value > 0 || $this->isInvigilator($userToCheck);
     }
