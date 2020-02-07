@@ -166,13 +166,7 @@ class TestTakesController extends Controller {
 		$roles = $this->getUserRoles();
 
 		if (in_array('Teacher', $roles) || in_array('Invigilator', $roles)) {
-			foreach ($testTake->invigilatorUsers as $user) {
-				if ($user->getKey() == Auth::id()) {
-					$isInvigilator = true;
-                    $pdo = DB::connection()->getPdo()->exec('SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED');
-					break;
-				}
-			}
+		    $isInvigilator = $testTake->isAllowedToView(Auth::user());
 		}
 
 		$ownTestParticipant = null;

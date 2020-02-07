@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use tcCore\Jobs\CountTeacherLastTestTaken;
@@ -359,6 +360,27 @@ class TestTake extends BaseModel
         return $this->belongsToMany('tcCore\User', 'invigilators')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
+    public function isAllowedToView(User $userToCheck) {
+
+        $value = DB::raw('select
+        `test_take_id`
+      from
+        `test_participants`
+      where
+        `school_class_id` in (
+            select
+            `class_id`
+          from
+            `teachers`
+          where
+            `user_id` = ?
+        ) and test_take.id = ?',
+            [$userToCheck->getKey(), $this->getKey()]
+        )->count();
+
+        return $value > 0 || $this->isInvigilator($userToCheck);
+    }
+
     public function fill(array $attributes)
     {
         parent::fill($attributes);
@@ -450,6 +472,7 @@ class TestTake extends BaseModel
         $testTable = with(new Test())->getTable();
         $query->select($this->getTable() . '.*')
             ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id');
+        // 20200207 MF t zou kunnen dat er een kopie van een test wordt gemaakt voordat een test_take wordt gescheduled maar dat weet ik niet zeker, maar any how het zou niet nodig hoeven zijn dat test niet deleted is.
            // ->where($testTable . '.' . with(new Test())->getDeletedAtColumn(), null);
 
         foreach ($filters as $key => $value) {
@@ -642,6 +665,23 @@ class TestTake extends BaseModel
         }
 
         return $query;
+    }
+
+    /**
+     * @param User $userToCheck
+     * @return bool
+     */
+    public function isInvigilator(User $userToCheck)
+    {
+        $allowed = false;
+        foreach ($this->invigilatorUsers as $user) {
+            if ($user->getKey() == $userToCheck->getKey()) {
+                $allowed = true;
+                $pdo = DB::connection()->getPdo()->exec('SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED');
+                break;
+            }
+        }
+        return $allowed;
     }
 
 }
