@@ -13,6 +13,7 @@ class CreateEduIxRegistrationsTable extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('edu_ix_registrations');
         Schema::create('edu_ix_registrations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('digi_delivery_id');

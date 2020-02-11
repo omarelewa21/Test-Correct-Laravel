@@ -360,7 +360,8 @@ class TestTake extends BaseModel
         return $this->belongsToMany('tcCore\User', 'invigilators')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
-    public function isAllowedToView(User $userToCheck) {
+    public function isAllowedToView(User $userToCheck)
+    {
 
         $value = count(DB::select("select
         `test_take_id`

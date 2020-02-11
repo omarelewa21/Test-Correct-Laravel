@@ -27,12 +27,7 @@ class UpdateTestTakeRequest extends Request {
 	 */
 	public function authorize()
 	{
-	    $authorized = false;
-        if($this->testTake->invigilatorUsers->contains('id',Auth::user()->getKey())){
-         $authorized = true;
-        }
-
-        return $authorized;
+        return $this->testTake->isAllowedToView(Auth::user());
 	}
 
 	/**

@@ -13,6 +13,7 @@ class CreateEanCodesTable extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('ean_codes');
         Schema::create('ean_codes', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('ean');
