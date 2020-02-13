@@ -28,12 +28,6 @@ Route::post('password_reset', ['uses' => 'Auth\PasswordController@passwordReset'
 Route::get('edu-ix/{ean}/{session_id}/{signature}', 'EduK\HomeController@create');
 Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController@store');
 
-if(config('app.env') != 'production') {
-    Route::post('/__testing__/refreshdb', 'TestingController@refreshdb');
-}
-
-
-
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 	// Tests + children
 	Route::post('test/{test}/duplicate', ['as' => 'test.duplicate', 'uses' => 'TestsController@duplicate']);
