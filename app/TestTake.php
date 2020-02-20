@@ -379,7 +379,7 @@ class TestTake extends BaseModel
             ['userId' => $userToCheck->getKey(), 'testTakeId' => $this->getKey()]
         ));
 
-        return $value > 0 || $this->isInvigilator($userToCheck);
+        return ($value > 0 && $userToCheck->hasAccessToTest($this->test)) || $this->isInvigilator($userToCheck);
     }
 
     public function fill(array $attributes)
