@@ -418,7 +418,7 @@ class TestTake extends BaseModel
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = $this->getUserRoles();
-/** todo: uitzoeken waar het scenario en Teacher en Student overgaat */
+        /** todo: uitzoeken waar het scenario en Teacher en Student overgaat */
         if (in_array('Teacher', $roles) && in_array('Student', $roles)) {
             $query->where(function ($query) {
                 $query->whereIn('test_id', function ($query) {
@@ -437,28 +437,45 @@ class TestTake extends BaseModel
             });
         } elseif (in_array('Teacher', $roles)) {
             $query->where(function ($query) {
-                $query->whereIn('test_id', function ($query) {
-                    $query->select('id')
-                        ->from(with(new Test())->getTable())
-                        ->where('user_id', Auth::id())
-                        ->where('deleted_at', null);
-                })
-                ->orWhere('user_id', Auth::id())
-                ->orWhereIn($this->getTable() . '.id', function ($query) {
-                    $query->select('test_take_id')
-                        ->from(with(new Invigilator())->getTable())
-                        ->where('user_id', Auth::id())
-                        ->where('deleted_at', null);
-                })
-                ->orWhereIn($this->getTable() . '.id', function ($query) {
-                    $query->select('test_take_id')
-                        ->from(with(new TestParticipant())->getTable())
-                        ->whereIn('school_class_id', function ($query) {
-                            $query->select('class_id')
-                                ->from(with((new Teacher)->getTable()))
-                                ->where('user_id', Auth::id());
-                        });
-                });
+                // 20200304 @CANBEDELETED
+                // -- ik ben de aanmaker van deze test
+                // op verzoek van Alex eruit gehaald in verband met uberhaupt verkeerde column name => is nu wel aangepast
+
+//                $query->whereIn('test_id', function ($query) {
+//                    $query->select('id')
+//                        ->from(with(new Test())->getTable())
+//                        ->where('author_id', Auth::id())
+//                        ->where('deleted_at', null);
+//                });
+                    // -- aanmaker van de test_take / inplanner
+                    $query->orWhere('user_id', Auth::id())
+                    // -- in de lijst met surveillanten
+                    ->orWhereIn($this->getTable() . '.id', function ($query) {
+                        $query->select('test_take_id')
+                            ->from(with(new Invigilator())->getTable())
+                            ->where('user_id', Auth::id())
+                            ->where('deleted_at', null);
+                    })
+                    // -- ik heb toegang tot de lesgroep/klas van leerlingen && ik heb een bijpassend subject id
+                    ->orWhereIn($this->getTable() . '.id', function ($query) {
+                        $query->select('test_take_id')
+                            ->from(with(new TestParticipant())->getTable())
+                            ->whereIn('school_class_id', function ($query) {
+                                $query->select('class_id')
+                                    ->from(with((new Teacher)->getTable()))
+                                    ->where('user_id', Auth::id());
+                            })
+                            ->whereIn($this->getTable() . '.id', function ($query) {
+                                $testTable = with(new Test())->getTable();
+                                $query
+                                    ->select($this->getTable().'.id')
+                                    ->from($this->getTable())
+                                    ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
+                                    ->whereIn($testTable . '.subject_id', function ($query) {
+                                        $query->select('subject_id')->from(with((new Teacher)->getTable()))->where('user_id', Auth::id());
+                                    });
+                            });
+                    });
 
             });
         } elseif (in_array('Student', $roles)) {
@@ -474,7 +491,7 @@ class TestTake extends BaseModel
         $query->select($this->getTable() . '.*')
             ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id');
         // 20200207 MF t zou kunnen dat er een kopie van een test wordt gemaakt voordat een test_take wordt gescheduled maar dat weet ik niet zeker, maar any how het zou niet nodig hoeven zijn dat test niet deleted is.
-           // ->where($testTable . '.' . with(new Test())->getDeletedAtColumn(), null);
+        // ->where($testTable . '.' . with(new Test())->getDeletedAtColumn(), null);
 
         foreach ($filters as $key => $value) {
             switch ($key) {
@@ -492,7 +509,7 @@ class TestTake extends BaseModel
                         $query->where('test_id', '=', $value);
                     }
                     break;
-                    // 5 feb 2020 TODO: als je dit vindt een maand na deze datum dan blokje verwijderen. uitgezet omdat scopeFiltered gebruikt wordt voor toets overzichten en je niet perse surveillant hoeft te zijn om een toets te kunnen openen, gegeven een bepaalde test_take_status.
+                // 5 feb 2020 TODO: als je dit vindt een maand na deze datum dan blokje verwijderen. uitgezet omdat scopeFiltered gebruikt wordt voor toets overzichten en je niet perse surveillant hoeft te zijn om een toets te kunnen openen, gegeven een bepaalde test_take_status.
 //                case 'invigilator_id':
 //                    $query->whereIn($this->getTable() . '.id', function ($query) use ($value) {
 //                        $query->select('test_take_id')
