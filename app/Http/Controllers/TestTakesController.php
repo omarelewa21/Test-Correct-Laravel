@@ -167,6 +167,9 @@ class TestTakesController extends Controller {
 
 		if (in_array('Teacher', $roles) || in_array('Invigilator', $roles)) {
 		    $isInvigilator = $testTake->isAllowedToView(Auth::user());
+		    if (! $isInvigilator) {
+                return Response::make([], 403);
+            }
 		}
 
 		$ownTestParticipant = null;
