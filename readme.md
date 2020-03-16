@@ -13,3 +13,4 @@
 - #select count(*) as aantal, subjects.name as vak from test_takes inner join tests on tests.id = test_takes.test_id inner join subjects on subjects.id = tests.subject_id group by subject_id order by vak) as t group by vak order by vak # toetsafnames per vak
 - #select count(*) as aantal from (select count(*) as aantal from test_questions group by question_id) as t where t.aantal >=1 # vraagitems minimaal 1x gebruikt in toets
 
+
