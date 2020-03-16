@@ -368,13 +368,15 @@ class TestTake extends BaseModel
       from
         `test_participants`
       where
+        deleted_at is null AND
         `school_class_id` in (
             select
             `class_id`
           from
             `teachers`
           where
-            `user_id` = :userId
+            `user_id` = :userId AND 
+            deleted_at is null
         ) and test_take_id = :testTakeId",
             ['userId' => $userToCheck->getKey(), 'testTakeId' => $this->getKey()]
         ));
@@ -463,7 +465,8 @@ class TestTake extends BaseModel
                             ->whereIn('school_class_id', function ($query) {
                                 $query->select('class_id')
                                     ->from(with((new Teacher)->getTable()))
-                                    ->where('user_id', Auth::id());
+                                    ->where('user_id', Auth::id())
+                                    ->whereNull('deleted_at');
                             })
                             ->whereIn($this->getTable() . '.id', function ($query) {
                                 $testTable = with(new Test())->getTable();
@@ -472,7 +475,10 @@ class TestTake extends BaseModel
                                     ->from($this->getTable())
                                     ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
                                     ->whereIn($testTable . '.subject_id', function ($query) {
-                                        $query->select('subject_id')->from(with((new Teacher)->getTable()))->where('user_id', Auth::id());
+                                        $query->select('subject_id')
+                                            ->from(with((new Teacher)->getTable()))
+                                            ->where('user_id', Auth::id())
+                                            ->whereNull('deleted_at');
                                     });
                             });
                     });
