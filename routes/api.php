@@ -29,6 +29,7 @@ Route::get('edu-ix/{ean}/{session_id}/{signature}', 'EduK\HomeController@create'
 Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController@store');
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
+
 	// Tests + children
 	Route::post('test/{test}/duplicate', ['as' => 'test.duplicate', 'uses' => 'TestsController@duplicate']);
 	Route::resource('test', 'TestsController', ['except' => ['create', 'edit']]);
@@ -121,10 +122,13 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('test_kind', 'TestKindsController', ['except' => ['create', 'edit']]);
 
 	// Needed lookups
-	Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
-	Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
+    Route::post('/school_class/importStudents/{schoolLocation}/{schoolClass}','SchoolClassesStudentImportController@store');
 
-	Route::get('invigilator/list', ['as' => 'invigilator.list', 'uses' => 'InvigilatorsController@lists']);
+    Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
+    Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
+
+
+    Route::get('invigilator/list', ['as' => 'invigilator.list', 'uses' => 'InvigilatorsController@lists']);
 
 	Route::get('student', ['as' => 'student.index', 'uses' => 'StudentsController@index']);
 

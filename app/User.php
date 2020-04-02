@@ -1153,6 +1153,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		return sprintf('%s%d',str_random(85),$this->id);
 	}
 
+    public function isA($roleName){
+        return $this->hasRole($roleName,$this);
+    }
 
 	private $_hasRoleUser = null;
 	private $_hasRoleRoles = null;
@@ -1167,7 +1170,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $this->_hasRoleRoles = array_map('strtolower', Roles::getUserRoles($user));
             $this->_hasRoleUser = $user;
         }
-
         if(!is_array($roleName)){
             return (in_array(strtolower($roleName), $this->_hasRoleRoles));
         }
