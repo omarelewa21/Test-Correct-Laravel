@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Response;
 use tcCore\BaseSubject;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DestroyUserRequest;
+use tcCore\Http\Requests\UpdatePasswordForUserRequest;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\PValueRepository;
@@ -193,6 +194,28 @@ class UsersController extends Controller {
         }
     }
 
+    /**
+     * Update the specified user in storage.
+     *
+     * @param  User $user
+     * @param UpdateUserRequest $request
+     * @return Response
+     */
+    public function updatePasswordForUser(User $user, UpdatePasswordForUserRequest $request)
+    {
+
+        $user->fill($request->only('password'));
+
+        if ($request->filled('password')) {
+            $user->setAttribute('password', \Hash::make($request->get('password')));
+        }
+
+        if ($user->save()) {
+            return Response::make($user, 200);
+        } else {
+            return Response::make('Failed to update user', 500);
+        }
+    }
 
 	/**
 	 * Update the specified user in storage.
