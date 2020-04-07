@@ -15,13 +15,14 @@ use tcCore\Question;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 
-class Answers2019Controller extends Controller {
-
-    public function getAnswersStatusAndQuestions(TestParticipant $testParticipant, Request $request){
-        $answers = Answer::where('test_participant_id',$testParticipant->getKey())->orderBy('order')->get();
+class Answers2019Controller extends Controller
+{
+    public function getAnswersStatusAndQuestions(TestParticipant $testParticipant, Request $request)
+    {
+        $answers = Answer::where('test_participant_id', $testParticipant->getKey())->orderBy('order')->get();
         $questions = collect([]);
         $qh = new QuestionHelper();
-        $answers->each(function($answer) use ($questions,$qh){
+        $answers->each(function ($answer) use ($questions, $qh) {
             $questions->add($qh->getTotalQuestion($answer->question));
         });
         return Response::make([
@@ -30,7 +31,6 @@ class Answers2019Controller extends Controller {
             'participant_test_take_status_id' => $testParticipant->test_take_status_id,
         ],
             200);
-
     }
 
     /**
@@ -39,14 +39,14 @@ class Answers2019Controller extends Controller {
      * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function getAnswersAndStatus(TestParticipant $testParticipant, Request $request){
-        $answers = Answer::where('test_participant_id',$testParticipant->getKey())->orderBy('order')->get();
+    public function getAnswersAndStatus(TestParticipant $testParticipant, Request $request)
+    {
+        $answers = Answer::where('test_participant_id', $testParticipant->getKey())->orderBy('order')->get();
         return Response::make([
             'answers' => $answers,
             'participant_test_take_status_id' => $testParticipant->test_take_status_id,
         ],
             200);
-
     }
 
      /**
@@ -56,40 +56,41 @@ class Answers2019Controller extends Controller {
      * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function getAnswersStatusAndTestTake(TestParticipant $testParticipant, TestTake $testTake, Request $request){
-        $answers = Answer::where('test_participant_id',$testParticipant->getKey())->orderBy('order')->get();
+    public function getAnswersStatusAndTestTake(TestParticipant $testParticipant, TestTake $testTake, Request $request)
+    {
+        $answers = Answer::where('test_participant_id', $testParticipant->getKey())->orderBy('order')->get();
         return Response::make([
             'answers' => $answers,
             'test_take' => $testTake,
             'participant_test_take_status_id' => $testParticipant->test_take_status_id,
         ],
             200);
-
     }
 
-    public function showQuestionAndAnswer(TestParticipant $testParticipant, Question $question, Request $request){
-        $answer = Answer::where('test_participant_id',$testParticipant->getKey())
-                            ->where('question_id',$question->getKey())
-                            ->with('answerParentQuestions','Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments')
+    public function showQuestionAndAnswer(TestParticipant $testParticipant, Question $question, Request $request)
+    {
+        $answer = Answer::where('test_participant_id', $testParticipant->getKey())
+                            ->where('question_id', $question->getKey())
+                            ->with('answerParentQuestions', 'Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments')
                             ->first();
 
 //        if ($answer && $answer->question instanceof QuestionInterface) {
 //            $answer->question->loadRelated();
 //        }
 
-        $question->getQuestionInstance()->load(['attachments', 'attainments', 'authors', 'tags', 'pValue' => function($query) {
+        $question->getQuestionInstance()->load(['attachments', 'attainments', 'authors', 'tags', 'pValue' => function ($query) {
             $query->select('question_id', 'education_level_id', 'education_level_year', DB::raw('(SUM(score) / SUM(max_score)) as p_value'), DB::raw('count(1) as p_value_count'))->groupBy('education_level_id')->groupBy('education_level_year');
         }, 'pValue.educationLevel']);
 
-        if($question instanceof QuestionInterface) {
+        if ($question instanceof QuestionInterface) {
             $question->loadRelated();
         }
 
-        if($answer !== null){
+        if ($answer !== null) {
             // added as replacement of hearbeat input 20190830
-            $testParticipant->setAttribute('answer_id',$answer->getKey());
-            $testParticipant->setAttribute('heartbeat_at',Carbon::now());
-            if($request->has('ip_address')){
+            $testParticipant->setAttribute('answer_id', $answer->getKey());
+            $testParticipant->setAttribute('heartbeat_at', Carbon::now());
+            if ($request->has('ip_address')) {
                 $testParticipant->setAttribute('ip_address', $request->get('ip_address'));
             }
             $testParticipant->save();
@@ -103,38 +104,35 @@ class Answers2019Controller extends Controller {
 
     protected function hasNextQuestion(TestParticipant $testParticipant, $currentIndex)
     {
-        return $currentIndex+1 < Answer::where('test_participant_id',$testParticipant->getKey())->count();
-
+        return $currentIndex+1 < Answer::where('test_participant_id', $testParticipant->getKey())->count();
     }
 
-	/**
-	 * Update the specified answer in storage.
-	 *
-	 * @param  Answer $answer
-	 * @param UpdateAnswerRequest $request
-	 * @return Response
-	 */
-	public function update(TestParticipant $testParticipant, Answer $answer, UpdateAnswerRequest $request)
-	{
-
+    /**
+     * Update the specified answer in storage.
+     *
+     * @param  Answer $answer
+     * @param UpdateAnswerRequest $request
+     * @return Response
+     */
+    public function update(TestParticipant $testParticipant, Answer $answer, UpdateAnswerRequest $request)
+    {
         $question = Question::find($request->input('question_id'));
-        $question->getQuestionInstance()->load(['attachments', 'attainments', 'authors', 'tags', 'pValue' => function($query) {
+        $question->getQuestionInstance()->load(['attachments', 'attainments', 'authors', 'tags', 'pValue' => function ($query) {
             $query->select('question_id', 'education_level_id', 'education_level_year', DB::raw('(SUM(score) / SUM(max_score)) as p_value'), DB::raw('count(1) as p_value_count'))->groupBy('education_level_id')->groupBy('education_level_year');
         }, 'pValue.educationLevel']);
 
-        if($question instanceof QuestionInterface) {
+        if ($question instanceof QuestionInterface) {
             $question->loadRelated();
         }
 
-		$answer->fill($request->all());
+        $answer->fill($request->all());
 
-		if ($testParticipant->answers()->save($answer) !== false) {
-
+        if ($testParticipant->answers()->save($answer) !== false) {
             $response = $answer;
-		    if($request->has('take_id') && $request->has('take_question_index') && $request->has('take_id')) {
-		        if(is_numeric($request->input('take_question_index'))){
+            if ($request->has('take_id') && $request->has('take_question_index') && $request->has('take_id')) {
+                if (is_numeric($request->input('take_question_index'))) {
                     $nextTakeQuestionIndexNr = $request->input('take_question_index')+1;
-                    if($this->hasNextQuestion($testParticipant, $request->input('take_question_index'))) {
+                    if ($this->hasNextQuestion($testParticipant, $request->input('take_question_index'))) {
                         $response = json_encode([
                             'success' => true,
                             'status' => 'next',
@@ -142,26 +140,25 @@ class Answers2019Controller extends Controller {
                             'question_id' => $nextTakeQuestionIndexNr,
                             'alert' => $this->getAlertStatusOrParticipant($testParticipant)
                         ]);
-                    }else{
+                    } else {
                         $response = json_encode([
                             'success' => true,
                             'status' => 'done',
                             'alert' => $this->getAlertStatusOrParticipant($testParticipant)
                         ]);
                     }
-                }else{
-		            logger(sprintf('geen numeric value for take_question_index %s',$request->input('take_question_index')));
+                } else {
+                    logger(sprintf('geen numeric value for take_question_index %s', $request->input('take_question_index')));
                     $response = json_encode([
                         'success' => true,
                         'status' => 'done',
-                        'alert' => $alert
+                        'alert' => $this->getAlertStatusOrParticipant($testParticipant),
                     ]);
                 }
             }
-			return Response::make($response, 200);
-		} else {
-			return Response::make('Failed to update answer', 500);
-		}
-	}
-
+            return Response::make($response, 200);
+        } else {
+            return Response::make('Failed to update answer', 500);
+        }
+    }
 }
