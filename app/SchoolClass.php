@@ -292,6 +292,9 @@ class SchoolClass extends BaseModel implements AccessCheckable {
             }
         }
 
+        if ($sorting === '' || $sorting === []) {
+            $sorting = ['name' => 'asc'];
+        }
         foreach($sorting as $key => $value) {
             switch(strtolower($value)) {
                 case 'id':
