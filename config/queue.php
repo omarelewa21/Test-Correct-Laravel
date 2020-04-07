@@ -84,9 +84,11 @@ return [
 	| have failed. You may change them to any database / table you wish.
 	|
 	*/
-
-	'failed' => [
-		'database' => 'mysql', 'table' => 'failed_jobs',
-	],
+    /** uncomment driver when migrating to 6.x or higher */
+    'failed' => [
+//        'driver' => env('QUEUE_FAILED_DRIVER', 'database'),
+        'database' => env('DB_CONNECTION', 'mysql'),
+        'table' => 'failed_jobs',
+    ],
 
 ];
