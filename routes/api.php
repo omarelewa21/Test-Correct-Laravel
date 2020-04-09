@@ -78,6 +78,13 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Todo: Validation of attachments (including downloading non-existent files)
 	Route::get('attachment/{attachment}/download', ['as' => 'attachment.download', 'uses' => 'AttachmentsController@download']);
 
+	Route::post('filemanagement/{schoolLocation}/class',['as' => 'filemanagement.uploadclass','uses' => 'FileManagementController@storeClassUpload']);
+    Route::get('filemanagement/',['as' => 'filemanagement.index','uses' => 'FileManagementController@index']);
+    Route::get('filemanagement/{fileManagement}',['as' => 'filemanagement.view','uses' => 'FileManagementController@show']);
+    Route::get('filemanagement/{fileManagement}/download',['as' => 'filemanagement.download','uses' => 'FileManagementController@download']);
+    Route::put('filemanagement/{fileManagement}',['as' => 'filemanagement.update','uses' => 'FileManagementController@update']);
+    Route::get('filemanagement/statuses',['as' => 'filemanagement.statuses','uses' => 'FileManagementController@getStatuses']);
+
 	// Test take + children
 	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@export']);
 	Route::post('test_take/{test_take}/normalize', ['as' => 'test_take.normalize', 'uses' => 'TestTakesController@normalize']);
@@ -107,6 +114,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	// Education level
 	Route::resource('education_level', 'EducationLevelsController', ['except' => ['create', 'edit']]);
+	Route::get('school_location_education_level/{schoolLocation}','SchoolLocationEducationLevelsController@index');
 
 	// School year + child
 	Route::get('school_year/list', ['as' => 'school_year.list', 'uses' => 'SchoolYearsController@lists']);
