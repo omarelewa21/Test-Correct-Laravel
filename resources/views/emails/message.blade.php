@@ -1,3 +1,6 @@
+@extends('emails.layout')
+
+@section('content')
 <tr>
 <td colspan="999" style="padding:20px;">
 Beste {{ $receiver->nameFull }},<br/>
@@ -7,3 +10,4 @@ Beste {{ $receiver->nameFull }},<br/>
 {!! nl2br(e($sentMessage->message)) !!}
 </td>
 </tr>
+@stop

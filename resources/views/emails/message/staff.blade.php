@@ -1,3 +1,6 @@
+@extends('emails.layout')
+
+@section('content')
 <tr>
 <td colspan="999" style="padding:20px;">
 Beste {{ $receiver->getNameFullAttribute() }},<br/>
@@ -13,3 +16,4 @@ Met een vriendelijke groet,<br/>
 Test-Correct supportteam
 </td>
 </tr>
+@stop

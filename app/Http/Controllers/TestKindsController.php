@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
@@ -16,8 +17,7 @@ class TestKindsController extends Controller {
      */
     public function index()
     {
-        $testKinds = TestKind::paginate(15);
-        return Response::make($testKinds, 200);
+        return Response::make(TestKind::paginate(15),200);
     }
 
     /**

@@ -46,6 +46,7 @@ class AuthController extends Controller
             if($this->canHaveGeneralText2SpeechPrice($user)){
                 $user->setAttribute('general_text2speech_price',config('custom.text2speech.price'));
             }
+            $user->setAttribute('isToetsenbakker',$user->isToetsenbakker());
 
             return new JsonResponse($user);
         } else {

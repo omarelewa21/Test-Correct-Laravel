@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationQuestions;
@@ -769,6 +770,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		return !empty($this->api_key) ? $this->api_key : false;
 	}
 
+	public function isToetsenbakker()
+    {
+        return (bool) FileManagement::where('handledby',$this->getKey())->where('type','testupload')->count();
+    }
+
 	public function getNameFullAttribute()
 	{
 		$result = '';
@@ -924,19 +930,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		    //		if($this->hasRole(['Administrator','Account manager'])){
 			$userId = Auth::user()->getKey();
 
-			$schoolIds = School::where(function ($query) use ($userId) {
-				$query->whereIn('umbrella_organization_id', function ($query) use ($userId) {
-					$query->select('id')
-						->from(with(new UmbrellaOrganization())->getTable())
-						->where('user_id', $userId)
-						->whereNull('deleted_at');
-				})->orWhere('user_id', $userId);
-			})->pluck('id')->all();
-
-			$schoolLocationIds = SchoolLocation::where(function ($query) use ($schoolIds, $userId) {
-				$query->whereIn('school_id', $schoolIds)
-					->orWhere('user_id', $userId);
-			})->pluck('id')->all();
+			$sHelper = new SchoolHelper();
+            $schoolIds = $sHelper->getRelatedSchoolIds(Auth::user());
+			$schoolLocationIds = $sHelper->getRelatedSchoolLocationIds(Auth::user());
 
 			$parentIds = StudentParent::whereIn('user_id', function($query) use ($schoolIds, $schoolLocationIds) {
 				$query->select($this->getKeyName())

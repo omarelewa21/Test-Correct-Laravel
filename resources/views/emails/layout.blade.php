@@ -40,6 +40,10 @@
             color: #0a2431;
         }
 
+        body b {
+            font-weight: bold;
+        }
+
         body h1 {
             font-size: 24px;
             margin-bottom: 30px;

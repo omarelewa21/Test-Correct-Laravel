@@ -33,6 +33,8 @@ class UpdateFileManagementRequest extends Request {
             'file_management_status_id' => '',
             'handledby' => '',
             'notes' => '',
+            'colorcode' => '',
+            'invite' => 'email:rfc,dns',
         ];
     }
 

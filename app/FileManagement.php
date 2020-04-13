@@ -17,7 +17,7 @@ class FileManagement extends BaseModel {
      *
      * @var array
      */
-    protected $dates = ['deleted_at', 'created_at','updated_at'];
+    protected $dates = ['deleted_at', 'created_at','updated_at','invited_at'];
 
     /**
      * The database table used by the model.
@@ -26,14 +26,12 @@ class FileManagement extends BaseModel {
      */
     protected $table = 'file_managements';
 
-//    /**
-//     * The attributes that are mass assignable.
-//     *
-//     * @var array
-//     */
-//    protected $fillable = ['*'];
-
-    protected $guarded = [];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['type','id','user_id','school_location_id','file_management_status_id','handledby','notes','name','origname','typedetails','parent_id'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -46,6 +44,21 @@ class FileManagement extends BaseModel {
     {
         parent::boot();
 
+    }
+
+    public function getTypedetailsAttribute($value)
+    {
+        try {
+            return json_decode($value);
+        }
+        catch(\Exception $e){
+            return (object) [];
+        }
+    }
+
+    public function setTypedetailsAttribute($value)
+    {
+        $this->attributes['typedetails'] = json_encode($value);
     }
 
     public function user() {

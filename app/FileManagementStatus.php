@@ -28,4 +28,8 @@ class FileManagementStatus extends BaseModel {
     public function files() {
         return $this->hasMany('tcCore\FileManagement');
     }
+
+    public function parent() {
+        return $this->belongsTo('tcCore\FileManagementStatus','partof');
+    }
 }
