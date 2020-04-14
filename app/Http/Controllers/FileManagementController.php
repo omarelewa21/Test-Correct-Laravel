@@ -110,7 +110,7 @@ class FileManagementController extends Controller
 
                 $origfileName = $file->getClientOriginalName();
 
-                $fileName = sprintf('%s-%s.%s', date('YmdHis'), Str::slug(request('name')), pathinfo($origfileName, PATHINFO_EXTENSION));
+                $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5),Str::slug(request('name')), pathinfo($origfileName, PATHINFO_EXTENSION));
 
                 $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
 
