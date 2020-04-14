@@ -258,6 +258,9 @@ class SchoolClass extends BaseModel implements AccessCheckable {
 
         foreach($filters as $key => $value) {
             switch($key) {
+                case 'name':
+                    $query->where('name', 'LIKE', '%'.$value.'%');
+                    break;
                 case 'current_school_year':
                     if ($value != true) {
                         break;
