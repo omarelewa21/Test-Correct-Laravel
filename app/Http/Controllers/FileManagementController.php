@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use tcCore\FileManagement;
@@ -38,7 +39,8 @@ class FileManagementController extends Controller
     }
 
     protected function sendInvite(FileManagement $fileManagement){
-        dispatch(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
+//        Queue::push(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
+        dispatch_now(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
 
     }
 

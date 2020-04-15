@@ -98,7 +98,8 @@ class UsersController extends Controller {
 		$users = User::filtered($request->get('filter', []), $request->get('order', []))->get(['users.id', 'users.name_first', 'users.name_suffix', 'users.name', 'users.username'])->keyBy('id');
 
 		foreach($users as $userId => $userData) {
-			Queue::push(new SendWelcomeMail($userId, $request->get('url')));
+			//Queue::push(new SendWelcomeMail($userId, $request->get('url')));
+            dispatch_now(new SendWelcomeMail($userId, $request->get('url')));
 		}
 
 		return Response::make($users, 200);
