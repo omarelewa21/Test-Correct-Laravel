@@ -24,7 +24,7 @@ Error: {{ $errMessage }}<br/>
         @foreach($server as $key => $value)
             <li>
                 <b>{{ $key }}</b><br />
-                {!! (is_string($value) ? $value : json_encode($value)) !!} }}
+                {!! (is_string($value) ? $value : json_encode($value)) !!}
             </li>
         @endforeach
     </ul>
