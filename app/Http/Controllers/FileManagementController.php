@@ -97,6 +97,8 @@ class FileManagementController extends Controller
                     'education_level_id' => request('education_level_id'),
                     'subject' => request('subject'),
                     'name' => request('name'),
+                    'correctiemodel' => request('correctiemodel'),
+                    'multiple' => request('multiple'),
                 ],
             ];
 
@@ -179,27 +181,38 @@ class FileManagementController extends Controller
 
         $files = FileManagement::whereNull('parent_id')
             ->orderby('file_management_status_id')
-            ->orderBy('created_at', 'asc')
             ->with(['user', 'handler', 'status','status.parent']);
 
         $user = Auth::user();
 
         if ($user->hasRole('Teacher')) {
-            $files->where('school_location_id', $user->school_location_id)
-                ->whereIN('file_management_status_id', [1, 2, 3,4,5,6,8])
-                ->where(function ($query) use ($user) {
-                    $query->where('user_id', $user->getKey())
-                        ->orWhere('handledby', $user->getKey());
-                });
-        } else if ($user->hasRole('Account manager')) {
-            $files->whereIn('school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user));
+            $files->where(function ($query) use ($user) {
+                $query->where('user_id', $user->getKey())
+                    ->orWhere('handledby', $user->getKey());
+            });
+            if($user->isToetsenbakker()){
+                $files->where('archived',false);
+            }
+            else {
+//                $files->where('school_location_id', $user->school_location_id)
+//                    ->whereIN('file_management_status_id', [1, 2, 3, 4, 5, 6, 8]);
+                $files->where('school_location_id', $user->school_location_id);
+            }
 
-            $files->with(['schoolLocation']);
+        } else if ($user->hasRole('Account manager')) {
+            $files->whereIn('school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user))
+                ->with(['schoolLocation']);
+                // we want to order by filemanagementstatus displayorder, but as it has the same fieldnames as file_managements table
+                // we can't use a join. Therefor we first get all the statusIds in the correct order and then order by them
+                $statusIds = FileManagementStatus::orderBy('displayorder')->pluck('id')->toArray();
+                $files->orderByRaw('FIELD(file_management_status_id,'.implode(',',$statusIds).')','asc');
         }
 
         if ($request->get('type')) {
             $files->where('type', $request->get('type'));
         }
+
+        $files->orderBy('file_managements.created_at', 'asc');
 
 
         switch (strtolower($request->get('mode', 'paginate'))) {

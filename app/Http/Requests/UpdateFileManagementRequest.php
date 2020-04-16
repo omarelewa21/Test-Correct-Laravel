@@ -35,6 +35,7 @@ class UpdateFileManagementRequest extends Request {
             'notes' => '',
             'colorcode' => '',
             'invite' => 'email:rfc,dns',
+            'archived' => '',
         ];
     }
 

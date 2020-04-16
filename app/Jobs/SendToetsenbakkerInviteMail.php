@@ -45,7 +45,10 @@ class SendToetsenbakkerInviteMail extends Job implements ShouldQueue
             $m->to($fileManagement->typedetails->invite)->subject('Test-Correct, uitnodiging om een toets te bakken');
         });
 
-        $fileManagement->typedetails->invited_at = Carbon::now();
+        // can't be set directly through $fileManagement->typedetails->invited_at = Carbon::now(); as it is a mutator
+        $td = $fileManagement->typedetails;
+        $td->invited_at = Carbon::now();
+        $fileManagement->typedetails = $td;
         $fileManagement->save();
     }
 }
