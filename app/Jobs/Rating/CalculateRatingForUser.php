@@ -41,7 +41,7 @@ class CalculateRatingForUser extends Job implements ShouldQueue
         $averageRatingIds = array();
         foreach ($averages as $average) {
             $averageRating = AverageRating::firstOrNew(['user_id' => $average->getAttribute('user_id'), 'school_class_id' => $average->getAttribute('school_class_id'), 'subject_id' => $average->getAttribute('subject_id')]);
-            $averageRating->setAttribute('rating', $average->getAttribute('average'));
+            $averageRating->setAttribute('rating', (float) $average->getAttribute('average'));
             $averageRating->setAttribute('deleted_at', null);
             $averageRating->save();
             $averageRatingIds[] = $averageRating->getKey();
