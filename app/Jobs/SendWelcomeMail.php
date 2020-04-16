@@ -17,6 +17,7 @@ class SendWelcomeMail extends Job implements ShouldQueue
 
     protected $userId;
     protected $url;
+    protected $key;
 
     /**
      * Create a new job instance.
