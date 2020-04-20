@@ -462,6 +462,7 @@ class TestTake extends BaseModel
                     ->orWhereIn($this->getTable() . '.id', function ($query) {
                         $query->select('test_take_id')
                             ->from(with(new TestParticipant())->getTable())
+                            ->whereNull('deleted_at')
                             ->whereIn('school_class_id', function ($query) {
                                 $query->select('class_id')
                                     ->from(with((new Teacher)->getTable()))
@@ -474,6 +475,7 @@ class TestTake extends BaseModel
                                     ->select($this->getTable().'.id')
                                     ->from($this->getTable())
                                     ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
+                                    ->whereNull($testTable.'.deleted_at')
                                     ->whereIn($testTable . '.subject_id', function ($query) {
                                         $query->select('subject_id')
                                             ->from(with((new Teacher)->getTable()))
