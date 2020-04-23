@@ -995,6 +995,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
 		foreach($filters as $key => $value) {
 			switch($key) {
+                case 'teacher_students': // only show students in the classes of the teacher
+                    $value = $user->teacher->pluck('class_id')->toArray();
+                    $query->whereIn('users.id', function ($query) use ($value) {
+                        $query->select('students.user_id')
+                            ->from(with(new SchoolClass())->getTable())
+                            ->join(with(new Student())->getTable(), 'students.class_id', '=', 'school_classes.id')
+                            ->whereIn('school_classes.id', (is_array($value)) ? $value : [$value])
+                            ->where('school_classes.deleted_at', null)
+                            ->where('students.deleted_at', null);
+                    });
+                    break;
 				case 'sales_organization_id':
 					if (is_array($value)) {
 						$query->whereIn('sales_organization_id', $value);
