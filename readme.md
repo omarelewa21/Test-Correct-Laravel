@@ -14,3 +14,32 @@
 - #select count(*) as aantal from (select count(*) as aantal from test_questions group by question_id) as t where t.aantal >=1 # vraagitems minimaal 1x gebruikt in toets
 
 
+- docenten activiteiten export
+select 
+	distinct
+	users.name_first as voornaam, 
+	users.name_suffix as tussenvoegsel, 
+	users.name as achternaam,
+	users.username as email,
+	school_locations.name,
+	school_locations.customer_code,
+	sections.name as sectie,
+	users.created_at as aanmaakdatum,
+	(select min(time_start) from test_takes where user_id = users.`id`) as eerstgeplandetoets,
+	(select max(time_start) from test_takes where user_id = users.`id`) as laatstgeplandetoets,
+	(select count(*) from test_takes where user_id = users.id) as afgenomentoetsen,
+	(select count(*) from test_takes where user_id = users.id AND is_discussed=1) as besprokentoetsen
+from 
+	users 
+	left join teachers on teachers.user_id = users.id 
+	left join subjects on subjects.id = teachers.subject_id
+	left join sections on sections.id = subjects.section_id
+	left join school_locations on school_locations.id = users.school_location_id
+where 
+	users.created_at >= '2016-01-01' AND 
+	users.id  IN (select user_id from teachers) AND
+	users.username not like '%test-correct.nl' AND
+	users.username not like '%vervallen%'
+order by
+	school_locations.name,
+	users.username
