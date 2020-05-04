@@ -34,7 +34,7 @@ Uw wachtwoord: {{ $password }}<br/>
         </li>
     </ul>
     <b>Collega uitnodigen:</b> Kent u een collega die met Test-Correct zou willen werken? U kunt de voor- en achternaam met het emailadres naar info@test-correct.nl sturen met het onderwerp “Collega”, dan sturen wij vrijblijvend de nodige informatie.<br/>
-    <b>Training:</b> Meld u aan voor een 45-minuten durende webinar, dit doet u <a href="https://www.academy4learning.nl/aanmeldformulier-webinar-lesgeven-op-afstand/">hier</a>.<br />
+    <b>Training:</b> Meld u aan voor een 45-minuten durende webinar, dit doet u <a href="https://test-correct.webinargeek.com/verder-met-tc-tips-trucs">hier</a>.<br />
     <b>Instructies:</b> Raadpleeg onze <a href="https://www.test-correct.nl/support/">supportpagina</a> voor instructies over het gebruik van Test-Correct, of download de volledige handleiding <a href="http://www.test-correct.nl/downloadables/Docenthandleiding_v1.1.0_rev.1.0.pdf">hier</a>.<br />
     <b>Toetsen uploaden:</b> Upload <a href="https://www.test-correct.nl/toets-uploaden/">hier</a> de toetsen die u wilt afnemen (in een PDF, Word of QTI).<br />
     <b>Studenten:</b>
