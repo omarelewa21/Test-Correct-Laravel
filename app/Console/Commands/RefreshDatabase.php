@@ -16,7 +16,7 @@ class RefreshDatabase extends Command
      *
      * @var string
      */
-    protected $signature = 'test:refreshdb';
+    protected $signature = 'test:refreshdb {--file=}';
 
     /**
      * The console command description.
@@ -42,6 +42,19 @@ class RefreshDatabase extends Command
      */
     public function handle()
     {
+        $sqlImports = [
+            'dropAllTablesAndViews.sql',
+            'testdb.sql',
+            'attainments.sql',
+        ];
+
+        if ($this->hasArgument('file')) {
+            $sqlImports = [
+                sprintf('testing/db_dump_%s.sql', $this->argument('file')),
+            ];
+        }
+
+
         if (!in_array(env('APP_ENV'), ['local', 'testing'])) {
             $this->error('You cannot perform this action on this environment! only with APP_ENV set to local!!');
             return false;
@@ -49,12 +62,6 @@ class RefreshDatabase extends Command
 
         // this might be slow, so give us some time
         ini_set('max_execution_time', 180); //3 minutes
-
-        $sqlImports = [
-            'dropAllTablesAndViews.sql',
-            'testdb.sql',
-            'attainments.sql',
-        ];
 
         $this->info('start refreshing database...(this can take some time as in several minutes)');
         // only needed when using mysql database, not when sqlite setup is needed

@@ -199,5 +199,5 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('qtiimport/data','QtiImportController@data')->name('qtiimport_data');
     Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
 
-
+    Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
 });
