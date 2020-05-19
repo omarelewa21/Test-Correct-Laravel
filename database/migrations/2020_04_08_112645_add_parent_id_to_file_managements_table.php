@@ -18,7 +18,7 @@ class AddParentIdToFileManagementsTable extends Migration
         });
 
         Schema::table('file_managements', function (Blueprint $table) {
-            $table->integer('file_management_status_id')->default(1)->change();
+            $table->integer('file_management_status_id')->default(1)->charset('')->collation('')->change();
             $table->char('parent_id',36)->nullable();
         });
     }
