@@ -48,7 +48,15 @@ class SchoolLocationSchoolYear extends CompositePrimaryKeyModel {
         return $this->belongsTo('tcCore\SchoolLocation');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * why is this here with such a name? 20200507 Erik
+     */
     public function period() {
+        return $this->belongsTo('tcCore\SchoolYear');
+    }
+
+    public function schoolYear() {
         return $this->belongsTo('tcCore\SchoolYear');
     }
 }

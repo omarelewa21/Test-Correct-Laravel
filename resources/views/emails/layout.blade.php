@@ -34,7 +34,7 @@
         body * {
             margin: 0px;
             padding: 0px;
-            font-size: 13px;
+            font-size: 15px;
             font-family: 'Open Sans', sans-serif;
             font-weight: 300;
             color: #0a2431;
@@ -50,7 +50,7 @@
         }
 
         body p {
-            font-size: 13px;
+            font-size: 15px;
             line-height: 22px;
             margin-bottom: 15px;
         }
@@ -85,7 +85,7 @@
             position: relative;
 
             color: #2c6d8d;
-            font-size: 13px;
+            font-size: 15px;
             line-height: 22px;
         }
 
@@ -264,7 +264,7 @@
             padding: 0px;
             margin: 0px;
 
-            font-size: 13px;
+            font-size: 15px;
         }
 
         #wrapper #footer td h1 {
@@ -288,12 +288,12 @@
 
         #footer {
             color: #555555;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         #footer a {
             color: #333333;
-            font-size: 12px !important;
+            font-size: 14px !important;
         }
     </style>
 </head>
@@ -308,17 +308,8 @@
         </td>
     </tr>
     </thead>
-    <tbody id="content" style="font-family: Arial; font-size: 13px;">
+    <tbody id="content" style="font-family: Arial; font-size: 15px;">
         @yield('content')
-        <tr>
-            <td colspan="999" style="padding:20px; background: #e2eff6;" id="footer">
-                <a href="http://www.test-correct.nl/">Test-Correct</a> is een product van <a href="http://www.teachandlearncompany.com/">The Teach &amp; Learn Company</a>, alle rechten voorbehouden
-
-                - <a href="https://portal.test-correct.nl/">Inloggen</a>
-                - <a href="http://www.test-correct.nl/support/">Support</a>
-            </td>
-        </tr>
-
     </tbody>
 </table>
 </body>

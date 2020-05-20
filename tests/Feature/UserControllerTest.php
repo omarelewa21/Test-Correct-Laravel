@@ -68,6 +68,35 @@ class UserControllerTest extends TestCase
         $this->assertTrue(
             Hash::check($newPassword, $student->fresh()->password)
         );
+    }
+
+    /** @test */
+    public function a_teacher_cannot_be_added_if_no_current_active_period()
+    {
+//        $this->disableExceptionHandling();
+        \tcCore\SchoolLocationSchoolYear::where('school_location_id',2)->orderby('created_at','desc')->first()->delete();
+
+        $data =[
+            'school_location_id' => '2',
+            'name_first' => 'a',
+            'name_suffix' => '',
+            'name' => 'bc',
+            'abbreviation' => 'abcc',
+            'username' => 'abc@test-correct.nl',
+            'password' => 'aa',
+            'external_id' => 'abc',
+            'note' => '',
+            'user_roles' => [1],
+        ];
+
+        $response = $this->post(
+            '/user',
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+        $response->assertStatus(422);
+        $rData = $response->decodeResponseJson();
+        $this->assertEquals('U kunt een docent pas aanmaken nadat u een actuele periode heeft aangemaakt. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.',
+            $rData['errors']['user_roles'][0]);
 
     }
 

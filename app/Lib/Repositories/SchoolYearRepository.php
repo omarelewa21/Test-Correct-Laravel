@@ -5,6 +5,16 @@ use tcCore\SchoolYear;
 use tcCore\User;
 
 class SchoolYearRepository {
+    public static function getCurrentSchoolYear() {
+        $period = PeriodRepository::getCurrentPeriod();
+        if($period) {
+            return $period->schoolYear;
+        }
+        else{
+            return null;
+        }
+    }
+
     public static function getCurrentOrPreviousSchoolYear() {
         $period = PeriodRepository::getCurrentOrPreviousPeriod();
         return $period->schoolYear;

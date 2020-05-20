@@ -30,7 +30,12 @@ Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 
-	// Tests + children
+	// Onboarding
+    Route::post('/onboarding/registeruserstep',['as' => 'onboarding.register_userstep','uses' => 'OnboardingWizardController@registerUserStep']);
+    Route::get('/onboarding/{user}/steps',['as' => 'onboarding.show_steps_for_user','uses' => 'OnboardingWizardController@showStepsForUser']);
+    Route::put('/onboarding',['as' => 'onboarding.update','uses' => 'OnboardingWizardController@update']);
+
+    // Tests + children
 	Route::post('test/{test}/duplicate', ['as' => 'test.duplicate', 'uses' => 'TestsController@duplicate']);
 	Route::resource('test', 'TestsController', ['except' => ['create', 'edit']]);
 
@@ -162,6 +167,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
 	Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
 	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
+
+    Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
+
 
 	// Sales organization
 	Route::resource('sales_organization', 'SalesOrganizationsController', ['except' => ['create', 'edit']]);

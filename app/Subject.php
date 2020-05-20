@@ -30,7 +30,7 @@ class Subject extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['name', 'abbreviation', 'section_id', 'base_subject_id'];
+    protected $fillable = ['name', 'abbreviation', 'section_id', 'base_subject_id','demo'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -144,5 +144,18 @@ class Subject extends BaseModel implements AccessCheckable {
     public function getAccessDeniedResponse($request, Closure $next)
     {
         throw new AccessDeniedHttpException('Access to subject denied');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::updating(function (self $item) {
+            if ($item->getOriginal('demo') == true) return false;
+        });
+
+        static::deleting(function (self $item) {
+            if ($item->getOriginal('demo') == true) return false;
+        });
     }
 }

@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Requests;
 
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\User;
 
 class CreateUserRequest extends Request {
@@ -54,6 +55,33 @@ class CreateUserRequest extends Request {
 
 		return $validator;
 	}
+
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $data = ($this->all());
+            if(isset($data['user_roles']) && collect($data['user_roles'])->contains(function($val){return $val == 1;})){
+                $r = null;
+                try {
+                    $r = SchoolYearRepository::getCurrentSchoolYear();
+                }
+                catch(\Exception $e){
+                    $r = null;
+                }
+                if(null === $r){
+                    $validator->errors()->add('user_roles','U kunt een docent pas aanmaken nadat u een actuele periode heeft aangemaakt. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.');
+                }
+            }
+        });
+    }
+
 
 	/**
 	 * Get the sanitized input for the request.

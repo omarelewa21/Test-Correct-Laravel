@@ -163,7 +163,7 @@ class TestParticipant extends BaseModel
      */
     public function answers()
     {
-        return $this->hasMany('tcCore\Answer');
+        return $this->hasMany('tcCore\Answer')->orderBy('order');
     }
 
     public function testTakeEvents()

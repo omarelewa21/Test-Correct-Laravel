@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
@@ -29,6 +31,7 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Roles;
 
 class User extends BaseModel implements AuthenticatableContract, CanResetPasswordContract, AccessCheckable {
@@ -52,7 +55,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	 *
 	 * @var array
 	 */
-    protected $fillable = ['sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name', 'password', 'external_id', 'gender', 'time_dispensation', 'text2speech','abbreviation', 'note'];
+    protected $fillable = ['sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name', 'password', 'external_id', 'gender', 'time_dispensation', 'text2speech','abbreviation', 'note','demo'];
 
 
     /**
@@ -60,7 +63,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	 *
 	 * @var array
 	 */
-	protected $hidden = ['password', 'remember_token', 'session_hash', 'api_key'];
+	protected $hidden = ['password', 'remember_token', 'session_hash', 'api_key','login_logs'];
 
 	/**
 	 * @var array Array with school class IDs of which this user is student, for saving
@@ -221,9 +224,36 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasActiveText2Speech();
     }
 
+    public function getloginLogCount()
+    {
+        return $this->loginLogs->count();
+    }
+
+    public function loginLogs()
+    {
+        return $this->hasMany(LoginLog::class);
+    }
+
 	public static function boot()
 	{
 		parent::boot();
+
+		// addd for the onboarding experience 20200506
+        static::created(function(User $user){
+            if ($user->userRoles !== null) {
+                $user->saveUserRoles();
+            }
+           if($user->isA('teacher') && $user->demo == false){
+               $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+               if(null === $schoolYear){
+                   $user->forceDelete();
+                   throw new \Exception('U kunt een docent pas aanmaken als dat u een actuele periode heeft aangemaakt. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.');
+                   return false;
+               }
+               $helper = new DemoHelper();
+               $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear,$user);
+           }
+        });
 
 		static::saving(function(User $user) {
 			if ($user->getAttribute('school_id') !== $user->getOriginal('school_id') || $user->getAttribute('school_location_id') !== $user->getOriginal('school_location_id')) {
@@ -240,6 +270,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 				}
 			}
 		});
+
+		static::updating(function (User $user){
+            if($user->getOriginal('demo') == true && !isset($user->demoRestrictionOverrule)) {
+                return false;
+            }
+            if(isset($user->demoRestrictionOverrule)) unset($user->demoRestrictionOverrule);
+        });
+
+        static::deleting(function (User $user){
+            if($user->getOriginal('demo') == true) return false;
+        });
 
 		// Progress additional answers
 		static::saved(function(User $user)
@@ -275,9 +316,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 }
             }
 
-			if ($user->userRoles !== null) {
-				$user->saveUserRoles();
-			}
+
 
 			if ($user->studentSchoolClasses !== null) {
 				$user->saveStudentSchoolClasses();
@@ -434,6 +473,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
 		static::deleted(function(User $user)
 		{
+		    if($user->isA('teacher')){
+		        $demoClass = null;
+//		        $demoClass = (new DemoHelper())->setSchoolLocation($user->schoolLocation())->getDemoClass();
+//		        if($demoClass !== null) {
+                    $user->teacher->each(function (Teacher $t) use ($demoClass) {
+//                        if($t->class_id == $demoClass->getKey()){
+                            $t->delete();
+//                        }
+                    });
+//              }
+            }
+
 			if ($user->forceDeleting) {
 				$original = $user->getOriginalProfileImagePath();
 				if (File::exists($original)) {
@@ -759,6 +810,58 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	public function averageRatings() {
 		return $this->hasMany('tcCore\AverageRating');
 	}
+
+	public function onboardingWizardUserSteps()
+    {
+        return $this->hasMany(OnboardingWizardUserStep::class);
+    }
+
+    public function onboardingWizardUserState()
+    {
+        return $this->hasOne(OnboardingWizardUserState::class);
+    }
+
+    public function getOnboardingWizardSteps()
+    {
+        $state = $this->onboardingWizardUserState;
+        $wizard = null;
+        if($state) $wizard = $state->wizard;
+
+        if ($wizard == null) {
+            $roleIds = $this->roles()->pluck('id');
+            $wizard = OnboardingWizard::whereIn('role_id', $roleIds)->where('active',true)->orderBy('role_id')->first();
+            OnboardingWizardUserState::create([
+                'id' => Str::uuid(),
+                'user_id' => $this->getKey(),
+                'onboarding_wizard_id' => $wizard->getKey()
+            ]);
+        }
+
+        if($wizard === null){
+            return collect([]); // there is no wizard
+        }
+
+        $doneIds = $this->onboardingWizardUserSteps()->pluck('onboarding_wizard_step_id');
+        $steps = $wizard->mainSteps->each(function($step) use ($doneIds){
+            $done = false;
+            if($doneIds->contains($step->getkey())){
+                $done = true;
+            }
+            $step->done = $done;
+            $step->sub->map(function($sub) use ($doneIds){
+                $done = false;
+                if($doneIds->contains($sub->getKey())){
+                    $done = true;
+                }
+                $sub->done = $done;
+                return $sub;
+            });
+            return $step;
+        });
+        return $steps;
+    }
+
+
 
 	/**
 	 * Returns the private API key for the user, or false on failure.
@@ -1309,4 +1412,21 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->subjects()->pluck('id')->contains($test->subject->getKey());
     }
 
+    public function makeOnboardWizardIfNeeded()
+    {
+        if(null === $this->onboardingWizardUserState) {
+            if ($this->isA('teacher')) {
+                $wizard = OnboardingWizard::where('role_id', 1)->first();
+                $this->onboardingWizardUserState()->save(
+                    OnboardingWizardUserState::make(
+                        [
+                            'id' => Str::uuid(),
+                            'show' => true,
+                            'onboarding_wizard_id' => $wizard->getKey()
+                        ]
+                    )
+                );
+            }
+        }
+    }
 }
