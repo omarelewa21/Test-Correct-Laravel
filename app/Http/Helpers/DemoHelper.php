@@ -449,9 +449,10 @@ class DemoHelper
         }
         SchoolLocationSection::firstOrCreate([
             'school_location_id' => $this->schoolLocation->getKey(),
-            'section_id' => $section->getKey(),
-            'demo' => true,
-        ]);
+            'section_id' => $section->getKey()
+            ],
+            ['demo' => true,]
+        );
         $this->setSection($section);
         return $section;
     }
