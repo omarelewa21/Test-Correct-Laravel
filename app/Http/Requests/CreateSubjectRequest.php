@@ -37,7 +37,7 @@ class CreateSubjectRequest extends Request {
     {
         $validator->after(function ($validator) {
             $data = ($this->all());
-            if($data['name'] === DemoHelper::SUBJECTNAME){
+            if(strtolower($data['name']) === strtolower(DemoHelper::SUBJECTNAME)){
                 if(Auth::user()->schoolLocation->name !== DemoHelper::SCHOOLLOCATIONNAME){
                     $validator->errors()->add('name','Deze naam is helaas niet beschikbaar voor een vak');
                 }

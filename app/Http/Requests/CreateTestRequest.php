@@ -45,7 +45,7 @@ class CreateTestRequest extends Request {
     {
         $validator->after(function ($validator) {
             $data = ($this->all());
-            if($data['name'] === DemoHelper::BASEDEMOTESTNAME){
+            if(strtolower($data['name']) === strtolower(DemoHelper::BASEDEMOTESTNAME)){
                 if(Auth::user()->schoolLocation->name !== DemoHelper::SCHOOLLOCATIONNAME){
                     $validator->errors()->add('name','Deze naam is helaas niet beschikbaar voor een toets');
                 }

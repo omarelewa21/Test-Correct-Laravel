@@ -52,7 +52,7 @@ class UpdateSectionRequest extends Request {
     {
         $validator->after(function ($validator) {
             $data = ($this->all());
-            if($data['name'] === DemoHelper::SECTIONNAME){
+            if(isset($data['name']) && strtolower($data['name']) === strtolower(DemoHelper::SECTIONNAME)){
                 if(Auth::user()->schoolLocation->name !== DemoHelper::SCHOOLLOCATIONNAME){
                     $validator->errors()->add('name','Deze naam is helaas niet beschikbaar voor een sectie');
                 }

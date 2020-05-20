@@ -40,7 +40,7 @@ class UpdateSubjectRequest extends Request {
     {
         $validator->after(function ($validator) {
             $data = ($this->all());
-            if($data['name'] === DemoHelper::SUBJECTNAME){
+            if(isset($data['name']) && strtolower($data['name']) === strtolower(DemoHelper::SUBJECTNAME)){
                 if(Auth::user()->schoolLocation->name !== DemoHelper::SCHOOLLOCATIONNAME){
                     $validator->errors()->add('name','Deze naam is helaas niet beschikbaar voor een vak');
                 }
