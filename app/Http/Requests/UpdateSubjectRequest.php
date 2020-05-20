@@ -1,6 +1,8 @@
 <?php namespace tcCore\Http\Requests;
 
 use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Helpers\DemoHelper;
 
 class UpdateSubjectRequest extends Request {
 
@@ -27,6 +29,24 @@ class UpdateSubjectRequest extends Request {
 	{
 		return true;
 	}
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $data = ($this->all());
+            if($data['name'] === DemoHelper::SUBJECTNAME){
+                if(Auth::user()->schoolLocation->name !== DemoHelper::SCHOOLLOCATIONNAME){
+                    $validator->errors()->add('name','Deze naam is helaas niet beschikbaar voor een vak');
+                }
+            }
+        });
+    }
 
 	/**
 	 * Get the validation rules that apply to the request.
