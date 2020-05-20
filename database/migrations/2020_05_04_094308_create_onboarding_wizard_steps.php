@@ -74,7 +74,7 @@ class CreateOnboardingWizardSteps extends Migration
                     [
                         'title'          => 'Klik zelf door Test-Correct.',
                         'action'         => OnboardingWizard::TOUR,
-                        'action_content' => 'https://hlp.sh/t/Z2p5D3O/zQQLmZEN93C',
+                        'action_content' => 'https://hlp.sh/t/2jSC4R/ymdrX14eOIg',
                     ],
                     [
                         'title'          => 'We hebben een demotoets voor je klaargezet!',
@@ -85,7 +85,7 @@ class CreateOnboardingWizardSteps extends Migration
                     [
                         'title'          => 'Bekijk zelf de demotoets.',
                         'action'         => OnboardingWizard::TOUR,
-                        'action_content' => 'https://hlp.sh/t/Z2p5D3O/GjONkAFgTkE',
+                        'action_content' => 'https://hlp.sh/t/2jSC4R/WXsFFavzuVC',
                     ],
                     [
                         'title'          => 'Klik hier als je alle stappen hebt gedaan',
@@ -109,7 +109,7 @@ class CreateOnboardingWizardSteps extends Migration
                     [
                         'title'          => 'Plan zelf een toets in',
                         'action'         => OnboardingWizard::TOUR,
-                        'action_content' => 'https://hlp.sh/t/Z2p5D3O/Fb0MZi9dLii',
+                        'action_content' => 'https://hlp.sh/t/2jSC4R/aa8ajkEaio7',
                     ],
                     [
                         'title'          => 'Hoe kun je een toets afnemen en surveilleren?',
@@ -120,7 +120,7 @@ class CreateOnboardingWizardSteps extends Migration
                     [
                         'title'          => 'Je eerste toets afnemen en surveilleren.',
                         'action'         => OnboardingWizard::TOUR,
-                        'action_content' => 'https://hlp.sh/t/Z2p5D3O/AkjzXCAkjGM',
+                        'action_content' => 'https://hlp.sh/t/2jSC4R/2bFE2XafNtn',
                     ],
                     [
                         'title'          => 'Klik hier als je alle stappen hebt gedaan',
@@ -144,7 +144,7 @@ class CreateOnboardingWizardSteps extends Migration
                     [
                         'title'          => 'Kijk je eerste toets na.',
                         'action'         => OnboardingWizard::TOUR,
-                        'action_content' => 'https://hlp.sh/t/Z2p5D3O/UrpMnC8Kcx4',
+                        'action_content' => 'https://hlp.sh/t/2jSC4R/jGhhAxEDnof',
                     ],
                     [
                         'title'          => 'Hoe normeer en becijfer je toetsen in Test-Correct?',
@@ -155,7 +155,7 @@ class CreateOnboardingWizardSteps extends Migration
                     [
                         'title'          => 'Normeer en becijfer zelf een toets.',
                         'action'         => OnboardingWizard::TOUR,
-                        'action_content' => 'https://hlp.sh/t/Z2p5D3O/dI7lBLzoUEd',
+                        'action_content' => 'https://hlp.sh/t/2jSC4R/xRrN1sUDTPn',
                     ],
                     [
                         'title'          => 'Klik hier als je alle stappen hebt gedaan',
@@ -252,7 +252,7 @@ class CreateOnboardingWizardSteps extends Migration
                     [
                         'title'          => 'Construeer zelf een toets.',
                         'action'         => OnboardingWizard::TOUR,
-                        'action_content' => 'https://hlp.sh/t/Z2p5D3O/zvoCaQAxNyW',
+                        'action_content' => 'https://hlp.sh/t/2jSC4R/HneXdQ7m2Hd',
                     ],
                     [
                         'title'          => 'Klik hier als je alle stappen hebt gedaan',
