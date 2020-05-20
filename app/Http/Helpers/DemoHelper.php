@@ -88,6 +88,7 @@ class DemoHelper
         if(Teacher::where('user_id',$user->getKey())->where('class_id',$schoolClass->getKey())->first() == null){
             return false;
         }
+
         return true;
     }
 
