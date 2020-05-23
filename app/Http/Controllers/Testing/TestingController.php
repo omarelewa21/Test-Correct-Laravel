@@ -18,7 +18,7 @@ class TestingController extends Controller {
     public function store() {
         $file =  database_path(sprintf('seeds/testing/db_dump_%s.sql', request('flag')));
         if (file_exists($file)) {
-            Artisan::call('test:refreshdb --file='.request('flag'));
+            Artisan::call('test:refreshdb', ['--file' => request('flag')]);
             return 'ok';
         }
 

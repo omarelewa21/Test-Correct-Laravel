@@ -47,10 +47,10 @@ class RefreshDatabase extends Command
             'testdb.sql',
             'attainments.sql',
         ];
-
-        if ($this->hasArgument('file')) {
+        
+        if ($this->hasOption('file')) {
             $sqlImports = [
-                sprintf('testing/db_dump_%s.sql', $this->argument('file')),
+                sprintf('testing/db_dump_%s.sql', $this->option('file')),
             ];
         }
 
