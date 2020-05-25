@@ -55,7 +55,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	 *
 	 * @var array
 	 */
-    protected $fillable = ['sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name', 'password', 'external_id', 'gender', 'time_dispensation', 'text2speech','abbreviation', 'note','demo'];
+    protected $fillable = ['sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name', 'password', 'external_id', 'gender', 'time_dispensation', 'text2speech','abbreviation', 'note','demo','invited_by'];
 
 
     /**

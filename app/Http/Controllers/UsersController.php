@@ -73,6 +73,11 @@ class UsersController extends Controller {
 
 		$user = $userFactory->generate($request->all());
 		if ($user !== false) {
+
+		    if($request->has('send_welcome_mail') && $request->get('send_welcome_mail') == true){
+                dispatch_now(new SendWelcomeMail($user->getKey(), $request->get('url')));
+            }
+
 			return Response::make($user, 200);
 		} else {
 			return Response::make('Failed to create user', 500);
