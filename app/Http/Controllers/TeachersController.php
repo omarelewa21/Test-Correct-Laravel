@@ -120,6 +120,7 @@ class TeachersController extends Controller
         try {
             $teachers = collect($request->all()['data'])->map(function ($row) use ($defaultData) {
                 $attributes = array_merge($row, $defaultData);
+                logger($attributes);
 
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
@@ -144,11 +145,12 @@ class TeachersController extends Controller
             });
         } catch (\Exception $e) {
             DB::rollBack();
+            logger('Failed to import teachers' . $e);
             return Response::make('Failed to import teachers' . print_r($e->getMessage(), true), 500);
         }
         DB::commit();
 
-        return Response::make($teachers, 201);
+        return Response::make($teachers, 200);
     }
 
 

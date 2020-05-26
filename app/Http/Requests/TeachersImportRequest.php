@@ -66,8 +66,8 @@ class TeachersImportRequest extends Request
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $teachers = collect(request('data'))->map(function ($row, $index) use ($validator) {
-                $data = $this->request->get('data');
+            $data = $this->request->get('data');
+            $teachers = collect(request('data'))->map(function ($row, $index) use ($validator, &$data) {
                 if (!array_key_exists('school_class', $row)) {
 
                 } else {
@@ -96,10 +96,8 @@ class TeachersImportRequest extends Request
                         $data[$index]['subject_id'] = $subject->getKey();
                     }
                 }
-
-                request()->merge(['data' => $data]);
-
             });
+            request()->merge(['data' => $data]);
 
             $dataCollection = collect(request('data'));
             $unique = collect(request('data'))->unique();
