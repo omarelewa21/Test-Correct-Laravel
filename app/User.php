@@ -821,6 +821,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasOne(OnboardingWizardUserState::class);
     }
 
+    public function invitedBy()
+    {
+        return $this->hasOne(User::class, 'invited_by');
+    }
+
     public function getOnboardingWizardSteps()
     {
         $state = $this->onboardingWizardUserState;

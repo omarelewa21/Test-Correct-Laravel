@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use tcCore\Answer;
 use tcCore\AnswerParentQuestion;
+use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Log;
 use tcCore\TestParticipant;
@@ -14,6 +15,7 @@ use tcCore\TestTake;
 class FixAnswerParentQuestions extends Command
 {
 
+    use BaseCommandTrait;
     /**
      * The name and signature of the console command.
      *
@@ -52,29 +54,32 @@ class FixAnswerParentQuestions extends Command
             exit;
         }
         $testTake = TestTake::findOrFail($testTakeId);
-        $questions = QuestionGatherer::getQuestionsOfTest($testTake->test->getkey(), true);
-        $questionParentAr = [];
-        foreach($questions as $dottedId => $question){
-            $idAr = explode('.',$dottedId);
-            if(count($idAr) == 2) { // group question
-                $questionParentAr[(int) $idAr[1]] = (int) $idAr[0];
-            }
-        }
 
-       $count = 0;
-        $testTake->testParticipants->each(function(TestParticipant $tp) use ($questionParentAr, &$count){
-           $tp->answers->each(function(Answer $a) use ($questionParentAr, &$count){
-               if(array_key_exists($a->question_id, $questionParentAr)) {
-                   $apq = AnswerParentQuestion::firstOrCreate([
-                       'answer_id' => $a->getKey(),
-                       'group_question_id' => $questionParentAr[$a->question_id]
-                   ]);
-                    if($apq->wasRecentlyCreated){
-                        $count++;
-                    }
-               }
-           });
-        });
+        $count = (new AnswerParentQuestionsHelper($this))->fixAnswerParentQuestionsPerTestTake($testTake);
+
+//        $questions = QuestionGatherer::getQuestionsOfTest($testTake->test->getkey(), true);
+//        $questionParentAr = [];
+//        foreach($questions as $dottedId => $question){
+//            $idAr = explode('.',$dottedId);
+//            if(count($idAr) == 2) { // group question
+//                $questionParentAr[(int) $idAr[1]] = (int) $idAr[0];
+//            }
+//        }
+//
+//        $count = 0;
+//        $testTake->testParticipants->each(function(TestParticipant $tp) use ($questionParentAr, &$count){
+//            $tp->answers->each(function(Answer $a) use ($questionParentAr, &$count){
+//                if(array_key_exists($a->question_id, $questionParentAr)) {
+//                    $apq = AnswerParentQuestion::firstOrCreate([
+//                        'answer_id' => $a->getKey(),
+//                        'group_question_id' => $questionParentAr[$a->question_id]
+//                    ]);
+//                    if($apq->wasRecentlyCreated){
+//                        $count++;
+//                    }
+//                }
+//            });
+//        });
 
         $duration = microtime(true) - $start;
         $this->info(sprintf('done, added %d AnswerParentQuestion records in %f seconds',$count, $duration));
