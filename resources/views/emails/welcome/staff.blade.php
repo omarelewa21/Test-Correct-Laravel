@@ -18,7 +18,7 @@
             Het ontdekken hoe Test-Correct werkt kan enkele minuten duren, of misschien een paar uur, maar wanneer je
             het eenmaal doorhebt is het klik-klak-klaar.<br/>
             <br/>
-            Mijn naam is Alex en ik ga je helpen om alles het zo soepel mogelijk te laten verlopen: een soort mentor :-)<br/>
+            Mijn naam is Alex en ik ga je helpen om alles zo soepel mogelijk te laten verlopen: een soort mentor :-)<br/>
             <br/>
             Ik raad je aan om direct te beginnen met onze demo tour. Ik leid je daar op een leuke en interactieve manier
             door de belangrijkste stappen van Test-Correct.<br/>
