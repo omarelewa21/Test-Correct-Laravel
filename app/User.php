@@ -1434,8 +1434,4 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             }
         }
     }
-
-    public function getLastLoginAttribute() {
-	    return optional($this->loginLogs()->orderBy('created_at', 'desc')->first())->created_at;
-    }
 }

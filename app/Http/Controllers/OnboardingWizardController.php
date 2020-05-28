@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\AddOnboardingWizardUserStepRequest;
-use tcCore\OnboardingWizardReport;
 use tcCore\OnboardingWizardUserStep;
 use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
@@ -38,27 +37,26 @@ class OnboardingWizardController extends Controller {
     }
 
     private function getStepsCollection() {
-        return OnboardingWizardReport::getStepsCollection(Auth::user());
-//        $steps = Auth::user()->getOnboardingWizardSteps();
-//
-//        $sub_steps = $steps->map(function($step) {
-//            return $step->sub;
-//        })->flatten(1);
-//
-//        $count_sub_steps = $sub_steps->count();
-//        $count_sub_steps_done = $sub_steps->filter(function($substep) {
-//            return $substep->done;
-//        })->count();
-//
-//        return (object)[
-//            'steps' => $steps,
-//            'count_main_steps' => count($steps),
-//            'count_sub_steps' => $count_sub_steps,
-//            'count_sub_steps_done' => $count_sub_steps_done,
-//            'progress' => floor($count_sub_steps_done/$count_sub_steps * 100),
-//            'show' => Auth::user()->onboardingWizardUserState->show ?? 0,
-//            'active_step' => Auth::user()->onboardingWizardUserState->active_step ?? 0,
-//        ];
+        $steps = Auth::user()->getOnboardingWizardSteps();
+
+        $sub_steps = $steps->map(function($step) {
+            return $step->sub;
+        })->flatten(1);
+
+        $count_sub_steps = $sub_steps->count();
+        $count_sub_steps_done = $sub_steps->filter(function($substep) {
+            return $substep->done;
+        })->count();
+
+        return (object)[
+            'steps' => $steps,
+            'count_main_steps' => count($steps),
+            'count_sub_steps' => $count_sub_steps,
+            'count_sub_steps_done' => $count_sub_steps_done,
+            'progress' => floor($count_sub_steps_done/$count_sub_steps * 100),
+            'show' => Auth::user()->onboardingWizardUserState->show ?? 0,
+            'active_step' => Auth::user()->onboardingWizardUserState->active_step ?? 0,
+        ];
     }
 
     public function update(Request $request)
