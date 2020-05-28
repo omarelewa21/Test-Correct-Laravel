@@ -823,7 +823,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function invitedBy()
     {
-        return $this->hasOne(User::class, 'invited_by');
+        return $this->belongsTo(User::class, 'invited_by');
     }
 
     public function getOnboardingWizardSteps()

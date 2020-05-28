@@ -49,7 +49,14 @@ class SendWelcomeMail extends Job implements ShouldQueue
         if (in_array('Student', $roles) && count($roles) === 1) {
             $template = 'emails.welcome.student';
         } else {
-            $template = 'emails.welcome.staff';
+
+            //TC-145
+            if ($user->invited_by != null) {
+                $template = 'emails.welcome.invitebywelcome-staff';
+            } else {
+                $template = 'emails.welcome.staff';
+            }
+
         }
         $mailer->send($template, ['user' => $user, 'url' => $this->url, 'password' => $password], function ($m) use ($user) {
             $m->to($user->getEmailForPasswordReset())->subject('Welkom in Test-Correct');
