@@ -207,5 +207,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('qtiimport/data','QtiImportController@data')->name('qtiimport_data');
     Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
 
+    Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
+    Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
 
 });
