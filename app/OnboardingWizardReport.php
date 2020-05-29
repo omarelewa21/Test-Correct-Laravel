@@ -22,29 +22,29 @@ class OnboardingWizardReport extends Model
             'user_name_first'                             => $user->name_first,
             'user_name_suffix'                            => $user->name_suffix,
             'user_name'                                   => $user->name,
-            'first_test_created_date'                     => optional(Test::where('author_id', $user->getKey())->where('demo', 0)->where('system_test_id', null)->orderBy('created_at', 'asc')->first())->created_at,
-            'last_test_created_date'                      => optional(Test::where('author_id', $user->getKey())->where('demo', 0)->where('system_test_id', null)->orderBy('created_at', 'desc')->first())->created_at,
+            'first_test_created_date'                     => self::getFirstTestCreatedDate($user),
+            'last_test_created_date'                      => self::getLastTestCreatedDate($user),
             'user_created_at'                             => $user->created_at,
             'user_last_login'                             => $user->last_login,
             'school_location_name'                        => $user->schoolLocation->name,
             'school_location_customer_code'               => $user->schoolLocation->customer_code,
-            'test_items_created_amount'                   => $user->questionAuthors()->count(),
+            'test_items_created_amount'                   => Question::whereIn('id', $user->questionAuthors()->pluck('question_id'))->where('type', '<>', 'GroupQuestion')->count(),
             'tests_created_amount'                        => $user->tests()->where('demo', 0)->count(),
-            'first_test_planned_date'                     => optional($user->testTakes()->where('demo', 0)->orderBy('created_at', 'desc')->first())->time_start,
-            'last_test_planned_date'                      => optional($user->testTakes()->where('demo', 0)->orderBy('created_at', 'asc')->first())->time_start,
-            'first_test_taken_date'                       => optional($user->testTakes()->where('demo', 0)->orderBy('created_at', 'asc')->first())->created_at,
-            'last_test_taken_date'                        => optional($user->testTakes()->where('demo', 0)->orderBy('created_at', 'desc')->first())->created_at,
-            'tests_taken_amount'                          => $user->testTakes()->where('demo', 0)->where('test_take_status_id', '>', 5)->count(),
+            'first_test_planned_date'                     => self::getFirstTestPlannedDate($user),
+            'last_test_planned_date'                      => self::getLastTestPlannedDate($user),
+            'first_test_taken_date'                       => self::getFirstTestTakenDate($user),
+            'last_test_taken_date'                        => self::getLastTestTakenDate($user),
+            'tests_taken_amount'                          => self::getTestsTakenAmount($user),
             // deze kunnen we niet want kan niet via updated en niet via created_at
-            'first_test_discussed_date'                   => '',
-            'last_test_discussed_date'                    => '',
+            'first_test_discussed_date'                   => self::getFirstTestDiscussedDate($user),
+            'last_test_discussed_date'                    => self::getLastTestDiscussedDate($user),
             'tests_discussed_amount'                      => $user->testTakes()->where('demo', 0)->where('is_discussed', 1)->count(),
             // wat is checked
-            'first_test_checked_date'                     => '',
-            'last_test_checked_date'                      => '',
-            'tests_checked_amount'                        => '',
-            'first_test_rated_date'                       => optional(AnswerRating::whereIn('test_take_id', $user->testTakes->pluck('id'))->orderBy('created_at', 'asc')->first())->created_at,
-            'last_test_rated_date'                        => optional(AnswerRating::whereIn('test_take_id', $user->testTakes->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at,
+            'first_test_checked_date'                     => self::getFirstTestCheckedDate($user),
+            'last_test_checked_date'                      => self::lastTestCheckedDate($user),
+            'tests_checked_amount'                        => self::getTestsCheckedAmount($user),
+            'first_test_rated_date'                       => self::getFirstTestRatedDate($user),
+            'last_test_rated_date'                        => self::getLastTestRatedDate($user),
             'tests_rated_amount'                          => $user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->count(),
             'finished_demo_tour'                          => $wizardData->progress === 100 ? 'Ja' : 'Nee',
             'finished_demo_steps_percentage'              => self::stepsPercentage($user),
@@ -53,19 +53,7 @@ class OnboardingWizardReport extends Model
             'current_demo_tour_step_since_date'           => optional($user->onboardingWizardUserSteps()->orderByDesc('created_at')->first())->created_at,
             'current_demo_tour_step_since_hours'          => optional(optional($user->onboardingWizardUserSteps()->orderByDesc('created_at')->first())->created_at)->diffForHumans(),
             'average_time_finished_demo_tour_steps_hours' => self::getOnboardingWizardMeanTimeCompletingStep($user),
-            'user_sections'                               => sprintf(',%s,', $user->sections()->orderBy('name')
-                ->pluck('name')
-                ->map(function ($item) {
-                    return
-                        str_replace(',', '_',
-                            ucfirst(
-                                strtolower(
-                                    trim($item)
-                                )
-                            )
-                        );
-                })->implode(',')
-            ),
+            'user_sections'                               => self::getUserSections($user),
             'user_login_amount'                           => $user->loginLogs()->count(),
         ]);
     }
@@ -129,21 +117,19 @@ ORDER BY t2.displayorder,
                 )
             )
         );
-        if(isset($result) && isset($result[0])) {
+        if (isset($result) && isset($result[0])) {
             return $result[0]->title;
         }
         return 'no steps yes';
     }
 
-
     public static function updateForAllTeachers()
     {
         User::whereIn('id', Teacher::pluck('user_id'))->each(function ($teacher) {
-            if($teacher->isA('teacher')){
+            if ($teacher->isA('teacher')) {
                 \tcCore\OnboardingWizardReport::updateForUser($teacher);
             };
         });
-
     }
 
     private static function getOnboardingWizardMeanTimeCompletingStep(User $user)
@@ -188,4 +174,188 @@ ORDER BY t2.displayorder,
         ];
     }
     //
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getFirstTestDiscussedDate(User $user)
+    {
+        if (($testTakeIdsForUser = $user->testTakes()->where('demo', 0)->pluck('id')) === []) {
+            return 'no results';
+        }
+
+        return optional(
+            AnswerRating::where('type', 'student')
+                ->whereIn('test_take_id', $testTakeIdsForUser)
+                ->orderBy('created_at', 'asc')->first()
+        )->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getLastTestDiscussedDate(User $user)
+    {
+        if (($testTakeIdsForUser = $user->testTakes()->where('demo', 0)->pluck('id')) === []) {
+            return 'no results';
+        }
+
+        return optional(
+            AnswerRating::where('type', 'student')
+                ->whereIn('test_take_id', $testTakeIdsForUser)
+                ->orderBy('created_at', 'desc')
+                ->first()
+        )->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getFirstTestCheckedDate(User $user)
+    {
+        if (($testTakeIdsForUser = $user->testTakes->where('demo', 0)->pluck('id')) === []) {
+            return 'no results';
+        }
+
+        return optional(
+            AnswerRating::where('type', 'teacher')
+                ->whereIn('test_take_id', $testTakeIdsForUser)
+                ->orderBy('created_at', 'asc')
+                ->first()
+        )->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function lastTestCheckedDate(User $user)
+    {
+        return optional(
+            AnswerRating::where('type', 'teacher')
+                ->whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id')
+                )->orderBy('created_at', 'desc')
+                ->first()
+        )->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getTestsCheckedAmount(User $user)
+    {
+        if (($testTakeIdsForUser = $user->testTakes()->where('demo', 0)->pluck('id')) === []) {
+            return 0;
+        }
+
+        if (($testTakesWithRatings = AnswerRating::where('type', 'teacher')
+                ->whereIn('test_take_id', $testTakeIdsForUser)
+                ->orderBy('created_at', 'desc')->pluck('test_take_id')) === []) {
+            return 0;
+        }
+
+        return TestTake::whereIn('id', $testTakesWithRatings)->count();
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getFirstTestRatedDate(User $user)
+    {
+        return optional(AnswerRating::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'asc')->first())->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getLastTestRatedDate(User $user)
+    {
+        return optional(AnswerRating::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getFirstTestCreatedDate(User $user)
+    {
+        return optional(Test::where('author_id', $user->getKey())->where('demo', 0)->where('system_test_id', null)->orderBy('created_at', 'asc')->first())->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getLastTestCreatedDate(User $user)
+    {
+        return optional(Test::where('author_id', $user->getKey())->where('demo', 0)->where('system_test_id', null)->orderBy('created_at', 'desc')->first())->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getFirstTestPlannedDate(User $user)
+    {
+        return optional($user->testTakes()->where('demo', 0)->orderBy('created_at', 'desc')->first())->time_start;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getLastTestPlannedDate(User $user)
+    {
+        return optional($user->testTakes()->where('demo', 0)->orderBy('created_at', 'asc')->first())->time_start;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getFirstTestTakenDate(User $user)
+    {
+        return optional(TestParticipant::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'asc')->first())->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    private static function getLastTestTakenDate(User $user)
+    {
+        return optional(TestParticipant::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at;
+    }
+
+    /**
+     * @param User $user
+     * @return int
+     */
+    private static function getTestsTakenAmount(User $user): int
+    {
+        return $user->testTakes()->where('demo', 0)->where('test_take_status_id', '>', 5)->count();
+    }
+
+    private static function getUserSections(User $user)
+    {
+        return sprintf(',%s,', $user->sections()->orderBy('name')
+            ->pluck('name')
+            ->map(function ($item) {
+                return
+                    str_replace(',', '_',
+                        ucfirst(
+                            strtolower(
+                                trim($item)
+                            )
+                        )
+                    );
+            })->implode(',')
+        );
+    }
 }
