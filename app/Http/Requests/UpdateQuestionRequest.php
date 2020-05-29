@@ -66,7 +66,7 @@ class UpdateQuestionRequest extends Request {
 	public function rules()
 	{
 		if ($this->has('type') && $this->input('type') !== 'Question') {
-			$rules = $this->getExtraRulesClass($this->input['tpye']);
+			$rules = $this->getExtraRulesClass($this->input('type'));
 			if (class_exists($rules) && method_exists($rules, 'rules')) {
 				return (new $rules($this->route))->rules();
 			}
@@ -116,7 +116,7 @@ class UpdateQuestionRequest extends Request {
 	{
 		$extraRulesClass = $this->getExtraRulesClass($this->input('type'));
 		if (class_exists($extraRulesClass) && method_exists($extraRulesClass, 'getWithValidator')) {
-			(new $extraRulesClass())->getWithValidator($validator);
+			(new $extraRulesClass($this->route))->getWithValidator($validator);
 		}
 	}
 
