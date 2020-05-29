@@ -100,6 +100,14 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
+    public static function getAccountManagerAuthRequestData($overrides = [])
+    {
+        return self::getUserAuthRequestData(
+            User::where('username', 'accountmanager@test-correct.nl')->first(),
+            $overrides
+        );
+    }
+
     public static function getRttiSchoolbeheerderAuthRequestData($overrides = [])
     {
         return self::getUserAuthRequestData(

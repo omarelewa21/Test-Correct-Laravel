@@ -26,7 +26,7 @@ class AddDemoToTests extends Migration
     public function down()
     {
         Schema::table('tests', function (Blueprint $table) {
-            $table->dropColumn(['dmeo']);
+            $table->dropColumn(['demo']);
         });
     }
 }

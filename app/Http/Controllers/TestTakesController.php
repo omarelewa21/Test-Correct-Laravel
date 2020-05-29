@@ -1225,7 +1225,7 @@ class TestTakesController extends Controller {
 
     protected function filterIfNeededForDemo($data,$paginate = false)
     {
-        \DB::raw("set session optimizer_switch='condition_fanout_filter=off';");
+        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
 
         if(Auth::user()->isA('teacher')) {
             $demoSubject = (new DemoHelper())->getDemoSubjectForTeacher(Auth::user());
@@ -1241,7 +1241,7 @@ class TestTakesController extends Controller {
                 $data = ($paginate === true) ? $data->setCollection($list) : $list;
             }
         }
-        \DB::raw("set session optimizer_switch='condition_fanout_filter=on';");
+        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
 
         return $data;
     }
