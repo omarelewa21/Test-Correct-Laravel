@@ -19,16 +19,14 @@
         <td colspan="999" style="padding:20px;">
             Hallo {{$name}}!<br/>
             <br/>
-            Je collega {{$colleague}} heeft je uitgenodigd om Test-Correct te proberen. 
-            Supergoed. Je bent een stap dichterbij een onderwijsinnovatie die echt eenvoudig is om te gebruiken en toch een wezenlijk verschil maakt!<br/>
+            Je collega {{$colleague}} nodigt je uit om Test-Correct uit te proberen, een platform voor digitaal toetsen.
+            We hebben direct een account voor je aangemaakt voor Test-Correct. Je bent daarmee een stap dichterbij een onderwijsinnovatie die echt eenvoudig is om te gebruiken en toch een wezenlijk verschil maakt!<br/>
             <br/>
-            Het ontdekken hoe Test-Correct werkt kan enkele minuten duren, of misschien een paar uur, maar wanneer je
-            het eenmaal doorhebt is het klik-klak-klaar.<br/>
+            Het ontdekken hoe Test-Correct werkt kan enkele minuten duren, of misschien een uur, maar wanneer je het eenmaal doorhebt is het klik-klak-klaar.<br/>
             <br/>
-            Mijn naam is Alex en ik ga je helpen om alles zo soepel mogelijk te laten verlopen: een soort mentor :-)<br/>
+            Mijn naam is Alex en ik wil je graag helpen om alles zo soepel mogelijk te laten verlopen: een soort mentor :-)<br/>
             <br/>
-            Ik raad je aan om direct te beginnen met onze demo tour. Ik leid je daar op een leuke en interactieve manier
-            door de belangrijkste stappen van Test-Correct.<br/>
+            Ik raad je aan om direct te beginnen met onze demo tour. Ik leid je daar op een leuke en interactieve manier door de belangrijkste stappen van Test-Correct.<br/>
             <br/>
             Hieronder staan je inloggegevens:<br/>
             E-mail: {{ $user->username }}<br/>
