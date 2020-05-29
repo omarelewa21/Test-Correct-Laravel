@@ -1225,6 +1225,9 @@ class TestTakesController extends Controller {
 
     protected function filterIfNeededForDemo($data,$paginate = false)
     {
+        // @@ see TC-160
+        // we now alwas change the setting to make it faster and don't reverse it anymore
+        // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
         \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
 
         if(Auth::user()->isA('teacher')) {
@@ -1241,7 +1244,7 @@ class TestTakesController extends Controller {
                 $data = ($paginate === true) ? $data->setCollection($list) : $list;
             }
         }
-        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
+//        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
 
         return $data;
     }
