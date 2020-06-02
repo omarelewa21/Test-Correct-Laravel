@@ -50,6 +50,8 @@ class QuestionHelper extends BaseHelper
                 $obj->nr++;
                 $answerItems = explode('|',$matches[1]);
                 foreach($answerItems as $id => $answerItem) {
+
+
                     $obj->answers[] = [
                         'answer' => $answerItem,
                         'tag' => $obj->nr,
