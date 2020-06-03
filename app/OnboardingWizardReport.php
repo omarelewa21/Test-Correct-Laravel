@@ -29,7 +29,7 @@ class OnboardingWizardReport extends Model
             'school_location_name'                        => $user->schoolLocation->name,
             'school_location_customer_code'               => $user->schoolLocation->customer_code,
             'test_items_created_amount'                   => Question::whereIn('id', $user->questionAuthors()->pluck('question_id'))->where('type', '<>', 'GroupQuestion')->count(),
-            'tests_created_amount'                        => $user->tests()->where('demo', 0)->count(),
+            'tests_created_amount'                        => $user->tests()->where('is_system_test', 1)->where('demo', 0)->count(),
             'first_test_planned_date'                     => self::getFirstTestPlannedDate($user),
             'last_test_planned_date'                      => self::getLastTestPlannedDate($user),
             'first_test_taken_date'                       => self::getFirstTestTakenDate($user),
@@ -46,7 +46,7 @@ class OnboardingWizardReport extends Model
             'first_test_rated_date'                       => self::getFirstTestRatedDate($user),
             'last_test_rated_date'                        => self::getLastTestRatedDate($user),
             'tests_rated_amount'                          => $user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->count(),
-            'finished_demo_tour'                          => $wizardData->progress === 100 ? 'Ja' : 'Nee',
+            'finished_demo_tour'                          => $wizardData->progress == 100 ? 'Ja' : 'Nee',
             'finished_demo_steps_percentage'              => self::stepsPercentage($user),
             'finished_demo_substeps_percentage'           => self::subStepsPercentage($user),
             'current_demo_tour_step'                      => self::getActiveStep($user),
@@ -60,37 +60,54 @@ class OnboardingWizardReport extends Model
 
     public static function subStepsPercentage(User $user)
     {
+        $last_updated_wizard_id = OnboardingWizardUserState::where('user_id', $user->getKey())->orderBy('updated_at', 'desc')->first()->onboarding_wizard_id;
+        if ($last_updated_wizard_id === null) {
+            return 'no wizard was attached to this user';
+        }
+
         $result = DB::select(
             DB::raw(
-                sprintf('select 
-  (SELECT count(*)
+                sprintf("SELECT
+  (SELECT count(distinct(onboarding_wizard_user_steps.`onboarding_wizard_step_id`))
    FROM onboarding_wizard_user_steps
-   WHERE `onboarding_wizard_step_id` IN
-       (SELECT id
-        FROM onboarding_wizard_steps
-        WHERE parent_id IS NOT NULL)
-     AND user_id = %d) /
+   INNER JOIN onboarding_wizard_steps ON (onboarding_wizard_user_steps.`onboarding_wizard_step_id` = onboarding_wizard_steps.id)
+   WHERE user_id=%d
+     AND parent_id IS NOT NULL
+     AND onboarding_wizard_id = '%s')/
   (SELECT count(*)
    FROM onboarding_wizard_steps
-   WHERE parent_id IS NOT NULL) * 100 AS percentage', $user->getKey())));
+   WHERE parent_id IS NOT NULL
+     AND onboarding_wizard_id = '%s') AS percentage",
+                    $user->getKey(),
+                    $last_updated_wizard_id,
+                    $last_updated_wizard_id
+                )));
         return $result[0]->percentage;
     }
 
     public static function stepsPercentage(User $user)
     {
+        $last_updated_wizard_id = OnboardingWizardUserState::where('user_id', $user->getKey())->orderBy('updated_at', 'desc')->first()->onboarding_wizard_id;
+        if ($last_updated_wizard_id === null) {
+            return 'no wizard was attached to this user';
+        }
+
         $result = DB::select(
             DB::raw(
-                sprintf('select 
+                sprintf("SELECT
   (SELECT count(*)
    FROM onboarding_wizard_user_steps
-   WHERE `onboarding_wizard_step_id` IN
-       (SELECT id
-        FROM onboarding_wizard_steps
-        WHERE parent_id IS  NULL)
-     AND user_id = %d) /
+   INNER JOIN onboarding_wizard_steps ON (onboarding_wizard_user_steps.`onboarding_wizard_step_id` = onboarding_wizard_steps.id)
+   WHERE user_id=%d
+     AND parent_id IS NULL
+     AND onboarding_wizard_id = '%s')/
   (SELECT count(*)
    FROM onboarding_wizard_steps
-   WHERE parent_id IS  NULL) * 100 AS percentage', $user->getKey()
+   WHERE parent_id IS NULL
+     AND onboarding_wizard_id = '%s') * 100 AS percentage",
+                    $user->getKey(),
+                    $last_updated_wizard_id,
+                    $last_updated_wizard_id
                 )
             )
         );
@@ -99,21 +116,37 @@ class OnboardingWizardReport extends Model
 
     public static function getActiveStep(User $user)
     {
+        $last_updated_wizard_id = OnboardingWizardUserState::where('user_id', $user->getKey())->orderBy('updated_at', 'desc')->first()->onboarding_wizard_id;
+        if ($last_updated_wizard_id === null) {
+            return 'no wizard was attached to this user';
+        }
+
         $result = DB::select(
             DB::raw(
-                sprintf('
-               SELECT t2.title AS title
+                sprintf("
+                   SELECT t2.title AS title
 FROM onboarding_wizard_steps AS t1
 LEFT JOIN onboarding_wizard_steps AS t2 ON (t1.parent_id = t2.id)
 LEFT JOIN
-  (SELECT *
-   FROM onboarding_wizard_user_steps
-   WHERE user_id=%d) AS t3 ON (t1.id = t3.onboarding_wizard_step_id)
+  (SELECT onboarding_wizard_user_steps.*
+   FROM onboarding_wizard_user_steps 
+   
+   INNER JOIN onboarding_wizard_steps ON (onboarding_wizard_user_steps.`onboarding_wizard_step_id` = onboarding_wizard_steps.id)
+   
+   WHERE user_id=%d
+   AND onboarding_wizard_id = '%s'
+   ) AS t3 ON (t1.id = t3.onboarding_wizard_step_id)
 WHERE t1.parent_id IS NOT NULL
   AND t3.user_id IS NULL
+  AND t1.onboarding_wizard_id = '%s'
+  AND t2.onboarding_wizard_id ='%s'
 ORDER BY t2.displayorder,
-         t1.displayorder LIMIT 1',
-                    $user->getKey()
+         t1.displayorder LIMIT 1
+               ",
+                    $user->getKey(),
+                    $last_updated_wizard_id,
+                    $last_updated_wizard_id,
+                    $last_updated_wizard_id
                 )
             )
         );
@@ -125,7 +158,7 @@ ORDER BY t2.displayorder,
 
     public static function updateForAllTeachers()
     {
-        User::whereIn('id', Teacher::pluck('user_id'))->each(function ($teacher) {
+        User::whereIn('id', Teacher::pluck('user_id'))->where('demo', 0)->each(function ($teacher) {
             if ($teacher->isA('teacher')) {
                 \tcCore\OnboardingWizardReport::updateForUser($teacher);
             };
@@ -248,12 +281,13 @@ ORDER BY t2.displayorder,
      */
     private static function getTestsCheckedAmount(User $user)
     {
-        if (($testTakeIdsForUser = $user->testTakes()->where('demo', 0)->pluck('id')) === []) {
+        if (($testTakeIdsForUser = $user->testTakes()->where('demo', 0)->groupBy('id')->pluck('id')) === []) {
             return 0;
         }
 
         if (($testTakesWithRatings = AnswerRating::where('type', 'teacher')
                 ->whereIn('test_take_id', $testTakeIdsForUser)
+                ->groupBy('test_take_id')
                 ->orderBy('created_at', 'desc')->pluck('test_take_id')) === []) {
             return 0;
         }
@@ -267,7 +301,14 @@ ORDER BY t2.displayorder,
      */
     private static function getFirstTestRatedDate(User $user)
     {
-        return optional(AnswerRating::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'asc')->first())->created_at;
+        // via testPartcipant rating collumn where test_take_status_id = 9
+//        return optional(AnswerRating::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'asc')->first())->created_at;
+
+        return optional(
+            TestParticipant::whereIn('test_take_id',
+                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id')))
+                ->orderBy('updated_at', 'asc')->first()
+        )->updated_at;
     }
 
     /**
@@ -276,7 +317,12 @@ ORDER BY t2.displayorder,
      */
     private static function getLastTestRatedDate(User $user)
     {
-        return optional(AnswerRating::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at;
+//        return optional(AnswerRating::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at;
+        return optional(
+            TestParticipant::whereIn('test_take_id',
+                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id')))
+                ->orderBy('updated_at', 'desc')->first()
+        )->updated_at;
     }
 
     /**
@@ -303,7 +349,8 @@ ORDER BY t2.displayorder,
      */
     private static function getFirstTestPlannedDate(User $user)
     {
-        return optional($user->testTakes()->where('demo', 0)->orderBy('created_at', 'desc')->first())->time_start;
+        return optional($user->testTakes()->where('demo', 0)->orderBy('test_takes.time_start', 'asc')->first())->time_start;
+
     }
 
     /**
@@ -312,7 +359,7 @@ ORDER BY t2.displayorder,
      */
     private static function getLastTestPlannedDate(User $user)
     {
-        return optional($user->testTakes()->where('demo', 0)->orderBy('created_at', 'asc')->first())->time_start;
+        return optional($user->testTakes()->where('demo', 0)->orderBy('test_takes.time_start', 'desc')->first())->time_start;
     }
 
     /**
@@ -321,7 +368,8 @@ ORDER BY t2.displayorder,
      */
     private static function getFirstTestTakenDate(User $user)
     {
-        return optional(TestParticipant::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'asc')->first())->created_at;
+        // return optional(TestParticipant::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'asc')->first())->created_at;
+        return optional($user->testTakes()->where('demo', 0)->orderBy('test_takes.time_end', 'asc')->first())->time_end;
     }
 
     /**
@@ -330,7 +378,8 @@ ORDER BY t2.displayorder,
      */
     private static function getLastTestTakenDate(User $user)
     {
-        return optional(TestParticipant::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at;
+        //return optional(TestParticipant::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at;
+        return optional($user->testTakes()->where('demo', 0)->orderBy('test_takes.time_end', 'desc')->first())->time_end;
     }
 
     /**
