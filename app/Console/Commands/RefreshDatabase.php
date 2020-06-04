@@ -47,8 +47,10 @@ class RefreshDatabase extends Command
             'testdb.sql',
             'attainments.sql',
         ];
+
+        file_put_contents(public_path() . "/waiting.txt", "1");
         
-        if ($this->hasOption('file')) {
+        if ($this->hasOption('file') && $this->option('file') != null) {
             $sqlImports = [
                 sprintf('testing/db_dump_%s.sql', $this->option('file')),
             ];
@@ -76,6 +78,9 @@ class RefreshDatabase extends Command
         }
 
         $this->addMigrations();
+
+        file_put_contents(public_path() . "/waiting.txt", "0");
+
         $this->info('refresh database complete');
     }
 }
