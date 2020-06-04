@@ -29,7 +29,7 @@ class OnboardingWizardReport extends Model
             'school_location_name'                        => $user->schoolLocation->name,
             'school_location_customer_code'               => $user->schoolLocation->customer_code,
             'test_items_created_amount'                   => Question::whereIn('id', $user->questionAuthors()->pluck('question_id'))->where('type', '<>', 'GroupQuestion')->count(),
-            'tests_created_amount'                        => $user->tests()->where('is_system_test', 1)->where('demo', 0)->count(),
+            'tests_created_amount'                        => $user->tests()->whereNull('system_test_id')->where('demo', 0)->count(),
             'first_test_planned_date'                     => self::getFirstTestPlannedDate($user),
             'last_test_planned_date'                      => self::getLastTestPlannedDate($user),
             'first_test_taken_date'                       => self::getFirstTestTakenDate($user),
@@ -77,7 +77,7 @@ class OnboardingWizardReport extends Model
   (SELECT count(*)
    FROM onboarding_wizard_steps
    WHERE parent_id IS NOT NULL
-     AND onboarding_wizard_id = '%s') AS percentage",
+     AND onboarding_wizard_id = '%s') * 100 AS percentage",
                     $user->getKey(),
                     $last_updated_wizard_id,
                     $last_updated_wizard_id
@@ -151,7 +151,8 @@ ORDER BY t2.displayorder,
             )
         );
         if (isset($result) && isset($result[0])) {
-            return $result[0]->title;
+            $str = $result[0]->title;
+            return substr($str, 0, strpos($str, '<'));
         }
         return 'no steps yes';
     }
@@ -306,8 +307,10 @@ ORDER BY t2.displayorder,
 
         return optional(
             TestParticipant::whereIn('test_take_id',
-                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id')))
-                ->orderBy('updated_at', 'asc')->first()
+                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id'))
+            )->where(function($query) {
+                return $query->orWhereNotNull('rating')->orWhereNotNull('retake_rating');
+            })->orderBy('updated_at', 'asc')->first()
         )->updated_at;
     }
 
@@ -320,8 +323,10 @@ ORDER BY t2.displayorder,
 //        return optional(AnswerRating::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at;
         return optional(
             TestParticipant::whereIn('test_take_id',
-                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id')))
-                ->orderBy('updated_at', 'desc')->first()
+                ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id'))
+            )->where(function($query) {
+                return $query->orWhereNotNull('rating')->orWhereNotNull('retake_rating');
+            })->orderBy('updated_at', 'desc')->first()
         )->updated_at;
     }
 
@@ -350,7 +355,6 @@ ORDER BY t2.displayorder,
     private static function getFirstTestPlannedDate(User $user)
     {
         return optional($user->testTakes()->where('demo', 0)->orderBy('test_takes.time_start', 'asc')->first())->time_start;
-
     }
 
     /**
@@ -369,7 +373,8 @@ ORDER BY t2.displayorder,
     private static function getFirstTestTakenDate(User $user)
     {
         // return optional(TestParticipant::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'asc')->first())->created_at;
-        return optional($user->testTakes()->where('demo', 0)->orderBy('test_takes.time_end', 'asc')->first())->time_end;
+        return optional($user->testTakes()->where('demo', 0)->where('test_take_status_id', '>=', 6)->orderBy('time_start', 'asc')->first())->time_start;
+
     }
 
     /**
@@ -379,7 +384,7 @@ ORDER BY t2.displayorder,
     private static function getLastTestTakenDate(User $user)
     {
         //return optional(TestParticipant::whereIn('test_take_id', $user->testTakes()->where('demo', 0)->pluck('id'))->orderBy('created_at', 'desc')->first())->created_at;
-        return optional($user->testTakes()->where('demo', 0)->orderBy('test_takes.time_end', 'desc')->first())->time_end;
+        return optional($user->testTakes()->where('demo', 0)->where('test_take_status_id', '>=', 6)->orderBy('time_start', 'desc')->first())->time_start;
     }
 
     /**
