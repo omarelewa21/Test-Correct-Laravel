@@ -313,6 +313,19 @@ class Question extends MtiBaseModel {
 
         $attainments = $this->questionAttainments()->pluck('attainment_id')->all();
 
+        /////////////////
+        //fix for TC-106
+        //also fixed in the fill() method, but somehow that doesn't work
+        //so we also fix it here, because this is where the error will start
+        if (!is_array($this->attainments)) {
+            $this->attainments = [$this->attainments];
+        }
+
+        if (!is_array($attainments)) {
+            $attainments = [$attainments];
+        }
+        /////////////////
+
         if (count($this->attainments) != count($attainments) || array_diff($this->attainments, $attainments)) {
             return true;
         } else {
