@@ -44,6 +44,9 @@ class Question extends MtiBaseModel {
 
     protected $authors = null;
 
+    /**
+     * @var array or null
+     */
     protected $attainments = null;
 
     protected $tags = null;
@@ -71,6 +74,13 @@ class Question extends MtiBaseModel {
             if(array_key_exists('attainments', $attributes)) {
                 if ($attributes['attainments'] == '') {
                     $attributes['attainments'] = [];
+                }
+
+                //TC-106
+                //convert attainments to an array if it is not an array
+                //because it is expected to be an array
+                if (!is_array($attributes['attainments'])) {
+                    $attributes['attainments'] = [$attributes['attainments']];
                 }
 
                 $this->attainments = $attributes['attainments'];
