@@ -48,6 +48,7 @@ class RefreshDatabase extends Command
         
         if ($this->hasOption('file') && $this->option('file') != null) {
             $sqlImports = [
+                database_path('seeds/dropAllTablesAndViews.sql'),
                 database_path(sprintf('seeds/testing/db_dump_%s.sql', $this->option('file'))),
             ];
         }

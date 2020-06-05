@@ -11,6 +11,8 @@ class TestingController extends Controller {
         
         if (file_exists($file)) {
 
+            DatabaseImport::importSql(database_path('seeds/dropAllTablesAndViews.sql'));
+
             DatabaseImport::importSql($file);
 
             DatabaseImport::migrate();
