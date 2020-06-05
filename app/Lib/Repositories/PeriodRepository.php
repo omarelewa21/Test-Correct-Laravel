@@ -4,6 +4,12 @@ use Carbon\Carbon;
 use tcCore\Period;
 
 class PeriodRepository {
+    public static function getCurrentPeriod() {
+        $now = Carbon::now();
+        $result = Period::filtered()->where('start_date', '<=', $now->toDateString())->where('end_date', '>=', $now->toDateString())->first();
+        return $result;
+    }
+
     public static function getCurrentOrPreviousPeriod() {
         $now = Carbon::now();
         $result = Period::filtered()->where('start_date', '<=', $now->toDateString())->where('end_date', '>=', $now->toDateString())->first();

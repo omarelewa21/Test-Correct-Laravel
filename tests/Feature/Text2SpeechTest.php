@@ -157,12 +157,4 @@ class Text2SpeechTest extends TestCase
         $this->deleteUser($student);
     }
 
-    protected function getUrlWithAuthCredentials($url,$data){
-        $startkey = '?';
-        if(substr_count($url,'?')){
-            $startkey = '&';
-        }
-        return sprintf('%s%suser=%s&session_hash=%s',$url,$startkey,$data['user'],$data['session_hash']);
-    }
-
 }

@@ -17,6 +17,11 @@ use tcCore\User;
 class SchoolHelper
 {
 
+    public static function getTempTeachersSchoolLocation()
+    {
+        return SchoolLocation::where('customer_code','TC-tijdelijke-docentaccounts')->first();
+    }
+
     public function getRelatedSchoolLocationIds($user){
         if($user->hasRole('Account manager')) {
             return SchoolLocation::where(function ($query) use ($user) {

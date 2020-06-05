@@ -245,7 +245,7 @@ class TestTake extends BaseModel
                 }
             }
 
-            if ($testTake->testTakeStatus->name === 'Rated' && $originalTestTakeStatus->name !== 'Rated') {
+            if ($testTake->testTakeStatus->name === 'Rated' && $originalTestTakeStatus !== null && $originalTestTakeStatus->name !== 'Rated') {
                 Queue::later(300, new SendTestRatedMail($testTake));
             }
 
@@ -412,7 +412,7 @@ class TestTake extends BaseModel
     {
         $testTakeParticipantFactory = new Factory(new TestParticipant());
         $testParticipants = $testTakeParticipantFactory->generateMany($this->getKey(), ['school_class_ids' => $this->schoolClasses, 'test_take_status_id' => with(TestTakeStatus::where('name', 'Planned')->first())->getKey()]);
-
+//logger(print_r($testParticipants,true));
         $this->testParticipants()->saveMany($testParticipants);
         $this->schoolClasses = null;
     }
@@ -484,8 +484,18 @@ class TestTake extends BaseModel
                                     });
                             });
                     });
-
             });
+
+            // don't show demo tests from other teachers
+            $user = Auth::user();
+            $query->where(function($query) use ($user) {
+                $query->where(function($query) use ($user) {
+                    $query->where($this->getTable().'.demo',1)
+                        ->where($this->getTable().'.user_id',$user->getKey());
+                })
+                    ->orWhere($this->getTable().'.demo',0);
+            });
+
         } elseif (in_array('Student', $roles)) {
             $query->whereIn($this->getTable() . '.id', function ($query) {
                 $query->select('test_take_id')

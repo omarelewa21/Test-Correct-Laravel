@@ -35,7 +35,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface'];
+    protected $fillable = ['school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -51,6 +51,11 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     public function fill(array $attributes)
     {
         parent::fill($attributes);
+
+        if(array_key_exists('demo_restriction_overrule',$attributes)){
+            logger('attribute found');
+            $this->demoRestrictionOverrule = true;
+        }
 
         if (array_key_exists('student_users', $attributes)) {
             $this->students = $attributes['student_users'];
@@ -124,6 +129,18 @@ class SchoolClass extends BaseModel implements AccessCheckable {
             if ($schoolClass->managers !== null) {
                 $schoolClass->saveManagers();
             }
+        });
+
+        static::updating(function (SchoolClass $schoolClass){
+            if($schoolClass->getOriginal('demo') == true && !isset($schoolClass->demoRestrictionOverrule)) {
+                return false;
+            }
+            if(isset($schoolClass->demoRestrictionOverrule)) unset($schoolClass->demoRestrictionOverrule);
+
+        });
+
+        static::deleting(function (SchoolClass $schoolClass){
+            if($schoolClass->getOriginal('demo') == true) return false;
         });
     }
 

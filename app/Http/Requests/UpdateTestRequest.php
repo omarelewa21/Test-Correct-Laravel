@@ -2,6 +2,7 @@
 
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
+use tcCore\Http\Helpers\DemoHelper;
 
 class UpdateTestRequest extends Request {
 
@@ -48,6 +49,24 @@ class UpdateTestRequest extends Request {
 			'shuffle' => ''
 		];
 	}
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $data = ($this->all());
+            if(isset($data['name']) && strtolower($data['name']) === strtolower(DemoHelper::BASEDEMOTESTNAME)){
+                if(Auth::user()->schoolLocation->name !== DemoHelper::SCHOOLLOCATIONNAME){
+                    $validator->errors()->add('name','Deze naam is helaas niet beschikbaar voor een toets');
+                }
+            }
+        });
+    }
 
 	/**
 	 * Get the sanitized input for the request.

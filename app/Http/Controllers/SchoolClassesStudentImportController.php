@@ -53,20 +53,17 @@ class SchoolClassesStudentImportController extends Controller {
                 $user = User::where('username',$userData['username'])->first();
                 if($user) {
                     if ($user->isA('student')) {
-                        logger('ja student '.$schoolClass->getKey().' aa');
                         $classExists = (bool) $user->students->firstWhere('class_id', $schoolClass->getKey());
                         if(!$classExists){
-                            logger('class bestaat nog niet');
                             $user->students()->create([
                                'class_id' => $schoolClass->getKey()
                             ]);
-                        }else{logger('klas '.$schoolClass->getKey.' bestaat al voor '.$user->getKey());}
+                        }
                     }
                 }
                 else {
                     $userFactory = new Factory(new User());
                     $userData = array_merge($u, $defaultData);
-                    logger(print_r($userData, true));
                     $user = $userFactory->generate(array_merge($u, $defaultData));
                 }
             });

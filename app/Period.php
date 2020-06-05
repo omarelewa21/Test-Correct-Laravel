@@ -1,8 +1,11 @@
 <?php namespace tcCore;
 
+use Carbon\Carbon;
 use Closure;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -59,6 +62,26 @@ class Period extends BaseModel implements AccessCheckable {
 
     public function ratings() {
         return $this->hasMany('tcCore\Rating');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        // addd for the onboarding experience 20200506
+        // REMARK: based on current logged in user!!!!
+        static::created(function (Period $period) {
+            if ($period->start_date <= Carbon::today() && $period->end_date >= Carbon::today()) { // current period
+                $helper = new DemoHelper();
+                $schoolYear = $period->schoolYear;
+                $user = Auth::user();
+                if(null === $user->schoolLocation){
+                    $period->forceDelete();
+                    throw new \Exception('U kunt een periode alleen aanmaken als een gebruiker van een schoollocatie. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.');
+                }
+                $helper->createDemoClassForSchoolLocationAndPopulate($user->schoolLocation, $schoolYear);
+            }
+        });
     }
 
     public function scopeFiltered($query, $filters = [], $sorting = [])

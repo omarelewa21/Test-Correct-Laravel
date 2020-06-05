@@ -1,9 +1,28 @@
 <?php namespace tcCore\Lib\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use tcCore\Lib\User\Roles;
 
 abstract class BaseModel extends Model {
+
+    public function cloneModelOnly(array $except = null)
+    {
+        $defaults = [
+            $this->getKeyName(),
+            $this->getCreatedAtColumn(),
+            $this->getUpdatedAtColumn(),
+        ];
+
+        $attributes = Arr::except(
+            $this->attributes, $except ? array_unique(array_merge($except, $defaults)) : $defaults
+        );
+
+        $instance = new static;
+        $instance->setRawAttributes($attributes);
+
+        return $instance;
+    }
 
     protected function getUserRoles() {
         return Roles::getUserRoles();

@@ -31,7 +31,7 @@ class Section extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['name'];
+    protected $fillable = ['name','demo'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -39,6 +39,10 @@ class Section extends BaseModel implements AccessCheckable {
      * @var array
      */
     protected $hidden = [];
+
+    protected $casts = [
+        'demo' => 'boolean',
+    ];
 
     protected $schoolLocations;
 
@@ -65,6 +69,14 @@ class Section extends BaseModel implements AccessCheckable {
     public static function boot()
     {
         parent::boot();
+
+        static::updating(function (self $item) {
+            if ($item->getOriginal('demo') == true) return false;
+        });
+
+        static::deleting(function (self $item) {
+            if ($item->getOriginal('demo') == true) return false;
+        });
 
         // Progress additional answers
         static::saved(function(Section $section)

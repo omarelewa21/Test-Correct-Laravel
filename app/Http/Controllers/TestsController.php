@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
@@ -19,9 +20,12 @@ class TestsController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-	    \DB::raw("set session optimizer_switch='condition_fanout_filter=off';");
+        // @@ see TC-160
+        // we now alwas change the setting to make it faster and don't reverse it anymore
+        // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
+        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
 		$tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
-        \DB::raw("set session optimizer_switch='condition_fanout_filter=on';");
+//		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
 		return Response::make($tests, 200);
 	}
 

@@ -1,5 +1,7 @@
 <?php namespace tcCore\Http\Requests;
 
+use tcCore\SchoolLocation;
+
 class CreateSchoolLocationRequest extends Request {
 
 	/**
@@ -23,6 +25,22 @@ class CreateSchoolLocationRequest extends Request {
 			'name' => ''
 		];
 	}
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $data = ($this->all());
+            if(isset($data['customer_code']) && SchoolLocation::where('customer_code',$data['customer_code'])->count() > 0){
+                $validator->errors()->add('customer_code','Er bestaat al een school locatie met dit klantnummer');
+            }
+        });
+    }
 
 	/**
 	 * Get the sanitized input for the request.

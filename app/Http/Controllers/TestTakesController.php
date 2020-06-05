@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
 use tcCore\GroupQuestion;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\NormalizeTestTakeRequest;
 use tcCore\Lib\Question\QuestionGatherer;
@@ -34,7 +35,7 @@ class TestTakesController extends Controller {
 
 		switch(strtolower($request->get('mode', 'paginate'))) {
 			case 'all':
-				$testTakes = $testTakes->get();
+				$testTakes = $this->filterIfNeededForDemo($testTakes->get());
 				$testTakeSchoolClasses = [];
 				foreach($testTakes as $i => $testTake) {
 					$testTakeSchoolClasses[$i] = $testTake->schoolClasses()->get();
@@ -48,7 +49,7 @@ class TestTakesController extends Controller {
 				return Response::make($testTakes, 200);
 				break;
 			case 'list':
-				$testTakes = $testTakes->with('testParticipants', 'testParticipants.schoolClass')->get();
+				$testTakes = $this->filterIfNeededForDemo($testTakes->with('testParticipants', 'testParticipants.schoolClass')->get());
 				$response = [];
 				foreach($testTakes as $testTake) {
 					$test = $testTake->test;
@@ -85,7 +86,7 @@ class TestTakesController extends Controller {
 					}, 'testParticipants.testTakeStatus']);
 				}
 
-				$testTakes = $testTakes->paginate(15);
+				$testTakes = $this->filterIfNeededForDemo($testTakes->paginate(15),true);
 				$testTakeSchoolClasses = [];
 				$ownTestParticipants = [];
 				foreach($testTakes as $i => $testTake) {
@@ -1220,6 +1221,32 @@ class TestTakesController extends Controller {
         $someGluedUpVariable = $parentsGlue.$questionId;
         $newQuestionIdParents = QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $someGluedUpVariable, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY']));
         $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $newQuestionIdParents, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY'])) !== false));
+    }
+
+    protected function filterIfNeededForDemo($data,$paginate = false)
+    {
+        // @@ see TC-160
+        // we now alwas change the setting to make it faster and don't reverse it anymore
+        // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
+        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+
+        if(Auth::user()->isA('teacher')) {
+            $demoSubject = (new DemoHelper())->getDemoSubjectForTeacher(Auth::user());
+            $refId = Auth::id();
+            if($demoSubject !== null) {
+                $items = ($paginate === true) ? $data->getCollection() : $data;
+                $list = $items->filter(function (TestTake $tt) use ($demoSubject, $refId) {
+                    if($tt->test->subject_id === $demoSubject->getKey() && $tt->test->author_id !== $refId){
+                        return false;
+                    }
+                    return true;
+                });
+                $data = ($paginate === true) ? $data->setCollection($list) : $list;
+            }
+        }
+//        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
+
+        return $data;
     }
 
 

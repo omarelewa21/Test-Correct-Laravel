@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
 use tcCore\Jobs\Rating\CalculateRatingForTestParticipant;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -135,6 +136,8 @@ class TestParticipant extends BaseModel
                 }
             }
             $this->answers()->saveMany($answers);
+
+            (new AnswerParentQuestionsHelper())->fixAnswerParentQuestionsPerTestParticipant($this);
         }
     }
 
@@ -163,7 +166,7 @@ class TestParticipant extends BaseModel
      */
     public function answers()
     {
-        return $this->hasMany('tcCore\Answer');
+        return $this->hasMany('tcCore\Answer')->orderBy('order');
     }
 
     public function testTakeEvents()

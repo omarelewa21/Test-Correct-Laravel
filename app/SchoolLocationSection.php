@@ -26,7 +26,7 @@ class SchoolLocationSection extends CompositePrimaryKeyModel {
      *
      * @var array
      */
-    protected $fillable = ['school_location_id', 'section_id'];
+    protected $fillable = ['school_location_id', 'section_id','demo'];
 
     /**
      * The primary key for the model.
@@ -46,7 +46,24 @@ class SchoolLocationSection extends CompositePrimaryKeyModel {
         return $this->belongsTo('tcCore\SchoolLocation');
     }
 
-    public function subject() {
+    public function subject() { // who thinks of such a name and call it subject instead of section 20200508 Erik???
         return $this->belongsTo('tcCore\Section');
+    }
+
+    public function section() {
+        return $this->belongsTo('tcCore\Section');
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::updating(function (self $item) {
+            if ($item->getOriginal('demo') == true) return false;
+        });
+
+        static::deleting(function (self $item) {
+            if ($item->getOriginal('demo') == true) return false;
+        });
     }
 }

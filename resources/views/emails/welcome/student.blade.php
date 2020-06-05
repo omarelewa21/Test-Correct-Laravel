@@ -7,18 +7,19 @@
             <br/>
             Welkom bij Test-Correct!<br/>
             <br/>
-            Leuk dat je gaat werken in Test-Correct. Niets staat je nog in de weg om betere resultaten te behalen. Je actieve bijdrage bij het bespreken van de toets gaat ervoor zorgen dat jij veel meer gaat begrijpen en onthouden, de automatische analyse wijst je ook nog eens op je sterktes en zwaktes! Een goede voorbereiding voor ieder examen. Niets staat een prachtig diploma nog in de weg!<br/>
-            Je gebruikersnaam: {{ $user->username }}<br/>
-            Je wachtwoord: {{ $password }}<br/>
+            Je docent heeft je opgegeven voor Test-Correct. Je docent gaat Test-Correct gebruiken om toetsen digitaal af te nemen.<br />
             <br/>
-            Lees deze tips voordat je aan de slag gaat:<br/>
-            <ul>
-                <li><a https://www.test-correct.nl/toets-maken/">Toets maken</a><br/>Bekijk wat je kan verwachten bij het maken van een toets in Test-Correct.</li>
-                <li><a href="https://www.test-correct.nl/toets-bespreken/">Toets bespreken</a><br/>Hier zit het geheim van jouw succes. Bekijk waarom.</li>
-                <li><a href="https://www.test-correct.nl/support/student/">Analyseren</a><br/>Wat zeggen de analyses over jouw?</li>
-            </ul>
+            Je actieve bijdrage bij het bespreken van de toets gaat ervoor zorgen dat jij veel meer gaat begrijpen en onthouden en de automatische analyse wijst je ook nog eens op je sterktes en zwaktes! Een goede voorbereiding voor ieder examen. Niets staat een prachtig diploma nog in de weg!<br/>
             <br/>
-            Veel plezier met Test-Correct & succes met de toetsen!<br/>
+            Om Test-Correct te kunnen gebruiken heb je een app nodig. Installeer deze tijdig, voordat je een toets hebt. Deze kun je downloaden via onze website <a href="https://www.test-correct.nl">www.test-correct.nl</a>. Klik hiervoor op het menu icoon rechts bovenaan de startpagina en kies “Downloads”. Je kunt ook onderstaande link gebruiken.<br/>
+            <br/>
+            <a href="https://www.test-correct.nl/downloads/" style="background-color: #42b947;padding: 15px 30px;margin-bottom: 30px;display: inline-block;color:#ffffff;text-decoration:none">App downloaden</a><br/>
+            <br/>
+            Als je de app opent, heb je onderstaande gegevens nodig om in te loggen:<br/>
+            E-mail: {{ $user->username }}<br/>
+            Wachtwoord: {{ $password }}<br/>
+            <br/>
+            Veel plezier met Test-Correct en succes met de toetsen!<br/>
             <br/>
             Test-Correct supportteam
         </td>

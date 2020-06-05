@@ -23,7 +23,7 @@ abstract class TestCase extends BaseTestCase
 
     const USER_BEHEERDER = 'opensourceschoollocatie1@test-correct.nl';
     const FIORETTI_TEACHER = 'd1@test-correct.nl';
-    const USER_ACCOUNTMANAGER = 'opensourceschoollocatie1@test-correct.nl';
+    const USER_ACCOUNTMANAGER = 'standaardschoolbeheerder@test-correct.nl';
 
     public static function getAuthRequestData($overrides = [])
     {
@@ -100,6 +100,22 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
+    public static function getAccountManagerAuthRequestData($overrides = [])
+    {
+        return self::getUserAuthRequestData(
+            User::where('username', 'accountmanager@test-correct.nl')->first(),
+            $overrides
+        );
+    }
+
+    public static function getRttiSchoolbeheerderAuthRequestData($overrides = [])
+    {
+        return self::getUserAuthRequestData(
+            User::where('username', 'rtti-schoolbeheerder@test-correct.nl')->first(),
+            $overrides
+        );
+    }
+
     public static function authStudentOneGetRequest($url, $params=[]) {
 
         return self::authUserGetRequest(
@@ -148,6 +164,13 @@ abstract class TestCase extends BaseTestCase
         ], $overrides);
     }
 
+    protected function getUrlWithAuthCredentials($url,$data){
+        $startkey = '?';
+        if(substr_count($url,'?')){
+            $startkey = '&';
+        }
+        return sprintf('%s%suser=%s&session_hash=%s',$url,$startkey,$data['user'],$data['session_hash']);
+    }
 
     protected function setUp(): void
     {

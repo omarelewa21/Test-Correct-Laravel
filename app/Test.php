@@ -33,7 +33,7 @@ class Test extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle','is_open_source_content'];
+    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle','is_open_source_content','demo'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -379,6 +379,17 @@ class Test extends BaseModel {
                     $query->orderBy($key, $value);
                     break;
             }
+        }
+
+        if($user->isA('teacher')){
+            // don't show demo tests from other teachers
+            $query->where(function($query) use ($user) {
+                $query->where(function($query) use ($user) {
+                    $query->where('demo',1)
+                        ->where('author_id',$user->getKey());
+                })
+                    ->orWhere('demo',0);
+            });
         }
 
         return $query;

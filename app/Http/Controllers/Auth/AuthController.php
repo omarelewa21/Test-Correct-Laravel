@@ -7,7 +7,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use tcCore\Http\Controllers\Controller;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\User\Roles;
+use tcCore\LoginLog;
 use tcCore\User;
 
 class AuthController extends Controller
@@ -29,6 +31,9 @@ class AuthController extends Controller
         if ($this->auth->once(['username' => $user, 'password' => $password])) {
             $user = $this->auth->user();
             $user->setAttribute('session_hash', $user->generateSessionHash());
+            if((bool) $user->demo === true){
+                $user->demoRestrictionOverrule = true;
+            }
             $user->save();
             $user->load('roles');
 
@@ -41,14 +46,26 @@ class AuthController extends Controller
                 unset($hidden[$key]);
             }
 
-            $user->setHidden($hidden);
+            if($user->isA('teacher')){
+                (new DemoHelper())->createDemoForTeacherIfNeeded($user);
+            }
+
 
             if($this->canHaveGeneralText2SpeechPrice($user)){
                 $user->setAttribute('general_text2speech_price',config('custom.text2speech.price'));
             }
             $user->setAttribute('isToetsenbakker',$user->isToetsenbakker());
 
-            return new JsonResponse($user);
+            $user->makeOnboardWizardIfNeeded();
+
+            $clone = $user->replicate();
+            $clone->{$user->getKeyName()} = $user->getKey();
+            $clone->setHidden($hidden);
+
+            $clone->logins = $user->getLoginLogCount();
+            LoginLog::create(['user_id' => $user->getKey()]);
+
+            return new JsonResponse($clone);
         } else {
             return \Response::make("Invalid credentials.", 403);
         }

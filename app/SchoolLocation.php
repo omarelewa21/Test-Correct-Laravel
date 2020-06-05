@@ -5,6 +5,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Jobs\CountAccountManagerAccounts;
 use tcCore\Jobs\CountAccountManagerActiveLicenses;
 use tcCore\Jobs\CountAccountManagerExpiredLicenses;
@@ -267,6 +268,10 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
             }
         });
 
+        static::created(function (SchoolLocation $schoolLocation){
+            (new DemoHelper())->createDemoPartsForSchool($schoolLocation);
+        });
+
         // Progress additional answers
         static::saved(function(SchoolLocation $schoolLocation)
         {
@@ -320,6 +325,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         static::deleted(function(SchoolLocation $schoolLocation)
         {
             $schoolLocation->dispatchJobs(true);
+        });
+
+        static::updated(function(SchoolLocation $schoolLocation){
+           $originalCustomerCode = $schoolLocation->getOriginal('customer_code');
+           if($originalCustomerCode !== $schoolLocation->customer_code){
+               logger('change code');
+               (new DemoHelper())->changeDemoUsersAsSchoolLocationCustomerCodeChanged($schoolLocation,$originalCustomerCode);
+           }
         });
     }
 

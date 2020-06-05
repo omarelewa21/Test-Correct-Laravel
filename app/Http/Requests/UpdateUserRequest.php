@@ -119,4 +119,19 @@ class UpdateUserRequest extends Request {
 		);
 	}
 
+    /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if($this->user->getOriginal('demo') == true){
+                    $validator->errors()->add('demo', 'Een demo gebruiker kan niet aangepast worden.');
+            }
+        });
+    }
+
 }
