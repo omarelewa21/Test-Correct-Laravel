@@ -12,7 +12,7 @@ class OnboardingWizardReportController extends Controller
     public function store()
     {
         // run realtime when not on production
-        if (config('app.url_login') !== 'https://portal.test-correct.nl') {
+        if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
             \tcCore\OnboardingWizardReport::updateForAllTeachers();
         }
 
