@@ -3,25 +3,23 @@
 @section('content')
     <tr>
         <td colspan="999" style="padding:20px;">
-            Beste {{$user->getNameFullAttribute()}},<br/>
+            Beste {{ $user->name_first }},<br/>
             <br/>
-            Welkom bij Test-Correct!<br/>
-            <br/>
-            Je docent heeft je opgegeven voor Test-Correct. Je docent gaat Test-Correct gebruiken om toetsen digitaal af te nemen.<br />
-            <br/>
-            Je actieve bijdrage bij het bespreken van de toets gaat ervoor zorgen dat jij veel meer gaat begrijpen en onthouden en de automatische analyse wijst je ook nog eens op je sterktes en zwaktes! Een goede voorbereiding voor ieder examen. Niets staat een prachtig diploma nog in de weg!<br/>
-            <br/>
-            Om Test-Correct te kunnen gebruiken heb je een app nodig. Installeer deze tijdig, voordat je een toets hebt. Deze kun je downloaden via onze website <a href="https://www.test-correct.nl">www.test-correct.nl</a>. Klik hiervoor op het menu icoon rechts bovenaan de startpagina en kies “Downloads”. Je kunt ook onderstaande link gebruiken.<br/>
-            <br/>
-            <a href="https://www.test-correct.nl/downloads/" style="background-color: #42b947;padding: 15px 30px;margin-bottom: 30px;display: inline-block;color:#ffffff;text-decoration:none">App downloaden</a><br/>
-            <br/>
-            Als je de app opent, heb je onderstaande gegevens nodig om in te loggen:<br/>
+            Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken. <strong>Lees de onderstaande punten goed door voordat je de applicatie gaat downloaden:</strong>
+            <ul>
+                <li>Om een toets in Test-Correct te maken, moet je de applicatie downloaden. <a href="https://www.test-correct.nl/downloads/">Klik hier</a> om dat te doen;</li>
+                <li>Zorg ervoor dat je ten minste één keer in de Test-Correct applicatie bent ingelogd voordat je een toets moet maken;</li>
+                <li>Zorg ervoor dat je genoeg tijd hebt om de applicatie voor je toets te downloaden en te starten. Het kan zijn dat je de instellingen van je computer moet aanpassen, dus geef jezelf voldoende tijd;</li>
+                <li>Je kan bij het installeren meldingen van Test-Correct op je scherm krijgen waarvoor je actie moet ondernemen. Lees in de <a href="https://support.test-correct.nl/knowledge/studenthandleiding">handleiding</a> wat je moet doen (zie onder);</li>
+                <li>De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets;</li>
+                <li><a href="https://support.test-correct.nl/knowledge/studenthandleiding"><strong>Klik hier om de handleiding te downloaden.</strong></a> Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en toets bespreken;</li>
+                <li>Heb je hulp nodig en staat er in de handleiding niet wat je moet doen? Neem contact met ons op door een email te sturen naar support@test-correct.nl. Beschrijf in je email goed wat het probleem is zodat we jou goed kunnen helpen.</li>
+            </ul>
+            Onderstaand zijn jouw inloggegevens waarmee je in Test-Correct kunt inloggen::<br/>
             E-mail: {{ $user->username }}<br/>
             Wachtwoord: {{ $password }}<br/>
             <br/>
-            Veel plezier met Test-Correct en succes met de toetsen!<br/>
-            <br/>
-            Test-Correct supportteam
+            Het team van Test-Correct wenst jou heel veel succes met je toetsen! 😊<br/>
         </td>
     </tr>
 @stop
