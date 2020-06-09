@@ -8,7 +8,7 @@
                 $name = sprintf('%s %s %s',$name,$user->name_suffix,$user->name);
         }
 
-        $colleague = trim(sprintf("%s %s %s", $user->invitedby->name_first, $user->invitedby->name_suffix, $user->invitedby->name));
+        $colleague = str_replace('  ',' ',(sprintf("%s %s %s", $user->invitedby->name_first, $user->invitedby->name_suffix, $user->invitedby->name)));
         
     @endphp
     <tr>
