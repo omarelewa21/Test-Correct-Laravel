@@ -275,10 +275,11 @@ class Test extends BaseModel {
 
             // TC-158  don't show demo tests from other users
             $query->where(function($q) use ($user){
-                $q->where(function($query) use ($user){
-                    $query->where('demo', 1)->where('author_id',$user->getKey());
+                $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
+                $q->where(function($query) use ($user, $subject){
+                    $query->where('subject_id', $subject->getKey())->where('author_id',$user->getKey());
                 })
-                    ->orWhere('demo',0);
+                    ->orWhere('subject_id','<>',$subject->getKey());
             });
         }
 
