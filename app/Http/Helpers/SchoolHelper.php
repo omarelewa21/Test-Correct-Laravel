@@ -8,7 +8,8 @@
 
 namespace tcCore\Http\Helpers;
 
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
 use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
@@ -25,6 +26,12 @@ class SchoolHelper
     public static function getTempTeachersSchoolLocation()
     {
         return SchoolLocation::where('customer_code','TC-tijdelijke-docentaccounts')->first();
+    }
+
+    public static function denyIfTempTeacher() {
+        if (Auth::user()->is_temp_teacher) {
+            return Response::make('Request denied because teacher is in temp school location', 500);
+		}
     }
 
     public function getRelatedSchoolLocationIds($user){

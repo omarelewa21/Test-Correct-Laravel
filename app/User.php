@@ -48,7 +48,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	 */
 	protected $table = 'users';
 
-    protected $appends = ['has_text2speech','active_text2speech'];
+    protected $appends = ['has_text2speech','active_text2speech', 'is_temp_teacher'];
 
 	/**
 	 * The attributes that are mass assignable.
@@ -222,7 +222,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getActiveText2speechAttribute(){
         return $this->hasActiveText2Speech();
-    }
+	}
+	
+	public function getIsTempTeacherAttribute() {
+		if ($this->schoolLocation->getKey() == SchoolHelper::getTempTeachersSchoolLocation()->getKey()) {
+			return true;
+		} else {
+            return false;
+        }
+	}
 
     public function getloginLogCount()
     {
@@ -587,6 +595,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	public function roles() {
 		return $this->belongsToMany('tcCore\Role', 'user_roles')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
 	}
+
 
 	protected function saveUserRoles() {
 		$userRoles = $this->userRoles()->withTrashed()->get();
