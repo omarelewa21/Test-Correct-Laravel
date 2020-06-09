@@ -1,0 +1,97 @@
+<?php
+
+namespace tcCore\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Mail\Mailer;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Test\Constraint\ResponseStatusCodeSame;
+use tcCore\DemoTeacherRegistration;
+use tcCore\Exceptions\Handler;
+use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Jobs\SendWelcomeMail;
+use tcCore\Lib\User\Factory;
+use tcCore\Mail\TeacherRegistered;
+use tcCore\Teacher;
+use tcCore\User;
+
+class DemoAccountController extends Controller
+{
+    public function store(Request $request)
+    {
+        if (auth()->user() === null) {
+            // zorgen dat de user altijd bestaat.
+            auth()->login(SchoolHelper::getBaseDemoSchoolUser());
+        }
+        try {
+            $validatedRegistration = $request->validate([
+                'school_location'                     => 'required',
+                'website_url'                         => 'required',
+                'address'                             => 'required',
+                'postcode'                            => 'required',
+                'city'                                => 'required',
+                'gender'                              => 'required',
+                'name_first'                          => 'required',
+                'name_suffix'                         => 'sometimes',
+                'name'                                => 'required',
+                'username'                            => 'required|email',
+                'subjects'                            => 'required',
+                'remarks'                             => 'sometimes',
+                'how_did_you_hear_about_test_correct' => 'sometimes',
+            ]);
+        } catch (ValidationException $e) {
+            $e->status = 425;
+            $handler = resolve(Handler::class);
+            return $handler->render($request, $e);
+        }
+        DB::beginTransaction();
+
+        try {
+            $registration = DemoTeacherRegistration::create($validatedRegistration);
+            $user = User::where('username', request('username'))->first();
+            if (!$user) {
+//                    if ($user->isA('teacher')) {
+//                        }else{logger('klas '.$schoolClass->getKey.' bestaat al voor '.$user->getKey());}
+//                    }
+
+                $userFactory = new Factory(new User());
+                $user = $userFactory->generate(
+                    $data = array_merge(
+                        $request->all(), [
+                            'school_location_id' => SchoolHelper::getTempTeachersSchoolLocation()->getKey(),
+                            'school_id'          => SchoolHelper::getTempTeachersSchoolLocation()->school_id,
+                            'user_roles'         => 1, // Teacher;
+                        ]
+                    )
+                );
+
+                $teacher = Teacher::withTrashed()
+                    ->firstOrNew(([
+                        'user_id'    => $user->getKey(),
+                        'class_id'   => 1,
+                        'subject_id' => 5,
+                    ]));
+
+                $teacher->trashed() ? $teacher->restore() : $teacher->save();
+
+
+                Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, false));
+                dispatch_now(new SendWelcomeMail($user->getKey()));
+            } else {
+                Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, true));
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            logger('Failed to register teacher' . $e);
+            return Response::make('Failed to register teacher' . print_r($e->getMessage(), true), 500);
+        }
+        DB::commit();
+
+
+        return Response::make(['status' => 'ok'], 200);
+    }
+    //
+}

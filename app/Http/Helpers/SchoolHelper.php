@@ -17,6 +17,11 @@ use tcCore\User;
 class SchoolHelper
 {
 
+    public static function getBaseDemoSchoolUser()
+    {
+        return User::where('school_location_id', self::getTempTeachersSchoolLocation()->getKey())->orderBy('id', 'asc')->first();
+    }
+
     public static function getTempTeachersSchoolLocation()
     {
         return SchoolLocation::where('customer_code','TC-tijdelijke-docentaccounts')->first();

@@ -26,10 +26,11 @@ class SendWelcomeMail extends Job implements ShouldQueue
      * @param $url
      * @return void
      */
-    public function __construct($userId, $url)
+    public function __construct($userId, $url = '')
     {
         $this->key = Str::random(5);
         $this->userId = $userId;
+        /** @TODO this var should be removed because it is not used MF 9-6-2020 */
         $this->url = $url;
     }
 
