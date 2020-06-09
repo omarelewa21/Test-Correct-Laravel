@@ -19,6 +19,7 @@ use tcCore\Subject;
 use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
+use tcCore\Http\Helpers\SchoolHelper;
 
 class UsersController extends Controller {
 
@@ -73,6 +74,17 @@ class UsersController extends Controller {
 
 		$user = $userFactory->generate($request->all());
 		if ($user !== false) {
+
+			if ($user->invitedBy != null) {
+
+				//check if the email domain is not the same
+				if (strtolower(explode('@', $user->invitedBy->username)[1]) != strtolower(explode('@', $user->username)[1])) {
+
+					$user->school_location_id = SchoolHelper::getTempTeachersSchoolLocation()->getKey();
+
+					$user->save();
+				}
+			}
 
 		    if($request->has('send_welcome_mail') && $request->get('send_welcome_mail') == true){
                 dispatch_now(new SendWelcomeMail($user->getKey(), $request->get('url')));
