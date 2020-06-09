@@ -5,7 +5,6 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Jobs\CountAccountManagerAccounts;
 use tcCore\Jobs\CountAccountManagerActiveLicenses;
@@ -517,7 +516,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
                     ->orWhere('user_id', $userId);
             });
         } elseif (!in_array('Administrator', $roles)) {
-            $user = ActingAsHelper::getInstance()->getUser();
+            $user = Auth::user();
             if ($user->getAttribute('school_id') !== null && $user->getAttribute('school_location_id') !== null) {
                 $query->where(function ($query) use ($user) {
                     $query->where('id', $user->getAttribute('school_location_id'))
