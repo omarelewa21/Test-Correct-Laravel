@@ -8,11 +8,7 @@
                 $name = sprintf('%s %s %s',$name,$user->name_suffix,$user->name);
         }
 
-        $colleague = $user->invitedby->name_first;
-        if(strlen($colleague) == 1
-            || (strlen($colleague) == 2 && $colleague{1} === '.')){
-                $colleague = sprintf("%s %s %s", $user->invitedby->name_first, $user->invitedby->name_suffix, $user->invitedby->name);
-        }
+        $colleague = trim(sprintf("%s %s %s", $user->invitedby->name_first, $user->invitedby->name_suffix, $user->invitedby->name));
         
     @endphp
     <tr>
