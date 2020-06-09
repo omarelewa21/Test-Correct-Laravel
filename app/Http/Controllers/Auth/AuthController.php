@@ -63,6 +63,7 @@ class AuthController extends Controller
             $clone->setHidden($hidden);
 
             $clone->logins = $user->getLoginLogCount();
+            $clone->is_temp_teacher = $user->getIsTempTeacher();
             LoginLog::create(['user_id' => $user->getKey()]);
 
             return new JsonResponse($clone);

@@ -48,7 +48,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	 */
 	protected $table = 'users';
 
-    protected $appends = ['has_text2speech','active_text2speech', 'is_temp_teacher'];
+    protected $appends = ['has_text2speech','active_text2speech'];
 
 	/**
 	 * The attributes that are mass assignable.
@@ -223,8 +223,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getActiveText2speechAttribute(){
         return $this->hasActiveText2Speech();
 	}
-	
-	public function getIsTempTeacherAttribute() {
+
+	public function getIsTempTeacher() {
 		if ($this->schoolLocation->getKey() == SchoolHelper::getTempTeachersSchoolLocation()->getKey()) {
 			return true;
 		} else {
