@@ -5,6 +5,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Jobs\CountTeacherTests;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -270,6 +271,14 @@ class Test extends BaseModel {
                 } elseif($schoolLocationId !== null) {
                     $query->where('school_location_id', $schoolLocationId);
                 }
+            });
+
+            // TC-158  don't show demo tests from other users
+            $query->where(function($q) use ($user){
+                $q->where(function($query) use ($user){
+                    $query->where('demo', 1)->where('author_id',$user->getKey());
+                })
+                    ->orWhere('demo',0);
             });
         }
 
