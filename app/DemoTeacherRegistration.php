@@ -42,9 +42,9 @@ class DemoTeacherRegistration extends Model
                     'subjects'                            => request('subjects'),
                     'remarks'                             => request('remarks'),
                     'how_did_you_hear_about_test_correct' => request('how_did_you_hear_about_test_correct'),
-                    'user_id'                            => $user->getKey(),
+                    'user_id'                             => $user->getKey(),
                 ];
-            }  else {
+            } else {
                 // dit is het scenario dat ik via tel a teacher kom
                 $parameterBag = [
                     'name_first'                          => $user->name_first,
@@ -52,15 +52,22 @@ class DemoTeacherRegistration extends Model
                     'name'                                => $user->name,
                     'username'                            => $user->username,
                     'how_did_you_hear_about_test_correct' => 'Got invited by a teacher.',
-                    'user_id'                            => $user->getKey(),
+                    'user_id'                             => $user->getKey(),
                 ];
 
-                if ($user->emailDomainInviterAndInviteeAreEqual()){
+                if ($user->emailDomainInviterAndInviteeAreEqual()) {
                     if ($inviter = User::find($user->invited_by)) {
                         if ($demoTeacherRegistration = self::whereUsername($inviter->username)->first()) {
                             // merge de attributes;
                             $parameterBag = array_merge(
-                                $demoTeacherRegistration->toArray(), $parameterBag
+                                $parameterBag,
+                                [
+                                    'school_location' => $demoTeacherRegistration->school_location,
+                                    'website_url'     => $demoTeacherRegistration->website_url,
+                                    'address'         => $demoTeacherRegistration->address,
+                                    'postcode'        => $demoTeacherRegistration->postcode,
+                                    'city'            => $demoTeacherRegistration->city,
+                                ]
                             );
                             unset($parameterBag['id']);
                         }

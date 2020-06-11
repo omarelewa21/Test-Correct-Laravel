@@ -171,10 +171,12 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
 
-    Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
-    Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.show');
 
     Route::put('user/switch_school_location/{user}','UsersController@switch_school_location')->name('user.switch_school_location');
+
+    Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
+    Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.show');
+    Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
 
 
 	// Sales organization

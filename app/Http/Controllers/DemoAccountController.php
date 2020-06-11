@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Test\Constraint\ResponseStatusCodeSame;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Exceptions\Handler;
@@ -21,12 +22,30 @@ use tcCore\User;
 
 class DemoAccountController extends Controller
 {
-    public function show(User $user, Request $request){
-        if($user !== Auth::user() && !Auth::user()->isA('Administrator')){
+    public function show(User $user, Request $request)
+    {
+        if (($user->getKey() !== Auth::user()->getKey()) && !Auth::user()->isA('Administrator')) {
             abort(403);
         }
-        $data = DemoTeacherRegistration::where('user_id',$user->getKey())->first();
+        $data = DemoTeacherRegistration::where('user_id', $user->getKey())->first();
         return Response::make($data, 200);
+    }
+
+    public function showRegistrationCompleted(User $user)
+    {
+        if ($user->getKey() !== Auth::user()->getKey()) {
+            abort(403);
+        }
+        $return = true;
+        if ($user->schoolLocation->is(SchoolHelper::getTempTeachersSchoolLocation())) {
+            $registration = DemoTeacherRegistration::where('user_id', $user->getKey())->first();
+            if (null !== $registration) {
+                $validator = Validator::make($registration->toArray(), $this->getRules());
+
+                $return =  $validator->fails();
+            }
+        }
+        return Response::make(['status' => $return], 200);
     }
 
     public function update(User $user, Request $request)
@@ -37,21 +56,7 @@ class DemoAccountController extends Controller
         try {
             $registration = DemoTeacherRegistration::where('user_id',$user->getKey())->firstOrFail();
 
-            $validatedRegistration = $request->validate([
-                'school_location'                     => 'required',
-                'website_url'                         => 'required',
-                'address'                             => 'required',
-                'postcode'                            => 'required',
-                'city'                                => 'required',
-                'gender'                              => 'required',
-                'name_first'                          => 'required',
-                'name_suffix'                         => 'sometimes',
-                'name'                                => 'required',
-                'username'                            => 'required|email',
-                'subjects'                            => 'required',
-                'remarks'                             => 'sometimes',
-                'how_did_you_hear_about_test_correct' => 'sometimes',
-            ]);
+            $validatedRegistration = $request->validate($this->getRules());
         } catch (ValidationException $e) {
             $e->status = 425;
             $handler = resolve(Handler::class);
@@ -60,7 +65,7 @@ class DemoAccountController extends Controller
         DB::beginTransaction();
 
         try {
-           $registration->update($validatedRegistration);
+            $registration->update($validatedRegistration);
         } catch (\Exception $e) {
             DB::rollBack();
             logger('Failed to update registered teacher' . $e);
@@ -79,21 +84,7 @@ class DemoAccountController extends Controller
             auth()->login(SchoolHelper::getBaseDemoSchoolUser());
         }
         try {
-            $validatedRegistration = $request->validate([
-                'school_location'                     => 'required',
-                'website_url'                         => 'required',
-                'address'                             => 'required',
-                'postcode'                            => 'required',
-                'city'                                => 'required',
-                'gender'                              => 'required',
-                'name_first'                          => 'required',
-                'name_suffix'                         => 'sometimes',
-                'name'                                => 'required',
-                'username'                            => 'required|email',
-                'subjects'                            => 'required',
-                'remarks'                             => 'sometimes',
-                'how_did_you_hear_about_test_correct' => 'sometimes',
-            ]);
+            $validatedRegistration = $request->validate($this->getRules());
         } catch (ValidationException $e) {
             $e->status = 425;
             $handler = resolve(Handler::class);
@@ -144,5 +135,24 @@ class DemoAccountController extends Controller
 
         return Response::make(['status' => 'ok'], 200);
     }
+
     //
+    private function getRules()
+    {
+        return [
+            'school_location'                     => 'required',
+            'website_url'                         => 'required',
+            'address'                             => 'required',
+            'postcode'                            => 'required',
+            'city'                                => 'required',
+            'gender'                              => 'required',
+            'name_first'                          => 'required',
+            'name_suffix'                         => 'sometimes',
+            'name'                                => 'required',
+            'username'                            => 'required|email',
+            'subjects'                            => 'required',
+            'remarks'                             => 'sometimes',
+            'how_did_you_hear_about_test_correct' => 'sometimes',
+        ];
+    }
 }
