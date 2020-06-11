@@ -108,7 +108,6 @@ class RegisterDemoTeacherTest extends TestCase
         $startCount = User::count();
 
         $response = $this->post(route('demo_account.store'), $this->getValidAttributes(['username' => self::USER_TEACHER]));
-
         $response->assertSuccessful();
         $this->assertCount($startCount, User::all()->fresh());
         $this->assertCount(++$startCountRegistrations, DemoTeacherRegistration::all()->fresh());

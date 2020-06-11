@@ -30,6 +30,7 @@ class CreateDemoTeacherRegistrationsTable extends Migration
             $table->string('mobile');
             $table->text('remarks')->nullable();
             $table->text('how_did_you_hear_about_test_correct')->nullable();
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
         });
     }

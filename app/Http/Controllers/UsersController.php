@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
 use tcCore\BaseSubject;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
@@ -72,22 +73,15 @@ class UsersController extends Controller {
 	{
 		$userFactory = new Factory(new User());
 
-		$user = $userFactory->generate($request->all());
+		$data = $request->all();
+
+        $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id;//SchoolHelper::getTempTeachersSchoolLocation()->getKey();
+
+        $user = $userFactory->generate($data);
+
 		if ($user !== false) {
-
-			if ($user->invitedBy != null) {
-
-				//check if the email domain is not the same
-				if (strtolower(explode('@', $user->invitedBy->username)[1]) != strtolower(explode('@', $user->username)[1])) {
-
-					$user->school_location_id = SchoolHelper::getTempTeachersSchoolLocation()->getKey();
-
-					$user->save();
-				}
-			}
-
 		    if($request->has('send_welcome_mail') && $request->get('send_welcome_mail') == true){
-                dispatch_now(new SendWelcomeMail($user->getKey(), $request->get('url')));
+		        dispatch_now(new SendWelcomeMail($user->getKey(), $request->get('url')));
             }
 
 			return Response::make($user, 200);

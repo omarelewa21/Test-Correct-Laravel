@@ -9,24 +9,33 @@
 namespace tcCore\Http\Helpers;
 
 
-class BaseHelper
+use Illuminate\Support\Facades\Auth;
+use tcCore\User;
+
+class ActingAsHelper
 {
-    protected $errors = [];
+    protected static $instance;
+    protected $user;
 
-    public function addError($error)
+    protected function __construct(){
+        $this->user = Auth::user();
+    }
+
+    public static function getInstance(){
+        if(static::$instance === null){
+            static::$instance = new Static();
+        }
+        return static::$instance;
+    }
+
+    public function setUser(User $user)
     {
-        $this->errors[] = $error;
+        $this->user = $user;
         return $this;
     }
 
-    public function addErrors($errors)
+    public function getUser()
     {
-        $this->errors = array_merge($this->errors, $errors);
-        return $this;
-    }
-
-    public function hasError()
-    {
-        return (bool) count($this->errors);
+        return $this->user;
     }
 }

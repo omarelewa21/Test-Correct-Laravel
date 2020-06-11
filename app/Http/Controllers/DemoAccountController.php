@@ -50,7 +50,7 @@ class DemoAccountController extends Controller
         DB::beginTransaction();
 
         try {
-            $registration = DemoTeacherRegistration::create($validatedRegistration);
+
             $user = User::where('username', request('username'))->first();
             if (!$user) {
 //                    if ($user->isA('teacher')) {
@@ -77,10 +77,9 @@ class DemoAccountController extends Controller
 
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
 
-
-                Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, false));
                 dispatch_now(new SendWelcomeMail($user->getKey()));
             } else {
+                $registration = DemoTeacherRegistration::create($validatedRegistration);
                 Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, true));
             }
         } catch (\Exception $e) {
