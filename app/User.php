@@ -250,6 +250,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                    throw new \Exception('U kunt een docent pas aanmaken als dat u een actuele periode heeft aangemaakt. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.');
                    return false;
                }
+
+               DemoTeacherRegistration::registerIfApplicable($user);
+
                $helper = new DemoHelper();
                $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear,$user);
            }
@@ -1438,4 +1441,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getLastLoginAttribute() {
 	    return optional($this->loginLogs()->orderBy('created_at', 'desc')->first())->created_at;
     }
+
+    public function emailDomainInviterAndInviteeAreEqual()
+    {
+        $originalUser = User::find($this->invited_by);
+        return (strtolower(explode('@', $originalUser->username)[1]) === strtolower(explode('@', $this->username)[1]));
+    }
+
 }

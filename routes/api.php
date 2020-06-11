@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 Route::get('/edu-k', 'EduK\HomeController@index');
+Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
 
 Route::get('/', 'HomeController@index');
 
@@ -209,5 +210,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
+
 
 });

@@ -11,11 +11,23 @@ namespace tcCore\Http\Helpers;
 
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\Teacher;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
 class SchoolHelper
 {
+
+    public static function getBaseDemoSchoolUser()
+    {
+        // we do want a teacher so we've got to make sure we've got a teacher here
+        return User::query()->select('users.*')->join('user_roles', function($join) {
+            $join->on('users.id', '=', 'user_roles.user_id');
+            $join->where('user_roles.role_id', '=', 1);
+            $join->whereNull('user_roles.deleted_at');
+        })->where('school_location_id', self::getTempTeachersSchoolLocation()->getKey())->first();
+
+    }
 
     public static function getTempTeachersSchoolLocation()
     {

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
 use tcCore\BaseSubject;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
@@ -19,6 +20,7 @@ use tcCore\Subject;
 use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
+use tcCore\Http\Helpers\SchoolHelper;
 
 class UsersController extends Controller {
 
@@ -71,11 +73,15 @@ class UsersController extends Controller {
 	{
 		$userFactory = new Factory(new User());
 
-		$user = $userFactory->generate($request->all());
-		if ($user !== false) {
+		$data = $request->all();
 
+        $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id;//SchoolHelper::getTempTeachersSchoolLocation()->getKey();
+
+        $user = $userFactory->generate($data);
+
+		if ($user !== false) {
 		    if($request->has('send_welcome_mail') && $request->get('send_welcome_mail') == true){
-                dispatch_now(new SendWelcomeMail($user->getKey(), $request->get('url')));
+		        dispatch_now(new SendWelcomeMail($user->getKey(), $request->get('url')));
             }
 
 			return Response::make($user, 200);

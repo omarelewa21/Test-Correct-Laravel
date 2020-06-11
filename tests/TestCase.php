@@ -156,7 +156,7 @@ abstract class TestCase extends BaseTestCase
      * @param $overrides
      * @return array
      */
-    private static function getUserAuthRequestData($user, $overrides=[])
+    protected static function getUserAuthRequestData($user, $overrides=[])
     {
         return array_merge([
             'session_hash' => $user->session_hash,

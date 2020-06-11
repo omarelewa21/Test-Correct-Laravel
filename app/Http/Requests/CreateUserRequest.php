@@ -1,5 +1,7 @@
 <?php namespace tcCore\Http\Requests;
 
+use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\User;
 
@@ -12,6 +14,7 @@ class CreateUserRequest extends Request {
 	 */
 	public function authorize()
 	{
+
 		return true;
 	}
 
@@ -65,6 +68,16 @@ class CreateUserRequest extends Request {
      */
     public function withValidator($validator)
     {
+        if($this->request->has('invited_by')){
+            $originalUser = User::find(request('invited_by'));
+            if (strtolower(explode('@', $originalUser->username)[1]) != strtolower(explode('@', request('username'))[1])) {
+                ActingAsHelper::getInstance()->setUser(SchoolHelper::getBaseDemoSchoolUser());
+            }
+            else{
+                ActingAsHelper::getInstance()->setUser($originalUser);
+            }
+        }
+
         $validator->after(function ($validator) {
             $data = ($this->all());
             if(isset($data['user_roles']) && collect($data['user_roles'])->contains(function($val){return $val == 1;})){
