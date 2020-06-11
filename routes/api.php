@@ -171,6 +171,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
 
+    Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
+    Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.show');
+
 
 	// Sales organization
 	Route::resource('sales_organization', 'SalesOrganizationsController', ['except' => ['create', 'edit']]);

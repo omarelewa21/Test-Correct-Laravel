@@ -58,6 +58,10 @@ class UsersController extends Controller {
 				if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
 					AverageRatingRepository::getSubjectAveragesOfStudents($users);
 				}
+				$users->transform(function(User $u){
+				    $u->is_temp_teacher = $u->getIsTempTeacher();
+                    return $u;
+                });
 				return Response::make($users, 200);
 				break;
 		}
