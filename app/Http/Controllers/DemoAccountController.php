@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailer;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
@@ -20,6 +21,57 @@ use tcCore\User;
 
 class DemoAccountController extends Controller
 {
+    public function show(User $user, Request $request){
+        if($user !== Auth::user() && !Auth::user()->isA('Administrator')){
+            abort(403);
+        }
+        $data = DemoTeacherRegistration::where('user_id',$user->getKey())->first();
+        return Response::make($data, 200);
+    }
+
+    public function update(User $user, Request $request)
+    {
+        if($user !== Auth::user() && !Auth::user()->isA('Administrator')){
+            abort(403);
+        }
+        try {
+            $registration = DemoTeacherRegistration::where('user_id',$user->getKey())->firstOrFail();
+
+            $validatedRegistration = $request->validate([
+                'school_location'                     => 'required',
+                'website_url'                         => 'required',
+                'address'                             => 'required',
+                'postcode'                            => 'required',
+                'city'                                => 'required',
+                'gender'                              => 'required',
+                'name_first'                          => 'required',
+                'name_suffix'                         => 'sometimes',
+                'name'                                => 'required',
+                'username'                            => 'required|email',
+                'subjects'                            => 'required',
+                'remarks'                             => 'sometimes',
+                'how_did_you_hear_about_test_correct' => 'sometimes',
+            ]);
+        } catch (ValidationException $e) {
+            $e->status = 425;
+            $handler = resolve(Handler::class);
+            return $handler->render($request, $e);
+        }
+        DB::beginTransaction();
+
+        try {
+           $registration->update($validatedRegistration);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            logger('Failed to update registered teacher' . $e);
+            return Response::make('Failed to update registered teacher' . print_r($e->getMessage(), true), 500);
+        }
+        DB::commit();
+
+
+        return Response::make(['status' => 'ok'], 200);
+    }
+
     public function store(Request $request)
     {
         if (auth()->user() === null) {
