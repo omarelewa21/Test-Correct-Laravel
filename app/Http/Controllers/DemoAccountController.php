@@ -155,7 +155,5 @@ class DemoAccountController extends Controller
             'how_did_you_hear_about_test_correct' => 'sometimes',
         ];
     }
-=======
-    //
->>>>>>> feature/TC-156-proj.-autom.-docentacc.-new-form-
+
 }
