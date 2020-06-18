@@ -50,11 +50,11 @@ class DemoAccountController extends Controller
 
     public function update(User $user, Request $request)
     {
-        if($user !== Auth::user() && !Auth::user()->isA('Administrator')){
+        if (($user->getKey() !== Auth::user()->getKey()) && !Auth::user()->isA('Administrator')) {
             abort(403);
         }
         try {
-            $registration = DemoTeacherRegistration::where('user_id',$user->getKey())->firstOrFail();
+            $registration = DemoTeacherRegistration::where('user_id', $user->getKey())->firstOrFail();
 
             $validatedRegistration = $request->validate($this->getRules());
         } catch (ValidationException $e) {
@@ -155,5 +155,4 @@ class DemoAccountController extends Controller
             'how_did_you_hear_about_test_correct' => 'sometimes',
         ];
     }
-
 }
