@@ -44,7 +44,7 @@ class DemoTeacherRegistration extends Model
                     'how_did_you_hear_about_test_correct' => request('how_did_you_hear_about_test_correct'),
                     'user_id'                             => $user->getKey(),
                 ];
-            } else {
+            }  else {
                 // dit is het scenario dat ik via tel a teacher kom
                 $parameterBag = [
                     'name_first'                          => $user->name_first,
@@ -55,19 +55,12 @@ class DemoTeacherRegistration extends Model
                     'user_id'                             => $user->getKey(),
                 ];
 
-                if ($user->emailDomainInviterAndInviteeAreEqual()) {
+                if ($user->emailDomainInviterAndInviteeAreEqual()){
                     if ($inviter = User::find($user->invited_by)) {
                         if ($demoTeacherRegistration = self::whereUsername($inviter->username)->first()) {
                             // merge de attributes;
                             $parameterBag = array_merge(
-                                $parameterBag,
-                                [
-                                    'school_location' => $demoTeacherRegistration->school_location,
-                                    'website_url'     => $demoTeacherRegistration->website_url,
-                                    'address'         => $demoTeacherRegistration->address,
-                                    'postcode'        => $demoTeacherRegistration->postcode,
-                                    'city'            => $demoTeacherRegistration->city,
-                                ]
+                                $demoTeacherRegistration->toArray(), $parameterBag
                             );
                             unset($parameterBag['id']);
                         }
