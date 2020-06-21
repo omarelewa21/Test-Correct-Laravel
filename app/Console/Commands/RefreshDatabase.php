@@ -4,6 +4,7 @@ namespace tcCore\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use tcCore\SchoolLocation;
 
 class RefreshDatabase extends Command
 {
@@ -71,6 +72,13 @@ class RefreshDatabase extends Command
         }
 
         $this->addMigrations();
+
+        // fix issue with missing temp school location if sovag
+        if(null == SchoolLocation::where('customer_code','TC-tijdelijke-docentaccounts')->first()){
+            $this->printSubItem('fixing issue with temp school location...');
+            SchoolLocation::where('id',1)->update(['customer_code' =>'TC-tijdelijke-docentaccounts']);
+            $this->info('done');
+        }
 
         $this->info('refresh database complete');
     }
