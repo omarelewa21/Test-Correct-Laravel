@@ -38,11 +38,12 @@ class DemoTeacherRegistration extends Model
                     'name_first'                          => request('name_first'),
                     'name_suffix'                         => request('name_suffix'),
                     'name'                                => request('name'),
+                    'mobile'                              => request('mobile'),
                     'username'                            => request('username'),
                     'subjects'                            => request('subjects'),
                     'remarks'                             => request('remarks'),
                     'how_did_you_hear_about_test_correct' => request('how_did_you_hear_about_test_correct'),
-                    'user_id'                             => $user->getKey(),
+                    'user_id'                            => $user->getKey(),
                 ];
             }  else {
                 // dit is het scenario dat ik via tel a teacher kom
@@ -52,7 +53,7 @@ class DemoTeacherRegistration extends Model
                     'name'                                => $user->name,
                     'username'                            => $user->username,
                     'how_did_you_hear_about_test_correct' => 'Got invited by a teacher.',
-                    'user_id'                             => $user->getKey(),
+                    'user_id'                            => $user->getKey(),
                 ];
 
                 if ($user->emailDomainInviterAndInviteeAreEqual()){

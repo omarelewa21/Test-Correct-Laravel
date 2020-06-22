@@ -84,7 +84,21 @@ class DemoAccountController extends Controller
             auth()->login(SchoolHelper::getBaseDemoSchoolUser());
         }
         try {
-            $validatedRegistration = $request->validate($this->getRules());
+            $validatedRegistration = $request->validate([
+                'school_location'                     => 'required',
+                'website_url'                         => 'required',
+                'address'                             => 'required',
+                'postcode'                            => 'required',
+                'city'                                => 'required',
+                'gender'                              => 'required',
+                'name_first'                          => 'required',
+                'name_suffix'                         => 'sometimes',
+                'name'                                => 'required',
+                'username'                            => 'required|email',
+                'subjects'                            => 'required',
+                'remarks'                             => 'sometimes',
+                'how_did_you_hear_about_test_correct' => 'sometimes',
+            ]);
         } catch (ValidationException $e) {
             $e->status = 425;
             $handler = resolve(Handler::class);
