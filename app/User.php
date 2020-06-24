@@ -228,6 +228,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		return ($this->isA('Teacher') && $this->schoolLocation->getKey() == SchoolHelper::getTempTeachersSchoolLocation()->getKey());
 	}
 
+
     public function getloginLogCount()
     {
         return $this->loginLogs->count();
