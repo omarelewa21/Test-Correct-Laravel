@@ -16,7 +16,8 @@ class DemoTeacherRegistration extends Model
         parent::boot();
 
         static::created(function (DemoTeacherRegistration $registration) {
-            Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, false));
+            $count = DemoTeacherRegistration::where('username', $registration->username)->count();
+            Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, $count > 1));
         });
     }
 
@@ -35,6 +36,7 @@ class DemoTeacherRegistration extends Model
                     'postcode'                            => request('postcode'),
                     'city'                                => request('city'),
                     'gender'                              => request('gender'),
+                    'gender_different'                    => request('gender_different'),
                     'name_first'                          => request('name_first'),
                     'name_suffix'                         => request('name_suffix'),
                     'name'                                => request('name'),
@@ -43,9 +45,9 @@ class DemoTeacherRegistration extends Model
                     'subjects'                            => request('subjects'),
                     'remarks'                             => request('remarks'),
                     'how_did_you_hear_about_test_correct' => request('how_did_you_hear_about_test_correct'),
-                    'user_id'                            => $user->getKey(),
+                    'user_id'                             => $user->getKey(),
                 ];
-            }  else {
+            } else {
                 // dit is het scenario dat ik via tel a teacher kom
                 $parameterBag = [
                     'name_first'                          => $user->name_first,
@@ -53,10 +55,10 @@ class DemoTeacherRegistration extends Model
                     'name'                                => $user->name,
                     'username'                            => $user->username,
                     'how_did_you_hear_about_test_correct' => 'Got invited by a teacher.',
-                    'user_id'                            => $user->getKey(),
+                    'user_id'                             => $user->getKey(),
                 ];
 
-                if ($user->emailDomainInviterAndInviteeAreEqual()){
+                if ($user->emailDomainInviterAndInviteeAreEqual()) {
                     if ($inviter = User::find($user->invited_by)) {
                         if ($demoTeacherRegistration = self::whereUsername($inviter->username)->first()) {
                             // merge de attributes;

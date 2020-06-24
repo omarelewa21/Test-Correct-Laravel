@@ -13,7 +13,7 @@ class TeacherRegistered extends Mailable
     use Queueable, SerializesModels;
 
     public $demo;
-    public $withDuplicatedEmailAddress;
+    public $withDuplicateEmailAddress;
 
     /**
      * Create a new message instance.

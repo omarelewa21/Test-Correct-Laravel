@@ -3,20 +3,16 @@
 namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Validator;
-use Symfony\Component\HttpFoundation\Test\Constraint\ResponseStatusCodeSame;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Exceptions\Handler;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Lib\User\Factory;
-use tcCore\Mail\TeacherRegistered;
 use tcCore\Teacher;
 use tcCore\User;
 
@@ -91,6 +87,7 @@ class DemoAccountController extends Controller
                 'postcode'                            => 'required',
                 'city'                                => 'required',
                 'gender'                              => 'required',
+                'gender_different'                    => 'sometimes',
                 'name_first'                          => 'required',
                 'name_suffix'                         => 'sometimes',
                 'name'                                => 'required',
@@ -136,8 +133,7 @@ class DemoAccountController extends Controller
 
                 dispatch_now(new SendWelcomeMail($user->getKey()));
             } else {
-                $registration = DemoTeacherRegistration::create($validatedRegistration);
-                Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, true));
+                DemoTeacherRegistration::create($validatedRegistration);
             }
         } catch (\Exception $e) {
             DB::rollBack();
@@ -160,6 +156,7 @@ class DemoAccountController extends Controller
             'postcode'                            => 'required',
             'city'                                => 'required',
             'gender'                              => 'required',
+            'gender_different'                    => 'sometimes',
             'name_first'                          => 'required',
             'name_suffix'                         => 'sometimes',
             'name'                                => 'required',

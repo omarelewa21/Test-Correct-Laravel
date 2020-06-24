@@ -7,7 +7,7 @@
             <br/>
             Een nieuwe docent heeft zich met onderstaande gegevens aangemeld voor Test-Correct.
             <br/>
-            @if($withDuplicatedEmailAddress)
+            @if($withDuplicateEmailAddress)
                 <h3>“Let op! De docent heeft een e-mailadres opgegeven dat al bestaat in de database!"</h3>
                 Er is daarom ook geen nieuw account voor deze docent aangemaakt.<br/>
             @endif
