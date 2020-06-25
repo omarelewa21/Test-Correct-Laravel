@@ -6,7 +6,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use tcCore\SchoolLocation;
 
-
 class RefreshDatabase extends Command
 {
     use CommandsHelperTrait;
@@ -47,7 +46,7 @@ class RefreshDatabase extends Command
             database_path('seeds/testdb.sql'),
             database_path('seeds/attainments.sql'),
         ];
-        
+
         if ($this->hasOption('file') && $this->option('file') != null) {
             $sqlImports = [
                 database_path('seeds/dropAllTablesAndViews.sql'),
@@ -59,6 +58,15 @@ class RefreshDatabase extends Command
             $this->error('You cannot perform this action on this environment! only with APP_ENV set to local!!');
             return false;
         }
+
+        // this might be slow, so give us some time
+        ini_set('max_execution_time', 180); //3 minutes
+
+        $sqlImports = [
+            'dropAllTablesAndViews.sql',
+            'testdb.sql',
+            'attainments.sql',
+        ];
 
         $this->info('start refreshing database...(this can take some time as in several minutes)');
         // only needed when using mysql database, not when sqlite setup is needed
