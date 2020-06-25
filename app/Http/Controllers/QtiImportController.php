@@ -19,8 +19,7 @@ use tcCore\SchoolLocation;
 use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\TestKind;
-use ZipArchive;
-
+use ZanySoft\Zip\Zip;
 
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
@@ -184,7 +183,7 @@ class QtiImportController extends Controller
             'questions' => [],
             'errorCount' => 0,
         ];
-        \Zipper::make($file)->extractTo($dir);
+        \Zip::open($file)->extract($dir);
 
         $dirs = collect(scandir($dir))->filter(function($file){
             return $file != '.' && $file !== '..';

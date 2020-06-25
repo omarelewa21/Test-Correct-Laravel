@@ -1272,7 +1272,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		// didn't work out to be safe
 		// return str_random(100);
 		// new
-		return sprintf('%s%d',str_random(85),$this->id);
+		return sprintf('%s%d',Str::random(85),$this->id);
 	}
 
     public function isA($roleName){
