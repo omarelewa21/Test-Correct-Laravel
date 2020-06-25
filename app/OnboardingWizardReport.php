@@ -159,6 +159,8 @@ ORDER BY t2.displayorder,
 
     public static function updateForAllTeachers()
     {
+        OnboardingWizardReport::truncate();
+
         User::whereIn('id', Teacher::pluck('user_id'))->where('demo', 0)->each(function ($teacher) {
             if ($teacher->isA('teacher')) {
                 \tcCore\OnboardingWizardReport::updateForUser($teacher);
