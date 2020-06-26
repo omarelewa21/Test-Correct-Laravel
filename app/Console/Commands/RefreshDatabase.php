@@ -62,12 +62,6 @@ class RefreshDatabase extends Command
         // this might be slow, so give us some time
         ini_set('max_execution_time', 180); //3 minutes
 
-        $sqlImports = [
-            'dropAllTablesAndViews.sql',
-            'testdb.sql',
-            'attainments.sql',
-        ];
-
         $this->info('start refreshing database...(this can take some time as in several minutes)');
         // only needed when using mysql database, not when sqlite setup is needed
         switch (DB::connection()->getConfig('name')) {

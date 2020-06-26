@@ -17,8 +17,7 @@ class DatabaseImport
 
 	public static function importSql($file)
 	{
-
-        DatabaseImport::checkEnv();        
+        DatabaseImport::checkEnv();
 		ini_set('max_execution_time', 180);
 
 		$host = DB::connection()->getConfig('host');
@@ -39,7 +38,7 @@ class DatabaseImport
 			DB::connection()->getConfig('database'),
 			$file
         );
-        
+
         $process = new Process($command);
         $process->run();
 	}
