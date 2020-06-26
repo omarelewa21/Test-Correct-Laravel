@@ -71,7 +71,7 @@ class DemoTeacherRegistration extends Model
                             };
 
                             $parameterBag = array_merge(
-                                $demoTeacherRegistration->toArray(), $parameterBag
+                                $attrToBeCopied, $parameterBag
                             );
                         }
                     }
