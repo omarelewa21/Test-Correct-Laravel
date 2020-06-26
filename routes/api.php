@@ -166,6 +166,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
 	Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
 	Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
+	Route::post('/tell_a_teacher', 'TellATeacherController@store');
+
 	Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
 	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 

@@ -17,12 +17,14 @@ class ActingAsHelper
     protected static $instance;
     protected $user;
 
-    protected function __construct(){
+    protected function __construct()
+    {
         $this->user = Auth::user();
     }
 
-    public static function getInstance(){
-        if(static::$instance === null){
+    public static function getInstance()
+    {
+        if (static::$instance === null) {
             static::$instance = new Static();
         }
         return static::$instance;

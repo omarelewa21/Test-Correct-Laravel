@@ -1451,6 +1451,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function emailDomainInviterAndInviteeAreEqual()
     {
         $originalUser = User::find($this->invited_by);
+        if (null === $originalUser) return false;
         return (strtolower(explode('@', $originalUser->username)[1]) === strtolower(explode('@', $this->username)[1]));
     }
 

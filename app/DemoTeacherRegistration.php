@@ -26,6 +26,8 @@ class DemoTeacherRegistration extends Model
 
     public static function registerIfApplicable(User $user)
     {
+        if (request('shouldRegisterUser') == true) {
+
         if ($user->schoolLocation->is(SchoolHelper::getTempTeachersSchoolLocation())) {
             // dit is het scenario dat ik vanaf het formulier van buiten kom.
             if (request('school_location') && request('website_url')) {
@@ -58,20 +60,21 @@ class DemoTeacherRegistration extends Model
                     'user_id'                             => $user->getKey(),
                 ];
 
-                if ($user->emailDomainInviterAndInviteeAreEqual()) {
-                    if ($inviter = User::find($user->invited_by)) {
-                        if ($demoTeacherRegistration = self::whereUsername($inviter->username)->first()) {
-                            // merge de attributes;
-                            $parameterBag = array_merge(
-                                $demoTeacherRegistration->toArray(), $parameterBag
-                            );
-                            unset($parameterBag['id']);
+                    if ($user->emailDomainInviterAndInviteeAreEqual()) {
+                        if ($inviter = User::find($user->invited_by)) {
+                            if ($demoTeacherRegistration = self::whereUsername($inviter->username)->first()) {
+                                // merge de attributes;
+                                $parameterBag = array_merge(
+                                    $demoTeacherRegistration->toArray(), $parameterBag
+                                );
+                                unset($parameterBag['id']);
+                            }
                         }
                     }
                 }
-            }
 
-            self::create($parameterBag);
+                self::create($parameterBag);
+            }
         }
     }
 
