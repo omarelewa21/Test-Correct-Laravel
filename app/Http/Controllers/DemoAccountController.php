@@ -3,8 +3,10 @@
 namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Validator;
@@ -13,6 +15,8 @@ use tcCore\Exceptions\Handler;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Lib\User\Factory;
+use tcCore\Mail\TeacherInTestSchoolTriesToUpload;
+use tcCore\Mail\TeacherRegistered;
 use tcCore\Teacher;
 use tcCore\User;
 
@@ -148,6 +152,12 @@ class DemoAccountController extends Controller
 
 
         return Response::make(['status' => 'ok'], 200);
+    }
+
+    public function notifySupportTeacherTriesToUpload(Request $request)
+    {
+        $registration = DemoTeacherRegistration::where('user_id', request('userId'))->firstOrFail();
+        Mail::to('support@test-correct.nl')->send(new TeacherInTestSchoolTriesToUpload($registration));
     }
 
     //

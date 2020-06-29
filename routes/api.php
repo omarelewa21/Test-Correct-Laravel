@@ -176,7 +176,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
     Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.show');
     Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
-
+    Route::post('demo_account/notify_support_teacher_tries_to_upload', 'DemoAccountController@notifySupportTeacherTriesToUpload')->name('demo_account.notify_support_teacher_tries_to_upload');
 
     Route::put('user/switch_school_location/{user}','UsersController@switch_school_location')->name('user.switch_school_location');
 
@@ -222,7 +222,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
 
 	Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
-	
+
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
 
