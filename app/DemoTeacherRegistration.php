@@ -54,7 +54,7 @@ class DemoTeacherRegistration extends Model
                     $inviter = User::find($user->invited_by);
                     $parameterBag = [
                         'name_first' => $user->name_first,
-                        'name_suffix' => $user->suffix,
+                        'name_suffix' => $user->name_suffix,
                         'name' => $user->name,
                         'username' => $user->username,
                         'how_did_you_hear_about_test_correct' => sprintf('uitgenodigd door:%s', $inviter->username),
