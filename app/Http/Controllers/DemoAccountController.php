@@ -42,7 +42,7 @@ class DemoAccountController extends Controller
             if (null !== $registration) {
                 $validator = Validator::make($registration->toArray(), $this->getRules());
 
-                $return =  $validator->fails();
+                $return = $validator->fails();
             }
         }
         return Response::make(['status' => $return], 200);
@@ -99,6 +99,7 @@ class DemoAccountController extends Controller
                 'name_first'                          => 'required',
                 'name_suffix'                         => 'sometimes',
                 'name'                                => 'required',
+                'mobile'                              => 'required',
                 'username'                            => 'required|email',
                 'subjects'                            => 'required',
                 'remarks'                             => 'sometimes',
@@ -174,6 +175,7 @@ class DemoAccountController extends Controller
             'name_first'                          => 'required',
             'name_suffix'                         => 'sometimes',
             'name'                                => 'required',
+            'mobile'                              => 'required',
             'username'                            => 'required|email',
             'subjects'                            => 'required',
             'remarks'                             => 'sometimes',
