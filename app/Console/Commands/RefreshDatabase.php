@@ -44,7 +44,7 @@ class RefreshDatabase extends Command
     {
         if (!in_array(env('APP_ENV'), ['local', 'testing'])) {
             $this->error('You cannot perform this action on this environment! only with APP_ENV set to local!!');
-            return false;
+            return 1;
         }
 
         // this might be slow, so give us some time

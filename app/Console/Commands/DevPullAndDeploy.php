@@ -47,21 +47,21 @@ class DevPullAndDeploy extends Command
 
         if (config('app.env') === 'production') {
             $this->error("You cannot perform this action on the production environment! Use 'php artisan production:pullAndDeploy' instead");
-            return false;
+            return 1;
         }
 
         $currentBranch = exec('git branch | grep \* | cut -d \' \' -f2');
         if ($currentBranch != $this->defaultDeployBranchName) {
             if (!$this->confirm("Are you sure you want to pull from the $currentBranch branch" . PHP_EOL . " this is NOT the `$this->defaultDeployBranchName` branch?", false)) {
                 $this->error('stop due to your call NOT to pull from  the `' . $currentBranch . '` branch`');
-                return false;
+                return 1;
             }
         }
 
         $this->info('Going to pull the latest info from git');
         if (!exec('git pull')) {
             $this->error('I\'m sorry, but we couldn\'t pull the latest data from git, please fix this first');
-            return false;
+            return 1;
         };
         $this->info('done');
 

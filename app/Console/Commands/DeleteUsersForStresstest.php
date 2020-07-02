@@ -52,7 +52,7 @@ class DeleteUsersForStresstest extends Command
 
         if(!$schoolLocations || $schoolLocations->count() < 1 ){
             $this->error('Nothing to delete');
-            return true;
+            return 0;
         }
 
         if ($this->confirm(sprintf('Are you sure you want to delete all data for the %d stresstest schoold?',$schoolLocations->count()))) {
@@ -66,7 +66,7 @@ class DeleteUsersForStresstest extends Command
         else{
             $this->error('Didn\'t delete anything!');
         }
-        return true;
+        return 0;
     }
 
     protected function deleteData($schoolLocations, $bar)
