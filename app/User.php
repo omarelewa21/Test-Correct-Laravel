@@ -222,11 +222,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getActiveText2speechAttribute(){
         return $this->hasActiveText2Speech();
-    }
+	}
 
-    public function getIsTempTeacher() {
-        return ($this->isA('Teacher') && $this->schoolLocation->getKey() == SchoolHelper::getTempTeachersSchoolLocation()->getKey());
-    }
+	public function getIsTempTeacher() {
+		return ($this->isA('Teacher') && $this->schoolLocation->getKey() == SchoolHelper::getTempTeachersSchoolLocation()->getKey());
+	}
+
 
     public function getloginLogCount()
     {
@@ -254,6 +255,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                    throw new \Exception('U kunt een docent pas aanmaken als dat u een actuele periode heeft aangemaakt. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.');
                    return false;
                }
+
+               DemoTeacherRegistration::registerIfApplicable($user);
+
                $helper = new DemoHelper();
                $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear,$user);
            }
@@ -591,6 +595,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	public function roles() {
 		return $this->belongsToMany('tcCore\Role', 'user_roles')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
 	}
+
 
 	protected function saveUserRoles() {
 		$userRoles = $this->userRoles()->withTrashed()->get();
@@ -1442,4 +1447,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getLastLoginAttribute() {
 	    return optional($this->loginLogs()->orderBy('created_at', 'desc')->first())->created_at;
     }
+
+    public function emailDomainInviterAndInviteeAreEqual()
+    {
+        $originalUser = User::find($this->invited_by);
+        if (null === $originalUser) return false;
+        return (strtolower(explode('@', $originalUser->username)[1]) === strtolower(explode('@', $this->username)[1]));
+    }
+
 }

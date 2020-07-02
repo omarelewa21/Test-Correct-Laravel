@@ -29,17 +29,17 @@ class EduIxService
 
     private static function getUsername()
     {
-        return env('EDU_IX_USERNAME');
+        return config('custom.eduix.username');
     }
 
     private static function getPassword()
     {
-        return env('EDU_IX_PASSWORD');
+        return config('custom.eduix.password');
     }
 
     private static function getPreSharedKey()
     {
-        return env('EDU_IX_PRESHAREDKEY');
+        return config('custom.eduix.presharedkey');
     }
 
     public function __construct($sessionID, $signature)

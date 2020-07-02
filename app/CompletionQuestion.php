@@ -187,17 +187,20 @@ class CompletionQuestion extends Question implements QuestionInterface {
      */
     public function addAnswers($mainQuestion,$answers){
         $question = $this;
-        if ($this->isUsed($mainQuestion)) {
-            $question = $this->duplicate([]);
-            if ($question === false) {
-                throw new QuestionException('Failed to duplicate question',422);
-            }
-            $mainQuestion->setAttribute('question_id', $question->getKey());
-
-            if (!$mainQuestion->save()) {
-                throw new QuestionException('Failed to update test question',422);
-            }
-        }
+////        if ($question->isDirty() || $mainQuestion->isDirty() || $mainQuestion->isDirtyAttainments() || $mainQuestion->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+////
+////            if ($this->isUsed($mainQuestion)) {
+//                $question = $this->duplicate([]);
+//                if ($question === false) {
+//                    throw new QuestionException('Failed to duplicate question', 422);
+//                }
+//                $mainQuestion->setAttribute('question_id', $question->getKey());
+//
+//                if (!$mainQuestion->save()) {
+//                    throw new QuestionException('Failed to update test question', 422);
+//                }
+////            }
+////        }
 
         if (!QuestionAuthor::addAuthorToQuestion($question)) {
             throw new QuestionException('Failed to attach author to question',422);

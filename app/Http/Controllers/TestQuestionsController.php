@@ -254,13 +254,18 @@ class TestQuestionsController extends Controller {
     {
         // Fill and check if question is modified
         $question = $testQuestion->question;
+        logger([$question->getKey(), get_class($question)]);
 
         DB::beginTransaction();
         try {
             $qHelper = new QuestionHelper();
             $questionData = [];
+            $completionAnswerDirty = false;
             if($question->getQuestionInstance()->type == 'CompletionQuestion') {
                 $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+                $currentAnswers = $question->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
+                $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
+                $completionAnswerDirty = ( ($currentAnswers !== $futureAnswers));
             }
 
             $totalData = array_merge($request->all(),$questionData);
@@ -272,7 +277,7 @@ class TestQuestionsController extends Controller {
             $testQuestion->fill($request->all());
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+            if ($completionAnswerDirty || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
                 if ($question->isUsed($testQuestion)) {
                     $question = $question->duplicate(array_merge($request->all(),$questionData));
                     //$question = $question->duplicate($request->all());

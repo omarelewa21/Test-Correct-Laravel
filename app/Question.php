@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\MtiBaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -520,9 +521,19 @@ class Question extends MtiBaseModel {
 
 		} else {
 			if (in_array('Teacher', $roles)) {
-	            $query->whereIn('subject_id', function ($query) use ($user) {
-	                $user->subjects($query)->select('id');
-	            });
+                $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
+                $query->orWhere(function($q) use ($user, $subject){
+                    // subject id = $subject->getKey() together with being an owner through the question_authors table
+                    $q->where('subject_id',$subject->getKey());
+                    $q->whereIn('id',$user->questionAuthors()->pluck('question_id'));
+                });
+                // or subect_id in list AND subject not $subject->getKey()
+                $query->orWhere(function($q) use ($user,$subject){
+                    $q->where('subject_id','<>',$subject->getKey());
+                    $q->whereIn('subject_id', function ($query) use ($user) {
+                        $user->subjects($query)->select('id');
+                    });
+                });
 	        }
 		}
 

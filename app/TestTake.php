@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -494,6 +495,27 @@ class TestTake extends BaseModel
                         ->where($this->getTable().'.user_id',$user->getKey());
                 })
                     ->orWhere($this->getTable().'.demo',0);
+            });
+
+            // TC-158 only show testtakes from tests from other subjects or if demo subject dan ook zelf de eigenaar
+            $query->where(function($q) use ($user){
+                $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
+                $q->whereIn($this->getTable() . '.id', function ($query) use ($subject, $user) {
+                    $testTable = with(new Test())->getTable();
+                    $query
+                        ->select($this->getTable().'.id')
+                        ->from($this->getTable())
+                        ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
+                        ->whereNull($testTable.'.deleted_at')
+                        ->where(function($query) use ($subject, $user, $testTable){
+                            $query->where(function($query) use ($testTable, $subject, $user) {
+                                $query->where($testTable . '.subject_id', $subject->getKey())
+                                    ->where($testTable . '.author_id', $user->getKey());
+                            })
+                                ->orWhere($testTable.'.subject_id','<>',$subject->getKey());
+                        });
+
+                });
             });
 
         } elseif (in_array('Student', $roles)) {

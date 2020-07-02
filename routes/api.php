@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 Route::get('/edu-k', 'EduK\HomeController@index');
+Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
 
 Route::get('/', 'HomeController@index');
 
@@ -165,10 +166,23 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
 	Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
 	Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
+	Route::post('/tell_a_teacher', 'TellATeacherController@store');
+
 	Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
 	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
+
+    Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
+    Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.show');
+    Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
+    Route::post('demo_account/notify_support_teacher_tries_to_upload', 'DemoAccountController@notifySupportTeacherTriesToUpload')->name('demo_account.notify_support_teacher_tries_to_upload');
+
+    Route::put('user/switch_school_location/{user}','UsersController@switch_school_location')->name('user.switch_school_location');
+
+    Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
+    Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.show');
+    Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
 
 
 	// Sales organization
@@ -207,7 +221,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('qtiimport/data','QtiImportController@data')->name('qtiimport_data');
     Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
 
+	Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
+
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
+
 
 });

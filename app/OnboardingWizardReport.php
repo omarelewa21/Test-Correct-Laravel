@@ -55,6 +55,7 @@ class OnboardingWizardReport extends Model
             'average_time_finished_demo_tour_steps_hours' => self::getOnboardingWizardMeanTimeCompletingStep($user),
             'user_sections'                               => self::getUserSections($user),
             'user_login_amount'                           => $user->loginLogs()->count(),
+            'last_updated_from_TC'                        => Carbon::now(),
         ]);
     }
 
@@ -159,11 +160,16 @@ ORDER BY t2.displayorder,
 
     public static function updateForAllTeachers()
     {
-        User::whereIn('id', Teacher::pluck('user_id'))->where('demo', 0)->each(function ($teacher) {
-            if ($teacher->isA('teacher')) {
-                \tcCore\OnboardingWizardReport::updateForUser($teacher);
-            };
-        });
+        OnboardingWizardReport::truncate();
+
+        User::whereIn('id', Teacher::pluck('user_id'))->where('demo', 0)
+            ->where('username', 'not like', '%@teachandlearncompany.com')
+            ->where('username', 'not like', '%@test-correct.nl')
+            ->each(function ($teacher) {
+                if ($teacher->isA('teacher')) {
+                    \tcCore\OnboardingWizardReport::updateForUser($teacher);
+                };
+            });
     }
 
     private static function getOnboardingWizardMeanTimeCompletingStep(User $user)
@@ -308,7 +314,7 @@ ORDER BY t2.displayorder,
         return optional(
             TestParticipant::whereIn('test_take_id',
                 ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id'))
-            )->where(function($query) {
+            )->where(function ($query) {
                 return $query->orWhereNotNull('rating')->orWhereNotNull('retake_rating');
             })->orderBy('updated_at', 'asc')->first()
         )->updated_at;
@@ -324,7 +330,7 @@ ORDER BY t2.displayorder,
         return optional(
             TestParticipant::whereIn('test_take_id',
                 ($user->testTakes()->where('demo', 0)->where('test_take_status_id', 9)->pluck('id'))
-            )->where(function($query) {
+            )->where(function ($query) {
                 return $query->orWhereNotNull('rating')->orWhereNotNull('retake_rating');
             })->orderBy('updated_at', 'desc')->first()
         )->updated_at;

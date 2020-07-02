@@ -10,6 +10,7 @@ use tcCore\SchoolClass;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolClassRequest;
 use tcCore\Http\Requests\UpdateSchoolClassRequest;
+use tcCore\Http\Helpers\SchoolHelper;
 
 class SchoolClassesController extends Controller {
 	/**
@@ -20,6 +21,8 @@ class SchoolClassesController extends Controller {
 	 */
 	public function index(Request $request)
 	{
+		SchoolHelper::denyIfTempTeacher();
+
 		$schoolClasses = SchoolClass::filtered($request->get('filter', []), $request->get('order', []))->with('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers', 'studentUsers', 'educationLevel', 'schoolYear');
 		switch(strtolower($request->get('mode', 'paginate'))) {
 			case 'all':
@@ -69,6 +72,8 @@ class SchoolClassesController extends Controller {
 	 */
 	public function show(SchoolClass $schoolClass, Request $request)
 	{
+		SchoolHelper::denyIfTempTeacher();
+
 		$schoolClass->load('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers', 'studentUsers', 'educationLevel', 'schoolYear', 'teacher', 'teacher.user', 'teacher.subject');
 		if (is_array($request->get('with')) && in_array('schoolClassStats', $request->get('with'))) {
 			AverageRatingRepository::getCountAndAveragesForSchoolClasses([$schoolClass]);
