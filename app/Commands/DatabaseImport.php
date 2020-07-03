@@ -39,7 +39,7 @@ class DatabaseImport
 			$file
         );
 
-        $process = new Process($command);
+        $process = Process::fromShellCommandline($command);
         $process->run();
 	}
 
