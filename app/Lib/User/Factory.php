@@ -1,6 +1,7 @@
 <?php namespace tcCore\Lib\User;
 
 use tcCore\User;
+use Illuminate\Support\Str;
 
 class Factory {
 
@@ -19,7 +20,7 @@ class Factory {
 
         $this->user->fill($data);
 
-        $this->user->setAttribute('api_key', str_random(40));
+        $this->user->setAttribute('api_key', Str::random(40));
 
         if($this->user->save()){
             return $this->user;
@@ -29,7 +30,7 @@ class Factory {
     }
 
     public function generateNewPassword() {
-        $password = str_random(8);
+        $password = Str::random(8);
         $this->user->setAttribute('password', \Hash::make($password));
         $this->user->save();
         return $password;
