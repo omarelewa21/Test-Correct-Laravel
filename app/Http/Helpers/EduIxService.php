@@ -5,15 +5,18 @@ namespace tcCore\Http\Helpers;
 
 
 use Exception;
+use Illuminate\Support\Facades\App;
 use SoapHeader;
 use stdClass;
 
 class EduIxService
 {
-    const EDUROUTEV4_WSDL_PROFILE = 'https://acc-lika.edu-ix.nl/soap/4.0/profile/wsdl';
+    const EDUROUTEV4_WSDL_PROFILE = 'https://lika.edu-ix.nl/soap/4.0/profile/wsdl';
+    const EDUROUTEV4_WSDL_PROFILE_TEST = 'https://acc-lika.edu-ix.nl/soap/4.0/profile/wsdl';
     const EDUROUTEV4_NAMESPACE_PROFILE = 'urn:edu-ix:profile:4.0';
 
-    const EDUROUTEV4_WSDL_CREDIT = 'https://acc-lika.edu-ix.nl/soap/4.0/credit/wsdl';
+    const EDUROUTEV4_WSDL_CREDIT = 'https://lika.edu-ix.nl/soap/4.0/credit/wsdl';
+    const EDUROUTEV4_WSDL_CREDIT_TEST = 'https://acc-lika.edu-ix.nl/soap/4.0/credit/wsdl';
     const EDUROUTEV4_NAMESPACE_CREDIT = 'urn:edu-ix:credit:4.0';
 
     private $header;
@@ -74,13 +77,13 @@ class EduIxService
         # Call uitvoeren om persoonsgegevens op te halen
         if (!$this->eduProfile) {
 
-            $client_profile = new \SoapClient(self::EDUROUTEV4_WSDL_PROFILE);
+            $client_profile = $this->getSoapClientProfile();
             $client_profile->__setSoapHeaders($this->header);
             $request = new stdClass();
             $request->redirectSessionID = $this->sessionId;
 
             $this->eduProfile = $client_profile->getEduProfile($request);
-            $this->digiDeliveryID = $this->eduProfile->digiDeliveryID;
+//            $this->digiDeliveryID = $this->eduProfile->digiDeliveryID;
         }
 
         return $this->eduProfile;
@@ -90,13 +93,15 @@ class EduIxService
     {
         if (!$this->schoolCredit) {
             # Call uitvoeren om schooltegoeden op te halen
-            $client_credit = new \SoapClient(self::EDUROUTEV4_WSDL_CREDIT);
+            $client_credit = $this->getSoapClientCredit();
             $client_credit->__setSoapHeaders($this->header);
             # Request opstellen voor getSchoolCredit
-            $request = new stdClass();
-            $request->organisationID = $this->getDigiDeliveryID();
-            $request->redirectSessionID = $this->sessionId;
-            $this->schoolCredit = $client_credit->getSchoolCredit($request);
+            if ($this->getDigiDeliveryID()) {
+                $request = new stdClass();
+                $request->organisationID = $this->getDigiDeliveryID();
+                $request->redirectSessionID = $this->sessionId;
+                $this->schoolCredit = $client_credit->getSchoolCredit($request);
+            }
         }
         return $this->schoolCredit;
     }
@@ -105,7 +110,7 @@ class EduIxService
     {
         if (!$this->personCredit) {
             # Call uitvoeren om persoonelijke tegoeden op te halen
-            $client_credit = new \SoapClient(self::EDUROUTEV4_WSDL_CREDIT);
+            $client_credit = $this->getSoapClientCredit();
             $client_credit->__setSoapHeaders($this->header);
             $request = new stdClass();
             $request->redirectSessionID = $this->sessionId;
@@ -150,10 +155,10 @@ class EduIxService
 
     public function getDigiDeliveryID()
     {
-        if (!$this->digiDeliveryID) {
-            $this->getEduProfile();
-        }
-
+//        if (!$this->digiDeliveryID) {
+//            $this->getEduProfile();
+//        }
+        /** always empty because this is not (almost) never there */
         return $this->digiDeliveryID;
     }
 
@@ -170,10 +175,28 @@ class EduIxService
     public function asJson()
     {
         return json_encode([
-            'eduProfile' => $this->getEduProfile(),
-            'personCredit' => $this->getPersonCredit(),
+            'eduProfile'    => $this->getEduProfile(),
+            'personCredit'  => $this->getPersonCredit(),
             'school_credit' => $this->getSchoolCredit(),
         ]);
+    }
+
+    private function getSoapClientProfile()
+    {
+        if (!App::environment('production')) {
+            return new \SoapClient(self::EDUROUTEV4_WSDL_PROFILE_TEST);
+        }
+
+        return new \SoapClient(self::EDUROUTEV4_WSDL_PROFILE);
+    }
+
+    private function getSoapClientCredit()
+    {
+        if (!App::environment('production')) {
+            return new \SoapClient(self::EDUROUTEV4_WSDL_CREDIT_TEST);
+        }
+
+        return new \SoapClient(self::EDUROUTEV4_WSDL_CREDIT);
     }
 
 

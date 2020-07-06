@@ -147,7 +147,9 @@ class UsersController extends Controller
 
         $data = $request->all();
 
-        $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id;//SchoolHelper::getTempTeachersSchoolLocation()->getKey();
+        if(!Auth::user()->isA(['Administrator','Account manager']) && Auth::user()->school_location_id !== null) {
+            $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id;//SchoolHelper::getTempTeachersSchoolLocation()->getKey();
+        }
 
         $user = $userFactory->generate($data);
 
