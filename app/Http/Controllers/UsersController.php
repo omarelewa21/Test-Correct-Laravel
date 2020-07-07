@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
 use tcCore\BaseSubject;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
@@ -143,7 +144,6 @@ class UsersController extends Controller
      */
     public function store(CreateUserRequest $request)
     {
-        $userFactory = new Factory(new User());
 
         $data = $request->all();
 
@@ -151,13 +151,9 @@ class UsersController extends Controller
             $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id;//SchoolHelper::getTempTeachersSchoolLocation()->getKey();
         }
 
-        $user = $userFactory->generate($data);
+        $user = (new UserHelper())->createUserFromData($data);
 
         if ($user !== false) {
-            if ($request->has('send_welcome_mail') && $request->get('send_welcome_mail') == true) {
-                dispatch_now(new SendWelcomeMail($user->getKey(), $request->get('url')));
-            }
-
             return Response::make($user, 200);
         } else {
             return Response::make('Failed to create user', 500);
