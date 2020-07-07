@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Process;
+use tcCore\Http\Helpers\DemoHelper;
+use tcCore\SchoolLocation;
 
 class DatabaseImport
 {
@@ -48,5 +50,11 @@ class DatabaseImport
 		DatabaseImport::checkEnv();
 
 		Artisan::call('migrate', ['--force' => true]);
+	}
+
+	public static function addRequiredDatabaseData() {
+		$demoSchool = SchoolLocation::find(1)->replicate();
+		$demoSchool->customer_code = DemoHelper::SCHOOLLOCATIONNAME;
+		$demoSchool->save();
 	}
 }

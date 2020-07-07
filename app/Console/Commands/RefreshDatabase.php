@@ -83,6 +83,8 @@ class RefreshDatabase extends Command
             $this->info('done');
         }
 
+        $this->addRequiredDatabaseData();
+
         $this->info('refresh database complete');
     }
 }

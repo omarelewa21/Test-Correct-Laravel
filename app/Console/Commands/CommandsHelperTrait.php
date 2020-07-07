@@ -42,4 +42,11 @@ Trait CommandsHelperTrait
         }
         return true;
     }
+
+    protected function addRequiredDatabaseData() 
+    {
+        $this->printSubItem('add required data to database');
+        DatabaseImport::addRequiredDatabaseData();
+        $this->info('done');
+    }
 }
