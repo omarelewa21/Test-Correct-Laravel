@@ -53,8 +53,15 @@ class DatabaseImport
 	}
 
 	public static function addRequiredDatabaseData() {
-		$demoSchool = SchoolLocation::find(1)->replicate();
-		$demoSchool->customer_code = DemoHelper::SCHOOLLOCATIONNAME;
-		$demoSchool->save();
+		// fix issue with missing temp school location if sovag
+		if(null == SchoolLocation::where('customer_code','TC-tijdelijke-docentaccounts')->first()){
+			SchoolLocation::where('id',1)->update(['customer_code' =>'TC-tijdelijke-docentaccounts']);
+		}
+
+		if (SchoolLocation::where('customer_code', DemoHelper::SCHOOLLOCATIONNAME)->first() == null) {
+			$demoSchool = SchoolLocation::find(1)->replicate();
+			$demoSchool->customer_code = DemoHelper::SCHOOLLOCATIONNAME;
+			$demoSchool->save();
+		}
 	}
 }
