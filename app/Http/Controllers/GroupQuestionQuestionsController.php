@@ -365,7 +365,7 @@ class GroupQuestionQuestionsController extends Controller
 
             // Save the link
             if ($groupQuestionQuestion->save()) {
-                if ($questionInstance->type == 'CompletionQuestion') {
+                if ($questionInstance->type == 'CompletionQuestion' || $questionInstance->type == 'MatchingQuestion') {
                     // delete old answers
                     $question->deleteAnswers($question);
 
