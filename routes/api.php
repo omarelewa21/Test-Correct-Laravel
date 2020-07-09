@@ -31,6 +31,8 @@ Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 
+    // app_version_info
+    Route::post('/app_version_info',['as' => 'app_version_info.store','uses' => 'AppVersionInfoController@store']);
 	// Onboarding
     Route::post('/onboarding/registeruserstep',['as' => 'onboarding.register_userstep','uses' => 'OnboardingWizardController@registerUserStep']);
     Route::get('/onboarding/{user}/steps',['as' => 'onboarding.show_steps_for_user','uses' => 'OnboardingWizardController@showStepsForUser']);
