@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Process;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\SchoolLocation;
 use tcCore\Teacher;
@@ -71,9 +72,10 @@ class DatabaseImport
 		//TCP-156
 		$teacherUsers = Teacher::with('user')->get()->map(function($t) {
             return $t->user;
-        });
+		});
 
 		foreach ($teacherUsers as $teacher) {
+			ActingAsHelper::getInstance()->setUser($teacher);
 			(new DemoHelper)->createDemoForTeacherIfNeeded($teacher);
 		}
 	}
