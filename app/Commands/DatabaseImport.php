@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Process;
+use tcCore\Http\Helpers\DemoHelper;
+use tcCore\SchoolLocation;
+use tcCore\Teacher;
 
 class DatabaseImport
 {
@@ -48,5 +51,30 @@ class DatabaseImport
 		DatabaseImport::checkEnv();
 
 		Artisan::call('migrate', ['--force' => true]);
+	}
+
+	public static function addRequiredDatabaseData() {
+		
+		DatabaseImport::checkEnv();
+
+		// fix issue with missing temp school location if sovag
+		if(null == SchoolLocation::where('customer_code','TC-tijdelijke-docentaccounts')->first()){
+			SchoolLocation::where('id',1)->update(['customer_code' =>'TC-tijdelijke-docentaccounts']);
+		}
+
+		if (SchoolLocation::where('customer_code', DemoHelper::SCHOOLLOCATIONNAME)->first() == null) {
+			$demoSchool = SchoolLocation::find(1)->replicate();
+			$demoSchool->customer_code = DemoHelper::SCHOOLLOCATIONNAME;
+			$demoSchool->save();
+		}
+
+		//TCP-156
+		$teacherUsers = Teacher::with('user')->get()->map(function($t) {
+            return $t->user;
+        });
+
+		foreach ($teacherUsers as $teacher) {
+			(new DemoHelper)->createDemoForTeacherIfNeeded($teacher);
+		}
 	}
 }
