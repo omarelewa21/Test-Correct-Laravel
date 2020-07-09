@@ -17,6 +17,8 @@ class TestingController extends Controller {
 
             DatabaseImport::migrate();
 
+            DatabaseImport::addRequiredDatabaseData();
+
             return Response::make("ok");
         }
 
