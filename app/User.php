@@ -239,6 +239,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasMany(LoginLog::class);
     }
 
+    public function appVersionInfos()
+    {
+        return $this->hasMany(AppVersionInfo::class);
+    }
+
 	public static function boot()
 	{
 		parent::boot();
