@@ -9,7 +9,7 @@ class Factory {
         $this->user = $user;
     }
 
-    public function generate($data)
+    public function generate($data, $withoutSaving = false)
     {
         $this->user = new User();
 
@@ -20,6 +20,10 @@ class Factory {
         $this->user->fill($data);
 
         $this->user->setAttribute('api_key', str_random(40));
+
+        if($withoutSaving === true){
+            return $this->user;
+        }
 
         if($this->user->save()){
             return $this->user;
