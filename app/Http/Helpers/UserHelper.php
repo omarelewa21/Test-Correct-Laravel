@@ -39,9 +39,17 @@ class UserHelper
     public function createUserFromData($data){
         $userFactory = new Factory(new User());
 
-        $user = $userFactory->generate($data);
+        $user = $userFactory->generate($data,true);
 
-        if ($user !== false) {
+        if($user->invited_by != null){
+            if(!$user->emailDomainInviterAndInviteeAreEqual()) {
+                $schoolLocationId = SchoolHelper::getTempTeachersSchoolLocation()->getKey();
+                ActingAsHelper::getInstance()->setUser(SchoolHelper::getSomeTeacherBySchoolLocationId($schoolLocationId));
+                $user->school_location_id = $schoolLocationId;
+            }
+        }
+
+        if ($user->save() !== false) {
             if (isset($data['send_welcome_mail']) && $data['send_welcome_mail'] == true) {
                 dispatch_now(new SendWelcomeMail($user->getKey(), isset($data['url']) ? $data['url'] : false));
             }
