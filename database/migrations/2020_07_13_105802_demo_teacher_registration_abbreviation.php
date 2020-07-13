@@ -13,7 +13,7 @@ class DemoTeacherRegistrationAbbreviation extends Migration
    public function up()
    {
        Schema::table('demo_teacher_registrations', function (Blueprint $table) {
-           $table->string('abbreviation');
+           $table->string('abbreviation')->nullable();
 
        });
    }
@@ -26,7 +26,7 @@ class DemoTeacherRegistrationAbbreviation extends Migration
    public function down()
    {
        Schema::table('demo_teacher_registrations', function (Blueprint $table) {
-           $table->removeColumn('abbreviation');
+           $table->dropColumn('abbreviation');
        });
    }
 }
