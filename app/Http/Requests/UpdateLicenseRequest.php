@@ -35,6 +35,8 @@ class UpdateLicenseRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'start' => 'sometimes|date_format:Y-m-d',
 			'end' => 'sometimes|date_format:Y-m-d',

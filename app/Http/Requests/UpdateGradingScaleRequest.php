@@ -35,6 +35,8 @@ class UpdateGradingScaleRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'name' => 'sometimes',
             'system_name' => 'sometimes|required|in:OneToTen',

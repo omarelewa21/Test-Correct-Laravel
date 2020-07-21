@@ -19,6 +19,8 @@ class CreateTeacherRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'user_id' => '',
 			'class_id' => '',

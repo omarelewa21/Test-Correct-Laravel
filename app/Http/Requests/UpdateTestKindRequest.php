@@ -35,6 +35,8 @@ class UpdateTestKindRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'name' => '',
             'weight' => ''

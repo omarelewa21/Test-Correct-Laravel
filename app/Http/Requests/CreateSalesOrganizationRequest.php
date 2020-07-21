@@ -19,6 +19,8 @@ class CreateSalesOrganizationRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			//
 		];

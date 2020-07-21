@@ -29,6 +29,8 @@ class UpdateFileManagementRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'file_management_status_id' => '',
             'handledby' => '',

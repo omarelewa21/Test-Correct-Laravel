@@ -35,6 +35,8 @@ class UpdateCompletionQuestionAnswerRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'tag' => '',
             'answer' => ''

@@ -65,6 +65,8 @@ class UpdateQuestionRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		if ($this->has('type') && $this->input('type') !== 'Question') {
 			$rules = $this->getExtraRulesClass($this->input('type'));
 			if (class_exists($rules) && method_exists($rules, 'rules')) {

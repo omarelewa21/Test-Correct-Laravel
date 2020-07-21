@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use tcCore\Lib\User\Roles;
 
 abstract class Request extends FormRequest {
@@ -31,5 +32,24 @@ abstract class Request extends FormRequest {
 
 	protected function getUserRoles() {
 		return Roles::getUserRoles();
+	}
+
+	public function filterInput()
+	{
+		try {
+			$input = $this->all();
+		} catch (\Throwable $th) {
+			return;
+		}
+
+		//sanitize input to prevent XSS
+		//value is passed as reference
+		array_walk_recursive($input, function(&$value, $key) {
+			if (!empty($value)) {
+				$value = clean($value);
+			}			
+		});
+
+		return $this->replace($input);
 	}
 }

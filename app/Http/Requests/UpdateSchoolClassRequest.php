@@ -35,6 +35,8 @@ class UpdateSchoolClassRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'subject_id' => '',
 			'education_level_id' => '',

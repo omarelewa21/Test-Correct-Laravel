@@ -21,7 +21,6 @@ class CreateGroupQuestionQuestionRequest extends CreateQuestionRequest {
      */
     public function rules()
     {
-
         if ($this->validateQuestionId()) {
             $rules = ['question_id' => ''];
         } else {

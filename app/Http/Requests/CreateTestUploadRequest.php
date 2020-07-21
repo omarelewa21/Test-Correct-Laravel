@@ -29,6 +29,8 @@ class CreateTestUploadRequest extends Request {
 	 */
 	public function rules()
 	{
+        $this->filterInput();
+
 		return [
 		    'files' => 'required',
             'test_kind_id' => 'required',

@@ -35,6 +35,8 @@ class UpdateRankingQuestionAnswerRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'answer' => '',
 			'order' => '',

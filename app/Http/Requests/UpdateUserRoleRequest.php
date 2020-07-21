@@ -35,6 +35,8 @@ class UpdateUserRoleRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'user_id' => '',
 			'role_id' => ''

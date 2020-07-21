@@ -19,6 +19,8 @@ class CreateMessageRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'subject' => 'sometimes|required',
             'message' => ''

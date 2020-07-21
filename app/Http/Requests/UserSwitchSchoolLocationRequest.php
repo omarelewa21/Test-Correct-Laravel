@@ -25,6 +25,8 @@ class UserSwitchSchoolLocationRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'school_location_id' => 'required'
 		];

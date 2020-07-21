@@ -34,6 +34,8 @@ class CreateQuestionRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		$baseRules = $this->baseRules();
 
 		if ($this->has('type') && $this->input('type') !== 'Question') {
