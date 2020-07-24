@@ -51,6 +51,10 @@
                     <td>{{ $demo->username }}</td>
                 </tr>
                 <tr>
+                    <td>Afkorting</td>
+                    <td>{{ $demo->abbreviation }}</td>
+                </tr>
+                <tr>
                     <td>Mobiel nummer</td>
                     <td>{{ $demo->mobile }}</td>
                 </tr>

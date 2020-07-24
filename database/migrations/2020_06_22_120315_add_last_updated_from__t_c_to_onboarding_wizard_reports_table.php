@@ -29,7 +29,7 @@ class AddLastUpdatedFromTCToOnboardingWizardReportsTable extends Migration
     public function down()
     {
         Schema::table('onboarding_wizard_reports', function (Blueprint $table) {
-            $table->removeColumn('last_updated_from_TC');
+            $table->dropColumn('last_updated_from_TC');
             //
         });
     }
