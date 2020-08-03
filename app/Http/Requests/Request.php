@@ -45,7 +45,7 @@ abstract class Request extends FormRequest {
 		//sanitize input to prevent XSS
 		//value is passed as reference
 		array_walk_recursive($input, function(&$value, $key) {
-			if (!empty($value)) {
+			if (!empty($value) && is_string($value)) {
 				$value = clean($value);
 			}			
 		});
