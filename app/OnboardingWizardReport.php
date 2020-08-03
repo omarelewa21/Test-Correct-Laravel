@@ -29,7 +29,7 @@ class OnboardingWizardReport extends Model
             'school_location_name'                        => $user->schoolLocation->name,
             'school_location_customer_code'               => $user->schoolLocation->customer_code,
             'test_items_created_amount'                   => Question::whereIn('id', $user->questionAuthors()->pluck('question_id'))->where('type', '<>', 'GroupQuestion')->count(),
-            'tests_created_amount'                        => $user->tests()->whereNull('system_test_id')->where('demo', 0)->count(),
+            'tests_created_amount'                        => $user->tests()->where('is_system_test', 0)->where('demo', 0)->count(),
             'first_test_planned_date'                     => self::getFirstTestPlannedDate($user),
             'last_test_planned_date'                      => self::getLastTestPlannedDate($user),
             'first_test_taken_date'                       => self::getFirstTestTakenDate($user),
