@@ -33,7 +33,7 @@ class SchoolClassesStudentImportRequest extends Request {
 	{
 		return [
 		    'data' => 'array',
-		    'data.*.username' => 'required|email',
+		    'data.*.username' => 'required|email|unique:users,username',
             'data.*.name_first' => 'required',
             'data.*.name' => 'required'
         ];
@@ -61,7 +61,7 @@ class SchoolClassesStudentImportRequest extends Request {
         $messages = $validator->errors()->messages();
         foreach ($messages as $key => $value) {
             if (!str_contains($key, 'username') && !$flags['username']) {
-                $results[] = 'De emailadressen dienen aanwezig te zijn en valide';
+                $results[] = 'De emailadressen dienen aanwezig, welgevormd en unique te zijn.';
                 $flags['username'] = true;
             }
             else if (str_contains($key, 'name_first') && !$flags['name_first']) {
