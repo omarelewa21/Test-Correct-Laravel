@@ -56,6 +56,9 @@ class OnboardingWizardReport extends Model
             'user_sections'                               => self::getUserSections($user),
             'user_login_amount'                           => $user->loginLogs()->count(),
             'last_updated_from_TC'                        => Carbon::now(),
+            'invited_by'                                  => self::invitedBy($user),
+            'invited_users_amount'                        => self::invitedUsersAmount($user),
+            'invited_users'                               => self::invitedUsers($user)
         ]);
     }
 
@@ -416,6 +419,24 @@ ORDER BY t2.displayorder,
                         )
                     );
             })->implode(',')
+        );
+    }
+
+    public static function invitedBy(User $user)
+    {
+        return $user->invited_by;
+    }
+
+    public static function invitedUsersAmount(User $user)
+    {
+        return User::where('invited_by', $user->username)->count();
+    }
+
+    public static function invitedUsers(User $user)
+    {
+        return sprintf(',%s,', User::where('invited_by', $user->username)
+            ->pluck('username')
+            ->implode(',')
         );
     }
 }
