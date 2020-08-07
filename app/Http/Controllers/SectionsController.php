@@ -56,7 +56,7 @@ class SectionsController extends Controller {
      */
     public function show(Section $section)
     {
-        $section->load('subjects', 'subjects.baseSubject', 'schoolLocations');
+        $section->load('subjects', 'subjects.baseSubject', 'schoolLocations','subjects.teachers', 'subjects.teachers.user');
         return Response::make($section, 200);
     }
 
