@@ -168,6 +168,7 @@ class TestQuestionsController extends Controller {
         }
         catch(\Exception $e){
             DB::rollback();
+            logger($e->getMessage());
             return Response::make($e->getMessage(),500);
         }
         DB::commit();
