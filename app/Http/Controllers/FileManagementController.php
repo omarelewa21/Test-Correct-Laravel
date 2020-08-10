@@ -39,8 +39,8 @@ class FileManagementController extends Controller
     }
 
     protected function sendInvite(FileManagement $fileManagement){
-//        Queue::push(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
-        dispatch_now(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
+        Queue::push(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
+//        dispatch_now(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
 
     }
 
