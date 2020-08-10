@@ -233,11 +233,10 @@ class GroupQuestionQuestionsController extends Controller
             $groupQuestionQuestionOriginal = $groupQuestionQuestion;
             $groupQuestionQuestion->fill($request->all());
 
-            // $groupQuestionQuestionManager->isUsed();
-
-
+            // MF 10-8-2020 if ($groupQuestionQuestionManager->isUsed()) { zou voldoende moeten zijn volgens mij om de vraaggroep te dupliceren.
+            // De rest van de statements is altijd false als je hier komt. ;
             if (
-                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) &&
+                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) ||
                 ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
                 $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
