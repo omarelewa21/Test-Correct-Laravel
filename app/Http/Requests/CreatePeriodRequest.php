@@ -19,6 +19,8 @@ class CreatePeriodRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			//
 		];

@@ -19,6 +19,8 @@ class CreateSchoolYearRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'year' => ''
 		];

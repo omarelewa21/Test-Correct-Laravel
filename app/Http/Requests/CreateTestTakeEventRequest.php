@@ -19,6 +19,8 @@ class CreateTestTakeEventRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'test_participant_id' => '',
             'test_take_event_type_id' => '',

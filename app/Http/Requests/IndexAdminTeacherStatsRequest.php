@@ -24,6 +24,8 @@ class IndexAdminTeacherStatsRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
         ];
     }

@@ -29,6 +29,8 @@ class CreateClassUploadRequest extends Request {
 	 */
 	public function rules()
 	{
+        $this->filterInput();
+
 		return [
 		    'file' => 'required|file',
             'class' => 'required',

@@ -19,6 +19,8 @@ class CreateLicenseRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'start' => 'required|date_format:Y-m-d',
 			'end' => 'required|date_format:Y-m-d',

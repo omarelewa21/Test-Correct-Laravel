@@ -35,6 +35,8 @@ class UpdateSchoolLocationIpRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'name' => ''
         ];

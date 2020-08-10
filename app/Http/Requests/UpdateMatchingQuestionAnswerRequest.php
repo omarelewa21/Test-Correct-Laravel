@@ -35,6 +35,8 @@ class UpdateMatchingQuestionAnswerRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'correct_answer_id' => '',
 			'answer' => '',

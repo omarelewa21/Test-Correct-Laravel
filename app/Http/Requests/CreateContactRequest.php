@@ -19,6 +19,8 @@ class CreateContactRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'name' => '',
             'address' => '',

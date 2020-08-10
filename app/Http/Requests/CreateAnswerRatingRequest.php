@@ -19,6 +19,8 @@ class CreateAnswerRatingRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'answer_id' => '',
 			'user_id' => '',

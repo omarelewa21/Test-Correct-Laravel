@@ -19,6 +19,8 @@ class CreateGradingScaleRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'name' => 'required',
             'system_name' => 'required|in:OneToTen'

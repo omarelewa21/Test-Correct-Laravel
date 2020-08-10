@@ -19,6 +19,9 @@ class CreateCompletionQuestionAnswerRequest extends Request {
      */
     public function rules()
     {
+
+        $this->filterInput();
+
         return [
             //
         ];

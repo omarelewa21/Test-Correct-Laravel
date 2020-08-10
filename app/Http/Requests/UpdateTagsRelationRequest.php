@@ -35,6 +35,8 @@ class UpdateTagsRelationRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			//
 		];

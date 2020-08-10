@@ -37,6 +37,8 @@ class NormalizeTestTakeRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         $rules = array(
             'ignore_questions' => '',
             'preview' => 'in:0,1'

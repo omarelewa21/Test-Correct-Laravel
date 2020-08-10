@@ -31,6 +31,8 @@ class SchoolClassesStudentImportRequest extends Request {
 	 */
 	public function rules()
 	{
+        $this->filterInput();
+
 		return [
 		    'data' => 'array',
 		    'data.*.username' => 'required|email|unique:users,username',

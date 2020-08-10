@@ -25,6 +25,8 @@ class ListSchoolLocationEducationlevelRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 
         ];
