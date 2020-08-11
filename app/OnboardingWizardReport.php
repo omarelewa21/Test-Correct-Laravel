@@ -424,7 +424,7 @@ ORDER BY t2.displayorder,
 
     public static function invitedBy(User $user)
     {
-        return $user->invitedBy->username;
+        return optional($user->invitedBy)->username;
     }
 
     public static function invitedUsersAmount(User $user)
