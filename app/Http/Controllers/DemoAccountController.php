@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Validator;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Exceptions\Handler;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Http\Requests\CreateDemoAccountRequest;
+use tcCore\Http\Requests\UpdateDemoAccountRequest;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Lib\User\Factory;
 use tcCore\Mail\TeacherInTestSchoolTriesToUpload;
@@ -48,7 +50,7 @@ class DemoAccountController extends Controller
         return Response::make(['status' => $return], 200);
     }
 
-    public function update(User $user, Request $request)
+    public function update(User $user, UpdateDemoAccountRequest $request)
     {
         if (($user->getKey() !== Auth::user()->getKey()) && !Auth::user()->isA('Administrator')) {
             abort(403);
@@ -77,7 +79,7 @@ class DemoAccountController extends Controller
         return Response::make(['status' => 'ok'], 200);
     }
 
-    public function store(Request $request)
+    public function store(CreateDemoAccountRequest $request)
     {
         // signal the DemoTeacherRegistration model to record the user in a DemoTeacherRegistration object;
         $request->merge([
