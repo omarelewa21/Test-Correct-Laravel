@@ -424,17 +424,17 @@ ORDER BY t2.displayorder,
 
     public static function invitedBy(User $user)
     {
-        return $user->invited_by;
+        return $user->invitedBy->username;
     }
 
     public static function invitedUsersAmount(User $user)
     {
-        return User::where('invited_by', $user->username)->count();
+        return User::where('invited_by', $user->id)->count();
     }
 
     public static function invitedUsers(User $user)
     {
-        return sprintf(',%s,', User::where('invited_by', $user->username)
+        return sprintf(',%s,', User::where('invited_by', $user->id)
             ->pluck('username')
             ->implode(',')
         );
