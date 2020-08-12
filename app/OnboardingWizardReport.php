@@ -397,7 +397,7 @@ ORDER BY t2.displayorder,
      * @param User $user
      * @return int
      */
-    private static function getTestsTakenAmount(User $user): int
+    public static function getTestsTakenAmount(User $user): int
     {
         return $user->testTakes()->where('demo', 0)->where('test_take_status_id', '>', 5)->count();
     }

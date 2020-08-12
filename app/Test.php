@@ -484,4 +484,8 @@ class Test extends BaseModel {
 
         return $test;
     }
+    public function scopeNotDemo($query)
+    {
+        return $query->where('demo', 0);
+    }
 }

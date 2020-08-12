@@ -35,7 +35,7 @@ class CountTeacherTests extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $count = $this->user->tests()->where('is_system_test', 0)->count();
+        $count = $this->user->tests()->notDemo()->where('is_system_test', 0)->count();
 
         Log::debug('Teacher #' . $this->user->getKey() . ' -> count_tests: ' . $count);
 
