@@ -46,26 +46,39 @@ class RankingQuestionAnswerLink extends CompositePrimaryKeyModel {
 
     protected $reorder = true;
 
+    protected $preventReorder = false;
+
     public static function boot()
     {
         parent::boot();
 
         static::saved(function($rankingQuestionAnswerLink)
         {
-            // If the order of an answer changes,
-            if ($rankingQuestionAnswerLink->doReorder() && ($rankingQuestionAnswerLink->getOriginal('order') != $rankingQuestionAnswerLink->getAttribute('order')
-                    || $rankingQuestionAnswerLink->getOriginal('ranking_question_id') != $rankingQuestionAnswerLink->getAttribute('ranking_question_id'))) {
-                if ($rankingQuestionAnswerLink->rankingQuestion !== null) {
-                    $rankingQuestionAnswerLink->rankingQuestion->reorder($rankingQuestionAnswerLink, 'order');
+
+            if(!$this->doPreventReorder()) {
+                // If the order of an answer changes,
+                if ($rankingQuestionAnswerLink->doReorder() && ($rankingQuestionAnswerLink->getOriginal('order') != $rankingQuestionAnswerLink->getAttribute('order')
+                        || $rankingQuestionAnswerLink->getOriginal('ranking_question_id') != $rankingQuestionAnswerLink->getAttribute('ranking_question_id'))) {
+                    if ($rankingQuestionAnswerLink->rankingQuestion !== null) {
+                        $rankingQuestionAnswerLink->rankingQuestion->reorder($rankingQuestionAnswerLink, 'order');
+                    }
                 }
-            }
-            if ($rankingQuestionAnswerLink->doReorder() && ($rankingQuestionAnswerLink->getOriginal('correct_order') != $rankingQuestionAnswerLink->getAttribute('correct_order')
-                    || $rankingQuestionAnswerLink->getOriginal('ranking_question_id') != $rankingQuestionAnswerLink->getAttribute('ranking_question_id'))) {
-                if ($rankingQuestionAnswerLink->rankingQuestion !== null) {
-                    $rankingQuestionAnswerLink->rankingQuestion->reorder($rankingQuestionAnswerLink, 'correct_order');
+                if ($rankingQuestionAnswerLink->doReorder() && ($rankingQuestionAnswerLink->getOriginal('correct_order') != $rankingQuestionAnswerLink->getAttribute('correct_order')
+                        || $rankingQuestionAnswerLink->getOriginal('ranking_question_id') != $rankingQuestionAnswerLink->getAttribute('ranking_question_id'))) {
+                    if ($rankingQuestionAnswerLink->rankingQuestion !== null) {
+                        $rankingQuestionAnswerLink->rankingQuestion->reorder($rankingQuestionAnswerLink, 'correct_order');
+                    }
                 }
             }
         });
+    }
+
+    public function setPreventReorder($prevent){
+        $this->preventReorder = ($prevent === true);
+    }
+
+    protected function doPreventReorder(){
+        return (bool) $this->preventReorder;
     }
 
     public function setReorder($reorder) {

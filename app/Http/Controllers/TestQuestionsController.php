@@ -115,7 +115,9 @@ class TestQuestionsController extends Controller {
 //                            $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
 //                        }
 
-                        if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
+                        if($request->get('type') == 'CompletionQuestion'
+                            || $request->get('type') == 'MatchingQuestion'
+                            || $request->get('type') == 'RankingQuestion') {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -148,7 +150,9 @@ class TestQuestionsController extends Controller {
 //                }
 
                 if ($testQuestion->save()) {
-                    if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
+                    if($request->get('type') == 'CompletionQuestion'
+                        || $request->get('type') == 'MatchingQuestion'
+                        || $request->get('type') == 'RankingQuestion') {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -301,7 +305,9 @@ class TestQuestionsController extends Controller {
 //            DB::enableQueryLog();
             // Save the link
             if ($testQuestion->save()) {
-                if($questionInstance->type == 'CompletionQuestion' || $questionInstance->type == 'MatchingQuestion') {
+                if($questionInstance->type == 'CompletionQuestion'
+                    || $questionInstance->type == 'MatchingQuestion'
+                    || $questionInstance->type == 'RankingQuestion') {
                     // delete old answers
                     $question->deleteAnswers($question);
 
