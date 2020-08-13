@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?><assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd" title="1.8-03" identifier="ITM-Test_item_370003a" label="32k6cv" timeDependent="false" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="250"><value>250</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css" /><stylesheet href="../css/cito_userstyle.css" type="text/css" /><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p>Boer Jolink krijgt subsidie om op 50<img id="Id-IMG_931dab18-94cf-4e2a-bcd6-0036e9e3966b" src="../img/halve_spatie.gif" width="2" height="9" alt="" />000 m<sup>2</sup> van zijn land zonnepanelen te zetten.<br />Hij wil daarvoor een rechthoekig stuk land gebruiken.</p><p>Als hij een breedte <em>B</em> kiest kan hij de bijbehorende lengte <em>L</em> uitrekenen met <br />de formule </p><p><em />     <img id="Id-IMG_9a9fd6fd-6752-4f43-a481-6906d0833d48" src="../img/mwt20wivmbo-370003.gif" width="70" height="38" alt="" />   </p><p>Hierbij zijn <em>L</em> en <em>B</em> in meters.</p><p>Boer Jolink denkt dat 200 meter een mooie breedte is voor dit stuk land.</p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong>Wat is de lengte van dit stuk land?</strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p><textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="9" /> meter</p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE" /></customOperator><baseValue baseType="float">250</baseValue></equal><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="integer">1</baseValue><variable identifier="SCORE" /></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE" /><baseValue baseType="integer">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

@@ -16,6 +16,7 @@ class QtiManifest
     protected $resources;
     protected $originalXml;
 
+
     protected function _init()
     {
         $this->metaData = collect([]);
@@ -29,7 +30,7 @@ class QtiManifest
 
     public function addMetaData($metaDataKey, $metaDataValue)
     {
-        $this->metaData->put($metaDataKey,$metaDataValue);
+        $this->metaData->put($metaDataKey, $metaDataValue);
         return $this;
     }
 
@@ -56,13 +57,34 @@ class QtiManifest
 
     public function setOriginalXml($xml)
     {
-        $this->originalXml = $xml;
+        $this->originalXml = simplexml_load_string($xml);
+        $this->refreshMetaData();
+        $this->refreshResources();
         return $this;
     }
 
     public function getOriginalXml()
     {
         return $this->originalXml;
+    }
+
+
+    private function refreshMetaData()
+    {
+        foreach (get_object_vars($this->originalXml->metadata) as $key => $value) {
+            $this->addMetaData($key, $value);
+        }
+    }
+
+    private function refreshResources()
+    {
+        foreach (($this->originalXml->resources->resource) as $tag=>$node) {
+            if ($tag == 'resource') {
+                if ($resource = QtiResource::createWithSimpleXMLArrayIfPossible($node)) {
+                    $this->addResource($resource);
+                }
+            }
+        }
     }
 
 }

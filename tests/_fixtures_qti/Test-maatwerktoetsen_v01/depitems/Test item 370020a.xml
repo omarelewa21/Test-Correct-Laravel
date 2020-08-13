@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?><assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd" title="2.8-05" identifier="ITM-Test_item_370020a" label="32k6cm" timeDependent="false" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2"><responseDeclaration identifier="RESPONSE" cardinality="multiple" baseType="identifier"><correctResponse interpretation="A&amp;B&amp;D"><value>A</value><value>B</value><value>D</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css" /><stylesheet href="../css/cito_userstyle.css" type="text/css" /><stylesheet href="../css/cito_generated_Testitem370020a.css" type="text/css" /><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+					<div id="question">
+						<p><strong>Geef alle goede mogelijkheden aan.</strong></p><p>Om een korting van 20% korting te berekenen kun je het bedrag …</p>
+					</div>
+
+					<div id="mc">
+				
+						<choiceInteraction id="choiceInteraction1" maxChoices="5" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p>met 0,2 vermenigvuldigen</p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p><span>met <img id="Id-IMG_517a0b53-4488-44c0-aa5b-a8b7344d55cc" src="../img/een_vijfde.gif" width="7" height="21" alt="" /></span><span /><span><span> </span>vermenigvuldigen</span><span /></p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p>door 20 delen</p></simpleChoice>
+			  
+				  <simpleChoice identifier="D"><p>door 5 delen</p></simpleChoice>
+			  
+				  <simpleChoice identifier="E"><p>door <img id="Id-IMG_f6bd27ff-cf58-45be-b0c6-1be327135196" src="../img/een_vijfde.gif" width="7" height="21" alt="" /> delen</p></simpleChoice>
+			  
+						</choiceInteraction>
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><member><baseValue baseType="identifier">A</baseValue><variable identifier="RESPONSE" /></member><member><baseValue baseType="identifier">B</baseValue><variable identifier="RESPONSE" /></member><not><member><baseValue baseType="identifier">C</baseValue><variable identifier="RESPONSE" /></member></not><member><baseValue baseType="identifier">D</baseValue><variable identifier="RESPONSE" /></member><not><member><baseValue baseType="identifier">E</baseValue><variable identifier="RESPONSE" /></member></not></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="integer">1</baseValue><variable identifier="SCORE" /></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE" /><baseValue baseType="integer">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>
