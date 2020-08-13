@@ -337,7 +337,8 @@ class GroupQuestionQuestionsController extends Controller
                 );
 
                 $question = $groupQuestionQuestion->question;
-                $question->fill($request->all());
+//                $question->fill($request->all());
+                $question->fill($totalData);
                 $questionInstance = $question->getQuestionInstance();
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $testQuestion->getAttribute('question_id'));
@@ -348,7 +349,9 @@ class GroupQuestionQuestionsController extends Controller
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
             if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
                 if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
-                    $question = $question->duplicate($request->all());
+                    //$question = $question->duplicate($request->all());
+                    $question = $question->duplicate($totalData);
+
                     if ($question === false) {
                         throw new QuestionException('Failed to duplicate question', 422);
                     }
