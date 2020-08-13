@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Lib\Question\QuestionInterface;
 
@@ -141,7 +142,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
     }
 
     public function getClassifyAnswersFromAnswer($answer){
-        return explode("\r\n",$answer);
+        return explode("\n",$answer);
     }
 
     /**
