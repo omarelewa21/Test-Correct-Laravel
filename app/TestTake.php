@@ -752,4 +752,9 @@ class TestTake extends BaseModel
         return $allowed;
     }
 
+    public function scopeNotDemo($query)
+    {
+        return $query->where('demo', 0);
+    }
+
 }

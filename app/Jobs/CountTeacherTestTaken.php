@@ -45,7 +45,7 @@ class CountTeacherTestTaken extends Job implements ShouldQueue
         $testTakeFinishedStatusIds = TestTakeStatus::whereIn('name', ['Taken', 'Discussing', 'Discussed', 'Rated'])->pluck('id')->all();
 
         // Get the unique test takes which contain students in the teacher's classes
-        $count = TestTake::select('test_takes.id')
+        $count = TestTake::select('test_takes.id')->notDemo()
             ->where(function ($query) use ($teacherIds) {
                 foreach ($teacherIds as $teacherId => $data) {
                     $query->orWhere(function ($query) use ($data) {

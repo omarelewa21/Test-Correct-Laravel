@@ -38,7 +38,7 @@ class CountSchoolLocationQuestions extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $count = $this->schoolLocation->users()->whereIn('id', function ($query) {
+        $count = $this->schoolLocation->users()->notDemo()->whereIn('id', function ($query) {
             $userRole = new UserRole();
             $query->select('user_id')->from($userRole->getTable())->whereIn('role_id', function ($query) {
                 $role = new Role();
