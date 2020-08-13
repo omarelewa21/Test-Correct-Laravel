@@ -55,7 +55,7 @@ class RankingQuestionAnswerLink extends CompositePrimaryKeyModel {
         static::saved(function($rankingQuestionAnswerLink)
         {
 
-            if(!$this->doPreventReorder()) {
+            if(!$rankingQuestionAnswerLink->doPreventReorder()) {
                 // If the order of an answer changes,
                 if ($rankingQuestionAnswerLink->doReorder() && ($rankingQuestionAnswerLink->getOriginal('order') != $rankingQuestionAnswerLink->getAttribute('order')
                         || $rankingQuestionAnswerLink->getOriginal('ranking_question_id') != $rankingQuestionAnswerLink->getAttribute('ranking_question_id'))) {

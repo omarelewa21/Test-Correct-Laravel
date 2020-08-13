@@ -97,10 +97,10 @@ class RankingQuestion extends Question implements QuestionInterface {
                 throw new QuestionException('Failed to delete ranking question answer link', 422);
             }
 
-            if ($qAL->completionQuestionAnswer->isUsed($qAL)) {
+            if ($qAL->rankingQuestionAnswer->isUsed($qAL)) {
                 // all okay, this one should be kept
             } else {
-                if (!$qAL->completionQuestionAnswer->delete()) {
+                if (!$qAL->rankingQuestionAnswer->delete()) {
                     throw new QuestionException('Failed to delete ranking question answer', 422);
                 }
             }
@@ -112,21 +112,25 @@ class RankingQuestion extends Question implements QuestionInterface {
     {
         $question = $this;
         foreach($answers as $answerDetails) {
-            $rankingQuestionAnswer = new RankingQuestionAnswer();
+            if($answerDetails['answer'] != '') {
 
-            $rankingQuestionAnswer->fill($answerDetails);
-            if (!$rankingQuestionAnswer->save()) {
-                throw new QuestionException('Failed to create ranking question answer', 422);
-            }
+                $rankingQuestionAnswer = new RankingQuestionAnswer();
 
-            $rankingQuestionAnswerLink = new RankingQuestionAnswerLink();
-            $rankingQuestionAnswerLink->setPreventReorder(true);
-            $rankingQuestionAnswerLink->fill($answerDetails);
-            $rankingQuestionAnswerLink->setAttribute('ranking_question_id', $question->getKey());
-            $rankingQuestionAnswerLink->setAttribute('ranking_question_answer_id', $rankingQuestionAnswer->getKey());
+                $rankingQuestionAnswer->fill($answerDetails);
+                if (!$rankingQuestionAnswer->save()) {
+                    throw new QuestionException('Failed to create ranking question answer', 422);
+                }
 
-            if (!$rankingQuestionAnswerLink->save()) {
-                throw new QuestionException('Failed to create ranking question answer', 422);
+                $rankingQuestionAnswerLink = new RankingQuestionAnswerLink();
+                // important!!!
+                $rankingQuestionAnswerLink->setPreventReorder(true);
+                $rankingQuestionAnswerLink->fill($answerDetails);
+                $rankingQuestionAnswerLink->setAttribute('ranking_question_id', $question->getKey());
+                $rankingQuestionAnswerLink->setAttribute('ranking_question_answer_id', $rankingQuestionAnswer->getKey());
+
+                if (!$rankingQuestionAnswerLink->save()) {
+                    throw new QuestionException('Failed to create ranking question answer', 422);
+                }
             }
         }
         return true;
