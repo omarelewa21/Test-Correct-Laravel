@@ -11,7 +11,7 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceTest extends TestCase
+class QtiResourceToSingleChoiceTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -21,11 +21,11 @@ class QtiResourceTest extends TestCase
     {
         parent::setUp();
         $resource = new Resource(
-            'ITM-330001',
+            'ITM-330008',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/330001.xml'),
+            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/330008.xml'),
             '1',
-            '88dec4d3-997f-4d3b-95cf-3345bf3c0f4b'
+            'dd36d7c3-7562-4446-9874-4cc1cdd0dc38'
         );
         $this->instance = (new QtiResource($resource))->handle();
     }
@@ -40,9 +40,9 @@ class QtiResourceTest extends TestCase
     public function it_can_handle_item_attributes()
     {
         $this->assertEquals([
-            'title' => 'Stofeigenschappen',
-            'identifier' => 'ITM-330001',
-            'label' => '32k6ca',
+            'title' => 'Baksteentjes',
+            'identifier' => 'ITM-330008',
+            'label' => '32k6cb',
             'timeDependent' => 'false',
         ], $this->instance->attributes);
 
@@ -54,16 +54,14 @@ class QtiResourceTest extends TestCase
         $this->assertEquals([
             'attributes' => [
                 'identifier' => 'RESPONSE',
-                'cardinality' => 'multiple',
+                'cardinality' => 'single',
                 'baseType' => 'identifier',
             ],
             'correct_response_attributes' => [
-                'interpretation' => 'A&B&A',
+                'interpretation' => 'C',
             ],
             'values' => [
-                0 => 'y_A x_1',
-                1 => 'y_B x_2',
-                2 => 'y_C x_1',
+              'C',
             ],
             'outcome_declaration' => [
                 'attributes' => [
@@ -90,7 +88,7 @@ class QtiResourceTest extends TestCase
                     'type' => 'text/css',
                 ],
                 [
-                    'href' => '../css/cito_generated.css',
+                    'href' => '../css/cito_generated_330008.css',
                     'type' => 'text/css',
                 ],
             ],
@@ -102,61 +100,18 @@ class QtiResourceTest extends TestCase
     public function it_can_handle_the_item_body()
     {
         $this->assertXmlStringEqualsXmlString(
-            '<matchInteraction id="matchInteraction1" minAssociations="3" maxAssociations="3" shuffle="false" responseIdentifier="RESPONSE">
-<simpleMatchSet>
-
-<simpleAssociableChoice identifier="y_A" matchMax="1">
-
-<div class="cito_genclass_330001_2">
-
-<p>corrosiebestendig</p>
-</div>
-</simpleAssociableChoice>
-
-<simpleAssociableChoice identifier="y_B" matchMax="1">
-
-<div class="cito_genclass_330001_3">
-
-<p>massa 5,5 kg</p>
-</div>
-</simpleAssociableChoice>
-
-<simpleAssociableChoice identifier="y_C" matchMax="1">
-
-<div class="cito_genclass_330001_4">
-
-<p>smeltpunt 660 °C</p>
-</div>
-</simpleAssociableChoice>
-
-</simpleMatchSet>
-<simpleMatchSet>
-
-
-<simpleAssociableChoice identifier="x_1" matchMax="3">
-
-<div class="cito_genclass_330001_5">
-
-<p>wel</p>
-</div>
-</simpleAssociableChoice>
-
-
-<simpleAssociableChoice identifier="x_2" matchMax="3">
-
-<div class="cito_genclass_330001_6">
-
-<p>niet</p>
-</div>
-</simpleAssociableChoice>
-
-</simpleMatchSet>
-</matchInteraction>
-',
+            '<?xml version="1.0"?>
+<choiceInteraction id="choiceInteraction1" maxChoices="1" responseIdentifier="RESPONSE" shuffle="false">
+  <simpleChoice identifier="A">
+    <p>0,4 g</p>
+  </simpleChoice>
+  <simpleChoice identifier="B">
+    <p>2,5 g</p>
+  </simpleChoice>
+  <simpleChoice identifier="C">
+    <p>8,1 g</p>
+  </simpleChoice>
+</choiceInteraction>',
             $this->instance->interaction);
-
-
     }
-
-
 }
