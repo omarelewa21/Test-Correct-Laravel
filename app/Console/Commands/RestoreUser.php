@@ -44,12 +44,12 @@ class RestoreUser extends Command
         $id = $this->argument('user');
         if(User::find($id)){
             $this->error('the user isn\'t deleted');
-            return;
+            return 1;
         }
         $user = User::withTrashed()->find($id);
         if(!$user){
             $this->error('the user couldn\'t be found');
-            return;
+            return 1;
         }
         $user->restore();
         $this->info(sprintf('user %s %s %s restored',$user->name_first, $user->name_suffix, $user->name));

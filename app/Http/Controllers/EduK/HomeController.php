@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Request as FacadesRequest;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rules\In;
 use SoapHeader;
@@ -74,9 +75,7 @@ class HomeController extends Controller
 
     public function index()
     {
-        Log::info('index');
-//        dd(Input::all());
-        (new EduIxService(Input::get('redirectSessionID'), Input::get('signature')))->script();
+        (new EduIxService(FacadesRequest::input('redirectSessionID'), FacadesRequest::input('signature')))->script();
     }
 }
 

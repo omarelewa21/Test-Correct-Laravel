@@ -30,7 +30,7 @@ class Message extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject', 'message'];
+    protected $fillable = ['subject', 'message', 'read'];
 
     /**
      * The attributes excluded from the model's JSON form.

@@ -158,7 +158,10 @@ return [
         'tcCore\Providers\ValidatorServiceProvider',
 
         // Excel generator
-        Maatwebsite\Excel\ExcelServiceProvider::class
+        Maatwebsite\Excel\ExcelServiceProvider::class,
+
+        //zip file handling
+        ZanySoft\Zip\ZipServiceProvider::class,
 
     ],
 

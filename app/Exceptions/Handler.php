@@ -6,9 +6,11 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use tcCore\Jobs\SendExceptionMail;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -30,10 +32,10 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Exception $e
+     * @param  \Throwable $e
      * @return void
      */
-    public function report(Exception $e)
+    public function report(Throwable $e)
     {
         return parent::report($e);
     }
@@ -42,10 +44,10 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request $request
-     * @param  \Exception $e
+     * @param  \Throwable $e
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $e)
+    public function render($request, Throwable $e)
     {
         if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
@@ -54,7 +56,7 @@ class Handler extends ExceptionHandler
                 new SendExceptionMail($e->getMessage(), $e->getFile(), $e->getLine(), $e->getDetails())
             );
 
-            throw new HttpResponseException($e, 422);
+            throw new HttpResponseException(new Response($e), 422);
         } else {
             return parent::render($request, $e);
         }

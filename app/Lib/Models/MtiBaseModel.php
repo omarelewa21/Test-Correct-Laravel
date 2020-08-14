@@ -3,6 +3,7 @@
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\MassAssignmentException;
+use Illuminate\Support\Arr;
 
 abstract class MtiBaseModel extends BaseModel
 {
@@ -113,7 +114,7 @@ abstract class MtiBaseModel extends BaseModel
                     // First we need to create a fresh query instance and touch the creation and
                     // update timestamp on the model which are maintained by us for developer
                     // convenience. Then we will just continue saving the model instances.
-                    if ($instance->timestamps && array_get($options, 'timestamps', true)) {
+                    if ($instance->timestamps && Arr::get($options, 'timestamps', true)) {
                         $instance->updateTimestamps();
                     }
 
@@ -172,7 +173,7 @@ abstract class MtiBaseModel extends BaseModel
                 // First we'll need to create a fresh query instance and touch the creation and
                 // update timestamps on this model, which are maintained by us for developer
                 // convenience. After, we will just continue saving these model instances.
-                if ($instance->timestamps && array_get($options, 'timestamps', true)) {
+                if ($instance->timestamps && Arr::get($options, 'timestamps', true)) {
                     $instance->updateTimestamps();
                 }
 
