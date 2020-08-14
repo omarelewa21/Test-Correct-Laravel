@@ -14,7 +14,8 @@
 		"laravel/tinker": "^2.4",
 		"maatwebsite/excel": "^3.1",
 		"mews/purifier": "^3.2",
-		"zanysoft/laravel-zip": "^1.0"
+		"zanysoft/laravel-zip": "^1.0",
+		"bugsnag/bugsnag-laravel": "^2.0"
 	},
 	"require-dev": {
 		"beyondcode/laravel-dump-server": "^1.0",

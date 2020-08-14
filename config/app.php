@@ -149,6 +149,8 @@ return [
         /*
          * Application Service Providers...
          */
+        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
+
         'tcCore\Providers\AppServiceProvider',
 //        'tcCore\Providers\BusServiceProvider',
         'tcCore\Providers\ConfigServiceProvider',
@@ -211,7 +213,9 @@ return [
         'View'         => 'Illuminate\Support\Facades\View',
 
         // Excel generator
-        'Excel'        => Maatwebsite\Excel\Facades\Excel::class
+        'Excel'        => Maatwebsite\Excel\Facades\Excel::class,
+
+        'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
 
     ],
     'debug_blacklist' => [
