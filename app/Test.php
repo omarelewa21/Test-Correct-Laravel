@@ -484,8 +484,14 @@ class Test extends BaseModel {
 
         return $test;
     }
-    public function scopeNotDemo($query)
+
+    public function scopeNotDemo($query, $tableAlias=null)
     {
-        return $query->where('demo', 0);
+        if (!$tableAlias) {
+            $tableAlias = $this->getTable();
+        }
+
+        return $query->where(sprintf('%s.demo', $tableAlias), 0);
     }
+
 }
