@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use tcCore\OnboardingWizardReport;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
 use tcCore\User;
@@ -37,30 +38,32 @@ class CountTeacherTestTaken extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $user = $this->user;
-        // Get teacher's classes
-        $teacherIds = $user->teacher()->get(['id', 'class_id', 'subject_id'])->keyBy('id');
 
-        // Get wanted statuses
-        $testTakeFinishedStatusIds = TestTakeStatus::whereIn('name', ['Taken', 'Discussing', 'Discussed', 'Rated'])->pluck('id')->all();
-
-        // Get the unique test takes which contain students in the teacher's classes
-        $count = TestTake::select('test_takes.id')->notDemo()
-            ->where(function ($query) use ($teacherIds) {
-                foreach ($teacherIds as $teacherId => $data) {
-                    $query->orWhere(function ($query) use ($data) {
-                        $query->where('test_participants.school_class_id', $data['class_id'])
-                            ->where('tests.subject_id', $data['subject_id']);
-                    });
-                }
-            })
-            ->whereIn('test_takes.test_take_status_id', $testTakeFinishedStatusIds)
-            ->whereNull('tests.deleted_at')
-            ->whereNull('test_participants.deleted_at')
-            ->join('tests', 'tests.id', '=', 'test_takes.test_id')
-            ->join('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')->distinct('test_takes.id')->count('test_takes.id');
-
-        Log::debug('Teacher #' . $user->getKey() . ' -> count_tests_taken: ' . $count);
+        $count = OnboardingWizardReport::getTestsTakenAmount($this->user);
+//        $user = $this->user;
+//        // Get teacher's classes
+//        $teacherIds = $user->teacher()->get(['id', 'class_id', 'subject_id'])->keyBy('id');
+//
+//        // Get wanted statuses
+//        $testTakeFinishedStatusIds = TestTakeStatus::whereIn('name', ['Taken', 'Discussing', 'Discussed', 'Rated'])->pluck('id')->all();
+//
+//        // Get the unique test takes which contain students in the teacher's classes
+//        $count = TestTake::select('test_takes.id')->notDemo()
+//            ->where(function ($query) use ($teacherIds) {
+//                foreach ($teacherIds as $teacherId => $data) {
+//                    $query->orWhere(function ($query) use ($data) {
+//                        $query->where('test_participants.school_class_id', $data['class_id'])
+//                            ->where('tests.subject_id', $data['subject_id']);
+//                    });
+//                }
+//            })
+//            ->whereIn('test_takes.test_take_status_id', $testTakeFinishedStatusIds)
+//            ->whereNull('tests.deleted_at')
+//            ->whereNull('test_participants.deleted_at')
+//            ->join('tests', 'tests.id', '=', 'test_takes.test_id')
+//            ->join('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')->distinct('test_takes.id')->count('test_takes.id');
+//
+//        Log::debug('Teacher #' . $user->getKey() . ' -> count_tests_taken: ' . $count);
 
         $this->user->setAttribute('count_tests_taken', $count);
         $this->user->save();
