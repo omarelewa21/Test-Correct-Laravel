@@ -1510,9 +1510,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return (strtolower(explode('@', $originalUser->username)[1]) === strtolower(explode('@', $this->username)[1]));
     }
 
-    public function scopeNotDemo($query)
+    public function scopeNotDemo($query, $tableAlias=null)
     {
-        return $query->where('demo', 0);
+        if (!$tableAlias) {
+            $tableAlias = $this->getTable();
+        }
+
+        return $query->where(sprintf('%s.demo', $tableAlias), 0);
     }
+
 
 }
