@@ -5,11 +5,11 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
-use tcCore\OnboardingWizardReport;
+use tcCore\Exports\OnboardingWizardExport;
 
 class OnboardingWizardReportController extends Controller
 {
-    protected $fileName = 'onboarding_wizard_report.xlsx';
+    protected $fileName = 'onboarding_wizard_report.xls';
 
     public function store()
     {
@@ -23,7 +23,7 @@ class OnboardingWizardReportController extends Controller
             unlink($file);
         }
 
-        Excel::store(new OnboardingWizardReport,$this->fileName);
+        Excel::store(new OnboardingWizardExport(),$this->fileName);
 
 //        Excel::create('onboarding_wizard_report', function ($excel) {
 //
@@ -49,7 +49,7 @@ class OnboardingWizardReportController extends Controller
     public function show()
     {
         // first generate then download;
-        return Response::download(storage_path($this->fileName));//, 'index.xls');
+        return Response::download(storage_path('app/'.$this->fileName));//, 'index.xls');
     }
     //
 }
