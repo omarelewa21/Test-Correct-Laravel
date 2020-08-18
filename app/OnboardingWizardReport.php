@@ -166,8 +166,8 @@ ORDER BY t2.displayorder,
         OnboardingWizardReport::truncate();
 
         User::whereIn('id', Teacher::pluck('user_id'))->where('demo', 0)
-            ->where('username', 'not like', '%@teachandlearncompany.com')
-            ->where('username', 'not like', '%@test-correct.nl')
+//            ->where('username', 'not like', '%@teachandlearncompany.com')
+//            ->where('username', 'not like', '%@test-correct.nl')
             ->each(function ($teacher) {
                 if ($teacher->isA('teacher')) {
                     \tcCore\OnboardingWizardReport::updateForUser($teacher);
