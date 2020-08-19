@@ -4,6 +4,7 @@ namespace Tests\Unit\QtiV2dot2dot2;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot2\QtiParser;
+use tcCore\MultipleChoiceQuestionAnswerLink;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,6 +21,9 @@ class QtiResourceToSingleChoiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
+
         $resource = new Resource(
             'ITM-330008',
             'imsqti_item_xmlv2p2',
@@ -49,6 +53,25 @@ class QtiResourceToSingleChoiceTest extends TestCase
     }
 
     /** @test */
+    public function it_can_handle_response_processing()
+    {
+        $this->assertEquals(
+            ['correct_answer' => 'C', 'score_when_correct' => '1'],
+            $this->instance->responseProcessing
+        );
+    }
+
+    /** @test */
+    public function it_can_handle_inline_images()
+    {
+        collect($this->instance->images)->each(function($path){
+            $pathWithoutQuestion = str_replace('/questions', '', $path);
+            $pathWithImagesInsteadOfImage = str_replace('/inlineimage', '/inlineimages', $pathWithoutQuestion);
+            $this->assertFileExists(storage_path($pathWithImagesInsteadOfImage));
+        });
+    }
+
+    /** @test */
     public function it_can_handle_correct_response()
     {
         $this->assertEquals([
@@ -61,7 +84,7 @@ class QtiResourceToSingleChoiceTest extends TestCase
                 'interpretation' => 'C',
             ],
             'values' => [
-              'C',
+                'C',
             ],
             'outcome_declaration' => [
                 'attributes' => [
@@ -113,5 +136,45 @@ class QtiResourceToSingleChoiceTest extends TestCase
   </simpleChoice>
 </choiceInteraction>',
             $this->instance->interaction);
+    }
+
+    /** @test */
+    public function it_can_add_the_question_to_the_database()
+    {
+        $instance = $this->instance->question->getQuestionInstance();
+
+        $this->assertEquals('MultipleChoiceQuestion', $instance->type);
+        $this->assertEquals(
+            'MultipleChoice',
+            $this->instance->question->subtype
+        );
+
+        $this->assertStringContainsString(
+            'De steentjes zijn van baksteen. Het volume baksteen van elk steentje is 4,5 cm',
+            ($instance->question)
+        );
+
+        $answerLinks = MultipleChoiceQuestionAnswerLink::where('multiple_choice_question_id', $instance->id)->get();
+        $this->assertCount(3, $answerLinks);
+
+        $this->assertEquals(
+            $answerLinks->map(function ($link) {
+                return $link->multipleChoiceQuestionAnswer->answer;
+            })->toArray(), [
+                '<p>0,4 g</p>',
+                '<p>2,5 g</p>',
+                '<p>8,1 g</p>',
+            ]
+        );
+
+        $correctLink = $answerLinks->first(function ($link) {
+            return $link->multipleChoiceQuestionAnswer->score == 1;
+        });
+
+
+        $this->assertEquals(
+            '<p>8,1 g</p>',
+            $correctLink->multipleChoiceQuestionAnswer->answer
+        );
     }
 }

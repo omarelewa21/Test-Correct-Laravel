@@ -20,6 +20,7 @@ class QtiResourceToInlineChoiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
         $resource = new Resource(
             'ITM-330011',
             'imsqti_item_xmlv2p2',
@@ -46,6 +47,15 @@ class QtiResourceToInlineChoiceTest extends TestCase
             'timeDependent' => 'false',
         ], $this->instance->attributes);
 
+    }
+
+    /** @test */
+    public function it_can_handle_response_processing()
+    {
+        $this->assertEquals(
+            ['correct_answer' => ['C','A'], 'score_when_correct' => '1'],
+            $this->instance->responseProcessing
+        );
     }
 
     /** @test */
@@ -111,4 +121,6 @@ class QtiResourceToInlineChoiceTest extends TestCase
 </inlineChoiceInteraction>',
             $this->instance->interaction);
     }
+
+
 }
