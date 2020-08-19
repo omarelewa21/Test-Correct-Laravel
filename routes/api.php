@@ -176,16 +176,11 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
 
     Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
-    Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.show');
+    Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.update');
     Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
     Route::post('demo_account/notify_support_teacher_tries_to_upload', 'DemoAccountController@notifySupportTeacherTriesToUpload')->name('demo_account.notify_support_teacher_tries_to_upload');
 
     Route::put('user/switch_school_location/{user}','UsersController@switch_school_location')->name('user.switch_school_location');
-
-    Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
-    Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.show');
-    Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
-
 
 	// Sales organization
 	Route::resource('sales_organization', 'SalesOrganizationsController', ['except' => ['create', 'edit']]);
