@@ -39,12 +39,16 @@ class QtiResource
     public $responseProcessing;
     public $images = [];
     public $baseDir;
+    public $answersWithImages = [];
+    /** @var QtiFactory */
+    private $qtiFactory;
 
 
     public function __construct(ResourceModel $resource)
     {
         $this->resource = $resource;
         $this->baseDir = pathinfo($resource->href)['dirname'];
+        $this->qtiFactory = new QtiFactory($this);
     }
 
     public function handle()
@@ -155,46 +159,68 @@ class QtiResource
         }
     }
 
-    public function qtiQuestionTypeToTestCorrectQuestionType() {
-        return [
-
-                'matchInteraction' => [
-                    'type' =>  'MultipleChoiceQuestion',
-                    'subtype' => 'MultipleChoice',
-                    'request_class' => '',
-                ],
-                'inlineChoiceInteraction' => [
-                    'type' =>  'MultipleChoiceQuestion',
-                    'subtype' => 'MultipleChoice',
-                    'request_class' => '',
-                ],
-                'choiceInteraction' => [
-                    'type' =>  'MultipleChoiceQuestion',
-                    'subtype' => 'MultipleChoice',
-                    'request_class' => '',
-                ]
-
-        ];
+    public function qtiQuestionTypeToTestCorrectQuestionType($key)
+    {
+        return $this->qtiFactory->qtiQuestionTypeToTestCorrectQuestionType($key);
     }
 
     private function handleItemBody()
     {
-        $itemBody = $this->xml->itemBody;
 
-        $node = $itemBody->xPath('//' . $this->itemType);
+        $this->replaceMultipleChoiceInteraction();
+        $this->replaceInlineChoiceInteraction();
 
-        $this->interaction = $node[0]->asXML();
-
-        $dom = dom_import_simplexml($node[0]);
-        $dom->parentNode->removeChild($dom);
 
         $dom1 = new DOMDocument("1.0");
         $dom1->preserveWhiteSpace = false;
         $dom1->formatOutput = false;
-        $dom1->loadXML($itemBody->children()[0]->asXML());
+        $dom1->loadXML($this->xml->itemBody->children()[0]->asXML());
 
 
         $this->question_xml = $dom1->saveXML();
+    }
+
+    private function replaceMultipleChoiceInteraction()
+    {
+        if ($this->itemType === 'choiceInteraction') {
+            $node = $this->xml->itemBody->xPath('//' . $this->itemType);
+
+            $this->interaction = $node[0]->asXML();
+
+            $dom = dom_import_simplexml($node[0]);
+            $dom->parentNode->removeChild($dom);
+        }
+    }
+
+    private function replaceInlineChoiceInteraction()
+    {
+        if ($this->itemType === 'inlineChoiceInteraction') {
+            $nodes = $this->xml->itemBody->xPath('//' . $this->itemType);
+            $this->interaction = $nodes[0]->asXML();
+
+            foreach ($nodes as $interaction) {
+                $id = $interaction['id']->__toString();
+                $result = [];
+                foreach ($interaction->inlineChoice as $inlineChoice) {
+                    $result[] = [
+                        'identifier' => $inlineChoice['identifier'],
+                        'value' => $inlineChoice->span->__toString(),
+                        'correct' => false,
+                    ];
+                }
+                $domElement = dom_import_simplexml($interaction);
+                $parent = $domElement->parentNode;
+
+                if ($result) {
+                    $pipeString = collect($result)->map(function ($response) {
+                        return $response['value'];
+                    })->implode('|');
+                    $newNode = $domElement->ownerDocument->createTextNode(sprintf('[%s]', $pipeString));
+                    $parent->insertBefore($newNode, $domElement);
+                }
+                $parent->removeChild($domElement);
+            }
+        }
     }
 
     private function loadXMLFromResource()
@@ -209,16 +235,17 @@ class QtiResource
 
     private function handleQuestion()
     {
-        dd($this->guessItemType());
         $request = new CreateTestQuestionRequest();
+
+
         $request->merge([
             'question' => $this->question_xml,
-            'type' => "MultipleChoiceQuestion",
+            'type' => $this->qtiQuestionTypeToTestCorrectQuestionType('type'),
             'order' => 0,
             'maintain_position' => "0",
             'discuss' => "1",
             'score' => $this->responseProcessing['score_when_correct'],
-            'subtype' => "MultipleChoice",
+            'subtype' => $this->qtiQuestionTypeToTestCorrectQuestionType('subtype'),
             'decimal_score' => "0",
             'add_to_database' => 1,
             'attainments' => [],
@@ -265,27 +292,49 @@ class QtiResource
 
         $defaultScore = $this->responseDeclaration['outcome_declaration']['default_value'];
 
-        $addAnswerRequest = (new CreateMultipleChoiceQuestionAnswerRequest)
+        $parsedAnswer = $this->getParsedAnswer($answer['value']);
+
+        $addAnswerRequest = $this->qtiQuestionTypeToTestCorrectQuestionType('class_answer_request')
             ->merge([
                 'order' => (string)$answer['order'],
-                'answer' => $answer['value'],
+                'answer' => $parsedAnswer,
                 'score' => $answerIdentifier === $correctIdentifier ? $scoreWhenCorrect : $defaultScore,
                 'user' => 'd1@test-correct.nl',
             ]);
 
-        return (new MultipleChoiceQuestionAnswersController)
-            ->store(
-                $this->question->getQuestionInstance()->testQuestions->first(),
-                $addAnswerRequest
-            )->original;
+        return
+            $this->qtiQuestionTypeToTestCorrectQuestionType('class_answer_controller')
+                ->store(
+                    $this->question->getQuestionInstance()->testQuestions->first(),
+                    $addAnswerRequest
+                )->original;
     }
 
 
     protected function handleInlineImages()
     {
         libxml_use_internal_errors(true);
+        $dom = $this->uploadImages($this->question_xml);
+        $this->question_xml = $dom->saveHTML();
+    }
+
+    private function getParsedAnswer($value)
+    {
+        libxml_use_internal_errors(true);
+        $dom = $this->uploadImages($value);
+        $returnValue = $dom->saveHTML();
+        $this->answersWithImages[] = $returnValue;
+        return $returnValue;
+    }
+
+    /**
+     * @return DOMDocument
+     * @throws QuestionException
+     */
+    protected function uploadImages($xml): DOMDocument
+    {
         $dom = new DOMDocument();
-        $dom->loadXML($this->question_xml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $dom->loadXML($xml, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         $imgs = $dom->getElementsByTagName('img');
         foreach ($imgs as $img) {
             $src = $img->getAttribute('src');
@@ -309,6 +358,6 @@ class QtiResource
 
             $img->setAttribute('src', $imgSrc);
         }
-        $this->question_xml = $dom->saveHTML();
+        return $dom;
     }
 }

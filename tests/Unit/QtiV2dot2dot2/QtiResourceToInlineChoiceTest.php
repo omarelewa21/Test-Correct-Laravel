@@ -13,7 +13,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceToInlineChoiceTest extends TestCase
 {
-    use DatabaseTransactions;
+   use DatabaseTransactions;
 
     private $instance;
 
@@ -50,10 +50,47 @@ class QtiResourceToInlineChoiceTest extends TestCase
     }
 
     /** @test */
+    public function the_question_xml_property_should_be_correct()
+    {
+        $this->assertContains(
+            '[gasvormig|vast|vloeibaar].',
+            $this->instance->question_xml
+        );
+
+        // let op de punt van het einde van de zin moet achter de optie staan;
+        $this->assertContains(
+            '[kookpunt|smeltpunt].',
+            $this->instance->question_xml
+        );
+
+        $this->assertContains(
+            'Je ziet een diagram van de temperatuur tegen de tijd.</p>',
+            $this->instance->question_xml
+        );
+
+
+    }
+
+    /** @test */
+    public function it_should_select_the_correct_type_and_subtype_from_the_qti_factory()
+    {
+        $this->assertEquals(
+            'CompletionQuestion',
+            $this->instance->qtiQuestionTypeToTestCorrectQuestionType('type')
+        );
+
+        $this->assertEquals(
+            'multi',
+            $this->instance->qtiQuestionTypeToTestCorrectQuestionType('subtype')
+        );
+
+    }
+
+    /** @test */
     public function it_can_handle_response_processing()
     {
         $this->assertEquals(
-            ['correct_answer' => ['C','A'], 'score_when_correct' => '1'],
+            ['correct_answer' => ['C', 'A'], 'score_when_correct' => '1'],
             $this->instance->responseProcessing
         );
     }

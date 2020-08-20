@@ -11,15 +11,17 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceToSingleChoiceTest extends TestCase
+class QtiResourceToSingleChoiceWithImagesTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     private $instance;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
+
         $resource = new Resource(
             'ITM-330041',
             'imsqti_item_xmlv2p2',
@@ -34,6 +36,32 @@ class QtiResourceToSingleChoiceTest extends TestCase
     public function it_can_read_load_xml_using_a_resource()
     {
         $this->assertInstanceOf(\SimpleXMLElement::class, $this->instance->getXML());
+    }
+
+    /** @test */
+    public function it_can_upload_images_and_change_urls_in_answers()
+    {
+        collect($this->instance->answersWithImages)->each(function ($html) {
+            $this->assertContains(
+                '/questions/inlineimage/',
+                $html
+            );
+
+            $dom = (new \DOMDocument());
+            $dom->loadHTML($html);
+
+            $arr = explode(
+                '/',
+                $dom->getElementsByTagname('img')->item(0)->getAttribute('src')
+            );
+            $this->assertFileExists(
+                sprintf(
+                    '%s/%s',
+                    storage_path('inlineimages'),
+                    end($arr)
+                )
+            );
+        });
     }
 
     /** @test */

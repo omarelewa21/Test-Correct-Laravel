@@ -119,6 +119,23 @@ class QtiResourceToSingleChoiceTest extends TestCase
         );
     }
 
+
+
+    /** @test */
+    public function it_should_select_the_correct_type_and_subtype_from_the_qti_factory()
+    {
+        $this->assertEquals(
+            'MultipleChoiceQuestion',
+            $this->instance->qtiQuestionTypeToTestCorrectQuestionType('type')
+        );
+
+        $this->assertEquals(
+            'MultipleChoice',
+            $this->instance->qtiQuestionTypeToTestCorrectQuestionType('subtype')
+        );
+
+    }
+
     /** @test */
     public function it_can_handle_the_item_body()
     {
