@@ -11,11 +11,17 @@ namespace tcCore\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Events\BeforeExport;
 use tcCore\OnboardingWizardReport;
 
-class OnboardingWizardExport implements WithEvents, FromCollection
+class OnboardingWizardExport implements WithEvents, FromCollection, WithHeadings
 {
+
+    public function headings(): array
+    {
+        return array_keys(OnboardingWizardReport::first()->toArray());
+    }
 
     public function collection()
     {
