@@ -3,7 +3,50 @@
 use Illuminate\Routing\Router;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use tcCore\Address;
+use tcCore\Answer;
+use tcCore\Attachment;
+use tcCore\Attainment;
+use tcCore\BaseSubject;
+use tcCore\CompletionQuestion;
+use tcCore\Contact;
+use tcCore\DrawingQuestion;
+use tcCore\EducationLevel;
+use tcCore\GradingScale;
+use tcCore\GroupQuestion;
+use tcCore\GroupQuestionQuestion;
+use tcCore\InfoscreenQuestion;
+use tcCore\Invigilator;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
+use tcCore\License;
+use tcCore\Message;
+use tcCore\MultipleChoiceQuestion;
+use tcCore\OnboardingWizard;
+use tcCore\OpenQuestion;
+use tcCore\Period;
+use tcCore\Question;
+use tcCore\RankingQuestion;
+use tcCore\SalesOrganization;
+use tcCore\School;
+use tcCore\SchoolClass;
+use tcCore\SchoolLocation;
+use tcCore\SchoolLocationContact;
+use tcCore\SchoolLocationIp;
+use tcCore\SchoolYear;
+use tcCore\Section;
+use tcCore\Student;
+use tcCore\Subject;
+use tcCore\Tag;
+use tcCore\Teacher;
+use tcCore\Test;
+use tcCore\TestParticipant;
+use tcCore\TestQuestion;
+use tcCore\TestTake;
+use tcCore\TestTakeEvent;
+use tcCore\UmbrellaOrganization;
+use tcCore\User;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -81,7 +124,7 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('group_question_question', function ($id) {
             try {
-                return \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstance($id);
+                return \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstanceWithUuid($id);
             } catch (\Exception $e) {
                 throw new NotFoundHttpException('Group question question path not found');
             }
@@ -236,6 +279,188 @@ class RouteServiceProvider extends ServiceProvider
 //        Route::model('user', 'tcCore\User', function () {
 //            throw new NotFoundHttpException('User not found');
 //        });
+
+        //UUID Route binding
+
+        Route::bind('school_year', function($item) {
+            return SchoolYear::whereUuid($item)->first();
+        });
+
+        Route::bind('period', function($item) {
+            return Period::whereUuid($item)->first();
+        });
+
+        Route::bind('section', function($item) {
+            return Section::whereUuid($item)->first();
+        });
+
+        Route::bind('subject', function($item) {
+            return Subject::whereUuid($item)->first();
+        });
+
+        Route::bind('school_class', function($item) {
+            return SchoolClass::whereUuid($item)->first();
+        });
+
+        Route::bind('school_location', function($item) {
+            return SchoolLocation::whereUuid($item)->first();
+        });
+
+        Route::bind('school_location_ip', function($item) {
+            return SchoolLocationIp::whereUuid($item)->first();
+        });
+
+        Route::bind('contact', function($item) {
+            return Contact::whereUuid($item)->first();
+        });
+
+        Route::bind('user', function($item) {
+            return User::whereUuid($item)->first();
+        });
+
+        Route::bind('address', function($item) {
+            return Address::whereUuid($item)->first();
+        });
+
+        Route::bind('answer', function($item) {
+            return Answer::whereUuid($item)->first();
+        });
+
+        Route::bind('test', function($item) {
+            return Test::whereUuid($item)->first();
+        });
+
+        Route::bind('onboarding_wizard', function($item) {
+            return OnboardingWizard::whereUuid($item)->first();
+        });
+
+        Route::bind('group_question_question_id', function($item) {
+            return GroupQuestionQuestion::whereUuid($item)->first();
+        });
+
+        Route::bind('group_question_question', function($item) {
+            try {
+                return \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstanceWithUuid($item);
+            } catch (\Exception $e) {
+                throw new NotFoundHttpException('Group question question path not found');
+            }
+        });
+
+        Route::bind('test_take', function($item) {
+            return TestTake::whereUuid($item)->first();
+        });
+
+        Route::bind('test_participant', function($item) {
+            return TestParticipant::whereUuid($item)->first();
+        });
+
+        Route::bind('test_take_event', function($item) {
+            return TestTakeEvent::whereUuid($item)->first();
+        });
+
+        Route::bind('education_level', function($item) {
+            return EducationLevel::whereUuid($item)->first();
+        });
+
+        Route::bind('invigilator', function($item) {
+            return Invigilator::whereUuid($item)->first();
+        });
+
+        Route::bind('student', function($item) {
+            return Student::whereUuid($item)->first();
+        });
+        
+        Route::bind('open_question', function($item) {
+            return OpenQuestion::whereUuid($item)->first();
+        });
+
+        Route::bind('test_question', function($item) {
+            return TestQuestion::whereUuid($item)->first();
+        });
+
+        Route::bind('group_question', function($item) {
+            return GroupQuestion::whereUuid($item)->first();
+        });
+
+        Route::bind('drawing_question', function($item) {
+            return DrawingQuestion::whereUuid($item)->first();
+        });
+
+        Route::bind('ranking_question', function($item) {
+            return RankingQuestion::whereUuid($item)->first();
+        });
+
+        Route::bind('completion_question', function($item) {
+            return CompletionQuestion::whereUuid($item)->first();
+        });
+
+        Route::bind('info_screen_question', function($item) {
+            return InfoscreenQuestion::whereUuid($item)->first();
+        });
+
+        Route::bind('question', function($item) {
+            $question = Question::findByUuid($item);
+            //sometimes the Answer UUID is used as the question_id
+            //so also try to get the question using the Answer
+            if (!$question == null) {
+                return $question;
+            }
+
+            $answer = Answer::whereUuid($item)->firstOrFail()->question;
+
+            if (!$answer == null) {
+                return $answer;
+            }
+
+            //$group_question = 
+
+            return null;
+        });
+
+        Route::bind('multiple_choice_question', function($item) {
+            return MultipleChoiceQuestion::whereUuid($item)->first();
+        });
+        
+        Route::bind('attainment', function($item) {
+            return Attainment::whereUuid($item)->first();
+        });
+
+        Route::bind('teacher', function($item) {
+            return Teacher::whereUuid($item)->first();
+        });
+
+        Route::bind('sales_organization', function($item) {
+            return SalesOrganization::whereUuid($item)->first();
+        });
+
+        Route::bind('umbrella_organization', function($item) {
+            return UmbrellaOrganization::whereUuid($item)->first();
+        });
+
+        Route::bind('school', function($item) {
+            return School::whereUuid($item)->first();
+        });
+
+        Route::bind('license', function($item) {
+            return License::whereUuid($item)->first();
+        });
+        
+        Route::bind('message', function($item) {
+            return Message::whereUuid($item)->first();
+        });
+
+        Route::bind('grading_scale', function($item) {
+            return GradingScale::whereUuid($item)->first();
+        });
+
+        Route::bind('base_subject', function($item) {
+            return BaseSubject::whereUuid($item)->first();
+        });
+
+        Route::bind('tag', function($item) {
+            return Tag::whereUuid($item)->first();
+        });        
+        
     }
 
     /**
