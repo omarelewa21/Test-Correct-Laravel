@@ -7,6 +7,8 @@
 	"require": {
 		"php": "^7.2.5",
 		"doctrine/dbal": "^2.9",
+		"dyrynda/laravel-efficient-uuid": "^4.1",
+		"dyrynda/laravel-model-uuid": "^6.2",
 		"facade/ignition": "^2.0",
 		"fideloper/proxy": "^4.0",
 		"laravel/framework": "^7.0",
@@ -15,7 +17,9 @@
 		"maatwebsite/excel": "^3.1",
 		"mews/purifier": "^3.2",
 		"zanysoft/laravel-zip": "^1.0",
-		"bugsnag/bugsnag-laravel": "^2.0"
+		"bugsnag/bugsnag-laravel": "^2.0",
+		"ramsey/uuid": "^4.1",
+		"zanysoft/laravel-zip": "^1.0"
 	},
 	"require-dev": {
 		"beyondcode/laravel-dump-server": "^1.0",
