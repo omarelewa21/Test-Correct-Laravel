@@ -2,11 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use tcCore\Answer;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\AnswerRating;
 use tcCore\Http\Requests\CreateAnswerRatingRequest;
 use tcCore\Http\Requests\UpdateAnswerRatingRequest;
+use tcCore\TestTake;
+use tcCore\User;
 
 class AnswerRatingsController extends Controller {
 
@@ -76,7 +79,12 @@ class AnswerRatingsController extends Controller {
 	public function store(CreateAnswerRatingRequest $request)
 	{
 		//
-		$answerRating = new AnswerRating($request->all());
+		$data = $request->all();
+		$data['answer_id'] =  Answer::whereUuid($data['answer_id'])->first()->getKey();
+		$data['user_id'] =  User::whereUuid($data['user_id'])->first()->getKey();
+		$data['test_take_id'] =  TestTake::whereUuid($data['test_take_id'])->first()->getKey();
+
+		$answerRating = new AnswerRating($data);
 		if ($answerRating->save()) {
 			return Response::make($answerRating, 200);
 		} else {
@@ -106,7 +114,6 @@ class AnswerRatingsController extends Controller {
 	 */
 	public function update(AnswerRating $answerRating, UpdateAnswerRatingRequest $request)
 	{
-		//
 		if ($answerRating->update($request->all())) {
 			return Response::make($answerRating, 200);
 		} else {

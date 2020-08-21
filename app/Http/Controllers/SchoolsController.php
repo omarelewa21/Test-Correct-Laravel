@@ -7,6 +7,7 @@ use tcCore\Http\Requests\CreateSchoolRequest;
 use tcCore\Http\Requests\UpdateSchoolRequest;
 use tcCore\School;
 use tcCore\UmbrellaOrganization;
+use tcCore\User;
 
 class SchoolsController extends Controller {
     /**
@@ -22,7 +23,7 @@ class SchoolsController extends Controller {
                 return Response::make($schools->get(), 200);
                 break;
             case 'list':
-                return Response::make($schools->pluck('name', 'id'), 200);
+                return Response::make($schools->select(['id', 'name', 'uuid'])->get()->keyBy('id'), 200);
                 break;
             case 'paginate':
             default:
@@ -41,7 +42,17 @@ class SchoolsController extends Controller {
     {
         $school = new School();
 
-        $school->fill($request->all());
+        $data = $request->all();
+
+        if ($request->filled('user_id')) {
+            $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
+        }
+
+        if (isset($data['umbrella_organization_id']) && $data['umbrella_organization_id'] !== "0") {
+            $data['umbrella_organization_id'] = UmbrellaOrganization::whereUuid($data['umbrella_organization_id'])->first()->getKey();
+        }
+
+        $school->fill($data);
         if (!$request->filled('user_id')) {
             $school->setAttribute('user_id', Auth::user()->getKey());
         }
@@ -72,7 +83,17 @@ class SchoolsController extends Controller {
      */
     public function update(School $school, UpdateSchoolRequest $request)
     {
-        $school->fill($request->all());
+        $data = $request->all();
+
+        if ($request->filled('user_id')) {
+            $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
+        }
+
+        if ($request->filled('umbrella_organization_id') && $data['umbrella_organization_id'] !== "0") {
+            $data['umbrella_organization_id'] = UmbrellaOrganization::whereUuid($data['umbrella_organization_id'])->first()->getKey();
+        }
+
+        $school->fill($data);
         if ($school->save() !== false) {
             return Response::make($school, 200);
         } else {

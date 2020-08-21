@@ -55,7 +55,7 @@ class UsersController extends Controller
                 return Response::make($users, 200);
                 break;
             case 'list':
-                return Response::make($users->get(['users.id', 'users.name_first', 'users.name_suffix', 'users.name', 'users.username'])->keyBy('id'), 200);
+                return Response::make($users->get(['users.id', 'users.uuid', 'users.name_first', 'users.name_suffix', 'users.name', 'users.username'])->keyBy('uuid'), 200);
                 break;
             case 'paginate':
             default:

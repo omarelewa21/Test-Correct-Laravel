@@ -24,6 +24,10 @@ class SchoolLocationsController extends Controller {
             case 'list':
                 return Response::make($schoolLocations->pluck('name', 'id'), 200);
                 break;
+            //list-uuid instead of replacing list for backwards compatibility
+            case 'list-uuid':
+                return Response::make($schoolLocations->select(['id', 'name', 'uuid'])->get()->keyBy('id'), 200);
+                break;
             case 'paginate':
             default:
                 return Response::make($schoolLocations->paginate(15), 200);
