@@ -10,10 +10,18 @@ use tcCore\Jobs\CountTeacherTests;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
 
 class Test extends BaseModel {
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -455,6 +463,8 @@ class Test extends BaseModel {
             $isSystemTest = false;
         }
 
+        $test->setAttribute('uuid', Uuid::uuid4());
+
         if($test->save() === false) {
             return false;
         }
@@ -494,4 +504,8 @@ class Test extends BaseModel {
         return $query->where(sprintf('%s.demo', $tableAlias), 0);
     }
 
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

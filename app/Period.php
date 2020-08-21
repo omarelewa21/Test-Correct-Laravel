@@ -11,10 +11,17 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Roles;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class Period extends BaseModel implements AccessCheckable {
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -161,5 +168,10 @@ class Period extends BaseModel implements AccessCheckable {
     public function getAccessDeniedResponse($request, Closure $next)
     {
         throw new AccessDeniedHttpException('Access to period denied');
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

@@ -2,10 +2,18 @@
 
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
 
 class GroupQuestionQuestion extends BaseModel {
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -84,6 +92,8 @@ class GroupQuestionQuestion extends BaseModel {
         $groupQuestionQuestion = $this->replicate();
         $groupQuestionQuestion->fill($attributes);
 
+        $groupQuestionQuestion->setAttribute('uuid', Uuid::uuid4());
+
         if ($callbacks === false) {
             $groupQuestionQuestion->setCallbacks(false);
         }
@@ -142,5 +152,8 @@ class GroupQuestionQuestion extends BaseModel {
         return $query;
     }
 
-
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }

@@ -3,8 +3,17 @@
 use Illuminate\Support\Facades\Log;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Lib\Question\QuestionInterface;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
 
 class GroupQuestion extends Question implements QuestionInterface {
+
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -45,6 +54,8 @@ class GroupQuestion extends Question implements QuestionInterface {
         }
 
         $question->fill($attributes);
+
+        $question->setAttribute('uuid', Uuid::uuid4());
 
         if ($question->save() === false) {
             return false;
@@ -287,5 +298,10 @@ class GroupQuestion extends Question implements QuestionInterface {
 
     public function checkAnswer($answer) {
         return false;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

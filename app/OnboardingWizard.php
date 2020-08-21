@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Queue;
 use tcCore\Jobs\PValues\UpdatePValueUsers;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class OnboardingWizard extends BaseModel {
 
@@ -14,6 +16,11 @@ class OnboardingWizard extends BaseModel {
     protected $keyType = 'string';
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -56,5 +63,10 @@ class OnboardingWizard extends BaseModel {
     public function mainSteps()
     {
         return $this->hasMany(OnboardingWizardStep::class)->whereNull('parent_id')->orderBy('displayorder','asc');
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

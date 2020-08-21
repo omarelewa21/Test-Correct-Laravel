@@ -6,10 +6,17 @@ use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\User\Roles;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class GradingScale extends BaseModel {
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -83,5 +90,10 @@ class GradingScale extends BaseModel {
         }
 
         return $query;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

@@ -87,6 +87,7 @@ class AnswerRating extends BaseModel {
         foreach($filters as $key => $value) {
             switch($key) {
                 case 'answer_id':
+                    $value = Answer::whereUuid($value)->first()->getKey();
                     if (is_array($value)) {
                         $query->whereIn('answer_id', $value);
                     } else {
@@ -94,6 +95,7 @@ class AnswerRating extends BaseModel {
                     }
                     break;
                 case 'user_id':
+                    $value = User::whereUuid($value)->first()->getKey();
                     if (is_array($value)) {
                         $query->whereIn('user_id', $value);
                     } else {
@@ -108,6 +110,8 @@ class AnswerRating extends BaseModel {
                     }
                     break;
                 case 'discussing_at_test_take_id':
+                    $value = TestTake::whereUuid($value)->first()->getKey();
+
                     $query->where('test_take_id', '=', $value);
 
                     $parentRows = DiscussingParentQuestion::where('test_take_id', $value)->orderBy('level')->get();

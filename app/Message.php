@@ -6,10 +6,17 @@ use Illuminate\Support\Facades\Queue;
 use tcCore\Jobs\SendMessageMail;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class Message extends BaseModel {
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -263,5 +270,10 @@ class Message extends BaseModel {
         }
 
         return $result;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

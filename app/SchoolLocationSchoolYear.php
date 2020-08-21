@@ -4,10 +4,17 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class SchoolLocationSchoolYear extends CompositePrimaryKeyModel {
 
     use CompositePrimaryKeyModelSoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -58,5 +65,10 @@ class SchoolLocationSchoolYear extends CompositePrimaryKeyModel {
 
     public function schoolYear() {
         return $this->belongsTo('tcCore\SchoolYear');
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

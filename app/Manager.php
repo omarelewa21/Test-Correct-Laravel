@@ -2,10 +2,17 @@
 
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class Manager extends CompositePrimaryKeyModel {
 
     use CompositePrimaryKeyModelSoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -48,5 +55,10 @@ class Manager extends CompositePrimaryKeyModel {
 
     public function user() {
         return $this->belongsTo('tcCore\User');
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

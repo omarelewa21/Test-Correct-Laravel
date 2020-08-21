@@ -6,10 +6,17 @@ use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\User\Roles;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class Subject extends BaseModel implements AccessCheckable {
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -157,5 +164,10 @@ class Subject extends BaseModel implements AccessCheckable {
         static::deleting(function (self $item) {
             if ($item->getOriginal('demo') == true) return false;
         });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }
