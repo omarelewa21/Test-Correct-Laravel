@@ -71,7 +71,7 @@
 				<and>
 					<match>
 						<variable identifier="RESPONSE"/>
-						<baseValue baseType="identifier">C</baseValue>
+						<baseValue baseType=" identifier">C</baseValue>
 					</match>
 					<match>
 						<variable identifier="RESPONSE2"/>

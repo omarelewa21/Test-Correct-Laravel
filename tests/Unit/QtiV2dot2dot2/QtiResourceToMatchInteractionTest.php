@@ -17,10 +17,8 @@ use tcCore\QtiModels\QtiResource as Resource;
  */
 class QtiResourceToMatchInteractionTest extends TestCase
 {
-    /**
-     * TODO handle method;
-     */
-    use DatabaseTransactions;
+
+    //use DatabaseTransactions;
 
     private $instance;
 
@@ -61,12 +59,12 @@ class QtiResourceToMatchInteractionTest extends TestCase
     public function it_should_select_the_correct_type_and_subtype_from_the_qti_factory()
     {
         $this->assertEquals(
-            'CompletionQuestion',
+            'MatchingQuestion',
             $this->instance->qtiQuestionTypeToTestCorrectQuestionType('type')
         );
 
         $this->assertEquals(
-            'multi',
+            'Matching',
             $this->instance->qtiQuestionTypeToTestCorrectQuestionType('subtype')
         );
     }

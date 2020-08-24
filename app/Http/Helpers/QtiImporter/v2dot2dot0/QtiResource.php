@@ -256,7 +256,9 @@ class QtiResource
             'rtti' => null,
             'test_id' => "1",
             'user' => "d1@test-correct.nl",
-        ]);
+        ])->merge(
+            $this->mergeExtraTestQuestionAttributes()
+        );
 
 
         $this->question = (new TestQuestionsController)->store($request)->original->question;
@@ -265,21 +267,22 @@ class QtiResource
         $answers = [];
 
         $order = 0;
-
-        foreach ($el->xpath('//simpleChoice') as $tag => $node) {
-            $attributes = [];
-            foreach ($node->attributes() as $name => $value) {
-                $attributes = [
-                    'name' => $name,
-                    'value' => $value->__toString(),
+        if ($el) {
+            foreach ($el->xpath('//simpleChoice') as $tag => $node) {
+                $attributes = [];
+                foreach ($node->attributes() as $name => $value) {
+                    $attributes = [
+                        'name' => $name,
+                        'value' => $value->__toString(),
+                    ];
+                }
+                $answer = [
+                    'order' => (string)++$order,
+                    'attributes' => $attributes,
+                    'value' => $node->children()[0]->asXML(),
                 ];
+                $this->answers[] = $this->addAnswer($answer);
             }
-            $answer = [
-                'order' => (string)++$order,
-                'attributes' => $attributes,
-                'value' => $node->children()[0]->asXML(),
-            ];
-            $this->answers[] = $this->addAnswer($answer);
         }
     }
 
@@ -359,5 +362,27 @@ class QtiResource
             $img->setAttribute('src', $imgSrc);
         }
         return $dom;
+    }
+
+    private function mergeExtraTestQuestionAttributes()
+    {
+        if ($this->itemType === 'matchInteraction') {
+            return [
+                'answers' => [
+                    (object)[
+                        'order' => '1',
+                        'left' => 'links 1',
+                        'right' => 'rechts 1',
+                    ],
+                    (object)[
+                        'order' => '2',
+                        'left' => 'links 2',
+                        'right' => 'rechts 2',
+                    ],
+                ],
+            ];
+        }
+
+        return [];
     }
 }

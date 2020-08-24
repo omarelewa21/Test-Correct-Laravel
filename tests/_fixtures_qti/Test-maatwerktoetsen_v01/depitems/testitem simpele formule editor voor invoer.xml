@@ -7,7 +7,7 @@
         
 				<div class="qti-layout-col12">
 
-            <div id="body">
+            <div id="body" xmlns:m="http://www.w3.org/1998/Math/MathML">
 						<p>pi-teken: <m:math><m:mi mathvariant="normal">π</m:mi></m:math></p><p>keer teken: <m:math><m:mo>×</m:mo></m:math></p><p>breuk: <m:math><m:mfrac><m:mn>2</m:mn><m:mn>5</m:mn></m:mfrac></m:math> of <m:math><m:mfrac><m:mn>10</m:mn><m:mrow><m:msup><m:mn>5</m:mn><m:mn>2</m:mn></m:msup><m:mo>×</m:mo><m:mn>3</m:mn><m:mi mathvariant="normal">π</m:mi></m:mrow></m:mfrac></m:math></p><p>breuk grootte aangepast (groter): <m:math><m:mfrac><m:mn mathsize="20px">10</m:mn><m:mrow><m:msup><m:mn mathsize="20px">5</m:mn><m:mn mathsize="20px">2</m:mn></m:msup><m:mo mathsize="20px">×</m:mo><m:mn mathsize="20px">3</m:mn><m:mi mathvariant="normal" mathsize="20px">π</m:mi></m:mrow></m:mfrac></m:math></p><p>wortel: <m:math><m:msqrt><m:mn>44</m:mn></m:msqrt></m:math> of <m:math><m:mn>2</m:mn><m:msqrt><m:mfrac><m:mn>7</m:mn><m:mn>6</m:mn></m:mfrac></m:msqrt></m:math></p><p>wortel grootte van 2 aangepast voor de wortel (kleiner): <m:math><m:mn mathsize="12px">2</m:mn><m:msqrt><m:mfrac><m:mn>7</m:mn><m:mn>6</m:mn></m:mfrac></m:msqrt></m:math></p>
 					</div>
 

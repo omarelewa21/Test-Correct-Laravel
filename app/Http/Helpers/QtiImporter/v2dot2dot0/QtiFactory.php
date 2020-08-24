@@ -4,7 +4,9 @@
 namespace tcCore\Http\Helpers\QtiImporter\v2dot2dot0;
 
 
+use tcCore\Http\Controllers\TestQuestions\MatchingQuestionAnswersController;
 use tcCore\Http\Controllers\TestQuestions\MultipleChoiceQuestionAnswersController;
+use tcCore\Http\Requests\CreateMatchingQuestionAnswerRequest;
 use tcCore\Http\Requests\CreateMultipleChoiceQuestionAnswerRequest;
 
 class QtiFactory
@@ -25,6 +27,7 @@ class QtiFactory
     public function qtiQuestionTypeToTestCorrectQuestionType($key)
     {
         $this->throwExceptionIfNotFound($key);
+
 
         return $this->lookupTable[$this->qtiResource->itemType][$key];
     }
@@ -48,10 +51,10 @@ class QtiFactory
     {
         $this->lookupTable = [
             'matchInteraction' => [
-                'type' => 'MultipleChoiceQuestion',
-                'subtype' => 'MultipleChoice',
-                'class_answer_request' => new CreateMultipleChoiceQuestionAnswerRequest,
-                'class_answer_controller' => new MultipleChoiceQuestionAnswersController,
+                'type' => 'MatchingQuestion',
+                'subtype' => 'Matching',
+                'class_answer_request' => new CreateMatchingQuestionAnswerRequest,
+                'class_answer_controller' => new MatchingQuestionAnswersController,
             ],
             'inlineChoiceInteraction' => [
                 'type' => 'CompletionQuestion',
