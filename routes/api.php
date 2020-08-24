@@ -29,6 +29,10 @@ Route::post('password_reset', ['uses' => 'Auth\PasswordController@passwordReset'
 Route::get('edu-ix/{ean}/{session_id}/{signature}', 'EduK\HomeController@create');
 Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController@store');
 
+Route::get('selenium', 'Testing\TestingController@seleniumState')->name('testing.seleniumState');
+Route::post('selenium', 'Testing\TestingController@seleniumToggle')->name('testing.seleniumToggle');
+Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
+
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 
     // app_version_info
@@ -217,8 +221,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::get('admin/teacher_stats','AdminTeacherStatsController@index')->name('admin_teacher_stats');
     Route::get('qtiimport/data','QtiImportController@data')->name('qtiimport_data');
     Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
-
-	Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
 
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');

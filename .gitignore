@@ -3,6 +3,7 @@
 /public/storage
 .env
 .envBackupWhileStresstest
+.envBackupWhileSeleniumtest
 .idea
 /storage
 /storage/*.key
