@@ -1,6 +1,5 @@
 <?php namespace tcCore;
 
-use Ramsey\Uuid\Uuid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Lib\Question\QuestionInterface;
 
