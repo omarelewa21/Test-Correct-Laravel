@@ -1106,7 +1106,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 				} elseif($schoolLocationIds !== null) {
 					$query->whereIn('school_location_id', $schoolLocationIds);
 				}
-				
+
 				$query->orWhereIn('id', $parentIds);
 			});
 			// you are probably a student or so
@@ -1282,7 +1282,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 		// didn't work out to be safe
 		// return str_random(100);
 		// new
-		return sprintf('%s%d',str_random(85),$this->id);
+		return sprintf('%s%d',Str::random(85),$this->id);
 	}
 
     public function isA($roleName){
@@ -1459,5 +1459,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (null === $originalUser) return false;
         return (strtolower(explode('@', $originalUser->username)[1]) === strtolower(explode('@', $this->username)[1]));
     }
+
+    public function scopeNotDemo($query, $tableAlias=null)
+    {
+        if (!$tableAlias) {
+            $tableAlias = $this->getTable();
+        }
+
+        return $query->where(sprintf('%s.demo', $tableAlias), 0);
+    }
+
 
 }

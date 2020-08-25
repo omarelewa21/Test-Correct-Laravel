@@ -29,7 +29,7 @@ class OnboardingWizardReport extends Model
             'school_location_name'                        => $user->schoolLocation->name,
             'school_location_customer_code'               => $user->schoolLocation->customer_code,
             'test_items_created_amount'                   => Question::whereIn('id', $user->questionAuthors()->pluck('question_id'))->where('type', '<>', 'GroupQuestion')->count(),
-            'tests_created_amount'                        => $user->tests()->whereNull('system_test_id')->where('demo', 0)->count(),
+            'tests_created_amount'                        => $user->tests()->where('is_system_test', 0)->where('demo', 0)->count(),
             'first_test_planned_date'                     => self::getFirstTestPlannedDate($user),
             'last_test_planned_date'                      => self::getLastTestPlannedDate($user),
             'first_test_taken_date'                       => self::getFirstTestTakenDate($user),
@@ -56,6 +56,9 @@ class OnboardingWizardReport extends Model
             'user_sections'                               => self::getUserSections($user),
             'user_login_amount'                           => $user->loginLogs()->count(),
             'last_updated_from_TC'                        => Carbon::now(),
+            'invited_by'                                  => self::invitedBy($user),
+            'invited_users_amount'                        => self::invitedUsersAmount($user),
+            'invited_users'                               => self::invitedUsers($user)
         ]);
     }
 
@@ -397,7 +400,7 @@ ORDER BY t2.displayorder,
      * @param User $user
      * @return int
      */
-    private static function getTestsTakenAmount(User $user): int
+    public static function getTestsTakenAmount(User $user): int
     {
         return $user->testTakes()->where('demo', 0)->where('test_take_status_id', '>', 5)->count();
     }
@@ -416,6 +419,24 @@ ORDER BY t2.displayorder,
                         )
                     );
             })->implode(',')
+        );
+    }
+
+    public static function invitedBy(User $user)
+    {
+        return optional($user->invitedBy)->username;
+    }
+
+    public static function invitedUsersAmount(User $user)
+    {
+        return User::where('invited_by', $user->id)->count();
+    }
+
+    public static function invitedUsers(User $user)
+    {
+        return sprintf(',%s,', User::where('invited_by', $user->id)
+            ->pluck('username')
+            ->implode(',')
         );
     }
 }

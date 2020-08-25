@@ -35,6 +35,8 @@ class UpdateTestTakeStatusRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'name' => '',
 			'is_individual_status' => ''

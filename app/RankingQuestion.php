@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Illuminate\Support\Facades\Log;
+use tcCore\Exceptions\QuestionException;
 use tcCore\Lib\Question\QuestionInterface;
 
 class RankingQuestion extends Question implements QuestionInterface {
@@ -87,6 +88,52 @@ class RankingQuestion extends Question implements QuestionInterface {
         }
 
         return $question;
+    }
+
+    public function deleteAnswers()
+    {
+        $this->rankingQuestionAnswerLinks->each(function($qAL){
+            if (!$qAL->delete()) {
+                throw new QuestionException('Failed to delete ranking question answer link', 422);
+            }
+
+            if ($qAL->rankingQuestionAnswer->isUsed($qAL)) {
+                // all okay, this one should be kept
+            } else {
+                if (!$qAL->rankingQuestionAnswer->delete()) {
+                    throw new QuestionException('Failed to delete ranking question answer', 422);
+                }
+            }
+        });
+        return true;
+    }
+
+    public function addAnswers($mainQuestion, $answers)
+    {
+        $question = $this;
+        foreach($answers as $answerDetails) {
+            if($answerDetails['answer'] != '') {
+
+                $rankingQuestionAnswer = new RankingQuestionAnswer();
+
+                $rankingQuestionAnswer->fill($answerDetails);
+                if (!$rankingQuestionAnswer->save()) {
+                    throw new QuestionException('Failed to create ranking question answer', 422);
+                }
+
+                $rankingQuestionAnswerLink = new RankingQuestionAnswerLink();
+                // important!!!
+                $rankingQuestionAnswerLink->setPreventReorder(true);
+                $rankingQuestionAnswerLink->fill($answerDetails);
+                $rankingQuestionAnswerLink->setAttribute('ranking_question_id', $question->getKey());
+                $rankingQuestionAnswerLink->setAttribute('ranking_question_answer_id', $rankingQuestionAnswer->getKey());
+
+                if (!$rankingQuestionAnswerLink->save()) {
+                    throw new QuestionException('Failed to create ranking question answer', 422);
+                }
+            }
+        }
+        return true;
     }
 
     public function canCheckAnswer() {

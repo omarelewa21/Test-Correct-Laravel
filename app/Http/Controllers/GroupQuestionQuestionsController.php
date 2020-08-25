@@ -128,7 +128,9 @@ class GroupQuestionQuestionsController extends Controller
 //                    }
 
                     if ($groupQuestionQuestion->save()) {
-                        if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
+                        if($request->get('type') == 'CompletionQuestion'
+                            || $request->get('type') == 'MatchingQuestion'
+                            || $request->get('type') == 'RankingQuestion') {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -162,7 +164,9 @@ class GroupQuestionQuestionsController extends Controller
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
                 if ($groupQuestionQuestion->save()) {
-                    if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
+                    if($request->get('type') == 'CompletionQuestion'
+                        || $request->get('type') == 'MatchingQuestion'
+                        || $request->get('type') == 'RankingQuestion') {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -233,11 +237,10 @@ class GroupQuestionQuestionsController extends Controller
             $groupQuestionQuestionOriginal = $groupQuestionQuestion;
             $groupQuestionQuestion->fill($request->all());
 
-            // $groupQuestionQuestionManager->isUsed();
-
-
+            // MF 10-8-2020 if ($groupQuestionQuestionManager->isUsed()) { zou voldoende moeten zijn volgens mij om de vraaggroep te dupliceren.
+            // De rest van de statements is altijd false als je hier komt. ;
             if (
-                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) &&
+                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) ||
                 ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
                 $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
@@ -338,7 +341,8 @@ class GroupQuestionQuestionsController extends Controller
                 );
 
                 $question = $groupQuestionQuestion->question;
-                $question->fill($request->all());
+//                $question->fill($request->all());
+                $question->fill($totalData);
                 $questionInstance = $question->getQuestionInstance();
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $testQuestion->getAttribute('question_id'));
@@ -349,7 +353,9 @@ class GroupQuestionQuestionsController extends Controller
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
             if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
                 if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
-                    $question = $question->duplicate($request->all());
+                    //$question = $question->duplicate($request->all());
+                    $question = $question->duplicate($totalData);
+
                     if ($question === false) {
                         throw new QuestionException('Failed to duplicate question', 422);
                     }
@@ -365,7 +371,9 @@ class GroupQuestionQuestionsController extends Controller
 
             // Save the link
             if ($groupQuestionQuestion->save()) {
-                if ($questionInstance->type == 'CompletionQuestion' || $questionInstance->type == 'MatchingQuestion') {
+                if ($questionInstance->type == 'CompletionQuestion'
+                    || $questionInstance->type == 'MatchingQuestion'
+                    || $questionInstance->type == 'RankingQuestion') {
                     // delete old answers
                     $question->deleteAnswers($question);
 

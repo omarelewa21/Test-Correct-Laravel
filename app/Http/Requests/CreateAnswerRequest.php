@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Requests;
 
+
 class CreateAnswerRequest extends Request {
 
 	/**
@@ -19,6 +20,8 @@ class CreateAnswerRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->sanitize();
+
 		return [
 			'test_participant_id' => '',
 			'question_id' => '',
@@ -33,7 +36,19 @@ class CreateAnswerRequest extends Request {
 	 */
 	public function sanitize()
 	{
-		return $this->all();
+		$input = $this->all();
+
+        //unpack json answer and sanitize the input
+        $answerJson = json_decode($input['json'], true);
+
+        //sanitize input to prevent XSS
+        foreach ($answerJson as $key => $value) {
+            $answerJson[$key] = clean($value);
+        }
+
+        $input['json'] = json_encode($answerJson, JSON_FORCE_OBJECT);
+
+		return $this->replace($input);
 	}
 
 }

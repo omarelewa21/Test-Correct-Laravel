@@ -30,6 +30,8 @@ class ShowFileManagementRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
         ];
     }

@@ -29,6 +29,8 @@ class CreateTellATeacherRequest extends Request
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
 		    'data' => 'required|array',
             'data.*.username' => 'required|email',

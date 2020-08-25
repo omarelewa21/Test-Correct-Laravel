@@ -44,6 +44,8 @@ class UpdateTestParticipantRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'test_take_id' => 'sometimes',
 			'user_id' => 'sometimes',

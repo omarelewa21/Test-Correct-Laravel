@@ -36,6 +36,8 @@ class HeartbeatTestParticipantRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'ip_address' => 'required|ip',
         ];
