@@ -43,6 +43,7 @@ class QtiResource
     public $answersWithImages = [];
     /** @var QtiFactory */
     private $qtiFactory;
+    public $answers = [];
 
 
     public function __construct(ResourceModel $resource)
@@ -170,6 +171,7 @@ class QtiResource
 
         $this->replaceMultipleChoiceInteraction();
         $this->replaceInlineChoiceInteraction();
+        $this->replaceMatchInteraction();
 
 
         $dom1 = new DOMDocument("1.0");
@@ -179,6 +181,18 @@ class QtiResource
 
 
         $this->question_xml = $dom1->saveXML();
+    }
+
+    private function replaceMatchInteraction()
+    {
+        if ($this->itemType === 'matchInteraction') {
+            $node = $this->xml->itemBody->xPath('//' . $this->itemType);
+
+            $this->interaction = $node[0]->asXML();
+
+            $dom = dom_import_simplexml($node[0]);
+            $dom->parentNode->removeChild($dom);
+        }
     }
 
     private function replaceMultipleChoiceInteraction()
@@ -230,7 +244,6 @@ class QtiResource
             $this->xml_string = str_replace('<div id="body"', '<div xmlns="http://www.w3.org/1998/Math/MathML" id="body"', $this->xml_string);
             $this->xml_string = str_replace(['<m:', '</m:'], ['<', '</'], $this->xml_string);
         }
-
     }
 
     private function loadXMLFromResource()
@@ -246,7 +259,8 @@ class QtiResource
         );
     }
 
-    public function getSelectableAnswers() {
+    public function getSelectableAnswers()
+    {
         if (is_array($this->responseDeclaration['values']) && $count = count($this->responseDeclaration['values'])) {
             return $count;
         }
@@ -283,33 +297,11 @@ class QtiResource
 
         $this->question = (new TestQuestionsController)->store($request)->original->question;
 
-        $el = simplexml_load_string($this->interaction);
-        $answers = [];
-
-        $order = 0;
-        if ($el) {
-            foreach ($el->xpath('//simpleChoice') as $tag => $node) {
-                $attributes = [];
-                foreach ($node->attributes() as $name => $value) {
-                    $attributes = [
-                        'name' => $name,
-                        'value' => $value->__toString(),
-                    ];
-                }
-                $answer = [
-                    'order' => (string)++$order,
-                    'attributes' => $attributes,
-                    'value' => $node->children()[0]->asXML(),
-                ];
-                $this->answers[] = $this->addAnswer($answer);
-            }
-        }
+        $this->handleSimpleChoiceAnswers();
     }
 
     private function addAnswer($answer)
     {
-
-
         $parsedAnswer = $this->getParsedAnswer($answer['value']);
 
         $addAnswerRequest = $this->qtiQuestionTypeToTestCorrectQuestionType('class_answer_request')
@@ -381,24 +373,23 @@ class QtiResource
 
     private function mergeExtraTestQuestionAttributes()
     {
-        if ($this->itemType === 'matchInteraction') {
-            return [
-                'answers' => [
-                    (object)[
-                        'order' => '1',
-                        'left' => 'links 1',
-                        'right' => 'rechts 1',
-                    ],
-                    (object)[
-                        'order' => '2',
-                        'left' => 'links 2',
-                        'right' => 'rechts 2',
-                    ],
-                ],
-            ];
-        }
 
-        return [];
+
+        return [
+            'answers' => [
+                (object)[
+                    'order' => '1',
+                    'left' => 'links 1',
+                    'right' => 'rechts 1',
+                ],
+                (object)[
+                    'order' => '2',
+                    'left' => 'links 2',
+                    'right' => 'rechts 2',
+                ],
+            ],
+        ];
+
     }
 
     /**
@@ -414,6 +405,33 @@ class QtiResource
         $scoreWhenCorrect = $this->responseProcessing['score_when_correct'];
 
         $defaultScore = $this->responseDeclaration['outcome_declaration']['default_value'];
-        return in_array($answerIdentifier,$this->responseDeclaration['values']) ? $scoreWhenCorrect : $defaultScore;
+        return in_array($answerIdentifier, $this->responseDeclaration['values']) ? $scoreWhenCorrect : $defaultScore;
     }
+
+    private function handleSimpleChoiceAnswers(): void
+    {
+        $el = simplexml_load_string($this->interaction);
+        $answers = [];
+
+        $order = 0;
+        if ($el) {
+            foreach ($el->xpath('//simpleChoice') as $tag => $node) {
+                $attributes = [];
+                foreach ($node->attributes() as $name => $value) {
+                    $attributes = [
+                        'name' => $name,
+                        'value' => $value->__toString(),
+                    ];
+                }
+                $answer = [
+                    'order' => (string)++$order,
+                    'attributes' => $attributes,
+                    'value' => $node->children()[0]->asXML(),
+                ];
+                $this->answers[] = $this->addAnswer($answer);
+            }
+        }
+    }
+
+
 }

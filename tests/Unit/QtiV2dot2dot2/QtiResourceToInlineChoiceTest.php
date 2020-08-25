@@ -52,18 +52,18 @@ class QtiResourceToInlineChoiceTest extends TestCase
     /** @test */
     public function the_question_xml_property_should_be_correct()
     {
-        $this->assertContains(
+        $this->assertStringContainsString(
             '[gasvormig|vast|vloeibaar].',
             $this->instance->question_xml
         );
 
         // let op de punt van het einde van de zin moet achter de optie staan;
-        $this->assertContains(
+        $this->assertStringContainsString(
             '[kookpunt|smeltpunt].',
             $this->instance->question_xml
         );
 
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Je ziet een diagram van de temperatuur tegen de tijd.</p>',
             $this->instance->question_xml
         );

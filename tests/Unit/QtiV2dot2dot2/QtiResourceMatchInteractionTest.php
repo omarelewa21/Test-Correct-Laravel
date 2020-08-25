@@ -10,8 +10,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
-
-class QtiResourceTest extends TestCase
+// TODO needs to handle Matrix Question;
+class QtiResourceMatchInteractionTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -48,6 +48,29 @@ class QtiResourceTest extends TestCase
             'timeDependent' => 'false',
         ], $this->instance->attributes);
 
+    }
+
+    /** @test */
+    public function it_can_handle_response_processing()
+    {
+        $this->assertEquals(
+            ['correct_answer' => 'y_A x_1', 'score_when_correct' => '1'],
+            $this->instance->responseProcessing
+        );
+    }
+
+    /** @test */
+    public function it_should_select_the_correct_type_and_subtype_from_the_qti_factory()
+    {
+        $this->assertEquals(
+            'MatchingQuestion',
+            $this->instance->qtiQuestionTypeToTestCorrectQuestionType('type')
+        );
+
+        $this->assertEquals(
+            'Matching',
+            $this->instance->qtiQuestionTypeToTestCorrectQuestionType('subtype')
+        );
     }
 
     /** @test */
@@ -98,6 +121,12 @@ class QtiResourceTest extends TestCase
             ],
             $this->instance->stylesheets
         );
+    }
+
+    /** @test */
+    public function selectable_answers()
+    {
+        $this->assertEquals(3, $this->instance->getSelectableAnswers());
     }
 
     /** @test */
@@ -156,9 +185,9 @@ class QtiResourceTest extends TestCase
 </matchInteraction>
 ',
             $this->instance->interaction);
-
-
     }
+
+
 
 
 }

@@ -20,6 +20,8 @@ class QtiResourceTypeGuesserTest extends TestCase
     public function it_can_guess_the_item_type($identifier, $type, $href, $version, $guid, $type_to_guess)
     {
         $resource = new Resource($identifier, $type, storage_path($href), $version, $guid);
+
+        $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
         $this->instance = (new QtiResource($resource))->handle();
 
         $this->assertEquals(
