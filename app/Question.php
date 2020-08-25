@@ -54,7 +54,7 @@ class Question extends MtiBaseModel {
 
     public static function usesDeleteAndAddAnswersMethods($questionType)
     {
-        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion'])->contains(strotolower($questionType));
+        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion'])->contains(strtolower($questionType));
     }
 
     public function fill(array $attributes)
