@@ -31,7 +31,7 @@ class SeleniumTest
     static public function backupEnvFile() {
         self::checkEnv();
 
-        if(!file_exists(base_path(self::envFile))){
+        if(!file_exists(base_path(self::envFile)) || self::hasSeleniumtestSetup()){
             return false;
         }
 
