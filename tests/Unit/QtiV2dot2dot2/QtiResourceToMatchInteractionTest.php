@@ -36,6 +36,8 @@ class QtiResourceToMatchInteractionTest extends TestCase
         $this->instance = (new QtiResource($resource))->handle();
     }
 
+
+
     /** @test */
     public function it_can_read_load_xml_using_a_resource()
     {

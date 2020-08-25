@@ -20,6 +20,8 @@ class QtiResourceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
+
         $resource = new Resource(
             'ITM-330001',
             'imsqti_item_xmlv2p2',

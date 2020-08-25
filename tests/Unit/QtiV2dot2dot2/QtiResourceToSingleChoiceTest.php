@@ -178,9 +178,12 @@ class QtiResourceToSingleChoiceTest extends TestCase
             $answerLinks->map(function ($link) {
                 return $link->multipleChoiceQuestionAnswer->answer;
             })->toArray(), [
-                '<p>0,4 g</p>',
-                '<p>2,5 g</p>',
-                '<p>8,1 g</p>',
+                '<p>0,4 g</p>
+',
+                '<p>2,5 g</p>
+',
+                '<p>8,1 g</p>
+',
             ]
         );
 
@@ -190,7 +193,8 @@ class QtiResourceToSingleChoiceTest extends TestCase
 
 
         $this->assertEquals(
-            '<p>8,1 g</p>',
+            '<p>8,1 g</p>
+',
             $correctLink->multipleChoiceQuestionAnswer->answer
         );
     }

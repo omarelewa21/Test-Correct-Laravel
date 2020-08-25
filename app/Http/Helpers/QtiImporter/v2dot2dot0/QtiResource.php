@@ -28,6 +28,7 @@ class QtiResource
 {
     private $resource;
     private $xml;
+    public $xml_string;
     public $attributes = [];
     public $responseDeclaration;
     public $stylesheets = [];
@@ -223,14 +224,33 @@ class QtiResource
         }
     }
 
+    private function replaceMathNamespacesAndAddNamespaceDelaractionToDivIdBody()
+    {
+        if (substr_count($this->xml_string, '</m:')) {
+            $this->xml_string = str_replace('<div id="body"', '<div xmlns="http://www.w3.org/1998/Math/MathML" id="body"', $this->xml_string);
+            $this->xml_string = str_replace(['<m:', '</m:'], ['<', '</'], $this->xml_string);
+        }
+
+    }
+
     private function loadXMLFromResource()
     {
         // replace xmlns namespace because it
-        $xml_string = str_replace('xmlns=', 'ns=', file_get_contents($this->resource->href));
+        $this->xml_string = str_replace('xmlns=', 'ns=', file_get_contents($this->resource->href));
+        // replace math namespace
+        $this->replaceMathNamespacesAndAddNamespaceDelaractionToDivIdBody();
+
 
         $this->xml = simplexml_load_string(
-            $xml_string
+            $this->xml_string
         );
+    }
+
+    public function getSelectableAnswers() {
+        if (is_array($this->responseDeclaration['values']) && $count = count($this->responseDeclaration['values'])) {
+            return $count;
+        }
+        return 1;
     }
 
     private function handleQuestion()
@@ -249,7 +269,7 @@ class QtiResource
             'decimal_score' => "0",
             'add_to_database' => 1,
             'attainments' => [],
-            'selectable_answers' => 1,
+            'selectable_answers' => $this->getSelectableAnswers(),
             'note_type' => "NONE",
             'is_open_source_content' => 1,
             'tags' => [],
@@ -288,12 +308,7 @@ class QtiResource
 
     private function addAnswer($answer)
     {
-        $answerIdentifier = $answer['attributes']['value'];
-        $correctIdentifier = $this->responseDeclaration['values'][0];
 
-        $scoreWhenCorrect = $this->responseProcessing['score_when_correct'];
-
-        $defaultScore = $this->responseDeclaration['outcome_declaration']['default_value'];
 
         $parsedAnswer = $this->getParsedAnswer($answer['value']);
 
@@ -301,7 +316,7 @@ class QtiResource
             ->merge([
                 'order' => (string)$answer['order'],
                 'answer' => $parsedAnswer,
-                'score' => $answerIdentifier === $correctIdentifier ? $scoreWhenCorrect : $defaultScore,
+                'score' => $this->getScore($answer),
                 'user' => 'd1@test-correct.nl',
             ]);
 
@@ -384,5 +399,21 @@ class QtiResource
         }
 
         return [];
+    }
+
+    /**
+     * @param $answerIdentifier
+     * @param $correctIdentifier
+     * @param $scoreWhenCorrect
+     * @param $defaultScore
+     * @return mixed
+     */
+    private function getScore($answer)
+    {
+        $answerIdentifier = $answer['attributes']['value'];
+        $scoreWhenCorrect = $this->responseProcessing['score_when_correct'];
+
+        $defaultScore = $this->responseDeclaration['outcome_declaration']['default_value'];
+        return in_array($answerIdentifier,$this->responseDeclaration['values']) ? $scoreWhenCorrect : $defaultScore;
     }
 }
