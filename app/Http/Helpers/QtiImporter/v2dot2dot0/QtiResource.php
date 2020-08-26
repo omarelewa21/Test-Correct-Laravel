@@ -151,7 +151,7 @@ class QtiResource
 
     private function guessItemType()
     {
-        $tagNames = ['matchInteraction','textEntryInteraction', 'inlineChoiceInteraction', 'choiceInteraction'];
+        $tagNames = ['matchInteraction', 'textEntryInteraction', 'inlineChoiceInteraction', 'choiceInteraction'];
 
         foreach ($tagNames as $tagName) {
             if (!empty($this->xml->itemBody->xPath('//' . $tagName))) {
@@ -159,7 +159,7 @@ class QtiResource
                 continue;
             }
         }
-        if(!$this->itemType) {
+        if (!$this->itemType) {
             throw new \Exception('Could not guess interaction type based on xml');
         }
     }
@@ -178,16 +178,16 @@ class QtiResource
         $this->replaceTextEntryInteraction();
 
 
-
         $dom1 = new DOMDocument("1.0");
         $dom1->preserveWhiteSpace = false;
         $dom1->formatOutput = false;
         $dom1->loadXML($this->xml->itemBody->children()[0]->asXML());
 
 
+        $this->addStylesheetsToBody($dom1);
+
         $this->question_xml = $dom1->saveXML();
     }
-
 
 
     private function replaceMatchInteraction()
@@ -253,12 +253,12 @@ class QtiResource
 
             foreach ($nodes as $interaction) {
                 $result = [];
-                    $result[] = [
-                        'identifier' => $interaction['identifier'],
-                        'value' => $interaction->span->__toString(),
-                        'correct' => false,
-                        'patternMask'=> $interaction['patternMask']->__toString()
-                    ];
+                $result[] = [
+                    'identifier' => $interaction['identifier'],
+                    'value' => $interaction->span->__toString(),
+                    'correct' => false,
+                    'patternMask' => $interaction['patternMask']->__toString()
+                ];
                 $domElement = dom_import_simplexml($interaction);
                 $parent = $domElement->parentNode;
 
@@ -466,6 +466,27 @@ class QtiResource
                 ];
                 $this->answers[] = $this->addAnswer($answer);
             }
+        }
+    }
+
+    private function addStylesheetsToBody(DOMDocument $dom1)
+    {
+        $content = collect($this->stylesheets)->map(function ($path) {
+            $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
+            if ($c = file_get_contents($pathToStylesheet)) {
+                return $c;
+            };
+            throw new \Exception(sprintf('cannot find file %s', $pathToStylesheet));
+        });
+
+        if ($content) {
+            $classes = collect(explode(' ', $dom1->documentElement->getAttribute('class')));
+            if ($classes->count() > 0) {
+                $dom1->documentElement->setAttribute('class', $classes->add('custom-qti-style')->implode(' '));
+            }
+            $styleNode = $dom1->createElement('style');
+            $styleNode->nodeValue = $content->implode(PHP_EOL);
+            $dom1->documentElement->appendChild($styleNode);
         }
     }
 
