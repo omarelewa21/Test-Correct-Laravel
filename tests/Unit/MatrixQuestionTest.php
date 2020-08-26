@@ -65,7 +65,7 @@ class MatrixQuestionTest extends TestCase {
                 ],
             ],
             "maintain_position"      => "0",
-            "subtype"                => "SingleQuestion",
+            "subtype"                => "SingleChoice",
             "discuss"                => "1",
             "decimal_score"          => "0",
             "add_to_database"        => "1",
