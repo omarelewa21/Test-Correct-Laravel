@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
 
-class MatrixQuestionSubQuestion extends CompositePrimaryKeyModel
+class MatrixQuestionSubQuestion extends BaseModel
 {
 
     use SoftDeletes;
@@ -56,6 +56,11 @@ class MatrixQuestionSubQuestion extends CompositePrimaryKeyModel
                 $this->getDeletedAtColumn()
             ]
         )->wherePivot($this->getDeletedAtColumn(), null);
+    }
+
+    public function matrixQuestionAnswerSubQuestions()
+    {
+        return $this->hasMany(MatrixQuestionAnswerSubQuestion::class);
     }
 
     public function duplicate($parent, $attributes, $answerReferences = null) {

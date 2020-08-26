@@ -1,11 +1,12 @@
 <?php
-namespace Tests;
+namespace Tests\Unit;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
 
 class MatrixQuestionTest extends TestCase {
 
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
 	/**
 	 * A basic functional test example.
@@ -16,7 +17,7 @@ class MatrixQuestionTest extends TestCase {
 	public function should_add_valid_matrixQuestion()
 	{
 
-        $this->post('/test_question', static::getAuthRequestData([
+        $response = $this->post('/test_question', static::getAuthRequestData([
             "question"               => "<p>a nice matrix question</p>\r\n",
             "type"                   => "MatrixQuestion",
             "score"                  => "5",
@@ -25,37 +26,41 @@ class MatrixQuestionTest extends TestCase {
                 "answers" => [
                     [
                         'answer' => 'a',
-                        'order' => 1
+                        'order' => 0
                     ],
                     [
                         'answer' => 'b',
-                        'order' => 2
+                        'order' => 1
                     ],
                     [
                         'answer' => 'c',
-                        'order' => 3
+                        'order' => 2
                     ]
                 ],
                 "subQuestions" => [
                     [
                         'sub_question' => 'antwoord zou a moeten zijn',
-                        'order' => 1,
+                        'order' => 0,
                         'score' => 2,
+                        'answer' => 0,
                     ],
                     [
                         'sub_question' => 'vraag nummer 2 (antwoord c)',
-                        'order' => 2,
+                        'order' => 1,
                         'score' => 1,
+                        'answer'=> 2,
                     ],
                     [
                         'sub_question' => 'vraag nummer 3 (antwoord b)',
-                        'order' => 3,
+                        'order' => 2,
                         'score' => 2,
+                        'answer'=> 1,
                     ],
                     [
                         'sub_question' => 'vraag nummer 4 (antwoord c)',
-                        'order' => 4,
+                        'order' => 3,
                         'score' => 1,
+                        'answer'=> 2,
                     ]
                 ],
             ],
@@ -68,22 +73,22 @@ class MatrixQuestionTest extends TestCase {
             "note_type"              => "NONE",
             "is_open_source_content" => 0,
             "tags"                   => [],
-            "rtti"                   => "null",
+
             "test_id"                => "1"
         ]));
 
-        // is not correct should be 201, 200 should be reserved for requests that are successful but did not persist new data.
-        $this->assertResponseStatus(200);
+        $responseData = json_decode($response->getContent());
 
-        $response = json_decode($this->response->getContent());
+        // is not correct should be 201, 200 should be reserved for requests that are successful but did not persist new data.
+        $response->assertSuccessful();
 
         //   $this->assertEquals(3, $response->order);
-        $this->assertEquals('1', $response->test_id);
-        $this->assertEquals('1', $response->discuss);
+        $this->assertEquals('1', $responseData->test_id);
+        $this->assertEquals('1', $responseData->discuss);
 
-        $magicId = $response->id;
+        $magicId = $responseData->id;
 
-        $this->get(
+        $response = $this->get(
             sprintf(
                 '/test_question/%d?user=%s',
                 $magicId,
@@ -92,9 +97,9 @@ class MatrixQuestionTest extends TestCase {
         );
 
 
-        $response = json_decode($this->response->getContent());
+        $responseData = json_decode($response->getContent());
 
-        $question = $response->question;
+        $question = $responseData->question;
         $this->assertEquals('MatrixQuestion', $question->type);
 
         $author = $question->authors[0];
