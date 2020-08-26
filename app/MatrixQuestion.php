@@ -47,10 +47,16 @@ class MatrixQuestion extends Question implements QuestionInterface {
         return $this->hasMany('tcCore\MatrixQuestionAnswer')->orderBy('order');
     }
 
+    public function matrixQuestionAnswerSubQuestions()
+    {
+        return $this->hasManyThrough(MatrixQuestionAnswerSubQuestion::class,MatrixQuestionSubQuestion::class);
+    }
+
     public function loadRelated()
     {
         $this->loadRelatedAnswers();
         $this->loadRelatedSubQuestions();
+        $this->loadRelatedAnswerSubQuestions();
     }
 
     public function loadRelatedAnswers()
@@ -61,6 +67,11 @@ class MatrixQuestion extends Question implements QuestionInterface {
     public function loadRelatedSubQuestions()
     {
         $this->load('matrixQuestionSubQuestions');
+    }
+
+    public function loadRelatedAnswerSubQuestions()
+    {
+        $this->load('matrixQuestionAnswerSubQuestions');
     }
 
     public function duplicate(array $attributes, $ignore = null) {
@@ -189,13 +200,13 @@ class MatrixQuestion extends Question implements QuestionInterface {
      *          'sub_question' => ...
      *          'score' => ...
      *          'order' => ...,
-     *          'answer' => {ordernr}
+     *          'answers' => [{ordernr},{ordernr}]
      *      ],
      *      [
      *          'sub_question' => ...
      *          'score' => ...
      *          'order' => ...
-     *          'answer' => {ordernr}
+     *          'answers' => [{ordernr},{ordernr}]
      *      ],
      *  ],
      * ]
@@ -227,10 +238,15 @@ class MatrixQuestion extends Question implements QuestionInterface {
                 throw new QuestionException('Failed to create matrix question sub question',422);
             }
 
-            $answerSubQuestion = new MatrixQuestionAnswerSubQuestion();
-            $answerSubQuestion->matrix_question_answer_id = $answerReferences[$details['answer']]->getkey();
-            if(!$subQuestion->matrixQuestionAnswerSubQuestions()->save($answerSubQuestion)){
-                throw new QuestionException('Failed to create matrix question answer sub question relation',422);
+            foreach($details['answers'] as $answer) {
+                if(!isset($answerReferences[$answer])){
+                    throw new QuestionException('Failed to create matrix question answer sub question relation', 422);
+                }
+                $answerSubQuestion = new MatrixQuestionAnswerSubQuestion();
+                $answerSubQuestion->matrix_question_answer_id = $answerReferences[$answer]->getkey();
+                if (!$subQuestion->matrixQuestionAnswerSubQuestions()->save($answerSubQuestion)) {
+                    throw new QuestionException('Failed to create matrix question answer sub question relation', 422);
+                }
             }
         }
 

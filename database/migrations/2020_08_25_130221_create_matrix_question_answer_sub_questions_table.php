@@ -34,7 +34,7 @@ class CreateMatrixQuestionAnswerSubQuestionsTable extends Migration
     public function down()
     {
         Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('matrix_question_answers_sub_questions');
+        Schema::dropIfExists('matrix_question_answer_sub_questions');
         Schema::enableForeignKeyConstraints();
     }
 }
