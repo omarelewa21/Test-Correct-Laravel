@@ -52,6 +52,11 @@ class Question extends MtiBaseModel {
 
     protected $tags = null;
 
+    public static function usesDeleteAndAddAnswersMethods($questionType)
+    {
+        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion'])->contains(strtolower($questionType));
+    }
+
     public function fill(array $attributes)
     {
         parent::fill($attributes);
