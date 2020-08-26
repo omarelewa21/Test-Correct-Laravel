@@ -151,13 +151,16 @@ class QtiResource
 
     private function guessItemType()
     {
-        $tagNames = ['matchInteraction', 'inlineChoiceInteraction', 'choiceInteraction'];
+        $tagNames = ['matchInteraction','textEntryInteraction', 'inlineChoiceInteraction', 'choiceInteraction'];
 
         foreach ($tagNames as $tagName) {
             if (!empty($this->xml->itemBody->xPath('//' . $tagName))) {
                 $this->itemType = $tagName;
                 continue;
             }
+        }
+        if(!$this->itemType) {
+            throw new \Exception('Could not guess interaction type based on xml');
         }
     }
 
@@ -172,6 +175,8 @@ class QtiResource
         $this->replaceMultipleChoiceInteraction();
         $this->replaceInlineChoiceInteraction();
         $this->replaceMatchInteraction();
+        $this->replaceTextEntryInteraction();
+
 
 
         $dom1 = new DOMDocument("1.0");
@@ -182,6 +187,8 @@ class QtiResource
 
         $this->question_xml = $dom1->saveXML();
     }
+
+
 
     private function replaceMatchInteraction()
     {
@@ -223,6 +230,35 @@ class QtiResource
                         'correct' => false,
                     ];
                 }
+                $domElement = dom_import_simplexml($interaction);
+                $parent = $domElement->parentNode;
+
+                if ($result) {
+                    $pipeString = collect($result)->map(function ($response) {
+                        return $response['value'];
+                    })->implode('|');
+                    $newNode = $domElement->ownerDocument->createTextNode(sprintf('[%s]', $pipeString));
+                    $parent->insertBefore($newNode, $domElement);
+                }
+                $parent->removeChild($domElement);
+            }
+        }
+    }
+
+    private function replaceTextEntryInteraction()
+    {
+        if ($this->itemType === 'textEntryInteraction') {
+            $nodes = $this->xml->itemBody->xPath('//' . $this->itemType);
+            $this->interaction = $nodes[0]->asXML();
+
+            foreach ($nodes as $interaction) {
+                $result = [];
+                    $result[] = [
+                        'identifier' => $interaction['identifier'],
+                        'value' => $interaction->span->__toString(),
+                        'correct' => false,
+                        'patternMask'=> $interaction['patternMask']->__toString()
+                    ];
                 $domElement = dom_import_simplexml($interaction);
                 $parent = $domElement->parentNode;
 
@@ -300,6 +336,7 @@ class QtiResource
         $this->handleSimpleChoiceAnswers();
     }
 
+
     private function addAnswer($answer)
     {
         $parsedAnswer = $this->getParsedAnswer($answer['value']);
@@ -319,7 +356,6 @@ class QtiResource
                     $addAnswerRequest
                 )->original;
     }
-
 
     protected function handleInlineImages()
     {

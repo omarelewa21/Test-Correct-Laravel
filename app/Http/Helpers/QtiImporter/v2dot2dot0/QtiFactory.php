@@ -4,8 +4,10 @@
 namespace tcCore\Http\Helpers\QtiImporter\v2dot2dot0;
 
 
+use tcCore\Http\Controllers\TestQuestions\CompletionQuestionAnswersController;
 use tcCore\Http\Controllers\TestQuestions\MatchingQuestionAnswersController;
 use tcCore\Http\Controllers\TestQuestions\MultipleChoiceQuestionAnswersController;
+use tcCore\Http\Requests\CreateCompletionQuestionAnswerRequest;
 use tcCore\Http\Requests\CreateMatchingQuestionAnswerRequest;
 use tcCore\Http\Requests\CreateMultipleChoiceQuestionAnswerRequest;
 
@@ -67,7 +69,14 @@ class QtiFactory
                 'subtype' => 'MultipleChoice',
                 'class_answer_request' => new CreateMultipleChoiceQuestionAnswerRequest,
                 'class_answer_controller' => new MultipleChoiceQuestionAnswersController,
-            ]
+            ],
+            'textEntryInteraction' => [
+                'type' => 'CompletionQuestion',
+                'subtype' => 'completion',
+                'class_answer_request' => new CreateCompletionQuestionAnswerRequest,
+                'class_answer_controller' => new CompletionQuestionAnswersController,
+
+            ],
         ];
     }
 }
