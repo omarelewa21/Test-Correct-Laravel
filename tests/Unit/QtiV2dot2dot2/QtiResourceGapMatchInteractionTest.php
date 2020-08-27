@@ -10,8 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
-
-class QtiResourceMatchInteractionTest extends TestCase
+class QtiResourceGapMatchInteractionTest extends TestCase
 {
 //    use DatabaseTransactions;
 
@@ -23,9 +22,9 @@ class QtiResourceMatchInteractionTest extends TestCase
         $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
 
         $resource = new Resource(
-            'ITM-330001',
+            'ITM-330194',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/330001.xml'),
+            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/330194.xml'),
             '1',
             '88dec4d3-997f-4d3b-95cf-3345bf3c0f4b'
         );
@@ -42,9 +41,9 @@ class QtiResourceMatchInteractionTest extends TestCase
     public function it_can_handle_item_attributes()
     {
         $this->assertEquals([
-            'title' => 'Stofeigenschappen',
-            'identifier' => 'ITM-330001',
-            'label' => '32k6ca',
+            'title' => 'Klankschaal',
+            'identifier' => 'ITM-330194',
+            'label' => '32k6ce',
             'timeDependent' => 'false',
         ], $this->instance->attributes);
 
@@ -54,7 +53,7 @@ class QtiResourceMatchInteractionTest extends TestCase
     public function it_can_handle_response_processing()
     {
         $this->assertEquals(
-            ['correct_answer' => 'y_A x_1', 'score_when_correct' => '1'],
+            ['correct_answer' => 'C G1', 'score_when_correct' => '1'],
             $this->instance->responseProcessing
         );
     }
@@ -63,12 +62,12 @@ class QtiResourceMatchInteractionTest extends TestCase
     public function it_should_select_the_correct_type_and_subtype_from_the_qti_factory()
     {
         $this->assertEquals(
-            'MatrixQuestion',
+            'MatchingQuestion',
             $this->instance->qtiQuestionTypeToTestCorrectQuestionType('type')
         );
 
         $this->assertEquals(
-            'SingleChoice',
+            'Matching',
             $this->instance->qtiQuestionTypeToTestCorrectQuestionType('subtype')
         );
     }
@@ -80,15 +79,15 @@ class QtiResourceMatchInteractionTest extends TestCase
             'attributes' => [
                 'identifier' => 'RESPONSE',
                 'cardinality' => 'multiple',
-                'baseType' => 'identifier',
+                'baseType' => 'directedPair',
             ],
             'correct_response_attributes' => [
-                'interpretation' => 'A&B&A',
+                'interpretation' => 'C G1&A G2&B G3',
             ],
             'values' => [
-                0 => 'y_A x_1',
-                1 => 'y_B x_2',
-                2 => 'y_C x_1',
+                 'C G1',
+                 'A G2',
+                 'B G3',
             ],
             'outcome_declaration' => [
                 'attributes' => [
@@ -118,6 +117,10 @@ class QtiResourceMatchInteractionTest extends TestCase
                     'href' => '../css/cito_generated.css',
                     'type' => 'text/css',
                 ],
+                [
+                    'href' => '../css/cito_generated_330194.css',
+                    'type' => 'text/css',
+                ],
             ],
             $this->instance->stylesheets
         );
@@ -133,59 +136,62 @@ class QtiResourceMatchInteractionTest extends TestCase
     public function it_can_handle_the_item_body()
     {
         $this->assertXmlStringEqualsXmlString(
-            '<matchInteraction id="matchInteraction1" minAssociations="3" maxAssociations="3" shuffle="false" responseIdentifier="RESPONSE">
-<simpleMatchSet>
-
-<simpleAssociableChoice identifier="y_A" matchMax="1">
-
-<div class="cito_genclass_330001_2">
-
-<p>corrosiebestendig</p>
-</div>
-</simpleAssociableChoice>
-
-<simpleAssociableChoice identifier="y_B" matchMax="1">
-
-<div class="cito_genclass_330001_3">
-
-<p>massa 5,5 kg</p>
-</div>
-</simpleAssociableChoice>
-
-<simpleAssociableChoice identifier="y_C" matchMax="1">
-
-<div class="cito_genclass_330001_4">
-
-<p>smeltpunt 660 °C</p>
-</div>
-</simpleAssociableChoice>
-
-</simpleMatchSet>
-<simpleMatchSet>
-
-
-<simpleAssociableChoice identifier="x_1" matchMax="3">
-
-<div class="cito_genclass_330001_5">
-
-<p>wel</p>
-</div>
-</simpleAssociableChoice>
-
-
-<simpleAssociableChoice identifier="x_2" matchMax="3">
-
-<div class="cito_genclass_330001_6">
-
-<p>niet</p>
-</div>
-</simpleAssociableChoice>
-
-</simpleMatchSet>
-</matchInteraction>
-',
-            $this->instance->interaction);
+            '<?xml version="1.0"?>
+<gapMatchInteraction id="gapMatchScoring" responseIdentifier="RESPONSE" shuffle="false">
+  <gapText identifier="A" matchMax="1">
+    <span>gehoor</span>
+  </gapText>
+  <gapText identifier="B" matchMax="1">
+    <span>lucht</span>
+  </gapText>
+  <gapText identifier="C" matchMax="1">
+    <span>klankschaal</span>
+  </gapText>
+  <table class="cito_genclass_330194_1">
+    <colgroup>
+      <col/>
+      <col/>
+    </colgroup>
+    <tbody>
+      <tr>
+        <td class="cito_genclass_330194_2 cito_genclass_330194_3">
+          <p>
+            <strong>geluidsbron</strong>
+          </p>
+        </td>
+        <td class="cito_genclass_330194_2 cito_genclass_330194_4">
+          <p class="cito_genclass_330194_5"><span><gap identifier="G1" required="true"/></span>&#xA0;</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="cito_genclass_330194_6 cito_genclass_330194_7">
+          <p>
+            <strong>geluidsontvanger</strong>
+          </p>
+        </td>
+        <td class="cito_genclass_330194_6 cito_genclass_330194_8">
+          <p class="cito_genclass_330194_9"><span><gap identifier="G2" required="true"/></span>&#xA0;</p>
+        </td>
+      </tr>
+      <tr>
+        <td class="cito_genclass_330194_10 cito_genclass_330194_11">
+          <p>
+            <strong>tussenstof</strong>
+          </p>
+        </td>
+        <td class="cito_genclass_330194_10 cito_genclass_330194_12">
+          <p class="cito_genclass_330194_13"><span><gap identifier="G3" required="true"/></span>&#xA0;</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>&#xA0;</p>
+</gapMatchInteraction>
+', $this->instance->interaction
+);
     }
+
+
 
 
 }

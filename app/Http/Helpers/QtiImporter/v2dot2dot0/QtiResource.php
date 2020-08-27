@@ -5,6 +5,7 @@ namespace tcCore\Http\Helpers\QtiImporter\v2dot2dot0;
 
 
 use DOMDocument;
+use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -151,7 +152,7 @@ class QtiResource
 
     private function guessItemType()
     {
-        $tagNames = ['matchInteraction', 'textEntryInteraction', 'inlineChoiceInteraction', 'choiceInteraction'];
+        $tagNames = ['gapMatchInteraction', 'matchInteraction', 'textEntryInteraction', 'inlineChoiceInteraction', 'choiceInteraction'];
 
         foreach ($tagNames as $tagName) {
             if (!empty($this->xml->itemBody->xPath('//' . $tagName))) {
@@ -176,6 +177,7 @@ class QtiResource
         $this->replaceInlineChoiceInteraction();
         $this->replaceMatchInteraction();
         $this->replaceTextEntryInteraction();
+        $this->replaceGapMatchInteraction();
 
 
         $dom1 = new DOMDocument("1.0");
@@ -205,6 +207,18 @@ class QtiResource
     private function replaceMultipleChoiceInteraction()
     {
         if ($this->itemType === 'choiceInteraction') {
+            $node = $this->xml->itemBody->xPath('//' . $this->itemType);
+
+            $this->interaction = $node[0]->asXML();
+
+            $dom = dom_import_simplexml($node[0]);
+            $dom->parentNode->removeChild($dom);
+        }
+    }
+
+    private function replaceGapMatchInteraction()
+    {
+        if ($this->itemType === 'gapMatchInteraction') {
             $node = $this->xml->itemBody->xPath('//' . $this->itemType);
 
             $this->interaction = $node[0]->asXML();
@@ -295,7 +309,8 @@ class QtiResource
         );
     }
 
-    public function getSelectableAnswers()
+    public
+    function getSelectableAnswers()
     {
         if (is_array($this->responseDeclaration['values']) && $count = count($this->responseDeclaration['values'])) {
             return $count;
@@ -329,11 +344,15 @@ class QtiResource
         ])->merge(
             $this->mergeExtraTestQuestionAttributes()
         );
+        /** @var Response $response */
+        $response = (new TestQuestionsController)->store($request);
+        if ($response->isSuccessful()) {
+            $this->question = $response->original->question;
 
-
-        $this->question = (new TestQuestionsController)->store($request)->original->question;
-
-        $this->handleSimpleChoiceAnswers();
+            $this->handleSimpleChoiceAnswers();
+        } else {
+            throw new \Exception($response->content());
+        }
     }
 
 
@@ -409,23 +428,91 @@ class QtiResource
 
     private function mergeExtraTestQuestionAttributes()
     {
+        if ($this->itemType === 'gapMatchInteraction') {
+            $dom = simplexml_load_string($this->interaction);
+
+            $gapTexts = [];
+            foreach($dom->xpath('//gapText') as $gapTextNode) {
+                $gapTexts[$gapTextNode['identifier']->__toString()] = $gapTextNode->children()[0]->__toString();
+            }
+
+            $loop = 0;
+            $answers = [];
+            foreach($dom->xpath('//gap') as $gapNode){
+                $loop++;
+                $identifier = $gapNode['identifier']->__toString();
+                $gapTextIndex = collect(explode(' ', collect($this->responseDeclaration['values'])->first(function($gapIdentifierPair) use ($identifier) {
+                    return strpos($gapIdentifierPair, $identifier);
+                })))->first();
+                $gapTextValue = $gapTexts[$gapTextIndex];
+
+                $links = $gapNode->xpath('../../../..')[0]->td->p->asXML();
+
+                $answers[] = (object) [
+                    'order' => $loop,
+                    'left' => $links,
+                    'right' => $gapTextValue,
+                ];
+            }
+
+            return ["answers" => $answers];
+        }
+        if ($this->itemType === 'matchInteraction') {
+            $dom = simplexml_load_string($this->interaction);
 
 
-        return [
-            'answers' => [
-                (object)[
-                    'order' => '1',
-                    'left' => 'links 1',
-                    'right' => 'rechts 1',
-                ],
-                (object)[
-                    'order' => '2',
-                    'left' => 'links 2',
-                    'right' => 'rechts 2',
-                ],
-            ],
-        ];
+            $matchSetNodeList = $dom->xpath('//simpleMatchSet');
 
+            $answers = [];
+            $loop = 0;
+            foreach ($matchSetNodeList[1] as $answerNode) {
+                $answers[] = [
+                    'answer' => $answerNode->div->asXML(),
+                    'order' => $loop,
+                    'indentifier' => $answerNode['identifier']->__toString(),
+                ];
+                $loop++;
+            }
+
+            $subQuestions = [];
+            $loop = 0;
+            foreach ($matchSetNodeList[0] as $subQuestionNode) {
+                $subQuestions[] = [
+                    'sub_question' => $subQuestionNode->div->asXML(),
+                    'order' => $loop,
+                    'score' => 1,
+                    'answers' => $this->getAnswersByIdentifier(
+                        $subQuestionNode['identifier']->__toString(),
+                        $answers
+                    ),
+                    'identifier' => $subQuestionNode['identifier']->__toString(),
+                ];
+                $loop++;
+            }
+
+            return [
+                'answers' => [
+                    'answers' => $answers,
+                    'subQuestions' => $subQuestions,
+                ]
+            ];
+        }
+        return [];
+    }
+
+    public
+    function getAnswersByIdentifier($identifier, $answers)
+    {
+        $answer_pair = collect($this->responseDeclaration['values'])->first(function ($value) use ($identifier) {
+            return strstr($value, $identifier);
+        });
+
+        $answerIdentifier = trim(str_replace($identifier, '', $answer_pair));
+        $correctAnswerForIdentier = collect($answers)->first(function ($answer) use ($answerIdentifier) {
+            return $answer['indentifier'] === $answerIdentifier;
+        });
+
+        return [$correctAnswerForIdentier['order']];
     }
 
     /**
@@ -473,6 +560,8 @@ class QtiResource
     {
         $content = collect($this->stylesheets)->map(function ($path) {
             $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
+            // remove depitems folder;
+            $pathToStylesheet = str_replace('/Test-maatwerktoetsen_v01/depitems', '', $pathToStylesheet);
             if ($c = file_get_contents($pathToStylesheet)) {
                 return $c;
             };
@@ -489,6 +578,4 @@ class QtiResource
             $dom1->documentElement->appendChild($styleNode);
         }
     }
-
-
 }
