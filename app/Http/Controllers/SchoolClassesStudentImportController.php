@@ -30,27 +30,13 @@ class SchoolClassesStudentImportController extends Controller {
             'student_school_classes' => [$schoolClass->getKey()],
         ];
 
-	    $allowedAr = [
-	      'external_id',
-          'username',
-          'name_first',
-          'name_suffix',
-          'name',
-          'gender',
-        ];
 	    $data = $request->validated();
         DB::beginTransaction();
 	    try{
-            collect($data['data'])->each(function($u) use ($defaultData, $allowedAr, $schoolClass){
+            collect($data['data'])->each(function($u) use ($defaultData,  $schoolClass){
                 $merged = array_merge($u, $defaultData);
-                $userData = [];
-                foreach(array_values($allowedAr) as $key){
-                    if(array_key_exists($key,$merged)){
-                        $userData[$key] = $merged[$key];
-                    }
-                }
 
-                $user = User::where('username',$userData['username'])->first();
+                $user = User::where('username',$merged['username'])->first();
                 if($user) {
                     if ($user->isA('student')) {
                         $classExists = (bool) $user->students->firstWhere('class_id', $schoolClass->getKey());
@@ -63,8 +49,7 @@ class SchoolClassesStudentImportController extends Controller {
                 }
                 else {
                     $userFactory = new Factory(new User());
-                    $userData = array_merge($u, $defaultData);
-                    $user = $userFactory->generate(array_merge($u, $defaultData));
+                    $user = $userFactory->generate($merged);
                 }
             });
         }
