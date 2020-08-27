@@ -44,6 +44,7 @@ class QtiImportCitoController extends Controller
     protected $hasWerkbladen = false;
     protected $werkbladen = [];
     protected $manifest;
+    protected $packageDir;
 
     /**
      * Display a listing of the resource.
@@ -68,7 +69,7 @@ class QtiImportCitoController extends Controller
                 'subject_ids' => $t->user->subjects()->get()->map(function($s){ return $s->id;})->toArray(),
             ];
         });
-        
+
         return response()->json([
             'schoolLocations' => SchoolLocation::orderBy('name')->get(),
             'subjects' => Subject::orderBy('name')->get(),
@@ -125,7 +126,8 @@ class QtiImportCitoController extends Controller
 
             $this->requestData = $request->all();
             $startDir = $this->dateStamp = date('YmdHis');
-            $file->move(sprintf('%s/%s',$this->basePath,$startDir), $fileName);
+            $this->packageDir = sprintf('%s/%s',$this->basePath,$startDir);
+            $file->move($this->packageDir, $fileName);
 
             //        $storageDir = $dir = sprintf('%s/%s/uploads', $this->basePath, $this->dateStamp);
 
@@ -233,7 +235,8 @@ class QtiImportCitoController extends Controller
                 $nr++;
                 $zipFile = sprintf('%s/%s/%s',$this->basePath,$zipDir,$zipFile);
                 $newZipDir = sprintf('%s/%s',$zipDir,$i);
-                mkdir(sprintf('%s/%s',$this->basePath,$newZipDir));
+                mkdir( sprintf('%s/%s',$this->basePath,$newZipDir));
+
                 $this->checkZipFile($zipFile, $newZipDir);
             });
             $this->afterCheck();
@@ -384,13 +387,13 @@ class QtiImportCitoController extends Controller
         $errors = [];
         // first test all
         foreach($this->manifest->getResources() as $resourceInfo) {
-            logger([storage_path($this->basePath),$resourceInfo->href]);
+
          $resource = new Resource(
             'ITM-330194',
             'imsqti_item_xmlv2p2',
-            sprintf('%s/%s',storage_path($this->basePath),$resourceInfo->href),
+            sprintf('%s/%s/%s',$this->packageDir, 'zipdir',$resourceInfo->href),
             '1',
-            '88dec4d3-997f-4d3b-95cf-3345bf3c0f4b'
+            '88dec4d3-997f-4Fd3b-95cf-3345bf3c0f4b'
         );
             $this->instance = (new QtiResource($resource))->handle();
         }
@@ -460,7 +463,7 @@ class QtiImportCitoController extends Controller
 
         $shuffle = 0;
 
-        
+
         try {
 
             $test = new Test(array_merge(

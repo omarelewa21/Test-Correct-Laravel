@@ -560,6 +560,7 @@ class QtiResource
     {
         $content = collect($this->stylesheets)->map(function ($path) {
             $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
+            $pathToStylesheet = sprintf('%s/%s', $this->baseDir, $path['href']);
             // remove depitems folder;
             $pathToStylesheet = str_replace('/Test-maatwerktoetsen_v01/depitems', '', $pathToStylesheet);
             if ($c = file_get_contents($pathToStylesheet)) {
