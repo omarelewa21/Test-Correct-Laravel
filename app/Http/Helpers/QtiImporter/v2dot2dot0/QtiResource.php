@@ -52,13 +52,19 @@ class QtiResource
         $this->resource = $resource;
         $this->baseDir = pathinfo($resource->href)['dirname'];
         $this->qtiFactory = new QtiFactory($this);
+
     }
 
     public function handle()
     {
         $this->loadXMLFromResource();
 
-        $this->guessItemType();
+        try {
+            $this->guessItemType();
+        } catch (\Exception $e) {
+            logger($e->getMessage());
+            return false;
+        }
 
         $this->handleResponseProcessing();
 
@@ -339,8 +345,8 @@ class QtiResource
             'is_open_source_content' => 1,
             'tags' => [],
             'rtti' => null,
-            'test_id' => "1",
-            'user' => "d1@test-correct.nl",
+            'test_id' => $this->resource->getTest()->getKey(),
+            'user' => Auth::user()->username,//"d1@test-correct.nl",
         ])->merge(
             $this->mergeExtraTestQuestionAttributes()
         );
@@ -446,7 +452,13 @@ class QtiResource
                 })))->first();
                 $gapTextValue = $gapTexts[$gapTextIndex];
 
-                $links = $gapNode->xpath('../../../..')[0]->td->p->asXML();
+                $nodeLinks = $gapNode->xpath('../../../..')[0]->td->p;
+                if ($nodeLinks == null) {
+                    logger(sprintf('an error occurred while processing %s', $this->resource->href));
+                    $links = 'some dummy text (because of import error)';
+                } else {
+                    $links = $nodeLinks->asXML();
+                }
 
                 $answers[] = (object) [
                     'order' => $loop,
@@ -559,7 +571,7 @@ class QtiResource
     private function addStylesheetsToBody(DOMDocument $dom1)
     {
         $content = collect($this->stylesheets)->map(function ($path) {
-            $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
+//            $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
             $pathToStylesheet = sprintf('%s/%s', $this->baseDir, $path['href']);
             // remove depitems folder;
             $pathToStylesheet = str_replace('/Test-maatwerktoetsen_v01/depitems', '', $pathToStylesheet);
