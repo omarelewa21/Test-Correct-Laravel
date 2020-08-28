@@ -14,7 +14,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceToSingleChoiceWithMathTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     private $instance;
 
@@ -25,11 +25,11 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
         $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
 
         $resource = new Resource(
-            'ITM-testitem_simpele_formule_editor_voor_invoer',
+            'Test_item_370020b',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/testitem simpele formule editor voor invoer.xml'),
+            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/Test item 370020b.xml'),
             '1',
-            '3ef7b0ad-6417-433f-8012-efd1f544dfc6'
+            'a985ac61-5dde-439f-9406-97825ecab2d6'
         );
         $this->instance = (new QtiResource($resource))->handle();
     }
@@ -44,9 +44,9 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
     public function it_can_handle_item_attributes()
     {
         $this->assertEquals([
-            'title' => 'testitem simpele formule editor voor invoer',
-            'identifier' => 'ITM-testitem_simpele_formule_editor_voor_invoer',
-            'label' => '32k6cd',
+            'title' => '2.8-05',
+            'identifier' => 'ITM-Test_item_370020b',
+            'label' => '32k6cx',
             'timeDependent' => 'false',
         ], $this->instance->attributes);
 
@@ -65,15 +65,15 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
             substr_count($this->instance->xml_string, '</m:')
         );
     }
-    /** @test */
-    public function it_should_add_the_xmlns_for_math_ml_to_the_body()
-    {
-        $this->assertEquals(
-            1,
-            substr_count($this->instance->xml_string, 'xmlns="http://www.w3.org/1998/Math/MathML"')
-        );
-
-    }
+//    /** @test */
+//    public function it_should_add_the_xmlns_for_math_ml_to_the_body()
+//    {
+//        $this->assertEquals(
+//            1,
+//            substr_count($this->instance->xml_string, 'xmlns="http://www.w3.org/1998/Math/MathML"')
+//        );
+//
+//    }
 
     /** @test */
     public function it_can_handle_response_processing()
@@ -91,14 +91,16 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
         $this->assertEquals([
             'attributes' => [
                 'identifier' => 'RESPONSE',
-                'cardinality' => 'single',
+                'cardinality' => 'multiple',
                 'baseType' => 'identifier',
             ],
             'correct_response_attributes' => [
-                'interpretation' => 'A',
+                'interpretation' => 'A&B&D',
             ],
             'values' => [
                 'A',
+                'B',
+                'D',
             ],
             'outcome_declaration' => [
                 'attributes' => [
@@ -125,7 +127,7 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
                     'type' => 'text/css',
                 ],
                 [
-                    'href' => '../css/cito_generated_testitemsimpeleformuleeditorvoorinvoer.css',
+                    'href' => '../css/cito_generated_Testitem370020b.css',
                     'type' => 'text/css',
                 ],
             ],
@@ -146,6 +148,15 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
             'MultipleChoice',
             $this->instance->qtiQuestionTypeToTestCorrectQuestionType('subtype')
         );
+    }
+
+    /** @test */
+    public function it_should_return_three_selectable_answers()
+    {
+        $this->assertEquals(
+            3,
+            $this->instance->getSelectableAnswers()
+        );
 
     }
 
@@ -154,12 +165,25 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
     {
         $this->assertXmlStringEqualsXmlString(
             '<?xml version="1.0"?>
-<choiceInteraction id="choiceInteraction1" maxChoices="1" responseIdentifier="RESPONSE" shuffle="false">
+<choiceInteraction id="choiceInteraction1" maxChoices="5" responseIdentifier="RESPONSE" shuffle="false">
   <simpleChoice identifier="A">
-    <p>alternatief A</p>
+    <p>met 0,2 vermenigvuldigen</p>
   </simpleChoice>
   <simpleChoice identifier="B">
-    <p>alternatief B</p>
+    <p>
+      <span>met&#xA0;</span>
+      <span><span><math><mfrac><mn mathsize="18px">1</mn><mn mathsize="18px">5</mn></mfrac></math>&#xA0;</span>vermenigvuldigen</span>
+      <span/>
+    </p>
+  </simpleChoice>
+  <simpleChoice identifier="C">
+    <p>door 20 delen</p>
+  </simpleChoice>
+  <simpleChoice identifier="D">
+    <p>door 5 delen</p>
+  </simpleChoice>
+  <simpleChoice identifier="E">
+    <p>door&#xA0;<math><mfrac><mn mathsize="18px">1</mn><mn mathsize="18px">5</mn></mfrac></math>&#xA0;delen</p>
   </simpleChoice>
 </choiceInteraction>',
             $this->instance->interaction);
@@ -177,21 +201,24 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
         );
 
         $this->assertStringContainsString(
-            'breuk grootte aangepast (groter):',
+            'Geef alle goede mogelijkheden aan.',
             ($instance->question)
         );
 
         $answerLinks = MultipleChoiceQuestionAnswerLink::where('multiple_choice_question_id', $instance->id)->get();
-        $this->assertCount(2, $answerLinks);
+        $this->assertCount(5, $answerLinks);
 
-        $correctLink = $answerLinks->first(function ($link) {
+        $correctAnswers = $answerLinks->filter(function ($link) {
             return $link->multipleChoiceQuestionAnswer->score == 1;
+        })->map(function ($link) {
+            return $link->multipleChoiceQuestionAnswer->answer;
         });
 
-        $this->assertEquals(
-            '<p>alternatief A</p>
-',
-            $correctLink->multipleChoiceQuestionAnswer->answer
-        );
+        $this->assertCount(3, $correctAnswers);
+        [
+            '<p>met 0,2 vermenigvuldigen</p>\n',
+            '<p><span>met&nbsp;</span><span><span><math><mfrac><mn mathsize="18px">1</mn><mn mathsize="18px">5</mn></mfrac></math>&nbsp;</span>vermenigvuldigen</span><span></span></p>\n',
+            '<p>door 5 delen</p>\n',
+        ];
     }
 }

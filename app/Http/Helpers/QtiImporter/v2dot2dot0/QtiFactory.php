@@ -4,10 +4,13 @@
 namespace tcCore\Http\Helpers\QtiImporter\v2dot2dot0;
 
 
+use tcCore\Http\Controllers\TestQuestions\CompletionQuestionAnswersController;
 use tcCore\Http\Controllers\TestQuestions\MatchingQuestionAnswersController;
 use tcCore\Http\Controllers\TestQuestions\MultipleChoiceQuestionAnswersController;
+use tcCore\Http\Requests\CreateCompletionQuestionAnswerRequest;
 use tcCore\Http\Requests\CreateMatchingQuestionAnswerRequest;
 use tcCore\Http\Requests\CreateMultipleChoiceQuestionAnswerRequest;
+use tcCore\MatrixQuestionAnswer;
 
 class QtiFactory
 {
@@ -50,11 +53,17 @@ class QtiFactory
     private function setLookupTable(): void
     {
         $this->lookupTable = [
-            'matchInteraction' => [
+            'gapMatchInteraction' => [
                 'type' => 'MatchingQuestion',
                 'subtype' => 'Matching',
-                'class_answer_request' => new CreateMatchingQuestionAnswerRequest,
-                'class_answer_controller' => new MatchingQuestionAnswersController,
+//                'class_answer_request' => new MatrixQuestionAnswer(),
+//                'class_answer_controller' => new MatchingQuestionAnswersController,
+            ],
+            'matchInteraction' => [
+                'type' => 'MatrixQuestion',
+                'subtype' => 'SingleChoice',
+//                'class_answer_request' => new MatrixQuestionAnswer(),
+//                'class_answer_controller' => new MatchingQuestionAnswersController,
             ],
             'inlineChoiceInteraction' => [
                 'type' => 'CompletionQuestion',
@@ -67,7 +76,14 @@ class QtiFactory
                 'subtype' => 'MultipleChoice',
                 'class_answer_request' => new CreateMultipleChoiceQuestionAnswerRequest,
                 'class_answer_controller' => new MultipleChoiceQuestionAnswersController,
-            ]
+            ],
+            'textEntryInteraction' => [
+                'type' => 'CompletionQuestion',
+                'subtype' => 'completion',
+                'class_answer_request' => new CreateCompletionQuestionAnswerRequest,
+                'class_answer_controller' => new CompletionQuestionAnswersController,
+
+            ],
         ];
     }
 }

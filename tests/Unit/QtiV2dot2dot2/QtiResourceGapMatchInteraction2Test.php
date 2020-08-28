@@ -11,14 +11,9 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-/**
- * Class QtiResourceToMatchInteractionTest
- * @package Tests\Unit\QtiV2dot2dot2
- */
-class QtiResourceToMatchInteractionTest extends TestCase
+class QtiResourceGapMatchInteraction2Test extends TestCase
 {
-
-    //use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     private $instance;
 
@@ -26,17 +21,16 @@ class QtiResourceToMatchInteractionTest extends TestCase
     {
         parent::setUp();
         $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
+
         $resource = new Resource(
-            'ITM-330001',
+            'ITM-330194',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/330001.xml'),
+            storage_path('../tests/_fixtures_qti/130125.xml'),
             '1',
             '88dec4d3-997f-4d3b-95cf-3345bf3c0f4b'
         );
         $this->instance = (new QtiResource($resource))->handle();
     }
-
-
 
     /** @test */
     public function it_can_read_load_xml_using_a_resource()
@@ -48,14 +42,25 @@ class QtiResourceToMatchInteractionTest extends TestCase
     public function it_can_handle_item_attributes()
     {
         $this->assertEquals([
-            'title' => 'Stofeigenschappen',
-            'identifier' => 'ITM-330001',
-            'label' => '32k6ca',
+            'title' => '130125 structuurontwikkeling economie',
+            'identifier' => 'ITM-130125',
+            'label' => '32k9as',
             'timeDependent' => 'false',
         ], $this->instance->attributes);
 
     }
 
+    /** @test */
+    public function it_can_handle_response_processing()
+    {
+        $this->assertEquals(
+            [
+                'correct_answer' => 'B G1',
+                'score_when_correct' => '1',
+            ],
+            $this->instance->responseProcessing
+        );
+    }
 
     /** @test */
     public function it_should_select_the_correct_type_and_subtype_from_the_qti_factory()
@@ -72,33 +77,27 @@ class QtiResourceToMatchInteractionTest extends TestCase
     }
 
     /** @test */
-    public function it_can_handle_response_processing()
-    {
-        $this->assertTrue(true);
-    }
-
-    /** @test */
     public function it_can_handle_correct_response()
     {
         $this->assertEquals([
             'attributes' => [
                 'identifier' => 'RESPONSE',
                 'cardinality' => 'multiple',
-                'baseType' => 'identifier',
+                'baseType' => 'directedPair',
             ],
             'correct_response_attributes' => [
-                'interpretation' =>  'A&B&A',
+                'interpretation' => 'B G1&C G2&A G3',
             ],
             'values' => [
-                'y_A x_1',
-                'y_B x_2',
-                'y_C x_1',
+                'B G1',
+                'C G2',
+                'A G3',
             ],
             'outcome_declaration' => [
                 'attributes' => [
                     'identifier' => 'SCORE',
                     'cardinality' => 'single',
-                    'baseType' => 'integer',
+                    'baseType' => 'float',
                 ],
                 'default_value' => '0',
             ],
@@ -109,28 +108,78 @@ class QtiResourceToMatchInteractionTest extends TestCase
     public function it_can_handle_stylesheets()
     {
         $this->assertEquals(
-            [
-                [
-                    'href' => '../css/cito_itemstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => '../css/cito_userstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => "../css/cito_generated.css",
-                    'type' => "text/css",
-                ],
-            ],
+            [],
             $this->instance->stylesheets
         );
     }
 
     /** @test */
+    public function selectable_answers()
+    {
+        $this->assertEquals(3, $this->instance->getSelectableAnswers());
+    }
+
+    /** @test */
     public function it_can_handle_the_item_body()
     {
-        $this->assertTrue(true);
+        $this->assertXmlStringEqualsXmlString(
+            '<?xml version="1.0"?>
+<gapMatchInteraction id="gapMatchScoring" responseIdentifier="RESPONSE" shuffle="false">
+  <gapText identifier="A" matchMax="1">
+    <span>
+      <span>
+        <span>
+          <span>
+            <span>
+              <span>De concurrentiepositie verbetert.</span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+  </gapText>
+  <gapText identifier="B" matchMax="1">
+    <span>
+      <span>
+        <span>
+          <span>De kosten per product dalen.</span>
+        </span>
+      </span>
+    </span>
+  </gapText>
+  <gapText identifier="C" matchMax="1">
+    <span>
+      <span>
+        <span>De verkoopprijzen worden verlaagd.</span>
+      </span>
+    </span>
+  </gapText>
+  <p>
+    <span>1 De arbeidsproductiviteit stijgt.</span>
+  </p>
+  <p>
+    <span>2
+                                    <span><gap identifier="G1" required="true"/></span>
+                                </span>
+  </p>
+  <p>
+    <span>3
+                                    <span><gap identifier="G2" required="true"/></span>
+                                </span>
+  </p>
+  <p>
+    <span>4
+                                    <span><gap identifier="G3" required="true"/></span>
+                                </span>
+  </p>
+  <p>
+    <span>5 De omzet neemt toe.</span>
+  </p>
+</gapMatchInteraction>
+
+', $this->instance->interaction
+        );
     }
+
 
 }

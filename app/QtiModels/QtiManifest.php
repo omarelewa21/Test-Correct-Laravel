@@ -15,6 +15,7 @@ class QtiManifest
     protected $metaData;
     protected $resources;
     protected $originalXml;
+    public $namespaces = [];
 
 
     protected function _init()
@@ -57,7 +58,13 @@ class QtiManifest
 
     public function setOriginalXml($xml)
     {
-        $this->originalXml = simplexml_load_string($xml);
+        if ($xml instanceof \SimpleXMLElement) {
+            $this->originalXml = $xml;
+        } else {
+            $this->originalXml = simplexml_load_string($xml);
+        }
+
+        $this->namespaces = $this->originalXml->getNamespaces(true);
         $this->refreshMetaData();
         $this->refreshResources();
         return $this;
@@ -78,13 +85,31 @@ class QtiManifest
 
     private function refreshResources()
     {
-        foreach (($this->originalXml->resources->resource) as $tag=>$node) {
+        foreach (($this->originalXml->resources->resource) as $tag => $node) {
             if ($tag == 'resource') {
                 if ($resource = QtiResource::createWithSimpleXMLArrayIfPossible($node)) {
                     $this->addResource($resource);
                 }
             }
         }
+    }
+
+    public function getProperties()
+    {
+        $meta =  $this->originalXml->metadata->children('depcp', true)->metadata ;
+        return [
+            'id' => $meta->id->__toString(),
+            'name' => $meta->name->__toString(),
+            'version' => $meta->version->__toString(),
+            'guid' => $meta->guid->__toString(),
+            'testType' => $meta->testType->__toString(),
+        ];
+
+    }
+
+    public function getName() {
+        $props = $this->getProperties();
+        return sprintf('%s | %s', $props['id'], $props['name']);
     }
 
 }

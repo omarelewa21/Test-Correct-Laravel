@@ -11,15 +11,17 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceTest extends TestCase
+class QtiResourceMatchInteractionTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     private $instance;
 
     protected function setUp(): void
     {
         parent::setUp();
+        $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
+
         $resource = new Resource(
             'ITM-330001',
             'imsqti_item_xmlv2p2',
@@ -46,6 +48,29 @@ class QtiResourceTest extends TestCase
             'timeDependent' => 'false',
         ], $this->instance->attributes);
 
+    }
+
+    /** @test */
+    public function it_can_handle_response_processing()
+    {
+        $this->assertEquals(
+            ['correct_answer' => 'y_A x_1', 'score_when_correct' => '1'],
+            $this->instance->responseProcessing
+        );
+    }
+
+    /** @test */
+    public function it_should_select_the_correct_type_and_subtype_from_the_qti_factory()
+    {
+        $this->assertEquals(
+            'MatrixQuestion',
+            $this->instance->qtiQuestionTypeToTestCorrectQuestionType('type')
+        );
+
+        $this->assertEquals(
+            'SingleChoice',
+            $this->instance->qtiQuestionTypeToTestCorrectQuestionType('subtype')
+        );
     }
 
     /** @test */
@@ -96,6 +121,12 @@ class QtiResourceTest extends TestCase
             ],
             $this->instance->stylesheets
         );
+    }
+
+    /** @test */
+    public function selectable_answers()
+    {
+        $this->assertEquals(3, $this->instance->getSelectableAnswers());
     }
 
     /** @test */
@@ -154,8 +185,6 @@ class QtiResourceTest extends TestCase
 </matchInteraction>
 ',
             $this->instance->interaction);
-
-
     }
 
 

@@ -42,7 +42,7 @@ class QtiResourceToSingleChoiceWithImagesTest extends TestCase
     public function it_can_upload_images_and_change_urls_in_answers()
     {
         collect($this->instance->answersWithImages)->each(function ($html) {
-            $this->assertContains(
+            $this->assertStringContainsString(
                 '/questions/inlineimage/',
                 $html
             );

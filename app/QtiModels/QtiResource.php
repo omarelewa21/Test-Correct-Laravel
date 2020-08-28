@@ -9,6 +9,8 @@
 namespace tcCore\QtiModels;
 
 
+use tcCore\Test;
+
 class QtiResource
 {
     protected $identifier;
@@ -26,7 +28,7 @@ class QtiResource
         $this->metaData = collect([]);
     }
 
-    public function __construct($identifier, $type, $href, $version, $guid)
+    public function __construct($identifier, $type, $href, $version, $guid, $test=false)
     {
         $this->_init();
 
@@ -35,6 +37,12 @@ class QtiResource
         $this->href = $href;
         $this->version = $version;
         $this->guid = $guid;
+        if ($test === false) {
+            $test = Test::find(1);
+        }
+        $this->test = $test;
+
+        logger(sprintf('import started for resource %s, %s', $this->href, $this->type, $this->identifier));
     }
 
     public function addMetaData($key, $value)
@@ -62,6 +70,10 @@ class QtiResource
     public function getAssessmentItem()
     {
         return $this->assessmentItem;
+    }
+
+    public function getTest(){
+        return $this->test;
     }
 
     public static function createWithSimpleXMLArrayIfPossible(\SimpleXMLElement $el)
