@@ -21,6 +21,8 @@ class CreateRankingQuestionRequest extends CreateQuestionRequest {
 	{
 		$baseRules = parent::baseRules();
 
+		$this->filterInput();
+
 		return array_merge($baseRules, [
 			'type' => 'required|in:RankingQuestion',
 			'random_order' => ''

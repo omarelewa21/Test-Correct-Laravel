@@ -19,6 +19,8 @@ class CreateTestParticipantRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'test_take_id' => '',
 			'user_id' => '',

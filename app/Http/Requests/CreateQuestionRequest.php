@@ -16,7 +16,7 @@ class CreateQuestionRequest extends Request {
 
 	protected function baseRules() {
 		return [
-			'type' => 'required|in:CompletionQuestion,DrawingQuestion,MatchingQuestion,MultipleChoiceQuestion,OpenQuestion,RankingQuestion,GroupQuestion,InfoscreenQuestion',
+			'type' => 'required|in:CompletionQuestion,DrawingQuestion,MatchingQuestion,MultipleChoiceQuestion,OpenQuestion,RankingQuestion,GroupQuestion,InfoscreenQuestion,MatrixQuestion',
 			'question' => 'required',
 			'score' => 'required|integer|min:0',
 			'maintain_position' => 'required|in:0,1',
@@ -34,6 +34,8 @@ class CreateQuestionRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		$baseRules = $this->baseRules();
 
 		if ($this->has('type') && $this->input('type') !== 'Question') {

@@ -34,7 +34,7 @@ class Question extends MtiBaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_id', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','add_to_database','is_open_source_content'];
+    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_id', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -51,6 +51,11 @@ class Question extends MtiBaseModel {
     protected $attainments = null;
 
     protected $tags = null;
+
+    public static function usesDeleteAndAddAnswersMethods($questionType)
+    {
+        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion'])->contains(strtolower($questionType));
+    }
 
     public function fill(array $attributes)
     {

@@ -31,6 +31,8 @@ class DownloadFileManagementRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
         ];
     }

@@ -52,7 +52,7 @@ class StresstestSetup extends Command
         if (config('app.env') !== 'local') {
             if(!$this->hasStresstestSetup()) {
                 $this->error('You cannot perform this action on this environment! only with APP_ENV set to local AND not in production (read config:cache && route:cache)!!');
-                return false;
+                return 1;
             }
             else if($this->option('forceTeardown')){
                 $this->info('we\'re going to do a teardown first');
@@ -67,7 +67,7 @@ class StresstestSetup extends Command
                 }
                 else{
                     $this->error('Stresstest setup was cancelled by you');
-                    return false;
+                    return 1;
                 }
             }
         }
@@ -77,7 +77,7 @@ class StresstestSetup extends Command
 
         if(!file_exists($this->envFile)){
             $this->error('could not find the '.$this->envFile.' file');
-            return false;
+            return 1;
         }
 
         if(!$this->option('skipDB')){
@@ -87,7 +87,7 @@ class StresstestSetup extends Command
 
             $this->info('start refreshing database...(this can take some time as in several minutes)');
             if (!$this->handleSqlFiles($sqlImports)) {
-                return false;
+                return 1;
             }
 
             $this->addMigrations();
@@ -132,7 +132,7 @@ class StresstestSetup extends Command
         $this->info(PHP_EOL);
 
         $this->alert('You\'re ready to do the stresstest, DON\'T forget to run stresstest:cache as well if you didn\'t do so yet!!');
-        return true;
+        return 0;
     }
 
     protected function hasStresstestSetup(){

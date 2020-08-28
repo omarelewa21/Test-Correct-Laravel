@@ -108,14 +108,8 @@ class TestQuestionsController extends Controller {
                     $testQuestion->setAttribute('question_id', $question->getKey());
 
                     if ($testQuestion->save()) {
-//                        if ($request->get('type') == 'CompletionQuestion') {
-//                            /**
-//                             * we don't need to check if this works, as there's an exception thrown on failure
-//                             */
-//                            $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
-//                        }
 
-                        if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
+                        if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))) {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -148,7 +142,7 @@ class TestQuestionsController extends Controller {
 //                }
 
                 if ($testQuestion->save()) {
-                    if($request->get('type') == 'CompletionQuestion' || $request->get('type') == 'MatchingQuestion') {
+                    if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))) {
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -168,6 +162,7 @@ class TestQuestionsController extends Controller {
         }
         catch(\Exception $e){
             DB::rollback();
+            logger($e->getMessage());
             return Response::make($e->getMessage(),500);
         }
         DB::commit();
@@ -301,7 +296,7 @@ class TestQuestionsController extends Controller {
 //            DB::enableQueryLog();
             // Save the link
             if ($testQuestion->save()) {
-                if($questionInstance->type == 'CompletionQuestion' || $questionInstance->type == 'MatchingQuestion') {
+                if(Question::usesDeleteAndAddAnswersMethods($questionInstance->type)){
                     // delete old answers
                     $question->deleteAnswers($question);
 

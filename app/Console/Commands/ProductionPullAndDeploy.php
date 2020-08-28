@@ -47,14 +47,14 @@ class ProductionPullAndDeploy extends Command
 
         if (config('app.env') !== 'production') {
             $this->error('You cannot perform this action on this environment! only with APP_ENV set to production');
-            return false;
+            return 1;
         }
 
         $currentBranch = exec('git branch | grep \* | cut -d \' \' -f2');
         if($currentBranch != $this->defaultDeployBranchName){
             if(!$this->confirm('Are you sure you want to pull from the `'.$currentBranch.'` branch'.PHP_EOL.' this is NOT the `'.$this->defaultDeployBranchName.'`` branch?',false)){
                 $this->error('stop due to your call NOT to pull from  the `'.$currentBranch.'` branch`');
-                return false;
+                return 1;
             }
         }
 

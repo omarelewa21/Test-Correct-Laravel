@@ -35,6 +35,8 @@ class UpdateAddressRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'address' => '',
             'postal' => '',

@@ -19,6 +19,8 @@ class CreateSchoolLocationIpRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'name' => ''
         ];

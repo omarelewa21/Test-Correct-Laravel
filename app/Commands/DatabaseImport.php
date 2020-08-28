@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\Process\Process;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\SchoolLocation;
 use tcCore\Teacher;
@@ -43,7 +44,7 @@ class DatabaseImport
 			$file
         );
 
-        $process = new Process($command);
+        $process = Process::fromShellCommandline($command);
         $process->run();
 	}
 
@@ -79,7 +80,8 @@ class DatabaseImport
         $origUser = Auth::user();
 
 		foreach ($teacherUsers as $teacher) {
-		    Auth::loginUsingId($teacher->getKey());
+			Auth::loginUsingId($teacher->getKey());
+			ActingAsHelper::getInstance()->setUser($teacher);
 			(new DemoHelper)->createDemoForTeacherIfNeeded($teacher);
 		}
 

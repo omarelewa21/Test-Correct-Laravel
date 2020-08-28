@@ -53,7 +53,7 @@ class StresstestDatabase extends Command
 
         $this->info('start refreshing database...(this can take some time as in several minutes)');
         if(!$this->handleSqlFiles($sqlImports)){
-            return false;
+            return 1;
         }
 
         $this->addMigrations();

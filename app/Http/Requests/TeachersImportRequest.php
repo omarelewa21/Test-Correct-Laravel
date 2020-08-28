@@ -35,6 +35,8 @@ class TeachersImportRequest extends Request
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
 //		    'data.*' => 'distinct',
             'data.*.username'     => 'required|email',

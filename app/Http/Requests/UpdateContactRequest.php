@@ -35,6 +35,8 @@ class UpdateContactRequest extends Request {
      */
     public function rules()
     {
+        $this->filterInput();
+
         return [
             'name' => '',
             'address' => '',

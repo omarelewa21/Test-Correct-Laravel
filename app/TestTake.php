@@ -752,4 +752,13 @@ class TestTake extends BaseModel
         return $allowed;
     }
 
+    public function scopeNotDemo($query, $tableAlias=null)
+    {
+        if (!$tableAlias) {
+            $tableAlias = $this->getTable();
+        }
+
+        return $query->where(sprintf('%s.demo', $tableAlias), 0);
+    }
+
 }

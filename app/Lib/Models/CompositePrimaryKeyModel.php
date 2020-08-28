@@ -4,6 +4,7 @@ namespace tcCore\Lib\Models;
 
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 
 /**
  * Class CompositePrimaryKeyModel
@@ -222,7 +223,7 @@ abstract class CompositePrimaryKeyModel extends BaseModel {
 
         $except = $except ?: $defaults;
 
-        $attributes = array_except($this->attributes, $except);
+        $attributes = Arr::except($this->attributes, $except);
 
         with($instance = new static)->setRawAttributes($attributes);
 

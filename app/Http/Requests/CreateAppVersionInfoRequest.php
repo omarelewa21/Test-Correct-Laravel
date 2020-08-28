@@ -19,6 +19,8 @@ class CreateAppVersionInfoRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'os' => 'required',
             'version' => 'required',

@@ -35,7 +35,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['single', 'bugsnag'],
         ],
 
         'single' => [
@@ -57,6 +57,10 @@ return [
             'username' => 'Laravel Log',
             'emoji' => ':boom:',
             'level' => 'critical',
+        ],
+
+        'bugsnag' => [
+            'driver' => 'bugsnag',
         ],
 
         'stderr' => [

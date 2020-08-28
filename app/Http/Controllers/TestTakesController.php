@@ -21,6 +21,7 @@ use tcCore\TestTake;
 use tcCore\Http\Requests\CreateTestTakeRequest;
 use tcCore\Http\Requests\UpdateTestTakeRequest;
 use tcCore\TestTakeStatus;
+use tcCore\Exports\TestTakesExport;
 
 class TestTakesController extends Controller {
 
@@ -957,203 +958,195 @@ class TestTakesController extends Controller {
 			$query->orderBy('level');
 		}]);
 
-		$excel = Excel::create('Export', function($excel) use ($testTake, $questions) {
-			$excel->sheet('Export', function($sheet) use ($testTake, $questions) {
-				$testParticipantsAnswers = [];
-				$questionsNotIgnored = [];
+		$sheet = [];
 
-				foreach ($testTake->testParticipants as $testParticipant) {
-					foreach($testParticipant->answers as $answer) {
-						if ($answer->getAttribute('ignore_for_rating')) {
-							continue;
-						}
+		$testParticipantsAnswers = [];
+		$questionsNotIgnored = [];
 
-						$answerDottedId = null;
-						foreach ($answer->answerParentQuestions as $answerParentQuestion) {
-							if ($answerDottedId !== null) {
-								$answerDottedId .= '.';
-							}
-							$answerDottedId .= $answerParentQuestion->getAttribute('group_question_id');
-						}
-
-						if ($answerDottedId !== null) {
-							$answerDottedId .= '.';
-						}
-						$answerDottedId .= $answer->getAttribute('question_id');
-
-						$testParticipantsAnswers[$testParticipant->getKey()][$answerDottedId] = $answer;
-						if (!in_array($answerDottedId, $questionsNotIgnored)) {
-							$questionsNotIgnored[] = $answerDottedId;
-						}
-					}
+		foreach ($testTake->testParticipants as $testParticipant) {
+			foreach($testParticipant->answers as $answer) {
+				if ($answer->getAttribute('ignore_for_rating')) {
+					continue;
 				}
 
-				$header = ['Studentnummer', 'Voornaam', 'Tussenvoegsels', 'Achternaam', 'Cijfer', 'Score', 'R-score', 'T1-score', 'T2-score', 'I-score', '?-score'];
-				$questionNumber = 0;
-				$scoreMax = 0;
-				$rScoreMax = 0;
-				$t1ScoreMax = 0;
-				$t2ScoreMax = 0;
-				$iScoreMax = 0;
-				$nScoreMax = 0;
-				foreach($questions as $questionDottedId => $question) {
-					$questionNumber++;
-
-					if (!in_array($questionDottedId, $questionsNotIgnored)) {
-						continue;
+				$answerDottedId = null;
+				foreach ($answer->answerParentQuestions as $answerParentQuestion) {
+					if ($answerDottedId !== null) {
+						$answerDottedId .= '.';
 					}
-					$scoreMax += $question->getAttribute('score');
+					$answerDottedId .= $answerParentQuestion->getAttribute('group_question_id');
+				}
 
+				if ($answerDottedId !== null) {
+					$answerDottedId .= '.';
+				}
+				$answerDottedId .= $answer->getAttribute('question_id');
+
+				$testParticipantsAnswers[$testParticipant->getKey()][$answerDottedId] = $answer;
+				if (!in_array($answerDottedId, $questionsNotIgnored)) {
+					$questionsNotIgnored[] = $answerDottedId;
+				}
+			}
+		}
+
+		$header = ['Studentnummer', 'Voornaam', 'Tussenvoegsels', 'Achternaam', 'Cijfer', 'Score', 'R-score', 'T1-score', 'T2-score', 'I-score', '?-score'];
+		$questionNumber = 0;
+		$scoreMax = 0;
+		$rScoreMax = 0;
+		$t1ScoreMax = 0;
+		$t2ScoreMax = 0;
+		$iScoreMax = 0;
+		$nScoreMax = 0;
+		foreach($questions as $questionDottedId => $question) {
+			$questionNumber++;
+
+			if (!in_array($questionDottedId, $questionsNotIgnored)) {
+				continue;
+			}
+			$scoreMax += $question->getAttribute('score');
+
+			switch($question->getAttribute('rtti')) {
+				case 'R':
+					$rScoreMax += $question->getAttribute('score');
+					break;
+				case 'T1':
+					$t1ScoreMax += $question->getAttribute('score');
+					break;
+				case 'T2':
+					$t2ScoreMax += $question->getAttribute('score');
+					break;
+				case 'I':
+					$iScoreMax += $question->getAttribute('score');
+					break;
+				default:
+					$nScoreMax += $question->getAttribute('score');
+					break;
+			}
+
+			if ($question->getAttribute('rtti') === null) {
+				$header[] = $questionNumber.' (?)';
+			} else {
+				$header[] = $questionNumber.' ('.$question->getAttribute('rtti').')';
+			}
+		}
+		$sheet[] = $header;
+
+		foreach ($testTake->testParticipants as $testParticipant) {
+			$score = 0;
+			$rScore = 0;
+			$t1Score = 0;
+			$t2Score = 0;
+			$iScore = 0;
+			$nScore = 0;
+			$row = [];
+
+			foreach($questions as $questionDottedId => $question) {
+				if (!in_array($questionDottedId, $questionsNotIgnored)) {
+					continue;
+				}
+
+				if (array_key_exists($testParticipant->getKey(), $testParticipantsAnswers) && array_key_exists($questionDottedId, $testParticipantsAnswers[$testParticipant->getKey()])) {
+					$answer = $testParticipantsAnswers[$testParticipant->getKey()][$questionDottedId];
+
+					$answerScore = $answer->getAttribute('final_rating');
+
+					if ($answerScore === null) {
+						$answerScore = $answer->calculateFinalRating();
+						if ($answerScore !== null) {
+							$answer->setAttribute('final_rating', $answerScore);
+						}
+					}
+
+					$row[] = $answerScore;
+					$score += $answerScore;
 					switch($question->getAttribute('rtti')) {
 						case 'R':
-							$rScoreMax += $question->getAttribute('score');
+							$rScore += $answerScore;
 							break;
 						case 'T1':
-							$t1ScoreMax += $question->getAttribute('score');
+							$t1Score += $answerScore;
 							break;
 						case 'T2':
-							$t2ScoreMax += $question->getAttribute('score');
+							$t2Score += $answerScore;
 							break;
 						case 'I':
-							$iScoreMax += $question->getAttribute('score');
+							$iScore += $answerScore;
 							break;
 						default:
-							$nScoreMax += $question->getAttribute('score');
+							$nScore += $answerScore;
 							break;
 					}
-
-					if ($question->getAttribute('rtti') === null) {
-						$header[] = $questionNumber.' (?)';
-					} else {
-						$header[] = $questionNumber.' ('.$question->getAttribute('rtti').')';
-					}
+				} else {
+					$row[] = '-';
 				}
-				$sheet->appendRow($header);
+			}
 
-				foreach ($testTake->testParticipants as $testParticipant) {
-					$score = 0;
-					$rScore = 0;
-					$t1Score = 0;
-					$t2Score = 0;
-					$iScore = 0;
-					$nScore = 0;
-					$row = [];
+			if ($rScoreMax === 0) {
+				$rScore = '-';
+			} else {
+				$rScore = (float) $rScore;
+				$rScore /= (float) $rScoreMax;
+				$rScore *= 100;
+				$rScore = round($rScore);
+			}
 
-					foreach($questions as $questionDottedId => $question) {
-						if (!in_array($questionDottedId, $questionsNotIgnored)) {
-							continue;
-						}
+			if ($t1ScoreMax === 0) {
+				$t1Score = '-';
+			} else {
+				$t1Score = (float) $t1Score;
+				$t1Score /= (float) $t1ScoreMax;
+				$t1Score *= 100;
+				$t1Score = round($t1Score);
+			}
 
-						if (array_key_exists($testParticipant->getKey(), $testParticipantsAnswers) && array_key_exists($questionDottedId, $testParticipantsAnswers[$testParticipant->getKey()])) {
-							$answer = $testParticipantsAnswers[$testParticipant->getKey()][$questionDottedId];
+			if ($t2ScoreMax === 0) {
+				$t2Score = '-';
+			} else {
+				$t2Score = (float) $t2Score;
+				$t2Score /= (float) $t2ScoreMax;
+				$t2Score *= 100;
+				$t2Score = round($t2Score);
+			}
 
-							$answerScore = $answer->getAttribute('final_rating');
+			if ($iScoreMax === 0) {
+				$iScore = '-';
+			} else {
+				$iScore = (float) $iScore;
+				$iScore /= (float) $iScoreMax;
+				$iScore *= 100;
+				$iScore = round($iScore);
+			}
 
-							if ($answerScore === null) {
-								$answerScore = $answer->calculateFinalRating();
-								if ($answerScore !== null) {
-									$answer->setAttribute('final_rating', $answerScore);
-								}
-							}
+			if ($nScoreMax === 0) {
+				$nScore = '-';
+			} else {
+				$nScore = (float) $nScore;
+				$nScore /= (float) $nScoreMax;
+				$nScore *= 100;
+				$nScore = round($nScore);
+			}
 
-							$row[] = $answerScore;
-							$score += $answerScore;
-							switch($question->getAttribute('rtti')) {
-								case 'R':
-									$rScore += $answerScore;
-									break;
-								case 'T1':
-									$t1Score += $answerScore;
-									break;
-								case 'T2':
-									$t2Score += $answerScore;
-									break;
-								case 'I':
-									$iScore += $answerScore;
-									break;
-								default:
-									$nScore += $answerScore;
-									break;
-							}
-						} else {
-							$row[] = '-';
-						}
-					}
+			array_unshift($row,
+				$testParticipant->user->getAttribute('external_id'),
+				$testParticipant->user->getAttribute('name_first'),
+				$testParticipant->user->getAttribute('name_suffix'),
+				$testParticipant->user->getAttribute('name'),
+				$testParticipant->user->getAttribute('rating'),
+				$score,
+				$rScore,
+				$t1Score,
+				$t2Score,
+				$iScore,
+				$nScore
+			);
 
-					if ($rScoreMax === 0) {
-						$rScore = '-';
-					} else {
-						$rScore = (float) $rScore;
-						$rScore /= (float) $rScoreMax;
-						$rScore *= 100;
-						$rScore = round($rScore);
-					}
+			$sheet[] = $row;
+		}
 
-					if ($t1ScoreMax === 0) {
-						$t1Score = '-';
-					} else {
-						$t1Score = (float) $t1Score;
-						$t1Score /= (float) $t1ScoreMax;
-						$t1Score *= 100;
-						$t1Score = round($t1Score);
-					}
+		$export = new TestTakesExport($sheet);
 
-					if ($t2ScoreMax === 0) {
-						$t2Score = '-';
-					} else {
-						$t2Score = (float) $t2Score;
-						$t2Score /= (float) $t2ScoreMax;
-						$t2Score *= 100;
-						$t2Score = round($t2Score);
-					}
+		return Excel::download($export, 'export.csv');
 
-					if ($iScoreMax === 0) {
-						$iScore = '-';
-					} else {
-						$iScore = (float) $iScore;
-						$iScore /= (float) $iScoreMax;
-						$iScore *= 100;
-						$iScore = round($iScore);
-					}
-
-					if ($nScoreMax === 0) {
-						$nScore = '-';
-					} else {
-						$nScore = (float) $nScore;
-						$nScore /= (float) $nScoreMax;
-						$nScore *= 100;
-						$nScore = round($nScore);
-					}
-
-					array_unshift($row,
-						$testParticipant->user->getAttribute('external_id'),
-						$testParticipant->user->getAttribute('name_first'),
-						$testParticipant->user->getAttribute('name_suffix'),
-						$testParticipant->user->getAttribute('name'),
-						$testParticipant->user->getAttribute('rating'),
-						$score,
-						$rScore,
-						$t1Score,
-						$t2Score,
-						$iScore,
-						$nScore
-					);
-
-					$sheet->appendRow($row);
-				}
-
-			});
-		});
-
-		$response = response()->make($excel->string('csv'), 200, [
-			'Content-Type'        => 'application/csv; charset=UTF-8',
-			'Expires'             => 'Thu, 1 Jan 1970 00:00:00 GMT', // Date in the past
-			'Last-Modified'       => Carbon::now()->format('D, d M Y H:i:s'),
-			'Cache-Control'       => 'cache, must-revalidate',
-			'Pragma'              => 'public'
-		]);
-
-		return $response;
 	}
 
 	/**

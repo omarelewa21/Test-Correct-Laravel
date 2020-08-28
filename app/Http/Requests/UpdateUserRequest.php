@@ -55,6 +55,8 @@ class UpdateUserRequest extends Request {
 	 */
 	public function rules()
 	{
+		$this->filterInput();
+
 		return [
 			'username' => 'sometimes|required|email|unique:users,username,'.$this->user->getKey().','.$this->user->getKeyName().',deleted_at,NULL',
 			'name_first' => '',
