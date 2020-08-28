@@ -112,4 +112,8 @@ class QtiManifest
         return sprintf('%s | %s', $props['id'], $props['name']);
     }
 
+    public function getId(){
+        return $this->getProperties()['id'];
+    }
+
 }

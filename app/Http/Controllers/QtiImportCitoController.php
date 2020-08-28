@@ -362,7 +362,7 @@ class QtiImportCitoController extends Controller
         $this->manifest = (new QtiManifest())->setOriginalXml($xml);
 
         // add the test
-        $test = $this->addTest($xml);
+        $test = $this->addTest($xml, ['metadata' => 'cito']);
         $this->currentTest->name = $test->name;
 
         // we need to set the auth user to the user we want to import the
@@ -375,11 +375,11 @@ class QtiImportCitoController extends Controller
         foreach ($this->manifest->getResources() as $resourceInfo) {
 
             $resource = new Resource(
-                'ITM-330194',
+                $resourceInfo->identifier,
                 'imsqti_item_xmlv2p2',
                 sprintf('%s/%s/%s', $this->packageDir, 'zipdir', $resourceInfo->href),
                 '1',
-                '88dec4d3-997f-4Fd3b-95cf-3345bf3c0f4b',
+                $resourceInfo->guid,
                 $test
             );
             $this->instance = (new QtiResource($resource))->handle();
@@ -425,6 +425,8 @@ class QtiImportCitoController extends Controller
                         'is_open_source_content' => 0,
                         'shuffle' => $shuffle,
                         'introduction' => '',
+                        // todo needs change when manifest harbors multiple tests;
+                        'external_id' => $this->manifest->getId(),
                     ],
                     $overrides
                 )

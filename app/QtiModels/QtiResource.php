@@ -13,11 +13,11 @@ use tcCore\Test;
 
 class QtiResource
 {
-    protected $identifier;
-    protected $type;
+    public $identifier;
+    public $type;
     public $href;
     protected $version;
-    protected $guid;
+    public $guid;
 
     protected $metaData;
 

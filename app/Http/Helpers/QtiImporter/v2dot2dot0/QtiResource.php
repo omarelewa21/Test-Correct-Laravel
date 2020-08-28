@@ -45,6 +45,7 @@ class QtiResource
     /** @var QtiFactory */
     private $qtiFactory;
     public $answers = [];
+    private $patternMask = false;
 
 
     public function __construct(ResourceModel $resource)
@@ -279,6 +280,11 @@ class QtiResource
                     'correct' => false,
                     'patternMask' => $interaction['patternMask']->__toString()
                 ];
+
+                if ($interaction['patternMask']->__toString()) {
+                    $this->patternMask = $interaction['patternMask']->__toString();
+                }
+
                 $domElement = dom_import_simplexml($interaction);
                 $parent = $domElement->parentNode;
 
@@ -315,8 +321,7 @@ class QtiResource
         );
     }
 
-    public
-    function getSelectableAnswers()
+    public function getSelectableAnswers()
     {
         if (is_array($this->responseDeclaration['values']) && $count = count($this->responseDeclaration['values'])) {
             return $count;
@@ -347,6 +352,8 @@ class QtiResource
             'rtti' => null,
             'test_id' => $this->resource->getTest()->getKey(),
             'user' => Auth::user()->username,//"d1@test-correct.nl",
+            'metadata' => $this->getMetadata(),
+            'external_id' => $this->resource->identifier,
         ])->merge(
             $this->mergeExtraTestQuestionAttributes()
         );
@@ -590,5 +597,15 @@ class QtiResource
             $styleNode->nodeValue = $content->implode(PHP_EOL);
             $dom1->documentElement->appendChild($styleNode);
         }
+    }
+
+    private function getMetadata()
+    {
+        $metaTags = collect(['cito']);
+        if ($this->patternMask) {
+            $metaTags->add($this->patternMask);
+        }
+
+        return $metaTags->implode('|');
     }
 }
