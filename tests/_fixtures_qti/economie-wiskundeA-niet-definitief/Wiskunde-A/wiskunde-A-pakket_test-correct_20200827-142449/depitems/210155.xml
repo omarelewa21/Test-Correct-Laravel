@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="normale verdeling-vuistregels en betrouwbaarheidsintervallen 4" identifier="ITM-210155" label="32k8nb" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="183.2"><value>183.2</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="string"><correctResponse interpretation="184.4"><value>184.4</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><img id="Id-IMG_d3f23ca8-c1cd-433b-8891-f9f218ae1301" src="../img/210155_stam.PNG" width="474" height="215" alt=""/></p> <p/><p>In de tabel staan, behalve de aantallen, ook het gemiddelde en de standaardafwijking van de lichaamslengte van een bepaalde groep van mannelijke en vrouwelijke studenten. Neem aan dat de gegevens aselect en representatief zijn voor alle studenten in Nederland.</p><p><img id="Id-IMG_200a457f-c6e8-4ba8-b964-d7a83d987129" src="../img/210150_stam2.PNG" width="386" height="83" alt=""/> </p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong>Bereken het 95%-betrouwbaarheidsinterval voor de lichaamslengte van mannelijke studenten in Nederland. <br/>Geef de grenzen in één decimaal.</strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p>[ <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="9"/> ; <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE2" expectedLength="9"/> ]</p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE"/></customOperator><baseValue baseType="float">183.2</baseValue></equal><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE2"/></customOperator><baseValue baseType="float">184.4</baseValue></equal></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

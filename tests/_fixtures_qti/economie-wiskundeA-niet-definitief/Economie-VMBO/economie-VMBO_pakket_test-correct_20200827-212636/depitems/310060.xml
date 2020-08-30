@@ -1,0 +1,49 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Collectieve sector" identifier="ITM-310060" label="32k9cq" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p>Als het lukt om meer jongeren in Nederland aan betaald werk te helpen, heeft dit invloed op de verhouding niet-actieven en actieven (de i/a-ratio) en daarmee op de betaalbaarheid van de sociale zekerheid in Nederland.</p><p>De i/a-ratio wordt berekend door het aantal niet-actieven te delen door het aantal actieven.</p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span><span><span>Maak elke zin compleet.</span></span></span></strong></p><p>Door de groei van het aantal jongeren met betaald werk wordt de i/a-ratio <inlineChoiceInteraction id="I6d657679-a25c-4df2-b826-59ff2dc4286d" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>hoger</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>lager</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>. <br/>Hierdoor <inlineChoiceInteraction id="Ia1a69c90-61f2-48f2-a1f4-ee99c8de7365" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>daalt</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>stijgt</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction> de betaalbaarheid van de sociale zekerheid in Nederland.</p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">B</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">B</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

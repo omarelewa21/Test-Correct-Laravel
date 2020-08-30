@@ -1,0 +1,53 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Ontwikkelingslanden" identifier="ITM-310076" label="32k98u" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="A"><value>A</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span>De inkomensverdeling in ontwikkelingslanden is vaak anders dan in westerse landen.</span></p><p><span>Hier zie je een Lorenzcurve met de inkomensverdeling tussen lage en hoge inkomens: één lijn is van een westers land en één lijn is van een ontwikkelingsland.</span></p><p><img id="Id-IMG_f7fca425-72ab-40c0-8810-41098fa68f76" src="../img/mwt20ecvmbo-310076.jpg" width="333" height="267" alt=""/> </p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span><span><span>Maak elke zin compleet.</span></span></span></strong></p><p><span><span><span>De lijn van het ontwikkelingsland is de <inlineChoiceInteraction id="I926eb9d0-cf60-4782-bd47-29fecf903119" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>blauwe gestippelde lijn</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>zwarte rechte lijn</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>roze gestreepte</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>. <br/>Dit betekent dat de inkomensverdeling in dit land <inlineChoiceInteraction id="Ie5d4127f-4de6-4355-88e9-995677b331b1" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>gelijkmatiger</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>ongelijkmatiger</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction> is dan in het westerse land.</span></span></span></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">A</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">B</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

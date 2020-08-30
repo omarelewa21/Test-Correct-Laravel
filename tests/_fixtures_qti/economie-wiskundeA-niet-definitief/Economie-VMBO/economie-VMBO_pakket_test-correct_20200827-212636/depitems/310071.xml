@@ -1,0 +1,57 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="De Europese Unie" identifier="ITM-310071" label="32k98s" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="A"><value>A</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p>Onderstaand schema stelt de handel voor in hetzelfde goed tussen verschillende landen van de Europese Unie (EU) onderling en tussen EU-landen en niet-EU landen.<br/><br/>Er gelden <span><span>mogelijke invoertarieven van 0% of 6%.</span></span></p><p><span><span><img id="Id-IMG_c98a1931-230c-4c0e-9cd4-5eb429e66392" src="../img/mwt20ecvmbo-310071.jpg" width="375" height="223" alt=""/></span></span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span><span><span>Maak elke zin compleet.</span></span></span></strong></p><p><span><span><span>Het invoertarief bij pijl 1 bedraagt <inlineChoiceInteraction id="Iaff10028-6992-417f-a1a2-a5e9749aabd6" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>0%</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>6%</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>0% óf 6%</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>.<br/></span></span></span><span><span><span>Het invoertarief bij pijl 2 bedraagt <inlineChoiceInteraction id="Ib5f5f52a-166a-4dab-8cce-2145ddcc85be" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>0%</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>6%</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>0% óf 6%</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>.</span></span></span></p><p><span><span/></span></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">A</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">B</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

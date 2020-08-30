@@ -1,0 +1,42 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Nederland in het buitenland" identifier="ITM-310070" label="32k99h" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated_310070.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+            <div id="body">
+						<p>In 2015 bedroeg de export van Nederland naar de VS € 4 miljard. Nederland importeerde in dat jaar vanuit de VS voor € 27 miljard.</p>
+					</div>
+
+					<div id="question">
+						<p><strong><span><span>Wat was in 2015 het gevolg voor de Nederlandse betalingsbalans van deze import en export met de VS en waarom?</span></span></strong></p>
+					</div>
+
+					<div id="mc">
+				
+<choiceInteraction id="choiceInteraction1" maxChoices="1" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p><span><span><span><span><span>Een negatief gevolg, want de exportwaarde is groter dan de importwaarde.</span></span></span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span>Een negatief gevolg, want de importwaarde is groter dan de exportwaarde.</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span>Een positief gevolg, want de exportwaarde is groter dan de importwaarde.</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="D"><p><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span>Een positief gevolg, want de importwaarde is groter dan de exportwaarde.</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></p></simpleChoice>
+			  
+						</choiceInteraction>
+
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><member><baseValue baseType="identifier">B</baseValue><variable identifier="RESPONSE"/></member><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

@@ -1,0 +1,59 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Kopen en ruilen" identifier="ITM-310001" label="32k8pk" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE3" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p>Om een financieel overzicht te krijgen gaat Meike met haar bankrekeningen na waar zij haar inkomen aan uitgeeft.</p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span>Maak elke zin compleet.</span></strong></p><p>Een tekort op een bankrekening noemen we een <inlineChoiceInteraction id="I751c7ec7-cc21-45b9-9abc-39f3e51af379" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>creditsaldo</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>debetsaldo</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>. <br/>Vooral <inlineChoiceInteraction id="Ic7e5d54a-fda7-498d-b19e-bfc189d2288a" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>huishoudelijke uitgaven</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span><span>vaste lasten</span></span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction> worden automatisch van de bankrekening afgeschreven. <br/>Op een bankrekeningoverzicht kan ze volgen waaraan zij <inlineChoiceInteraction id="Ic943caca-0c68-4c9d-9d81-7318c98a71fc" responseIdentifier="RESPONSE3" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>chartale</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span><span>girale</span></span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction> betalingen heeft gedaan.</p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">B</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">B</baseValue></match><match><variable identifier="RESPONSE3"/><baseValue baseType="identifier">B</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

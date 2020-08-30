@@ -1,0 +1,57 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Arbeidsmarkt" identifier="ITM-310045" label="32k8yt" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="C"><value>C</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p>Bij een bedrijf dat telefoonhoesjes maakt, werken 50 mensen. Deze werknemers werken allemaal 40 uur per week. De directie besluit alle werknemers 10% korter te laten werken. De vrijgekomen uren worden volledig ingevuld door nieuwe werknemers.</p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span><span><span>Maak elke zin compleet.</span></span></span></strong></p><p><span><span><span><span>Het directiebesluit zorgt ervoor dat de werkgelegenheid in personen <inlineChoiceInteraction id="Ie6bd695c-43bf-41ad-8c2a-7e77e9fcfffa" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>daalt</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>stijgt</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>gelijk blijft</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>.<br/></span></span></span></span><span><span><span><span>Het directiebesluit zorgt ervoor dat de werkgelegenheid in manuren <inlineChoiceInteraction id="Ic3955175-2f21-4101-aebd-21c191b613fa" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>daalt</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>stijgt</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>gelijk blijft</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>.</span></span></span></span></p><p><span><span><span><span/></span></span></span><span><span><span><span/></span></span></span></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">B</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">C</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

@@ -1,0 +1,57 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Arbeidsmarkt" identifier="ITM-310044" label="32k8ys" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="D"><value>D</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span><span>In het dorp </span><span>Selo </span>is één fabriek, waar alleen mensen uit het dorp werken. Mensen uit <span>Selo </span>werken uitsluitend bij deze fabriek. Werken ze daar niet, dan zijn ze werkloos. </span><span>Jacob werkt al bij de fabriek, Hermien is werkloos. Hermien heeft gesolliciteerd op een vacature bij de fabriek.</span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span><span><span>Maak elke zin compleet.</span></span></span></strong></p><p><span><span><span><span>Het aanbod van arbeid in <span>het dorp Selo</span><span> </span>komt van <inlineChoiceInteraction id="If5f978e9-e71c-4b99-9836-9b539957cf82" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>het bedrijf</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>Jacob</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>Hermien</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="D">
+            <span>Jacob én Hermien</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>. <br/></span></span></span></span><span><span><span><span>In geval van werkloosheid in <span>Selo</span><span> </span>is de vraag naar arbeid <inlineChoiceInteraction id="Id7615693-78e7-441c-9ff3-7125e2e8c00d" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>groter</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>kleiner</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction> dan het aanbod van arbeid.</span></span></span></span></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">D</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">B</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

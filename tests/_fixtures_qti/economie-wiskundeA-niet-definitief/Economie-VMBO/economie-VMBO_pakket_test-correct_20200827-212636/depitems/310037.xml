@@ -1,0 +1,42 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Productie en Werk" identifier="ITM-310037" label="32k8w6" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="C"><value>C</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated_310037.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+            <div id="body">
+						<p><span>Tijdens een internationale crisis werden er in een fabrike geen landbouwwerktuigen geproduceerd.<br/></span><span>De reden hiervoor was een gevolg van de internationale arbeidsverdeling tussen bedrijven. </span></p>
+					</div>
+
+					<div id="question">
+						<p><strong><span><span><span><span><span><span><span>Door welke reden kon de fabriek geen landbouwwerktuigen meer produceren?</span></span></span></span></span></span></span></strong></p>
+					</div>
+
+					<div id="mc">
+				
+<choiceInteraction id="choiceInteraction1" maxChoices="1" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p><span>Door concurrentie uit andere landen waar de crisis heerste, werden de landbouwwerktuigen te duur.</span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span>Het werk kon door de crisis niet onder de eigen werknemers worden verdeeld.</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span>Onderdelen uit andere landen waar de crisis heerste, konden niet worden geleverd.</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="D"><p><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span><span>Werknemers uit andere landen waar de crisis heerste, konden het werk goedkoper doen.</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></p></simpleChoice>
+			  
+						</choiceInteraction>
+
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><member><baseValue baseType="identifier">C</baseValue><variable identifier="RESPONSE"/></member><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

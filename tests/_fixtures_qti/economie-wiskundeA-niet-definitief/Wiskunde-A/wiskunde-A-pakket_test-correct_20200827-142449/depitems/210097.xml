@@ -1,0 +1,42 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="toenamediagram-gemiddelde verandering 1" identifier="ITM-210097" label="32k9d3" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="multiple" baseType="identifier"><correctResponse interpretation="A&amp;C"><value>A</value><value>C</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated_210097.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+            <div id="body">
+						<p><img id="Id-IMG_719b7cdc-0a06-4011-8d56-8dbff133e03f" src="../img/mwt20wisAhv-5a-1.jpg" width="335" height="306" alt=""/></p><p>Zie het toenamediagram. Dit diagram past bij het verloop van een verband tussen <m:math><m:mi>K</m:mi></m:math><span/><span><span> </span>en <m:math><m:mi>t</m:mi></m:math></span><span/><span>.</span><span>   </span></p>
+					</div>
+
+					<div id="question">
+						<p><strong>Welke van de volgende situaties is mogelijk bij de grafiek van dit verband bij <m:math><m:mi>t</m:mi><m:mo>=</m:mo><m:mn>4</m:mn></m:math><span> </span><span>? <br/>Geef alle mogelijkheden aan.</span></strong></p>
+					</div>
+
+					<div id="mc">
+				
+<choiceInteraction id="choiceInteraction1" maxChoices="4" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p><span>De grafiek is daar even hoog als bij <m:math><m:mi>t</m:mi><m:mo>=</m:mo><m:mn>3</m:mn></m:math></span><span/>  </p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p>De grafiek heeft daar een minimum</p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p>De grafiek heeft daar een maximum</p></simpleChoice>
+			  
+				  <simpleChoice identifier="D"><p>De grafiek heeft daar een nulpunt</p></simpleChoice>
+			  
+						</choiceInteraction>
+
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><member><baseValue baseType="identifier">A</baseValue><variable identifier="RESPONSE"/></member><not><member><baseValue baseType="identifier">B</baseValue><variable identifier="RESPONSE"/></member></not><member><baseValue baseType="identifier">C</baseValue><variable identifier="RESPONSE"/></member><not><member><baseValue baseType="identifier">D</baseValue><variable identifier="RESPONSE"/></member></not></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

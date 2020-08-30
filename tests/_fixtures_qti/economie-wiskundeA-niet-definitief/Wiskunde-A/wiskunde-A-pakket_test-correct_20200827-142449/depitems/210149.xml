@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="diagrammen, centrum- en spreidingsmaten 3" identifier="ITM-210149" label="32k8n6" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="110"><value>110</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="string"><correctResponse interpretation="120"><value>120</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span>De resultaten van een onderzoek naar de IQ van een groep leerlingen staan in de cumulatieve relatieve frequentiepolygoon.</span></p><p><span/><img id="Id-IMG_5223a16f-1874-4261-bf5a-8f02f6086bc9" src="../img/mwt20wisAhv-8a-3.jpg" width="419" height="232" alt=""/>  </p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong>Vul in:</strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p>de modale klasse is [ <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="9"/> ; <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE2" expectedLength="9"/> &gt;</p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE"/></customOperator><baseValue baseType="float">110</baseValue></equal><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE2"/></customOperator><baseValue baseType="float">120</baseValue></equal></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>
