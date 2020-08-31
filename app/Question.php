@@ -34,7 +34,7 @@ class Question extends MtiBaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_id', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content', 'metadata', 'external_id'];
+    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_id', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content', 'metadata', 'external_id','scope'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -418,6 +418,7 @@ class Question extends MtiBaseModel {
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
+
         $joins = [];
 
         // Have to apply search filter first due to subquery left join with parameters
@@ -669,8 +670,7 @@ class Question extends MtiBaseModel {
             }
         }
 
-        // don't show questions from the cito import
-        $query->where('metadata','not like','%cito%');
+
         return $query;
     }
 
