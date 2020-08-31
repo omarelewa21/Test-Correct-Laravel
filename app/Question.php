@@ -669,6 +669,8 @@ class Question extends MtiBaseModel {
             }
         }
 
+        // don't show questions from the cito import
+        $query->where('metadata','not like','%cito%');
         return $query;
     }
 
