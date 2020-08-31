@@ -14,7 +14,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceToCompetionQuestionWithPatternMaskTest extends TestCase
 {
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
     private $instance;
 
@@ -160,6 +160,12 @@ class QtiResourceToCompetionQuestionWithPatternMaskTest extends TestCase
             'De algemene bank ALB moet',
             ($instance->question)
         );
+
+        $this->assertStringContainsString(
+            '[1]',
+            ($instance->question)
+        );
+
     }
 
     /** @test */

@@ -192,7 +192,6 @@ class QtiResource
         $dom1->formatOutput = false;
         $dom1->loadXML($this->xml->itemBody->children()[0]->asXML());
 
-
         $this->addStylesheetsToBody($dom1);
 
         $this->question_xml = $dom1->saveXML();
@@ -272,6 +271,7 @@ class QtiResource
             $nodes = $this->xml->itemBody->xPath('//' . $this->itemType);
             $this->interaction = $nodes[0]->asXML();
 
+
             foreach ($nodes as $interaction) {
                 $result = [];
                 $result[] = [
@@ -289,10 +289,9 @@ class QtiResource
                 $parent = $domElement->parentNode;
 
                 if ($result) {
-                    $pipeString = collect($result)->map(function ($response) {
-                        return $response['value'];
-                    })->implode('|');
-                    $newNode = $domElement->ownerDocument->createTextNode(sprintf('[%s]', $pipeString));
+                    $correctAnswer = $this->responseDeclaration['values'][0];
+
+                    $newNode = $domElement->ownerDocument->createTextNode(sprintf('[%s]', $correctAnswer));
                     $parent->insertBefore($newNode, $domElement);
                 }
                 $parent->removeChild($domElement);
@@ -477,6 +476,7 @@ class QtiResource
             return ["answers" => $answers];
         }
         if ($this->itemType === 'matchInteraction') {
+
             $dom = simplexml_load_string($this->interaction);
 
 
@@ -578,8 +578,10 @@ class QtiResource
     private function addStylesheetsToBody(DOMDocument $dom1)
     {
         $content = collect($this->stylesheets)->map(function ($path) {
-//            $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
             $pathToStylesheet = sprintf('%s/%s', $this->baseDir, $path['href']);
+            if(app()->runningUnitTests()) {
+                $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
+            }
             // remove depitems folder;
             $pathToStylesheet = str_replace('/Test-maatwerktoetsen_v01/depitems', '', $pathToStylesheet);
             if ($c = file_get_contents($pathToStylesheet)) {
