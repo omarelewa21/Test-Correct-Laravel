@@ -6,6 +6,7 @@
 	"type": "project",
 	"require": {
 		"php": "^7.2.5",
+		"bugsnag/bugsnag-laravel": "^2.0",
 		"doctrine/dbal": "^2.9",
 		"dyrynda/laravel-efficient-uuid": "^4.1",
 		"dyrynda/laravel-model-uuid": "^6.2",
@@ -16,8 +17,6 @@
 		"laravel/tinker": "^2.4",
 		"maatwebsite/excel": "^3.1",
 		"mews/purifier": "^3.2",
-		"zanysoft/laravel-zip": "^1.0",
-		"bugsnag/bugsnag-laravel": "^2.0",
 		"ramsey/uuid": "^4.1",
 		"zanysoft/laravel-zip": "^1.0"
 	},
