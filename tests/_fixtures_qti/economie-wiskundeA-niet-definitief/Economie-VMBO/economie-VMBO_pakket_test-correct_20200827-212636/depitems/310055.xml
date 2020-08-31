@@ -1,0 +1,79 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Ondernemingsvormen" identifier="ITM-310055" label="32k8yz" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="A"><value>A</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE3" cardinality="single" baseType="identifier"><correctResponse interpretation="C"><value>C</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemquestion">
+				<p><strong><span><span><span><span>Kies bij elke onderneming de juiste ondernemingsvorm.</span></span></span></span></strong></p><p><span><span><span><span><span>Jarno richtte jaren geleden een onderneming op: Broek4U. Het is een onderneming die mannenwerkbroeken importeert. Hij was de enige eigenaar, maar had wel personeel in dienst. Hij betaalde inkomstenbelasting in box 1 over zijn winst. <br/><br/>Ondernemingsvorm: <inlineChoiceInteraction id="I5d875188-846e-4950-9958-7cdf970e85f0" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>besloten vennootschap (bv)</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>éénmanszaak</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>naamloze vennootschap (nv)</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="D">
+            <span>vennootschap onder firma (vof)</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction></span></span></span></span></span></p><p><span><span><span><span><span>Na een aantal jaren koos Jarno een andere ondernemingsvorm. Van de nieuwe onderneming was Jarno, samen met zijn vriend Klaas, de aandeelhouder. Ze mochten hun aandeel niet zomaar aan een ander verkopen. <br/><br/>Ondernemingsvorm: <inlineChoiceInteraction id="Idd900486-24ce-479f-853b-3cbea224c386" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>besloten vennootschap (bv)</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>éénmanszaak</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>naamloze vennootschap (nv)</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="D">
+            <span>vennootschap onder firma (vof)</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction></span></span></span></span></span></p><p><span><span><span><span><span>Jarno en Klaas wilden vorig jaar dat hun onderneming nog verder ging groeien. Daarvoor hadden ze geld nodig. Om aan geld te komen hebben ze nieuwe aandelen uitgegeven, die ook op de beurs verhandeld kunnen worden.<br/><br/>Ondernememingsvorm: <inlineChoiceInteraction id="Ieb3f4ded-d958-4778-86df-9e0bebe2ec7a" responseIdentifier="RESPONSE3" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>besloten vennootschap (bv)</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>éénmanszaak</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>naamloze vennootschap (nv)</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="D">
+            <span>vennootschap onder firma (vof)</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction></span></span></span></span></span></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">B</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">A</baseValue></match><match><variable identifier="RESPONSE3"/><baseValue baseType="identifier">C</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

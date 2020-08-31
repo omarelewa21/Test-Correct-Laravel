@@ -128,9 +128,7 @@ class GroupQuestionQuestionsController extends Controller
 //                    }
 
                     if ($groupQuestionQuestion->save()) {
-                        if($request->get('type') == 'CompletionQuestion'
-                            || $request->get('type') == 'MatchingQuestion'
-                            || $request->get('type') == 'RankingQuestion') {
+                        if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))){
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -164,9 +162,7 @@ class GroupQuestionQuestionsController extends Controller
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
                 if ($groupQuestionQuestion->save()) {
-                    if($request->get('type') == 'CompletionQuestion'
-                        || $request->get('type') == 'MatchingQuestion'
-                        || $request->get('type') == 'RankingQuestion') {
+                    if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))){
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -371,9 +367,7 @@ class GroupQuestionQuestionsController extends Controller
 
             // Save the link
             if ($groupQuestionQuestion->save()) {
-                if ($questionInstance->type == 'CompletionQuestion'
-                    || $questionInstance->type == 'MatchingQuestion'
-                    || $questionInstance->type == 'RankingQuestion') {
+                if (Question::usesDeleteAndAddAnswersMethods($questionInstance->type)){
                     // delete old answers
                     $question->deleteAnswers($question);
 

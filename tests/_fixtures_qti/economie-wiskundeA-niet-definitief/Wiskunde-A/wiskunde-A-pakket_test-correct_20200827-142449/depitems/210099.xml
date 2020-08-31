@@ -1,0 +1,42 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="toenamediagram-gemiddelde verandering 3" identifier="ITM-210099" label="32k8cx" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated_210099.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+            <div id="body">
+						<p>Zie het toenamediagram.</p><p><span><img id="Id-IMG_a078e6a1-5c6f-468f-a1e7-45570f25cf93" src="../img/mwt20wisAhv-5a-3.jpg" width="267" height="207" alt=""/>  </span></p><p><span/><span/></p><p><span><span>             </span></span></p>
+					</div>
+
+					<div id="question">
+						<p><span>Hoe ziet de bijbehorende grafiek eruit?</span></p>
+					</div>
+
+					<div id="mc">
+				
+<choiceInteraction id="choiceInteraction1" maxChoices="1" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p><span>Een horizontale rechte lijn</span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p><span>Een stijgende rechte lijn</span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p><span>Een toenemend stijgende kromme</span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="D"><p><span>Een afnemend stijgende kromme</span></p></simpleChoice>
+			  
+						</choiceInteraction>
+
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><member><baseValue baseType="identifier">B</baseValue><variable identifier="RESPONSE"/></member><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

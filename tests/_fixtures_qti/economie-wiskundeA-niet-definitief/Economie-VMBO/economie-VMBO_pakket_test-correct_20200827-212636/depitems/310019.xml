@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Geld over en tekort" identifier="ITM-310019" label="32k8v6" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="integer"><correctResponse interpretation="684"><value>684</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<table class="cito_genclass_310019_1"><colgroup><col/><col/><col/><col/></colgroup><tbody><tr><td rowspan="2" class="cito_genclass_310019_2 cito_genclass_310019_3"><p><strong>  </strong></p><p class="cito_genclass_310019_4"><strong>lening</strong></p></td><td colspan="3" class="cito_genclass_310019_2 cito_genclass_310019_5"><p><strong>        maandelijks te betalen bedrag</strong></p></td></tr><tr><td class="cito_genclass_310019_6 cito_genclass_310019_7"><p class="cito_genclass_310019_8"><strong>36 maanden</strong></p></td><td class="cito_genclass_310019_6 cito_genclass_310019_9"><p class="cito_genclass_310019_10"><strong>48 maanden </strong></p></td><td class="cito_genclass_310019_6 cito_genclass_310019_11"><p class="cito_genclass_310019_12"><strong>60 maanden</strong></p></td></tr><tr><td class="cito_genclass_310019_13 cito_genclass_310019_14"><p class="cito_genclass_310019_15"> €   5.000</p></td><td class="cito_genclass_310019_13 cito_genclass_310019_16"><p class="cito_genclass_310019_17"> € 158</p></td><td class="cito_genclass_310019_13 cito_genclass_310019_18"><p class="cito_genclass_310019_19"> € 123</p></td><td class="cito_genclass_310019_13 cito_genclass_310019_20"><p class="cito_genclass_310019_21"> € 102</p></td></tr><tr><td class="cito_genclass_310019_22 cito_genclass_310019_23"><p class="cito_genclass_310019_24"> € 10.000</p></td><td class="cito_genclass_310019_22 cito_genclass_310019_25"><p class="cito_genclass_310019_26"> € 315</p></td><td class="cito_genclass_310019_22 cito_genclass_310019_27"><p class="cito_genclass_310019_28"> € 246</p></td><td class="cito_genclass_310019_22 cito_genclass_310019_29"><p class="cito_genclass_310019_30"> € 204</p></td></tr><tr><td class="cito_genclass_310019_31 cito_genclass_310019_32"><p class="cito_genclass_310019_33"> € 15.000</p></td><td class="cito_genclass_310019_31 cito_genclass_310019_34"><p class="cito_genclass_310019_35"> € 473</p></td><td class="cito_genclass_310019_31 cito_genclass_310019_36"><p class="cito_genclass_310019_37"> € 369</p></td><td class="cito_genclass_310019_31 cito_genclass_310019_38"><p class="cito_genclass_310019_39"> € 306</p></td></tr><tr><td class="cito_genclass_310019_40 cito_genclass_310019_41"><p class="cito_genclass_310019_42"> € 20.000</p></td><td class="cito_genclass_310019_40 cito_genclass_310019_43"><p class="cito_genclass_310019_44"> € 631</p></td><td class="cito_genclass_310019_40 cito_genclass_310019_45"><p class="cito_genclass_310019_46"> € 492</p></td><td class="cito_genclass_310019_40 cito_genclass_310019_47"><p class="cito_genclass_310019_48"> € 408</p></td></tr></tbody></table> <p/><p><span>Bekijk het overzicht.</span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span>Bereken het verschil in euro’s als je een lening van € 15.000 afbetaalt in 4 jaar in plaats van in 3 jaar.</span></strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p> € <textEntryInteraction patternMask="^-?([0-9]{1,5})?$" responseIdentifier="RESPONSE" expectedLength="6"/></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><equal toleranceMode="exact"><variable identifier="RESPONSE"/><baseValue baseType="integer">684</baseValue></equal><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

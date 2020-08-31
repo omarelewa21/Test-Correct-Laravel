@@ -1,0 +1,49 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Inkomen en inkomensverschillen" identifier="ITM-310008" label="32k8u2" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span>Volgens Albert zijn de inkomensverschillen in Nederland niet zo groot. Dat komt onder andere door de progressieve inkomstenbelasting.</span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span>Maak elke zin compleet.</span></strong></p><p>Door de progressieve inkomstenbelasting worden de verschillen tussen de besteedbare inkomens in verhouding <inlineChoiceInteraction id="I8401083c-b98d-4379-bfb4-43d56f92af69" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>groter</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span><span>kleine</span>r</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>. <br/>Dit noemen we <inlineChoiceInteraction id="I2ba1434e-ad70-4bf7-80b3-c7bea14d1cb4" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>denivellering</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span><span>nivellering</span></span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction> van inkomens.</p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">B</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">B</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

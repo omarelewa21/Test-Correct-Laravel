@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="machtsverbanden 5" identifier="ITM-210076" label="32k83q" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="0.19"><value>0.19</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="string"><correctResponse interpretation="1.37"><value>1.37</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span><span>Bij dieren is er een verband tussen het energieverbruik <m:math><m:mi>E</m:mi></m:math> </span><span>in watt en het gewicht <m:math><m:mi>G</m:mi></m:math> </span><span>in kg:</span></span><span><span><span> <m:math><m:mi>E</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:mn>3</m:mn><m:mo>,</m:mo><m:mn>3</m:mn><m:mo> </m:mo><m:mo>·</m:mo><m:mo> </m:mo><m:msup><m:mi>G</m:mi><m:mrow><m:mn>0</m:mn><m:mo>,</m:mo><m:mn>73</m:mn></m:mrow></m:msup></m:math></span></span><span>. <br/>Dit verband kan worden herschreven tot <m:math><m:mi>G</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:mi>a</m:mi><m:mo> </m:mo><m:mo>·</m:mo><m:mo> </m:mo><m:msup><m:mi>E</m:mi><m:mi>b</m:mi></m:msup></m:math></span><span/><span>.</span></span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><span><span><strong>Bereken <m:math><m:mi>a</m:mi></m:math> </strong></span><strong><span>en <m:math><m:mi>b</m:mi></m:math></span><span>. Geef je antwoorden in twee decimalen.</span></strong></span></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p><m:math><m:mi>a</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo></m:math> <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="9"/> en <m:math><m:mi>b</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo></m:math> <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE2" expectedLength="9"/></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE"/></customOperator><baseValue baseType="float">0.19</baseValue></equal><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE2"/></customOperator><baseValue baseType="float">1.37</baseValue></equal></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

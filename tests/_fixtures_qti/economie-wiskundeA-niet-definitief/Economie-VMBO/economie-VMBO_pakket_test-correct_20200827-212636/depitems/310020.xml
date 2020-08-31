@@ -1,0 +1,42 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Geld over en tekort" identifier="ITM-310020" label="32k8ve" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated.css" type="text/css"/><stylesheet href="../css/cito_generated_310020.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+            <div id="body">
+						<table class="cito_genclass_310020_1"><colgroup><col/><col/><col/></colgroup><tbody><tr><td class="cito_genclass_310020_2 cito_genclass_310020_3"><p class="cito_genclass_310020_4"><strong> jaar</strong></p></td><td class="cito_genclass_310020_2 cito_genclass_310020_5"><p class="cito_genclass_310020_6"><strong> rentepercentage</strong></p></td><td class="cito_genclass_310020_2 cito_genclass_310020_7"><p class="cito_genclass_310020_8"><strong> inflatie in %</strong></p></td></tr><tr><td class="cito_genclass_310020_9 cito_genclass_310020_10"><p class="cito_genclass_310020_11">1</p></td><td class="cito_genclass_310020_9 cito_genclass_310020_12"><p class="cito_genclass_310020_13"> 0,7</p></td><td class="cito_genclass_310020_9 cito_genclass_310020_14"><p class="cito_genclass_310020_15"> 0,3</p></td></tr><tr><td class="cito_genclass_310020_16 cito_genclass_310020_17"><p class="cito_genclass_310020_18">2</p></td><td class="cito_genclass_310020_16 cito_genclass_310020_19"><p class="cito_genclass_310020_20"> 1,4</p></td><td class="cito_genclass_310020_16 cito_genclass_310020_21"><p class="cito_genclass_310020_22"> 0,6</p></td></tr><tr><td class="cito_genclass_310020_23 cito_genclass_310020_24"><p class="cito_genclass_310020_25">3</p></td><td class="cito_genclass_310020_23 cito_genclass_310020_26"><p class="cito_genclass_310020_27"> 1,1</p></td><td class="cito_genclass_310020_23 cito_genclass_310020_28"><p class="cito_genclass_310020_29"> 1,0</p></td></tr><tr><td class="cito_genclass_310020_30 cito_genclass_310020_31"><p class="cito_genclass_310020_32">4</p></td><td class="cito_genclass_310020_30 cito_genclass_310020_33"><p class="cito_genclass_310020_34"> 2,3</p></td><td class="cito_genclass_310020_30 cito_genclass_310020_35"><p class="cito_genclass_310020_36"> 2,5</p></td></tr></tbody></table> <p/><p><span>Bekijk de tabel met informatie over rente en inflatie.</span></p>
+					</div>
+
+					<div id="question">
+						<p><strong><span><span><span>In welk jaar levert sparen de grootste koopkracht op? </span></span></span></strong></p>
+					</div>
+
+					<div id="mc">
+				
+<choiceInteraction id="choiceInteraction1" maxChoices="1" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p><span><span><span>In jaar 1</span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p><span><span><span>In jaar 2</span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p><span><span><span>In jaar 3</span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="D"><p><span><span><span>In jaar 4</span></span></span></p></simpleChoice>
+			  
+						</choiceInteraction>
+
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><member><baseValue baseType="identifier">B</baseValue><variable identifier="RESPONSE"/></member><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

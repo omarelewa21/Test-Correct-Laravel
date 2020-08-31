@@ -1,0 +1,42 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Informatie voor consumenten" identifier="ITM-310024" label="32k8vm" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="C"><value>C</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated_310024.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+            <div id="body">
+						<p><span/><span>Voor het behalen van zijn diploma krijgt Marco een iWatch. Zijn vader vertelt dat hij voor zíjn diploma destijds een polshorloge kreeg.</span></p>
+					</div>
+
+					<div id="question">
+						<p><strong><span><span><span><span>Waar is de verschuiving van de polshorloge naar de iWatch een gevolg van?</span></span></span></span></strong></p>
+					</div>
+
+					<div id="mc">
+				
+<choiceInteraction id="choiceInteraction1" maxChoices="1" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p><span><span><span><span><span>commerciële beïnvloeding</span></span></span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p><span><span><span><span><span><span><span><span><span><span><span><span>sociale beïnvloeding</span></span></span></span></span></span></span></span></span></span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p><span><span><span><span><span><span><span><span><span><span><span><span><span><span/></span></span><span>technologische ontwikkelingen</span></span></span></span></span></span></span></span></span></span></span></span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="D"><p><span><span><span><span><span><span><span><span><span><span><span><span>vergelijkend warenonderzoek</span></span></span></span></span></span></span></span></span></span></span></span></p></simpleChoice>
+			  
+						</choiceInteraction>
+
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><member><baseValue baseType="identifier">C</baseValue><variable identifier="RESPONSE"/></member><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>
