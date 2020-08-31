@@ -22,7 +22,7 @@ class PasswordController extends Controller {
 	{
 		$this->validate($request, [
 			'username' => 'required|email',
-			'url' => 'required|url'
+			'url' => 'required'
 		]);
 
 		$user = Password::getUser($request->only('username'));
