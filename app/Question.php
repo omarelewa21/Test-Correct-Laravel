@@ -418,7 +418,6 @@ class Question extends MtiBaseModel {
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
-
         $joins = [];
 
         // Have to apply search filter first due to subquery left join with parameters
@@ -669,7 +668,6 @@ class Question extends MtiBaseModel {
                     break;
             }
         }
-
 
         return $query;
     }

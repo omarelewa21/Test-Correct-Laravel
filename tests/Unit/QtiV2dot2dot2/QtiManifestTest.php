@@ -82,11 +82,22 @@ class QtiManifestTest extends TestCase
         $this->assertNotEmpty($instance->getOriginalXml());
     }
 
-    private function getXml()
+    private function getXml($name = 'default')
     {
-        return file_get_contents(
-            __DIR__ . '/../../_fixtures_qti/Test-maatwerktoetsen_v01/imsmanifest.xml'
-        );
+        $manifest = [
+            'default' => __DIR__ . '/../../_fixtures_qti/Test-maatwerktoetsen_v01/imsmanifest.xml',
+            'vmbo-economie' => __DIR__ . '/../../_fixtures_qti/economie-wiskundeA-niet-definitief/Economie-VMBO/economie-VMBO_pakket_test-correct_20200827-212636/imsmanifest.xml',
+            'wiskunde' => __DIR__ . '/../../_fixtures_qti/economie-wiskundeA-niet-definitief/Wiskunde-A/wiskunde-A-pakket_test-correct_20200827-142449/imsmanifest.xml',
+        ];
+
+
+        if (array_key_exists($name, $manifest) && file_exists($manifest[$name])) {
+            return file_get_contents(
+                $manifest[$name]
+            );
+        }
+        throw new \Exception(sprintf('cannot find manifest for key %s.', $name));
+
     }
 
     /** @test */
@@ -96,10 +107,10 @@ class QtiManifestTest extends TestCase
 
         $this->assertEquals(
             [
-                'id'       => 'Test-maatwerktoetsen_v01',
-                'name'     => 'Test item 370004 - 1.8-04',
-                'version'  => '1',
-                'guid'     => 'bcb71360-c0ee-49d0-969e-cc4c786d0862',
+                'id' => 'Test-maatwerktoetsen_v01',
+                'name' => 'Test item 370004 - 1.8-04',
+                'version' => '1',
+                'guid' => 'bcb71360-c0ee-49d0-969e-cc4c786d0862',
                 'testType' => 'test',
             ],
             $instance->getProperties()
@@ -114,6 +125,35 @@ class QtiManifestTest extends TestCase
             'Test-maatwerktoetsen_v01 | Test item 370004 - 1.8-04',
             $instance->getName()
         );
+    }
+
+    /** @test */
+    public function it_can_load_wiskunde_manifest()
+    {
+        $instance = (new QtiManifest)->setOriginalXml($this->getXml('wiskunde'));
+        $this->assertCount(201, $instance->getTestResourcesList());
+    }
+
+    /** @test */
+    public function it_can_load_the_economie_manifest()
+    {
+        $instance = (new QtiManifest)->setOriginalXml($this->getXml('vmbo-economie'));
+        $this->assertCount(111, $instance->getTestResourcesList());
+    }
+
+    /** @test */
+    public function it_can_generate_a_test_name_list_with_resource_hrefs()
+    {
+        $instance = (new QtiManifest)->setOriginalXml($this->getXml('vmbo-economie'));
+        $this->assertCount(19,
+            $instance->getTestListWithResources()
+        );
+
+        // elke test heeft 5 items in zich;
+        collect($instance->getTestListWithResources())->each(function($value, $key) {
+            $this->assertCount(5, $value);
+        });
+
     }
 
 
