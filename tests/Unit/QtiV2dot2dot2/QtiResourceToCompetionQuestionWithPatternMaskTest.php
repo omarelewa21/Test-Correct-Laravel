@@ -150,28 +150,15 @@ class QtiResourceToCompetionQuestionWithPatternMaskTest extends TestCase
     {
         $instance = $this->instance->question->getQuestionInstance();
 
-        $this->assertEquals('MultipleChoiceQuestion', $instance->type);
+    $this->assertEquals('CompletionQuestion', $instance->type);
         $this->assertEquals(
-            'MultipleChoice',
+            'completion',
             $this->instance->question->subtype
         );
 
         $this->assertStringContainsString(
-            'breuk grootte aangepast (groter):',
+            'De algemene bank ALB moet',
             ($instance->question)
-        );
-
-        $answerLinks = MultipleChoiceQuestionAnswerLink::where('multiple_choice_question_id', $instance->id)->get();
-        $this->assertCount(2, $answerLinks);
-
-        $correctLink = $answerLinks->first(function ($link) {
-            return $link->multipleChoiceQuestionAnswer->score == 1;
-        });
-
-        $this->assertEquals(
-            '<p>alternatief A</p>
-',
-            $correctLink->multipleChoiceQuestionAnswer->answer
         );
     }
 

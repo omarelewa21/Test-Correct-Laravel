@@ -68,8 +68,8 @@ class QtiFactory
             'inlineChoiceInteraction' => [
                 'type' => 'CompletionQuestion',
                 'subtype' => 'multi',
-                'class_answer_request' => new CreateMultipleChoiceQuestionAnswerRequest,
-                'class_answer_controller' => new MultipleChoiceQuestionAnswersController,
+//                'class_answer_request' => new CreateMultipleChoiceQuestionAnswerRequest,
+//                'class_answer_controller' => new MultipleChoiceQuestionAnswersController,
             ],
             'choiceInteraction' => [
                 'type' => 'MultipleChoiceQuestion',

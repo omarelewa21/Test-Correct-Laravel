@@ -61,12 +61,12 @@ class QtiResourceToMatchInteractionTest extends TestCase
     public function it_should_select_the_correct_type_and_subtype_from_the_qti_factory()
     {
         $this->assertEquals(
-            'MatchingQuestion',
+            'MatrixQuestion',
             $this->instance->qtiQuestionTypeToTestCorrectQuestionType('type')
         );
 
         $this->assertEquals(
-            'Matching',
+            'SingleChoice',
             $this->instance->qtiQuestionTypeToTestCorrectQuestionType('subtype')
         );
     }
