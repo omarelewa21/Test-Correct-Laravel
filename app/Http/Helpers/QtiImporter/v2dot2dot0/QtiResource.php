@@ -605,7 +605,7 @@ class QtiResource
     {
         $metaTags = collect(['cito']);
         if ($this->patternMask) {
-            $metaTags->add($this->patternMask);
+            $metaTags->add(sprintf('mask:%s',$this->patternMask));
         }
 
         return $metaTags->implode('|');
