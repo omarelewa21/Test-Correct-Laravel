@@ -14,7 +14,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceToCompetionQuestionWithPatternMaskTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     private $instance;
 

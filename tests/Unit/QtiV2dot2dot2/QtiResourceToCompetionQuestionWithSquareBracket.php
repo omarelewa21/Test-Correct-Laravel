@@ -179,6 +179,15 @@ class QtiResourceToCompetionQuestionWithSquareBracketTest extends TestCase
     }
 
     /** @test */
+    public function the_style_sheets_are_stripped_from_type_text_radio_checkbox()
+    {
+         $questionHtml = json_decode($this->instance->question)->question;
+//        $this->assertStringContainsString('input="text"', $questionHtml);
+        $this->assertStringContainsString('input="radio"', $questionHtml);
+
+    }
+
+    /** @test */
     public function question_xml_contains_stylesheet_data()
     {
         $this->assertStringContainsString(

@@ -138,6 +138,7 @@ class QtiManifestTest extends TestCase
     public function it_can_load_the_economie_manifest()
     {
         $instance = (new QtiManifest)->setOriginalXml($this->getXml('vmbo-economie'));
+
         $this->assertCount(111, $instance->getTestResourcesList());
     }
 
