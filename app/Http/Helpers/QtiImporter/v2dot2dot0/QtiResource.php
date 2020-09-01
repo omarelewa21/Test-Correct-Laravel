@@ -71,10 +71,12 @@ class QtiResource
 
         $this->handleItemAttributes();
         $this->handleResponseDeclaration();
+        ;
         $this->handleStyleSheets();
 
         $this->handleItemBody();
         $this->handleInlineImages();
+        $this->cleanQuestionXmlFromSquareBrackets();
         $this->handleQuestion();
 
         return $this;
@@ -180,6 +182,7 @@ class QtiResource
     private function handleItemBody()
     {
 
+
         $this->replaceMultipleChoiceInteraction();
         $this->replaceInlineChoiceInteraction();
         $this->replaceMatchInteraction();
@@ -195,6 +198,7 @@ class QtiResource
         $this->addStylesheetsToBody($dom1);
 
         $this->question_xml = $dom1->saveXML();
+
     }
 
 
@@ -313,6 +317,7 @@ class QtiResource
         $this->xml_string = str_replace('xmlns=', 'ns=', file_get_contents($this->resource->href));
         // replace math namespace
         $this->replaceMathNamespacesAndAddNamespaceDelaractionToDivIdBody();
+
 
 
         $this->xml = simplexml_load_string(
@@ -445,16 +450,16 @@ class QtiResource
             $dom = simplexml_load_string($this->interaction);
 
             $gapTexts = [];
-            foreach($dom->xpath('//gapText') as $gapTextNode) {
+            foreach ($dom->xpath('//gapText') as $gapTextNode) {
                 $gapTexts[$gapTextNode['identifier']->__toString()] = $gapTextNode->children()[0]->__toString();
             }
 
             $loop = 0;
             $answers = [];
-            foreach($dom->xpath('//gap') as $gapNode){
+            foreach ($dom->xpath('//gap') as $gapNode) {
                 $loop++;
                 $identifier = $gapNode['identifier']->__toString();
-                $gapTextIndex = collect(explode(' ', collect($this->responseDeclaration['values'])->first(function($gapIdentifierPair) use ($identifier) {
+                $gapTextIndex = collect(explode(' ', collect($this->responseDeclaration['values'])->first(function ($gapIdentifierPair) use ($identifier) {
                     return strpos($gapIdentifierPair, $identifier);
                 })))->first();
                 $gapTextValue = $gapTexts[$gapTextIndex];
@@ -467,7 +472,7 @@ class QtiResource
                     $links = $nodeLinks->asXML();
                 }
 
-                $answers[] = (object) [
+                $answers[] = (object)[
                     'order' => $loop,
                     'left' => $links,
                     'right' => $gapTextValue,
@@ -580,7 +585,7 @@ class QtiResource
     {
         $content = collect($this->stylesheets)->map(function ($path) {
             $pathToStylesheet = sprintf('%s/%s', $this->baseDir, $path['href']);
-            if(app()->runningUnitTests()) {
+            if (app()->runningUnitTests()) {
                 $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
             }
             // remove depitems folder;
@@ -606,9 +611,16 @@ class QtiResource
     {
         $metaTags = collect([]);
         if ($this->patternMask) {
-            $metaTags->add(sprintf('mask:%s',$this->patternMask));
+            $metaTags->add(sprintf('mask:%s', $this->patternMask));
         }
 
         return $metaTags->implode('|');
+    }
+
+    private function cleanQuestionXmlFromSquareBrackets()
+    {
+
+        $this->question_xml = str_replace('[', '<span class="bracket-open"></span>',  $this->question_xml);
+        $this->question_xml = str_replace(']', '<span class="bracket-closed"></span>',  $this->question_xml);
     }
 }
