@@ -9,6 +9,7 @@ use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use tcCore\Attachment;
@@ -70,8 +71,7 @@ class QtiResource
         $this->handleResponseProcessing();
 
         $this->handleItemAttributes();
-        $this->handleResponseDeclaration();
-        ;
+        $this->handleResponseDeclaration();;
         $this->handleStyleSheets();
 
         $this->handleItemBody();
@@ -319,7 +319,6 @@ class QtiResource
         $this->replaceMathNamespacesAndAddNamespaceDelaractionToDivIdBody();
 
 
-
         $this->xml = simplexml_load_string(
             $this->xml_string
         );
@@ -403,6 +402,17 @@ class QtiResource
 
     private function getParsedAnswer($value)
     {
+        $length = strlen($value);
+        if ($length >= 255) {
+            Log::error(
+                sprintf(
+                    'answer to long (%s characters) %s [%s]',
+                    $length,
+                    $this->identifier,
+                    $value
+                )
+            );
+        }
         libxml_use_internal_errors(true);
         $dom = $this->uploadImages($value);
         $returnValue = $dom->saveHTML();
@@ -525,8 +535,7 @@ class QtiResource
         return [];
     }
 
-    public
-    function getAnswersByIdentifier($identifier, $answers)
+    public function getAnswersByIdentifier($identifier, $answers)
     {
         $answer_pair = collect($this->responseDeclaration['values'])->first(function ($value) use ($identifier) {
             return strstr($value, $identifier);
@@ -591,7 +600,6 @@ class QtiResource
             // remove depitems folder;
             $pathToStylesheet = str_replace('/Test-maatwerktoetsen_v01/depitems', '', $pathToStylesheet);
             if ($c = file_get_contents($pathToStylesheet)) {
-              
 
 
                 return str_replace(
@@ -629,7 +637,7 @@ class QtiResource
     private function cleanQuestionXmlFromSquareBrackets()
     {
 
-        $this->question_xml = str_replace('[', '<span class="bracket-open"></span>',  $this->question_xml);
-        $this->question_xml = str_replace(']', '<span class="bracket-closed"></span>',  $this->question_xml);
+        $this->question_xml = str_replace('[', '<span class="bracket-open"></span>', $this->question_xml);
+        $this->question_xml = str_replace(']', '<span class="bracket-closed"></span>', $this->question_xml);
     }
 }
