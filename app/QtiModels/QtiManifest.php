@@ -137,6 +137,7 @@ class QtiManifest
     public function getTestListWithResources()
     {
         $list = [];
+
         foreach ($this->getTestResourcesList() as $resource) {
 
 

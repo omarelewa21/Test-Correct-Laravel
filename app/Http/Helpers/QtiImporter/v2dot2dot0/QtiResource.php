@@ -76,7 +76,7 @@ class QtiResource
 
         $this->handleItemBody();
         $this->handleInlineImages();
-        $this->cleanQuestionXmlFromSquareBrackets();
+//        $this->cleanQuestionXmlFromSquareBrackets();
         $this->handleQuestion();
 
         return $this;
