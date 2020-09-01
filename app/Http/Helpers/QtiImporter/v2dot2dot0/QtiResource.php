@@ -591,7 +591,16 @@ class QtiResource
             // remove depitems folder;
             $pathToStylesheet = str_replace('/Test-maatwerktoetsen_v01/depitems', '', $pathToStylesheet);
             if ($c = file_get_contents($pathToStylesheet)) {
-                return $c;
+              
+
+
+                return str_replace(
+                    ["[type='radio']", '[type="radio"]', "[type='text']", '[type="text"]', "[type='checkbox']", '[type="checkbox"]'],
+                    ['.bogus', '.bogus', '.bogus', '.bogus', '.bogus', '.bogus'],
+                    $c
+                );
+
+
             };
             throw new \Exception(sprintf('cannot find file %s', $pathToStylesheet));
         });
