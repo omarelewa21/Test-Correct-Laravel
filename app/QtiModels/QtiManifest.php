@@ -140,7 +140,7 @@ class QtiManifest
         foreach ($this->getTestResourcesList() as $resource) {
 
 
-            $testName = sprintf('%s - %s - %s', $resource['hoofddomein'], $resource['leerdoel'], $resource['afnamejaar']);
+            $testName = sprintf('%s - %s - %s', $resource['hoofddomein'], $resource['leerdoel'], $resource['leerweg']);
             if (!array_key_exists($testName, $list)) {
                 $list[$testName] = [];
             }
