@@ -219,6 +219,7 @@ class QtiImportBatchCitoController extends Controller
                 return (bool)substr_count(strtolower($file), strtolower('werkbladen voor Wintoets en Quayn'));
             });
 
+
             if ($werkBladDir) {
                 $werkbladenDir = sprintf('%s/%s', $dir, $werkBladDir);
                 $this->werkbladen = collect(scandir($werkbladenDir))->filter(function ($file) {
@@ -361,29 +362,27 @@ class QtiImportBatchCitoController extends Controller
         $this->manifest = (new QtiManifest())->setOriginalXml($xml);
 
         // add the test
+        $test = $this->addTest($xml, ['metadata' => 'cito']);
+        $this->currentTest->name = $test->name;
 
-        foreach($this->manifest->getTestListWithResources() as $key => $resources) {
-            $test = $this->addTest($xml, ['name' => $key,'metadata' => 'cito']);
-            $this->currentTest->name = $test->name;
+        // we need to set the auth user to the user we want to import the
+        // test for as the rest of the system is depending on this
+        Auth::loginUsingId($this->requestData['author_id']);
 
-            // we need to set the auth user to the user we want to import the
-            // test for as the rest of the system is depending on this
-            Auth::loginUsingId($this->requestData['author_id']);
+        $questions = $xml->question;
+        $errors = [];
+        // first test all
+        foreach ($this->manifest->getResources() as $resourceInfo) {
 
-
-            // first test all
-            foreach ($resources as $resource) {
-
-                $resource = new Resource(
-                    $resource['identifier'],
-                    'imsqti_item_xmlv2p2',
-                    sprintf('%s/%s/%s', $this->packageDir, 'zipdir', $resource['href']),
-                    '1',
-                    $resource['guid'],
-                    $test
-                );
-                $this->instance = (new QtiResource($resource))->handle();
-            }
+            $resource = new Resource(
+                $resourceInfo->identifier,
+                'imsqti_item_xmlv2p2',
+                sprintf('%s/%s/%s', $this->packageDir, 'zipdir', $resourceInfo->href),
+                '1',
+                $resourceInfo->guid,
+                $test
+            );
+            $this->instance = (new QtiResource($resource))->handle();
         }
     }
 
@@ -422,6 +421,7 @@ class QtiImportBatchCitoController extends Controller
             $test = new Test(array_merge(
                     $fillableData,
                     [
+                        'name' => ($xml !== false) ? $this->manifest->getName() : '',
                         'is_open_source_content' => 0,
                         'shuffle' => $shuffle,
                         'introduction' => '',
