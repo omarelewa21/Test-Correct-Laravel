@@ -197,7 +197,7 @@ class Test extends BaseModel {
         $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
 
         $query->whereIn('subject_id', $subjectIds);
-        $query->where('meta_data', 'like', '%cito%');
+        $query->where('scope', 'cito');
 
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);

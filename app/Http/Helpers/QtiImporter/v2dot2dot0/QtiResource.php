@@ -346,11 +346,12 @@ class QtiResource
             'attainments' => [],
             'selectable_answers' => $this->getSelectableAnswers(),
             'note_type' => "NONE",
-            'is_open_source_content' => 1,
+            'is_open_source_content' => 0,
             'tags' => [],
             'rtti' => null,
             'test_id' => $this->resource->getTest()->getKey(),
             'user' => Auth::user()->username,//"d1@test-correct.nl",
+            'scope' => 'cito',
             'metadata' => $this->getMetadata(),
             'external_id' => $this->resource->identifier,
         ])->merge(
@@ -603,9 +604,9 @@ class QtiResource
 
     private function getMetadata()
     {
-        $metaTags = collect(['cito']);
+        $metaTags = collect([]);
         if ($this->patternMask) {
-            $metaTags->add($this->patternMask);
+            $metaTags->add(sprintf('mask:%s',$this->patternMask));
         }
 
         return $metaTags->implode('|');

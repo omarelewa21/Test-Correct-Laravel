@@ -96,7 +96,7 @@ class QtiManifest
 
     public function getProperties()
     {
-        $meta =  $this->originalXml->metadata->children('depcp', true)->metadata ;
+        $meta = $this->originalXml->metadata->children('depcp', true)->metadata;
         return [
             'id' => $meta->id->__toString(),
             'name' => $meta->name->__toString(),
@@ -107,12 +107,58 @@ class QtiManifest
 
     }
 
-    public function getName() {
+    public function getTestResourcesList()
+    {
+        $list = collect([]);
+
+        $dom = new \DOMDocument();
+        $dom->loadXML($this->originalXml->asXML());
+
+        $namespaceURI = 'http://www.imsglobal.org/xsd/imscp_ext_v1p2';
+
+        foreach ($dom->getElementsByTagName('resource') as $resource) {
+            if ($resource->getAttribute('href') && $resource->getAttribute('type') == 'imsqti_item_xmlv2p2') {
+                $resourceObj = [
+                    'href' => $resource->getAttribute('href'),
+                    'identifier' => $resource->getAttribute('identifier'),
+                    'guid' => $resource->getAttribute('guid'),
+
+                ];
+                foreach ($resource->getElementsByTagNameNS($namespaceURI, 'property') as $property) {
+                    $resourceObj[$property->getElementsByTagNameNS($namespaceURI, 'name')->item(0)->nodeValue] = $property->getElementsByTagNameNS($namespaceURI, 'value')->item(0)->nodeValue;
+                }
+                $list->add($resourceObj);
+            }
+        }
+
+        return $list;
+    }
+
+    public function getTestListWithResources()
+    {
+        $list = [];
+        foreach ($this->getTestResourcesList() as $resource) {
+
+
+            $testName = sprintf('%s - %s - %s', $resource['hoofddomein'], $resource['leerdoel'], $resource['afnamejaar']);
+            if (!array_key_exists($testName, $list)) {
+                $list[$testName] = [];
+            }
+
+            $list[$testName][] = $resource;
+
+        }
+        return $list;
+    }
+
+    public function getName()
+    {
         $props = $this->getProperties();
         return sprintf('%s | %s', $props['id'], $props['name']);
     }
 
-    public function getId(){
+    public function getId()
+    {
         return $this->getProperties()['id'];
     }
 
