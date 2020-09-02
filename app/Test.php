@@ -193,8 +193,21 @@ class Test extends BaseModel {
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
-        $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
-        $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
+
+        $citoSchool = SchoolLocation::where('customer_code','CITO-TOETSENOPMAAT')->first();
+        $baseSubjectIds = $user->subjects()->pluck('base_subject_id');
+
+        if($citoSchool){
+            $classIds = $citoSchool->schoolClasses()->pluck('id');
+            $tempSubjectIds = Teacher::whereIn('class_id',$classIds)->pluck('subject_id');
+            $baseSubjects = Subject::whereIn('id',$tempSubjectIds)->get();
+            $baseSubjectIds = collect($baseSubjectIds);
+            $subjectIds = $baseSubjects->whereIn('base_subject_id',$baseSubjectIds)->pluck('id');
+        } else { // slower but as a fallback in case there's no cito school
+            $subjectIds = BaseSubject::whereIn('id', $baseSubjectIds)->get()->map(function (BaseSubject $bs) {
+                return $bs->subjects()->pluck('id');
+            })->flatten();
+        }
 
         $query->whereIn('subject_id', $subjectIds);
         $query->where('scope', 'cito');
@@ -328,6 +341,7 @@ class Test extends BaseModel {
         $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
 
         if($schoolLocation->is_allowed_to_view_open_source_content == 1){
+            // @TODO WHY IS THIS ONLY ON THE FIRST BASE SUBJECT????????
             $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
             $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
 

@@ -362,7 +362,7 @@ class QtiImportCitoController extends Controller
         $this->manifest = (new QtiManifest())->setOriginalXml($xml);
 
         // add the test
-        $test = $this->addTest($xml, ['metadata' => 'cito']);
+        $test = $this->addTest($xml, ['scope' => 'cito']);
         $this->currentTest->name = $test->name;
 
         // we need to set the auth user to the user we want to import the

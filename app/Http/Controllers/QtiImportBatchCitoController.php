@@ -363,7 +363,7 @@ class QtiImportBatchCitoController extends Controller
         // add the test
 
         foreach($this->manifest->getTestListWithResources() as $key => $resources) {
-            $test = $this->addTest($xml, ['name' => $key,'metadata' => 'cito']);
+            $test = $this->addTest($xml, ['name' => $key,'scope' => 'cito']);
             $this->currentTest->name = $test->name;
 
             // we need to set the auth user to the user we want to import the
