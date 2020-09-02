@@ -75,8 +75,8 @@ class QtiResource
         $this->handleStyleSheets();
 
         $this->handleItemBody();
+
         $this->handleInlineImages();
-//        $this->cleanQuestionXmlFromSquareBrackets();
         $this->handleQuestion();
 
         return $this;
@@ -181,23 +181,24 @@ class QtiResource
 
     private function handleItemBody()
     {
-
-
+//        $this->cleanQuestionXmlFromSquareBrackets();
         $this->replaceMultipleChoiceInteraction();
         $this->replaceInlineChoiceInteraction();
         $this->replaceMatchInteraction();
         $this->replaceTextEntryInteraction();
         $this->replaceGapMatchInteraction();
 
-
         $dom1 = new DOMDocument("1.0");
         $dom1->preserveWhiteSpace = false;
         $dom1->formatOutput = false;
+
         $dom1->loadXML($this->xml->itemBody->children()[0]->asXML());
 
         $this->addStylesheetsToBody($dom1);
 
+
         $this->question_xml = $dom1->saveXML();
+
 
     }
 
@@ -636,8 +637,9 @@ class QtiResource
 
     private function cleanQuestionXmlFromSquareBrackets()
     {
-
-        $this->question_xml = str_replace('[', '<span class="bracket-open"></span>', $this->question_xml);
-        $this->question_xml = str_replace(']', '<span class="bracket-closed"></span>', $this->question_xml);
+        $string = $this->xml->asXML();
+        $string = str_replace('[', '<span class="bracket-open"></span>', $string);
+        $string = str_replace(']', '<span class="bracket-closed"></span>', $string);
+        $this->xml = simplexml_load_string($string);
     }
 }

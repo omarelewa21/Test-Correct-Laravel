@@ -101,6 +101,7 @@ class QtiImportBatchCitoController extends Controller
      */
     public function store(Request $request)
     {
+
         set_time_limit(3 * 60);
         $return = "";
 
@@ -109,6 +110,7 @@ class QtiImportBatchCitoController extends Controller
             $this->validate($request, [
                 'zip_file' => 'required|mimes:zip',
             ]);
+
 
             $schoolLocationId = $request->get('school_location_id');
             $schoolLocation = SchoolLocation::find($schoolLocationId);
@@ -125,6 +127,8 @@ class QtiImportBatchCitoController extends Controller
 
 
             $file = $request->file('zip_file');
+
+
             $fileName = $file->getClientOriginalName();
             $this->basePath = storage_path('app/qti_import');
 
@@ -198,6 +202,7 @@ class QtiImportBatchCitoController extends Controller
             'errorCount' => 0,
         ];
 
+
 //        \Zipper::make($file)->extractTo($dir);
         Zip::open($file)->extract($dir);
 
@@ -227,6 +232,14 @@ class QtiImportBatchCitoController extends Controller
             }
 
         }
+        $excelFiles = collect(scandir($dir))->first(function ($file) use ($dir) {
+            return strtolower(pathinfo($file, PATHINFO_EXTENSION)) == 'xlsx'
+                && pathinfo($file, PATHINFO_FILENAME) === 'assessments';
+        });
+        if ($excelFiles) {
+            $this->manifest = new ExcelManifest($dir . '/' . $excelFiles);
+        }
+
 
         // check for extra test zip files or is this a test itself
         $zipFiles = collect(scandir($dir))->filter(function ($file) use ($dir) {
@@ -358,12 +371,12 @@ class QtiImportBatchCitoController extends Controller
         $xml_file = sprintf('%s/%s/%s', $this->basePath, $this->currentTest->zipDir, $this->currentTest->xmlFile);
         $this->currentTest->fullXmlFilePath = $xml_file;
         $xml = simplexml_load_file($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA);
-        $this->manifest = (new QtiManifest())->setOriginalXml($xml);
+
 
         // add the test
 
-        foreach($this->manifest->getTestListWithResources() as $key => $resources) {
-            $test = $this->addTest($xml, ['name' => $key,'scope' => 'cito']);
+        foreach ($this->manifest->getTestListWithResources() as $key => $resources) {
+            $test = $this->addTest($xml, ['name' => $key, 'scope' => 'cito']);
             $this->currentTest->name = $test->name;
 
             // we need to set the auth user to the user we want to import the
