@@ -193,8 +193,13 @@ class Test extends BaseModel {
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
-        $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
-        $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
+
+
+
+        $baseSubjectIds = $user->subjects()->pluck('base_subject_id');
+        $subjectIds = BaseSubject::whereIn('id',$baseSubjectIds)->get()->map(function(BaseSubject $bs) {
+            return $bs->subjects()->pluck('id');
+        })->flatten();
 
         $query->whereIn('subject_id', $subjectIds);
         $query->where('scope', 'cito');
@@ -328,6 +333,7 @@ class Test extends BaseModel {
         $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
 
         if($schoolLocation->is_allowed_to_view_open_source_content == 1){
+            // @TODO WHY IS THIS ONLY ON THE FIRST BASE SUBJECT????????
             $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
             $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
 
