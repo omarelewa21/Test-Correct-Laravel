@@ -408,7 +408,7 @@ class QtiResource
                 sprintf(
                     'answer to long (%s characters) %s [%s]',
                     $length,
-                    $this->identifier,
+                    $this->resource->identifier,
                     $value
                 )
             );
