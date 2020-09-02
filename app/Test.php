@@ -194,12 +194,20 @@ class Test extends BaseModel {
     {
         $user = Auth::user();
 
-
-
+        $citoSchool = SchoolLocation::where('customer_code','CITO-TOETSENOPMAAT')->first();
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id');
-        $subjectIds = BaseSubject::whereIn('id',$baseSubjectIds)->get()->map(function(BaseSubject $bs) {
-            return $bs->subjects()->pluck('id');
-        })->flatten();
+
+        if($citoSchool){
+            $classIds = $citoSchool->schoolClasses()->pluck('id');
+            $tempSubjectIds = Teacher::whereIn('class_id',$classIds)->pluck('subject_id');
+            $baseSubjects = Subject::whereIn('id',$tempSubjectIds)->get();
+            $baseSubjectIds = collect($baseSubjectIds);
+            $subjectIds = $baseSubjects->whereIn('base_subject_id',$baseSubjectIds)->pluck('id');
+        } else { // slower but as a fallback in case there's no cito school
+            $subjectIds = BaseSubject::whereIn('id', $baseSubjectIds)->get()->map(function (BaseSubject $bs) {
+                return $bs->subjects()->pluck('id');
+            })->flatten();
+        }
 
         $query->whereIn('subject_id', $subjectIds);
         $query->where('scope', 'cito');
