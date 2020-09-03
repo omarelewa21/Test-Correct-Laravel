@@ -897,6 +897,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return (bool) FileManagement::where('handledby',$this->getKey())->where('type','testupload')->count();
     }
 
+    public function hasCitoToetsen()
+    {
+        return (bool) $this->subjects()->where('name','like','cito%')->count() > 0;
+    }
+
 	public function getNameFullAttribute()
 	{
 		$result = '';
