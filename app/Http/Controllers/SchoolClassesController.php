@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use tcCore\EducationLevel;
 use tcCore\Http\Requests;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
@@ -55,7 +56,10 @@ class SchoolClassesController extends Controller {
 	{
 		$schoolClass = new SchoolClass();
 
-		$schoolClass->fill($request->all());
+		$data = $request->all();
+		$data['education_level_id'] = EducationLevel::whereUuid($data['education_level_id'])->first()->getKey();
+
+		$schoolClass->fill($data);
 
 		if ($schoolClass->save() !== false) {
 			return Response::make($schoolClass, 200);
@@ -90,7 +94,10 @@ class SchoolClassesController extends Controller {
 	 */
 	public function update(SchoolClass $schoolClass, UpdateSchoolClassRequest $request)
 	{
-		$schoolClass->fill($request->all());
+		$data = $request->all();
+		$data['education_level_id'] = EducationLevel::whereUuid($data['education_level_id'])->first()->getKey();
+
+		$schoolClass->fill($data);
 
 		if ($schoolClass->save() !== false) {
 			return Response::make($schoolClass, 200);
