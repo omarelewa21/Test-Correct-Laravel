@@ -109,7 +109,7 @@ class QtiImportBatchCitoController extends Controller
         $errors = [];
         try {
             $this->validate($request, [
-                'zip_file' => 'required|mimes:zip',
+//                'zip_file' => 'required|mimes:zip',
             ]);
 
 
@@ -143,6 +143,7 @@ class QtiImportBatchCitoController extends Controller
             $this->checkZipFile(sprintf('%s/%s/%s', $this->basePath, $startDir, $fileName), $startDir, true);
             $return .= implode('', $this->responseAr);
         } catch (\Exception $e) {
+            logger($e);
             $logEnd = sprintf('----END %s END----', $this->logRef);
             $this->addToLog($logEnd);
             $this->logAr[] = $logEnd;
@@ -206,7 +207,7 @@ class QtiImportBatchCitoController extends Controller
 
 //        \Zipper::make($file)->extractTo($dir);
         Zip::open($file)->extract($dir);
-
+        logger('hier');
         $dirs = collect(scandir($dir))->filter(function ($file) {
             return $file != '.' && $file !== '..';
         });
@@ -240,6 +241,7 @@ class QtiImportBatchCitoController extends Controller
         if ($excelFile) {
             $this->manifest = new ExcelManifest($dir . '/' . $excelFile);
         }
+        logger($this->manifest->getTestListWithResources());
 
 
         // check for extra test zip files or is this a test itself
@@ -371,29 +373,42 @@ class QtiImportBatchCitoController extends Controller
         $this->currentTest->xmlFile = $testXmlFile;
         $xml_file = sprintf('%s/%s/%s', $this->basePath, $this->currentTest->zipDir, $this->currentTest->xmlFile);
         $this->currentTest->fullXmlFilePath = $xml_file;
-        $xml = simplexml_load_file($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA);
+        //    $xml = simplexml_load_file($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA);
+        $xml = '';
 
 
         // add the test
 
-        foreach ($this->manifest->getTestListWithResources() as $key => $test) {
-            $test = $this->addTest($xml, ['name' => $test->testName, 'scope' => 'cito']);
+        foreach ($this->manifest->getTestListWithResources() as $key => $testFromIterator) {
+            $test = $this->addTest($xml, ['name' => $testFromIterator['test'], 'scope' => 'cito']);
             $this->currentTest->name = $test->name;
 
             // we need to set the auth user to the user we want to import the
             // test for as the rest of the system is depending on this
             Auth::loginUsingId($this->requestData['author_id']);
 
+            $dirNumber = false;
 
+            foreach (scandir($this->packageDir . '/zipdir') as $fileOrDir) {
+                logger([$fileOrDir, is_dir($fileOrDir)]);
+                if ($fileOrDir !== '.' && $fileOrDir !== '..' && is_dir($this->packageDir . '/zipdir/'.$fileOrDir)) {
+                    $dirNumber = $fileOrDir;
+                }
+            }
+
+            if ($dirNumber === false) {
+                logger(scandir($this->packageDir . '/zipdir'));
+                throw new \Exception('Couldnt find correct zipdir for test: '.$testFromIterator['test']);
+            }
 
 
             // first test all
-            foreach ($test->items as $resource) {
+            foreach ($testFromIterator['items'] as $resource) {
 
                 $resource = new Resource(
                     'abc',//$resource['identifier'],
                     'imsqti_item_xmlv2p2',
-                    sprintf('%s/%s/%s', $this->packageDir, 'zipdir', $resource),
+                    sprintf('%s/%s/%s/zipdir/depitems/%s.xml', $this->packageDir, 'zipdir', $dirNumber, str_replace('ITM-', '', $resource)),
                     '1',
                     'some guid',//$resource['guid'],
                     $test
@@ -442,7 +457,7 @@ class QtiImportBatchCitoController extends Controller
                         'shuffle' => $shuffle,
                         'introduction' => '',
                         // todo needs change when manifest harbors multiple tests;
-                        'external_id' => $this->manifest->getId(),
+                        'external_id' => 'some_id',//$this->manifest->getId(),
                     ],
                     $overrides
                 )
@@ -453,7 +468,7 @@ class QtiImportBatchCitoController extends Controller
                 return $test;
             } else {
                 // error
-                throw new \Exception('Fout bij het importeren van toets ' . $this->manifest->getName());
+                throw new \Exception('Fout bij het importeren van toets ' . $overrides['name']);
 //                dd('could not add test to the system');
             }
         } catch (\Exception $e) {
