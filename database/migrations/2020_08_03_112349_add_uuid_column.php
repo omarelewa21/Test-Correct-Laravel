@@ -66,8 +66,7 @@ class AddUuidColumn extends Migration
         });
 
         SchoolYear::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('school_years')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('periods', function (Blueprint $table) {
@@ -75,8 +74,7 @@ class AddUuidColumn extends Migration
         });
 
         Period::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('periods')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('sections', function (Blueprint $table) {
@@ -84,8 +82,7 @@ class AddUuidColumn extends Migration
         });
 
         Section::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('sections')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('subjects', function (Blueprint $table) {
@@ -93,8 +90,7 @@ class AddUuidColumn extends Migration
         });
 
         Subject::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('subjects')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('school_classes', function (Blueprint $table) {
@@ -102,8 +98,7 @@ class AddUuidColumn extends Migration
         });
 
         SchoolClass::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('school_classes')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('school_locations', function (Blueprint $table) {
@@ -111,8 +106,7 @@ class AddUuidColumn extends Migration
         });
 
         SchoolLocation::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('school_locations')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('school_location_ips', function (Blueprint $table) {
@@ -120,8 +114,7 @@ class AddUuidColumn extends Migration
         });
 
         SchoolLocationIp::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('school_location_ips')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('school_location_contacts', function (Blueprint $table) {
@@ -129,8 +122,7 @@ class AddUuidColumn extends Migration
         });
 
         SchoolLocationContact::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('school_location_contacts')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('contacts', function (Blueprint $table) {
@@ -138,8 +130,7 @@ class AddUuidColumn extends Migration
         });
 
         Contact::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('contacts')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('school_location_school_years', function (Blueprint $table) {
@@ -147,8 +138,7 @@ class AddUuidColumn extends Migration
         });
 
         SchoolLocationSchoolYear::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('school_location_school_years')->where('school_location_id', $item->school_location_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('school_location_addresses', function (Blueprint $table) {
@@ -156,8 +146,7 @@ class AddUuidColumn extends Migration
         });
 
         SchoolLocationAddress::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('school_location_addresses')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('mentors', function (Blueprint $table) {
@@ -165,8 +154,7 @@ class AddUuidColumn extends Migration
         });
 
         Mentor::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('mentors')->where('user_id', $item->user_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('managers', function (Blueprint $table) {
@@ -174,8 +162,7 @@ class AddUuidColumn extends Migration
         });
 
         Manager::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('managers')->where('user_id', $item->user_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('users', function (Blueprint $table) {
@@ -183,8 +170,7 @@ class AddUuidColumn extends Migration
         });
 
         User::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('users')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('addresses', function (Blueprint $table) {
@@ -192,8 +178,7 @@ class AddUuidColumn extends Migration
         });
 
         Address::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('addresses')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('answers', function (Blueprint $table) {
@@ -201,8 +186,7 @@ class AddUuidColumn extends Migration
         });
 
         Answer::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('answers')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('onboarding_wizard_steps', function (Blueprint $table) {
@@ -210,8 +194,7 @@ class AddUuidColumn extends Migration
         });
 
         OnboardingWizardStep::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('onboarding_wizard_steps')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('tests', function (Blueprint $table) {
@@ -219,8 +202,7 @@ class AddUuidColumn extends Migration
         });
 
         Test::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('tests')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('onboarding_wizards', function (Blueprint $table) {
@@ -228,8 +210,7 @@ class AddUuidColumn extends Migration
         });
 
         OnboardingWizard::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('onboarding_wizards')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('group_question_questions', function (Blueprint $table) {
@@ -237,8 +218,7 @@ class AddUuidColumn extends Migration
         });
 
         GroupQuestionQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('group_question_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('file_managements', function (Blueprint $table) {
@@ -246,8 +226,7 @@ class AddUuidColumn extends Migration
         });
 
         FileManagement::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('file_managements')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('test_takes', function (Blueprint $table) {
@@ -255,8 +234,7 @@ class AddUuidColumn extends Migration
         });
 
         TestTake::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('test_takes')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('test_participants', function (Blueprint $table) {
@@ -264,8 +242,7 @@ class AddUuidColumn extends Migration
         });
 
         TestParticipant::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('test_participants')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('test_take_events', function (Blueprint $table) {
@@ -273,8 +250,7 @@ class AddUuidColumn extends Migration
         });
 
         TestTakeEvent::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('test_take_events')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('education_levels', function (Blueprint $table) {
@@ -282,8 +258,7 @@ class AddUuidColumn extends Migration
         });
 
         EducationLevel::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('education_levels')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('invigilators', function (Blueprint $table) {
@@ -291,8 +266,7 @@ class AddUuidColumn extends Migration
         });
 
         Invigilator::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('invigilators')->where('user_id', $item->user_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('students', function (Blueprint $table) {
@@ -300,8 +274,7 @@ class AddUuidColumn extends Migration
         });
 
         Student::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('students')->where('user_id', $item->user_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('completion_questions', function (Blueprint $table) {
@@ -328,10 +301,6 @@ class AddUuidColumn extends Migration
             $table->efficientUuid('uuid')->index();
         });
                 
-        Schema::table('answer_parent_questions', function (Blueprint $table) {
-            $table->efficientUuid('uuid')->index();
-        });
-
         Schema::table('drawing_questions', function (Blueprint $table) {
             $table->efficientUuid('uuid')->index();
         });
@@ -349,8 +318,7 @@ class AddUuidColumn extends Migration
         });
 
         Attainment::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('attainments')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('teachers', function (Blueprint $table) {
@@ -358,8 +326,7 @@ class AddUuidColumn extends Migration
         });
 
         Teacher::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('teachers')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
         
         Schema::table('sales_organizations', function (Blueprint $table) {
@@ -367,8 +334,7 @@ class AddUuidColumn extends Migration
         });
 
         SalesOrganization::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('sales_organizations')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('umbrella_organizations', function (Blueprint $table) {
@@ -376,8 +342,7 @@ class AddUuidColumn extends Migration
         });
 
         UmbrellaOrganization::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('umbrella_organizations')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
         
         Schema::table('schools', function (Blueprint $table) {
@@ -385,8 +350,7 @@ class AddUuidColumn extends Migration
         });
 
         School::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('schools')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('licenses', function (Blueprint $table) {
@@ -394,8 +358,7 @@ class AddUuidColumn extends Migration
         });
 
         License::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('licenses')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('messages', function (Blueprint $table) {
@@ -403,8 +366,7 @@ class AddUuidColumn extends Migration
         });
 
         Message::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('messages')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('grading_scales', function (Blueprint $table) {
@@ -412,8 +374,7 @@ class AddUuidColumn extends Migration
         });
 
         GradingScale::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('grading_scales')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('base_subjects', function (Blueprint $table) {
@@ -421,8 +382,7 @@ class AddUuidColumn extends Migration
         });
 
         BaseSubject::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('base_subjects')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('tags', function (Blueprint $table) {
@@ -430,53 +390,43 @@ class AddUuidColumn extends Migration
         });
 
         Tag::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('tags')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
         
         OpenQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('open_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
         
         MultipleChoiceQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('multiple_choice_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         RankingQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('ranking_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         DrawingQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('drawing_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         MatchingQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('matching_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         CompletionQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('completion_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         InfoscreenQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('infoscreen_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         GroupQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('group_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         TestQuestion::withTrashed()->get()->each(function($item) {
-            $item->uuid = Uuid::uuid4();
-            $item->save();
+            DB::table('test_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
     }
 
@@ -644,6 +594,30 @@ class AddUuidColumn extends Migration
         });
 
         Schema::table('group_questions', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('infoscreen_questions', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('completion_questions', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('multiple_choice_questions', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('ranking_questions', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('matching_questions', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('drawing_questions', function (Blueprint $table) {
             $table->dropColumn('uuid');
         });
     }
