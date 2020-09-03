@@ -14,7 +14,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceToCompetionQuestionWithSquareBracketTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     private $instance;
 
@@ -182,8 +182,8 @@ class QtiResourceToCompetionQuestionWithSquareBracketTest extends TestCase
     public function the_style_sheets_are_stripped_from_type_text_radio_checkbox()
     {
          $questionHtml = json_decode($this->instance->question)->question;
-//        $this->assertStringContainsString('input="text"', $questionHtml);
-        $this->assertStringContainsString('input="radio"', $questionHtml);
+        $this->assertStringNotContainsString('input="text"', $questionHtml);
+        $this->assertStringNotContainsString('input="radio"', $questionHtml);
 
     }
 

@@ -154,8 +154,5 @@ class QtiManifestTest extends TestCase
         collect($instance->getTestListWithResources())->each(function($value, $key) {
             $this->assertCount(5, $value);
         });
-
     }
-
-
 }
