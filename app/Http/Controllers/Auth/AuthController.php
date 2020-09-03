@@ -56,7 +56,7 @@ class AuthController extends Controller
             }
             $user->setAttribute('isToetsenbakker',$user->isToetsenbakker());
 
-            $user->setAttrobute('hasCitoToetsen',$user->hasCitoToetsen());
+            $user->setAttribute('hasCitoToetsen',$user->hasCitoToetsen());
 
             $user->makeOnboardWizardIfNeeded();
 
