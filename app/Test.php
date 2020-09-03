@@ -204,9 +204,8 @@ class Test extends BaseModel {
             $baseSubjectIds = collect($baseSubjectIds);
             $subjectIds = $baseSubjects->whereIn('base_subject_id',$baseSubjectIds)->pluck('id');
         } else { // slower but as a fallback in case there's no cito school
-            $subjectIds = BaseSubject::whereIn('id', $baseSubjectIds)->get()->map(function (BaseSubject $bs) {
-                return $bs->subjects()->pluck('id');
-            })->flatten();
+            $query->where('tests.id',-1);
+            return $query;
         }
 
         $query->whereIn('subject_id', $subjectIds);
