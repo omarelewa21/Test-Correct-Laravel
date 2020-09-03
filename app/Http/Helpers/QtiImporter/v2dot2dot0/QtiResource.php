@@ -198,8 +198,6 @@ class QtiResource
 
 
         $this->question_xml = $dom1->saveXML();
-
-
     }
 
 
@@ -239,13 +237,18 @@ class QtiResource
         }
     }
 
+    protected function getTextEntryInteractionText($el)
+    {
+        return $this->getInlineChoiceText($el);
+    }
     protected function getInlineChoiceText($inlineChoice)
     {
-        $text = '';
-        foreach($inlineChoice->span as $span){
-            $text .= $span->__toString();
-        }
-        return $text;
+        $doc = new DOMDocument();
+        $domElement = $doc->importNode(dom_import_simplexml($inlineChoice),true);
+        $doc->appendChild($domElement);
+        $text = ($doc->saveHTML());
+
+        return (trim(str_replace(['\r\n','\n'],'',strip_tags(html_entity_decode($text, ENT_NOQUOTES)))));
     }
 
     private function replaceInlineChoiceInteraction()
@@ -269,7 +272,7 @@ class QtiResource
                 $parent = $domElement->parentNode;
 
                 if ($result) {
-                    $pipeString = collect($result)->map(function ($response) {
+                    $pipeString = collect($result)->map(function ($response) use ($inlineChoice) {
                         return $response['value'];
                     })->implode('|');
                     $newNode = $domElement->ownerDocument->createTextNode(sprintf('[%s]', $pipeString));
@@ -291,7 +294,7 @@ class QtiResource
                 $result = [];
                 $result[] = [
                     'identifier' => $interaction['identifier'],
-                    'value' => $interaction->span->__toString(),
+                    'value' => $this->getTextEntryInteractionText($interaction),//$interaction->span->__toString(),
                     'correct' => false,
                     'patternMask' => $interaction['patternMask']->__toString()
                 ];
