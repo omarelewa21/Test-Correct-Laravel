@@ -13,7 +13,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceMatchInteractionTest extends TestCase
 {
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
     private $instance;
 

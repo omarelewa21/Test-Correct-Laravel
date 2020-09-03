@@ -25,7 +25,7 @@ class ExcelManifest
         $this->data = Excel::toArray(new ResourceImport, $excelFile)[0];
     }
 
-    public function getTestWithResourceList()
+    public function getTestListWithResources()
     {
         $result = [];
 

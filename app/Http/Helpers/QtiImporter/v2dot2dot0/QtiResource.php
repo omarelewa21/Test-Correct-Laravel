@@ -71,7 +71,7 @@ class QtiResource
         $this->handleResponseProcessing();
 
         $this->handleItemAttributes();
-        $this->handleResponseDeclaration();;
+        $this->handleResponseDeclaration();
         $this->handleStyleSheets();
 
         $this->handleItemBody();
@@ -194,7 +194,7 @@ class QtiResource
 
         $dom1->loadXML($this->xml->itemBody->children()[0]->asXML());
 
-        $this->addStylesheetsToBody($dom1);
+        $this->handleStyling($dom1);
 
 
         $this->question_xml = $dom1->saveXML();
@@ -337,7 +337,6 @@ class QtiResource
     {
         $request = new CreateTestQuestionRequest();
 
-
         $request->merge([
             'question' => $this->question_xml,
             'type' => $this->qtiQuestionTypeToTestCorrectQuestionType('type'),
@@ -359,6 +358,7 @@ class QtiResource
             'scope' => 'cito',
             'metadata' => $this->getMetadata(),
             'external_id' => $this->resource->identifier,
+            'styling' => $this->getStyling(),
         ])->merge(
             $this->mergeExtraTestQuestionAttributes()
         );
@@ -454,6 +454,8 @@ class QtiResource
         }
         return $dom;
     }
+
+
 
     private function mergeExtraTestQuestionAttributes()
     {
@@ -591,9 +593,18 @@ class QtiResource
         }
     }
 
-    private function addStylesheetsToBody(DOMDocument $dom1)
+    public function handleStyling(DOMDocument $dom1)
     {
-        $content = collect($this->stylesheets)->map(function ($path) {
+        $classes = collect(explode(' ', $dom1->documentElement->getAttribute('class')));
+        if ($classes->count() > 0) {
+            $dom1->documentElement->setAttribute('class', $classes->add('custom-qti-style')->implode(' '));
+        }
+    }
+
+    public function getStyling()
+    {
+
+        return collect($this->stylesheets)->map(function ($path) {
             $pathToStylesheet = sprintf('%s/%s', $this->baseDir, $path['href']);
             if (app()->runningUnitTests()) {
                 $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
@@ -601,28 +612,11 @@ class QtiResource
             // remove depitems folder;
             $pathToStylesheet = str_replace('/Test-maatwerktoetsen_v01/depitems', '', $pathToStylesheet);
             if ($c = file_get_contents($pathToStylesheet)) {
-
-
-                return str_replace(
-                    ["[type='radio']", '[type="radio"]', "[type='text']", '[type="text"]', "[type='checkbox']", '[type="checkbox"]'],
-                    ['.bogus', '.bogus', '.bogus', '.bogus', '.bogus', '.bogus'],
-                    $c
-                );
-
-
+                return $c;
             };
             throw new \Exception(sprintf('cannot find file %s', $pathToStylesheet));
-        });
+        })->implode(PHP_EOL);
 
-        if ($content) {
-            $classes = collect(explode(' ', $dom1->documentElement->getAttribute('class')));
-            if ($classes->count() > 0) {
-                $dom1->documentElement->setAttribute('class', $classes->add('custom-qti-style')->implode(' '));
-            }
-            $styleNode = $dom1->createElement('style');
-            $styleNode->nodeValue = $content->implode(PHP_EOL);
-            $dom1->documentElement->appendChild($styleNode);
-        }
     }
 
     private function getMetadata()

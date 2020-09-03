@@ -16,6 +16,7 @@ use tcCore\Http\Middleware\RedirectIfAuthenticated;
 use tcCore\Http\Requests\QtiImportCitoDataRequest;
 use tcCore\Jobs\SendExceptionMail;
 use tcCore\Period;
+use tcCore\QtiModels\ExcelManifest;
 use tcCore\QtiModels\QtiManifest;
 use tcCore\QtiModels\QtiResource as Resource;
 use tcCore\SchoolLocation;
@@ -232,12 +233,12 @@ class QtiImportBatchCitoController extends Controller
             }
 
         }
-        $excelFiles = collect(scandir($dir))->first(function ($file) use ($dir) {
+        $excelFile = collect(scandir($dir))->first(function ($file) use ($dir) {
             return strtolower(pathinfo($file, PATHINFO_EXTENSION)) == 'xlsx'
                 && pathinfo($file, PATHINFO_FILENAME) === 'assessments';
         });
-        if ($excelFiles) {
-            $this->manifest = new ExcelManifest($dir . '/' . $excelFiles);
+        if ($excelFile) {
+            $this->manifest = new ExcelManifest($dir . '/' . $excelFile);
         }
 
 
@@ -375,8 +376,8 @@ class QtiImportBatchCitoController extends Controller
 
         // add the test
 
-        foreach ($this->manifest->getTestListWithResources() as $key => $resources) {
-            $test = $this->addTest($xml, ['name' => $key, 'scope' => 'cito']);
+        foreach ($this->manifest->getTestListWithResources() as $key => $test) {
+            $test = $this->addTest($xml, ['name' => $test->testName, 'scope' => 'cito']);
             $this->currentTest->name = $test->name;
 
             // we need to set the auth user to the user we want to import the
@@ -384,15 +385,17 @@ class QtiImportBatchCitoController extends Controller
             Auth::loginUsingId($this->requestData['author_id']);
 
 
+
+
             // first test all
-            foreach ($resources as $resource) {
+            foreach ($test->items as $resource) {
 
                 $resource = new Resource(
-                    $resource['identifier'],
+                    'abc',//$resource['identifier'],
                     'imsqti_item_xmlv2p2',
-                    sprintf('%s/%s/%s', $this->packageDir, 'zipdir', $resource['href']),
+                    sprintf('%s/%s/%s', $this->packageDir, 'zipdir', $resource),
                     '1',
-                    $resource['guid'],
+                    'some guid',//$resource['guid'],
                     $test
                 );
                 $this->instance = (new QtiResource($resource))->handle();
