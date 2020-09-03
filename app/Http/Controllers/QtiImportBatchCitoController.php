@@ -406,7 +406,7 @@ class QtiImportBatchCitoController extends Controller
             foreach ($testFromIterator['items'] as $resource) {
 
                 $resource = new Resource(
-                    'abc',//$resource['identifier'],
+                    $resource,
                     'imsqti_item_xmlv2p2',
                     sprintf('%s/%s/%s/zipdir/depitems/%s.xml', $this->packageDir, 'zipdir', $dirNumber, str_replace('ITM-', '', $resource)),
                     '1',
