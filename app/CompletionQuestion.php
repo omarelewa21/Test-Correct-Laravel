@@ -223,6 +223,8 @@ class CompletionQuestion extends Question implements QuestionInterface {
         foreach($answers as $answerDetails) {
             $completionQuestionAnswer = new CompletionQuestionAnswer();
 
+            $answerDetails['answer'] = html_entity_decode($answerDetails['answer']);//str_replace(['&eacute;','&euro;','&euml;','&nbsp;','&oacute;'],['é','€','ë',' ','ó'],$answerDetails['answer']);
+
             $completionQuestionAnswer->fill($answerDetails);
             if (!$completionQuestionAnswer->save()) {
                 throw new QuestionException('Failed to create completion question answer',422);

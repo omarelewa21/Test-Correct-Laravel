@@ -198,8 +198,6 @@ class QtiResource
 
 
         $this->question_xml = $dom1->saveXML();
-
-
     }
 
 
@@ -239,21 +237,18 @@ class QtiResource
         }
     }
 
+    protected function getTextEntryInteractionText($el)
+    {
+        return $this->getInlineChoiceText($el);
+    }
     protected function getInlineChoiceText($inlineChoice)
     {
-
         $doc = new DOMDocument();
         $domElement = $doc->importNode(dom_import_simplexml($inlineChoice),true);
         $doc->appendChild($domElement);
         $text = ($doc->saveHTML());
 
-        return strip_tags($text);
-
-        $text = '';
-        foreach($inlineChoice->span as $span){
-            $text .= $span->__toString();
-        }
-        return str_replace(['&eacute;','&euro;','&euml;','&nbsp;','&oacute;'],['é','€','ë',' ','ó'],$text);
+        return (trim(str_replace(['\r\n','\n'],'',strip_tags(html_entity_decode($text, ENT_NOQUOTES)))));
     }
 
     private function replaceInlineChoiceInteraction()
@@ -269,7 +264,7 @@ class QtiResource
                     $result[] = [
                         'identifier' => $inlineChoice['identifier'],
 //                        'value' => $inlineChoice->span->__toString(),
-//                        'value' => $this->getInlineChoiceText($inlineChoice),
+                        'value' => $this->getInlineChoiceText($inlineChoice),
                         'correct' => false,
                     ];
                 }
@@ -278,7 +273,7 @@ class QtiResource
 
                 if ($result) {
                     $pipeString = collect($result)->map(function ($response) use ($inlineChoice) {
-                        return $this->getInlineChoiceText($inlineChoice);//$response['value'];
+                        return $response['value'];
                     })->implode('|');
                     $newNode = $domElement->ownerDocument->createTextNode(sprintf('[%s]', $pipeString));
                     $parent->insertBefore($newNode, $domElement);
@@ -299,7 +294,7 @@ class QtiResource
                 $result = [];
                 $result[] = [
                     'identifier' => $interaction['identifier'],
-                    'value' => $interaction->span->__toString(),
+                    'value' => $this->getTextEntryInteractionText($interaction),//$interaction->span->__toString(),
                     'correct' => false,
                     'patternMask' => $interaction['patternMask']->__toString()
                 ];
