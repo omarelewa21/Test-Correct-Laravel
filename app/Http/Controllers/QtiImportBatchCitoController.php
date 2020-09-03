@@ -380,7 +380,7 @@ class QtiImportBatchCitoController extends Controller
         // add the test
 
         foreach ($this->manifest->getTestListWithResources() as $key => $testFromIterator) {
-            $test = $this->addTest($xml, ['name' => $testFromIterator['test'], 'scope' => 'cito']);
+            $test = $this->addTest($xml, ['name' => $testFromIterator['test'], 'scope' => 'cito','level' => $testFromIterator['level']]);
             $this->currentTest->name = $test->name;
 
             // we need to set the auth user to the user we want to import the
@@ -441,8 +441,29 @@ class QtiImportBatchCitoController extends Controller
         return $fillableData;
     }
 
+    protected function getEducationLevelIdFromLevel($level)
+    {
+        $ar = [
+            'vwo' => ['id' => 1, 'year' => 6],
+            'havo' => ['id' => 3, 'year' => 5],
+            'kb' => ['id' => 6, 'year' => 4],
+            'gl/tl' => ['id' => 4, 'year' => 4],
+        ];
+        if(!array_key_exists($level,$ar)){
+            throw new \Exception(sprintf('Expected level %s unknown in class %s',$level,__CLASS__));
+        }
+        return $ar[$level];
+    }
+
     protected function addTest($xml, $overrides = [])
     {
+        if(isset($overrides['level'])){
+            $details = $this->getEducationLevelIdFromLevel($overrides['level']);
+            $overrides['education_level_id'] = $details['id'];
+            $overrides['education_level_year'] = $details['year'];
+
+        }
+
         $fillableData = $this->getRequestData((new Test())->getFillable());
 
         $shuffle = 0;
