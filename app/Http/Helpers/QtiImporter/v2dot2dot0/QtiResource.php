@@ -241,11 +241,19 @@ class QtiResource
 
     protected function getInlineChoiceText($inlineChoice)
     {
+
+        $doc = new DOMDocument();
+        $domElement = $doc->importNode(dom_import_simplexml($inlineChoice),true);
+        $doc->appendChild($domElement);
+        $text = ($doc->saveHTML());
+
+        return strip_tags($text);
+
         $text = '';
         foreach($inlineChoice->span as $span){
             $text .= $span->__toString();
         }
-        return $text;
+        return str_replace(['&eacute;','&euro;','&euml;','&nbsp;','&oacute;'],['é','€','ë',' ','ó'],$text);
     }
 
     private function replaceInlineChoiceInteraction()
@@ -261,7 +269,7 @@ class QtiResource
                     $result[] = [
                         'identifier' => $inlineChoice['identifier'],
 //                        'value' => $inlineChoice->span->__toString(),
-                        'value' => $this->getInlineChoiceText($inlineChoice),
+//                        'value' => $this->getInlineChoiceText($inlineChoice),
                         'correct' => false,
                     ];
                 }
@@ -269,8 +277,8 @@ class QtiResource
                 $parent = $domElement->parentNode;
 
                 if ($result) {
-                    $pipeString = collect($result)->map(function ($response) {
-                        return $response['value'];
+                    $pipeString = collect($result)->map(function ($response) use ($inlineChoice) {
+                        return $this->getInlineChoiceText($inlineChoice);//$response['value'];
                     })->implode('|');
                     $newNode = $domElement->ownerDocument->createTextNode(sprintf('[%s]', $pipeString));
                     $parent->insertBefore($newNode, $domElement);
