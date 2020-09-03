@@ -192,6 +192,14 @@ class RankingQuestion extends Question implements QuestionInterface {
             }
         }
 
+        if($this->allOrNothingQuestion()){
+            if($correct == count($orderAnswers)){
+                return $this->score;
+            } else {
+                return 0;
+            }
+        }
+
 
         $score = $this->getAttribute('score') * ($correct / count($orderAnswers));
         if ($this->getAttribute('decimal_score') == true) {
@@ -199,6 +207,7 @@ class RankingQuestion extends Question implements QuestionInterface {
         } else {
             $score = floor($score);
         }
-        return $score;
+
+       return $score;
     }
 }

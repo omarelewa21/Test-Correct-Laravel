@@ -95,6 +95,10 @@ class CompletionQuestion extends Question implements QuestionInterface {
     }
 
     public function canCheckAnswer() {
+        if($this->isClosedQuestion()){
+            return true;
+        }
+
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
         $tags = [];
 
@@ -150,6 +154,15 @@ class CompletionQuestion extends Question implements QuestionInterface {
                 $correct++;
             }
         }
+
+        if($this->allOrNothingQuestion()){
+            if($correct == count($completionQuestionAnswers)){
+                return $this->score;
+            } else {
+                return 0;
+            }
+        }
+
 
         $score = $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
         if ($this->getAttribute('decimal_score') == true) {

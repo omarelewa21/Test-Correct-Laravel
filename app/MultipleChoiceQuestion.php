@@ -119,9 +119,20 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         }
 
         $score = 0;
+        $maxScore = 0;
         foreach($multipleChoiceQuestionAnswers as $multipleChoiceQuestionAnswer) {
             if (array_key_exists($multipleChoiceQuestionAnswer->getKey(), $answers) && $answers[$multipleChoiceQuestionAnswer->getKey()] == 1) {
                 $score += $multipleChoiceQuestionAnswer->getAttribute('score');
+            }
+            $maxScore += $multipleChoiceQuestionAnswer->getAttribute('score');
+        }
+
+
+        if($this->allOrNothingQuestion()){
+            if($score == $maxScore){
+                return $this->score;
+            } else {
+                return 0;
             }
         }
 
@@ -134,6 +145,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         } else {
             $score = floor($score);
         }
+
 
         return $score;
     }

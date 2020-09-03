@@ -138,6 +138,14 @@ class MatchingQuestion extends Question implements QuestionInterface {
             $score = floor($score);
         }
 
+        if($this->allOrNothingQuestion()){
+            if($score == count($correctAnswers)){
+                return $this->score;
+            } else {
+                return 0;
+            }
+        }
+
         return $score;
     }
 
