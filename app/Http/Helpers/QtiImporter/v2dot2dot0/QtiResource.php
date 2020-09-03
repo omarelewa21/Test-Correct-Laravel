@@ -239,6 +239,15 @@ class QtiResource
         }
     }
 
+    protected function getInlineChoiceText($inlineChoice)
+    {
+        $text = '';
+        foreach($inlineChoice->span as $span){
+            $text .= $span->__toString();
+        }
+        return $text;
+    }
+
     private function replaceInlineChoiceInteraction()
     {
         if ($this->itemType === 'inlineChoiceInteraction') {
@@ -251,7 +260,8 @@ class QtiResource
                 foreach ($interaction->inlineChoice as $inlineChoice) {
                     $result[] = [
                         'identifier' => $inlineChoice['identifier'],
-                        'value' => $inlineChoice->span->__toString(),
+//                        'value' => $inlineChoice->span->__toString(),
+                        'value' => $this->getInlineChoiceText($inlineChoice),
                         'correct' => false,
                     ];
                 }
