@@ -120,7 +120,11 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
         $score = 0;
         $maxScore = 0;
+        $countCorrectAnswers = 0;
         foreach($multipleChoiceQuestionAnswers as $multipleChoiceQuestionAnswer) {
+            if($multipleChoiceQuestionAnswer->score > 0){
+                $countCorrectAnswers++;
+            }
             if (array_key_exists($multipleChoiceQuestionAnswer->getKey(), $answers) && $answers[$multipleChoiceQuestionAnswer->getKey()] == 1) {
                 $score += $multipleChoiceQuestionAnswer->getAttribute('score');
             }
@@ -129,7 +133,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
 
         if($this->allOrNothingQuestion()){
-            if($score == $maxScore){
+            if($score == $maxScore && $countCorrectAnswers == count($answers)){
                 return $this->score;
             } else {
                 return 0;
