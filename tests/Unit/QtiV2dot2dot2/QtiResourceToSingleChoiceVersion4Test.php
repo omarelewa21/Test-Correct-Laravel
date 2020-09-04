@@ -12,7 +12,7 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceToSingleChoiceVersion3Test extends TestCase
+class QtiResourceToSingleChoiceVersion4Test extends TestCase
 {
     use DatabaseTransactions;
 
