@@ -45,6 +45,7 @@ use tcCore\TestParticipant;
 use tcCore\TestQuestion;
 use tcCore\TestTake;
 use tcCore\TestTakeEvent;
+use tcCore\testTakeEventType;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
@@ -356,6 +357,10 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('test_take_event', function($item) {
             return TestTakeEvent::whereUuid($item)->first();
+        });
+
+        Route::bind('test_take_event_type', function($item) {
+            return testTakeEventType::whereUuid($item)->first();
         });
 
         Route::bind('education_level', function($item) {

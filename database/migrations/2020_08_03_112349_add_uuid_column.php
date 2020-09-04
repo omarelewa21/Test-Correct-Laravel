@@ -49,6 +49,7 @@ use tcCore\TestParticipant;
 use tcCore\TestQuestion;
 use tcCore\TestTake;
 use tcCore\TestTakeEvent;
+use tcCore\testTakeEventType;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
@@ -428,6 +429,16 @@ class AddUuidColumn extends Migration
         TestQuestion::withTrashed()->get()->each(function($item) {
             DB::table('test_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
+
+        Schema::table('test_take_event_types', function (Blueprint $table) {
+            $table->efficientUuid('uuid')->index();
+        });
+
+        testTakeEventType::withTrashed()->get()->each(function($item) {
+            DB::table('test_take_event_types')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
+        });
+
+        
     }
 
     /**
@@ -618,6 +629,10 @@ class AddUuidColumn extends Migration
         });
 
         Schema::table('drawing_questions', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('test_take_event_types', function (Blueprint $table) {
             $table->dropColumn('uuid');
         });
     }
