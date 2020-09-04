@@ -377,28 +377,32 @@ class QtiImportBatchCitoController extends Controller
         $xml = '';
 
 
-        // add the test
+        // we need to set the auth user to the user we want to import the
+        // test for as the rest of the system is depending on this
+        Auth::loginUsingId($this->requestData['author_id']);
 
         foreach ($this->manifest->getTestListWithResources() as $key => $testFromIterator) {
-            $test = $this->addTest($xml, ['name' => $testFromIterator['test'], 'scope' => 'cito','level' => $testFromIterator['level']]);
+
+            $test = $this->addTest($xml, [
+                'name' => $testFromIterator['test'],
+                'scope' => 'cito',
+                'level' => $testFromIterator['highest_level'],
+            ]);
             $this->currentTest->name = $test->name;
 
-            // we need to set the auth user to the user we want to import the
-            // test for as the rest of the system is depending on this
-            Auth::loginUsingId($this->requestData['author_id']);
 
             $dirNumber = false;
 
             foreach (scandir($this->packageDir . '/zipdir') as $fileOrDir) {
                 logger([$fileOrDir, is_dir($fileOrDir)]);
-                if ($fileOrDir !== '.' && $fileOrDir !== '..' && is_dir($this->packageDir . '/zipdir/'.$fileOrDir)) {
+                if ($fileOrDir !== '.' && $fileOrDir !== '..' && is_dir($this->packageDir . '/zipdir/' . $fileOrDir)) {
                     $dirNumber = $fileOrDir;
                 }
             }
 
             if ($dirNumber === false) {
                 logger(scandir($this->packageDir . '/zipdir'));
-                throw new \Exception('Couldnt find correct zipdir for test: '.$testFromIterator['test']);
+                throw new \Exception('Couldnt find correct zipdir for test: ' . $testFromIterator['test']);
             }
 
 
@@ -449,15 +453,15 @@ class QtiImportBatchCitoController extends Controller
             'kb' => ['id' => 6, 'year' => 4],
             'gl/tl' => ['id' => 4, 'year' => 4],
         ];
-        if(!array_key_exists($level,$ar)){
-            throw new \Exception(sprintf('Expected level %s unknown in class %s',$level,__CLASS__));
+        if (!array_key_exists($level, $ar)) {
+            throw new \Exception(sprintf('Expected level %s unknown in class %s', $level, __CLASS__));
         }
         return $ar[$level];
     }
 
     protected function addTest($xml, $overrides = [])
     {
-        if(isset($overrides['level'])){
+        if (isset($overrides['level'])) {
             $details = $this->getEducationLevelIdFromLevel($overrides['level']);
             $overrides['education_level_id'] = $details['id'];
             $overrides['education_level_year'] = $details['year'];
