@@ -127,7 +127,59 @@ class CompletionQuestion extends Question implements QuestionInterface {
         return true;
     }
 
-    public function checkAnswer($answer) {
+    public function checkAnswerCompletion($answer)
+    {
+        $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
+        foreach($completionQuestionAnswers as $tag => $choices) {
+            $answers = [];
+            foreach ($choices as $choice) {
+                if ($choice->getAttribute('correct') == 1) {
+                    $answers[] = $choice->getAttribute('answer');
+                }
+            }
+            $completionQuestionAnswers[$tag] = $answers;
+        }
+
+        $answers = json_decode($answer->getAttribute('json'), true);
+        if(!$answers) {
+            return 0;
+        }
+
+        $correct = 0;
+        foreach($completionQuestionAnswers as $tag => $tagAnswers) {
+            // as completion questions have a saved tag 0 based we need to lower them
+            $refTag = $tag-1;
+            if (!array_key_exists($refTag, $answers)) {
+                continue;
+            }
+
+            if (in_array($answers[$refTag], $tagAnswers)) {
+                $correct++;
+            }
+        }
+
+        if($this->allOrNothingQuestion()){
+            if($correct == count($completionQuestionAnswers)){
+                return $this->score;
+            } else {
+                return 0;
+            }
+        }
+
+
+        $score = $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
+        if ($this->getAttribute('decimal_score') == true) {
+            $score = floor($score * 2) / 2;
+        } else {
+            $score = floor($score);
+        }
+
+        return $score;
+
+    }
+
+    public function checkAnswerMulti($answer)
+    {
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
         foreach($completionQuestionAnswers as $tag => $choices) {
             $answers = [];
@@ -172,6 +224,13 @@ class CompletionQuestion extends Question implements QuestionInterface {
         }
 
         return $score;
+    }
+
+    public function checkAnswer($answer) {
+        if($this->subtype == 'multi'){
+            return $this->checkAnswerMulti($answer);
+        }
+        return $this->checkAnswerCompletion($answer);
     }
 
     public function deleteAnswers(){
