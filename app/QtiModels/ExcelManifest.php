@@ -34,27 +34,44 @@ class ExcelManifest
             $items = $this->transformArrayStructureToArray($row['items']);
 
             $testName = sprintf(
-                '%s | %s',
+                '%s | %s | %s',
                 $row['learning_objective'],
-                trim(substr($row['domain'], strpos($row['domain'], ' - ' )+3))
+                trim(substr($row['domain'], strpos($row['domain'], ' - ') + 3)),
+                self::orderByHighestEducationLevel($levels)->implode(', ')
             );
 
-            foreach ($levels as $level) {
-                $result[] = [
-                    'level' => $level,
-                    'test' => $testName,
-                    'items' => $items->toArray(),
-                ];
-            }
+            $result[] = [
+                'highest_level' => $this->getHighestEducationLevel($levels),
+                'levels' => $levels->toArray(),
+                'test' => $testName,
+                'items' => $items->toArray(),
+            ];
         }
         return $result;
     }
 
-    private function transformArrayStructureToArray($structs) {
+    private function transformArrayStructureToArray($structs)
+    {
         return collect(explode(',', $structs))
             ->map(function ($struct) {
                 return trim(str_replace(['[', ']', '\''], ['', '', ''], $struct));
             });
+    }
+
+    public static function getHighestEducationLevel($levels) {
+       return self::orderByHighestEducationLevel($levels)->first();
+    }
+
+    public static function orderByHighestEducationLevel($levels) {
+        $arr = [
+            'vwo' =>  60,
+            'havo' => 50,
+            'gl/tl' => 40,
+            'kb' => 30,
+        ];
+        return $levels->sort(function($a,$b) use ($arr) {
+            return $arr[$a] < $arr[$b];
+        });
     }
 }
 
