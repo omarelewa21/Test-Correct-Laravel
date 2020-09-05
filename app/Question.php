@@ -796,6 +796,11 @@ class Question extends MtiBaseModel {
             return $question;
         }
 
+        $question = MatrixQuestion::whereUuid($uuid)->first();
+        if (!empty($question)) {
+            return $question;
+        }
+
         $question = GroupQuestion::whereUuid($uuid)->first();
         if (!empty($question)) {
             return $question;
