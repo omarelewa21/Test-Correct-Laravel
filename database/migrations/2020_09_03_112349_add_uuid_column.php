@@ -22,6 +22,7 @@ use tcCore\Invigilator;
 use tcCore\License;
 use tcCore\Manager;
 use tcCore\MatchingQuestion;
+use tcCore\MatrixQuestion;
 use tcCore\Mentor;
 use tcCore\Message;
 use tcCore\MultipleChoiceQuestion;
@@ -306,6 +307,10 @@ class AddUuidColumn extends Migration
             $table->efficientUuid('uuid')->index();
         });
 
+        Schema::table('matrix_questions', function (Blueprint $table) {
+            $table->efficientUuid('uuid')->index();
+        });
+
         Schema::table('test_questions', function (Blueprint $table) {
             $table->efficientUuid('uuid')->index();
         });
@@ -424,6 +429,10 @@ class AddUuidColumn extends Migration
 
         GroupQuestion::withTrashed()->get()->each(function($item) {
             DB::table('group_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
+        });
+
+        MatrixQuestion::withTrashed()->get()->each(function($item) {
+            DB::table('matrix_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         TestQuestion::withTrashed()->get()->each(function($item) {
@@ -629,6 +638,10 @@ class AddUuidColumn extends Migration
         });
 
         Schema::table('drawing_questions', function (Blueprint $table) {
+            $table->dropColumn('uuid');
+        });
+
+        Schema::table('matrix_questions', function (Blueprint $table) {
             $table->dropColumn('uuid');
         });
 
