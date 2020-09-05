@@ -64,6 +64,8 @@ class RequestLogger
 
     private function notInProduction()
     {
-        return in_array(env('APP_ENV'), ['local', 'testing']);
+        // we don't use this any more, cause it's getting to be too big online
+        // and locally we use telescope
+        return false; //in_array(env('APP_ENV'), ['local', 'testing']);
     }
 }

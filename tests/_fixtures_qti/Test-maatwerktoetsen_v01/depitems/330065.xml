@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?><assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd" title="Raamalarm" identifier="ITM-330065" label="32k6c7" timeDependent="false" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="A"><value>A</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css" /><stylesheet href="../css/cito_userstyle.css" type="text/css" /><stylesheet href="../css/cito_generated.css" type="text/css" /><stylesheet href="../css/cito_generated_330065.css" type="text/css" /><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+            <div id="body">
+						<p><strong>Raamalarm</strong></p><p>Yvette onderzoekt voor haar profielwerkstuk een raamalarm. Yvette heeft als opdracht gekregen om de schakeling in het alarm na te bouwen.</p><p>Het raamalarm bestaat uit een magneet en een alarm.</p><p>*afbeelding*</p><p>Bij het openen van het raam wordt de magneet verwijdert van een reedcontact en gaat het alarm af.</p><p>Yvette bouwt twee schakelingen.</p><p>Je ziet de schakelschema's van beide schakelingen.</p><table class="cito_genclass_330065_1"><colgroup><col /><col /></colgroup><tbody><tr><td class="cito_genclass_330065_2 cito_genclass_330065_3"><p class="cito_genclass_330065_4"><img id="Id-IMG_a8f7a56a-ee20-4aaa-b9b9-7ea5a10fa1f6" src="../img/mwt20nask1vmbo-330065-2a.jpg" width="210" height="184" alt="" /> </p></td><td class="cito_genclass_330065_2 cito_genclass_330065_5"><p class="cito_genclass_330065_6"><img id="Id-IMG_62d1beae-3c46-4ad9-9d25-c9fae8ccc7f8" src="../img/mwt20nask1vmbo-330065-2b.jpg" width="215" height="203" alt="" /> </p></td></tr><tr><td class="cito_genclass_330065_7 cito_genclass_330065_8"><p class="cito_genclass_330065_9">schakelschema I</p></td><td class="cito_genclass_330065_7 cito_genclass_330065_10"><p class="cito_genclass_330065_11">schakelschema II</p></td></tr></tbody></table> <p />
+					</div>
+
+					<div id="question">
+						<p><strong>Welk schakelschema kan in het alarm zitten?</strong></p>
+					</div>
+
+					<div id="mc">
+				
+						<choiceInteraction id="choiceInteraction1" maxChoices="1" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p>alleen schakelschema I</p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p>alleen schakelschema II</p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p>zowel schakelschema I als II</p></simpleChoice>
+			  
+						</choiceInteraction>
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><member><baseValue baseType="identifier">A</baseValue><variable identifier="RESPONSE" /></member><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="integer">1</baseValue><variable identifier="SCORE" /></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE" /><baseValue baseType="integer">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

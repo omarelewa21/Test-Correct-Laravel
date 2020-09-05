@@ -41,7 +41,7 @@ class Question extends MtiBaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_id', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content'];
+    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_id', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content', 'metadata', 'external_id','scope','styling'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -58,6 +58,11 @@ class Question extends MtiBaseModel {
     protected $attainments = null;
 
     protected $tags = null;
+
+    public static function usesDeleteAndAddAnswersMethods($questionType)
+    {
+        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion'])->contains(strtolower($questionType));
+    }
 
     public function fill(array $attributes)
     {
@@ -512,7 +517,7 @@ class Question extends MtiBaseModel {
             $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
 
          //    $query->whereIn('subject_id',$subjectIds);
-        	
+
 
 	        if(!isset($filters['is_open_source_content']) || $filters['is_open_source_content'] == 0) {
 				$query->whereIn('subject_id', function ($query) use ($user) {
@@ -607,7 +612,7 @@ class Question extends MtiBaseModel {
                     } else {
                         break;
                     }
-                    
+
                     if (is_array($value)) {
                         $query->whereIn('subtype', $value);
                     } else {

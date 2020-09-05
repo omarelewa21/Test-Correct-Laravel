@@ -1,0 +1,1171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns="http://www.imsglobal.org/xsd/imsqti_ext_v2p2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:m="http://www.w3.org/1998/Math/MathML" xmlns:imsqti="http://www.imsglobal.org/xsd/imsqti_v2p2" targetNamespace="http://www.imsglobal.org/xsd/imsqti_ext_v2p2" elementFormDefault="qualified" attributeFormDefault="unqualified" version="IMS QTI DEP EXT V1.0">
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+	<xs:import namespace="http://www.imsglobal.org/xsd/imsqti_v2p2" schemaLocation="imsqti_v2p2p1.xsd"/>
+	<xs:import namespace="http://www.w3.org/1998/Math/MathML" schemaLocation="http://www.w3.org/Math/XMLSchema/mathml2/mathml2.xsd"/>
+	<xs:annotation>
+		<xs:documentation>
+            XSD Data File Information
+            -------------------------
+            TODO
+        </xs:documentation>
+	</xs:annotation>
+	<!-- Class: QTIBlock -->
+	<xs:complexType name="QTIBlock.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="block.ElementGroup" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Empty -->
+	<xs:complexType name="Empty.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+	<!-- Class: Dimensions -->
+	<xs:complexType name="Dimensions.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="width" type="xs:integer"/>
+			<xs:element name="height" type="xs:integer"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: AdaptiveSelection -->
+	<xs:complexType name="AdaptiveSelection.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="moduleIdRef" type="xs:normalizedString"/>
+			<xs:element name="driverIdRef" type="xs:normalizedString"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Enumeration: ColorDepth -->
+	<xs:simpleType name="ColorDepth.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="8"/>
+			<xs:enumeration value="16"/>
+			<xs:enumeration value="24"/>
+			<xs:enumeration value="32"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Enumeration: MediaPlayerControl -->
+	<xs:simpleType name="MediaPlayerControl.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="start"/>
+			<xs:enumeration value="stop"/>
+			<xs:enumeration value="pause"/>
+			<xs:enumeration value="rewind"/>
+			<xs:enumeration value="fastforward"/>
+			<xs:enumeration value="scroll"/>
+			<xs:enumeration value="fullScreen"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Enumeration: ItemUsage -->
+	<xs:simpleType name="ItemUsage.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="default"/>
+			<xs:enumeration value="seeding"/>
+			<xs:enumeration value="informational"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Enumeration: ItemCategories -->
+	<xs:complexType name="ItemCategories.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="itemCategory" type="xs:normalizedString" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Enumeration: WindowResizeMode -->
+	<xs:simpleType name="WindowResizeMode.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="fixed"/>
+			<xs:enumeration value="sizable"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Enumeration: ReferenceDisplay -->
+	<xs:simpleType name="ReferenceDisplay.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="default"/>
+			<xs:enumeration value="tabular"/>
+			<xs:enumeration value="accordion"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Enumeration: CalculatorMode -->
+	<xs:simpleType name="CalculatorMode.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="basic"/>
+			<xs:enumeration value="mathematical"/>
+			<xs:enumeration value="scientific"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Datatype: TriangleDegrees.Type -->
+	<xs:simpleType name="TriangleDegrees.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:integer">
+			<xs:maxInclusive value="180"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Datatype: LinearValue -->
+	<!--<xs:complexType name="LinearValue.Type">
+        <xs:simpleContent>
+            <xs:extension base="xs:decimal">
+                <xs:attribute name="unit" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="meter"/>
+                            <xs:enumeration value="centimeter"/>
+                            <xs:enumeration value="millimeter"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType> -->
+	<!-- Datatype: RadialValue -->
+	<!--	<xs:complexType name="RadialValue.Type">
+        <xs:simpleContent>
+            <xs:extension base="xs:decimal">
+                <xs:attribute name="unit" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="degree"/>
+                            <xs:enumeration value="minute"/>
+                            <xs:enumeration value="radian"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+-->
+	<!-- Class: DEPTest -->
+	<xs:complexType name="DEPTest.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="minResolution" type="Dimensions.Type" minOccurs="0"/>
+			<xs:element name="minColorDepth" type="ColorDepth.Type" minOccurs="0"/>
+			<xs:element name="showRemainingTime" type="Empty.Type" minOccurs="0"/>
+			<xs:element name="showResults" type="Empty.Type" minOccurs="0"/>
+			<xs:element name="soundCheck" type="Empty.Type" minOccurs="0"/>
+			<xs:element name="microphoneCheck" type="Empty.Type" minOccurs="0"/>
+			<xs:element name="warningBeforeEndDuration" type="xs:duration" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="showMaxScore" type="Empty.Type" minOccurs="0"/>
+			<xs:element name="consecutiveNumbering" type="Empty.Type" minOccurs="0"/>
+			<xs:element name="testPart" type="DEPTestPart.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: DEPTestPart -->
+	<xs:complexType name="DEPTestPart.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="postCondition" type="PostCondition.Type" minOccurs="0"/>
+			<xs:element name="testSection" type="DEPSection.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="qtiTestPartIdentifierRef" type="xs:normalizedString" use="required"/>
+		<xs:attribute name="title" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: PostCondition -->
+	<xs:complexType name="PostCondition.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="imsqti:and"/>
+				<xs:element ref="imsqti:gt"/>
+				<xs:element ref="imsqti:not"/>
+				<xs:element ref="imsqti:lt"/>
+				<xs:element ref="imsqti:gte"/>
+				<xs:element ref="imsqti:lte"/>
+				<xs:element ref="imsqti:or"/>
+				<xs:element ref="imsqti:sum"/>
+				<xs:element ref="imsqti:durationLT"/>
+				<xs:element ref="imsqti:durationGTE"/>
+				<xs:element ref="imsqti:subtract"/>
+				<xs:element ref="imsqti:divide"/>
+				<xs:element ref="imsqti:multiple"/>
+				<xs:element ref="imsqti:ordered"/>
+				<xs:element ref="imsqti:customOperator"/>
+				<xs:element ref="imsqti:random"/>
+				<xs:element ref="imsqti:numberIncorrect"/>
+				<xs:element ref="imsqti:numberCorrect"/>
+				<xs:element ref="imsqti:numberPresented"/>
+				<xs:element ref="imsqti:numberResponded"/>
+				<xs:element ref="imsqti:numberSelected"/>
+				<xs:element ref="imsqti:substring"/>
+				<xs:element ref="imsqti:equalRounded"/>
+				<xs:element ref="imsqti:null"/>
+				<xs:element ref="imsqti:delete"/>
+				<xs:element ref="imsqti:match"/>
+				<xs:element ref="imsqti:index"/>
+				<xs:element ref="imsqti:power"/>
+				<xs:element ref="imsqti:equal"/>
+				<xs:element ref="imsqti:contains"/>
+				<xs:element ref="imsqti:containerSize"/>
+				<xs:element ref="imsqti:correct"/>
+				<xs:element ref="imsqti:default"/>
+				<xs:element ref="imsqti:anyN"/>
+				<xs:element ref="imsqti:integerDivide"/>
+				<xs:element ref="imsqti:integerModulus"/>
+				<xs:element ref="imsqti:isNull"/>
+				<xs:element ref="imsqti:member"/>
+				<xs:element ref="imsqti:product"/>
+				<xs:element ref="imsqti:round"/>
+				<xs:element ref="imsqti:truncate"/>
+				<xs:element ref="imsqti:fieldValue"/>
+				<xs:element ref="imsqti:randomInteger"/>
+				<xs:element ref="imsqti:randomFloat"/>
+				<xs:element ref="imsqti:variable"/>
+				<xs:element ref="imsqti:outcomeMinimum"/>
+				<xs:element ref="imsqti:outcomeMaximum"/>
+				<xs:element ref="imsqti:testVariables"/>
+				<xs:element ref="imsqti:integerToFloat"/>
+				<xs:element ref="imsqti:inside"/>
+				<xs:element ref="imsqti:baseValue"/>
+				<xs:element ref="imsqti:patternMatch"/>
+				<xs:element ref="imsqti:mapResponsePoint"/>
+				<xs:element ref="imsqti:mapResponse"/>
+				<xs:element ref="imsqti:stringMatch"/>
+				<xs:element ref="imsqti:repeat"/>
+				<xs:element ref="imsqti:roundTo"/>
+				<xs:element ref="imsqti:lcm"/>
+				<xs:element ref="imsqti:gcd"/>
+				<xs:element ref="imsqti:min"/>
+				<xs:element ref="imsqti:max"/>
+				<xs:element ref="imsqti:mathConstant"/>
+				<xs:element ref="imsqti:statsOperator"/>
+				<xs:element ref="imsqti:mathOperator"/>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="message" type="xs:normalizedString"/>
+	</xs:complexType>
+	<!-- Class: DEPSection -->
+	<xs:complexType name="DEPSection.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="itemRef" type="DEPItemRef" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="adaptiveSelection" type="AdaptiveSelection.Type" minOccurs="0"/>
+			<xs:element name="testSection" type="DEPSection.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="qtiAssessmentSectionIdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: DEPItemRef -->
+	<xs:complexType name="DEPItemRef">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="usage" type="ItemUsage.Type" minOccurs="0"/>
+			<xs:element name="itemCategories" type="ItemCategories.Type" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="qtiAssessmentItemRefIdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: DEPItem -->
+	<xs:complexType name="DEPItem.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="toolInfo" type="ToolInfo.Type" minOccurs="0"/>
+			<xs:element name="window" type="Window.Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="popupInfo" type="PopupInfo.Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="referenceInfo" type="ReferenceInfo.Type" minOccurs="0"/>
+			<xs:element name="scoringInfo" type="ScoringInfo.Type" minOccurs="0"/>
+			<xs:element name="matchingElements" type="MatchingElements.Type" minOccurs="0"/>
+			<xs:element name="mathElements" type="MathElements.Type" minOccurs="0"/>
+			<xs:element name="toolboxElements" type="ToolboxElements.Type" minOccurs="0"/>
+			<xs:element name="inlineChoiceRichTextInteraction" type="InlineChoiceRichTextInteraction.Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="gapTextRichTextInteraction" type="GapTextRichTextInteraction.Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="customInteractionExtensions" type="CustomInteractionExtensions.Type" minOccurs="0"/>
+			<xs:element name="inlineChoiceInteractionExtensions" type="InlineChoiceInteractionExtensions.Type" minOccurs="0"/>
+			<xs:element name="gapMatchInteractionExtensions" type="GapMatchInteractionExtensions.Type" minOccurs="0"/>
+			<xs:element name="blockInteractionExtensions" type="BlockInteractionExtensions.Type" minOccurs="0"/>
+			<xs:element name="uploadInteractionExtensions" type="UploadInteractionExtensions.Type" minOccurs="0"/>
+			<xs:element name="extendedTextInteractionExtensions" type="ExtendedTextInteractionExtensions.Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Abstract class: ToolBase -->
+	<xs:group name="ToolBase.ContentGroup">
+		<xs:sequence>
+			<xs:element name="description" type="xs:normalizedString" minOccurs="0"/>
+		</xs:sequence>
+	</xs:group>
+	<!-- Class: ToolInfo -->
+	<xs:complexType name="ToolInfo.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="calculator" type="Calculator.Type" minOccurs="0"/>
+			<xs:element name="notepad" type="Notepad.Type" minOccurs="0"/>
+			<xs:element name="spellCheck" type="SpellCheck.Type" minOccurs="0"/>
+			<xs:element name="symbolPicker" type="SymbolPicker.Type" minOccurs="0"/>
+			<xs:element name="formulaList" type="FormulaList" minOccurs="0"/>
+			<xs:element name="formulaEditor" type="FormulaEditor.Type" minOccurs="0"/>
+			<xs:element name="ruler" type="ruler.Type" minOccurs="0"/>
+			<xs:element name="protractor" type="Protractor.Type" minOccurs="0"/>
+			<xs:element name="triangle" type="Triangle.Type" minOccurs="0"/>
+			<xs:element name="mediaPlayer" type="MediaPlayer.Type" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="textMarker" type="TextMarker.Type" minOccurs="0"/>
+			<xs:element name="reset" type="Reset.Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Calculator -->
+	<xs:complexType name="Calculator.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+			<xs:element name="mode" type="CalculatorMode.Type"/>
+			<xs:element name="switch" type="xs:boolean" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Notepad -->
+	<xs:complexType name="Notepad.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: SpellCheck -->
+	<xs:complexType name="SpellCheck.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+			<xs:element name="culture" type="xs:normalizedString"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: SymbolPicker -->
+	<xs:complexType name="SymbolPicker.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+			<xs:element name="symbols" type="xs:normalizedString"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: FormulaList -->
+	<xs:complexType name="FormulaList">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+			<xs:element name="menuItem" type="MenuItem.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: MenuItem -->
+	<xs:complexType name="MenuItem.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="menuLabel" type="xs:normalizedString"/>
+			<xs:element name="formulas" type="Formulas.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Formulas -->
+	<xs:complexType name="Formulas.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="formulaLabel" type="xs:normalizedString" minOccurs="0"/>
+			<xs:element name="formula" type="Formula.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Formula -->
+	<xs:complexType name="Formula.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="m:math"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: FormulaEditor -->
+	<xs:complexType name="FormulaEditor.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Ruler -->
+	<xs:complexType name="ruler.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+			<xs:element name="start" type="xs:decimal"/>
+			<xs:element name="end" type="xs:decimal"/>
+			<xs:element name="stepSize" type="xs:integer"/>
+			<xs:element name="step" type="xs:decimal"/>
+			<xs:element name="unit" type="xs:normalizedString"/>
+			<xs:element name="opacity" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:minInclusive value="0"/>
+						<xs:maxInclusive value="1"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Protractor -->
+	<xs:complexType name="Protractor.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+			<xs:element name="enableRotation" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Triangle -->
+	<xs:complexType name="Triangle.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: MediaPlayer -->
+	<xs:complexType name="MediaPlayer.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+			<xs:element name="showToolBar" type="xs:boolean"/>
+			<xs:element name="enabledControl" type="MediaPlayerControl.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="qtiMediaInteractionIdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: TextMarker -->
+	<xs:complexType name="TextMarker.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Reset -->
+	<xs:complexType name="Reset.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:group ref="ToolBase.ContentGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Window -->
+	<xs:complexType name="Window.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="dimensions" type="Dimensions.Type" minOccurs="0"/>
+			<xs:element name="modal" type="xs:boolean"/>
+			<xs:element name="resizeMode" type="WindowResizeMode.Type" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="identifier" type="xs:ID" use="required"/>
+	</xs:complexType>
+	<!-- Class: PopupInfo -->
+	<xs:complexType name="PopupInfo.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="content" type="PopupContent.Type"/>
+			<xs:element name="window" type="PopupWindow.Type"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: PopupContent -->
+	<xs:complexType name="PopupContent.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="triggerContent" type="QTIBlock.Type"/>
+		</xs:sequence>
+		<xs:attribute name="qtiWindowContentIdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: PopupWindow -->
+	<xs:complexType name="PopupWindow.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="caption" type="xs:normalizedString"/>
+		</xs:sequence>
+		<xs:attribute name="identifierRef" type="xs:IDREF" use="required"/>
+	</xs:complexType>
+	<!-- Class: ReferenceInfo -->
+	<xs:complexType name="ReferenceInfo.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="dimensions" type="Dimensions.Type" minOccurs="0"/>
+			<xs:element name="display" type="ReferenceDisplay.Type"/>
+			<xs:element name="content" type="ReferenceContent.Type" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: ReferenceContent -->
+	<xs:complexType name="ReferenceContent.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="caption" type="xs:normalizedString"/>
+			<xs:element name="href" type="xs:anyURI"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: ScoringInfo -->
+	<xs:complexType name="ScoringInfo.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="instruction" type="ScoringInstruction.Type"/>
+			<xs:element name="aspect" type="ScoringAspect.Type" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: ScoringInstruction -->
+	<xs:complexType name="ScoringInstruction.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence/>
+		<xs:attribute name="qtiRubricBlockIdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: ScoringAspect -->
+	<xs:complexType name="ScoringAspect.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="caption" type="xs:normalizedString"/>
+		</xs:sequence>
+		<xs:attribute name="qtiRubricBlockIdentifierRef" type="xs:normalizedString" use="required"/>
+		<xs:attribute name="qtiOutcomeDeclarationIdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: MatchingElement -->
+	<xs:complexType name="MatchingElement.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="selectedElementId" type="xs:normalizedString" use="required"/>
+		<xs:attribute name="matchingElementId" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: MatchingElements -->
+	<xs:complexType name="MatchingElements.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="matchingElement" type="MatchingElement.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: MathElement-->
+	<xs:complexType name="MathElement.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="precursor" type="Precursor.Type" minOccurs="0"/>
+			<xs:element name="enabledControls" type="EnabledControls.Type" minOccurs="0"/>
+			<xs:element name="wordFormulas" type="WordFormulas.Type" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="identifier" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="Precursor.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:normalizedString">
+				<xs:attribute name="newLine" type="xs:boolean" use="required"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- Class: MathElements -->
+	<xs:complexType name="MathElements.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="mathElement" type="MathElement.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: EnabledControls -->
+	<xs:complexType name="EnabledControls.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="enabledControl" type="EnabledControl.Type" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Enumeration: EnabledControl -->
+	<xs:simpleType name="EnabledControl.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="fraction"/>
+			<xs:enumeration value="power"/>
+			<xs:enumeration value="squareroot"/>
+			<xs:enumeration value="cuberoot"/>
+			<xs:enumeration value="add"/>
+			<xs:enumeration value="subtract"/>
+			<xs:enumeration value="multiplication"/>
+			<xs:enumeration value="division"/>
+			<xs:enumeration value="dot"/>
+			<xs:enumeration value="isequal"/>
+			<xs:enumeration value="isnotequal"/>
+			<xs:enumeration value="approximatelyequal"/>
+			<xs:enumeration value="greaterequal"/>
+			<xs:enumeration value="lessequal"/>
+			<xs:enumeration value="lessthan"/>
+			<xs:enumeration value="greaterthan"/>
+			<xs:enumeration value="parentheses"/>
+			<xs:enumeration value="pi"/>
+			<xs:enumeration value="enter"/>
+			<xs:enumeration value="mixedFraction"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Class: WordFormulas -->
+	<xs:complexType name="WordFormulas.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="wordFormula" type="WordFormula.Type" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: WordFormula-->
+	<xs:complexType name="WordFormula.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="identifier" type="xs:normalizedString" use="required"/>
+		<xs:attribute name="name" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: InlineChoiceRichTextInteraction -->
+	<xs:complexType name="InlineChoiceRichTextInteraction.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="inlineChoiceRichText" type="InlineChoiceRichText.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="identifier" type="xs:ID" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="InlineChoiceRichText.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="m:math"/>
+				<xs:choice>
+					<xs:element ref="imsqti:pre"/>
+					<xs:element ref="imsqti:h1"/>
+					<xs:element ref="imsqti:h2"/>
+					<xs:element ref="imsqti:h3"/>
+					<xs:element ref="imsqti:h4"/>
+					<xs:element ref="imsqti:h5"/>
+					<xs:element ref="imsqti:h6"/>
+					<xs:element ref="imsqti:p"/>
+					<xs:element ref="imsqti:address"/>
+					<xs:element ref="imsqti:dl"/>
+					<xs:element ref="imsqti:ol"/>
+					<xs:element ref="imsqti:ul"/>
+					<xs:element ref="imsqti:br"/>
+					<xs:element ref="imsqti:hr"/>
+					<xs:element ref="imsqti:img"/>
+					<xs:element ref="imsqti:object"/>
+					<xs:element ref="imsqti:blockquote"/>
+					<xs:element ref="imsqti:em"/>
+					<xs:element ref="imsqti:a"/>
+					<xs:element ref="imsqti:code"/>
+					<xs:element ref="imsqti:span"/>
+					<xs:element ref="imsqti:sub"/>
+					<xs:element ref="imsqti:acronym"/>
+					<xs:element ref="imsqti:big"/>
+					<xs:element ref="imsqti:tt"/>
+					<xs:element ref="imsqti:kbd"/>
+					<xs:element ref="imsqti:q"/>
+					<xs:element ref="imsqti:i"/>
+					<xs:element ref="imsqti:dfn"/>
+					<xs:element ref="imsqti:abbr"/>
+					<xs:element ref="imsqti:strong"/>
+					<xs:element ref="imsqti:sup"/>
+					<xs:element ref="imsqti:var"/>
+					<xs:element ref="imsqti:small"/>
+					<xs:element ref="imsqti:samp"/>
+					<xs:element ref="imsqti:b"/>
+					<xs:element ref="imsqti:cite"/>
+					<xs:element ref="imsqti:table"/>
+					<xs:element ref="imsqti:div"/>
+				</xs:choice>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="identifier" type="xs:NCName" use="required"/>
+	</xs:complexType>
+	<!-- Class: GapTextRichTextInteraction -->
+	<xs:complexType name="GapTextRichTextInteraction.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="gapTextRichText" type="GapTextRichText.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="identifier" type="xs:ID" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="GapTextRichText.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element ref="m:math"/>
+				<xs:choice>
+					<xs:element ref="imsqti:pre"/>
+					<xs:element ref="imsqti:h1"/>
+					<xs:element ref="imsqti:h2"/>
+					<xs:element ref="imsqti:h3"/>
+					<xs:element ref="imsqti:h4"/>
+					<xs:element ref="imsqti:h5"/>
+					<xs:element ref="imsqti:h6"/>
+					<xs:element ref="imsqti:p"/>
+					<xs:element ref="imsqti:address"/>
+					<xs:element ref="imsqti:dl"/>
+					<xs:element ref="imsqti:ol"/>
+					<xs:element ref="imsqti:ul"/>
+					<xs:element ref="imsqti:br"/>
+					<xs:element ref="imsqti:hr"/>
+					<xs:element ref="imsqti:img"/>
+					<xs:element ref="imsqti:object"/>
+					<xs:element ref="imsqti:blockquote"/>
+					<xs:element ref="imsqti:em"/>
+					<xs:element ref="imsqti:a"/>
+					<xs:element ref="imsqti:code"/>
+					<xs:element ref="imsqti:span"/>
+					<xs:element ref="imsqti:sub"/>
+					<xs:element ref="imsqti:acronym"/>
+					<xs:element ref="imsqti:big"/>
+					<xs:element ref="imsqti:tt"/>
+					<xs:element ref="imsqti:kbd"/>
+					<xs:element ref="imsqti:q"/>
+					<xs:element ref="imsqti:i"/>
+					<xs:element ref="imsqti:dfn"/>
+					<xs:element ref="imsqti:abbr"/>
+					<xs:element ref="imsqti:strong"/>
+					<xs:element ref="imsqti:sup"/>
+					<xs:element ref="imsqti:var"/>
+					<xs:element ref="imsqti:small"/>
+					<xs:element ref="imsqti:samp"/>
+					<xs:element ref="imsqti:b"/>
+					<xs:element ref="imsqti:cite"/>
+					<xs:element ref="imsqti:table"/>
+					<xs:element ref="imsqti:div"/>
+				</xs:choice>
+			</xs:choice>
+		</xs:sequence>
+		<xs:attribute name="identifier" type="xs:NCName" use="required"/>
+	</xs:complexType>
+	<!-- Class: ToolboxElements -->
+	<xs:complexType name="ToolboxElements.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="toolboxElement" type="ToolboxElement.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: ToolboxElement-->
+	<xs:complexType name="ToolboxElement.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="toolboxEnabledControl" type="ToolboxEnabledControl.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="identifier" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Enumeration: ToolboxEnabledControl -->
+	<xs:simpleType name="ToolboxEnabledControl.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="math"/>
+			<xs:enumeration value="shapes"/>
+			<xs:enumeration value="tables"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Class: CustomInteractionExtensions -->
+	<xs:complexType name="CustomInteractionExtensions.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="customInteractionExtension" type="CustomInteractionExtension.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: InlineChoiceInteractionExtensions -->
+	<xs:complexType name="InlineChoiceInteractionExtensions.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="inlineChoiceInteractionExtension" type="InlineChoiceInteractionExtension.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: InlineChoiceInteractionExtension -->
+	<xs:complexType name="InlineChoiceInteractionExtension.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="punctuationRules" type="Empty.Type" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="IdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: GapMatchInteractionExtensions -->
+	<xs:complexType name="GapMatchInteractionExtensions.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="gapMatchInteractionExtension" type="GapMatchInteractionExtension.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: GapMatchInteractionExtension -->
+	<xs:complexType name="GapMatchInteractionExtension.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="gap" type="Gap.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="IdentifierRef" type="xs:normalizedString" use="optional"/>
+	</xs:complexType>
+	<!-- Class: Gap-->
+	<xs:complexType name="Gap.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="punctuationRules" type="Empty.Type" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="IdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: BlockInteractionExtensions -->
+	<xs:complexType name="BlockInteractionExtensions.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="blockInteractionExtension" type="BlockInteractionExtension.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: BlockInteractionExtension-->
+	<xs:complexType name="BlockInteractionExtension.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="pauseBefore" type="xs:double" minOccurs="0"/>
+			<xs:element name="pauseAfter" type="xs:double" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="IdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: UploadInteractionExtensions -->
+	<xs:complexType name="UploadInteractionExtensions.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="uploadInteractionExtension" type="UploadInteractionExtension.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: UploadInteractionExtension -->
+	<xs:complexType name="UploadInteractionExtension.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="duration" type="xs:double" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="IdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: ExtendedTextInteractionExtensions -->
+	<xs:complexType name="ExtendedTextInteractionExtensions.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="extendedTextInteractionExtension" type="ExtendedTextInteractionExtension.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: ExtendedTextInteractionExtension -->
+	<xs:complexType name="ExtendedTextInteractionExtension.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="showWordCounter" type="Empty.Type" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="IdentifierRef" type="xs:normalizedString" use="required"/>
+	</xs:complexType>
+	<!-- Class: CustomInteractionExtension -->
+	<xs:complexType name="CustomInteractionExtension.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="identifier" type="xs:normalizedString" use="required"/>
+		<xs:attribute name="minValues" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:integer">
+					<xs:minInclusive value="0"/>
+					<xs:maxInclusive value="1"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:element name="depTest" type="DEPTest.Type"/>
+	<xs:element name="depItem" type="DEPItem.Type"/>
+	<!-- Class: block -->
+	<xs:group name="block.ElementGroup">
+		<xs:choice>
+			<xs:element ref="imsqti:positionObjectStage"/>
+			<xs:element ref="imsqti:customInteraction"/>
+			<xs:element ref="imsqti:gapMatchInteraction"/>
+			<xs:element ref="imsqti:matchInteraction"/>
+			<xs:element ref="imsqti:graphicGapMatchInteraction"/>
+			<xs:element ref="imsqti:hotspotInteraction"/>
+			<xs:element ref="imsqti:graphicOrderInteraction"/>
+			<xs:element ref="imsqti:selectPointInteraction"/>
+			<xs:element ref="imsqti:graphicAssociateInteraction"/>
+			<xs:element ref="imsqti:sliderInteraction"/>
+			<xs:element ref="imsqti:choiceInteraction"/>
+			<xs:element ref="imsqti:mediaInteraction"/>
+			<xs:element ref="imsqti:hottextInteraction"/>
+			<xs:element ref="imsqti:orderInteraction"/>
+			<xs:element ref="imsqti:extendedTextInteraction"/>
+			<xs:element ref="imsqti:associateInteraction"/>
+			<xs:element ref="imsqti:uploadInteraction"/>
+			<xs:element ref="imsqti:pre"/>
+			<xs:element ref="imsqti:h2"/>
+			<xs:element ref="imsqti:h3"/>
+			<xs:element ref="imsqti:h1"/>
+			<xs:element ref="imsqti:h6"/>
+			<xs:element ref="imsqti:h4"/>
+			<xs:element ref="imsqti:h5"/>
+			<xs:element ref="imsqti:p"/>
+			<xs:element ref="imsqti:address"/>
+			<xs:element ref="imsqti:dl"/>
+			<xs:element ref="imsqti:ol"/>
+			<xs:element ref="imsqti:hr"/>
+			<xs:element ref="imsqti:rubricBlock"/>
+			<xs:element ref="imsqti:blockquote"/>
+			<xs:element ref="imsqti:feedbackBlock"/>
+			<xs:element ref="imsqti:ul"/>
+			<xs:element ref="imsqti:table"/>
+			<xs:element ref="imsqti:div"/>
+			<xs:element ref="m:math"/>
+		</xs:choice>
+	</xs:group>
+</xs:schema>

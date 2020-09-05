@@ -42,7 +42,7 @@ class Test extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle','is_open_source_content','demo'];
+    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle','is_open_source_content','demo', 'metadata', 'external_id'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -198,6 +198,150 @@ class Test extends BaseModel {
         }
     }
 
+    public function scopeCitoFiltered($query, $filters = [], $sorting = [])
+    {
+        $user = Auth::user();
+
+        $citoSchool = SchoolLocation::where('customer_code','CITO-TOETSENOPMAAT')->first();
+        $baseSubjectIds = $user->subjects()->pluck('base_subject_id');
+
+        if($citoSchool){
+            $classIds = $citoSchool->schoolClasses()->pluck('id');
+            $tempSubjectIds = Teacher::whereIn('class_id',$classIds)->pluck('subject_id');
+            $baseSubjects = Subject::whereIn('id',$tempSubjectIds)->get();
+            $baseSubjectIds = collect($baseSubjectIds);
+            $subjectIds = $baseSubjects->whereIn('base_subject_id',$baseSubjectIds)->pluck('id');
+        } else { // slower but as a fallback in case there's no cito school
+            $subjectIds = BaseSubject::whereIn('id', $baseSubjectIds)->get()->map(function (BaseSubject $bs) {
+                return $bs->subjects()->pluck('id');
+            })->flatten();
+        }
+
+        $query->whereIn('subject_id', $subjectIds);
+        $query->where('scope', 'cito');
+
+        if (!array_key_exists('is_system_test', $filters)) {
+            $query->where('is_system_test', '=', 0);
+        }
+
+        foreach($filters as $key => $value) {
+            switch($key) {
+                case 'nameOrAbbreviation':
+                    $query->where(function($query) use ($value)
+                    {
+                        $query->where('name', 'LIKE', '%'.$value.'%')->orWhere('abbreviation', 'LIKE', '%'.$value.'%');
+                    });
+                    break;
+                case 'name':
+                    $query->where('name', 'LIKE', '%'.$value.'%');
+                    break;
+                case 'abbreviation':
+                    $query->where('abbreviation', 'LIKE', '%'.$value.'%');
+                    break;
+                case 'subject_id':
+                    if (is_array($value)) {
+                        $query->whereIn('subject_id', $value);
+                    } else {
+                        $query->where('subject_id', '=', $value);
+                    }
+                    break;
+                case 'education_level_id':
+                    if (is_array($value)) {
+                        $query->whereIn('education_level_id', $value);
+                    } else {
+                        $query->where('education_level_id', '=', $value);
+                    }
+                    break;
+                case 'education_level_year':
+                    $query->where('education_level_year', '=', $value);
+                    break;
+                case 'period_id':
+                    if (is_array($value)) {
+                        $query->whereIn('period_id', $value);
+                    } else {
+                        $query->where('period_id', '=', $value);
+                    }
+                    break;
+                case 'test_kind_id':
+                    if (is_array($value)) {
+                        $query->whereIn('test_kind_id', $value);
+                    } else {
+                        $query->where('test_kind_id', '=', $value);
+                    }
+                    break;
+                case 'status':
+                    $query->where('status', $value);
+                    break;
+                case 'created_at_start':
+                    $query->where('created_at', '>=', $value);
+                    break;
+                case 'created_at_end':
+                    $query->where('created_at', '<=', $value);
+                    break;
+                case 'is_system_test':
+                    $query->where('is_system_test', '=', $value);
+                    break;
+                case 'author_id':
+                    if (is_array($value)) {
+                        $query->whereIn('author_id', $value);
+                    } else {
+                        $query->where('author_id', '=', $value);
+                    }
+                    break;
+            }
+        }
+
+        foreach($sorting as $key => $value) {
+            switch(strtolower($value)) {
+                case 'id':
+                case 'name':
+                case 'abbreviation':
+                case 'subject_id':
+                case 'education_level_id':
+                case 'education_level_year':
+                case 'period_id':
+                case 'test_kind_id':
+                case 'status':
+                case 'author_id':
+                    $key = $value;
+                    $value = 'asc';
+                    break;
+                case 'asc':
+                case 'desc':
+                    break;
+                default:
+                    $value = 'asc';
+            }
+            switch(strtolower($key)) {
+                case 'id':
+                case 'name':
+                case 'abbreviation':
+                case 'subject_id':
+                case 'education_level_id':
+                case 'education_level_year':
+                case 'period_id':
+                case 'test_kind_id':
+                case 'status':
+                case 'author_id':
+                    $query->orderBy($key, $value);
+                    break;
+            }
+        }
+
+        if($user->isA('teacher')){
+            // don't show demo tests from other teachers
+            $query->where(function($query) use ($user) {
+                $query->where(function($query) use ($user) {
+                    $query->where('demo',1)
+                        ->where('author_id',$user->getKey());
+                })
+                    ->orWhere('demo',0);
+            });
+        }
+
+        return $query;
+    }
+
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
@@ -205,6 +349,7 @@ class Test extends BaseModel {
         $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
 
         if($schoolLocation->is_allowed_to_view_open_source_content == 1){
+            // @TODO WHY IS THIS ONLY ON THE FIRST BASE SUBJECT????????
             $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
             $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
 

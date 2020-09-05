@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://duo.nl/schema/FACET_Examen_Manifest_V1.0" targetNamespace="http://duo.nl/schema/FACET_Examen_Manifest_V1.0" elementFormDefault="qualified" attributeFormDefault="unqualified" version="24204">
+	<xsd:annotation>
+		<xsd:documentation>XSD gegenereerd op 20-05-2020 14:22:08.328 op basis van commit-versie 24204 van het DUO_Service- en Berichtenboek ten behoeve van het servicecontract FACET_Examen_Manifest_V1.0. Gemaakt met C:\ProgramData\.magicdraw\190\stateful8\data\reports\WSDL-XSD-script\XSD-WSDL-script_V0043.docx en XSD-script_V0043.xml</xsd:documentation>
+	</xsd:annotation>
+	<!--===================Begin berichtelementen=================-->
+	<xsd:element name="manifest_V1" type="Manifest_bericht_V1"/>
+	<!--==============Begin meervoudige gegevenstypen=============-->
+	<xsd:complexType name="Examenidentificatie">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="packageGUID" type="PackageGUID-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="packageversie" type="Versienummer" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="toets" type="Toets" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ExamenvakManifest">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Een examenvak bevat de combinatie vakcode en niveau/leerweg waarop een kandidaat een centraal examen of toets kan worden afgenomen.
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="vakcode" type="Vakcode" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="opleidingniveau" type="Opleidingniveau" minOccurs="1" maxOccurs="10"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="GeldigheidsperiodePackage">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: De geldigheidsperiode van de package. De periode wordt aangeduid met twee datums. Periode is inclusief de datums en is dus vanaf de begindatum en t/m de einddatum.
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="datumBeginPeriode" type="DatumBeginSelectiePeriode" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="datumEindePeriode" type="DatumEindeSelectiePeriode" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Herkansing">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="toetsGUID" type="ExamenvariantGUID-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="retryToetsGUID" type="ExamenvariantGUID-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="toetsVolgnummer" type="Herkansingsvariantvolgnummer-v01" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="HerkansingVoorgaandePeriode">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="voorgaandePeriodeToetsGUID" type="ExamenvariantGUID-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="toetsGUID" type="ExamenvariantGUID-v01" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="InstellingsPlanningKenmerken">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="context" type="ExamenContext-v01" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="rijksdeel" type="RijksdeelExamens-v01" minOccurs="0" maxOccurs="5"/>
+			<xsd:element name="niveaucode" type="Niveaucode-v06" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ItemKenmerken">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="structuren" type="Structuren" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="KandidaatPlanningKenmerken">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="referentieniveau" type="Referentieniveau-v01" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="bijzonderheid" type="KandidaatBijzonderheid-v01" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="leerjaar" type="Leerjaar-v02" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="examenvak" type="ExamenvakManifest" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Manifest_bericht_V1">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="manifest" type="Manifest_V1" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Manifest_V1">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="status" type="ExamenstatusQTI-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="profiel" type="Examenprofiel-v03" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="toetsgebruik" type="Toetsgebruik-v03" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="toetsgedrag" type="Toetsgedrag" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="identificatie" type="Examenidentificatie" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="periodegebruik" type="PeriodeGebruik" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="toetsVerwerking" type="ToetsVerwerking" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="itemKenmerken" type="ItemKenmerken" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="instellingsPlanningKenmerken" type="InstellingsPlanningKenmerken" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="kandidaatPlanningKenmerken" type="KandidaatPlanningKenmerken" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="priorDataInvoer" type="PriorDataInvoer" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="rapportageKenmerken" type="RapportageKenmerken-v01" minOccurs="0" maxOccurs="10"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Opleidingniveau">
+		<xsd:annotation>
+			<xsd:documentation>
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="niveaucode" type="Niveaucode-v06" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="leerstroom" type="Leerstroom-v03" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="PeriodeGebruik">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="indicatieDuur" type="Examenduur-v02" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="geldigheidsPeriode" type="GeldigheidsperiodePackage" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="periodeIndicatie" type="Examenperiodeindicatie-v01" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="examenjaar" type="Examenjaar" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="PlanbareEenheid">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="verplichteVolgordeSamenhang" type="AlgemeneIndicator-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="toetsSamenhang" type="ToetsSamenhang" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="PriorDataInvoer">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Definitie van de Priordata die ergens in Facet kan worden ingevoerd. Deze priordata wordt vervolgens naar de afnameomgeving gedistribueerd en daar &quot;gevoed&quot; aan de adaptieve module.
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="priordata" type="PriorData-v01" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Structuren">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="structuur" type="Structuur" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Structuur">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="structuurelement" type="StructuurElement" minOccurs="1" maxOccurs="unbounded"/>
+			<xsd:element name="structuurnaam" type="Structuurnaam-v01" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="StructuurElement">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="structuurCode" type="Structuurelementcode-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="structuurTitel" type="Structuurelementtitel-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="structuurType" type="Structuurelementtype-v01" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="parent" type="StructuurelementOuder-v01" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Toets">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="GUID" type="ExamenvariantGUID-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="versie" type="Versienummer" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="maxScore" type="Maxscore-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="aantalItems" type="AlgemeenGetal-v01" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Toetsgedrag">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="aanspreekvorm" type="Aanspreekvorm-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="versienummerSpeler" type="Versienummer" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="beveiligingsniveau" type="ExamenBeveiligingsniveau-v01" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ToetsSamenhang">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="toetsGUID" type="ExamenvariantGUID-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="toetsVolgnummer" type="Herkansingsvariantvolgnummer-v01" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="Toetsverdeling">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="verdelingType" type="Variantverdeling-v01" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="maxTeVerdelen" type="MaximaalAantalVarianten-v01" minOccurs="1" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="ToetsVerwerking">
+		<xsd:annotation>
+			<xsd:documentation>
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="toetsverdeling" type="Toetsverdeling" minOccurs="1" maxOccurs="1"/>
+			<xsd:element name="herkansing" type="Herkansing" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="herkansingVoorgaandePeriode" type="HerkansingVoorgaandePeriode" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="planbareEenheid" type="PlanbareEenheid" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!--==============Begin enkelvoudige gegevenstypen=============-->
+	<xsd:simpleType name="Aanspreekvorm-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Vorm waar in de betrokken wordt aangesproken
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="CodeType">
+			<xsd:enumeration value="JIJ">
+				<xsd:annotation>
+					<xsd:documentation>Jij</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="U">
+				<xsd:annotation>
+					<xsd:documentation>U</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="AlgemeenGetal-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Algemeen gegevenstype voor het vastleggen van een getal
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="NummerType"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="AlgemeneIndicator-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Algemeen gegevenstype voor het vastleggen van een boolean waarde
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="IndicatorType"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="DatumBeginSelectiePeriode">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Geeft aan vanaf welke datum gegevens dienen te worden geselecteerd
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="DatumType"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="DatumEindeSelectiePeriode">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: De datum tot en met wanneer (inclusief die dag) gegevens dienen te worden geselecteerd
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="DatumType"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="ExamenBeveiligingsniveau-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Geeft aan wat het minimale beveiligingsniveau is van de client waarmee het examen moet worden afgenomen.
+Toelichting: De mate van beveiliging loopt op naarmate de nummering oploopt. 1 is het laagste beveiliingsniveau.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:maxLength value="3"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="ExamenContext-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Kenmerk dat aangeeft binnen welke context een examen kan worden afgenomen
+DefinitieHerkomst: DUO
+FormaatKarakterset: AN
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="255"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Examenduur-v02">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: De tijd die besteed mag worden aan het doen van het examen
+DefinitieHerkomst: CvTE
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="Tijdsduur"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Examenjaar">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Het kalenderjaar waarin het examen is afgelegd
+DefinitieHerkomst: OCW
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="JaartalType"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Examenperiodeindicatie-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Geeft een indicatie over de periode waarin een examen kan worden afgenomen.
+DefinitieHerkomst: DUO
+Toelichting: Bijv.: Eerste tijdvak etc.
+FormaatKarakterset: AN
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="255"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Examenprofiel-v03">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Geeft aan welk profiel een examenpackage heeft en waarvoor een package kan worden gebruikt
+DefinitieHerkomst: CvTE
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="CodeType">
+			<xsd:enumeration value="DTT">
+				<xsd:annotation>
+					<xsd:documentation>Diagnostische tussentijdse toets</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="MBO">
+				<xsd:annotation>
+					<xsd:documentation>Middelbaar Beroepsonderwijs</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="MINI">
+				<xsd:annotation>
+					<xsd:documentation>Mini</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="NT2">
+				<xsd:annotation>
+					<xsd:documentation>Nederlands als tweede taal</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PO">
+				<xsd:annotation>
+					<xsd:documentation>Primair Onderwijs</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="VO">
+				<xsd:annotation>
+					<xsd:documentation>Voortgezet Onderwijs</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="ExamenstatusQTI-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Status in de metadata van een package die aangeeft of een examen kan worden afgenomen of uitsluitend ter preview is
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="CodeType">
+			<xsd:enumeration value="Preview">
+				<xsd:annotation>
+					<xsd:documentation>Preview</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="Assess">
+				<xsd:annotation>
+					<xsd:documentation>Assess</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="ExamenvariantGUID-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Wereldwijde unieke identificatie van een examenvariant
+DefinitieHerkomst: DUO
+Toelichting: Microsoft GUID is een variant van UUID
+
+Voorbeeld: 3F2504E0-4F89-11D3-9A0C-0305E82C3301
+FormaatKarakterset: AN
+BeschrijvingControles: Bestaat uit groepen hexadecimale getallen gescheiden door een &#39;-&#39; teken (koppelteken, hyphen).  Er zijn 5 groepen met respectievelijk 8, 4, 4, 4 en 12 tekens.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Herkansingsvariantvolgnummer-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Is het volgnummer van de herkansingsvariant binnen de herkansingsketen
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="IdentificatiecodeType"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="KandidaatBijzonderheid-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Hiermee wordt aangegeven of de kandidaat bijv. een auditieve beperking heeft waardoor hij/zij recht heeft op een hierop aangepast examen (met bijv. verklanking).
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="WaardenlijstType-v01"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Leerjaar-v02">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Is een schooljaar als deel van een meerjarige leerplan.
+DefinitieHerkomst: OCW
+Toelichting: Verplicht bij PO en VO
+FormaatKarakterset: AN
+BeschrijvingControles: Het leerjaar bestaat uit 1 of 2 cijfers
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="2"/>
+			<xsd:pattern value="\d{1,2}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Leerstroom-v03">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Een unieke code voor de onderverdeling van een opleidingsniveau.
+DefinitieHerkomst: OCW
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="WaardenlijstType-v00"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="MaximaalAantalVarianten-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Het maximale aantal examenvarianten dat ingepland mag worden
+DefinitieHerkomst: DUO
+FormaatKarakterset: N
+ToegestaneWaardenBereikOndergrens: 1
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="NummerType">
+			<xsd:minInclusive value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Maxscore-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Maximale score die voor een toets behaald kan worden
+DefinitieHerkomst: DUO
+ToegestaneWaardenBereikBovengrens: 9999
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="NummerType">
+			<xsd:maxInclusive value="9999"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Niveaucode-v06">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Een unieke code voor het opleidingsniveau ten behoeve van opleidingen en vakken van alle onderwijssectoren.
+DefinitieHerkomst: DUO
+Geldigheidsregels:
+Altijd propedeutische fase bij Niveau HBO-BA [Als niveau-code is een HBO-Bachelor dan moet OpleidingPerInstelling.propedeutischeFase altijd Ja zijn]
+Associate Degree HBO-AD HBO-BA [Er kan alleen een AssociateDegree relatie zijn van een HBO-AD naar een HBO-BA]
+Bekostigd PM [Bekostigingcode mag niet BEKOSTIGD zijn als Niveaucode gelijk is aan HBO-PM of WO-PM.]
+Deficientie niet bij MA en PM [Deficiente mag niet gevuld zijn als Opleidingsniveau  gelijk is aan:
+HBO-MA
+WO-MA
+HBO-PM
+WO-PM]
+Gesubsidieerd alleen bij HBO-PM [Bekostigingcode mag alleen GESUBSIDIEERD zijn als Niveaucode gelijk is aan HBO-PM.]
+ISAT range per niveau [Als het Opleidingsstelsel ISAT is moet de Opleidingcode per Opleidingniveau binnen de aangegeven range liggen:
+niveau	van	tot
+HBO-O	1000	6000
+WO-O	6000	9000
+HBO-O	9100	9300
+WO-O	9300	9400
+HBO-BA	30000	40000
+HBO-MA	40000	50000
+WO-BA	50000	60000
+WO-MA	60000	70000
+HBO-PM	70000	75000
+WO-PM	75000	80000
+HBO-AD	80000	80999
+HBO-BA	81000	81499]
+Niveau MA of PM heeft geen propedeutische [Als Niveau-code een Postinitiele Master is of een Master dan mag  OpleidingPerInstelling.Propedeutische fase  niet worden gevuld]
+Studielast bij HBO-BA [Als het niveau van een opleiding HBO-BA is dan is de studielastzwaarte 240 en de studielasteenheid ECTS]
+Studielast minmax [De Studielast kent voor een HO opleiding de volgende beperkingen: 
+HBO master: minimaal 60 en maximaal 240,
+WO bachelor: minimaal 180 en maximaal 240, 
+WO master: minimaal 60 en maximaal 240, 
+Associate Degree: minimaal 120 en maximaal 240 ECTS-punten
+Ongedeelde opleidingen kennen deze beperking niet.]
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="WaardenlijstType-v00"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="PackageGUID-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Wereldwijde unieke identificatie van het aangeleverde examenpackage.
+DefinitieHerkomst: CES
+Toelichting: Microsoft GUID is een variant van UUID
+FormaatKarakterset: AN
+BeschrijvingControles: Bestaat uit groepen hexadecimale getallen gescheiden door een &#39;-&#39; teken (koppelteken, hyphen). 
+Er zijn 5 groepen met respectievelijk 8, 4, 4, 4 en 12 tekens.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="IdentificatiecodeType">
+			<xsd:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="PriorData-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Mogelijke vormen van priordata die de adaptieve module voor een toets nodig heeft
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="CodeType">
+			<xsd:enumeration value="WO">
+				<xsd:annotation>
+					<xsd:documentation>Keuze of de kandidaat wel of niet een toets inclusief wereldorientatie maakt wordt verwacht</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="AdaptiveState">
+				<xsd:annotation>
+					<xsd:documentation>Adaptieve status van een voorgaande gerelateerde toets wordt verwacht</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="RapportageKenmerken-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Een lijst met mogelijke rapportages die aangemaakt kunnen worden voor een toets
+DefinitieHerkomst: CvTE
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="CodeType">
+			<xsd:enumeration value="Minitoets">
+				<xsd:annotation>
+					<xsd:documentation>Score-overzicht wordt getoond na afloop toets</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="DTT-analyse-school">
+				<xsd:annotation>
+					<xsd:documentation>Schoolrapportage ter analyse van de resultaten van de toets</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="DTT-analyse-groep">
+				<xsd:annotation>
+					<xsd:documentation>Groepsrapportage ter analyse van de resultaten van de toets</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="DTT-analyse-leerling">
+				<xsd:annotation>
+					<xsd:documentation>Leerlingrapportage ter analyse van de resultaten van de toets</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="Deelrapportage">
+				<xsd:annotation>
+					<xsd:documentation>Deelrapportage van de resultaten van de toets</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="ScoreoverzichtOefenen">
+				<xsd:annotation>
+					<xsd:documentation>Dit kenmerk regelt het al dan niet tonen van een scoreoverzicht op de oefenomgeving</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Referentieniveau-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Het niveau van beheersing van de Nederlandse taal of rekenen.
+DefinitieHerkomst: OCW
+Toelichting: Het referentiekader bestaat uit fundamentele niveaus en streefniveaus. Het fundamentele niveau (F-niveau) is de basis die zo veel mogelijk leerlingen moeten beheersen. Het streefniveau (S-niveau) is voor leerlingen die meer aankunnen. Zie Wet referentieniveaus Nederlandse taal en rekenen
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="CodeType">
+			<xsd:enumeration value="1F">
+				<xsd:annotation>
+					<xsd:documentation>fundamenteel niveau basisonderwijs</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="2F">
+				<xsd:annotation>
+					<xsd:documentation>fundamenteel niveau vmbo en mbo-1, mbo-2 en mbo-3</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="3F">
+				<xsd:annotation>
+					<xsd:documentation>fundamenteel niveau havo en mbo-4, vwo (rekenen)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="4F">
+				<xsd:annotation>
+					<xsd:documentation>fundamenteel niveau vwo (taal)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="1S">
+				<xsd:annotation>
+					<xsd:documentation>streefniveau basisonderwijs</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="2S">
+				<xsd:annotation>
+					<xsd:documentation>streefniveau vmbo en mbo-1, mbo-2 en mbo-3</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="3S">
+				<xsd:annotation>
+					<xsd:documentation>streefniveau havo en mbo-4, vwo (rekenen)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="4S">
+				<xsd:annotation>
+					<xsd:documentation>streefniveau vwo (taal)</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="RijksdeelExamens-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Overzeese gebiedsdelen, behorende bij het Koninkrijk der Nederlanden
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="CodeType">
+			<xsd:enumeration value="ABW">
+				<xsd:annotation>
+					<xsd:documentation>Aruba</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="BES">
+				<xsd:annotation>
+					<xsd:documentation>BES</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="CUW">
+				<xsd:annotation>
+					<xsd:documentation>Curacao</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="NLD">
+				<xsd:annotation>
+					<xsd:documentation>NL</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="SXM">
+				<xsd:annotation>
+					<xsd:documentation>St Maarten</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Structuurelementcode-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Identificatie van een element uit de toets. Deze wordt gebruikt om items (vragen) te kunnen groeperen, bijvoorbeeld alle items met betrekking tot spelling
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:maxLength value="100"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="StructuurelementOuder-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Verwijzing naar een ander element dat als ouder van het betreffende element fungeert
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:maxLength value="100"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Structuurelementtitel-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Naam van een element uit de toets. Deze wordt gebruikt om items te kunnen groeperen, bijvoorbeeld alle items met betrekking tot spelling
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:maxLength value="100"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Structuurelementtype-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Typering van een element uit de toets. Deze wordt gebruikt om items te kunnen groeperen, bijvoorbeeld alle items met betrekking tot spelling
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:maxLength value="100"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Structuurnaam-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: De naam van een structuur (groepering items) in een toets, bijvoorbeeld spelling
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:maxLength value="100"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Toetsgebruik-v03">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Kenmerk dat aangeeft hoe een examenpackage wordt gebruikt
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="CodeType">
+			<xsd:enumeration value="FUNCTIONAL_TEST">
+				<xsd:annotation>
+					<xsd:documentation>Functional test</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PRACTICE">
+				<xsd:annotation>
+					<xsd:documentation>Practice</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="PRE_TEST">
+				<xsd:annotation>
+					<xsd:documentation>Toets die gebruikt wordt om item te calibreren</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="REGULAR">
+				<xsd:annotation>
+					<xsd:documentation>Regular</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="SANITY">
+				<xsd:annotation>
+					<xsd:documentation>Sanity</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="SCORING">
+				<xsd:annotation>
+					<xsd:documentation/>
+				</xsd:annotation>
+			</xsd:enumeration>
+			<xsd:enumeration value="TRY">
+				<xsd:annotation>
+					<xsd:documentation>Try</xsd:documentation>
+				</xsd:annotation>
+			</xsd:enumeration>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Vakcode">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: De aanduiding van een afgerond geheel van leerstof
+DefinitieHerkomst: DUO
+FormaatKarakterset: AN
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="TekstType">
+			<xsd:minLength value="4"/>
+			<xsd:maxLength value="4"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Variantverdeling-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Geeft aan of varianten binnen een examenpackage handmatig verdeeld mogen worden of dat ze verplicht automatisch verdeeld moeten worden
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="WaardenlijstType-v01"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="Versienummer">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Aanduiding voor de versie van een object
+DefinitieHerkomst: DUO
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="IdentificatiecodeType">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="10"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--==============Begin kerntypen=============-->
+	<xsd:simpleType name="CodeType">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Gelimiteerde set van vaste combinaties van letters en cijfers. Maakt gebruik van enumeraties.
+DefinitieHerkomst: DUO
+FormaatKarakterset: AN
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:normalizedString">
+			<xsd:maxLength value="255"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="DatumType">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Tijdbepaling in jaar, maand en dag
+DefinitieHerkomst: DUO
+FormaatKarakterset: AN
+BeschrijvingControles: De datum moet bestaan.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:date"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="IdentificatiecodeType">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Identificerende combinatie van tekens zonder betekenis
+DefinitieHerkomst: DUO
+Toelichting: Niet toegestaan zijn line feeds, carriage returns of tabs.
+FormaatKarakterset: AN
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:normalizedString">
+			<xsd:minLength value="1"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="IndicatorType">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Het indicatortype is een Boolean, kan alleen waar of niet waar zijn
+DefinitieHerkomst: DUO
+Toelichting: De waarde is ofwel true of false, ofwel 1 of 0
+FormaatKarakterset: AN
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:boolean"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="JaartalType">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Tijdbepaling met jaar
+DefinitieHerkomst: DUO
+FormaatKarakterset: N
+BeschrijvingControles: Het jaartaltype bestaat uit 4 cijfers.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:integer">
+			<xsd:pattern value="([0-9]{4})"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="NummerType">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Kerntype voor een numerieke waarde
+DefinitieHerkomst: w3.org
+FormaatKarakterset: N
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:integer"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="TekstType">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Kerntype voor willekeurige tekst
+DefinitieHerkomst: DUO
+FormaatKarakterset: AN
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="3000"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="Tijdsduur">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Aanduiding voor de duur van een tijd in jaren, maanden, dagen, uren, minuten en seconden.
+DefinitieHerkomst: DUO
+Toelichting: Een aantal voorbeelden:  
+PnYnMnDTnHnMnS 
+PnMnDTnHnMnS 
+PnDTnHnMnS 
+PTnHnMnS 
+PnYnMnD 
+PTnS 
+PnY 
+PnYnM 
+PnYnMnD 
+Deze lijst bevat niet alle variaties. 
+FormaatKarakterset: AN
+BeschrijvingControles: Iedere tijdsduur begint verplicht met P (geeft aan dat het een periodeaanduiding betreft)
+eventueel: nY is het aantal jaren
+eventueel: nM is het aantal maanden
+eventueel: nD is het aantal dagen
+als er een tijddeel is dan volgt
+T geeft het begin van het tijddeel aan, verplicht als er een van de volgende eenheden worden gebruikt: uur, minuut, seconde
+eventueel: nH is het aantal uren
+eventueel: nM is het aantal minuten
+eventueel: nS is het aantal seconden
+De n staat voor een getal, de hoofletter erachter is verplicht bij het getal en wordt na het getal geplaatst.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:duration"/>
+	</xsd:simpleType>
+	<xsd:simpleType name="WaardenlijstType-v00">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Gelimiteerde set van vaste combinaties van letters en cijfers. De toegestane waarden worden in een centrale tabel bij DUO bijgehouden.
+DefinitieHerkomst: DUO
+Toelichting: De toegestane waarden worden niet als enumeratie in de XSD opgenomen.
+FormaatKarakterset: AN
+BeschrijvingControles: Toegestane tekens zijn letters, cijfers en hyphen.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:token">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="70"/>
+			<xsd:pattern value="[A-Z0-9\-]*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="WaardenlijstType-v01">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Gelimiteerde set van vaste combinaties van letters en cijfers. De toegestane waarden worden in een centrale tabel bij DUO bijgehouden.
+DefinitieHerkomst: DUO
+Toelichting: De toegestane waarden worden niet als enumeratie in de XSD opgenomen.
+
+Niet alle toegestane tekens zijn werkbaar. In de volgende versie wordt een aantal tekens niet meer toegestaan.
+FormaatKarakterset: AN
+BeschrijvingControles: Toegestane tekens zijn letters, cijfers, punt, underscore, min, slash en spatie.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:token">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="70"/>
+			<xsd:pattern value="[A-Za-z0-9._\-/ ]*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="WaardenlijstType-v02">
+		<xsd:annotation>
+			<xsd:documentation>
+Definitie: Gelimiteerde set van vaste combinaties van letters en cijfers. De toegestane waarden worden in een centrale tabel bij DUO bijgehouden.
+DefinitieHerkomst: DUO
+Toelichting: De toegestane waarden worden niet als enumeratie in de XSD opgenomen.
+FormaatKarakterset: AN
+BeschrijvingControles: Toegestane tekens zijn hoofdletters, cijfers en underscores.
+</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:token">
+			<xsd:minLength value="1"/>
+			<xsd:maxLength value="70"/>
+			<xsd:pattern value="[A-Z0-9_]*"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+</xsd:schema>

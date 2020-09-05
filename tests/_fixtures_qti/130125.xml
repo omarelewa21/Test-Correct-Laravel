@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd"
+                title="130125 structuurontwikkeling economie" identifier="ITM-130125" label="32k9as"
+                timeDependent="false" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2">
+    <responseDeclaration identifier="RESPONSE" cardinality="multiple" baseType="directedPair">
+        <correctResponse interpretation="B G1&amp;C G2&amp;A G3">
+            <value>B G1</value>
+            <value>C G2</value>
+            <value>A G3</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>1</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <itemBody class="defaultBody" xml:lang="nl-NL">
+        <div class="content">
+
+
+            <div class="qti-layout-row">
+
+                <div class="qti-layout-col12">
+
+                    <div id="intro">
+                        <p><span>Hieronder staan enkele economische verschijnselen.</span>  
+                        </p>
+                    </div>
+
+                    <div id="question">
+                        <p>
+                            <strong>
+                                <span>
+                                    <span class="cito_genclass_130125_1">
+                                        <span>Wat is de juiste volgorde om een correcte economische
+                                            oorzaak-gevolgredenering te krijgen?
+                                            <span> </span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </strong>
+                        </p>
+                        <p>
+                            <span>
+                                <span>
+                                    <span>Sleep de verschijnselen in de juiste volgorde.</span>
+                                </span>
+                            </span>
+                        </p>
+                    </div>
+
+                    <div id="gapmatch">
+
+                        <gapMatchInteraction id="gapMatchScoring" responseIdentifier="RESPONSE" shuffle="false">
+
+                            <gapText identifier="A" matchMax="1">
+                                <span>
+                                    <span>
+                                        <span>
+                                            <span>
+                                                <span>
+                                                    <span>De concurrentiepositie verbetert.</span>
+                                                </span>
+                                            </span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </gapText>
+
+                            <gapText identifier="B" matchMax="1">
+                                <span>
+                                    <span>
+                                        <span>
+                                            <span>De kosten per product dalen.</span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </gapText>
+
+                            <gapText identifier="C" matchMax="1">
+                                <span>
+                                    <span>
+                                        <span>De verkoopprijzen worden verlaagd.</span>
+                                    </span>
+                                </span>
+                            </gapText>
+
+                            <p>
+                                <span>1 De arbeidsproductiviteit stijgt.</span>
+                            </p>
+                            <p>
+                                <span>2
+                                    <span>
+                                        <gap identifier="G1" required="true"/>
+                                    </span>
+                                </span>
+                            </p>
+                            <p>
+                                <span>3
+                                    <span>
+                                        <gap identifier="G2" required="true"/>
+                                    </span>
+                                </span>
+                            </p>
+                            <p>
+                                <span>4
+                                    <span>
+                                        <gap identifier="G3" required="true"/>
+                                    </span>
+                                </span>
+                            </p>
+                            <p>
+                                <span>5 De omzet neemt toe.</span>
+                            </p>
+
+                        </gapMatchInteraction>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+    </itemBody>
+    <responseProcessing>
+        <responseCondition>
+            <responseIf>
+                <and>
+                    <member>
+                        <baseValue baseType="directedPair">B G1</baseValue>
+                        <variable identifier="RESPONSE"/>
+                    </member>
+                    <member>
+                        <baseValue baseType="directedPair">C G2</baseValue>
+                        <variable identifier="RESPONSE"/>
+                    </member>
+                    <member>
+                        <baseValue baseType="directedPair">A G3</baseValue>
+                        <variable identifier="RESPONSE"/>
+                    </member>
+                </and>
+                <setOutcomeValue identifier="SCORE">
+                    <sum>
+                        <baseValue baseType="float">1</baseValue>
+                        <variable identifier="SCORE"/>
+                    </sum>
+                </setOutcomeValue>
+            </responseIf>
+        </responseCondition>
+        <responseCondition>
+            <responseIf>
+                <gte>
+                    <variable identifier="SCORE"/>
+                    <baseValue baseType="float">1</baseValue>
+                </gte>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">1</baseValue>
+                </setOutcomeValue>
+            </responseIf>
+            <responseElse>
+                <setOutcomeValue identifier="SCORE">
+                    <baseValue baseType="float">0</baseValue>
+                </setOutcomeValue>
+            </responseElse>
+        </responseCondition>
+    </responseProcessing>
+</assessmentItem>

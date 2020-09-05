@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="periodieke verbanden 4" identifier="ITM-210085" label="32k8b6" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="79.5"><value>79.5</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span><span><span><span><span>Gegeven is het verband </span><span><span><m:math><m:mi>K</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:mn>3500</m:mn><m:mo> </m:mo><m:mo>+</m:mo><m:mo> </m:mo><m:mn>2250</m:mn><m:mi>sin</m:mi><m:mfenced><m:mrow><m:mn>0</m:mn><m:mo>,</m:mo><m:mn>017</m:mn><m:mi>t</m:mi><m:mo> </m:mo><m:mo>-</m:mo><m:mo> </m:mo><m:mn>200</m:mn></m:mrow></m:mfenced></m:math>.<br/></span></span></span></span></span></span><span><span><span><span><span>De waarde van <m:math><m:mi>K</m:mi></m:math> </span><span>is voor <m:math><m:mi>t</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:mn>0</m:mn></m:math> </span><span>groter</span><span> dan 5000.</span></span></span></span></span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span><span><span><span><span>Bereken voor welke positieve waarde van <m:math><m:mi>t</m:mi></m:math> </span><span>de waarde van <m:math><m:mi>K</m:mi></m:math> </span><span>voor het eerst kleiner is dan 5000. <br/>Geef je antwoord in één decimaal.</span></span></span></span></span></strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p><textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="9"/> </p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE"/></customOperator><baseValue baseType="float">79.5</baseValue></equal><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

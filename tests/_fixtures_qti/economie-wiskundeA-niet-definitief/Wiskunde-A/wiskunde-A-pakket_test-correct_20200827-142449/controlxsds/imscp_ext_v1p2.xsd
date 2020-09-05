@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 2 (x64) (http://www.altova.com) by Crediteurenadministratie (SU-ICT) (Stichting Cito) -->
+<xs:schema xmlns="http://www.imsglobal.org/xsd/imscp_ext_v1p2" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:depcp="http://www.imsglobal.org/xsd/imscp_ext_v1p2" targetNamespace="http://www.imsglobal.org/xsd/imscp_ext_v1p2" elementFormDefault="qualified" attributeFormDefault="unqualified" version="IMS CP DEP EXT V1.0">
+	<!-- Datatype: Guid -->
+	<xs:simpleType name="Guid.Type">
+		<xs:annotation>
+			<xs:documentation>BLIJFT *</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})|(\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\})"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Enumeration: Role -->
+	<xs:simpleType name="Role.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="depTest"/>
+			<xs:enumeration value="depSection"/>
+			<xs:enumeration value="depItem"/>
+			<xs:enumeration value="depExtension"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Enumeration: TestType -->
+	<xs:simpleType name="TestType.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="test"/>
+			<xs:enumeration value="exam"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Enumeration: Tool -->
+	<xs:simpleType name="Tool.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="calculator"/>
+			<xs:enumeration value="notepad"/>
+			<xs:enumeration value="spellCheck"/>
+			<xs:enumeration value="ruler"/>
+			<xs:enumeration value="protractor"/>
+			<xs:enumeration value="triangle"/>
+			<xs:enumeration value="symbolPicker"/>
+			<xs:enumeration value="formulaEditor"/>
+			<xs:enumeration value="formulaList"/>
+			<xs:enumeration value="mediaPlayer"/>
+			<xs:enumeration value="textMarker"/>
+			<xs:enumeration value="reset"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Class: Tools -->
+	<xs:complexType name="Tools.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="tool" type="Tool.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Property -->
+	<xs:complexType name="Property.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="name" type="xs:normalizedString"/>
+			<xs:element name="value" type="xs:string"/>
+			<xs:element name="description" type="xs:normalizedString" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: Properties -->
+	<xs:complexType name="Properties.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="property" type="Property.Type" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Abstract class: MetadataBase -->
+	<xs:group name="MetadataBase.ContentGroup">
+		<xs:sequence>
+			<xs:element name="properties" type="Properties.Type" minOccurs="0"/>
+		</xs:sequence>
+	</xs:group>
+	<!-- Class: Metadata -->
+	<xs:complexType name="Metadata.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="id" type="xs:normalizedString"/>
+			<xs:element name="name" type="xs:normalizedString"/>
+			<xs:element name="version" type="xs:integer"/>
+			<xs:element name="guid" type="Guid.Type"/>
+			<xs:element name="testType" type="TestType.Type"/>
+			<xs:group ref="MetadataBase.ContentGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: TestMetadata -->
+	<xs:complexType name="TestMetadata.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="id" type="xs:normalizedString"/>
+			<xs:element name="name" type="xs:normalizedString"/>
+			<xs:element name="tools" type="Tools.Type"/>
+			<xs:group ref="MetadataBase.ContentGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Class: ItemMetadata -->
+	<xs:complexType name="ItemMetadata.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="maxScore" type="xs:decimal"/>
+			<xs:group ref="MetadataBase.ContentGroup"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:attribute name="role" type="Role.Type">
+		<xs:annotation>
+			<xs:documentation source="umldocumentation">
+                TODO
+            </xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:attribute name="guid" type="Guid.Type">
+		<xs:annotation>
+			<xs:documentation>TODO</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:attribute name="version" type="xs:integer">
+		<xs:annotation>
+			<xs:documentation>TODO</xs:documentation>
+		</xs:annotation>
+	</xs:attribute>
+	<xs:element name="metadata" type="Metadata.Type">
+		<xs:annotation>
+			<xs:documentation>TODO</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="testMetadata" type="TestMetadata.Type">
+		<xs:annotation>
+			<xs:documentation>TODO</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="itemMetadata" type="ItemMetadata.Type">
+		<xs:annotation>
+			<xs:documentation>TODO</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+</xs:schema>

@@ -1,0 +1,38 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="differentiëren - kettingregel 3" identifier="ITM-210124" label="32k8hw" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="A"><value>A</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated_210124.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+					<div id="question">
+						<p><strong>Bepaal de afgeleide van de functie <span> <m:math><m:mi>f</m:mi><m:mfenced><m:mi>x</m:mi></m:mfenced><m:mo>=</m:mo><m:mfrac><m:mn>1</m:mn><m:mrow><m:mn>2</m:mn><m:mo>-</m:mo><m:mi>x</m:mi></m:mrow></m:mfrac></m:math>.</span></strong></p>
+					</div>
+
+					<div id="mc">
+				
+<choiceInteraction id="choiceInteraction1" maxChoices="1" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p> <m:math><m:mi>f</m:mi><m:mo>'</m:mo><m:mfenced><m:mi>x</m:mi></m:mfenced><m:mo>=</m:mo><m:mfrac><m:mn>1</m:mn><m:msup><m:mfenced><m:mrow><m:mn>2</m:mn><m:mo>-</m:mo><m:mi>x</m:mi></m:mrow></m:mfenced><m:mn>2</m:mn></m:msup></m:mfrac></m:math></p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p> <m:math><m:mi>f</m:mi><m:mo>'</m:mo><m:mfenced><m:mi>x</m:mi></m:mfenced><m:mo>=</m:mo><m:mfrac><m:mn>2</m:mn><m:msup><m:mfenced><m:mrow><m:mn>2</m:mn><m:mo>-</m:mo><m:mi>x</m:mi></m:mrow></m:mfenced><m:mn>2</m:mn></m:msup></m:mfrac></m:math></p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p> <m:math><m:mi>f</m:mi><m:mo>'</m:mo><m:mfenced><m:mi>x</m:mi></m:mfenced><m:mo>=</m:mo><m:mfrac><m:mrow><m:mo>-</m:mo><m:mn>1</m:mn></m:mrow><m:msup><m:mfenced><m:mrow><m:mn>2</m:mn><m:mo>-</m:mo><m:mi>x</m:mi></m:mrow></m:mfenced><m:mn>2</m:mn></m:msup></m:mfrac></m:math></p></simpleChoice>
+			  
+				  <simpleChoice identifier="D"><p> <m:math><m:mi>f</m:mi><m:mo>'</m:mo><m:mfenced><m:mi>x</m:mi></m:mfenced><m:mo>=</m:mo><m:mfrac><m:mrow><m:mo>-</m:mo><m:mn>2</m:mn></m:mrow><m:msup><m:mfenced><m:mrow><m:mn>2</m:mn><m:mo>-</m:mo><m:mi>x</m:mi></m:mrow></m:mfenced><m:mn>2</m:mn></m:msup></m:mfrac></m:math></p></simpleChoice>
+			  
+						</choiceInteraction>
+
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><member><baseValue baseType="identifier">A</baseValue><variable identifier="RESPONSE"/></member><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

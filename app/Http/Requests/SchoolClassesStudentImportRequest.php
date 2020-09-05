@@ -35,9 +35,12 @@ class SchoolClassesStudentImportRequest extends Request {
 
 		return [
 		    //'data' => 'array',
-		    'data.*.username' => 'required|email|unique:users,username',
+		    'data.*.username' => 'required|email',
             'data.*.name_first' => 'required',
-            'data.*.name' => 'required'
+            'data.*.name' => 'required',
+            'data.*.external_id' => '',
+            'data.*.name_suffix' => '',
+            'data.*.gender' => '',
         ];
 	}
 

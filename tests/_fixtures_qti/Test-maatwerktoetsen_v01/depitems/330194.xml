@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?><assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd" title="Klankschaal" identifier="ITM-330194" label="32k6ce" timeDependent="false" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2"><responseDeclaration identifier="RESPONSE" cardinality="multiple" baseType="directedPair"><correctResponse interpretation="C G1&amp;A G2&amp;B G3"><value>C G1</value><value>A G2</value><value>B G3</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css" /><stylesheet href="../css/cito_userstyle.css" type="text/css" /><stylesheet href="../css/cito_generated.css" type="text/css" /><stylesheet href="../css/cito_generated_330194.css" type="text/css" /><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+						
+					
+            
+					
+          
+          <div class="qti-layout-row">
+          
+						<div class="qti-layout-col12">
+					
+							<div id="intro">
+								<p><strong>Klankschaal</strong></p><p>Een klankschaal geeft een rustgevend geluid.</p><p>*afbeelding*</p><p>Om geluid waar te nemen heb je een geluidsbron, een geluidsontvanger en een tussenstof nodig.</p>
+							</div>
+						
+							<div id="question">
+								<p><strong>Zet de woorden in de rechter kolom in de juiste volgorde.</strong></p>
+							</div>
+						
+    						<div id="gapmatch">
+								
+    									<gapMatchInteraction id="gapMatchScoring" responseIdentifier="RESPONSE" shuffle="false">
+                                      
+                        <gapText identifier="A" matchMax="1">
+                          <span>gehoor</span>
+                        </gapText>
+											                
+                        <gapText identifier="B" matchMax="1">
+                          <span>lucht</span>
+                        </gapText>
+											                
+                        <gapText identifier="C" matchMax="1">
+                          <span>klankschaal</span>
+                        </gapText>
+											
+								      <table class="cito_genclass_330194_1"><colgroup><col /><col /></colgroup><tbody><tr><td class="cito_genclass_330194_2 cito_genclass_330194_3"><p><strong>geluidsbron</strong></p></td><td class="cito_genclass_330194_2 cito_genclass_330194_4"><p class="cito_genclass_330194_5"><span><gap identifier="G1" required="true" /></span> </p></td></tr><tr><td class="cito_genclass_330194_6 cito_genclass_330194_7"><p><strong>geluidsontvanger</strong></p></td><td class="cito_genclass_330194_6 cito_genclass_330194_8"><p class="cito_genclass_330194_9"><span><gap identifier="G2" required="true" /></span> </p></td></tr><tr><td class="cito_genclass_330194_10 cito_genclass_330194_11"><p><strong>tussenstof</strong></p></td><td class="cito_genclass_330194_10 cito_genclass_330194_12"><p class="cito_genclass_330194_13"><span><gap identifier="G3" required="true" /></span> </p></td></tr></tbody></table><p> </p>
+                
+									</gapMatchInteraction>
+								
+							</div>
+						
+						</div>
+        
+        </div>
+				
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><member><baseValue baseType="directedPair">C G1</baseValue><variable identifier="RESPONSE" /></member><member><baseValue baseType="directedPair">A G2</baseValue><variable identifier="RESPONSE" /></member><member><baseValue baseType="directedPair">B G3</baseValue><variable identifier="RESPONSE" /></member></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="integer">1</baseValue><variable identifier="SCORE" /></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE" /><baseValue baseType="integer">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?><assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd" title="Schoonmaakmiddel" identifier="ITM-330016" label="32k6cc" timeDependent="false" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="A"><value>A</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css" /><stylesheet href="../css/cito_userstyle.css" type="text/css" /><stylesheet href="../css/cito_generated_330016.css" type="text/css" /><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+				
+        
+				<div class="qti-layout-row">
+        
+				<div class="qti-layout-col12">
+
+            <div id="body">
+						<p><strong>Schoonmaakmiddel</strong></p><p>Je ziet een afbeelding van een schoonmaakmiddel.</p><p><img id="Id-IMG_3d89cd9a-5449-475e-b4e5-035c9315d29e" src="../img/mwt20nask1vmbo-330016-1.jpg" width="142" height="300" alt="" /></p><p>Op het schoonmaakmiddel staan twee veiligheidspictogrammen.</p>
+					</div>
+
+					<div id="question">
+						<p><strong>Wat is de betekenis van elk pictogram?</strong></p><p>   <img id="Id-IMG_50392abe-c507-475d-8372-e7b356d554cd" src="../img/mwt20nask1vmbo-330016-2.PNG" width="83" height="82" alt="" />                                                     <img id="Id-IMG_555f4f68-7fe6-4050-a05b-48de78c8219a" src="../img/mwt20nask1vmbo-330016-3.png" width="83" height="82" alt="" /></p>
+					</div>
+
+					<div id="mc">
+				
+						<choiceInteraction id="choiceInteraction1" maxChoices="1" shuffle="false" responseIdentifier="RESPONSE">
+            
+            
+				  <simpleChoice identifier="A"><p>corrosief                                                            gevaarlijk voor waterrijk milieu</p></simpleChoice>
+			  
+				  <simpleChoice identifier="B"><p>irriterend                                                           <span>giftig</span></p></simpleChoice>
+			  
+				  <simpleChoice identifier="C"><p>giftig                                                                  op lange termijn gezondheidsgevaarlijk</p></simpleChoice>
+			  
+				  <simpleChoice identifier="D"><p>op lange termijn gezondheidsgevaarlijk           oxiderend<br /></p></simpleChoice>
+			  
+						</choiceInteraction>
+		
+					</div>
+
+
+				</div>
+
+        </div>
+        
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><member><baseValue baseType="identifier">A</baseValue><variable identifier="RESPONSE" /></member><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="integer">1</baseValue><variable identifier="SCORE" /></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE" /><baseValue baseType="integer">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

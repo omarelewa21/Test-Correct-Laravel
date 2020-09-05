@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="logaritmische schaal VWO 4" identifier="ITM-210090" label="32k8c3" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="10"><value>10</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="string"><correctResponse interpretation="-1"><value>-1</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span>In de grafiek staat het verband tussen <m:math><m:mi>x</m:mi></m:math> </span><span>en <m:math><m:mi>y</m:mi></m:math></span><span>. <br/>De schaalverdeling op elk van beide assen is logaritmisch.</span></p><p><span><img id="Id-IMG_aad90a09-096e-4fd0-8471-95ea04cc7470" src="../img/mwt20wisAhv-4h-4.jpg" width="447" height="255" alt=""/></span></p><p><span>Het verband tussen <span><img id="Id-IMG_bccacd0d-88fc-47b7-85f9-d899edd53594" src="../img/InlineElement_2020721_13_37_16_578_0.png" width="8" height="19" alt=""/></span><span><span> </span>en </span><span><img id="Id-IMG_7da796da-cdce-4a3b-9d21-d0efe4914ac3" src="../img/InlineElement_2020721_13_37_16_649_0.png" width="8" height="19" alt=""/></span><span><span> </span>kan worden geschreven in de vorm <m:math><m:mi>y</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:mi>a</m:mi><m:mo>·</m:mo><m:msup><m:mi>x</m:mi><m:mi>n</m:mi></m:msup></m:math></span><span/><span>. </span></span></p><p><span/></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span>Bepaal <m:math><m:mi>a</m:mi></m:math> </span><span>en <m:math><m:mi>n</m:mi></m:math></span><span>.</span></strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p><m:math><m:mi>a</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo></m:math><textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="9"/> en <m:math><m:mi>n</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo></m:math><textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE2" expectedLength="9"/></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE"/></customOperator><baseValue baseType="float">10</baseValue></equal><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE2"/></customOperator><baseValue baseType="float">-1</baseValue></equal></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

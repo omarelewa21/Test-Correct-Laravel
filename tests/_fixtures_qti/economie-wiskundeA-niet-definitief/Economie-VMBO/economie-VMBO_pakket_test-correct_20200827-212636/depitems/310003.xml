@@ -1,0 +1,106 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Kopen en ruilen" identifier="ITM-310003" label="32k8tz" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="multiple" baseType="identifier"><correctResponse interpretation="B&amp;A&amp;C&amp;B&amp;A"><value>y_A x_2</value><value>y_B x_1</value><value>y_C x_3</value><value>y_D x_2</value><value>y_E x_1</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+        <div class="qti-layout-row">
+
+				<div class="qti-layout-col12">
+
+				
+
+					<div id="body">
+						<p>Huishoudens  kunnen gebruikmaken van goederen en diensten zonder daar direct voor te moeten betalen.</p>
+					</div>
+
+					<div id="question">
+						<p><strong><span>Geef van de onderstaande activiteiten aan onder welke voorzieningen ze vallen.</span></strong></p>
+					</div>
+
+				
+				
+					<div class="cito_genclass_310003_1">
+				
+<matchInteraction id="matchInteraction1" minAssociations="5" maxAssociations="5" shuffle="false" responseIdentifier="RESPONSE">
+							<simpleMatchSet>
+								
+									<simpleAssociableChoice identifier="y_A" matchMax="1">
+									
+										<div class="cito_genclass_310003_2">
+									
+											<p><span>bramen plukken in het park</span></p>
+										</div>
+									</simpleAssociableChoice>
+								
+									<simpleAssociableChoice identifier="y_B" matchMax="1">
+									
+										<div class="cito_genclass_310003_3">
+									
+											<p><span>fietsen over het fietspad</span>  </p>
+										</div>
+									</simpleAssociableChoice>
+								
+									<simpleAssociableChoice identifier="y_C" matchMax="1">
+									
+										<div class="cito_genclass_310003_4">
+									
+											<p><span>kruiden plukken uit de eigen tuin</span>  </p>
+										</div>
+									</simpleAssociableChoice>
+								
+									<simpleAssociableChoice identifier="y_D" matchMax="1">
+									
+										<div class="cito_genclass_310003_5">
+									
+											<p><span>op het strand in de zon liggen</span>  </p>
+										</div>
+									</simpleAssociableChoice>
+								
+									<simpleAssociableChoice identifier="y_E" matchMax="1">
+									
+										<div class="cito_genclass_310003_6">
+									
+											<p><span>wandelen in het bos</span>  </p>
+										</div>
+									</simpleAssociableChoice>
+								
+							</simpleMatchSet>
+							<simpleMatchSet>
+								
+								
+									<simpleAssociableChoice identifier="x_1" matchMax="5">
+									
+										<div class="cito_genclass_310003_7">
+									
+											<p><span>collectieve voorziening</span>  </p>
+										</div>
+									</simpleAssociableChoice>
+								
+								
+									<simpleAssociableChoice identifier="x_2" matchMax="5">
+									
+										<div class="cito_genclass_310003_8">
+									
+											<p><span>natuurlijke hulpbron</span>  </p>
+										</div>
+									</simpleAssociableChoice>
+								
+								
+									<simpleAssociableChoice identifier="x_3" matchMax="5">
+									
+										<div class="cito_genclass_310003_9">
+									
+											<p><span>zelfvoorziening</span></p>
+										</div>
+									</simpleAssociableChoice>
+								
+							</simpleMatchSet>
+						</matchInteraction>
+
+					</div>
+				
+
+				</div>
+
+        </div>
+				
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><member><baseValue baseType="identifier">y_A x_2</baseValue><variable identifier="RESPONSE"/></member><member><baseValue baseType="identifier">y_B x_1</baseValue><variable identifier="RESPONSE"/></member><member><baseValue baseType="identifier">y_C x_3</baseValue><variable identifier="RESPONSE"/></member><member><baseValue baseType="identifier">y_D x_2</baseValue><variable identifier="RESPONSE"/></member><member><baseValue baseType="identifier">y_E x_1</baseValue><variable identifier="RESPONSE"/></member></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>
