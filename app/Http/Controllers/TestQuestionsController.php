@@ -282,7 +282,8 @@ class TestQuestionsController extends Controller {
             $testQuestion->fill($request->all());
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if ($completionAnswerDirty || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+            if ($completionAnswerDirty
+                || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
                 if ($question->isUsed($testQuestion)) {
                     $question = $question->duplicate(array_merge($request->all(),$questionData));
                     //$question = $question->duplicate($request->all());
