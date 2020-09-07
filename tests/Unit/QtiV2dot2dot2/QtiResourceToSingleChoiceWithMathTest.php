@@ -108,7 +108,7 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
                 ],
                 'default_value' => '0',
             ],
-        ], $this->instance->responseDeclaration);
+        ], $this->instance->responseDeclaration['RESPONSE']);
     }
 
     /** @test */

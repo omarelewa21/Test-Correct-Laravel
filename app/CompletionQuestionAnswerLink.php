@@ -29,7 +29,7 @@ class CompletionQuestionAnswerLink extends CompositePrimaryKeyModel
      *
      * @var array
      */
-    protected $fillable = [];
+    protected $fillable = ['order'];
 
     /**
      * The primary key for the model.

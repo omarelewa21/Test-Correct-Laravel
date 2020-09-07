@@ -14,7 +14,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceToCompetionQuestionWithPatternMaskTest extends TestCase
 {
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
     private $instance;
 
@@ -94,7 +94,7 @@ class QtiResourceToCompetionQuestionWithPatternMaskTest extends TestCase
                 ],
                 'default_value' => '0',
             ],
-        ], $this->instance->responseDeclaration);
+        ], $this->instance->responseDeclaration['RESPONSE']);
     }
 
     /** @test */
