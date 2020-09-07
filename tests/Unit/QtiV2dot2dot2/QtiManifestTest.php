@@ -131,7 +131,7 @@ class QtiManifestTest extends TestCase
     public function it_can_load_wiskunde_manifest()
     {
         $instance = (new QtiManifest)->setOriginalXml($this->getXml('wiskunde'));
-        $this->assertCount(201, $instance->getTestResourcesList());
+        $this->assertCount(155, $instance->getTestResourcesList());
     }
 
     /** @test */
@@ -139,7 +139,7 @@ class QtiManifestTest extends TestCase
     {
         $instance = (new QtiManifest)->setOriginalXml($this->getXml('vmbo-economie'));
 
-        $this->assertCount(111, $instance->getTestResourcesList());
+        $this->assertCount(95, $instance->getTestResourcesList());
     }
 
     /** @test */

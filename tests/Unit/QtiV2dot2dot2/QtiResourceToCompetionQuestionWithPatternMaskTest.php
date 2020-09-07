@@ -168,12 +168,5 @@ class QtiResourceToCompetionQuestionWithPatternMaskTest extends TestCase
 
     }
 
-    /** @test */
-    public function question_xml_contains_stylesheet_data()
-    {
-        $this->assertStringContainsString(
-            '<style>',
-            $this->instance->question_xml
-        );
-    }
+
 }

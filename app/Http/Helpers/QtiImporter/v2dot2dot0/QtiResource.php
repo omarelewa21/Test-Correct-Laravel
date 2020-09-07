@@ -372,6 +372,7 @@ class QtiResource
             'metadata' => $this->getMetadata(),
             'external_id' => $this->resource->identifier,
             'styling' => $this->getStyling(),
+            'published' => false
         ])->merge(
             $this->mergeExtraTestQuestionAttributes()
         );
