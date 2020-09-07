@@ -314,9 +314,14 @@ class GroupQuestionQuestionsController extends Controller
         try {
             $qHelper = new QuestionHelper();
             $questionData = [];
-            if ($question->getQuestionInstance()->type == 'CompletionQuestion') {
+            $completionAnswerDirty = false;
+            if($question->getQuestionInstance()->type == 'CompletionQuestion') {
                 $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+                $currentAnswers = $question->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
+                $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
+                $completionAnswerDirty = ( ($currentAnswers !== $futureAnswers));
             }
+
 
             $totalData = array_merge($request->all(),$questionData);
 
@@ -328,9 +333,16 @@ class GroupQuestionQuestionsController extends Controller
             $groupQuestionQuestion->fill($request->all());
 
 
-            if (
-                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) &&
-                ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
+//            if (
+//                ($groupQuestionQuestionManager->isUsed()
+//                    || $question->isUsed($groupQuestionQuestion)) &&
+//
+//                ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
+            // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
+
+            // 20200907 by Erik: in line with testquestion and should be handled equally
+            // no more checking on groupquestionmanager
+            if ($completionAnswerDirty || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
                 $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
                 $groupQuestionQuestion = $groupQuestionQuestion->duplicate(
