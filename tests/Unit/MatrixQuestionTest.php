@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 class MatrixQuestionTest extends TestCase {
 
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
 	/**
 	 * A basic functional test example.

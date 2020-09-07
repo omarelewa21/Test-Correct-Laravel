@@ -13,7 +13,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceToInlineChoiceTest extends TestCase
 {
-   use DatabaseTransactions;
+    use DatabaseTransactions;
 
     private $instance;
 
@@ -118,7 +118,10 @@ class QtiResourceToInlineChoiceTest extends TestCase
                 ],
                 'default_value' => '0',
             ],
-        ], $this->instance->responseDeclaration);
+        ], $this->instance->responseDeclaration['RESPONSE']
+        );
+
+
     }
 
     /** @test */
