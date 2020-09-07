@@ -36,6 +36,7 @@ class QtiResourceCompletionQuestion210024Test extends TestCase
     /** @test */
     public function it_can_handle_the_item_body()
     {
+        // TODO needs test to proof that 2 answers have been added to different gaps and that these answers are linked to the right gap.
         $this->assertTrue(true);
     }
 }

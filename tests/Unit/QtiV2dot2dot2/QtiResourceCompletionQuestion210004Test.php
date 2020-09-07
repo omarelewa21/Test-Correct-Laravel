@@ -36,6 +36,7 @@ class QtiResourceCompletionQuestion210004Test extends TestCase
     /** @test */
     public function it_can_handle_the_item_body()
     {
+        // TODO needs test for double answer entry for both answers. JUINEN
         $this->assertTrue(true);
     }
 
