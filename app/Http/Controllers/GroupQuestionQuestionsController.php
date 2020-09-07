@@ -329,16 +329,17 @@ class GroupQuestionQuestionsController extends Controller
             $groupQuestionQuestion->fill($request->all());
 
 
-//            if (
-//                ($groupQuestionQuestionManager->isUsed()
-//                    || $question->isUsed($groupQuestionQuestion)) &&
-//
-//                ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
-            // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-
-            // 20200907 by Erik: in line with testquestion and should be handled equally
-            // no more checking on groupquestionmanager
-            if ($completionAnswerDirty || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+            if (
+                ($groupQuestionQuestionManager->isUsed()
+                    || $question->isUsed($groupQuestionQuestion)
+                )
+                &&
+                ($completionAnswerDirty
+                    || $question->isDirty()
+                    || $questionInstance->isDirty()
+                    || $questionInstance->isDirtyAttainments()
+                    || $questionInstance->isDirtyTags()
+                    || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
                 $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
                 $groupQuestionQuestion = $groupQuestionQuestion->duplicate(
@@ -359,7 +360,7 @@ class GroupQuestionQuestionsController extends Controller
             }
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+            if ($completionAnswerDirty || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
                 if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
                     //$question = $question->duplicate($request->all());
                     $question = $question->duplicate($totalData);
