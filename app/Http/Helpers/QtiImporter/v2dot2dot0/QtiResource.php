@@ -118,7 +118,7 @@ class QtiResource
 
     private function handleResponseDeclaration()
     {
-        foreach($this->xml->responseDeclaration as $input) {
+        foreach ($this->xml->responseDeclaration as $input) {
             $declaration = [
                 'attributes' => [],
                 'correct_response_attributes' => [],
@@ -203,6 +203,7 @@ class QtiResource
 
 
         $this->question_xml = $dom1->saveXML();
+
     }
 
 
@@ -267,19 +268,24 @@ class QtiResource
                 $id = $interaction['id']->__toString();
                 $result = [];
                 foreach ($interaction->inlineChoice as $inlineChoice) {
+
+                    $correct =  $inlineChoice['identifier']->__toString() === $this->responseDeclaration[$interaction['responseIdentifier']->__toString()]['values'][0];
+
                     $result[] = [
                         'identifier' => $inlineChoice['identifier'],
 //                        'value' => $inlineChoice->span->__toString(),
                         'value' => $this->getInlineChoiceText($inlineChoice),
-                        'correct' => false,
+
+                        'correct' => $correct,
                     ];
                 }
+
                 $domElement = dom_import_simplexml($interaction);
                 $parent = $domElement->parentNode;
 
                 if ($result) {
                     $pipeString = collect($result)->map(function ($response) use ($inlineChoice) {
-                        return $response['value'];
+                        return $response['correct']? sprintf('?%s',  $response['value']) : $response['value'];
                     })->implode('|');
                     $newNode = $domElement->ownerDocument->createTextNode(sprintf('[%s]', $pipeString));
                     $parent->insertBefore($newNode, $domElement);
@@ -385,7 +391,7 @@ class QtiResource
             'metadata' => $this->getMetadata(),
             'external_id' => $this->resource->identifier,
             'styling' => $this->getStyling(),
-            'published' => false
+            'published' => false,
         ])->merge(
             $this->mergeExtraTestQuestionAttributes()
         );

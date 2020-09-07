@@ -26,7 +26,7 @@ class CompletionQuestionAnswer extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['tag', 'answer', 'correct'];
+    protected $fillable = ['tag', 'answer', 'correct', 'order'];
 
     /**
      * The attributes excluded from the model's JSON form.

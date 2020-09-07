@@ -53,7 +53,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
                 $this->getUpdatedAtColumn(),
                 $this->getDeletedAtColumn()
             ]
-        )->wherePivot($this->getDeletedAtColumn(), null);
+        )->wherePivot($this->getDeletedAtColumn(), null)->orderBy('completion_question_answer_links.order');
     }
 
     public function loadRelated()
@@ -279,6 +279,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
         }
 
         $returnAnswers = [];
+        $loop = 1;
         foreach($answers as $answerDetails) {
             $completionQuestionAnswer = new CompletionQuestionAnswer();
 
@@ -292,6 +293,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
             $completionQuestionAnswerLink = new CompletionQuestionAnswerLink();
             $completionQuestionAnswerLink->setAttribute('completion_question_id', $question->getKey());
             $completionQuestionAnswerLink->setAttribute('completion_question_answer_id', $completionQuestionAnswer->getKey());
+            $completionQuestionAnswerLink->setAttribute('order',  $loop++);
 
             if (!$completionQuestionAnswerLink->save()) {
                 throw new QuestionException('Failed to create completion question answer link',422);
