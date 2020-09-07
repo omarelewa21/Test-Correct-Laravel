@@ -210,6 +210,10 @@ class Test extends BaseModel {
 
         $query->whereIn('subject_id', $subjectIds);
         $query->where('scope', 'cito');
+        $query->where(function($q) use ($user){
+            return $q->where('published',true)
+                    ->orWhere('author_id',$user->getKey());
+        });
 
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);
