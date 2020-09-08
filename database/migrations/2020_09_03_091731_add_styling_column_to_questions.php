@@ -14,7 +14,7 @@ class AddStylingColumnToQuestions extends Migration
     public function up()
     {
         Schema::table('questions', function (Blueprint $table) {
-            $table->text('styling')->nullable();
+            $table->longText('styling')->nullable();
             //
         });
     }
