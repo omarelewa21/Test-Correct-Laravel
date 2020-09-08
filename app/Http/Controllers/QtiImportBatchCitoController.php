@@ -412,7 +412,7 @@ class QtiImportBatchCitoController extends Controller
                 $resource = new Resource(
                     $resource,
                     'imsqti_item_xmlv2p2',
-                    sprintf('%s/%s/%s/zipdir/depitems/%s.xml', $this->packageDir, 'zipdir', $dirNumber, str_replace('ITM-', '', $resource)),
+                    sprintf('%s/%s/%s/zipdir/depitems/%s.xml', $this->packageDir, 'zipdir', $dirNumber, str_replace(['ITM-', '_'], ['', ' '], $resource)),
                     '1',
                     'some guid',//$resource['guid'],
                     $test
