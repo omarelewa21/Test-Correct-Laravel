@@ -34,7 +34,7 @@ class Test extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle','is_open_source_content','demo', 'metadata', 'external_id','scope'];
+    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle','is_open_source_content','demo', 'metadata', 'external_id','scope','published'];
 
     /**
      * The attributes excluded from the model's JSON form.
