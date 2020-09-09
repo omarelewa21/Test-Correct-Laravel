@@ -549,7 +549,7 @@ class QtiResource
             $loop = 0;
             foreach ($matchSetNodeList[0] as $subQuestionNode) {
                 $subQuestions[] = [
-                    'sub_question' => $subQuestionNode->div->asXML(),
+                    'sub_question' => $this->getParsedAnswer($subQuestionNode->div->asXML()),// $subQuestionNode->div->asXML(),
                     'order' => $loop,
                     'score' => 1,
                     'answers' => $this->getAnswersByIdentifier(
