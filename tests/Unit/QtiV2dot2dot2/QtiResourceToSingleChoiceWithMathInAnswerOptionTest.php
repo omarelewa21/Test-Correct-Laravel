@@ -151,10 +151,10 @@ class QtiResourceToSingleChoiceWithMathInAnswerOptionTest extends TestCase
     }
 
     /** @test */
-    public function it_should_return_three_selectable_answers()
+    public function it_should_return_five_selectable_answers()
     {
         $this->assertEquals(
-            3,
+            5,
             $this->instance->getSelectableAnswers()
         );
 

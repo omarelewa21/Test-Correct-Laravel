@@ -48,13 +48,14 @@ class QtiResource
     public $answers = [];
     private $patternMask = false;
 
+    private $maxChoices = false;
+
 
     public function __construct(ResourceModel $resource)
     {
         $this->resource = $resource;
         $this->baseDir = pathinfo($resource->href)['dirname'];
         $this->qtiFactory = new QtiFactory($this);
-
     }
 
     public function handle()
@@ -225,7 +226,7 @@ class QtiResource
             $node = $this->xml->itemBody->xPath('//' . $this->itemType);
 
             $this->interaction = $node[0]->asXML();
-
+            $this->maxChoices = $node[0]['maxChoices']->__toString();
             $dom = dom_import_simplexml($node[0]);
             $dom->parentNode->removeChild($dom);
         }
@@ -355,9 +356,9 @@ class QtiResource
 
     public function getSelectableAnswers()
     {
-//        if ($this->itemType == 'textEntryInteraction') {
-//            return 1;
-//        }
+        if ($this->itemType == 'choiceInteraction' && $this->maxChoices) {
+            return $this->maxChoices;
+        }
 //
         if (is_array($this->responseDeclaration) && is_array(array_values($this->responseDeclaration)[0]['values']) && $count = count(array_values($this->responseDeclaration)[0]['values'])) {
             return $count;
