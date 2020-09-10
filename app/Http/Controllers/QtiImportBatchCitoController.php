@@ -377,28 +377,32 @@ class QtiImportBatchCitoController extends Controller
         $xml = '';
 
 
-        // add the test
+        // we need to set the auth user to the user we want to import the
+        // test for as the rest of the system is depending on this
+        Auth::loginUsingId($this->requestData['author_id']);
 
         foreach ($this->manifest->getTestListWithResources() as $key => $testFromIterator) {
-            $test = $this->addTest($xml, ['name' => $testFromIterator['test'], 'scope' => 'cito']);
+
+            $test = $this->addTest($xml, [
+                'name' => $testFromIterator['test'],
+                'scope' => 'cito',
+                'level' => $testFromIterator['highest_level'],
+            ]);
             $this->currentTest->name = $test->name;
 
-            // we need to set the auth user to the user we want to import the
-            // test for as the rest of the system is depending on this
-            Auth::loginUsingId($this->requestData['author_id']);
 
             $dirNumber = false;
 
             foreach (scandir($this->packageDir . '/zipdir') as $fileOrDir) {
                 logger([$fileOrDir, is_dir($fileOrDir)]);
-                if ($fileOrDir !== '.' && $fileOrDir !== '..' && is_dir($this->packageDir . '/zipdir/'.$fileOrDir)) {
+                if ($fileOrDir !== '.' && $fileOrDir !== '..' && is_dir($this->packageDir . '/zipdir/' . $fileOrDir)) {
                     $dirNumber = $fileOrDir;
                 }
             }
 
             if ($dirNumber === false) {
                 logger(scandir($this->packageDir . '/zipdir'));
-                throw new \Exception('Couldnt find correct zipdir for test: '.$testFromIterator['test']);
+                throw new \Exception('Couldnt find correct zipdir for test: ' . $testFromIterator['test']);
             }
 
 
@@ -408,7 +412,7 @@ class QtiImportBatchCitoController extends Controller
                 $resource = new Resource(
                     $resource,
                     'imsqti_item_xmlv2p2',
-                    sprintf('%s/%s/%s/zipdir/depitems/%s.xml', $this->packageDir, 'zipdir', $dirNumber, str_replace('ITM-', '', $resource)),
+                    sprintf('%s/%s/%s/zipdir/depitems/%s.xml', $this->packageDir, 'zipdir', $dirNumber, str_replace(['ITM-', '_'], ['', ' '], $resource)),
                     '1',
                     'some guid',//$resource['guid'],
                     $test
@@ -441,8 +445,29 @@ class QtiImportBatchCitoController extends Controller
         return $fillableData;
     }
 
+    protected function getEducationLevelIdFromLevel($level)
+    {
+        $ar = [
+            'vwo' => ['id' => 1, 'year' => 6],
+            'havo' => ['id' => 3, 'year' => 5],
+            'kb' => ['id' => 6, 'year' => 4],
+            'gl/tl' => ['id' => 4, 'year' => 4],
+        ];
+        if (!array_key_exists($level, $ar)) {
+            throw new \Exception(sprintf('Expected level %s unknown in class %s', $level, __CLASS__));
+        }
+        return $ar[$level];
+    }
+
     protected function addTest($xml, $overrides = [])
     {
+        if (isset($overrides['level'])) {
+            $details = $this->getEducationLevelIdFromLevel($overrides['level']);
+            $overrides['education_level_id'] = $details['id'];
+            $overrides['education_level_year'] = $details['year'];
+
+        }
+
         $fillableData = $this->getRequestData((new Test())->getFillable());
 
         $shuffle = 0;

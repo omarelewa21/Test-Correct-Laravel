@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddStylingColumnToQuestions extends Migration
+class RemovePublishedFromQuestionsAddToTests extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,11 @@ class AddStylingColumnToQuestions extends Migration
     public function up()
     {
         Schema::table('questions', function (Blueprint $table) {
-            $table->longText('styling')->nullable();
-            //
+            $table->dropColumn('published');
+        });
+
+        Schema::table('tests', function (Blueprint $table) {
+            $table->boolean('published')->default(true);
         });
     }
 
@@ -27,7 +30,11 @@ class AddStylingColumnToQuestions extends Migration
     public function down()
     {
         Schema::table('questions', function (Blueprint $table) {
-            $table->dropColumn('styling');
+            //
+        });
+
+        Schema::table('tests', function (Blueprint $table) {
+            $table->dropColumn('published');
         });
     }
 }

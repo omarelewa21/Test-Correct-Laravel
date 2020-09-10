@@ -11,7 +11,7 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceCompletionQuestion210011Test extends TestCase
+class QtiResourceCompletionQuestion210004Test extends TestCase
 {
      use DatabaseTransactions;
 
@@ -23,9 +23,9 @@ class QtiResourceCompletionQuestion210011Test extends TestCase
         $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
 
         $resource = new Resource(
-            'ITM-210011',
+            'ITM-210041',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/economie-wiskundeA-niet-definitief/Wiskunde-A/wiskunde-A-pakket_test-correct_20200827-142449/depitems/210011.xml'),
+            storage_path('../tests/_fixtures_qti/210004.xml'),
             '1',
             '88dec4d3-997f-4d3b-95cf-3345bf3c0f4b'
         );
@@ -36,7 +36,7 @@ class QtiResourceCompletionQuestion210011Test extends TestCase
     /** @test */
     public function it_can_handle_the_item_body()
     {
-//        dd($this->instance->question_xml);
+        // TODO needs test for double answer entry for both answers. JUINEN
         $this->assertTrue(true);
     }
 

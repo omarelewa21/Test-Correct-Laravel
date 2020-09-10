@@ -62,7 +62,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
                 $this->getUpdatedAtColumn(),
                 $this->getDeletedAtColumn()
             ]
-        )->wherePivot($this->getDeletedAtColumn(), null);
+        )->wherePivot($this->getDeletedAtColumn(), null)->orderBy('completion_question_answer_links.order');
     }
 
     public function loadRelated()
@@ -106,6 +106,10 @@ class CompletionQuestion extends Question implements QuestionInterface {
     }
 
     public function canCheckAnswer() {
+        if($this->isClosedQuestion()){
+            return true;
+        }
+
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
         $tags = [];
 
@@ -134,7 +138,59 @@ class CompletionQuestion extends Question implements QuestionInterface {
         return true;
     }
 
-    public function checkAnswer($answer) {
+    public function checkAnswerCompletion($answer)
+    {
+        $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
+        foreach($completionQuestionAnswers as $tag => $choices) {
+            $answers = [];
+            foreach ($choices as $choice) {
+                if ($choice->getAttribute('correct') == 1) {
+                    $answers[] = $choice->getAttribute('answer');
+                }
+            }
+            $completionQuestionAnswers[$tag] = $answers;
+        }
+
+        $answers = json_decode($answer->getAttribute('json'), true);
+        if(!$answers) {
+            return 0;
+        }
+
+        $correct = 0;
+        foreach($completionQuestionAnswers as $tag => $tagAnswers) {
+            // as completion questions have a saved tag 0 based we need to lower them
+            $refTag = $tag-1;
+            if (!array_key_exists($refTag, $answers)) {
+                continue;
+            }
+
+            if (in_array($answers[$refTag], $tagAnswers)) {
+                $correct++;
+            }
+        }
+
+        if($this->allOrNothingQuestion()){
+            if($correct == count($completionQuestionAnswers)){
+                return $this->score;
+            } else {
+                return 0;
+            }
+        }
+
+
+        $score = $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
+        if ($this->getAttribute('decimal_score') == true) {
+            $score = floor($score * 2) / 2;
+        } else {
+            $score = floor($score);
+        }
+
+        return $score;
+
+    }
+
+    public function checkAnswerMulti($answer)
+    {
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
         foreach($completionQuestionAnswers as $tag => $choices) {
             $answers = [];
@@ -162,6 +218,15 @@ class CompletionQuestion extends Question implements QuestionInterface {
             }
         }
 
+        if($this->allOrNothingQuestion()){
+            if($correct == count($completionQuestionAnswers)){
+                return $this->score;
+            } else {
+                return 0;
+            }
+        }
+
+
         $score = $this->getAttribute('score') * ($correct / count($completionQuestionAnswers));
         if ($this->getAttribute('decimal_score') == true) {
             $score = floor($score * 2) / 2;
@@ -170,6 +235,13 @@ class CompletionQuestion extends Question implements QuestionInterface {
         }
 
         return $score;
+    }
+
+    public function checkAnswer($answer) {
+        if($this->subtype == 'multi'){
+            return $this->checkAnswerMulti($answer);
+        }
+        return $this->checkAnswerCompletion($answer);
     }
 
     public function deleteAnswers(){
@@ -218,8 +290,11 @@ class CompletionQuestion extends Question implements QuestionInterface {
         }
 
         $returnAnswers = [];
+        $loop = 1;
         foreach($answers as $answerDetails) {
             $completionQuestionAnswer = new CompletionQuestionAnswer();
+
+            $answerDetails['answer'] = html_entity_decode($answerDetails['answer']);//str_replace(['&eacute;','&euro;','&euml;','&nbsp;','&oacute;'],['é','€','ë',' ','ó'],$answerDetails['answer']);
 
             $completionQuestionAnswer->fill($answerDetails);
             if (!$completionQuestionAnswer->save()) {
@@ -229,6 +304,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
             $completionQuestionAnswerLink = new CompletionQuestionAnswerLink();
             $completionQuestionAnswerLink->setAttribute('completion_question_id', $question->getKey());
             $completionQuestionAnswerLink->setAttribute('completion_question_answer_id', $completionQuestionAnswer->getKey());
+            $completionQuestionAnswerLink->setAttribute('order',  $loop++);
 
             if (!$completionQuestionAnswerLink->save()) {
                 throw new QuestionException('Failed to create completion question answer link',422);

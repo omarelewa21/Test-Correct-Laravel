@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddStylingColumnToQuestions extends Migration
+class AddOrderColumnToCompletionQuestionAnswerLinksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddStylingColumnToQuestions extends Migration
      */
     public function up()
     {
-        Schema::table('questions', function (Blueprint $table) {
-            $table->longText('styling')->nullable();
-            //
+        Schema::table('completion_question_answer_links', function (Blueprint $table) {
+           $table->integer('order')->default(0);
         });
     }
 
@@ -26,8 +25,8 @@ class AddStylingColumnToQuestions extends Migration
      */
     public function down()
     {
-        Schema::table('questions', function (Blueprint $table) {
-            $table->dropColumn('styling');
+        Schema::table('completion_question_answer_links', function (Blueprint $table) {
+            $table->dropColumn(['order']);
         });
     }
 }

@@ -94,7 +94,7 @@ class QtiResourceToSingleChoiceVersion2Test extends TestCase
                 ],
                 'default_value' => '0',
             ],
-        ], $this->instance->responseDeclaration);
+        ], $this->instance->responseDeclaration['RESPONSE']);
     }
 
     /** @test */
@@ -181,7 +181,8 @@ class QtiResourceToSingleChoiceVersion2Test extends TestCase
         });
 
         $this->assertEquals(
-            '<p>corrosief&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp',
+            '<p>corrosief&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;gevaarlijk voor waterrijk milieu</p>
+',
             $correctLink->multipleChoiceQuestionAnswer->answer
         );
     }

@@ -15,11 +15,11 @@ use tcCore\QtiModels\QtiResource as Resource;
  * Class QtiResourceToMatchInteractionTest
  * @package Tests\Unit\QtiV2dot2dot2
  */
-class QtiResourceToMatchInteractionTest extends TestCase
+class QtiResourceToMatchInteraction330165Test extends TestCase
 {
 
     use DatabaseTransactions;
-
+    
     private $instance;
 
     protected function setUp(): void
@@ -27,15 +27,14 @@ class QtiResourceToMatchInteractionTest extends TestCase
         parent::setUp();
         $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
         $resource = new Resource(
-            'ITM-330001',
+            'ITM-330165',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/330001.xml'),
+            storage_path('../tests/_fixtures_qti/330165.xml'),
             '1',
             '88dec4d3-997f-4d3b-95cf-3345bf3c0f4b'
         );
         $this->instance = (new QtiResource($resource))->handle();
     }
-
 
 
     /** @test */
@@ -48,9 +47,9 @@ class QtiResourceToMatchInteractionTest extends TestCase
     public function it_can_handle_item_attributes()
     {
         $this->assertEquals([
-            'title' => 'Stofeigenschappen',
-            'identifier' => 'ITM-330001',
-            'label' => '32k6ca',
+            'title' => 'Soorten lenzen',
+            'identifier' => 'ITM-330165',
+            'label' => '32k5l2',
             'timeDependent' => 'false',
         ], $this->instance->attributes);
 
@@ -71,11 +70,6 @@ class QtiResourceToMatchInteractionTest extends TestCase
         );
     }
 
-    /** @test */
-    public function it_can_handle_response_processing()
-    {
-        $this->assertTrue(true);
-    }
 
     /** @test */
     public function it_can_handle_correct_response()
@@ -87,45 +81,25 @@ class QtiResourceToMatchInteractionTest extends TestCase
                 'baseType' => 'identifier',
             ],
             'correct_response_attributes' => [
-                'interpretation' =>  'A&B&A',
+                'interpretation' => 'B&A&B&A',
             ],
             'values' => [
-                'y_A x_1',
-                'y_B x_2',
-                'y_C x_1',
+                'y_A x_2',
+                'y_B x_1',
+                'y_C x_2',
+                'y_D x_1',
             ],
             'outcome_declaration' => [
                 'attributes' => [
                     'identifier' => 'SCORE',
                     'cardinality' => 'single',
-                    'baseType' => 'integer',
+                    'baseType' => 'float',
                 ],
                 'default_value' => '0',
             ],
         ], $this->instance->responseDeclaration['RESPONSE']);
     }
 
-    /** @test */
-    public function it_can_handle_stylesheets()
-    {
-        $this->assertEquals(
-            [
-                [
-                    'href' => '../css/cito_itemstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => '../css/cito_userstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => "../css/cito_generated.css",
-                    'type' => "text/css",
-                ],
-            ],
-            $this->instance->stylesheets
-        );
-    }
 
     /** @test */
     public function it_can_handle_the_item_body()

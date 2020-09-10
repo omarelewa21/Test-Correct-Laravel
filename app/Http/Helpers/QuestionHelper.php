@@ -40,6 +40,8 @@ class QuestionHelper extends BaseHelper
 
     public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question)
     {
+
+
         $obj = (object) [
             'answers'   => [],
             'nr'        => 0
@@ -48,15 +50,30 @@ class QuestionHelper extends BaseHelper
             '/\[(.*?)\]/i',
             function ($matches) use ($obj) {
                 $obj->nr++;
+                $questionMarkUsed = (bool) collect(explode('|',$matches[1]))->first(function($answer) {
+                    return strpos($answer, '?') === 0;
+                });
+
                 $answerItems = explode('|',$matches[1]);
                 foreach($answerItems as $id => $answerItem) {
+                    if ($questionMarkUsed) {
+                        $isCorrect = false;
+                        if ($isCorrect = strpos($answerItem, '?') === 0) {
+                            $answerItem = substr($answerItem, 1);
+                        }
 
-
-                    $obj->answers[] = [
-                        'answer' => $answerItem,
-                        'tag' => $obj->nr,
-                        'correct' => ($id === 0) ? 1 : 0
-                    ];
+                        $obj->answers[] = [
+                            'answer' => $answerItem,
+                            'tag' => $obj->nr,
+                            'correct' =>  $isCorrect
+                        ];
+                    } else {
+                        $obj->answers[] = [
+                            'answer' => $answerItem,
+                            'tag' => $obj->nr,
+                            'correct' => ($id === 0) ? 1 : 0
+                        ];
+                    }
                 }
                 return sprintf('[%d]',$obj->nr);
             },

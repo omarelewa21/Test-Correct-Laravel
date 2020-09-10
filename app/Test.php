@@ -42,7 +42,7 @@ class Test extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle','is_open_source_content','demo', 'metadata', 'external_id'];
+    protected $fillable = ['subject_id', 'education_level_id', 'period_id', 'test_kind_id', 'name', 'abbreviation', 'education_level_year', 'kind', 'status', 'introduction', 'shuffle','is_open_source_content','demo', 'metadata', 'external_id','scope','published'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -203,22 +203,25 @@ class Test extends BaseModel {
         $user = Auth::user();
 
         $citoSchool = SchoolLocation::where('customer_code','CITO-TOETSENOPMAAT')->first();
-        $baseSubjectIds = $user->subjects()->pluck('base_subject_id');
+        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
 
         if($citoSchool){
             $classIds = $citoSchool->schoolClasses()->pluck('id');
-            $tempSubjectIds = Teacher::whereIn('class_id',$classIds)->pluck('subject_id');
+            $tempSubjectIds = Teacher::whereIn('class_id',$classIds)->pluck('subject_id')->unique();
             $baseSubjects = Subject::whereIn('id',$tempSubjectIds)->get();
-            $baseSubjectIds = collect($baseSubjectIds);
-            $subjectIds = $baseSubjects->whereIn('base_subject_id',$baseSubjectIds)->pluck('id');
+//            $baseSubjectIds = collect($baseSubjectIds);
+            $subjectIds = $baseSubjects->whereIn('base_subject_id',$baseSubjectIds)->pluck('id')->unique()->toArray();
         } else { // slower but as a fallback in case there's no cito school
-            $subjectIds = BaseSubject::whereIn('id', $baseSubjectIds)->get()->map(function (BaseSubject $bs) {
-                return $bs->subjects()->pluck('id');
-            })->flatten();
+            $query->where('tests.id',-1);
+            return $query;
         }
 
         $query->whereIn('subject_id', $subjectIds);
         $query->where('scope', 'cito');
+        $query->where(function($q) use ($user){
+            return $q->where('published',true)
+                    ->orWhere('author_id',$user->getKey());
+        });
 
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);

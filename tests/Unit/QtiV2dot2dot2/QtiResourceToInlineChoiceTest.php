@@ -13,7 +13,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceToInlineChoiceTest extends TestCase
 {
-   use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     private $instance;
 
@@ -53,13 +53,13 @@ class QtiResourceToInlineChoiceTest extends TestCase
     public function the_question_xml_property_should_be_correct()
     {
         $this->assertStringContainsString(
-            '[gasvormig|vast|vloeibaar].',
+            '[gasvormig|vast|?vloeibaar].',
             $this->instance->question_xml
         );
 
         // let op de punt van het einde van de zin moet achter de optie staan;
         $this->assertStringContainsString(
-            '[kookpunt|smeltpunt].',
+            '[?kookpunt|smeltpunt].',
             $this->instance->question_xml
         );
 
@@ -118,7 +118,10 @@ class QtiResourceToInlineChoiceTest extends TestCase
                 ],
                 'default_value' => '0',
             ],
-        ], $this->instance->responseDeclaration);
+        ], $this->instance->responseDeclaration['RESPONSE']
+        );
+
+
     }
 
     /** @test */

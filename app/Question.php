@@ -323,6 +323,32 @@ class Question extends MtiBaseModel {
         $this->authors = null;
     }
 
+    protected function isClosedQuestion()
+    {
+//        $question = $this;
+//        if (get_class($question) !== 'tcCore\Question') {
+//            $question = $this->getQuestionInstance();
+//        }
+//
+//        return $question->scope === 'cito';
+        return $this->isCitoQuestion();
+    }
+
+    protected function allOrNothingQuestion()
+    {
+        return $this->isCitoQuestion();
+    }
+
+    public function isCitoQuestion()
+    {
+        $question = $this;
+        if (get_class($question) !== 'tcCore\Question') {
+            $question = $this->getQuestionInstance();
+        }
+
+        return $question->scope === 'cito';
+    }
+
     public function isDirtyAttainments() {
         if ($this->attainments === null) {
             return false;

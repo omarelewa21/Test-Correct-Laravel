@@ -12,9 +12,9 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceToSingleChoiceWithMathTest extends TestCase
+class QtiResourceToSingleChoiceWithMathInAnswerOptionTest extends TestCase
 {
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
     private $instance;
 
@@ -110,7 +110,7 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
                 ],
                 'default_value' => '0',
             ],
-        ], $this->instance->responseDeclaration);
+        ], $this->instance->responseDeclaration['RESPONSE']);
     }
 
     /** @test */
@@ -151,10 +151,10 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
     }
 
     /** @test */
-    public function it_should_return_three_selectable_answers()
+    public function it_should_return_five_selectable_answers()
     {
         $this->assertEquals(
-            3,
+            5,
             $this->instance->getSelectableAnswers()
         );
 

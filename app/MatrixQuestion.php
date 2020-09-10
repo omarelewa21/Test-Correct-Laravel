@@ -167,6 +167,14 @@ class MatrixQuestion extends Question implements QuestionInterface {
             }
         });
 
+        if($this->allOrNothingQuestion()){
+            if($score == $this->matrixQuestionAnswerSubQuestions->count()){
+                return $this->score;
+            } else {
+                return 0;
+            }
+        }
+
         return $score;
     }
 

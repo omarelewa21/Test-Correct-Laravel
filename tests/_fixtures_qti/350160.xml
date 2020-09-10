@@ -1,0 +1,106 @@
+<assessmentItem identifier="ITM-350160" label="32kbfr" timeDependent="false" title="Filtreren" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../../storage/app/qti_import/20200903120643/zipdir/2/zipdir/controlxsds/imsqti_v2p2p1.xsd">
+	<responseDeclaration baseType="identifier" cardinality="multiple" identifier="RESPONSE">
+		<correctResponse interpretation="A&amp;D">
+			<value>A</value>
+			<value>D</value>
+		</correctResponse>
+	</responseDeclaration>
+	<outcomeDeclaration baseType="float" cardinality="single" identifier="SCORE">
+		<defaultValue>
+			<value>0</value>
+		</defaultValue>
+	</outcomeDeclaration>
+	<outcomeDeclaration baseType="float" cardinality="single" identifier="MAXSCORE">
+		<defaultValue>
+			<value>1</value>
+		</defaultValue>
+	</outcomeDeclaration>
+
+	<itemBody class="defaultBody" xml:lang="nl-NL">
+		<div class="content">
+			<div class="qti-layout-row">
+				<div class="qti-layout-col12">
+					<div id="body">
+						<p>Joris wil een suspensie filtreren. Hiervoor maakt hij een filtreeropstelling.
+							<br/>
+							Hij pakt eerst een erlenmeyer uit de kast.</p>
+					</div>
+					<div id="question">
+						<p>
+							<strong>
+								<span>Welke andere materialen heb je nog meer nodig in een filtreeropstelling?</span>
+								 
+							</strong>
+						</p>
+					</div>
+					<div id="mc">
+						<choiceInteraction id="choiceInteraction1" maxChoices="3" responseIdentifier="RESPONSE" shuffle="false">
+							<simpleChoice identifier="A">
+								<p>filtreerpapier</p>
+							</simpleChoice>
+							<simpleChoice identifier="B">
+								<p>pH-papier</p>
+							</simpleChoice>
+							<simpleChoice identifier="C">
+								<p>pipet</p>
+							</simpleChoice>
+							<simpleChoice identifier="D">
+								<p>trechter</p>
+							</simpleChoice>
+						</choiceInteraction>
+					</div>
+				</div>
+			</div>
+		</div>
+	</itemBody>
+	<responseProcessing>
+		<responseCondition>
+			<responseIf>
+				<and>
+					<member>
+						<baseValue baseType="identifier">A</baseValue>
+						<variable identifier="RESPONSE"/>
+					</member>
+					<not>
+						<member>
+							<baseValue baseType="identifier">B</baseValue>
+							<variable identifier="RESPONSE"/>
+						</member>
+					</not>
+					<not>
+						<member>
+							<baseValue baseType="identifier">C</baseValue>
+							<variable identifier="RESPONSE"/>
+						</member>
+					</not>
+					<member>
+						<baseValue baseType="identifier">D</baseValue>
+						<variable identifier="RESPONSE"/>
+					</member>
+				</and>
+				<setOutcomeValue identifier="SCORE">
+					<sum>
+						<baseValue baseType="float">1</baseValue>
+						<variable identifier="SCORE"/>
+					</sum>
+				</setOutcomeValue>
+			</responseIf>
+		</responseCondition>
+		<responseCondition>
+			<responseIf>
+				<gte>
+					<variable identifier="SCORE"/>
+					<baseValue baseType="float">1</baseValue>
+				</gte>
+				<setOutcomeValue identifier="SCORE">
+					<baseValue baseType="float">1</baseValue>
+				</setOutcomeValue>
+			</responseIf>
+			<responseElse>
+				<setOutcomeValue identifier="SCORE">
+					<baseValue baseType="float">0</baseValue>
+				</setOutcomeValue>
+			</responseElse>
+		</responseCondition>
+	</responseProcessing>
+</assessmentItem>

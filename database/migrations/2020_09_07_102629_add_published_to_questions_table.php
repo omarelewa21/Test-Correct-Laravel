@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddStylingColumnToQuestions extends Migration
+class AddPublishedToQuestionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,7 @@ class AddStylingColumnToQuestions extends Migration
     public function up()
     {
         Schema::table('questions', function (Blueprint $table) {
-            $table->longText('styling')->nullable();
-            //
+            $table->boolean('published')->index()->default(true);
         });
     }
 
@@ -27,7 +26,7 @@ class AddStylingColumnToQuestions extends Migration
     public function down()
     {
         Schema::table('questions', function (Blueprint $table) {
-            $table->dropColumn('styling');
+            $table->dropcolumn('published');
         });
     }
 }

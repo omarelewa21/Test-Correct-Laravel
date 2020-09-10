@@ -12,7 +12,7 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceToSingleChoiceWithMathTest extends TestCase
+class QtiResourceToSingleChoiceVersionWithMaxChoiceTwoTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -25,11 +25,11 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
         $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
 
         $resource = new Resource(
-            'ITM-testitem_simpele_formule_editor_voor_invoer',
+            'ITM-330016',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/testitem simpele formule editor voor invoer.xml'),
+            storage_path('../tests/_fixtures_qti/350160.xml'),
             '1',
-            '3ef7b0ad-6417-433f-8012-efd1f544dfc6'
+            'd472b88b-344d-4f18-b892-125597969d5d'
         );
         $this->instance = (new QtiResource($resource))->handle();
     }
@@ -44,34 +44,11 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
     public function it_can_handle_item_attributes()
     {
         $this->assertEquals([
-            'title' => 'testitem simpele formule editor voor invoer',
-            'identifier' => 'ITM-testitem_simpele_formule_editor_voor_invoer',
-            'label' => '32k6cd',
+            'title' => 'Filtreren',
+            'identifier' => 'ITM-350160',
+            'label' => '32kbfr',
             'timeDependent' => 'false',
         ], $this->instance->attributes);
-
-    }
-
-    /** @test */
-    public function it_should_strip_the_m_name_space_from_the_xml()
-    {
-        $this->assertEquals(
-            0,
-            substr_count($this->instance->xml_string, '<m:')
-        );
-
-        $this->assertEquals(
-            0,
-            substr_count($this->instance->xml_string, '</m:')
-        );
-    }
-    /** @test */
-    public function it_should_add_the_xmlns_for_math_ml_to_the_body()
-    {
-        $this->assertEquals(
-            1,
-            substr_count($this->instance->xml_string, 'xmlns="http://www.w3.org/1998/Math/MathML"')
-        );
 
     }
 
@@ -85,26 +62,28 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
     }
 
 
+
     /** @test */
     public function it_can_handle_correct_response()
     {
         $this->assertEquals([
             'attributes' => [
                 'identifier' => 'RESPONSE',
-                'cardinality' => 'single',
+                'cardinality' => 'multiple',
                 'baseType' => 'identifier',
             ],
             'correct_response_attributes' => [
-                'interpretation' => 'A',
+                'interpretation' => 'A&D',
             ],
             'values' => [
                 'A',
+                'D',
             ],
             'outcome_declaration' => [
                 'attributes' => [
                     'identifier' => 'SCORE',
                     'cardinality' => 'single',
-                    'baseType' => 'integer',
+                    'baseType' => 'float',
                 ],
                 'default_value' => '0',
             ],
@@ -112,26 +91,12 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
     }
 
     /** @test */
-    public function it_can_handle_stylesheets()
+    public function get_selectable_answers()
     {
-        $this->assertEquals(
-            [
-                [
-                    'href' => '../css/cito_itemstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => '../css/cito_userstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => '../css/cito_generated_testitemsimpeleformuleeditorvoorinvoer.css',
-                    'type' => 'text/css',
-                ],
-            ],
-            $this->instance->stylesheets
-        );
+        $this->assertEquals(3, $this->instance->getSelectableAnswers());
     }
+
+
 
 
     /** @test */
@@ -149,21 +114,7 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
 
     }
 
-    /** @test */
-    public function it_can_handle_the_item_body()
-    {
-        $this->assertXmlStringEqualsXmlString(
-            '<?xml version="1.0"?>
-<choiceInteraction id="choiceInteraction1" maxChoices="1" responseIdentifier="RESPONSE" shuffle="false">
-  <simpleChoice identifier="A">
-    <p>alternatief A</p>
-  </simpleChoice>
-  <simpleChoice identifier="B">
-    <p>alternatief B</p>
-  </simpleChoice>
-</choiceInteraction>',
-            $this->instance->interaction);
-    }
+
 
     /** @test */
     public function it_can_add_the_question_to_the_database()
@@ -177,19 +128,19 @@ class QtiResourceToSingleChoiceWithMathTest extends TestCase
         );
 
         $this->assertStringContainsString(
-            'breuk grootte aangepast (groter):',
+            'Hij pakt eerst een erlenmeyer uit de kast.',
             ($instance->question)
         );
 
         $answerLinks = MultipleChoiceQuestionAnswerLink::where('multiple_choice_question_id', $instance->id)->get();
-        $this->assertCount(2, $answerLinks);
+        $this->assertCount(4, $answerLinks);
 
         $correctLink = $answerLinks->first(function ($link) {
             return $link->multipleChoiceQuestionAnswer->score == 1;
         });
 
         $this->assertEquals(
-            '<p>alternatief A</p>
+            '<p>filtreerpapier</p>
 ',
             $correctLink->multipleChoiceQuestionAnswer->answer
         );

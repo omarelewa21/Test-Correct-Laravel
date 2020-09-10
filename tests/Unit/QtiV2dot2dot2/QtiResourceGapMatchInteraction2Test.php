@@ -13,7 +13,7 @@ use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceGapMatchInteraction2Test extends TestCase
 {
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
     private $instance;
 
@@ -79,7 +79,7 @@ class QtiResourceGapMatchInteraction2Test extends TestCase
     /** @test */
     public function it_can_handle_correct_response()
     {
-        $this->assertEquals([
+        $this->assertEquals(['RESPONSE' => [
             'attributes' => [
                 'identifier' => 'RESPONSE',
                 'cardinality' => 'multiple',
@@ -101,6 +101,7 @@ class QtiResourceGapMatchInteraction2Test extends TestCase
                 ],
                 'default_value' => '0',
             ],
+        ]
         ], $this->instance->responseDeclaration);
     }
 

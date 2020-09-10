@@ -130,9 +130,30 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         }
 
         $score = 0;
+        $maxScore = 0;
+        $countCorrectAnswers = 0;
+
+        $givenAnswers = 0;
+        foreach($answers as $key => $val){
+           if($val == 1) $givenAnswers++;
+        }
+
         foreach($multipleChoiceQuestionAnswers as $multipleChoiceQuestionAnswer) {
+            if($multipleChoiceQuestionAnswer->score > 0){
+                $countCorrectAnswers++;
+            }
             if (array_key_exists($multipleChoiceQuestionAnswer->getKey(), $answers) && $answers[$multipleChoiceQuestionAnswer->getKey()] == 1) {
                 $score += $multipleChoiceQuestionAnswer->getAttribute('score');
+            }
+            $maxScore += $multipleChoiceQuestionAnswer->getAttribute('score');
+        }
+
+
+        if($this->allOrNothingQuestion()){
+            if($score == $maxScore && $countCorrectAnswers === $givenAnswers){
+                return $this->score;
+            } else {
+                return 0;
             }
         }
 
@@ -145,6 +166,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         } else {
             $score = floor($score);
         }
+
 
         return $score;
     }
