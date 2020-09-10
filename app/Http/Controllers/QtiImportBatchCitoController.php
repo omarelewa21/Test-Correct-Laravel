@@ -142,9 +142,17 @@ class QtiImportBatchCitoController extends Controller
 //            /**
 //             * added for bypass of upload for Scheikunde
 //             */
+            if(pathinfo($fileName,PATHINFO_EXTENSION) === 'txt') {
+                $fileData = json_decode(file_get_contents(sprintf('%s/%s',$this->packageDir,$fileName)));
+                if(!$fileData){
+                    throw new \Exception(sprintf('no json in %s',$fileName));
+                }
+                $startDir = $fileData->startDir;
+                $fileName = $fileData->fileName;
 //            $startDir = 'chemie';
 //            $fileName = 'scheikunde-havo-vwo.zip';
-//            $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
+              $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
+            }
             //        $storageDir = $dir = sprintf('%s/%s/uploads', $this->basePath, $this->dateStamp);
 
             $this->checkZipFile(sprintf('%s/%s/%s', $this->basePath, $startDir, $fileName), $startDir, true);
