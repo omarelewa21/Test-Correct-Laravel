@@ -96,6 +96,12 @@ class Question extends MtiBaseModel {
                     $attributes['attainments'] = [$attributes['attainments']];
                 }
 
+                foreach ($attributes['attainments'] as $key => $value) {
+                    if (Uuid::isValid($value)) {
+                        $attributes['attainments'][$key] = Attainment::whereUuid($value)->first()->getKey();
+                    }
+                }
+
                 $this->attainments = $attributes['attainments'];
             } elseif(array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment', $attributes)) {
                 $this->attainment = $this->questionAttainments()->pluck('attainment_id')->all();
@@ -379,7 +385,6 @@ class Question extends MtiBaseModel {
     protected function saveAttainments() {
         $questionAttainments = $this->questionAttainments()->withTrashed()->get();
         $this->syncTcRelation($questionAttainments, $this->attainments, 'attainment_id', function($question, $attainmentId) {
-            $attainmentId = Attainment::whereUuid($attainmentId)->first()->getKey();
             QuestionAttainment::create(['question_id' => $question->getKey(), 'attainment_id' => $attainmentId]);
         });
 
