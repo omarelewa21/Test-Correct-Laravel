@@ -103,7 +103,8 @@ class QtiImportBatchCitoController extends Controller
     public function store(Request $request)
     {
 
-        set_time_limit(3 * 60);
+        set_time_limit(5 * 60);
+        ini_set('memory_limit','-1');
         $return = "";
 
         $errors = [];
@@ -138,6 +139,12 @@ class QtiImportBatchCitoController extends Controller
             $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
             $file->move($this->packageDir, $fileName);
 
+//            /**
+//             * added for bypass of upload for Scheikunde
+//             */
+//            $startDir = 'chemie';
+//            $fileName = 'scheikunde-havo-vwo.zip';
+//            $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
             //        $storageDir = $dir = sprintf('%s/%s/uploads', $this->basePath, $this->dateStamp);
 
             $this->checkZipFile(sprintf('%s/%s/%s', $this->basePath, $startDir, $fileName), $startDir, true);
