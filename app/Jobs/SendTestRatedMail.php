@@ -2,6 +2,7 @@
 
 namespace tcCore\Jobs;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Mail\Mailer;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -40,9 +41,13 @@ class SendTestRatedMail extends Job implements ShouldQueue
                     continue;
                 }
 
-                $mailer->send('emails.test_rated', compact('testParticipant', 'urlLogin'), function ($mail) use ($testParticipant) {
-                    $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject('Toets beoordeeld.');
-                });
+                try {
+                    $mailer->send('emails.test_rated', compact('testParticipant', 'urlLogin'), function ($mail) use ($testParticipant) {
+                        $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject('Toets beoordeeld.');
+                    });
+                } catch (\Throwable $th) {
+                    Bugsnag::notifyException($th);
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers\Auth;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Auth\Passwords\TokenRepositoryInterface;
 use Illuminate\Http\Request;
@@ -35,10 +36,15 @@ class PasswordController extends Controller {
             $url = $request->get('url', null);
             $urlLogin = config('app.url_login');
 
-            $mailer->send('emails.password', compact('token', 'user', 'url', 'urlLogin'), function (Message $m) use ($user, $token) {
-                $m->to($user->getEmailForPasswordReset())
-                    ->subject('Nieuw wachtwoord aangevraagd.');
-            });
+			try {
+				$mailer->send('emails.password', compact('token', 'user', 'url', 'urlLogin'), function (Message $m) use ($user, $token) {
+					$m->to($user->getEmailForPasswordReset())
+						->subject('Nieuw wachtwoord aangevraagd.');
+				});
+			} catch (\Throwable $th) {
+				Bugsnag::notifyException($th);
+			}
+
 		}
         // we always sent the ok message as to not show a correct email address or not
 		return Response::make("Ok", 200);

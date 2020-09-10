@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Auth;
@@ -143,7 +144,11 @@ class DemoAccountController extends Controller
 
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
 
-                dispatch_now(new SendWelcomeMail($user->getKey()));
+                try {
+                    dispatch_now(new SendWelcomeMail($user->getKey()));
+                } catch (\Throwable $th) {
+                    Bugsnag::notifyException($th);
+                }
             } else {
                 DemoTeacherRegistration::create($validatedRegistration);
             }
@@ -161,7 +166,11 @@ class DemoAccountController extends Controller
     public function notifySupportTeacherTriesToUpload(Request $request)
     {
         $registration = DemoTeacherRegistration::where('user_id', request('userId'))->firstOrFail();
-        Mail::to('support@test-correct.nl')->send(new TeacherInTestSchoolTriesToUpload($registration));
+        try {
+            Mail::to('support@test-correct.nl')->send(new TeacherInTestSchoolTriesToUpload($registration));
+        } catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+        }
     }
 
     //
