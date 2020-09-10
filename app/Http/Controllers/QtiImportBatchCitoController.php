@@ -141,6 +141,9 @@ class QtiImportBatchCitoController extends Controller
 
 //            /**
 //             * added for bypass of upload for Scheikunde
+               * txt file content should look like {"startDir":"chemie","fileName":"scheikunde-havo-vwo.zip"}
+               * chemie being the directory which is created in the app/qti_import dir and fileName the zip file to look for
+               * make sure to take an earlier created dir as the dir needs to be of the www_data user
 //             */
             if(pathinfo($fileName,PATHINFO_EXTENSION) === 'txt') {
                 $fileData = json_decode(file_get_contents(sprintf('%s/%s',$this->packageDir,$fileName)));
