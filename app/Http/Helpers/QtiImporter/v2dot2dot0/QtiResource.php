@@ -674,10 +674,16 @@ class QtiResource
     {
         if ($this->itemType == 'textEntryInteraction') {
             foreach ($this->responseDeclaration as $declaration) {
-                $answers = explode('#', $declaration['correct_response_attributes']['interpretation']);
-                foreach ($answers as $answer) {
-                    if ($answer != $declaration['values'][0]) {
-                        $this->question->addAnswers($this->question->testQuestion, [['answer' => $answer, 'tag' => 1, 'correct' => 1]]);
+                if (array_key_exists('interpretation', $declaration['correct_response_attributes'])) {
+                    $answers = explode('#', $declaration['correct_response_attributes']['interpretation']);
+                    if ($answers === []) {
+                        $answers = explode('|', $declaration['correct_response_attributes']['interpretation']);
+                    }
+
+                    foreach ($answers as $answer) {
+                        if ($answer != $declaration['values'][0]) {
+                            $this->question->addAnswers($this->question->testQuestion, [['answer' => $answer, 'tag' => 1, 'correct' => 1]]);
+                        }
                     }
                 }
             }
