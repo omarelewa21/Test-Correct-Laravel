@@ -177,6 +177,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
 
+    Route::post('/attainments/import','AttainmentImportController@import')->name('attainment.import');
+
     Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
     Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.update');
     Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
