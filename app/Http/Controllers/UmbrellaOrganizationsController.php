@@ -43,6 +43,10 @@ class UmbrellaOrganizationsController extends Controller {
 	{
 		$umbrellaOrganization = new UmbrellaOrganization();
 
+		$request->merge([
+			'user_id' => User::whereUuid($request->get('user_id'))->first()->getKey(),
+		]);
+
 		$umbrellaOrganization->fill($request->all());
 		if (!$request->filled('user_id')) {
 			$umbrellaOrganization->setAttribute('user_id', Auth::user()->getKey());
