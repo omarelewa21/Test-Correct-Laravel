@@ -31,29 +31,27 @@ class ExcelAttainmentManifest
         $result = [];
 
         foreach ($this->data as $row) {
-            if($row['vak'] !== null) {
-                $result[] = (object)array_merge($row, [
-                    'base_subject_id' => $this->getBaseSubjectId($row['vak']),
-                    'education_level_id' => $this->getEducationLevelIdFromLevel($row['niveau']),
-                    'code' => $row['hoofdcode'],
-                    'subcode' => $row['subcode'],
-                    'description' => $row['beschrijving'],
-                ]);
-            }
+
+            $result[] = (object) array_merge($row,[
+                'base_subject_id' => $this->getBaseSubjectId($row['vak']),
+                'education_level_id' => $this->getEducationLevelIdFromLevel($row['niveau']),
+                'code' => $row['hoofdcode'],
+                'subcode' => $row['subcode'],
+                'description' => $row['beschrijving'],
+            ]);
         }
         return $result;
     }
 
     protected function getEducationLevelIdFromLevel($level)
     {
-        $level = strtolower(trim($level));
+        $level = trim($level);
         $ar = [
             'vwo' => 1,
             'havo' => 3,
             'kb' => 6,
             'gl/tl' => 4,
             'havo-vwo' => [1,3],
-            "['havo', 'vwo']" => [1,3],
             'vmbo' => 4,
         ];
         if (!array_key_exists($level, $ar)) {
