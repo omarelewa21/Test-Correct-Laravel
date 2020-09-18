@@ -53,6 +53,7 @@ class ExcelAttainmentManifest
             'gl/tl' => 4,
             'havo-vwo' => [1,3],
             'vmbo' => 4,
+            "['havo','vwo']" => [1,3],
         ];
         if (!array_key_exists($level, $ar)) {
             throw new \Exception(sprintf('Expected level %s unknown in class %s', $level, __CLASS__));
