@@ -105,7 +105,8 @@ class QtiImportBatchCitoController extends Controller
     public function store(Request $request)
     {
 
-        set_time_limit(3 * 60);
+        set_time_limit(5 * 60);
+        ini_set('memory_limit','-1');
         $return = "";
 
         $errors = [];
@@ -149,6 +150,22 @@ class QtiImportBatchCitoController extends Controller
             $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
             $file->move($this->packageDir, $fileName);
 
+            /**
+             * txt file content should look like {"startDir":"chemie","fileName":"scheikunde-havo-vwo.zip"}
+             * chemie being the directory which is created in the app/qti_import dir and fileName the zip file to look for
+             * make sure to take an earlier created dir as the dir needs to be of the www_data user
+             */
+            if(pathinfo($fileName,PATHINFO_EXTENSION) === 'txt') {
+                $fileData = json_decode(file_get_contents(sprintf('%s/%s',$this->packageDir,$fileName)));
+                if(!$fileData){
+                    throw new \Exception(sprintf('no json in %s',$fileName));
+                }
+                $startDir = $fileData->startDir;
+                $fileName = $fileData->fileName;
+//            $startDir = 'chemie';
+//            $fileName = 'scheikunde-havo-vwo.zip';
+              $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
+            }
             //        $storageDir = $dir = sprintf('%s/%s/uploads', $this->basePath, $this->dateStamp);
 
             $this->checkZipFile(sprintf('%s/%s/%s', $this->basePath, $startDir, $fileName), $startDir, true);

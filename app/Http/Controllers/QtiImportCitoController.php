@@ -109,7 +109,7 @@ class QtiImportCitoController extends Controller
         $errors = [];
         try {
             $this->validate($request, [
-                'zip_file' => 'required|mimes:zip',
+                'zip_file' => 'required',
             ]);
 
             //UUID update
@@ -145,6 +145,23 @@ class QtiImportCitoController extends Controller
             $startDir = $this->dateStamp = date('YmdHis');
             $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
             $file->move($this->packageDir, $fileName);
+
+            /**
+             * txt file content should look like {"startDir":"chemie","fileName":"scheikunde-havo-vwo.zip"}
+             * chemie being the directory which is created in the app/qti_import dir and fileName the zip file to look for
+             * make sure to take an earlier created dir as the dir needs to be of the www_data user
+             */
+            if(pathinfo($fileName,PATHINFO_EXTENSION) === 'txt') {
+                $fileData = json_decode(file_get_contents(sprintf('%s/%s',$this->packageDir,$fileName)));
+                if(!$fileData){
+                    throw new \Exception(sprintf('no json in %s',$fileName));
+                }
+                $startDir = $fileData->startDir;
+                $fileName = $fileData->fileName;
+//            $startDir = 'chemie';
+//            $fileName = 'scheikunde-havo-vwo.zip';
+                $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
+            }
 
             //        $storageDir = $dir = sprintf('%s/%s/uploads', $this->basePath, $this->dateStamp);
 
