@@ -82,7 +82,7 @@ class ExcelAttainmentCitoManifest
                 $short = sprintf('%s%s',$letter,$nr);;
                 $code = $domain;
                 $subcode = str_replace([$domain,$code, $short, $letter],'',$objective);
-                if(substr($subcode,0,strlen($nr)) == $nr){
+                if(substr_count($subcode,'.') > 0 && substr($subcode,0,strlen($nr)) == $nr){
                     $subcode = substr($subcode,strlen($nr));
                 }
                 return ['code' => $code, 'subcode' => $subcode];
