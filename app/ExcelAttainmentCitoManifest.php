@@ -43,20 +43,24 @@ class ExcelAttainmentCitoManifest
                 'learning_objective' => $row['learning_objective']
             ]);
 
-            if( isset($row['levels-1']) && $row['levels-1'] &&
-                isset($row['learning_objective-1']) && $row['learning_objective-1'] &&
-                isset($row['domain-1']) && $row['domain-1']){
-                $levelIds = $this->getEducationLevelIdsFromLevel($row['levels-1']);
-                $result[] = (object) array_merge($row,[
-                    'external_id' => $row['item_code'],
-                    'highest_level' => $this->getHighestEducationLevelId($levelIds),
-                    'levels' => $levelIds,
-                    'code_subcode_ar' => $codeSubcodeAr,
-                    'domain' => $row['domain-1'],
-                    'learning_objective' => $row['learning_objective-1']
-                ]);
+            for($i = 1;$i < 5;$i++) {
+                $levelName = sprintf('levels-%s',$i);
+                $objectiveName = sprintf('learning_objective-%s',$i);
+                $domainName = sprintf('domain-%s',$i);
+                if (isset($row[$levelName]) && $row[$levelName] &&
+                    isset($row[$objectiveName]) && $row[$objectiveName] &&
+                    isset($row[$domainName]) && $row[$domainName]) {
+                    $levelIds = $this->getEducationLevelIdsFromLevel($row[$levelName]);
+                    $result[] = (object)array_merge($row, [
+                        'external_id' => $row['item_code'],
+                        'highest_level' => $this->getHighestEducationLevelId($levelIds),
+                        'levels' => $levelIds,
+                        'code_subcode_ar' => $codeSubcodeAr,
+                        'domain' => $row[$domainName],
+                        'learning_objective' => $row[$objectiveName]
+                    ]);
+                }
             }
-
         }
         return $result;
     }

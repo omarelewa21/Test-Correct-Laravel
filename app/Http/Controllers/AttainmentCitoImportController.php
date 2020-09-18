@@ -37,9 +37,10 @@ class AttainmentCitoImportController extends Controller {
         $added = 0;
         $existed = 0;
         $notFound = [];
+        $itemIdsNoAttainment = [];
         DB::beginTransaction();
         try {
-            collect($attainmentManifest->getAttainmentResources())->each(function($resource) use (&$heads, &$added, &$existed, $baseSubjectId, &$notFound){
+            collect($attainmentManifest->getAttainmentResources())->each(function($resource) use (&$heads, &$added, &$existed, $baseSubjectId, &$notFound, &$itemIdsNoAttainment){
                 foreach($resource->code_subcode_ar as $item) {
                     $code = $item['code'];
                     $subcode = $item['subcode'];
@@ -54,9 +55,8 @@ class AttainmentCitoImportController extends Controller {
                         logger((array)$resource);
                         $vak = BaseSubject::find($baseSubjectId)->name;
                         $niveau = EducationLevel::find($resource->highest_level)->name;
-                        throw new \Exception(
-                            sprintf(
-                                'Could not find the corresponding attainment:<br />code => %s,<br />subcode => %s,<br />vak => %s (baseSubjectId => %s),<br/>niveau => %s (educationLevelId => %s)<br/>in class %s',
+                        logger(sprintf(
+                                'Could not find the corresponding attainment:code => %s,subcode => %s,vak => %s (baseSubjectId => %s),niveau => %s (educationLevelId => %s) in class %s',
                                 $code,
                                 $subcode,
                                 $vak,
@@ -64,23 +64,40 @@ class AttainmentCitoImportController extends Controller {
                                 $niveau,
                                 $resource->highest_level,
                                 __CLASS__));
+//                        throw new \Exception(
+//                            sprintf(
+//                                'Could not find the corresponding attainment:<br />code => %s,<br />subcode => %s,<br />vak => %s (baseSubjectId => %s),<br/>niveau => %s (educationLevelId => %s)<br/>in class %s',
+//                                $code,
+//                                $subcode,
+//                                $vak,
+//                                $baseSubjectId,
+//                                $niveau,
+//                                $resource->highest_level,
+//                                __CLASS__));
                     }
                     $questions = Question::where('external_id', $resource->external_id)->get();
                     if ($questions->count() < 1) {
                         $notFound[] = $resource->external_id;
                     } else {
-                        $questions->each(function (Question $question) use ($attainment, &$added, &$existed) {
-                            if (QuestionAttainment::where('question_id', $question->getKey())
-                                    ->where('attainment_id', $attainment->getKey())
-                                    ->count() < 1) {
-                                // we need to create one
-                                QuestionAttainment::create([
-                                    'question_id' => $question->getKey(),
-                                    'attainment_id' => $attainment->getKey()
-                                ]);
-                                $added++;
+                        $questions->each(function (Question $question) use ($attainment, &$added, &$existed, $attainment, &$itemIdsNoAttainment) {
+                            if(!$attainment){
+                                $itemIdsNoAttainment[$question->getKey()] = $question;
                             } else {
-                                $existed++;
+                                if (QuestionAttainment::where('question_id', $question->getKey())
+                                        ->where('attainment_id', $attainment->getKey())
+                                        ->count() < 1) {
+                                    // we need to create one
+                                    QuestionAttainment::create([
+                                        'question_id' => $question->getKey(),
+                                        'attainment_id' => $attainment->getKey()
+                                    ]);
+                                    $added++;
+                                } else {
+                                    $existed++;
+                                }
+                                if(array_key_exists($question->getKey(),$itemIdsNoAttainment)){
+                                    unset($itemIdsNoAttainment[$question->getKey()]);
+                                }
                             }
                         });
                     }
@@ -98,6 +115,13 @@ class AttainmentCitoImportController extends Controller {
         $return = sprintf('%s nieuwe koppelingen zijn toegevoegd<br/>%s bestonden er al voor dit vak',$added,$existed);
         if(count($notFound) > 0){
             $return = sprintf('%s<br/><span style="font-color:red">De volgende vragen konden niet gevonden worden %s</span>',$return,implode(', ',$notFound));
+        }
+        if(count($itemIdsNoAttainment)){
+            $items = [];
+            foreach($itemIdsNoAttainment as $key => $question){
+                $items[] = sprintf('cito item %s (interne id %s)',$question->external_id,$key);
+            }
+            $return = sprintf('%s<br />De volgende vragen hebben geen leerdoelen gekoppeld gekregen<br />%s', $return,implode(',<br/>',$items));
         }
         return response()->json(['data' => $return], 200);
 	}
