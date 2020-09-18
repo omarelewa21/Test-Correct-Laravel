@@ -50,20 +50,20 @@ class AttainmentCitoImportController extends Controller {
                         ->where('subcode', $subcode)
                         ->first();
                     if (!$attainment) {
-                        logger('baseSubjectId ' . $baseSubjectId);
-                        logger('resource');
-                        logger((array)$resource);
-                        $vak = BaseSubject::find($baseSubjectId)->name;
-                        $niveau = EducationLevel::find($resource->highest_level)->name;
-                        logger(sprintf(
-                                'Could not find the corresponding attainment:code => %s,subcode => %s,vak => %s (baseSubjectId => %s),niveau => %s (educationLevelId => %s) in class %s',
-                                $code,
-                                $subcode,
-                                $vak,
-                                $baseSubjectId,
-                                $niveau,
-                                $resource->highest_level,
-                                __CLASS__));
+//                        logger('baseSubjectId ' . $baseSubjectId);
+//                        logger('resource');
+//                        logger((array)$resource);
+//                        $vak = BaseSubject::find($baseSubjectId)->name;
+//                        $niveau = EducationLevel::find($resource->highest_level)->name;
+//                        logger(sprintf(
+//                                'Could not find the corresponding attainment:code => %s,subcode => %s,vak => %s (baseSubjectId => %s),niveau => %s (educationLevelId => %s) in class %s',
+//                                $code,
+//                                $subcode,
+//                                $vak,
+//                                $baseSubjectId,
+//                                $niveau,
+//                                $resource->highest_level,
+//                                __CLASS__));
 //                        throw new \Exception(
 //                            sprintf(
 //                                'Could not find the corresponding attainment:<br />code => %s,<br />subcode => %s,<br />vak => %s (baseSubjectId => %s),<br/>niveau => %s (educationLevelId => %s)<br/>in class %s',
@@ -81,7 +81,7 @@ class AttainmentCitoImportController extends Controller {
                     } else {
                         $questions->each(function (Question $question) use ($attainment, &$added, &$existed, &$itemIdsNoAttainment) {
                             if(!$attainment){
-                                $itemIdsNoAttainment[$question->getKey()] = $question;
+                                $itemIdsNoAttainment[$question->getKey()] = true;
                             } else {
                                 if (QuestionAttainment::where('question_id', $question->getKey())
                                         ->where('attainment_id', $attainment->getKey())
@@ -117,12 +117,15 @@ class AttainmentCitoImportController extends Controller {
             $return = sprintf('%s<br/><span style="font-color:red">De volgende vragen konden niet gevonden worden %s</span>',$return,implode(', ',$notFound));
         }
         if(count($itemIdsNoAttainment)){
-            $items = [];
-            foreach($itemIdsNoAttainment as $key => $question){
-                $items[] = sprintf('cito item %s (interne id %s)',$question->external_id,$key);
-            }
+            logger('ready to add the items no attainment found');
+
+            $items = Question::whereIn('id',array_keys($itemIdsNoAttainment))->select(['id','external_id'])->get()->map(function($q) {
+               return sprintf('cito item %s (interne id %s)',$q->external_id,$q->id);
+            })->toArray();
+
             $return = sprintf('%s<br />De volgende vragen hebben geen leerdoelen gekoppeld gekregen<br />%s', $return,implode(',<br/>',$items));
         }
+        logger($return);
         return response()->json(['data' => $return], 200);
 	}
 
