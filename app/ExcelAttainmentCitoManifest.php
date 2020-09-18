@@ -21,9 +21,11 @@ class ExcelAttainmentCitoManifest
     public $data;
     protected $subjectReference = [];
 
-    public function __construct($excelFile)
+    public function __construct($excelFile = null)
     {
-        $this->data = Excel::toArray(new ExcelAttainmentResourceImport, $excelFile)[0];
+        if($excelFile !== null) {
+            $this->data = Excel::toArray(new ExcelAttainmentResourceImport, $excelFile)[0];
+        }
     }
 
     public function getAttainmentResources()
@@ -65,7 +67,7 @@ class ExcelAttainmentCitoManifest
         return $result;
     }
 
-    protected function getCodeSubcodes($learningObjective, $domain)
+    public function getCodeSubcodes($learningObjective, $domain)
     {
         $domain = trim(explode('-',$domain)[0]);
 
@@ -75,7 +77,7 @@ class ExcelAttainmentCitoManifest
             ];
         }
 
-        $learningObjective = trim(explode('-',$learningObjective)[0]);
+        $learningObjective = trim(explode(' - ',$learningObjective)[0]);
         return collect(explode(',',$learningObjective))
             ->map(function($a){
                 return trim($a);
@@ -88,8 +90,12 @@ class ExcelAttainmentCitoManifest
                 $short = sprintf('%s%s',$letter,$nr);;
                 $code = $domain;
                 $subcode = str_replace([$domain,$code, $short, $letter],'',$objective);
-                if(substr_count($subcode,'.') > 0 && substr($subcode,0,strlen($nr)) == $nr){
+                if($subcode && $subcode{0} !== '.' && (substr_count($subcode,'.') > 0 || (!is_numeric($subcode) && !in_array($subcode, ['a','b','c','d','e','f','g','h',]))) && substr($subcode,0,strlen($nr)) == $nr){
                     $subcode = substr($subcode,strlen($nr));
+                }
+
+                if(substr_count($subcode,'-') > 0){
+                    $subcode = explode('-',$subcode)[1];
                 }
                 return ['code' => $code, 'subcode' => $subcode];
             })
