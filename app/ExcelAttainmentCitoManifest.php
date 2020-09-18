@@ -69,6 +69,12 @@ class ExcelAttainmentCitoManifest
     {
         $domain = trim(explode('-',$domain)[0]);
 
+        if(substr_count($learningObjective,'-') < 1){
+            return [
+                ['code' => $domain, 'subcode' => '']
+            ];
+        }
+
         $learningObjective = trim(explode('-',$learningObjective)[0]);
         return collect(explode(',',$learningObjective))
             ->map(function($a){
