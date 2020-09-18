@@ -79,7 +79,7 @@ class AttainmentCitoImportController extends Controller {
                     if ($questions->count() < 1) {
                         $notFound[] = $resource->external_id;
                     } else {
-                        $questions->each(function (Question $question) use ($attainment, &$added, &$existed, $attainment, &$itemIdsNoAttainment) {
+                        $questions->each(function (Question $question) use ($attainment, &$added, &$existed, &$itemIdsNoAttainment) {
                             if(!$attainment){
                                 $itemIdsNoAttainment[$question->getKey()] = $question;
                             } else {
