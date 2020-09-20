@@ -511,6 +511,7 @@ class QtiImportBatchCitoController extends Controller
                         'introduction' => '',
                         // todo needs change when manifest harbors multiple tests;
                         'external_id' => 'some_id',//$this->manifest->getId(),
+                        'published' => false
                     ],
                     $overrides
                 )
