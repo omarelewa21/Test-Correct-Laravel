@@ -45,7 +45,7 @@ class ExcelAttainmentManifest
 
     protected function getEducationLevelIdFromLevel($level)
     {
-        $level = trim($level);
+        $level = trim(str_replace(' ','',$level));
         $ar = [
             'vwo' => 1,
             'havo' => 3,
@@ -54,6 +54,7 @@ class ExcelAttainmentManifest
             'havo-vwo' => [1,3],
             'vmbo' => 4,
             "['havo','vwo']" => [1,3],
+            "['kb','gl/tl']" => [6,4],
         ];
         if (!array_key_exists($level, $ar)) {
             throw new \Exception(sprintf('Expected level %s unknown in class %s', $level, __CLASS__));
