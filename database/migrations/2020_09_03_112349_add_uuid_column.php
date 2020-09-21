@@ -124,7 +124,7 @@ class AddUuidColumn extends Migration
         });
 
         SchoolLocationContact::withTrashed()->get()->each(function($item) {
-            DB::table('school_location_contacts')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
+            DB::table('school_location_contacts')->where('school_location_id', $item->school_location_id)->where('contact_id', $item->contact_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
         });
 
         Schema::table('contacts', function (Blueprint $table) {
