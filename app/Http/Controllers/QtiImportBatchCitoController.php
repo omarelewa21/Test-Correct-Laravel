@@ -224,7 +224,6 @@ class QtiImportBatchCitoController extends Controller
 
 //        \Zipper::make($file)->extractTo($dir);
         Zip::open($file)->extract($dir);
-        logger('hier');
         $dirs = collect(scandir($dir))->filter(function ($file) {
             return $file != '.' && $file !== '..';
         });
@@ -258,7 +257,7 @@ class QtiImportBatchCitoController extends Controller
         if ($excelFile) {
             $this->manifest = new ExcelManifest($dir . '/' . $excelFile);
         }
-        logger($this->manifest->getTestListWithResources());
+//        logger($this->manifest->getTestListWithResources());
 
 
         // check for extra test zip files or is this a test itself
