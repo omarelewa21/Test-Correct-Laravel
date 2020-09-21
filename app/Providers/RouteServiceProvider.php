@@ -284,59 +284,59 @@ class RouteServiceProvider extends ServiceProvider
         //UUID Route binding
 
         Route::bind('school_year', function($item) {
-            return SchoolYear::whereUuid($item)->first();
+            return SchoolYear::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('period', function($item) {
-            return Period::whereUuid($item)->first();
+            return Period::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('section', function($item) {
-            return Section::whereUuid($item)->first();
+            return Section::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('subject', function($item) {
-            return Subject::whereUuid($item)->first();
+            return Subject::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('school_class', function($item) {
-            return SchoolClass::whereUuid($item)->first();
+            return SchoolClass::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('school_location', function($item) {
-            return SchoolLocation::whereUuid($item)->first();
+            return SchoolLocation::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('school_location_ip', function($item) {
-            return SchoolLocationIp::whereUuid($item)->first();
+            return SchoolLocationIp::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('contact', function($item) {
-            return Contact::whereUuid($item)->first();
+            return Contact::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('user', function($item) {
-            return User::whereUuid($item)->first();
+            return User::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('address', function($item) {
-            return Address::whereUuid($item)->first();
+            return Address::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('answer', function($item) {
-            return Answer::whereUuid($item)->first();
+            return Answer::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('test', function($item) {
-            return Test::whereUuid($item)->first();
+            return Test::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('onboarding_wizard', function($item) {
-            return OnboardingWizard::whereUuid($item)->first();
+            return OnboardingWizard::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('group_question_question_id', function($item) {
-            return GroupQuestionQuestion::whereUuid($item)->first();
+            return GroupQuestionQuestion::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('group_question_question', function($item) {
@@ -348,59 +348,59 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('test_take', function($item) {
-            return TestTake::whereUuid($item)->first();
+            return TestTake::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('test_participant', function($item) {
-            return TestParticipant::whereUuid($item)->first();
+            return TestParticipant::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('test_take_event', function($item) {
-            return TestTakeEvent::whereUuid($item)->first();
+            return TestTakeEvent::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('test_take_event_type', function($item) {
-            return testTakeEventType::whereUuid($item)->first();
+            return testTakeEventType::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('education_level', function($item) {
-            return EducationLevel::whereUuid($item)->first();
+            return EducationLevel::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('invigilator', function($item) {
-            return Invigilator::whereUuid($item)->first();
+            return Invigilator::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('student', function($item) {
-            return Student::whereUuid($item)->first();
+            return Student::whereUuid($item)->firstOrFail();
         });
         
         Route::bind('open_question', function($item) {
-            return OpenQuestion::whereUuid($item)->first();
+            return OpenQuestion::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('test_question', function($item) {
-            return TestQuestion::whereUuid($item)->first();
+            return TestQuestion::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('group_question', function($item) {
-            return GroupQuestion::whereUuid($item)->first();
+            return GroupQuestion::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('drawing_question', function($item) {
-            return DrawingQuestion::whereUuid($item)->first();
+            return DrawingQuestion::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('ranking_question', function($item) {
-            return RankingQuestion::whereUuid($item)->first();
+            return RankingQuestion::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('completion_question', function($item) {
-            return CompletionQuestion::whereUuid($item)->first();
+            return CompletionQuestion::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('info_screen_question', function($item) {
-            return InfoscreenQuestion::whereUuid($item)->first();
+            return InfoscreenQuestion::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('question', function($item) {
@@ -411,59 +411,61 @@ class RouteServiceProvider extends ServiceProvider
                 return $question;
             }
 
-            $answer = Answer::whereUuid($item)->firstOrFail()->question;
+            return Answer::whereUuid($item)->firstOrFail()->question;
 
-            if (!$answer == null) {
-                return $answer;
-            }
-
-            //$group_question = 
-
-            return null;
+//            $answer = Answer::whereUuid($item)->firstOrFail()->question;
+//
+//            if (!$answer == null) {
+//                return $answer;
+//            }
+//
+//            //$group_question =
+//
+//            throw new NotFoundHttpException('Question could not be found');
         });
 
         Route::bind('multiple_choice_question', function($item) {
-            return MultipleChoiceQuestion::whereUuid($item)->first();
+            return MultipleChoiceQuestion::whereUuid($item)->firstOrFail();
         });
         
         Route::bind('attainment', function($item) {
-            return Attainment::whereUuid($item)->first();
+            return Attainment::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('teacher', function($item) {
-            return Teacher::whereUuid($item)->first();
+            return Teacher::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('sales_organization', function($item) {
-            return SalesOrganization::whereUuid($item)->first();
+            return SalesOrganization::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('umbrella_organization', function($item) {
-            return UmbrellaOrganization::whereUuid($item)->first();
+            return UmbrellaOrganization::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('school', function($item) {
-            return School::whereUuid($item)->first();
+            return School::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('license', function($item) {
-            return License::whereUuid($item)->first();
+            return License::whereUuid($item)->firstOrFail();
         });
         
         Route::bind('message', function($item) {
-            return Message::whereUuid($item)->first();
+            return Message::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('grading_scale', function($item) {
-            return GradingScale::whereUuid($item)->first();
+            return GradingScale::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('base_subject', function($item) {
-            return BaseSubject::whereUuid($item)->first();
+            return BaseSubject::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('tag', function($item) {
-            return Tag::whereUuid($item)->first();
+            return Tag::whereUuid($item)->firstOrFail();
         });        
         
     }
