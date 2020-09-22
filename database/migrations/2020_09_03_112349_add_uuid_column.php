@@ -72,250 +72,250 @@ class AddUuidColumn extends Migration
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update school_years set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update school_years set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('periods', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update periods set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update periods set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('sections', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update sections set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update sections set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('subjects', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update subjects set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update subjects set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_classes', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update school_classes set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update school_classes set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
 
             Schema::table('school_locations', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update school_locations set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update school_locations set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_location_ips', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update school_location_ips set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update school_location_ips set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_location_contacts', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update school_location_contacts set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update school_location_contacts set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('contacts', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update contacts set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update contacts set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_location_school_years', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update school_location_school_years set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update school_location_school_years set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_location_addresses', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update school_location_addresses set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update school_location_addresses set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('mentors', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update mentors set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update mentors set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('managers', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update managers set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update managers set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('users', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update users set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update users set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('addresses', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update addresses set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update addresses set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('answers', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update answers set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update answers set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('onboarding_wizard_steps', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update onboarding_wizard_steps set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update onboarding_wizard_steps set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('tests', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update tests set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update tests set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('onboarding_wizards', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update onboarding_wizards set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update onboarding_wizards set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('group_question_questions', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update group_question_questions set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update group_question_questions set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('file_managements', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update file_managements set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update file_managements set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('test_takes', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update test_takes set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update test_takes set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('test_participants', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update test_participants set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update test_participants set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('test_take_events', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update test_take_events set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update test_take_events set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('education_levels', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update education_levels set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update education_levels set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('invigilators', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update invigilators set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update invigilators set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('students', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update students set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update students set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('questions', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update questions set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update questions set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             collect(['completion_questions','multiple_choice_questions','infoscreen_questions','open_questions','matching_questions','ranking_questions','drawing_questions','matrix_questions','group_questions'])->each(function($tableName){
                 Schema::table($tableName, function (Blueprint $table) {
                     $table->efficientUuid('uuid')->index()->unique()->nullable();
                 });
 
-                DB::statement('update '.$tableName.' inner join questions on (questions.id = '.$tableName.'.id) set '.$tableName.'.uuid = questions.uuid');
+                DB::raw('update '.$tableName.' inner join questions on (questions.id = '.$tableName.'.id) set '.$tableName.'.uuid = questions.uuid');
             });
 
             Schema::table('test_questions', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update test_questions set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update test_questions set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('attainments', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update attainments set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update attainments set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('teachers', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update teachers set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update teachers set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('sales_organizations', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update sales_organizations set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update sales_organizations set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('umbrella_organizations', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update umbrella_organizations set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update umbrella_organizations set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('schools', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update schools set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update schools set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('licenses', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update licenses set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update licenses set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('messages', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update messages set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update messages set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('grading_scales', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update grading_scales set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update grading_scales set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('base_subjects', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update base_subjects set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update base_subjects set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('tags', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update tags set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update tags set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('test_take_event_types', function (Blueprint $table) {
                 $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            DB::statement('update test_take_event_types set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+            DB::raw('update test_take_event_types set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
         } catch (\Exception $e) {
             DB::rollback();
