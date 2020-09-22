@@ -803,54 +803,54 @@ class Question extends MtiBaseModel {
 
     public static function findByUuid($uuid) {
 
-        Question::whereUuid($uuid)->first();
+        return Question::whereUuid($uuid)->first();
 
-        $question = OpenQuestion::whereUuid($uuid)->first();
-        if (!empty($question)) {
-            return $question;
-        }
-
-        $question = DrawingQuestion::whereUuid($uuid)->first();
-        if (!empty($question)) {
-            return $question;
-        }
-
-        $question = RankingQuestion::whereUuid($uuid)->first();
-        if (!empty($question)) {
-            return $question;
-        }
-
-        $question = MatchingQuestion::whereUuid($uuid)->first();
-        if (!empty($question)) {
-            return $question;
-        }
-
-        $question = CompletionQuestion::whereUuid($uuid)->first();
-        if (!empty($question)) {
-            return $question;
-        }
-
-        $question = InfoscreenQuestion::whereUuid($uuid)->first();
-        if (!empty($question)) {
-            return $question;
-        }
-
-        $question = MultipleChoiceQuestion::whereUuid($uuid)->first();
-        if (!empty($question)) {
-            return $question;
-        }
-
-        $question = MatrixQuestion::whereUuid($uuid)->first();
-        if (!empty($question)) {
-            return $question;
-        }
-
-        $question = GroupQuestion::whereUuid($uuid)->first();
-        if (!empty($question)) {
-            return $question;
-        }
-
-        return null;
+//        $question = OpenQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = DrawingQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = RankingQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = MatchingQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = CompletionQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = InfoscreenQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = MultipleChoiceQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = MatrixQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = GroupQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        return null;
     }
 
     public function deleteAnswers(){}
