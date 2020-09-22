@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../../storage/app/qti_import/20200921143709/zipdir/4/zipdir/controlxsds/imsqti_v2p2p1.xsd" title="ITM-230041" identifier="ITM-230041" label="32kc4c" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"/><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="qtiAspectInhoudOutcomeDeclaration" cardinality="single" baseType="integer" view="scorer" normalMaximum="1" normalMinimum="0"/><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+
+        <div class="qti-layout-row">
+
+				<div class="qti-layout-col12">
+
+					<div id="body">
+						<p>Geef je antwoorden als gehele of decimale getallen.</p>
+					</div>
+
+					<div id="question">
+						<p><strong>Bereken exact de oplossing(en) van <m:math><m:mi mathvariant="bold-italic">x</m:mi><m:msqrt><m:mi mathvariant="bold">x</m:mi></m:msqrt><m:mo mathvariant="bold"> </m:mo><m:mo mathvariant="bold">+</m:mo><m:mo mathvariant="bold"> </m:mo><m:mn mathvariant="bold">5</m:mn><m:mo mathvariant="bold"> </m:mo><m:mo mathvariant="bold">=</m:mo><m:mo mathvariant="bold"> </m:mo><m:mn mathvariant="bold">32</m:mn><m:mo mathvariant="bold">.</m:mo></m:math></strong></p>
+					</div>
+
+					<div class="cito_genclass_230041_1">
+
+						<div>
+<extendedTextInteraction responseIdentifier="RESPONSE" id="I1e8530d5-afa9-462d-a132-7d5d43de2ca6" expectedLines="5" expectedLength="350"/>
+
+
+						</div>
+					</div>
+
+				</div>
+
+      </div>
+
+
+			</div><rubricBlock id="qtiScoringRubricBlock" view="scorer"/><rubricBlock id="qtiAspectInhoudRubricBlock" view="scorer"><div>9</div></rubricBlock></itemBody></assessmentItem>

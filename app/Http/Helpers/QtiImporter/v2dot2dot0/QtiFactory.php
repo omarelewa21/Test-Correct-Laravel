@@ -53,6 +53,10 @@ class QtiFactory
     private function setLookupTable(): void
     {
         $this->lookupTable = [
+            'extendedTextInteraction' => [
+                'type' => 'OpenQuestion',
+                'subtype' => 'short',
+            ],
             'gapMatchInteraction' => [
                 'type' => 'MatchingQuestion',
                 'subtype' => 'Matching',

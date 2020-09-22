@@ -114,7 +114,16 @@ class QtiResource
                 $this->responseProcessing['correct_answer'][] = $node->value->__toString();
             }
         }
-        $this->responseProcessing['score_when_correct'] = $this->xml->responseProcessing->responseCondition->responseIf->setOutcomeValue->sum->baseValue->__toString();
+        if (
+            $this->xml->responseProcessing
+            && $this->xml->responseProcessing->responseCondition
+            && $this->xml->responseProcessing->responseCondition->responseIf
+            && $this->xml->responseProcessing->responseCondition->responseIf->setOutcomeValue
+            && $this->xml->responseProcessing->responseCondition->responseIf->setOutcomeValue->sum
+            && $this->xml->responseProcessing->responseCondition->responseIf->setOutcomeValue->sum->baseValue
+        ) {
+            $this->responseProcessing['score_when_correct'] = $this->xml->responseProcessing->responseCondition->responseIf->setOutcomeValue->sum->baseValue->__toString();
+        }
     }
 
     private function handleResponseDeclaration()
@@ -133,12 +142,14 @@ class QtiResource
                 if ($key === 'ns') return false;
                 $declaration['attributes'][$key] = (string)$value;
             }
+            if ($input->correctResponse) {
 
-            foreach ($input->correctResponse->attributes() as $key => $value) {
-                $declaration['correct_response_attributes'][$key] = (string)$value;
-            }
-            foreach ($input->correctResponse->value as $value) {
-                $declaration['values'][] = (string)$value;
+                foreach ($input->correctResponse->attributes() as $key => $value) {
+                    $declaration['correct_response_attributes'][$key] = (string)$value;
+                }
+                foreach ($input->correctResponse->value as $value) {
+                    $declaration['values'][] = (string)$value;
+                }
             }
 
             foreach ($this->xml->outcomeDeclaration->attributes() as $key => $value) {
@@ -167,7 +178,7 @@ class QtiResource
 
     private function guessItemType()
     {
-        $tagNames = ['gapMatchInteraction', 'matchInteraction', 'textEntryInteraction', 'inlineChoiceInteraction', 'choiceInteraction'];
+        $tagNames = ['gapMatchInteraction', 'matchInteraction', 'textEntryInteraction', 'inlineChoiceInteraction', 'choiceInteraction', 'extendedTextInteraction'];
 
         foreach ($tagNames as $tagName) {
             if (!empty($this->xml->itemBody->xPath('//' . $tagName))) {
@@ -270,7 +281,7 @@ class QtiResource
                 $result = [];
                 foreach ($interaction->inlineChoice as $inlineChoice) {
 
-                    $correct =  $inlineChoice['identifier']->__toString() === $this->responseDeclaration[$interaction['responseIdentifier']->__toString()]['values'][0];
+                    $correct = $inlineChoice['identifier']->__toString() === $this->responseDeclaration[$interaction['responseIdentifier']->__toString()]['values'][0];
 
                     $result[] = [
                         'identifier' => $inlineChoice['identifier'],
@@ -286,7 +297,7 @@ class QtiResource
 
                 if ($result) {
                     $pipeString = collect($result)->map(function ($response) use ($inlineChoice) {
-                        return $response['correct']? sprintf('?%s',  $response['value']) : $response['value'];
+                        return $response['correct'] ? sprintf('?%s', $response['value']) : $response['value'];
                     })->implode('|');
                     $newNode = $domElement->ownerDocument->createTextNode(sprintf('[%s]', $pipeString));
                     $parent->insertBefore($newNode, $domElement);
@@ -376,7 +387,7 @@ class QtiResource
             'order' => 0,
             'maintain_position' => "0",
             'discuss' => "1",
-            'score' => $this->responseProcessing['score_when_correct'],
+            'score' => array_key_exists('score_when_correct', $this->responseProcessing)? $this->responseProcessing['score_when_correct']: 1,
             'subtype' => $this->qtiQuestionTypeToTestCorrectQuestionType('subtype'),
             'decimal_score' => "0",
             'add_to_database' => 1,
@@ -492,6 +503,17 @@ class QtiResource
 
     private function mergeExtraTestQuestionAttributes()
     {
+        if ($this->itemType === 'extendedTextInteraction'){
+            $answer = '';
+            foreach ($this->xml->xpath('//rubricBlock') as $block) {
+                if ($block['id']->__toString() === 'qtiAspectInhoudRubricBlock') {
+                    $answer = $block->children()[0]->__toString();
+                }
+            }
+
+            return ['answer' =>  $answer];
+        }
+
         if ($this->itemType === 'gapMatchInteraction') {
             $dom = simplexml_load_string($this->interaction);
 
