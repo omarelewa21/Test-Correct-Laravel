@@ -339,7 +339,7 @@ class AddUuidColumn extends Migration
             'test_questions','onboarding_wizards','group_question_questions','file_managements','test_takes','test_participants','test_take_events','education_levels',
             'invigilators','students','open_questions','attainments','teachers','sales_organizations','umbrella_organizations','schools','licenses','messages', 'grading_scales',
             'base_subjects', 'tags','group_questions','infoscreen_questions','completion_questions','multiple_choice_questions','ranking_questions','matching_questions',
-            'drawing_questions','matrix_questions','questions','test_take_event_types',])->unique()->each(function($tableName){
+            'drawing_questions','matrix_questions','questions','test_take_event_types','school_years',])->unique()->each(function($tableName){
             if (Schema::hasColumn($tableName, 'uuid')) {
                 Schema::table($tableName, function (Blueprint $table) {
                     $table->dropColumn('uuid');
