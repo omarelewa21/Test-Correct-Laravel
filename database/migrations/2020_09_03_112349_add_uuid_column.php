@@ -63,393 +63,260 @@ class AddUuidColumn extends Migration
      */
     public function up()
     {
+        set_time_limit(10 * 60);
+        ini_set('memory_limit','-1');
 
         DB::beginTransaction();
         try {
             Schema::table('school_years', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            SchoolYear::withTrashed()->get()->each(function($item) {
-                DB::table('school_years')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update school_years set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('periods', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Period::withTrashed()->get()->each(function($item) {
-                DB::table('periods')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update periods set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('sections', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Section::withTrashed()->get()->each(function($item) {
-                DB::table('sections')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update sections set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('subjects', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Subject::withTrashed()->get()->each(function($item) {
-                DB::table('subjects')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update subjects set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_classes', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            SchoolClass::withTrashed()->get()->each(function($item) {
-                DB::table('school_classes')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update school_classes set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+
 
             Schema::table('school_locations', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            SchoolLocation::withTrashed()->get()->each(function($item) {
-                DB::table('school_locations')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update school_locations set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_location_ips', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            SchoolLocationIp::withTrashed()->get()->each(function($item) {
-                DB::table('school_location_ips')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update school_location_ips set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_location_contacts', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            SchoolLocationContact::withTrashed()->get()->each(function($item) {
-                DB::table('school_location_contacts')->where('school_location_id', $item->school_location_id)->where('contact_id', $item->contact_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update school_location_contacts set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('contacts', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Contact::withTrashed()->get()->each(function($item) {
-                DB::table('contacts')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update contacts set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_location_school_years', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            SchoolLocationSchoolYear::withTrashed()->get()->each(function($item) {
-                DB::table('school_location_school_years')->where('school_location_id', $item->school_location_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update school_location_school_years set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('school_location_addresses', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            SchoolLocationAddress::withTrashed()->get()->each(function($item) {
-                DB::table('school_location_addresses')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update school_location_addresses set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('mentors', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Mentor::withTrashed()->get()->each(function($item) {
-                DB::table('mentors')->where('user_id', $item->user_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update mentors set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('managers', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Manager::withTrashed()->get()->each(function($item) {
-                DB::table('managers')->where('user_id', $item->user_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update managers set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('users', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            User::withTrashed()->get()->each(function($item) {
-                DB::table('users')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update users set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('addresses', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Address::withTrashed()->get()->each(function($item) {
-                DB::table('addresses')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update addresses set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('answers', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Answer::withTrashed()->get()->each(function($item) {
-                DB::table('answers')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update answers set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('onboarding_wizard_steps', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            OnboardingWizardStep::withTrashed()->get()->each(function($item) {
-                DB::table('onboarding_wizard_steps')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update onboarding_wizard_steps set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('tests', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Test::withTrashed()->get()->each(function($item) {
-                DB::table('tests')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update tests set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('onboarding_wizards', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            OnboardingWizard::withTrashed()->get()->each(function($item) {
-                DB::table('onboarding_wizards')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update onboarding_wizards set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('group_question_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            GroupQuestionQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('group_question_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update group_question_questions set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('file_managements', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            FileManagement::withTrashed()->get()->each(function($item) {
-                DB::table('file_managements')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update file_managements set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('test_takes', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            TestTake::withTrashed()->get()->each(function($item) {
-                DB::table('test_takes')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update test_takes set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('test_participants', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            TestParticipant::withTrashed()->get()->each(function($item) {
-                DB::table('test_participants')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update test_participants set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('test_take_events', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            TestTakeEvent::withTrashed()->get()->each(function($item) {
-                DB::table('test_take_events')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update test_take_events set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('education_levels', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            EducationLevel::withTrashed()->get()->each(function($item) {
-                DB::table('education_levels')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update education_levels set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('invigilators', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Invigilator::withTrashed()->get()->each(function($item) {
-                DB::table('invigilators')->where('user_id', $item->user_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update invigilators set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('students', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Student::withTrashed()->get()->each(function($item) {
-                DB::table('students')->where('user_id', $item->user_id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
+            DB::statement('update students set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+
+            Schema::table('questions', function (Blueprint $table) {
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Schema::table('completion_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
-            });
+            DB::statement('update questions set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
-            CompletionQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('completion_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            collect(['completion_questions','multiple_choice_questions','infoscreen_questions','open_questions','matching_questions','ranking_questions','drawing_questions','matrix_questions','group_questions'])->each(function($tableName){
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->efficientUuid('uuid')->index()->unique()->nullable();
+                });
 
-            Schema::table('multiple_choice_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
-            });
-
-            MultipleChoiceQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('multiple_choice_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
-
-            Schema::table('infoscreen_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
-            });
-
-            InfoscreenQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('infoscreen_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
-
-            Schema::table('open_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
-            });
-
-            OpenQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('open_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
-
-            Schema::table('matching_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
-            });
-
-            MatchingQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('matching_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
-
-            Schema::table('ranking_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
-            });
-
-            RankingQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('ranking_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
-
-            Schema::table('drawing_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
-            });
-
-            DrawingQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('drawing_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
-
-            Schema::table('matrix_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
-            });
-
-            MatrixQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('matrix_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
+                DB::statement('update '.$tableName.' inner join questions on (questions.id = '.$tableName.'.id) set '.$tableName.'.uuid = questions.uuid');
             });
 
             Schema::table('test_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            TestQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('test_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
-
-            Schema::table('group_questions', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
-            });
-
-            GroupQuestion::withTrashed()->get()->each(function($item) {
-                DB::table('group_questions')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update test_questions set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('attainments', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Attainment::withTrashed()->get()->each(function($item) {
-                DB::table('attainments')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update attainments set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('teachers', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Teacher::withTrashed()->get()->each(function($item) {
-                DB::table('teachers')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update teachers set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('sales_organizations', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            SalesOrganization::withTrashed()->get()->each(function($item) {
-                DB::table('sales_organizations')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update sales_organizations set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('umbrella_organizations', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            UmbrellaOrganization::withTrashed()->get()->each(function($item) {
-                DB::table('umbrella_organizations')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update umbrella_organizations set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('schools', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            School::withTrashed()->get()->each(function($item) {
-                DB::table('schools')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update schools set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('licenses', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            License::withTrashed()->get()->each(function($item) {
-                DB::table('licenses')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update licenses set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('messages', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Message::withTrashed()->get()->each(function($item) {
-                DB::table('messages')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update messages set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('grading_scales', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            GradingScale::withTrashed()->get()->each(function($item) {
-                DB::table('grading_scales')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update grading_scales set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('base_subjects', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            BaseSubject::withTrashed()->get()->each(function($item) {
-                DB::table('base_subjects')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update base_subjects set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('tags', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            Tag::withTrashed()->get()->each(function($item) {
-                DB::table('tags')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
-
+            DB::statement('update tags set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
 
             Schema::table('test_take_event_types', function (Blueprint $table) {
-                $table->efficientUuid('uuid')->index();
+                $table->efficientUuid('uuid')->index()->unique()->nullable();
             });
 
-            testTakeEventType::withTrashed()->get()->each(function($item) {
-                DB::table('test_take_event_types')->where('id', $item->id)->update(['uuid' => Uuid::uuid4()->getBytes()]);
-            });
+            DB::statement('update test_take_event_types set uuid = (select UNHEX(REPLACE(REPLACE(CONCAT(UUID(),created_at),created_at,""), "-",""))) where uuid is null');
+
         } catch (\Exception $e) {
             DB::rollback();
             logger('===== error with UUID migration' . $e->getMessage());

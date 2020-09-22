@@ -22,6 +22,16 @@ class Question extends MtiBaseModel {
     public $mtiClassField = 'type';
     public $mtiParentTable = 'questions';
 
+    public function getUUIDKeyName()
+    {
+        return 'uuid';
+    }
+
+    public function getUUIDKey()
+    {
+        return $this->getAttribute($this->getUUIDKeyName());
+    }
+
     /**
      * The attributes that should be mutated to dates.
      *
@@ -792,6 +802,9 @@ class Question extends MtiBaseModel {
     }
 
     public static function findByUuid($uuid) {
+
+        Question::whereUuid($uuid)->first();
+
         $question = OpenQuestion::whereUuid($uuid)->first();
         if (!empty($question)) {
             return $question;
