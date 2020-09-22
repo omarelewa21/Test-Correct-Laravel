@@ -66,6 +66,8 @@ class AddUuidColumn extends Migration
         set_time_limit(10 * 60);
         ini_set('memory_limit','-1');
 
+        $this->down();
+
         DB::beginTransaction();
         try {
             Schema::table('school_years', function (Blueprint $table) {
@@ -332,196 +334,17 @@ class AddUuidColumn extends Migration
      */
     public function down()
     {
-        Schema::table('school_years', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('periods', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('sections', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('subjects', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('school_classes', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('school_locations', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('school_location_ips', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('contacts', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('school_location_contacts', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('school_location_school_years', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('school_location_addresses', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('mentors', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('managers', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('addresses', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('answers', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('onboarding_wizard_steps', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('tests', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('test_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('onboarding_wizards', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('group_question_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('file_managements', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('test_takes', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('test_participants', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('test_take_events', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('education_levels', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('invigilators', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('students', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('open_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('attainments', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('teachers', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('sales_organizations', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-        
-        Schema::table('umbrella_organizations', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('schools', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('licenses', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('messages', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('grading_scales', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('base_subjects', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('tags', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('group_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('infoscreen_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('completion_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('multiple_choice_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('ranking_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('matching_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('drawing_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('matrix_questions', function (Blueprint $table) {
-            $table->dropColumn('uuid');
-        });
-
-        Schema::table('test_take_event_types', function (Blueprint $table) {
-            $table->dropColumn('uuid');
+        collect(['users','periods','sections','subjects','school_classes','school_locations','school_location_ips','contacts','school_location_contacts','school_location_contacts',
+            'school_location_school_years','school_location_addresses','mentors','managers','addresses','answers','onboarding_wizard_steps','tests',
+            'test_questions','onboarding_wizards','group_question_questions','file_managements','test_takes','test_participants','test_take_events','education_levels',
+            'invigilators','students','open_questions','attainments','teachers','sales_organizations','umbrella_organizations','schools','licenses','messages', 'grading_scales',
+            'base_subjects', 'tags','group_questions','infoscreen_questions','completion_questions','multiple_choice_questions','ranking_questions','matching_questions',
+            'drawing_questions','matrix_questions','questions','test_take_event_types',])->unique()->each(function($tableName){
+            if (Schema::hasColumn($tableName, 'uuid')) {
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->dropColumn('uuid');
+                });
+            }
         });
     }
 }
