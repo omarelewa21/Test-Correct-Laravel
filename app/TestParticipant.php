@@ -8,11 +8,18 @@ use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
 use tcCore\Jobs\Rating\CalculateRatingForTestParticipant;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class TestParticipant extends BaseModel
 {
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -284,5 +291,10 @@ class TestParticipant extends BaseModel
 
             Queue::push(new CalculateRatingForTestParticipant($this));
         }
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

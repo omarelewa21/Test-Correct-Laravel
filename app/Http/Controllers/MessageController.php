@@ -8,6 +8,7 @@ use tcCore\Http\Controllers\Controller;
 use tcCore\Message;
 use tcCore\Http\Requests\CreateMessageRequest;
 use tcCore\Http\Requests\UpdateMessageRequest;
+use tcCore\User;
 
 class MessageController extends Controller {
 
@@ -63,6 +64,7 @@ class MessageController extends Controller {
      */
     public function show(Message $message)
     {
+        $message['user_uuid'] = User::find($message['user_id'])->uuid;
         return Response::make($message, 200);
     }
 

@@ -7,13 +7,30 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\MtiBaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
 
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
+
     public $mtiBaseClass = 'tcCore\Question';
     public $mtiClassField = 'type';
     public $mtiParentTable = 'questions';
+
+    public function getUUIDKeyName()
+    {
+        return 'uuid';
+    }
+
+    public function getUUIDKey()
+    {
+        return $this->getAttribute($this->getUUIDKeyName());
+    }
 
     /**
      * The attributes that should be mutated to dates.
@@ -87,6 +104,12 @@ class Question extends MtiBaseModel {
                 //because it is expected to be an array
                 if (!is_array($attributes['attainments'])) {
                     $attributes['attainments'] = [$attributes['attainments']];
+                }
+
+                foreach ($attributes['attainments'] as $key => $value) {
+                    if (Uuid::isValid($value)) {
+                        $attributes['attainments'][$key] = Attainment::whereUuid($value)->first()->getKey();
+                    }
                 }
 
                 $this->attainments = $attributes['attainments'];
@@ -214,7 +237,7 @@ class Question extends MtiBaseModel {
     }
 
     public function questions() {
-        return $this->belongsToMany('tcCore\Question', 'group_question_questions', 'group_question_id', 'question_id')->withPivot(['id', $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order', 'maintain_position'])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\Question', 'group_question_questions', 'group_question_id', 'question_id')->withPivot(['id', 'uuid', $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order', 'maintain_position'])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function testQuestions() {
@@ -248,6 +271,10 @@ class Question extends MtiBaseModel {
     public function duplicate(array $attributes, $ignore = null) {
         $question = $this->replicate();
         $question->fill($attributes);
+
+        if (isset($question->uuid)) {
+            $question->uuid = Uuid::uuid4();
+        }
 
         $question->setAttribute('derived_question_id', $this->getKey());
 
@@ -389,7 +416,6 @@ class Question extends MtiBaseModel {
     }
 
     protected function saveTags() {
-        Log::debug($this->tags);
         $tags = $this->tagRelations()->withTrashed()->get();
         $this->syncTcRelation($tags, $this->tags, 'tag_id', function($question, $tagId) {
             TagRelation::create(['tag_relation_id' => $question->getKey(), 'tag_relation_type' => 'tcCore\Question', 'tag_id' => $tagId]);
@@ -773,6 +799,58 @@ class Question extends MtiBaseModel {
             $movedEntity->save();
             $movedEntity->setReorder(true);
         }
+    }
+
+    public static function findByUuid($uuid) {
+
+        return Question::whereUuid($uuid)->first();
+
+//        $question = OpenQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = DrawingQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = RankingQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = MatchingQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = CompletionQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = InfoscreenQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = MultipleChoiceQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = MatrixQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = GroupQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        return null;
     }
 
     public function deleteAnswers(){}

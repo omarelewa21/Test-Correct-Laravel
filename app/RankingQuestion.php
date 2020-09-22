@@ -3,8 +3,17 @@
 use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Lib\Question\QuestionInterface;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
 
 class RankingQuestion extends Question implements QuestionInterface {
+
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -66,6 +75,8 @@ class RankingQuestion extends Question implements QuestionInterface {
         }
 
         $question->fill($attributes);
+
+        $question->setAttribute('uuid', Uuid::uuid4());
 
         if ($question->save() === false) {
             return false;
@@ -209,5 +220,10 @@ class RankingQuestion extends Question implements QuestionInterface {
         }
 
        return $score;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

@@ -122,7 +122,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
      */
 	Route::put('test_participant/{test_participant}/answer2019/{answer}', ['uses' => 'TestParticipants\Answers2019Controller@update']);
 
-	Route::get('test_participant/{test_participant}/question_and_answer2019/{question}', ['uses' => 'TestParticipants\Answers2019Controller@showQuestionAndAnswer']);
+	Route::get('test_participant/{test_participant}/question_and_answer2019/{answer}', ['uses' => 'TestParticipants\Answers2019Controller@showQuestionAndAnswer']);
 
 	// Education level
 	Route::resource('education_level', 'EducationLevelsController', ['except' => ['create', 'edit']]);

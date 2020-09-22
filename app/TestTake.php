@@ -17,11 +17,18 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\TestParticipant\Factory;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class TestTake extends BaseModel
 {
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -759,6 +766,11 @@ class TestTake extends BaseModel
         }
 
         return $query->where(sprintf('%s.demo', $tableAlias), 0);
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 
 }

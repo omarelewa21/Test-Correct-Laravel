@@ -25,6 +25,8 @@ use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\School;
+use tcCore\SchoolClass;
 
 class UsersController extends Controller
 {
@@ -55,7 +57,7 @@ class UsersController extends Controller
                 return Response::make($users, 200);
                 break;
             case 'list':
-                return Response::make($users->get(['users.id', 'users.name_first', 'users.name_suffix', 'users.name', 'users.username'])->keyBy('id'), 200);
+                return Response::make($users->get(['users.id', 'users.uuid', 'users.name_first', 'users.name_suffix', 'users.name', 'users.username'])->keyBy('uuid'), 200);
                 break;
             case 'paginate':
             default:
@@ -149,6 +151,27 @@ class UsersController extends Controller
 
         if(!Auth::user()->isA(['Administrator','Account manager']) && Auth::user()->school_location_id !== null) {
             $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id;//SchoolHelper::getTempTeachersSchoolLocation()->getKey();
+        }
+
+        //UUID to ID mapping
+        if (isset($data['school_id'])) {
+            $data['school_id'] = School::whereUuid($data['school_id'])->first()->getKey();
+        }
+
+        if (isset($data['add_mentor_school_class'])) {
+            $data['add_mentor_school_class'] = SchoolClass::whereUuid($data['add_mentor_school_class'])->first()->getKey();
+        }
+        
+        if (isset($data['manager_school_classes'])) {
+            foreach ($data['manager_school_classes'] as $key => $value) {
+                $data['manager_school_classes'][$key] = SchoolClass::whereUuid($value)->first()->getKey();
+            }
+        }
+
+        if (isset($data['student_parents_of'])) {
+            foreach ($data['student_parents_of'] as $key => $value) {
+                $data['student_parents_of'][$key] = User::whereUuid($value)->first()->getKey();
+            }
         }
 
         $user = (new UserHelper())->createUserFromData($data);
@@ -314,7 +337,30 @@ class UsersController extends Controller
         // als dat een student is dan moet die naar updateStudent en anders mag ook de rest....
         if (Auth::user()->hasRole('Student')) return $this->updateStudent($user, $request);
 
-        $user->fill($request->all());
+        $data = $request->all();
+
+        //UUID to ID mapping
+        if (isset($data['school_id'])) {
+            $data['school_id'] = School::whereUuid($data['school_id'])->first()->getKey();
+        }
+
+        if (isset($data['add_mentor_school_class'])) {
+            $data['add_mentor_school_class'] = SchoolClass::whereUuid($data['add_mentor_school_class'])->first()->getKey();
+        }
+
+        if (isset($data['manager_school_classes'])) {
+            foreach ($data['manager_school_classes'] as $key => $value) {
+                $data['manager_school_classes'][$key] = SchoolClass::whereUuid($value)->first()->getKey();
+            }
+        }
+
+        if (isset($data['student_parents_of'])) {
+            foreach ($data['student_parents_of'] as $key => $value) {
+                $data['student_parents_of'][$key] = User::whereUuid($value)->first()->getKey();
+            }
+        }
+        
+        $user->fill($data);
 
         if ($request->filled('password')) {
 //		    logger('try updating passwrd '. $request->get('password'));

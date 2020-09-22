@@ -11,6 +11,7 @@ namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
 use tcCore\AnswerParentQuestion;
 use tcCore\AnswerRating;
@@ -162,6 +163,9 @@ class TestTakeDuplicateHelper
                 $new->fill([
                     'test_participant_id' => $this->new['refParticipantIds'][$a->test_participant_id],
                 ]);
+
+                $new->setAttribute('uuid', Uuid::uuid4());
+
                 if (!$new->save()) {
                     throw new \Exception('could not save the duplicated Answers');
                 }
@@ -187,6 +191,9 @@ class TestTakeDuplicateHelper
                 $new->fill([
                     'answer_id' => $this->new['refAnswerIds'][$a->answer_id],
                 ]);
+
+                $new->setAttribute('uuid', Uuid::uuid4());
+
                 if (!$new->save()) {
                     throw new \Exception('could not save the duplicated answer parent question');
                 }

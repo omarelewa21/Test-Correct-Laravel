@@ -4,9 +4,17 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use tcCore\Lib\Question\QuestionInterface;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
 
 class DrawingQuestion extends Question implements QuestionInterface {
 
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
     /**
      * The attributes that should be mutated to dates.
      *
@@ -154,6 +162,8 @@ class DrawingQuestion extends Question implements QuestionInterface {
 
         $question->fill($attributes);
 
+        $question->setAttribute('uuid', Uuid::uuid4());
+
         if ($question->save() === false) {
             return false;
         }
@@ -171,5 +181,10 @@ class DrawingQuestion extends Question implements QuestionInterface {
 
     public function checkAnswer($answer) {
         return false;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

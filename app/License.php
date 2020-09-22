@@ -6,10 +6,17 @@ use tcCore\Jobs\CountSchoolLocationExpiredLicenses;
 use tcCore\Jobs\CountSchoolLocationLicenses;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
 
 class License extends BaseModel {
 
     use SoftDeletes;
+    use GeneratesUuid;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -123,5 +130,10 @@ class License extends BaseModel {
         }
 
         return $query;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 }

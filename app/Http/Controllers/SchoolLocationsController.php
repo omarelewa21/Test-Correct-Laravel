@@ -7,6 +7,7 @@ use tcCore\Http\Requests\CreateSchoolLocationRequest;
 use tcCore\Http\Requests\UpdateSchoolLocationRequest;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\User;
 
 class SchoolLocationsController extends Controller {
     /**
@@ -23,6 +24,10 @@ class SchoolLocationsController extends Controller {
                 break;
             case 'list':
                 return Response::make($schoolLocations->pluck('name', 'id'), 200);
+                break;
+            //list-uuid instead of replacing list for backwards compatibility
+            case 'list-uuid':
+                return Response::make($schoolLocations->select(['id', 'name', 'uuid'])->get()->keyBy('uuid'), 200);
                 break;
             case 'paginate':
             default:
@@ -41,10 +46,16 @@ class SchoolLocationsController extends Controller {
     {
         $schoolLocation = new SchoolLocation();
 
-        $schoolLocation->fill($request->all());
-        if (!$request->filled('user_id')) {
-            $schoolLocation->setAttribute('user_id', Auth::user()->getKey());
+        //UUID to ID mapping
+        $data = $request->all();
+
+        if (!isset($data['user_id'])) {
+            $data['user_id'] = Auth::user()->getKey();
+        } else {
+            $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
         }
+
+        $schoolLocation->fill($data);
 
         if ($schoolLocation->save() !== false) {
             return Response::make($schoolLocation, 200);
@@ -74,7 +85,15 @@ class SchoolLocationsController extends Controller {
      */
     public function update(SchoolLocation $schoolLocation, UpdateSchoolLocationRequest $request)
     {
-        $schoolLocation->fill($request->all());
+
+        //UUID to ID mapping
+        $data = $request->all();
+
+        if (isset($data['user_id'])) {
+            $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
+        }
+
+        $schoolLocation->fill($data);
 
         if ($schoolLocation->save() !== false) {
             return Response::make($schoolLocation, 200);
