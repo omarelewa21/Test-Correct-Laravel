@@ -65,7 +65,8 @@ class QtiResource
         try {
             $this->guessItemType();
         } catch (\Exception $e) {
-            logger($e->getMessage());
+            logger('unknown type in file '. $this->resource->identifier);
+//            logger($e->getMessage());
             return false;
         }
 
@@ -74,13 +75,13 @@ class QtiResource
         $this->handleItemAttributes();
         $this->handleResponseDeclaration();
         $this->handleStyleSheets();
-
         $this->handleItemBody();
 
         $this->handleInlineImages();
         $this->handleQuestion();
 
         $this->handleExtraAnswersIfNeeded();
+
 
         return $this;
     }
@@ -193,7 +194,6 @@ class QtiResource
         $this->replaceMatchInteraction();
         $this->replaceTextEntryInteraction();
         $this->replaceGapMatchInteraction();
-
         $dom1 = new DOMDocument("1.0");
         $dom1->preserveWhiteSpace = false;
         $dom1->formatOutput = false;
@@ -201,7 +201,6 @@ class QtiResource
         $dom1->loadXML($this->xml->itemBody->children()[0]->asXML());
 
         $this->handleStyling($dom1);
-
 
         $this->question_xml = $dom1->saveXML();
 
@@ -305,15 +304,19 @@ class QtiResource
             foreach ($nodes as $interaction) {
 
                 $result = [];
+
+                if (array_key_exists('patternMask', $interaction) && $interaction['patternMask'] && $interaction['patternMask']->__toString()) {
+                    $this->patternMask = $interaction['patternMask']->__toString();
+                }
                 $result[] = [
                     'identifier' => $interaction['responseIdentifier'],
                     'value' => $this->getTextEntryInteractionText($interaction),//$interaction->span->__toString(),
                     'correct' => false,
-                    'patternMask' => $interaction['patternMask']->__toString()
+                    'patternMask' => $this->patternMask,
                 ];
 
 
-                if ($interaction['patternMask']->__toString()) {
+                if (array_key_exists('patternMask', $interaction) && $interaction['patternMask'] && $interaction['patternMask']->__toString()) {
                     $this->patternMask = $interaction['patternMask']->__toString();
                 }
 
