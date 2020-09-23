@@ -314,19 +314,20 @@ class QtiResource
             $this->interaction = $nodes[0]->asXML();
 
             foreach ($nodes as $interaction) {
+                if (array_key_exists('patternMask', $interaction) && $interaction['patternMask'] && $interaction['patternMask']->__toString()) {
+                    $this->patternMask = $interaction['patternMask']->__toString();
+                }
 
                 $result = [];
                 $result[] = [
                     'identifier' => $interaction['responseIdentifier'],
                     'value' => $this->getTextEntryInteractionText($interaction),//$interaction->span->__toString(),
                     'correct' => false,
-                    'patternMask' => $interaction['patternMask']->__toString()
+                    'patternMask' => $this->patternMask,
                 ];
 
 
-                if ($interaction['patternMask']->__toString()) {
-                    $this->patternMask = $interaction['patternMask']->__toString();
-                }
+
 
                 $domElement = dom_import_simplexml($interaction);
                 $parent = $domElement->parentNode;
@@ -387,7 +388,7 @@ class QtiResource
             'order' => 0,
             'maintain_position' => "0",
             'discuss' => "1",
-            'score' => array_key_exists('score_when_correct', $this->responseProcessing)? $this->responseProcessing['score_when_correct']: 1,
+            'score' => array_key_exists('score_when_correct', $this->responseProcessing) ? $this->responseProcessing['score_when_correct'] : 1,
             'subtype' => $this->qtiQuestionTypeToTestCorrectQuestionType('subtype'),
             'decimal_score' => "0",
             'add_to_database' => 1,
@@ -503,7 +504,7 @@ class QtiResource
 
     private function mergeExtraTestQuestionAttributes()
     {
-        if ($this->itemType === 'extendedTextInteraction'){
+        if ($this->itemType === 'extendedTextInteraction') {
             $answer = '';
             foreach ($this->xml->xpath('//rubricBlock') as $block) {
                 if ($block['id']->__toString() === 'qtiAspectInhoudRubricBlock') {
@@ -511,7 +512,7 @@ class QtiResource
                 }
             }
 
-            return ['answer' =>  $answer];
+            return ['answer' => $answer];
         }
 
         if ($this->itemType === 'gapMatchInteraction') {

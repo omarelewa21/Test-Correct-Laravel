@@ -13,7 +13,7 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceExtendedTextInteractionTest extends TestCase
+class QtiResourceExtendedTextInteraction230002Test extends TestCase
 {
     use DatabaseTransactions;
 
@@ -25,9 +25,9 @@ class QtiResourceExtendedTextInteractionTest extends TestCase
         $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
 
         $resource = new Resource(
-            'ITM-230041',
+            'ITM-230002',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/230041.xml'),
+            storage_path('../tests/_fixtures_qti/230002.xml'),
             '1',
             '88dec4d3-997f-4d3b-95cf-3345bf3c0f4b'
         );
@@ -39,7 +39,7 @@ class QtiResourceExtendedTextInteractionTest extends TestCase
     public function it_can_handle_the_item_body()
     {
         $this->assertInstanceOf(
-            OpenQuestion::class,
+            CompletionQuestion::class,
             $this->instance->question
         );
     }

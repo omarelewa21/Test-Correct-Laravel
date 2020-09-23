@@ -1,0 +1,38 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../../storage/app/qti_import/20200921143709/zipdir/4/zipdir/controlxsds/imsqti_v2p2p1.xsd" title="ITM-230002" identifier="ITM-230002" label="32kc4p" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;apply&gt;&lt;times&gt;&lt;/times&gt;&lt;cn&gt;2&lt;/cn&gt;&lt;apply&gt;&lt;divide&gt;&lt;/divide&gt;&lt;cn&gt;2&lt;/cn&gt;&lt;cn&gt;5&lt;/cn&gt;&lt;/apply&gt;&lt;/apply&gt;&lt;/math&gt;#&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;cn&gt;2,4&lt;/cn&gt;&lt;/math&gt;"><value>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;apply&gt;&lt;times&gt;&lt;/times&gt;&lt;cn&gt;2&lt;/cn&gt;&lt;apply&gt;&lt;divide&gt;&lt;/divide&gt;&lt;cn&gt;2&lt;/cn&gt;&lt;cn&gt;5&lt;/cn&gt;&lt;/apply&gt;&lt;/apply&gt;&lt;/math&gt;</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="string"><correctResponse interpretation="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;apply&gt;&lt;times&gt;&lt;/times&gt;&lt;cn&gt;2&lt;/cn&gt;&lt;apply&gt;&lt;divide&gt;&lt;/divide&gt;&lt;cn&gt;1&lt;/cn&gt;&lt;cn&gt;10&lt;/cn&gt;&lt;/apply&gt;&lt;/apply&gt;&lt;/math&gt;#&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;cn&gt;2,1&lt;/cn&gt;&lt;/math&gt;"><value>&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;apply&gt;&lt;times&gt;&lt;/times&gt;&lt;cn&gt;2&lt;/cn&gt;&lt;apply&gt;&lt;divide&gt;&lt;/divide&gt;&lt;cn&gt;1&lt;/cn&gt;&lt;cn&gt;10&lt;/cn&gt;&lt;/apply&gt;&lt;/apply&gt;&lt;/math&gt;</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+
+
+
+
+        <div class="qti-layout-row">
+
+
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p>Geef je antwoorden als gehele getallen, decimale getallen of breuken.<br/><br/>De formule <m:math><m:mi>y</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:mn>0</m:mn><m:mo>,</m:mo><m:mn>3</m:mn><m:mo> </m:mo><m:mo>·</m:mo><m:mo> </m:mo><m:msup><m:mi>x</m:mi><m:mrow><m:mn>0</m:mn><m:mo>,</m:mo><m:mn>6</m:mn></m:mrow></m:msup><m:mo> </m:mo><m:mo>·</m:mo><m:mo> </m:mo><m:msup><m:mfenced><m:mrow><m:mn>2</m:mn><m:msqrt><m:mi>x</m:mi></m:msqrt></m:mrow></m:mfenced><m:mn>3</m:mn></m:msup></m:math>kan geschreven worden in de vorm <m:math><m:mi>y</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:mi>a</m:mi><m:mo> </m:mo><m:mo>·</m:mo><m:mo> </m:mo><m:msup><m:mi>x</m:mi><m:mi>b</m:mi></m:msup></m:math>.</p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong>Bereken exact de waarde van <m:math><m:mi mathvariant="bold-italic">a</m:mi><m:mo mathvariant="bold"> </m:mo><m:mi mathvariant="bold">en</m:mi><m:mo mathvariant="bold"> </m:mo><m:mi mathvariant="bold-italic">b</m:mi></m:math>.</strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p><m:math><m:mi>a</m:mi><m:mo>=</m:mo></m:math><span class="cito_genclass_230002_1">
+<textEntryInteraction id="Id672d6f3-d040-4425-b6bc-a0c3123d69de" responseIdentifier="RESPONSE"/>
+
+              </span><br/><m:math><m:mi>b</m:mi><m:mo>=</m:mo></m:math><span class="cito_genclass_230002_2">
+<textEntryInteraction id="I7579ef77-18bf-4305-87b2-0864778d8e67" responseIdentifier="RESPONSE2"/>
+
+              </span></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+
+
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><or><customOperator definition="depcp:CasEqualEquation"><baseValue baseType="string">&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;apply&gt;&lt;times&gt;&lt;/times&gt;&lt;cn&gt;2&lt;/cn&gt;&lt;apply&gt;&lt;divide&gt;&lt;/divide&gt;&lt;cn&gt;2&lt;/cn&gt;&lt;cn&gt;5&lt;/cn&gt;&lt;/apply&gt;&lt;/apply&gt;&lt;/math&gt;</baseValue><customOperator definition="depcp:LowercaseTextNodes"><variable identifier="RESPONSE"/></customOperator></customOperator><customOperator definition="depcp:CasEqual"><baseValue baseType="string">&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;cn&gt;2.4&lt;/cn&gt;&lt;/math&gt;</baseValue><customOperator definition="depcp:LowercaseTextNodes"><variable identifier="RESPONSE"/></customOperator></customOperator></or><or><customOperator definition="depcp:CasEqualEquation"><baseValue baseType="string">&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;apply&gt;&lt;times&gt;&lt;/times&gt;&lt;cn&gt;2&lt;/cn&gt;&lt;apply&gt;&lt;divide&gt;&lt;/divide&gt;&lt;cn&gt;1&lt;/cn&gt;&lt;cn&gt;10&lt;/cn&gt;&lt;/apply&gt;&lt;/apply&gt;&lt;/math&gt;</baseValue><customOperator definition="depcp:LowercaseTextNodes"><variable identifier="RESPONSE2"/></customOperator></customOperator><customOperator definition="depcp:CasEqual"><baseValue baseType="string">&lt;math xmlns="http://www.w3.org/1998/Math/MathML"&gt;&lt;cn&gt;2.1&lt;/cn&gt;&lt;/math&gt;</baseValue><customOperator definition="depcp:LowercaseTextNodes"><variable identifier="RESPONSE2"/></customOperator></customOperator></or></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>
