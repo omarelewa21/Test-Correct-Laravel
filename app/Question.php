@@ -13,6 +13,7 @@ use Ramsey\Uuid\Uuid;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
+    use GeneratesUuid;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
