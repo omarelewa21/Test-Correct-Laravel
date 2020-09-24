@@ -4,6 +4,7 @@
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Support\Arr;
+use Ramsey\Uuid\Uuid;
 
 abstract class MtiBaseModel extends BaseModel
 {
@@ -141,7 +142,14 @@ abstract class MtiBaseModel extends BaseModel
     public function syncAttributesWithParent() {
         foreach($this->attributes as $key => $value) {
             if (array_key_exists($key, $this->parentInstance->attributes)) {
-                $this->parentInstance->$key = $value;
+                //fix for UUID casting
+                //UUID should be copied as string, because it will be properly casted
+                if ($key == 'uuid') {
+                    $this->parentInstance->$key = Uuid::fromBytes($value)->toString();
+                } else {
+                    $this->parentInstance->$key = $value;
+                }
+
             }
         }
     }
