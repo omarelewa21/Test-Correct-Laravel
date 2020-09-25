@@ -61,7 +61,6 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         parent::fill($attributes);
 
         if(array_key_exists('demo_restriction_overrule',$attributes)){
-            logger('attribute found');
             $this->demoRestrictionOverrule = true;
         }
 

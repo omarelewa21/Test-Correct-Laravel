@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
+use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestRequest;
@@ -94,7 +95,7 @@ class TestsController extends Controller {
 
 	}
 
-	public function duplicate(Test $test, UpdateTestRequest $request) {
+	public function duplicate(Test $test, DuplicateTestRequest $request) {
 		$test = $test->userDuplicate($request->all(), Auth::id());
 
 		if ($test !== false) {

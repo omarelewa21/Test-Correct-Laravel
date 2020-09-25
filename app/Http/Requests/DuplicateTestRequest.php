@@ -1,9 +1,26 @@
 <?php namespace tcCore\Http\Requests;
 
+use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
+use Ramsey\Uuid\Uuid;
+use tcCore\EducationLevel;
 use tcCore\Http\Helpers\DemoHelper;
 
-class CreateTestRequest extends Request {
+class DuplicateTestRequest extends Request {
+
+	/**
+	 * @var Test
+	 */
+	private $test;
+
+	/**
+	 *
+	 * @param Route $route
+	 */
+	function __construct(Route $route)
+	{
+		$this->test = $route->parameter('test');
+	}
 
 	/**
 	 * Determine if the user is authorized to make this request.
@@ -28,7 +45,7 @@ class CreateTestRequest extends Request {
 			'subject_id' => '',
 			'education_level_id' => '',
 			'period_id' => '',
-			'name' => 'unique:tests,name,NULL,id,author_id,' . Auth::id().',deleted_at,NULL,is_system_test,0',
+			'name' => 'sometimes|unique:tests,name,' . $this->test->getKey() . ',id,author_id,' . Auth::id().',deleted_at,NULL,is_system_test,0',
 			'abbreviation' => '',
 			'kind' => '',
 			'status' => '',
@@ -47,22 +64,11 @@ class CreateTestRequest extends Request {
     {
         $validator->after(function ($validator) {
             $data = ($this->all());
-            if(strtolower($data['name']) === strtolower(DemoHelper::BASEDEMOTESTNAME)){
+            if(isset($data['name']) && strtolower($data['name']) === strtolower(DemoHelper::BASEDEMOTESTNAME)){
                 if(Auth::user()->schoolLocation->name !== DemoHelper::SCHOOLLOCATIONNAME){
                     $validator->errors()->add('name','Deze naam is helaas niet beschikbaar voor een toets');
                 }
             }
-
-            if(Uuid::isValid($data['education_level_id'])){
-                $educationLevel = EducationLevel::whereUuid($data['education_level_id'])->first();
-                if(!$educationLevel){
-                    $validator->errors()->add('education_level_id','Dit niveau kon helaas niet terug gevonden worden.');
-                } else {
-                    $data['education_level_id'] = $educationLevel->getKey();
-                }
-            }
-
-            request()->merge($data);
         });
     }
 
@@ -75,5 +81,4 @@ class CreateTestRequest extends Request {
 	{
 		return $this->all();
 	}
-
 }
