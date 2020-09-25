@@ -19,12 +19,13 @@ use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\TestParticipant\Factory;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class TestTake extends BaseModel
 {
 
     use SoftDeletes;
-    use GeneratesUuid;
+    use UuidTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,

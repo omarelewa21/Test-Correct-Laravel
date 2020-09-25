@@ -4,11 +4,12 @@ use tcCore\Lib\Models\CompositePrimaryKeyModel;
 use tcCore\Lib\Models\CompositePrimaryKeyModelSoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class Manager extends CompositePrimaryKeyModel {
 
     use CompositePrimaryKeyModelSoftDeletes;
-    use GeneratesUuid;
+    use UuidTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,

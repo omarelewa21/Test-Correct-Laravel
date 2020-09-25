@@ -8,11 +8,12 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class License extends BaseModel {
 
     use SoftDeletes;
-    use GeneratesUuid;
+    use UuidTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,

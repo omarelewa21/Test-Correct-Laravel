@@ -35,6 +35,7 @@ use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class User extends BaseModel implements AuthenticatableContract, CanResetPasswordContract, AccessCheckable {
 
@@ -42,7 +43,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         SoftDeletes,
         Authorizable,
 		CanResetPassword;
-	use GeneratesUuid;
+	use UuidTrait;
 
 	protected $casts = [
 		'uuid' => EfficientUuid::class,

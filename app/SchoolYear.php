@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class SchoolYear extends BaseModel implements AccessCheckable {
 
     use SoftDeletes;
-    use GeneratesUuid;
+    use UuidTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,

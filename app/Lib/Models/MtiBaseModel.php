@@ -144,8 +144,8 @@ abstract class MtiBaseModel extends BaseModel
             if (array_key_exists($key, $this->parentInstance->attributes)) {
                 //fix for UUID casting
                 //UUID should be copied as string, because it will be properly casted
-                if ($key == 'uuid') {
-                    $this->parentInstance->$key = Uuid::fromBytes($value)->toString();
+                if ($key === $this->getUUIDKeyName()) {
+                    $this->parentInstance->$key = $this->getUUIDKey();
                 } else {
                     $this->parentInstance->$key = $value;
                 }

@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class Section extends BaseModel implements AccessCheckable {
 
     use SoftDeletes;
-    use GeneratesUuid;
+    use UuidTrait;
 
     /**
      * The attributes that should be mutated to dates.

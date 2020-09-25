@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Traits\UuidTrait;
 
 class TestQuestion extends BaseModel {
 
     use SoftDeletes;
-    use GeneratesUuid;
+    use UuidTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,

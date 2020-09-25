@@ -7,11 +7,12 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
+use tcCore\Traits\UuidTrait;
 
 class Answer extends BaseModel {
 
     use SoftDeletes;
-    use GeneratesUuid;
+    use UuidTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,

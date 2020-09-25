@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Traits\UuidTrait;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
-    use GeneratesUuid;
+    use UuidTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -23,15 +24,7 @@ class Question extends MtiBaseModel {
     public $mtiClassField = 'type';
     public $mtiParentTable = 'questions';
 
-    public function getUUIDKeyName()
-    {
-        return 'uuid';
-    }
 
-    public function getUUIDKey()
-    {
-        return $this->getAttribute($this->getUUIDKeyName());
-    }
 
     /**
      * The attributes that should be mutated to dates.
