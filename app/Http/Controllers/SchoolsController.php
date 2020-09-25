@@ -42,17 +42,7 @@ class SchoolsController extends Controller {
     {
         $school = new School();
 
-        $data = $request->all();
-
-        if ($request->filled('user_id')) {
-            $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
-        }
-
-        if (isset($data['umbrella_organization_id']) && $data['umbrella_organization_id'] !== "0") {
-            $data['umbrella_organization_id'] = UmbrellaOrganization::whereUuid($data['umbrella_organization_id'])->first()->getKey();
-        }
-
-        $school->fill($data);
+        $school->fill($request->all());
         if (!$request->filled('user_id')) {
             $school->setAttribute('user_id', Auth::user()->getKey());
         }
@@ -83,17 +73,7 @@ class SchoolsController extends Controller {
      */
     public function update(School $school, UpdateSchoolRequest $request)
     {
-        $data = $request->all();
-
-        if ($request->filled('user_id')) {
-            $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
-        }
-
-        if ($request->filled('umbrella_organization_id') && $data['umbrella_organization_id'] !== "0") {
-            $data['umbrella_organization_id'] = UmbrellaOrganization::whereUuid($data['umbrella_organization_id'])->first()->getKey();
-        }
-
-        $school->fill($data);
+        $school->fill($request->all());
         if ($school->save() !== false) {
             return Response::make($school, 200);
         } else {

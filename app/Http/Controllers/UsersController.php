@@ -153,27 +153,6 @@ class UsersController extends Controller
             $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id;//SchoolHelper::getTempTeachersSchoolLocation()->getKey();
         }
 
-        //UUID to ID mapping
-        if (isset($data['school_id'])) {
-            $data['school_id'] = School::whereUuid($data['school_id'])->first()->getKey();
-        }
-
-        if (isset($data['add_mentor_school_class'])) {
-            $data['add_mentor_school_class'] = SchoolClass::whereUuid($data['add_mentor_school_class'])->first()->getKey();
-        }
-        
-        if (isset($data['manager_school_classes'])) {
-            foreach ($data['manager_school_classes'] as $key => $value) {
-                $data['manager_school_classes'][$key] = SchoolClass::whereUuid($value)->first()->getKey();
-            }
-        }
-
-        if (isset($data['student_parents_of'])) {
-            foreach ($data['student_parents_of'] as $key => $value) {
-                $data['student_parents_of'][$key] = User::whereUuid($value)->first()->getKey();
-            }
-        }
-
         $user = (new UserHelper())->createUserFromData($data);
 
         if ($user !== false) {
@@ -336,31 +315,8 @@ class UsersController extends Controller
         // Je gaat eruit met updateStudent, maar die kan enkel het wachtwoord aanpassen. Ik denk dat je wilt weten wie het update request uitvoert
         // als dat een student is dan moet die naar updateStudent en anders mag ook de rest....
         if (Auth::user()->hasRole('Student')) return $this->updateStudent($user, $request);
-
-        $data = $request->all();
-
-        //UUID to ID mapping
-        if (isset($data['school_id'])) {
-            $data['school_id'] = School::whereUuid($data['school_id'])->first()->getKey();
-        }
-
-        if (isset($data['add_mentor_school_class'])) {
-            $data['add_mentor_school_class'] = SchoolClass::whereUuid($data['add_mentor_school_class'])->first()->getKey();
-        }
-
-        if (isset($data['manager_school_classes'])) {
-            foreach ($data['manager_school_classes'] as $key => $value) {
-                $data['manager_school_classes'][$key] = SchoolClass::whereUuid($value)->first()->getKey();
-            }
-        }
-
-        if (isset($data['student_parents_of'])) {
-            foreach ($data['student_parents_of'] as $key => $value) {
-                $data['student_parents_of'][$key] = User::whereUuid($value)->first()->getKey();
-            }
-        }
         
-        $user->fill($data);
+        $user->fill($request->all());
 
         if ($request->filled('password')) {
 //		    logger('try updating passwrd '. $request->get('password'));

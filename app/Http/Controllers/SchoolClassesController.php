@@ -56,10 +56,7 @@ class SchoolClassesController extends Controller {
 	{
 		$schoolClass = new SchoolClass();
 
-		$data = $request->all();
-		$data['education_level_id'] = EducationLevel::whereUuid($data['education_level_id'])->first()->getKey();
-
-		$schoolClass->fill($data);
+		$schoolClass->fill($request->all());
 
 		if ($schoolClass->save() !== false) {
 			return Response::make($schoolClass, 200);
@@ -94,10 +91,7 @@ class SchoolClassesController extends Controller {
 	 */
 	public function update(SchoolClass $schoolClass, UpdateSchoolClassRequest $request)
 	{
-		$data = $request->all();
-		$data['education_level_id'] = EducationLevel::whereUuid($data['education_level_id'])->first()->getKey();
-
-		$schoolClass->fill($data);
+		$schoolClass->fill($request->all());
 
 		if ($schoolClass->save() !== false) {
 			return Response::make($schoolClass, 200);

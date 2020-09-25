@@ -1,6 +1,8 @@
 <?php namespace tcCore\Http\Requests;
 
 use Illuminate\Routing\Route;
+use Ramsey\Uuid\Uuid;
+use tcCore\EducationLevel;
 
 class UpdateSchoolClassRequest extends Request {
 
@@ -27,7 +29,34 @@ class UpdateSchoolClassRequest extends Request {
 	{
 		return true;
 	}
+	
+	/**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $data = ($this->all());
 
+			
+			if(!Uuid::isValid($data['education_level_id'])){
+				$validator->errors()->add('education_level_id','Dit niveau kon helaas niet terug gevonden worden.');
+			}
+
+			$educationLevel = EducationLevel::whereUuid($data['education_level_id'])->first();
+
+			if (!$educationLevel) {
+				$validator->errors()->add('education_level_id','Dit niveau kon helaas niet terug gevonden worden.');
+			}
+
+			$data['education_level_id'] = $educationLevel->getKey();
+
+            request()->merge($data);
+        });
+    }
 	/**
 	 * Get the validation rules that apply to the request.
 	 *

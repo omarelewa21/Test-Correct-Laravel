@@ -43,10 +43,6 @@ class UmbrellaOrganizationsController extends Controller {
 	{
 		$umbrellaOrganization = new UmbrellaOrganization();
 
-		$request->merge([
-			'user_id' => User::whereUuid($request->get('user_id'))->first()->getKey(),
-		]);
-
 		$umbrellaOrganization->fill($request->all());
 		if (!$request->filled('user_id')) {
 			$umbrellaOrganization->setAttribute('user_id', Auth::user()->getKey());
@@ -80,11 +76,7 @@ class UmbrellaOrganizationsController extends Controller {
 	 */
 	public function update(UmbrellaOrganization $umbrellaOrganization, UpdateUmbrellaOrganizationRequest $request)
 	{
-		$data = $request->all();
-		if ($request->filled('user_id')) {
-			$data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
-		}
-				$umbrellaOrganization->fill($data);
+		$umbrellaOrganization->fill($request->all());
 		if ($umbrellaOrganization->save()) {
 			return Response::make($umbrellaOrganization, 200);
 		} else {

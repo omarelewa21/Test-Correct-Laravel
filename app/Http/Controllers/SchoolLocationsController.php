@@ -46,17 +46,10 @@ class SchoolLocationsController extends Controller {
     {
         $schoolLocation = new SchoolLocation();
 
-        //UUID to ID mapping
         $data = $request->all();
 
         if (!isset($data['user_id'])) {
             $data['user_id'] = Auth::user()->getKey();
-        } else {
-            $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
-        }
-
-        if (isset($data['school_id'])) {
-            $data['school_id'] = School::whereUuid($data['school_id'])->first()->getKey();
         }
 
         $schoolLocation->fill($data);
@@ -89,19 +82,7 @@ class SchoolLocationsController extends Controller {
      */
     public function update(SchoolLocation $schoolLocation, UpdateSchoolLocationRequest $request)
     {
-
-        //UUID to ID mapping
-        $data = $request->all();
-
-        if (isset($data['user_id'])) {
-            $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
-        }
-
-        if (isset($data['school_id'])) {
-            $data['school_id'] = School::whereUuid($data['school_id'])->first()->getKey();
-        }
-
-        $schoolLocation->fill($data);
+        $schoolLocation->fill($request->all());
 
         if ($schoolLocation->save() !== false) {
             return Response::make($schoolLocation, 200);

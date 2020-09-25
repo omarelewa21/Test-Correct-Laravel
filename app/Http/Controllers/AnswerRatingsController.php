@@ -79,12 +79,7 @@ class AnswerRatingsController extends Controller {
 	public function store(CreateAnswerRatingRequest $request)
 	{
 		//
-		$data = $request->all();
-		$data['answer_id'] =  Answer::whereUuid($data['answer_id'])->first()->getKey();
-		$data['user_id'] =  User::whereUuid($data['user_id'])->first()->getKey();
-		$data['test_take_id'] =  TestTake::whereUuid($data['test_take_id'])->first()->getKey();
-
-		$answerRating = new AnswerRating($data);
+		$answerRating = new AnswerRating($request->all());
 		if ($answerRating->save()) {
 			return Response::make($answerRating, 200);
 		} else {
