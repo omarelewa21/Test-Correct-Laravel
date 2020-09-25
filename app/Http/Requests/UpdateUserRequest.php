@@ -160,7 +160,7 @@ class UpdateUserRequest extends Request {
 				} else {
 					$schoolclass = SchoolClass::whereUuid($data['add_mentor_school_class'])->first();
 
-					if (!$school) {
+					if (!$schoolclass) {
 						$validator->errors()->add('add_mentor_school_class','Deze mentor klas kon helaas niet terug gevonden worden.');
 					} else {
 						$data['add_mentor_school_class'] = $schoolclass->getKey();
@@ -175,7 +175,7 @@ class UpdateUserRequest extends Request {
 					} else {
 						$schoolclass = SchoolClass::whereUuid($value)->first();
 	
-						if (!$school) {
+						if (!$schoolclass) {
 							$validator->errors()->add('add_mentor_school_class','Deze manager kon helaas niet terug gevonden worden.');
 						} else {
 							$data['manager_school_classes'][$key] = $schoolclass->getKey();
@@ -189,12 +189,12 @@ class UpdateUserRequest extends Request {
 					if (!Uuid::isValid($value)) {
 						$validator->errors()->add('add_mentor_school_class','Deze ouder kon helaas niet terug gevonden worden.');
 					} else {
-						$schoolclass = User::whereUuid($value)->first();
+						$user = User::whereUuid($value)->first();
 	
-						if (!$school) {
+						if (!$user) {
 							$validator->errors()->add('add_mentor_school_class','Deze ouder kon helaas niet terug gevonden worden.');
 						} else {
-							$data['student_parents_of'][$key] = $schoolclass->getKey();
+							$data['student_parents_of'][$key] = $user->getKey();
 						}
 					}
 				}
