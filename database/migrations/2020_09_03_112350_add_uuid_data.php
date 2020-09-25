@@ -136,11 +136,7 @@ DELIMITER ;
             echo sprintf('[%s] done',strtoupper($tableName)).PHP_EOL;
         });
 
-        DB::raw("
-DELIMITER //
-DROP FUNCTION IF EXISTS uuid_v4//
-DELIMITER ;
-");
+
         $duration = new Duration(microtime(true) - $start);
         echo sprintf('Duration %s',$duration->humanize()).PHP_EOL;
     }
