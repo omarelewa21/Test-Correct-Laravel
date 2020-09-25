@@ -689,8 +689,6 @@ class TestTakesController extends Controller {
 			$testTake->setAttribute('pass_mark', null);
 		}
 
-		Log::debug('preview', [$request->filled('preview'), $request->get('preview'), $request->all()]);
-
 		$questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 		if (
 			(
