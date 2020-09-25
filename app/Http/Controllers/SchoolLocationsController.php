@@ -55,6 +55,10 @@ class SchoolLocationsController extends Controller {
             $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
         }
 
+        if (isset($data['school_id'])) {
+            $data['school_id'] = School::whereUuid($data['school_id'])->first()->getKey();
+        }
+
         $schoolLocation->fill($data);
 
         if ($schoolLocation->save() !== false) {
@@ -91,6 +95,10 @@ class SchoolLocationsController extends Controller {
 
         if (isset($data['user_id'])) {
             $data['user_id'] = User::whereUuid($data['user_id'])->first()->getKey();
+        }
+
+        if (isset($data['school_id'])) {
+            $data['school_id'] = School::whereUuid($data['school_id'])->first()->getKey();
         }
 
         $schoolLocation->fill($data);
