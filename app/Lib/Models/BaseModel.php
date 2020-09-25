@@ -10,6 +10,7 @@ abstract class BaseModel extends Model {
     {
         $defaults = [
             $this->getKeyName(),
+            'uuid',
             $this->getCreatedAtColumn(),
             $this->getUpdatedAtColumn(),
         ];
