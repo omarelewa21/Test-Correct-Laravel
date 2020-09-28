@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use tcCore\OnboardingWizardReport;
 use tcCore\User;
 
 class CountTeacherTests extends Job implements ShouldQueue
@@ -35,7 +36,8 @@ class CountTeacherTests extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $count = $this->user->tests()->notDemo()->where('is_system_test', 0)->count();
+        //$count = $this->user->tests()->notDemo()->where('is_system_test', 0)->count();
+        $count = OnboardingWizardReport::getTestsCreatedAmount($this->user);
 
         Log::debug('Teacher #' . $this->user->getKey() . ' -> count_tests: ' . $count);
 
