@@ -18,7 +18,7 @@ class AnswerRatingsController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index(Request $request)
+	public function index(Requests\IndexAnswerRatingRequest $request)
 	{
 		$answerRatings = AnswerRating::filtered($request->get('filter', []), $request->get('order', []))->with('answer');
 		if (is_array($request->get('with')) && in_array('questions', $request->get('with'))) {
@@ -28,6 +28,7 @@ class AnswerRatingsController extends Controller {
 		switch(strtolower($request->get('mode', 'paginate'))) {
 			case 'all':
 				$answerRatings = $answerRatings->get();
+				logger('number of answer ratings '.$answerRatings->count());
 				if (is_array($request->get('with')) && in_array('questions', $request->get('with'))) {
 					foreach ($answerRatings as $answerRating) {
 						$answerRating->answer->question->loadRelated();
