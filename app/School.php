@@ -593,8 +593,5 @@ class School extends BaseModel implements AccessCheckable {
         }
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

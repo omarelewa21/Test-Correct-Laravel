@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Ramsey\Uuid\Uuid;
+use tcCore\SchoolLocation;
 
 class SchoolClassesStudentImportRequest extends Request {
 
@@ -101,30 +103,17 @@ class SchoolClassesStudentImportRequest extends Request {
             if($this->schoolClass == null){
                 $validator->errors()->add('class','Er dient een klas opgegeven te worden');
             }
-//            $data = request()->input('data');
-//            $requiredFields = ['username','name_first','name'];
-//            $errorsFound = false;
-//            if(is_array($data)){
-//                foreach($requiredFields as $field){
-//                    $erroFields = [];
-//                    if(!array_key_exists($field,$data[0])){
-//                        $errorFields[]  = $field;
-//                    }
-//                    if(count($erroFields)){
-//                        $errorsFound = true;
-//                        $validator->errors()->add('data',sprintf('Niet alle verplichte velden zijn aanwezig (%s)',implode(',',$erroFields)));
-//                    }
-//                }
-//                if(!$errorsFound) {
-//                    foreach ($data as $user) {
-//
-//                    }
-//                }
-//            }
-//            else{
-//                $validator->errors()->add('data','Geen valide data ontvangen');
-//            }
-            request()->merge(['data' => $data]);
+
+
+            if(isset($data['filter']) && isset($data['filter']['school_location_id']) && Uuid::isValid($data['filter']['school_location_id'])){
+                $item = SchoolLocation::whereUuid($data['filter']['school_location_id'])->first();
+                if(!$item){
+                        $validator->errors()->add('school_location_id','De school locatie kon niet gevonden worden.');
+                    } else {
+                        $data['filter']['school_location_id'] = $item->getKey();
+                    }
+            }
+            $this->merge(['data' => $data]);
         });
     }
 

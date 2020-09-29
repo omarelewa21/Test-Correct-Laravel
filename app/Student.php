@@ -60,8 +60,5 @@ class Student extends CompositePrimaryKeyModel {
         return $this->belongsTo('tcCore\SchoolClass');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

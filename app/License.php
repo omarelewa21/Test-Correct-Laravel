@@ -133,8 +133,5 @@ class License extends BaseModel {
         return $query;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

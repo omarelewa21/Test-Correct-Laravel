@@ -178,8 +178,5 @@ class Section extends BaseModel implements AccessCheckable {
         throw new AccessDeniedHttpException('Access to section denied');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

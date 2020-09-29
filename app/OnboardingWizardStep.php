@@ -88,8 +88,5 @@ class OnboardingWizardStep extends BaseModel
         return (bool)$this->attributes['done'];
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

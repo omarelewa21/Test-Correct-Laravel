@@ -171,8 +171,5 @@ class Period extends BaseModel implements AccessCheckable {
         throw new AccessDeniedHttpException('Access to period denied');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

@@ -387,8 +387,5 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         throw new AccessDeniedHttpException('Access to school class denied');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

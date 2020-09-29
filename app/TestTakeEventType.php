@@ -47,8 +47,5 @@ class testTakeEventType extends BaseModel {
         return $this->hasMany('tcCore\TestTakeEvent');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

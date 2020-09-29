@@ -283,8 +283,5 @@ class MatchingQuestion extends Question implements QuestionInterface {
         return true;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

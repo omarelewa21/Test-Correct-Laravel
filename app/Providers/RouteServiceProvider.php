@@ -303,7 +303,15 @@ class RouteServiceProvider extends ServiceProvider
             return SchoolClass::whereUuid($item)->firstOrFail();
         });
 
+        Route::bind('schoolClass', function($item) {
+            return SchoolClass::whereUuid($item)->firstOrFail();
+        });
+
         Route::bind('school_location', function($item) {
+            return SchoolLocation::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('schoolLocation', function($item) {
             return SchoolLocation::whereUuid($item)->firstOrFail();
         });
 

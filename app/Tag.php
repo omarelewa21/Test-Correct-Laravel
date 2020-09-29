@@ -119,8 +119,5 @@ class Tag extends BaseModel {
         return $query;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

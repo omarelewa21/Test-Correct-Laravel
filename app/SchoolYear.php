@@ -182,8 +182,5 @@ class SchoolYear extends BaseModel implements AccessCheckable {
         throw new AccessDeniedHttpException('Access to school year denied');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

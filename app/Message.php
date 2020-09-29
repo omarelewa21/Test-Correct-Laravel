@@ -273,8 +273,5 @@ class Message extends BaseModel {
         return $result;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

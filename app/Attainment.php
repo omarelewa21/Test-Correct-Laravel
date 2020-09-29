@@ -144,8 +144,5 @@ class Attainment extends BaseModel {
         return $query;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

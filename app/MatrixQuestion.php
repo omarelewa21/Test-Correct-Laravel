@@ -271,8 +271,5 @@ class MatrixQuestion extends Question implements QuestionInterface {
         return true;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

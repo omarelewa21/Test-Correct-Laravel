@@ -294,8 +294,5 @@ class TestParticipant extends BaseModel
         }
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

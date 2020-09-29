@@ -172,8 +172,5 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         return $score;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

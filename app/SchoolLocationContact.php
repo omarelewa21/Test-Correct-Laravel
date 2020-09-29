@@ -58,8 +58,5 @@ class SchoolLocationContact extends CompositePrimaryKeyModel {
         return $this->belongsTo('tcCore\SchoolLocation');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

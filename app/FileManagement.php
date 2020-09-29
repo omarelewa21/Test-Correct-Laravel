@@ -89,9 +89,6 @@ class FileManagement extends BaseModel {
         return $this->hasMany('tcCore\FileManagement','parent_id');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 
 }

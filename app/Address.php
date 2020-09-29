@@ -94,8 +94,5 @@ class Address extends BaseModel {
         return $query;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

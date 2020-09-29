@@ -109,8 +109,5 @@ class Contact extends BaseModel {
         return $query;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

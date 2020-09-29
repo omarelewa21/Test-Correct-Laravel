@@ -200,8 +200,5 @@ class Answer extends BaseModel {
         parent::fill($attributes);
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

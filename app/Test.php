@@ -653,8 +653,5 @@ class Test extends BaseModel {
         return $query->where(sprintf('%s.demo', $tableAlias), 0);
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

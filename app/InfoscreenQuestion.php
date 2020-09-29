@@ -75,8 +75,5 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
         return 0;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

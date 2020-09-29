@@ -335,8 +335,5 @@ class CompletionQuestion extends Question implements QuestionInterface {
 //        }
 //    }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

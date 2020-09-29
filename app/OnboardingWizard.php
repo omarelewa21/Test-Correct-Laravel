@@ -66,8 +66,5 @@ class OnboardingWizard extends BaseModel {
         return $this->hasMany(OnboardingWizardStep::class)->whereNull('parent_id')->orderBy('displayorder','asc');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

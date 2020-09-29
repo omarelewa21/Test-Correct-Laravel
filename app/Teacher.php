@@ -134,8 +134,5 @@ class Teacher extends BaseModel {
         }
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

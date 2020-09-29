@@ -20,7 +20,7 @@ class SchoolClassesController extends Controller {
 	 * @param Request $request
 	 * @return
 	 */
-	public function index(Request $request)
+	public function index(Requests\IndexSchoolClassRequest $request)
 	{
 		SchoolHelper::denyIfTempTeacher();
 

@@ -58,8 +58,5 @@ class Mentor extends CompositePrimaryKeyModel {
         return $this->belongsTo('tcCore\User');
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }

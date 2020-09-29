@@ -301,8 +301,5 @@ class GroupQuestion extends Question implements QuestionInterface {
         return false;
     }
 
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
+
 }
