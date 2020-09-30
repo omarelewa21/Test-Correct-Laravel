@@ -36,7 +36,7 @@ class CountTeacherQuestions extends Job implements ShouldQueue
      */
     public function handle()
     {
-//        $count = $this->user->questionAuthors()->count();
+// //       $count = $this->user->questionAuthors()->count();
         $count = OnboardingWizardReport::getTestItemsCreatedAmount($this->user);
         Log::debug('Teacher #' . $this->user->getKey() . ' -> count_questions: ' . $count);
 
