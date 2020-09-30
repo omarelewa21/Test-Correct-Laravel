@@ -79,12 +79,12 @@ class UpdateUserRequest extends Request {
 
 		$validator->sometimes('external_id', 'unique:users,external_id,'.$this->user->getKey().','.$this->user->getKeyName().',school_location_id,'.$this->user->getAttribute('school_location_id'), function($input) {
 			$schoolLocationId = $this->user->getAttribute('school_location_id');
-			return ((isset($input->school_location_id) && !empty($input->school_location_id)) || (!isset($input->school_location_id) && empty($schoolLocationId)));
+			return ((isset($input->school_location_id) && !empty($input->school_location_id)) || (!isset($input->school_location_id) && !empty($schoolLocationId)));
 		});
 
 		$validator->sometimes('external_id', 'unique:users,external_id,'.$this->user->getKey().','.$this->user->getKeyName().',school_id,'.$this->user->getAttribute('school_id'), function($input) {
 			$schoolId = $this->user->getAttribute('school_id');
-			return ((isset($input->school_id) && !empty($input->school_id)) || (!isset($input->school_id) && empty($schoolId)));
+			return ((isset($input->school_id) && !empty($input->school_id)) || (!isset($input->school_id) && !empty($schoolId)));
 		});
 
 		return $validator;

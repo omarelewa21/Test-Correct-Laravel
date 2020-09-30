@@ -3,6 +3,7 @@
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
+use tcCore\Rules\ExternalIdUniqueForThisSchoolLocation;
 use tcCore\User;
 
 class CreateUserRequest extends Request {
