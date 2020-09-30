@@ -26,6 +26,9 @@ class TestsController extends Controller {
         \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
 		$tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
 //		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
+        $tests->each(function($test) {
+            $test->append(    'has_duplicates');
+        });
 		return Response::make($tests, 200);
 	}
 
@@ -56,6 +59,7 @@ class TestsController extends Controller {
 	public function show(Test $test)
 	{
 		$test->load('educationLevel', 'author', 'author.school', 'author.schoolLocation', 'subject', 'period', 'testKind');
+		$test->append(    'has_duplicates');
 		return Response::make($test, 200);
 	}
 
