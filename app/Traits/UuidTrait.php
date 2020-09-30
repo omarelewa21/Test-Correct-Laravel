@@ -23,4 +23,9 @@ trait UuidTrait {
     {
         return $this->getAttribute($this->getUUIDKeyName());
     }
+
+    public function getRouteKeyName()
+    {
+        throw new \Exception('Missing route key model binding for '.__CLASS__.' called url '.request()->fullUrl());
+    }
 }
