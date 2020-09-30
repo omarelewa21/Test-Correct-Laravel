@@ -38,7 +38,9 @@ class UpdatePeriodRequest extends Request {
 		$this->filterInput();
 
 		return [
-			//
+            'name' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'date|after:start_date',
 		];
 	}
 
