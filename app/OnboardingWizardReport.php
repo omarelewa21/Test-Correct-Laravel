@@ -440,12 +440,12 @@ ORDER BY t2.displayorder,
         );
     }
 
-    private static function getTestsCreatedAmount(User $user)
+    public static function getTestsCreatedAmount(User $user)
     {
         return $user->tests()->where('is_system_test', 0)->where('demo', 0)->count();
     }
 
-    private static function getTestItemsCreatedAmount(User $user)
+    public static function getTestItemsCreatedAmount(User $user)
     {
         return Question::whereIn('id', $user->questionAuthors()->pluck('question_id'))->where('type', '<>', 'GroupQuestion')->count();
     }
