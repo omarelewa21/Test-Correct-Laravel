@@ -673,6 +673,7 @@ class Test extends BaseModel
             ->select('question_id', DB::raw('COUNT(question_id) as `count`'))
             ->groupBy('question_id')
             ->where('test_id', $this->getKey())
+            ->whereNull('deleted_at')
             ->havingRaw('COUNT(question_id) > 1')
             ->count();
     }
