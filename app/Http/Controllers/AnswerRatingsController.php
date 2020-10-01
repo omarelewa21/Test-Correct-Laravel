@@ -23,7 +23,9 @@ class AnswerRatingsController extends Controller {
 		$answerRatings = AnswerRating::filtered($request->get('filter', []), $request->get('order', []))->with('answer');
 		if (is_array($request->get('with')) && in_array('questions', $request->get('with'))) {
 			$answerRatings->with(['answer.question', 'answer.answerParentQuestions', 'answer.answerParentQuestions.groupQuestion']);
-		}
+		} else {
+            $answerRatings->with(['answer.question','answer.testparticipant']);
+        }
 
 		switch(strtolower($request->get('mode', 'paginate'))) {
 			case 'all':

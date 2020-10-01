@@ -28,7 +28,7 @@ class CreateAnswerRatingRequest extends Request {
 		$this->filterInput();
 
 		return [
-			'answer_id' => '',
+			'answer_id' => 'required',
 			'user_id' => '',
 			'test_take_id' => '',
 			'rating' => ''
@@ -67,7 +67,11 @@ class CreateAnswerRatingRequest extends Request {
 				} else {
 					$data['test_take_id'] = TestTake::whereUuid($data['test_take_id'])->first()->getKey();
 				}
-			}
+			} else {
+			    $answer = Answer::findOrFail($data['answer_id']);
+			    $testTake = $answer->testParticipant->testTake;
+			    $data['test_take_id'] = $testTake->getKey();
+            }
 			
             $this->merge($data);
         });
