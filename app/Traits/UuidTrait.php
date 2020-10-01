@@ -26,6 +26,6 @@ trait UuidTrait {
 
     public function getRouteKeyName()
     {
-        throw new \Exception('Missing route key model binding for '.__CLASS__.' called url '.request()->fullUrl());
+        throw new \Exception('[IDOR] Missing route key model binding for '.__CLASS__.' called url '.request()->fullUrl());
     }
 }
