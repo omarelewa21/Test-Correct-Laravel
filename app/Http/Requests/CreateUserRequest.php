@@ -4,6 +4,7 @@ use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
+
 use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\User;
@@ -97,7 +98,7 @@ class CreateUserRequest extends Request {
                     $validator->errors()->add('user_roles','U kunt een docent pas aanmaken nadat u een actuele periode heeft aangemaakt. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.');
                 }
 			}
-			
+
 			//UUID to ID mapping
 			if (isset($data['school_id'])) {
 				if (!Uuid::isValid($data['school_id'])) {
@@ -133,7 +134,7 @@ class CreateUserRequest extends Request {
 						$validator->errors()->add('add_mentor_school_class','Deze manager kon helaas niet terug gevonden worden.');
 					} else {
 						$schoolclass = SchoolClass::whereUuid($value)->first();
-	
+
 						if (!$schoolclass) {
 							$validator->errors()->add('add_mentor_school_class','Deze manager kon helaas niet terug gevonden worden.');
 						} else {
@@ -149,7 +150,7 @@ class CreateUserRequest extends Request {
 						$validator->errors()->add('add_mentor_school_class','Deze ouder kon helaas niet terug gevonden worden.');
 					} else {
 						$schoolclass = User::whereUuid($value)->first();
-	
+
 						if (!$schoolclass) {
 							$validator->errors()->add('add_mentor_school_class','Deze ouder kon helaas niet terug gevonden worden.');
 						} else {

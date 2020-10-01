@@ -40,7 +40,7 @@ class SchoolClassesStudentImportRequest extends Request {
 		    'data.*.username' => 'required|email',
             'data.*.name_first' => 'required',
             'data.*.name' => 'required',
-            'data.*.external_id' => '',
+            'data.*.external_id' => sprintf('unique:users,external_id,NULL,id,school_location_id,%d',$this->schoolLocation->getKey()),
             'data.*.name_suffix' => '',
             'data.*.gender' => '',
         ];
@@ -99,11 +99,33 @@ class SchoolClassesStudentImportRequest extends Request {
      */
     public function withValidator($validator){
         $validator->after(function ($validator) {
-            $data = $this->request->get('data');
             if($this->schoolClass == null){
                 $validator->errors()->add('class','Er dient een klas opgegeven te worden');
             }
 
+            $data = collect(request()->input('data'));
+            $uniqueFields = ['external_id'];
+            $groupedByDuplicates = $data->groupBy(function($row, $key) {
+                return $row['external_id'];
+            })->map(function($item) {
+                return collect($item)->count();
+            })->filter(function($item, $key){
+                return $item > 1;
+            });
+
+
+            if ($groupedByDuplicates->count() < $data->count()) {
+                collect($this->data)->each(function($item, $key)  use ($groupedByDuplicates, $validator){
+                    if (array_key_exists( $item['external_id'], $groupedByDuplicates->toArray())) {
+                        $validator->errors()->add(
+                            sprintf('data.%d.external_id', $key),
+                            'Deze import bevat dubbele studentennummers'
+                        );
+                    }
+                });
+            }
+
+            $data = $data->toArray();
 
             if(isset($data['filter']) && isset($data['filter']['school_location_id']) && Uuid::isValid($data['filter']['school_location_id'])){
                 $item = SchoolLocation::whereUuid($data['filter']['school_location_id'])->first();
