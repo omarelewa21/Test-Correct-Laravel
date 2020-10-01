@@ -59,7 +59,7 @@ class CreateSchoolClassRequest extends Request {
 
 			$data['education_level_id'] = $educationLevel->getKey();
 
-            request()->merge($data);
+            $this->merge($data);
         });
     }
 

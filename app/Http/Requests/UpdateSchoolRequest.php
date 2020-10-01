@@ -84,7 +84,7 @@ class UpdateSchoolRequest extends Request {
 				}
 			}
 
-            request()->merge($data);
+            $this->merge($data);
         });
     }
 

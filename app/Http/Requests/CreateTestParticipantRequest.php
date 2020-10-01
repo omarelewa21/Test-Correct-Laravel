@@ -1,5 +1,8 @@
 <?php namespace tcCore\Http\Requests;
 
+use Ramsey\Uuid\Uuid;
+use tcCore\TestParticipant;
+
 class CreateTestParticipantRequest extends Request {
 
 	/**
@@ -28,6 +31,38 @@ class CreateTestParticipantRequest extends Request {
 			'note' => ''
 		];
 	}
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $data = ($this->all());
+
+            if(isset($data["test_participant_ids"])){
+                $newTestParticipantIds = [];
+                $hasUuids = false;
+                collect($data['test_participant_ids'])->each(function($uid) use (&$newTestParticipantIds, &$hasUuids){
+                   if(Uuid::isValid($uid)){
+                       $testParticipant = TestParticipant::whereUUid($uid)->first();
+                       if($testParticipant){
+                           $newTestParticipantIds[] = $testParticipant->getKey();
+                       }
+                       $hasUuids = true;
+                   }
+                });
+                if($hasUuids){
+                    $data['test_participant_ids'] = $newTestParticipantIds;
+                }
+            }
+
+            $this->merge($data);
+        });
+    }
 
 	/**
 	 * Get the sanitized input for the request.

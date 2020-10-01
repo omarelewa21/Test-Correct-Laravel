@@ -69,7 +69,7 @@ class CreateAnswerRatingRequest extends Request {
 				}
 			}
 			
-            request()->merge($data);
+            $this->merge($data);
         });
     }
 

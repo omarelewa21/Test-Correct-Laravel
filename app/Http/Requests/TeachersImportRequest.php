@@ -104,7 +104,7 @@ class TeachersImportRequest extends Request
                     }
                 }
             });
-            request()->merge(['data' => $data]);
+            $this->merge(['data' => $data]);
 
             $dataCollection = collect(request('data'));
             $unique = collect(request('data'))->unique();
