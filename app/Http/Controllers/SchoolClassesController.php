@@ -36,6 +36,11 @@ class SchoolClassesController extends Controller {
 			case 'list':
 				return Response::make($schoolClasses->pluck('name', 'id'), 200);
 				break;
+            case 'uuidlist':
+                $classes = $schoolClasses->get();
+                logger($classes);
+                return Response::make($classes, 200);
+                break;
 			case 'paginate':
 			default:
 				$schoolClasses = $schoolClasses->paginate(15);
