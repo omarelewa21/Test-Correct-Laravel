@@ -41,7 +41,6 @@ class Test extends BaseModel
     protected $table = 'tests';
 
 
-
     /**
      * The attributes that are mass assignable.
      *
@@ -628,7 +627,7 @@ class Test extends BaseModel
 
         $test->setAttribute('uuid', Uuid::uuid4());
 
-        if($test->save() === false) {
+        if ($test->save() === false) {
             return false;
         }
 
@@ -669,15 +668,30 @@ class Test extends BaseModel
 
     public function getHasDuplicatesAttribute()
     {
-        return !! DB::table('test_questions')
-            ->select('question_id', DB::raw('COUNT(question_id) as `count`'))
-            ->groupBy('question_id')
-            ->where('test_id', $this->getKey())
-            ->whereNull('deleted_at')
-            ->havingRaw('COUNT(question_id) > 1')
-            ->count();
-    }
+        return !!DB::select('
+            select (id)
+                from (
+                select
+                  question_id as id 
+                  from
+                  `test_questions`
+                where
+                  `test_id` = ?  and `deleted_at` is null
+                Union  all
+                  select question_id as id from group_question_questions where group_question_id in(
+                  select question_id from test_questions where test_id = ? and deleted_at is null
+                  ) and deleted_at is null
+                  
+                 
+                )as t
+                 group by
+                  `id`
+                
+                having
+                  COUNT(id) > 1        
+        ', [$this->getKey(), $this->getKey()]);
 
+    }
 
 
 }
