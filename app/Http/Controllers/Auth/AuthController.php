@@ -11,6 +11,7 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\User\Roles;
 use tcCore\LoginLog;
 use tcCore\User;
+use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
 
 class AuthController extends Controller
 {
@@ -48,6 +49,7 @@ class AuthController extends Controller
 
             if($user->isA('teacher')){
                 (new DemoHelper())->createDemoForTeacherIfNeeded($user);
+                $this->dispatch(new SetSchoolYearForDemoClassToCurrent($user->schoolLocation));
             }
 
 
