@@ -14,6 +14,7 @@ use tcCore\CompletionQuestion;
 use tcCore\Contact;
 use tcCore\DrawingQuestion;
 use tcCore\EducationLevel;
+use tcCore\FileManagement;
 use tcCore\GradingScale;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
@@ -474,7 +475,11 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('tag', function($item) {
             return Tag::whereUuid($item)->firstOrFail();
-        });        
+        });
+
+        Route::bind('fileManagement', function($item) {
+            return FileManagement::whereUuid($item)->firstOrFail();
+        });     
         
     }
 
