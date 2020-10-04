@@ -36,7 +36,7 @@ class TestingController extends Controller {
         $toggle = request('toggle');
 
         if ($toggle == 'true') {
-            SeleniumTest::backupEnvFile();
+            SeleniumTest::applySeleniumEnvFile();
         } else {
             SeleniumTest::restoreEnvFile();
         }

@@ -40,10 +40,23 @@ class SeleniumTestSetup extends Command
     {
         $state = $this->argument('toggle');
 
+        $result = true;
+
         if ($state == 'true') {
-            SeleniumTest::backupEnvFile();
+            $result = SeleniumTest::applySeleniumEnvFile();
         } else {
-            SeleniumTest::restoreEnvFile();
+            $result = SeleniumTest::restoreEnvFile();
+        }
+
+        //handle errors
+        if (!$result) {
+            if (env('SELENIUM_TEST', false) == true && $state == 'true') {
+                $this->info('Selenium is already toggled to true');
+            } else if (env('SELENIUM_TEST', false) == false && $state == 'false') {
+                $this->info('Selenium is already toggled to false');
+            } else {
+                $this->error('Toggle failed! Does ' . SeleniumTest::seleniumEnvFile . ' exist? And are read/write permissions set correctly?');
+            }
         }
 
         return 0;

@@ -6,6 +6,7 @@ class SeleniumTest
 
     const envFile = '.env';
     const envBackupFileWhileSeleniumtest = ".envBackupWhileSeleniumtest";
+    const seleniumEnvFile = '.env.selenium';
 
 	static private function checkEnv()
 	{
@@ -20,18 +21,45 @@ class SeleniumTest
         if(!file_exists(base_path(self::envBackupFileWhileSeleniumtest))){
             die('error searching for the '.self::envBackupFileWhileSeleniumtest.' file');
         }
-        if(file_get_contents(base_path(self::envBackupFileWhileSeleniumtest)) == 1){
-            return false;
-        }
-        else{
+
+        if(env('SELENIUM_TEST', false) == true) {
             return true;
+        } else {
+            return false;
         }
     }
 
-    static public function backupEnvFile() {
+    /*
+    1. Copy content of self::envBackupFileWhileSeleniumtest to self::envFile
+
+    return false if failed
+    return true otherwise 
+    */
+    static public function restoreEnvFile() {
         self::checkEnv();
 
-        if(!file_exists(base_path(self::envFile)) || self::hasSeleniumtestSetup()){
+        if (!self::hasSeleniumtestSetup()) {
+            return false;
+        }
+
+        $envContents = file_get_contents(base_path(self::envBackupFileWhileSeleniumtest));
+
+        file_put_contents(base_path(self::envFile),$envContents);
+
+        return true;
+    }
+
+    /*
+    1. Backup self::envFile file to self::envBackupFileWhileSeleniumtest
+    2. Copy self::seleniumEnvFile to self::envFile
+
+    return false if failed
+    return true otherwise
+    */
+    static function applySeleniumEnvFile() {
+        self::checkEnv();
+
+        if (!file_exists(base_path(self::envFile)) || self::hasSeleniumtestSetup()) {
             return false;
         }
 
@@ -39,23 +67,11 @@ class SeleniumTest
 
         file_put_contents(base_path(self::envBackupFileWhileSeleniumtest), $envContents);
 
-        $envContents = str_replace('DB_DATABASE=tccore_dev', 'DB_DATABASE=tccore_dev_selenium', $envContents);
-        $envContents = str_replace('SELENIUM_TEST=false', 'SELENIUM_TEST=true', $envContents);
-        
-        file_put_contents(base_path(self::envFile), $envContents);
-    }
+        $seleniumEnvContents = file_get_contents(base_path(self::seleniumEnvFile));
 
-    static public function restoreEnvFile() {
-        if (!self::hasSeleniumtestSetup()) {
-            return false;
-        }
+        file_put_contents(base_path(self::envFile), $seleniumEnvContents);
 
-        $envContents = file_get_contents(base_path(self::envBackupFileWhileSeleniumtest));
-
-        $envContents = str_replace('SELENIUM_TEST=true', 'SELENIUM_TEST=false', $envContents);
-
-        file_put_contents(base_path(self::envFile),$envContents);
-        file_put_contents(base_path(self::envBackupFileWhileSeleniumtest),'1');
+        return true;
     }
 
 }
