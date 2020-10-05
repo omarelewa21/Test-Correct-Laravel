@@ -2,6 +2,7 @@
 
 use Ramsey\Uuid\Uuid;
 use tcCore\TestParticipant;
+use tcCore\User;
 
 class CreateTestParticipantRequest extends Request {
 
@@ -43,20 +44,20 @@ class CreateTestParticipantRequest extends Request {
         $validator->after(function ($validator) {
             $data = ($this->all());
 
-            if(isset($data["test_participant_ids"])){
-                $newTestParticipantIds = [];
+            if(isset($data["user_id"])){
+                $userIds = [];
                 $hasUuids = false;
-                collect($data['test_participant_ids'])->each(function($uid) use (&$newTestParticipantIds, &$hasUuids){
-                   if(Uuid::isValid($uid)){
-                       $testParticipant = TestParticipant::whereUUid($uid)->first();
-                       if($testParticipant){
-                           $newTestParticipantIds[] = $testParticipant->getKey();
+                collect($data['user_id'])->each(function($uuid) use (&$userIds, &$hasUuids){
+                   if(Uuid::isValid($uuid)){
+                       $user = User::whereUUid($uuid)->first();
+                       if($user){
+                           $userIds[] = $user->getKey();
                        }
                        $hasUuids = true;
                    }
                 });
                 if($hasUuids){
-                    $data['test_participant_ids'] = $newTestParticipantIds;
+                    $data['user_id'] = $userIds;
                 }
             }
 
