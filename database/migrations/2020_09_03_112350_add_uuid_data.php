@@ -80,9 +80,9 @@ class AddUuidData extends Migration
         // as per https://stackoverflow.com/a/45818109
         $uuidSelectFunction = "select unhex(replace(concat(replace(uuid_v4(),'-',''),created_at),created_at,''))";
 
-        DB::raw("
-DELIMITER //
-DROP FUNCTION IF EXISTS uuid_v4//
+        DB::unprepared("
+DROP FUNCTION IF EXISTS uuid_v4;");
+        DB::unprepared("
 CREATE FUNCTION uuid_v4()
     RETURNS CHAR(36)
 NOT DETERMINISTIC -- multiple RAND()'s
@@ -108,8 +108,6 @@ BEGIN
         @h1, @h2, '-', @h3, '-', @h4, '-', @h5, '-', @h6, @h7, @h8
     ));
 END
-//
-DELIMITER ;            
 ");
 
         $questionTables = collect($this->questionTables);
