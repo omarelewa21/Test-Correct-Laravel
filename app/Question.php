@@ -576,7 +576,7 @@ class Question extends MtiBaseModel {
                 $query->orWhere(function($q) use ($user, $subject){
                     // subject id = $subject->getKey() together with being an owner through the question_authors table
                     $q->where('subject_id',$subject->getKey());
-                    $q->whereIn('id',$user->questionAuthors()->pluck('question_id'));
+                    $q->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
                 });
                 // or subect_id in list AND subject not $subject->getKey()
                 $query->orWhere(function($q) use ($user,$subject){
