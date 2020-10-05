@@ -60,8 +60,8 @@ class CreateSchoolLocationRequest extends Request {
                 }
 			}
 	
-			if (isset($data['school_id'])) {
-                if (isset($data['school_id']) && !Uuid::isValid($data['school_id'])) {
+			if (isset($data['school_id']) && $data['school_id']) {
+                if (!Uuid::isValid($data['school_id'])) {
                     $validator->errors()->add('school_id','Deze school kon helaas niet worden gevonden.');
                 } else {
                     $school = School::whereUuid($data['school_id'])->first();

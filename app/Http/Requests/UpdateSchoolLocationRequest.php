@@ -73,14 +73,12 @@ class UpdateSchoolLocationRequest extends Request {
                 }
 			}
 			
-			if(!Uuid::isValid($data['user_id'])){
-				$validator->errors()->add('user_id','Deze gebruiker kon helaas niet worden gevonden.');
-			} else if (!Uuid::isValid($data['school_id'])) {
-				$validator->errors()->add('school_id','Deze school kon helaas niet worden gevonden.');
-			}
-
 			if (isset($data['user_id'])) {
-				$user = User::whereUuid($data['user_id'])->first();
+                if(!Uuid::isValid($data['user_id'])){
+                    $validator->errors()->add('user_id','Deze gebruiker kon helaas niet worden gevonden.');
+                }
+
+                $user = User::whereUuid($data['user_id'])->first();
 
 				if (!$user) {
 					$validator->errors()->add('user_id','Deze gebruiker kon helaas niet worden gevonden.');
@@ -89,14 +87,18 @@ class UpdateSchoolLocationRequest extends Request {
 				}
 			}
 	
-			if (isset($data['school_id'])) {
-				$school = School::whereUuid($data['school_id'])->first();
+			if (isset($data['school_id']) && $data['school_id']) {
+                if (!Uuid::isValid($data['school_id'])) {
+                    $validator->errors()->add('school_id', 'Deze school kon helaas niet worden gevonden.');
+                } else {
+                    $school = School::whereUuid($data['school_id'])->first();
 
-				if (!$school) {
-					$validator->errors()->add('school_id','Deze school kon helaas niet worden gevonden.');
-				} else {
-					$data['school_id'] = $school->getKey();
-				}
+                    if (!$school) {
+                        $validator->errors()->add('school_id', 'Deze school kon helaas niet worden gevonden.');
+                    } else {
+                        $data['school_id'] = $school->getKey();
+                    }
+                }
 			}
 
 			$this->merge($data);
