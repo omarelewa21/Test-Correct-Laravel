@@ -80,9 +80,18 @@ class AddUuidData extends Migration
         // as per https://stackoverflow.com/a/45818109
         $uuidSelectFunction = "select unhex(replace(concat(replace(uuid_v4(),'-',''),created_at),created_at,''))";
 
-        DB::unprepared("
-DROP FUNCTION IF EXISTS uuid_v4;");
-        DB::unprepared("
+//        DB::unprepared("
+//DROP FUNCTION IF EXISTS uuid_v4;");
+        /**
+         * if you get an error about collate on inserting the data
+         * add this function youself to the database by hand
+         * Start with on the first row
+         * DELIMITER //
+         * and then replace END by END//
+         * followed by a extra line DELIMITER;
+         */
+
+        $functionCreation = <<<FUNC
 CREATE FUNCTION uuid_v4()
     RETURNS CHAR(36)
 NOT DETERMINISTIC -- multiple RAND()'s
@@ -108,32 +117,48 @@ BEGIN
         @h1, @h2, '-', @h3, '-', @h4, '-', @h5, '-', @h6, @h7, @h8
     ));
 END
-");
+FUNC;
 
-        $questionTables = collect($this->questionTables);
-        $collectionWithoutQuestionTables = collect($this->tables)->reject(function ($val) use ($questionTables) {
-            return $questionTables->contains($val);
-        });
 
-        $collectionWithoutQuestionTables->unique()->each(function($tableName) use ($uuidSelectFunction) {
-            $count = DB::select(DB::raw('select count(*) as aantal from '.$tableName.' where uuid is null'))[0]->aantal;
-            $numberPerRound = 100000;
-            $rounds = ceil($count/$numberPerRound);
-            echo sprintf('[%s] records: %d',strtoupper($tableName),$count).PHP_EOL;
-            echo sprintf('[%s] rounds : %d',strtoupper($tableName),$rounds).PHP_EOL;
-            for($i=0;$i<=$rounds;$i++) {
-                echo sprintf('[%s] round : %d',strtoupper($tableName),$i).PHP_EOL;
-                DB::unprepared('update ' . $tableName . ' set uuid = (' . $uuidSelectFunction . ') where uuid is null order by created_at limit '.$numberPerRound);
-            }
-            echo sprintf('[%s] done',strtoupper($tableName)).PHP_EOL;
-        });
+        try {
+            DB::unprepared($functionCreation);
+        } catch(\Exception $e){}
 
-        collect($this->questionTables)->each(function($tableName){
-            echo sprintf('[%s] getting question uuid in sync with %s',strtoupper($tableName),$tableName).PHP_EOL;
-            DB::unprepared('update '.$tableName.' inner join questions on (questions.id = '.$tableName.'.id) set '.$tableName.'.uuid = questions.uuid');
-            echo sprintf('[%s] done',strtoupper($tableName)).PHP_EOL;
-        });
+        try {
+            $questionTables = collect($this->questionTables);
+            $collectionWithoutQuestionTables = collect($this->tables)->reject(function ($val) use ($questionTables) {
+                return $questionTables->contains($val);
+            });
 
+            $collectionWithoutQuestionTables->unique()->each(function ($tableName) use ($uuidSelectFunction) {
+                $count = DB::select(DB::raw('select count(*) as aantal from ' . $tableName . ' where uuid is null'))[0]->aantal;
+                $numberPerRound = 100000;
+                $rounds = ceil($count / $numberPerRound);
+                echo sprintf('[%s] records: %d', strtoupper($tableName), $count) . PHP_EOL;
+                echo sprintf('[%s] rounds : %d', strtoupper($tableName), $rounds) . PHP_EOL;
+                for ($i = 0; $i <= $rounds; $i++) {
+                    echo sprintf('[%s] round : %d', strtoupper($tableName), $i) . PHP_EOL;
+                    DB::unprepared('update ' . $tableName . ' set uuid = (' . $uuidSelectFunction . ') where uuid is null order by created_at limit ' . $numberPerRound);
+                }
+                echo sprintf('[%s] done', strtoupper($tableName)) . PHP_EOL;
+            });
+
+            collect($this->questionTables)->each(function ($tableName) {
+                echo sprintf('[%s] getting question uuid in sync with %s', strtoupper($tableName), $tableName) . PHP_EOL;
+                DB::unprepared('update ' . $tableName . ' inner join questions on (questions.id = ' . $tableName . '.id) set ' . $tableName . '.uuid = questions.uuid');
+                echo sprintf('[%s] done', strtoupper($tableName)) . PHP_EOL;
+            });
+        } catch (Exception $e) {
+            echo $e->getMessage().PHP_EOL;
+            echo 'Do you get an error concerning collate, copy the following into your database client:'.PHP_EOL;
+            echo '-- ==================================='.PHP_EOL;
+            echo 'DELIMITER //'.PHP_EOL;
+            echo 'DROP FUNCTION IF EXISTS uuid_v4;//'.PHP_EOL;
+            echo $functionCreation.'//'.PHP_EOL;
+            echo 'DELIMITER ;'.PHP_EOL;
+            echo '-- ==================================='.PHP_EOL;
+
+        }
 
         $duration = new Duration(microtime(true) - $start);
         echo sprintf('Duration %s',$duration->humanize()).PHP_EOL;
