@@ -157,6 +157,7 @@ FUNC;
             echo $functionCreation.'//'.PHP_EOL;
             echo 'DELIMITER ;'.PHP_EOL;
             echo '-- ==================================='.PHP_EOL;
+            exit;
 
         }
 
