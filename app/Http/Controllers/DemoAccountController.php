@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Validator;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Exceptions\Handler;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Http\Requests\CreateDemoAccountRequest;
 use tcCore\Http\Requests\UpdateDemoAccountRequest;
@@ -135,11 +136,13 @@ class DemoAccountController extends Controller
                     )
                 );
 
+                $demoHelper = (new DemoHelper())->setSchoolLocation(SchoolHelper::getTempTeachersSchoolLocation()->getKey());
+
                 $teacher = Teacher::withTrashed()
                     ->firstOrNew(([
                         'user_id'    => $user->getKey(),
-                        'class_id'   => 1,
-                        'subject_id' => 5,
+                        'class_id'   => $demoHelper->getDemoClass(),
+                        'subject_id' => $demoHelper->getDemoSubjectForTeacher(),
                     ]));
 
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
