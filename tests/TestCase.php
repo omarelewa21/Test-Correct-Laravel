@@ -139,7 +139,7 @@ abstract class TestCase extends BaseTestCase
      * @param $params
      * @param $user
      */
-    private static function authUserGetRequest($url, $params, $user)
+    public static function authUserGetRequest($url, $params, $user)
     {
         return sprintf(
             '%s/?session_hash=%s&signature=%s&user=%s&%s',
