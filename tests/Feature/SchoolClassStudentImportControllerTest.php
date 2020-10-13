@@ -231,12 +231,17 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'username'    => "thisOne@hotmail.com",
             ]],
         ]))->assertSuccessful();
+       // put schoolbeheerder in school_location one;
+        $user = User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first();
+        $user->school_location_id =1;
+        $user->save();
+
 
         $response = $this->post(
             route(
                 'school_classes.import', [
                 'schoolLocation' => SchoolLocation::find(1)->uuid,
-                'schoolClass'    => SchoolClass::find(14)->uuid
+                'schoolClass'    => SchoolClass::find(4)->uuid
             ])
             , static::getSchoolBeheerderAuthRequestData([
             'data' => [[
@@ -250,11 +255,54 @@ class SchoolClassStudentImportControllerTest extends TestCase
     }
 
 
-    //TODO email adres mag NIET in een anders school_location.
+
+    /** @test */
+    public function the_username_cannot_be_used_for_users_in_diffent_school_locations()
+    {
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "12346",
+                'name_first'  => "Jan",
+                'name_suffix' => "",
+                'name'        => "Janssen",
+                'username'    => "thisOne@hotmail.com",
+            ]],
+        ]))->assertSuccessful();
+        // put schoolbeheerder in school_location one;
+        $user = User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first();
+        $user->school_location_id =1;
+        $user->save();
+
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(1)->uuid,
+                'schoolClass'    => SchoolClass::find(4)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "12345",
+                'name_first'  => "Janus",
+                'name_suffix' => "",
+                'name'        => "oepsi",
+                'username'    => "thisOne@hotmail.com",
+            ]],
+        ]))->assertStatus(422);
+        $this->assertArrayHasKey('data.0.username', $response->decodeResponseJson()['errors']);
+        $this->assertEquals('The data.0.username has already been taken.', $response->decodeResponseJson()['errors']['data.0.username'][0]);
+    }
+
 
 
     /** @test */
-    public function when_importing_the_same_users_in_the_same_class_twice_it_does_not_fail_nor_does_it_enter_a_extra_student_and_or_user_record()
+    public function when_importing_the_same_users_in_the_same_class_twice_it_fails()
     {
 //  TODO      dit moet leiden tot een foutmelding
 
@@ -274,6 +322,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
             ], ],
         ]))->assertSuccessful();
 
+
         $beforeCountStudents = Student::count();
         $beforeCountUsers = User::count();
 
@@ -291,7 +340,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
                 'name'        => "Janssen",
                 'username'    => "thisOne@hotmail.com",
             ], ],
-        ]))->assertSuccessful();
+        ]))->assertStatus(422);
 
         $this->assertEquals($beforeCountStudents, Student::count());
         $this->assertEquals($beforeCountUsers, User::count());

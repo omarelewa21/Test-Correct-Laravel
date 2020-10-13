@@ -3,12 +3,13 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
 use tcCore\SchoolLocation;
+use tcCore\User;
 
 class SchoolClassesStudentImportRequest extends Request
 {
-
     protected $schoolLocation;
     protected $schoolClass;
 
@@ -45,19 +46,23 @@ class SchoolClassesStudentImportRequest extends Request
             }
         }
 
-        foreach ($this->data as $key => $value) {
-            if (array_key_exists('username', $value)) {
-                $extra_rule[sprintf('data.%d.username', $key)] = sprintf('unique:users,username,%s,external_id,username,%s', $value['external_id'], $value['username']);
-            }
-        }
-
         $rules = collect([
             //'data' => 'array',
-            'data.*.username'    => 'required|email',
-            'data.*.name_first'  => 'required',
-            'data.*.name'        => 'required',
+            'data.*.username' => ['required', 'email', function ($attribute, $value, $fail) {
+                $student = User::whereUsername($value)->first();
+                if ($student) {
+                    if ($this->alreadyInDatabaseAndInThisClass($student)) {
+                        return $fail(sprintf('The %s has already been taken.', $attribute));
+                    }
+                    if ($this->alreadyInDatabaseButNotInThisSchoolLocation($student)) {
+                        return $fail(sprintf('The %s has already been taken.', $attribute));
+                    }
+                }
+            }],
+            'data.*.name_first' => 'required',
+            'data.*.name' => 'required',
             'data.*.name_suffix' => '',
-            'data.*.gender'      => '',
+            'data.*.gender' => '',
         ]);
 
         if ($extra_rule === []) {
@@ -67,7 +72,6 @@ class SchoolClassesStudentImportRequest extends Request
         } else {
             $mergedRules = $rules->merge($extra_rule);
         }
-
 
         return $mergedRules->toArray();
     }
@@ -97,6 +101,7 @@ class SchoolClassesStudentImportRequest extends Request
 
             $data = $this->addDuplicateExternalIdErrors($validator);
             $data = $this->addDuplicateUsernameErrors($validator);
+//            $this->addDuplicateUsernameInDatabaseErrors($validator);
 
             if (isset($data['filter']) && isset($data['filter']['school_location_id']) && Uuid::isValid($data['filter']['school_location_id'])) {
                 $item = SchoolLocation::whereUuid($data['filter']['school_location_id'])->first();
@@ -110,7 +115,8 @@ class SchoolClassesStudentImportRequest extends Request
         });
     }
 
-    private function addDuplicateExternalIdErrors($validator){
+    private function addDuplicateExternalIdErrors($validator)
+    {
         $data = collect(request()->input('data'));
         $uniqueFields = ['external_id'];
         $groupedByDuplicates = $data->groupBy(function ($row, $key) {
@@ -137,7 +143,8 @@ class SchoolClassesStudentImportRequest extends Request
         return $data->toArray();
     }
 
-    private function addDuplicateUsernameErrors($validator){
+    private function addDuplicateUsernameErrors($validator)
+    {
         $data = collect(request()->input('data'));
         $groupedByDuplicates = $data->groupBy(function ($row, $key) {
             if (array_key_exists('username', $row)) {
@@ -163,4 +170,15 @@ class SchoolClassesStudentImportRequest extends Request
         return $data->toArray();
     }
 
+    private function alreadyInDatabaseAndInThisClass($student)
+    {
+        return (collect($student->studentSchoolClasses)->map(function ($item) {
+            return $item->id;
+        })->contains($this->schoolClass->id));
+    }
+
+    private function alreadyInDatabaseButNotInThisSchoolLocation($student)
+    {
+        return $student->school_location_id !== $this->schoolLocation->id;
+    }
 }
