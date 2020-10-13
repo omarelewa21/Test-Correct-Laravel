@@ -212,9 +212,52 @@ class SchoolClassStudentImportControllerTest extends TestCase
         }
     }
 
+
+    /** @test */
+    public function the_external_id_can_be_used_for_users_in_diffent_school_locations()
+    {
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "12345",
+                'name_first'  => "Jan",
+                'name_suffix' => "",
+                'name'        => "Janssen",
+                'username'    => "thisOne@hotmail.com",
+            ]],
+        ]))->assertSuccessful();
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(1)->uuid,
+                'schoolClass'    => SchoolClass::find(14)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "12345",
+                'name_first'  => "Janus",
+                'name_suffix' => "",
+                'name'        => "oepsi",
+                'username'    => "other@hotmail.com",
+            ]],
+        ]))->assertSuccessful();
+    }
+
+
+    //TODO email adres mag NIET in een anders school_location.
+
+
     /** @test */
     public function when_importing_the_same_users_in_the_same_class_twice_it_does_not_fail_nor_does_it_enter_a_extra_student_and_or_user_record()
     {
+//  TODO      dit moet leiden tot een foutmelding
+
         $response = $this->post(
             route(
                 'school_classes.import', [

@@ -67,7 +67,7 @@ class SchoolClassesStudentImportRequest extends Request
         } else {
             $mergedRules = $rules->merge($extra_rule);
         }
-        logger($mergedRules->toArray());
+
 
         return $mergedRules->toArray();
     }
