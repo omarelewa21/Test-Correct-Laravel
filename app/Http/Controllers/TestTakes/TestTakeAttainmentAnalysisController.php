@@ -69,7 +69,7 @@ class TestTakeAttainmentAnalysisController extends Controller {
             ->whereNull('questions.deleted_at')
             ->whereNull('users.deleted_at')
             ->whereNull('test_participants.deleted_at')
-            ->whereNotNull('question_attainments.attainemnt_id')
+            ->whereNotNull('question_attainments.attainment_id')
             ->orderBy('p_value','desc')
             ->groupBy('test_participant_id')
             ->get();
