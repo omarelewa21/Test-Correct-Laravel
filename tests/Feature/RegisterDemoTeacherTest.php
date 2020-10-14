@@ -188,19 +188,21 @@ class RegisterDemoTeacherTest extends TestCase
     private function getValidAttributes(array $overrides = []): array
     {
         return array_merge([
-            'school_location'                     => 'Drenthe college',
-            'website_url'                         => 'www.drenthecollege.nl',
-            'address'                             => 'Anne de Vriesstraat 70',
-            'postcode'                            => '9402 NT',
-            'city'                                => 'Assen',
-            'gender'                              => 'Male',
-            'name_first'                          => 'Fientje',
-            'name_suffix'                         => 'van',
-            'name'                                => 'Amersfoort',
-            'username'                            => 'fientje.van.amersfoort@some_bogus.nl',
-            'subjects'                            => 'Wiskunde',
-            'remarks'                             => 'remarks',
+            'school_location' => 'Drenthe college',
+            'website_url' => 'www.drenthecollege.nl',
+            'address' => 'Anne de Vriesstraat 70',
+            'postcode' => '9402 NT',
+            'city' => 'Assen',
+            'gender' => 'Male',
+            'name_first' => 'Fientje',
+            'name_suffix' => 'van',
+            'name' => 'Amersfoort',
+            'username' => 'fientje.van.amersfoort@some_bogus.nl',
+            'subjects' => 'Wiskunde',
+            'remarks' => 'remarks',
             'how_did_you_hear_about_test_correct' => 'online',
+            'mobile' => '0612345678',
+            'abbreviation' => 'abc',
         ], $overrides);
     }
 

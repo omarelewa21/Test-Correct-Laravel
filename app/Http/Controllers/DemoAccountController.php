@@ -83,7 +83,7 @@ class DemoAccountController extends Controller
     public function store(CreateDemoAccountRequest $request)
     {
         // signal the DemoTeacherRegistration model to record the user in a DemoTeacherRegistration object;
-        $request->merge([
+        request()->merge([
             'shouldRegisterUser' => true,
         ]);
         if (auth()->user() === null) {
