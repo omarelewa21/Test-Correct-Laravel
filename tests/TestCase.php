@@ -24,6 +24,7 @@ abstract class TestCase extends BaseTestCase
     const USER_BEHEERDER = 'opensourceschoollocatie1@test-correct.nl';
     const FIORETTI_TEACHER = 'd1@test-correct.nl';
     const USER_ACCOUNTMANAGER = 'standaardschoolbeheerder@test-correct.nl';
+    const USER_SCHOOLBEHEERDER = 'standaardschoolbeheerder@test-correct.nl';
 
     public static function getAuthRequestData($overrides = [])
     {
@@ -82,6 +83,14 @@ abstract class TestCase extends BaseTestCase
             'session_hash' => $user->session_hash,
             'user'         => static::USER_BEHEERDER,
         ], $overrides);
+    }
+
+    public static function getSchoolBeheerderAuthRequestData($overrides = [])
+    {
+        return self::getUserAuthRequestData(
+            User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first(),
+            $overrides
+        );
     }
 
     public static function getStudentOneAuthRequestData($overrides = [])

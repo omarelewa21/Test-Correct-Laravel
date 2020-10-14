@@ -142,7 +142,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('test_kind', 'TestKindsController', ['except' => ['create', 'edit']]);
 
 	// Needed lookups
-    Route::post('/school_class/importStudents/{schoolLocation}/{schoolClass}','SchoolClassesStudentImportController@store');
+    Route::post('/school_class/importStudents/{schoolLocation}/{schoolClass}','SchoolClassesStudentImportController@store')->name('school_classes.import');
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
