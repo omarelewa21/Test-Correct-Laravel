@@ -33,6 +33,7 @@ class TestTakeAttainmentAnalysisController extends Controller {
             ->whereNull('question_attainments.deleted_at')
             ->whereNull('questions.deleted_at')
             ->whereNull('attainments.deleted_at')
+            ->whereNotNull('attainments.id')
             ->groupBy('attainments.id')
             ->orderBy('attainments.code','asc')
             ->orderBy('attainments.subcode')
@@ -68,6 +69,7 @@ class TestTakeAttainmentAnalysisController extends Controller {
             ->whereNull('questions.deleted_at')
             ->whereNull('users.deleted_at')
             ->whereNull('test_participants.deleted_at')
+            ->whereNotNull('question_attainments.attainemnt_id')
             ->orderBy('p_value','desc')
             ->groupBy('test_participant_id')
             ->get();
