@@ -70,6 +70,7 @@ class DemoAccountController extends Controller
 
         try {
             $registration->update($validatedRegistration);
+            Mail::to('support@test-correct.nl')->send(new TeacherInTestSchoolTriesToUpload($registration));
         } catch (\Exception $e) {
             DB::rollBack();
             logger('Failed to update registered teacher' . $e);

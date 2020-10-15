@@ -78,7 +78,7 @@ class AddUuidData extends Migration
         ini_set('memory_limit', '-1');
 
         // as per https://stackoverflow.com/a/45818109
-        $uuidSelectFunction = "select unhex(replace(concat(replace(uuid_v4(),'-',''),created_at),created_at,''))";
+        $uuidSelectFunction = "select unhex(uuid_v4())";
 
 //        DB::unprepared("
 //DROP FUNCTION IF EXISTS uuid_v4;");
@@ -114,7 +114,7 @@ BEGIN
 
     -- Build the complete UUID
     RETURN LOWER(CONCAT(
-        @h1, @h2, '-', @h3, '-', @h4, '-', @h5, '-', @h6, @h7, @h8
+        @h1, @h2, '', @h3, '', @h4, '', @h5, '', @h6, @h7, @h8
     ));
 END
 FUNC;
