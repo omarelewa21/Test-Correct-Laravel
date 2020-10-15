@@ -168,7 +168,8 @@ class DemoAccountController extends Controller
 
     public function notifySupportTeacherTriesToUpload(Request $request)
     {
-        $registration = DemoTeacherRegistration::whereId(request('userId'))->firstOrFail();
+        $user = User::whereUuid(request('userId'))->firstOrFail();
+        $registration = DemoTeacherRegistration::whereUserId($user->id)->firstOrFail();
         try {
             Mail::to('support@test-correct.nl')->send(new TeacherInTestSchoolTriesToUpload($registration));
         } catch (\Throwable $th) {
