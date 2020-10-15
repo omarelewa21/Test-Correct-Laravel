@@ -136,14 +136,14 @@ class DemoAccountController extends Controller
                     )
                 );
 
-                $demoHelper = (new DemoHelper())->setSchoolLocation(SchoolHelper::getTempTeachersSchoolLocation()->getKey());
+                $demoHelper = (new DemoHelper())->setSchoolLocation(SchoolHelper::getTempTeachersSchoolLocation());
 
                 $teacher = Teacher::withTrashed()
-                    ->firstOrNew(([
+                    ->firstOrNew([
                         'user_id'    => $user->getKey(),
-                        'class_id'   => $demoHelper->getDemoClass(),
-                        'subject_id' => $demoHelper->getDemoSubjectForTeacher(),
-                    ]));
+                        'class_id'   => $demoHelper->getDemoClass()->getKey(),
+                        'subject_id' => $demoHelper->getDemoSubject()->getKey(),
+                    ]);
 
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
 
