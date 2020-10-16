@@ -129,7 +129,7 @@ class ShowUserRequest extends Request {
                         }
                     }
                 }
-                $data['with']['$studentPValues'] = $studentPValues;
+                $data['with']['studentPValues'] = $studentPValues;
             }
 
 
