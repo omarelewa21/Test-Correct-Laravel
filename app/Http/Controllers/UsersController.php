@@ -195,7 +195,7 @@ class UsersController extends Controller
      * @param User $user
      * @return Response
      */
-    public function show(User $user, Request $request)
+    public function show(User $user, Requests\ShowUserRequest $request)
     {
         $user->load('roles', 'studentSchoolClasses', 'managerSchoolClasses', 'mentorSchoolClasses', 'teacher', 'teacher.schoolClass', 'teacher.subject', 'salesOrganization', 'school.schoolLocations', 'schoolLocation');
 
