@@ -7,6 +7,7 @@ use tcCore\EducationLevel;
 use tcCore\Http\Requests;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
+use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolClassRequest;
@@ -37,8 +38,7 @@ class SchoolClassesController extends Controller {
 				return Response::make($schoolClasses->pluck('name', 'id'), 200);
 				break;
             case 'uuidlist':
-                $classes = $schoolClasses->get();
-                logger($classes);
+                $classes = SchoolClass::filtered($request->get('filter', []), $request->get('order', []))->get();
                 return Response::make($classes, 200);
                 break;
 			case 'paginate':
