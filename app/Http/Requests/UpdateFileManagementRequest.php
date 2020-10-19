@@ -2,6 +2,8 @@
 
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
+use Ramsey\Uuid\Uuid;
+use tcCore\User;
 
 class UpdateFileManagementRequest extends Request {
 
@@ -49,6 +51,27 @@ class UpdateFileManagementRequest extends Request {
     public function sanitize()
     {
         return $this->all();
+    }
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $data = ($this->all());
+
+        if(isset($data["handledby"])){
+            if(Uuid::isValid($data['handledby'])){
+                $user = User::whereUUid($data['handledby'])->first();
+                if($user){
+                    $data['handledby'] = $user->getKey();
+                }
+            }
+        }
+
+        $this->merge($data);
     }
 
 }
