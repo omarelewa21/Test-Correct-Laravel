@@ -1,6 +1,7 @@
 <?php namespace tcCore\Http\Requests;
 
 use Ramsey\Uuid\Uuid;
+use tcCore\SchoolClass;
 use tcCore\TestParticipant;
 use tcCore\User;
 
@@ -58,6 +59,40 @@ class CreateTestParticipantRequest extends Request {
                 });
                 if($hasUuids){
                     $data['user_id'] = $userIds;
+                }
+            }
+
+            if(isset($data["test_participant_ids"])){
+                $testParticipantIds = [];
+                $hasUuids = false;
+                collect($data['test_participant_ids'])->each(function($uuid) use (&$testParticipantIds, &$hasUuids){
+                    if(Uuid::isValid($uuid)){
+                        $_tp = TestParticipant::whereUUid($uuid)->first();
+                        if($_tp){
+                            $testParticipantIds[] = $_tp->getKey();
+                        }
+                        $hasUuids = true;
+                    }
+                });
+                if($hasUuids){
+                    $data['test_participant_ids'] = $testParticipantIds;
+                }
+            }
+
+            if(isset($data["school_class_ids"])){
+                $ids = [];
+                $hasUuids = false;
+                collect($data['school_class_ids'])->each(function($uuid) use (&$ids, &$hasUuids){
+                    if(Uuid::isValid($uuid)){
+                        $_model = SchoolClass::whereUUid($uuid)->first();
+                        if($_model){
+                            $ids[] = $_model->getKey();
+                        }
+                        $hasUuids = true;
+                    }
+                });
+                if($hasUuids){
+                    $data['school_class_ids'] = $ids;
                 }
             }
 
