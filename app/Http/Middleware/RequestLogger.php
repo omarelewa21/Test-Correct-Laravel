@@ -39,10 +39,8 @@ class RequestLogger
         $duration = $end - (LARAVEL_START * 1000);
 
         if($duration > $this->tresholdInMilliSeconds){
-            Bugsnag::notifyException('Request Too Slow '.$duration);
+            Bugsnag::notifyError('Request too slow','The current request was too slow '.$duration);
         }
-
     }
-
 
 }
