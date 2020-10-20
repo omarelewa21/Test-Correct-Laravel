@@ -2,13 +2,13 @@
 
 namespace tcCore\Http\Middleware;
 
-use DateTime;
-use tcCore\Log;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Closure;
-use Illuminate\Support\Facades\Auth;
+
 
 class RequestLogger
 {
+    protected $tresholdInMilliSeconds = 5000;
 
     /**
      * Handle an incoming request.
@@ -19,53 +19,30 @@ class RequestLogger
      */
     public function handle($request, Closure $next)
     {
-        if ($this->notInProduction()) {
-            if (!defined('LARAVEL_START')) {
-                define('LARAVEL_START', microtime(true));
-            }
+
+        if (!defined('LARAVEL_START')) {
+            define('LARAVEL_START', microtime(true));
         }
+
         return $next($request);
     }
 
     public function terminate($request, $response)
     {
-        if ($this->notInProduction()) {
-            if ($request->path() == 'fpm-status' || $request->path() == 'nginx_status') {
-                return true;
-            }
 
-            $end = microtime(true) * 1000;
-            $ip = $request->ip();
-
-            if (array_key_exists("HTTP_CF_CONNECTING_IP", $_SERVER)) {
-                $ip = $_SERVER["HTTP_CF_CONNECTING_IP"];
-            }
-            if (!defined('LARAVEL_START')) {
-                define('LARAVEL_START', microtime(true));
-            }
-            $record = [
-                'uri'        => $request->url(),
-                'uri_full'   => $request->fullUrl(),
-                'method'     => $request->method(),
-                'request'    => json_encode($request->except(['password'])),
-                'response'   => $response->getContent(),
-                'headers'    => json_encode($request->headers->all()),
-                'code'       => $response->getStatusCode(),
-                'ip'         => $ip,
-                'duration'   => $end - (LARAVEL_START * 1000),
-                'created_at' => date("Y-m-d H:i:s"),
-                'user_id'    => Auth::user() ? Auth::user()->id : null,
-                'user_agent' => $request->header('User-Agent'),
-                'success'    => $response->getStatusCode() === 200
-            ];
-            Log::create($record);
+        if ($request->path() == 'fpm-status' || $request->path() == 'nginx_status') {
+            return true;
         }
+
+        $end = microtime(true) * 1000;
+
+        $duration = $end - (LARAVEL_START * 1000);
+
+        if($duration > $this->tresholdInMilliSeconds){
+            Bugsnag::notifyException('Request Too Slow '.$duration);
+        }
+
     }
 
-    private function notInProduction()
-    {
-        // we don't use this any more, cause it's getting to be too big online
-        // and locally we use telescope
-        return false; //in_array(env('APP_ENV'), ['local', 'testing']);
-    }
+
 }
