@@ -28,7 +28,7 @@ class CreateTestRequest extends Request {
 
 		return [
 			'subject_id' => '',
-			'education_level_id' => '',
+			'education_level_id' => 'required',
 			'period_id' => '',
 			'name' => 'unique:tests,name,NULL,id,author_id,' . Auth::id().',deleted_at,NULL,is_system_test,0',
 			'abbreviation' => '',
@@ -38,6 +38,20 @@ class CreateTestRequest extends Request {
 			'shuffle' => ''
 		];
 	}
+
+	public function prepareForValidation()
+    {
+        $data = $this->all();
+        if(Uuid::isValid($data['education_level_id'])){
+            $educationLevel = EducationLevel::whereUuid($data['education_level_id'])->first();
+            if(!$educationLevel){
+                $this->addPrepareForValidationError('education_level_id','Dit niveau kon helaas niet terug gevonden worden.');
+            } else {
+                $data['education_level_id'] = $educationLevel->getKey();
+            }
+        }
+        $this->merge($data);
+    }
 
     /**
      * Configure the validator instance.
@@ -55,16 +69,7 @@ class CreateTestRequest extends Request {
                 }
             }
 
-            if(Uuid::isValid($data['education_level_id'])){
-                $educationLevel = EducationLevel::whereUuid($data['education_level_id'])->first();
-                if(!$educationLevel){
-                    $validator->errors()->add('education_level_id','Dit niveau kon helaas niet terug gevonden worden.');
-                } else {
-                    $data['education_level_id'] = $educationLevel->getKey();
-                }
-            }
 
-            $this->merge($data);
         });
     }
 

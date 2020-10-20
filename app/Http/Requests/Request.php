@@ -7,6 +7,32 @@ use tcCore\Lib\User\Roles;
 
 abstract class Request extends FormRequest {
 
+    protected $prepareForValidationErrors = [];
+
+    protected function addPrepareForValidationError($key, $error)
+    {
+        $this->prepareForValidationErrors[$key] = $error;
+    }
+
+    protected function hasPrepareForValidationErrors()
+    {
+        return (bool) count($this->prepareForValidationErrors);
+    }
+
+    protected function getPrepareForValidationErrors()
+    {
+        return $this->prepareForValidationErrors;
+    }
+
+    protected function addPrepareForValidationErrorsToValidatorIfNeeded(\Illuminate\Validation\Validator $validator)
+    {
+        if($this->hasPrepareForValidationErrors()){
+            foreach($this->getPrepareForValidationErrors() as $key => $error){
+                $validator->errors()->add($key,$error);
+            }
+        }
+    }
+
 	public function forbiddenResponse()
 	{
 		// Optionally, send a custom response on authorize failure
