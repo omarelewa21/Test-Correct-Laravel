@@ -20,7 +20,6 @@ Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.s
 Route::get('/', 'HomeController@index');
 
 /* TEST MULTIPLE QUESTION STUFF */
-Route::get('/testing/{id}', 'HomeController@test');
 
 Route::post('auth', ['uses' => 'Auth\AuthController@getApiKey']);
 Route::post('send_password_reset', ['uses' => 'Auth\PasswordController@sendPasswordReset']);
@@ -28,10 +27,6 @@ Route::post('password_reset', ['uses' => 'Auth\PasswordController@passwordReset'
 
 Route::get('edu-ix/{ean}/{session_id}/{signature}', 'EduK\HomeController@create');
 Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController@store');
-
-Route::get('selenium', 'Testing\TestingController@seleniumState')->name('testing.seleniumState');
-Route::post('selenium', 'Testing\TestingController@seleniumToggle')->name('testing.seleniumToggle');
-Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 
