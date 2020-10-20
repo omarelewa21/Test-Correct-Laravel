@@ -8,6 +8,7 @@ use tcCore\AnswerRating;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestParticipantRequest;
 use tcCore\Http\Requests\HeartbeatTestParticipantRequest;
+use tcCore\Http\Requests\IndexTestParticipantsRequest;
 use tcCore\Http\Requests\UpdateTestParticipantRequest;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Lib\Question\QuestionInterface;
@@ -23,8 +24,13 @@ class TestParticipantsController extends Controller
      *
      * @return Response
      */
-    public function index(TestTake $testTake, Request $request)
+    public function index(TestTake $testTake, IndexTestParticipantsRequest $request)
     {
+
+        if($request->has('from_retake') && $request->input('from_retake') == true){
+          $testTake = $request->retakeTestTake; // managed through the formRequest
+        }
+
         $testParticipants = $testTake->testParticipants()->with('user', 'testTakeStatus', 'schoolClass');
         $userRoles = $this->getUserRoles();
 
