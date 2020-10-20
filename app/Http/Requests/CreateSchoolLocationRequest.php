@@ -82,11 +82,7 @@ class CreateSchoolLocationRequest extends Request {
                 $validator->errors()->add('customer_code','Er bestaat al een school locatie met dit klantnummer');
 			}
 
-            if($this->hasPrepareForValidationErrors()){
-                foreach($this->getPrepareForValidationErrors() as $key => $error){
-                    $validator->errors()->add($key,$error);
-                }
-            }
+            $this->addPrepareForValidationErrorsToValidatorIfNeeded($validator);
         });
     }
 

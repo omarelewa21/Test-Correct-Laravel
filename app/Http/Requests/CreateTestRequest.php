@@ -68,8 +68,7 @@ class CreateTestRequest extends Request {
                     $validator->errors()->add('name','Deze naam is helaas niet beschikbaar voor een toets');
                 }
             }
-
-
+            $this->addPrepareForValidationErrorsToValidatorIfNeeded($validator);
         });
     }
 
