@@ -43,4 +43,17 @@ class SearchFiltersController extends Controller
 		$searchFilter->delete();
 		return response()->json(['result'=>'success']);
     }
+
+    public function setActive($uuid=false){
+    	if(!$uuid){
+			return response()->json(['result'=>'fail','msg'=>'no uuid']);
+    	}
+    	$userId = Auth::user()->id;
+		$searchFilter = SearchFilter::where('user_id',$userId)->whereUuid($uuid)->first();
+		$key = $searchFilter->key;
+		SearchFilter::where('user_id',$userId)->where('key',$key)->update(['active'=>false]);
+		$searchFilter->active = true;
+		$searchFilter->save();
+		return response()->json($searchFilter);
+    }
 }

@@ -14,6 +14,7 @@ class SearchFilterTest extends TestCase
 {
     use DatabaseTransactions;
 
+
     /** @test */
     public function a_user_can_store_a_search_filter(){
         $this->assertEquals(0,SearchFilter::count());
@@ -133,6 +134,41 @@ class SearchFilterTest extends TestCase
         $this->assertNull($searchfilter);        
     }
 
+    /** @test */
+    public function a_user_can_set_a_search_filter_active(){
+        $user = \tcCore\User::where('username','=',static::USER_TEACHER)->get()->first();
+        $key = 'itembank_toetsen';
+        $filters = factory(SearchFilter::class,10)->create([    'user_id'=>$user->id,
+                                                                'key'=> $key]);
+        $response = $this->put(
+                'search_filter/'.$filters[3]->uuid.'/set_active',
+                static::getTeacherOneAuthRequestData()
+        )->assertStatus(200);
+        $filter = SearchFilter::where('user_id',$user->id)->where('key',$key)->where('active',true)->first();
+        $this->assertEquals($filters[3]->uuid, $filter->uuid);
+        $activeFilters = SearchFilter::where('user_id',$user->id)->where('key',$key)->where('active',true)->get();
+        $this->assertEquals(1, count($activeFilters));
+    }
+
+    /** @test */
+    public function a_user_can_switch_a_search_filter_active(){
+        $user = \tcCore\User::where('username','=',static::USER_TEACHER)->get()->first();
+        $key = 'itembank_toetsen';
+        $filters = factory(SearchFilter::class,10)->create([    'user_id'=>$user->id,
+                                                                'key'=> $key]);
+        $response = $this->put(
+                'search_filter/'.$filters[3]->uuid.'/set_active',
+                static::getTeacherOneAuthRequestData()
+        )->assertStatus(200);
+        $response = $this->put(
+                'search_filter/'.$filters[5]->uuid.'/set_active',
+                static::getTeacherOneAuthRequestData()
+        )->assertStatus(200);
+        $filter = SearchFilter::where('user_id',$user->id)->where('key',$key)->where('active',true)->first();
+        $this->assertEquals($filters[5]->uuid, $filter->uuid);
+        $activeFilters = SearchFilter::where('user_id',$user->id)->where('key',$key)->where('active',true)->get();
+        $this->assertEquals(1, count($activeFilters));
+    }
 
     private function getValidAttributes($overrides = []){
         return static::getTeacherOneAuthRequestData(array_merge([

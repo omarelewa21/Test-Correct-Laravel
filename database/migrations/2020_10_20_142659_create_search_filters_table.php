@@ -20,6 +20,7 @@ class CreateSearchFiltersTable extends Migration
             $table->string('key');
             $table->string('name');
             $table->efficientUuid('uuid')->index()->unique()->nullable();
+            $table->boolean('active')->default(false);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users');

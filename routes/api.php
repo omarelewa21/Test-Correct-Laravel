@@ -243,5 +243,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('search_filter/{uuid}','SearchFiltersController@update')->name('search_filter.update');
     Route::get('search_filter/{key?}','SearchFiltersController@show')->name('search_filter.show');
     Route::delete('search_filter/{uuid}','SearchFiltersController@delete')->name('search_filter.delete');
+    Route::put('search_filter/{uuid}/set_active','SearchFiltersController@setActive')->name('search_filter.set_active');
 
 });
