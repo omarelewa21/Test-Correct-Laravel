@@ -30,4 +30,17 @@ class SearchFiltersController extends Controller
     	}
     	return response()->json($searchFilters);
     }
+
+    public function delete($uuid=false){
+    	if(!$uuid){
+			return response()->json(['result'=>'fail','msg'=>'no uuid']);
+    	}
+		$userId = Auth::user()->id;
+		$searchFilter = SearchFilter::where('user_id',$userId)->whereUuid($uuid)->first();
+		if(is_null($searchFilter)){
+			return response()->json(['result'=>'fail','msg'=>'search filter not found']);
+		}
+		$searchFilter->delete();
+		return response()->json(['result'=>'success']);
+    }
 }

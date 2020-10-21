@@ -70,6 +70,7 @@ class SearchFilterTest extends TestCase
             )
         )->assertStatus(200);
         $this->assertEquals(10, count($response->decodeResponseJson()));
+        $this->assertEquals('itembank_toetsen', $response->decodeResponseJson()[0]['key']);
     }
 
     /** @test */
@@ -118,6 +119,19 @@ class SearchFilterTest extends TestCase
         $this->assertEquals('new filter', $searchfilter->name);
     }
 
+    /** @test */
+
+    public function a_user_can_delete_a_search_filter(){
+        $user = \tcCore\User::where('username','=',static::USER_TEACHER)->get()->first();
+        $key = 'itembank_toetsen';
+        $filter = factory(SearchFilter::class)->create([    'user_id'=>$user->id,
+                                                                'key'=> $key]);
+        $response = $this->delete(
+            '/search_filter/'.$filter->uuid, $this->getValidAttributes()
+        )->assertSuccessful();
+        $searchfilter = SearchFilter::whereUuid($filter->uuid)->first();
+        $this->assertNull($searchfilter);        
+    }
 
 
     private function getValidAttributes($overrides = []){
