@@ -2,6 +2,7 @@
 
 use Illuminate\Routing\Router;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -357,7 +358,12 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('test_take', function($item) {
-            return TestTake::whereUuid($item)->firstOrFail();
+            DB::enableQueryLog(); // Enable query log
+
+           return (TestTake::whereUuid($item)->first());
+
+
+            return TestTake::whereRawUuid($item)->firstOrFail();
         });
 
         Route::bind('test_participant', function($item) {
@@ -383,7 +389,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('student', function($item) {
             return Student::whereUuid($item)->firstOrFail();
         });
-        
+
         Route::bind('open_question', function($item) {
             return OpenQuestion::whereUuid($item)->firstOrFail();
         });
@@ -436,7 +442,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('multiple_choice_question', function($item) {
             return MultipleChoiceQuestion::whereUuid($item)->firstOrFail();
         });
-        
+
         Route::bind('attainment', function($item) {
             return Attainment::whereUuid($item)->firstOrFail();
         });
@@ -460,7 +466,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('license', function($item) {
             return License::whereUuid($item)->firstOrFail();
         });
-        
+
         Route::bind('message', function($item) {
             return Message::whereUuid($item)->firstOrFail();
         });
@@ -479,8 +485,8 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('fileManagement', function($item) {
             return FileManagement::whereUuid($item)->firstOrFail();
-        });     
-        
+        });
+
     }
 
     /**
