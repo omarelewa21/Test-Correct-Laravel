@@ -16,20 +16,24 @@ use tcCore\User;
 
 trait Archiveable
 {
+    public function initializeArchiveable()
+    {
+        $this->append('archived');
+    }
+
+    public function getArchivedAttribute()
+    {
+        return (null === $this->archiveable_model_id) ? false : true;
+    }
 
     public static function bootArchiveable()
     {
-//        static::addGlobalScope(new WithoutArchivedScope);
+        static::addGlobalScope(new WithoutArchivedScope);
     }
 
     public function archiveForUser(User $user)
     {
         return ArchivedModel::archiveWithModelAndUser($this, $user);
-    }
-
-    public function isArchivedForUser($user)
-    {
-
     }
 
     public function unarchiveForUser(User $user)

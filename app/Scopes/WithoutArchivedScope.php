@@ -19,13 +19,19 @@ class WithoutArchivedScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->addSelect('archived_models.user_id as archived');
-        $builder->leftJoin(
-            'archived_models',
+
+        $modelsForUserQuery = DB::table('archived_models')
+            ->select('archiveable_model_id', 'user_id');
+
+
+//        $builder->addSelect('archived_models.user_id as archived');
+        $builder->leftJoinSub(
+            $modelsForUserQuery,
+            't2',
             function ($join) {
-                $join->on('test_takes.id', '=', 'archived_models.archiveable_model_id')
-                    ->where('archived_models.user_id', '=', DB::raw(Auth::user()->getKey()));
+                $join->on('test_takes.id', '=', 't2.archiveable_model_id')
+                    ->where('t2.user_id', '=', DB::raw(Auth::user()->getKey()));
             }
-        )->whereNull('archiveable_model_id');
+        );
     }
 }

@@ -13,7 +13,7 @@ use Tests\TestCase;
 
 class ScheduleTestTest extends TestCase
 {
-//    use DatabaseTransactions;
+    use DatabaseTransactions;
 
 
     /** @test */
@@ -72,9 +72,10 @@ class ScheduleTestTest extends TestCase
         $response = $this->put(
             route('test_take.archive', $uuid),
             $this->getTeacherOneAuthRequestData()
-        );//->assertSuccessful();
+        )->assertSuccessful();
 
         $list = $this->getListOfTakenTests();
+
         $this->assertEquals(0, count($list));
 
 

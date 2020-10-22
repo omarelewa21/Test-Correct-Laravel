@@ -1249,10 +1249,10 @@ class TestTakesController extends Controller
         return $data;
     }
 
-    public function archive( $testTake)
+    public function archive(TestTake $testTake)
     {
-       
-        return $testTake->archiveForUser(Auth::user());
+
+        return  $testTake->archiveForUser(Auth::user());
     }
 
     public function unArchive(TestTake $testTake)
