@@ -138,7 +138,8 @@ class CompletionQuestionAnswerHelper
             $restoreAnswerLinks = $question
                 ->completionQuestionAnswerLinks()
                 ->onlyTrashed()
-                ->orderBy('created_at', 'asc')
+                ->orderBy('completion_question_answer_id','asc')
+//                ->orderBy('created_at', 'asc')
                 ->orderBy('order', 'asc')
                 ->take($activeAnswerLinks->count())
                 ->get();
