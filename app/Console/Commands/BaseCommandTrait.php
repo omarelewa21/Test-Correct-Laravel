@@ -32,4 +32,9 @@ Trait BaseCommandTrait
         $this->error($string);
     }
 
+    public function toComment($string)
+    {
+        $this->comment($string);
+    }
+
 }
