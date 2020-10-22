@@ -48,6 +48,8 @@ class FixCompletionQuestionAnswers extends Command
      */
     public function handle()
     {
+        ini_set('memory_limit', '-1');
+
         $start = microtime(true);
 
         $dryRun = !$this->confirm('Do you want to skip the dry run?');
