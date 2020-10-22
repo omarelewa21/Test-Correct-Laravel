@@ -9,6 +9,7 @@
 namespace tcCore\Http\Helpers;
 
 
+use Illuminate\Support\Facades\DB;
 use tcCore\Answer;
 use tcCore\AnswerParentQuestion;
 use tcCore\CompletionQuestion;
@@ -165,21 +166,33 @@ class CompletionQuestionAnswerHelper
     }
 
     public function fixQuestions() {
-        $questionIds = Question::whereScope('cito')->whereType('CompletionQuestion')->pluck('id');
-        $completionQuestions = CompletionQuestion::whereSubtype('multi')->whereIn('id',$questionIds)->get();
-        $fixed = 0;
-        $completionQuestions->each(function(CompletionQuestion $q) use (&$fixed) {
-            $this->correctNrs = [];
-            if($this->hasCommandEnv()){
-                $this->commandEnv->toOutput(sprintf('<info>  o Question (%d): %s...</info>',$q->getKey(),$q->getQuestionInstance()->external_id),false);
-            }
 
-            if($this->fixQuestionAnswerLinks($q)){
-                $fixed++;
-            }
+        DB::beginTransaction();
+        try {
+
+            $questionIds = Question::whereScope('cito')->whereType('CompletionQuestion')->pluck('id');
+            $completionQuestions = CompletionQuestion::whereSubtype('multi')->whereIn('id', $questionIds)->get();
+            $fixed = 0;
+            $completionQuestions->each(function (CompletionQuestion $q) use (&$fixed) {
+                $this->correctNrs = [];
+                if ($this->hasCommandEnv()) {
+                    $this->commandEnv->toOutput(sprintf('<info>  o Question (%d): %s...</info>', $q->getKey(), $q->getQuestionInstance()->external_id), false);
+                }
+
+                if ($this->fixQuestionAnswerLinks($q)) {
+                    $fixed++;
+                }
 
 
-        });
+            });
+        } catch (\Exception $e) {
+            DB::rollback();
+            logger('===== completion question answer fix error' . $e->getMessage());
+            throw $e;
+        }
+
+        DB::commit();
+
         return [
             'total' => $completionQuestions->count(),
             'fixed' => $fixed
