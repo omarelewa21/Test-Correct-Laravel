@@ -88,28 +88,42 @@ class CompletionQuestionAnswerHelper
 
     protected function restoreDeleteRecords($toBeRestored, $toBeDeleted)
     {
-        if ($this->hasCommandEnv()) {
-            $this->commandEnv->toInfo('');
-        }
-        if($this->dryRun === false) {
-            $toBeRestored->each(function (CompletionQuestionAnswerLink $l) {
-                if($l->completionQuestionAnswer->correct == true){
-                    $this->correctNrs[] = $l->order;
-                }
+
+        $tagNr = null;
+        $nr = 1;
+        $toBeRestored->each(function (CompletionQuestionAnswerLink $l) use (&$tagNr, &$nr) {
+            if($tagNr == null || $tagNr != $l->completionQuestionAnswer->tag){
+                $nr = 1;
+                $tagNr = $l->completionQuestionAnswer->tag;
+            }
+            if((bool) $l->completionQuestionAnswer->correct === true){
+                $this->correctNrs['new'][] = $nr;
+            }
+            if($this->dryRun === false) {
                 $l->restore();
-            });
+            }
+            $nr++;
+        });
 
-            $toBeDeleted->each(function (CompletionQuestionAnswerLink $l) {
+        $tagNr = null;
+        $nr = 1;
+        $toBeDeleted->each(function (CompletionQuestionAnswerLink $l)  use (&$tagNr, &$nr) {
+            if($tagNr == null || $tagNr != $l->completionQuestionAnswer->tag){
+                $nr = 1;
+                $tagNr = $l->completionQuestionAnswer->tag;
+            }
+            if((bool) $l->completionQuestionAnswer->correct === true){
+                $this->correctNrs['old'][] = $nr;
+            }
+            if($this->dryRun === false) {
                 $l->delete();
-            });
+            }
+            $nr++;
+        });
 
-            if ($this->hasCommandEnv()) {
-                $this->commandEnv->toInfo(sprintf('restored: %d, force deleted: %d', $toBeRestored->count(), $toBeDeleted->count()));
-            }
-        } else {
-            if ($this->hasCommandEnv()) {
-                $this->commandEnv->toInfo(sprintf('DRYRUN restored: %d, force deleted: %d', $toBeRestored->count(), $toBeDeleted->count()));
-            }
+        if ($this->hasCommandEnv()) {
+            $this->commandEnv->toInfo(sprintf('%srestored: %d, force deleted: %d', $this->dryRun ? 'DRYRUN ' : '', $toBeRestored->count(), $toBeDeleted->count()));
+            $this->commandEnv->toInfo(sprintf('old: %s, new %s', implode(', ',$this->correctNrs['old']), implode(', ',$this->correctNrs['new'])));
         }
         return true;
     }
