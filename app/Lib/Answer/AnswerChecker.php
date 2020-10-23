@@ -81,9 +81,11 @@ class AnswerChecker {
         if ($rating !== false) {
             $answerRating = self::getAnswerRating($testTakeId, $answer, $recalculate);
             if($recalculate && null !== $commandEnv){
-                $text = sprintf('ANSWERID: %d; van %s => %s',$answer->getKey(), $answerRating->rating, (double) $rating);
+                $text = sprintf('ANSWERID: %d; van %s => %s',$answer->getKey(), $answerRating->rating, $rating);
                 if($answerRating->rating > $rating){
                     $commandEnv->toError($text);
+                } else if ((int) $answerRating == (int) $rating) {
+                    $commandEnv->toComment($text);
                 } else {
                     $commandEnv->toInfo($text);
                 }
