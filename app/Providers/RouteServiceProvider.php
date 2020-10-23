@@ -358,12 +358,9 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('test_take', function($item) {
-            DB::enableQueryLog(); // Enable query log
 
-           return (TestTake::whereUuid($item)->first());
-
-
-            return TestTake::whereRawUuid($item)->firstOrFail();
+            //return TestTake::select('test_takes.*')->whereUuid($item)->firstOrFail();
+            return TestTake::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('test_participant', function($item) {

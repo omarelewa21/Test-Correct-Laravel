@@ -11,7 +11,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class ScheduleTestTest extends TestCase
+class ArchiveTestTakenTest extends TestCase
 {
     use DatabaseTransactions;
 
@@ -33,7 +33,6 @@ class ScheduleTestTest extends TestCase
         $list = $this->getListOfTakenTests();
 
         $uuid = $list[0]['uuid'];
-
 
         $response = $this->put(
             route('test_take.archive', $uuid),

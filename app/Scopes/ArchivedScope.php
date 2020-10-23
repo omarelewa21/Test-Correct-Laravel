@@ -19,6 +19,9 @@ class ArchivedScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
+        if($builder->getQuery()->columns === '') {
+            $builder->addSelect(sprintf('%s.*', $model->getTable()));
+        }
 
         $modelsForUserQuery = DB::table('archived_models')
             ->select('archivable_model_id', 'user_id as archivable_user_id');
