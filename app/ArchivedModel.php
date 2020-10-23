@@ -11,8 +11,8 @@ class ArchivedModel extends Model
     public static function archiveWithModelAndUser(Model $model, User $user)
     {
         return self::create([
-            'archiveable_model_type' => get_class($model),
-            'archiveable_model_id' => $model->getKey(),
+            'archivable_model_type' => get_class($model),
+            'archivable_model_id' => $model->getKey(),
             'user_id' => $user->getKey(),
         ]);
     }
@@ -20,8 +20,8 @@ class ArchivedModel extends Model
     public static function unArchiveWithModelAndUser(Model $model, User $user)
     {
         self::where([
-            'archiveable_model_type' => get_class($model),
-            'archiveable_model_id' => $model->getKey(),
+            'archivable_model_type' => get_class($model),
+            'archivable_model_id' => $model->getKey(),
             'user_id' => $user->getKey(),
         ])->forceDelete();
     }

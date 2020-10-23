@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class WithoutArchivedScope implements Scope
+class ArchivedScope implements Scope
 {
     /**
      * Apply the scope to a given Eloquent query builder.
@@ -21,17 +21,16 @@ class WithoutArchivedScope implements Scope
     {
 
         $modelsForUserQuery = DB::table('archived_models')
-            ->select('archiveable_model_id', 'user_id');
+            ->select('archivable_model_id', 'user_id as archivable_user_id');
 
-
-//        $builder->addSelect('archived_models.user_id as archived');
         $builder->leftJoinSub(
             $modelsForUserQuery,
             't2',
             function ($join) {
-                $join->on('test_takes.id', '=', 't2.archiveable_model_id')
-                    ->where('t2.user_id', '=', DB::raw(Auth::user()->getKey()));
+                $join->on('test_takes.id', '=', 't2.archivable_model_id')
+                    ->where('t2.archivable_user_id', '=', DB::raw(Auth::user()->getKey()));
             }
         );
+        $builder->addSelect('archivable_model_id');
     }
 }

@@ -15,8 +15,8 @@ class CreateArchivedModelsTable extends Migration
     {
         Schema::create('archived_models', function (Blueprint $table) {
             $table->id();
-            $table->integer('archiveable_model_id');
-            $table->string('archiveable_model_type');
+            $table->integer('archivable_model_id');
+            $table->string('archivable_model_type');
             $table->integer('user_id');
             $table->timestamps();
         });

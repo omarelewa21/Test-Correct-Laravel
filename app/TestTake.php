@@ -19,8 +19,8 @@ use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\TestParticipant\Factory;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
-use tcCore\Scopes\WithoutArchivedScope;
-use tcCore\Traits\Archiveable;
+use tcCore\Scopes\ArchivedScope;
+use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
 
 class TestTake extends BaseModel
@@ -28,7 +28,7 @@ class TestTake extends BaseModel
 
     use SoftDeletes;
     use UuidTrait;
-    use Archiveable;
+    use Archivable;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -431,7 +431,7 @@ class TestTake extends BaseModel
     }
 
     public function scopeWithoutArchived($query) {
-        (new WithoutArchivedScope)->apply($query);
+        (new ArchivedScope)->apply($query);
         return $query;
     }
 

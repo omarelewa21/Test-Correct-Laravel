@@ -1251,7 +1251,6 @@ class TestTakesController extends Controller
 
     public function archive(TestTake $testTake)
     {
-
         return  $testTake->archiveForUser(Auth::user());
     }
 
