@@ -14,5 +14,6 @@ class SearchFilter extends Model
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'filters' => 'array',
     ];
 }

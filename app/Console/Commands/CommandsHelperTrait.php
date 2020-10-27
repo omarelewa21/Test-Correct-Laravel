@@ -12,13 +12,15 @@ namespace tcCore\Console\Commands;
 use Illuminate\Support\Facades\Artisan;
 use tcCore\Commands\DatabaseImport;
 
-Trait CommandsHelperTrait
+trait CommandsHelperTrait
 {
-    protected function printSubItem($message){
-        $this->output->write('<info>  o '.$message.'...</info>',false);
+    protected function printSubItem($message)
+    {
+        $this->output->write('<info>  o ' . $message . '...</info>', false);
     }
 
-    protected function addMigrations(){
+    protected function addMigrations()
+    {
         $this->printSubItem('going to put the migrations on top');
         DatabaseImport::migrate();
         $this->info('done');
@@ -34,7 +36,7 @@ Trait CommandsHelperTrait
     protected function handleSqlFiles($sqlImports = [])
     {
         foreach ($sqlImports as $file) {
-            $this->printSubItem(sprintf('importing %s...',$file));
+            $this->printSubItem(sprintf('importing %s...', $file));
 
             DatabaseImport::importSql($file);
 
@@ -43,10 +45,15 @@ Trait CommandsHelperTrait
         return true;
     }
 
-    protected function addRequiredDatabaseData() 
+    protected function addRequiredDatabaseData()
     {
         $this->printSubItem('add required data to database');
         DatabaseImport::addRequiredDatabaseData();
         $this->info('done');
+    }
+
+    protected function runseeder()
+    {
+        Artisan::call('db:seed');
     }
 }
