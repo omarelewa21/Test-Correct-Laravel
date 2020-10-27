@@ -5,7 +5,7 @@ namespace tcCore;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Text2speech extends Model
+class Text2Speech extends Model
 {
     use SoftDeletes;
 

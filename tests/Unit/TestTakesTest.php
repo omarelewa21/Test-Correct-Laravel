@@ -9,8 +9,6 @@
 namespace Tests\Unit;
 
 use tcCore\TestTake;
-use tcCore\Text2speech;
-use tcCore\Text2speechLog;
 use tcCore\User;
 use Tests\TestCase;
 

@@ -15,27 +15,10 @@ use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
 use tcCore\AnswerParentQuestion;
 use tcCore\AnswerRating;
-use tcCore\BaseSubject;
-use tcCore\EducationLevel;
 use tcCore\Invigilator;
-use tcCore\Lib\Repositories\PeriodRepository;
-use tcCore\Lib\User\Factory;
-use tcCore\Rating;
-use tcCore\SchoolClass;
-use tcCore\SchoolLocation;
-use tcCore\SchoolLocationSection;
-use tcCore\SchoolYear;
-use tcCore\Section;
-use tcCore\Student;
-use tcCore\Subject;
-use tcCore\Teacher;
-use tcCore\Test;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeEvent;
-use tcCore\Text2speech;
-use tcCore\Text2speechLog;
-use tcCore\User;
 
 class TestTakeDuplicateHelper
 {

@@ -7,8 +7,8 @@
  */
 namespace Tests\Unit;
 
-use tcCore\Text2speech;
-use tcCore\Text2speechLog;
+use tcCore\Text2Speech;
+use tcCore\Text2SpeechLog;
 use tcCore\User;
 use Tests\TestCase;
 
@@ -39,7 +39,7 @@ class Text2SpeechTest extends TestCase
             'text2speech' => true
         ]);
 
-        factory(Text2speech::class)->create([
+        factory(Text2Speech::class)->create([
             'user_id' => $user->getKey(),
             'active' => true
         ]);
@@ -57,7 +57,7 @@ class Text2SpeechTest extends TestCase
             'text2speech' => true
         ]);
 
-        factory(Text2speech::class)->create([
+        factory(Text2Speech::class)->create([
             'user_id' => $user->getKey(),
             'active' => false
         ]);
@@ -78,12 +78,12 @@ class Text2SpeechTest extends TestCase
             'text2speech' => true
         ]);
 
-        factory(Text2speech::class)->create([
+        factory(Text2Speech::class)->create([
             'user_id' => $user->getKey(),
             'active' => false
         ]);
 
-        factory(Text2speechLog::class)->create([
+        factory(Text2SpeechLog::class)->create([
             'user_id'    => $user->getKey(),
             'action'     => 'ACCEPTED',
         ]);
