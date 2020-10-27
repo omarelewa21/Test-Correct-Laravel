@@ -19,7 +19,7 @@ class ArchivedScope implements Scope
      */
     public function apply(Builder $builder, Model $model)
     {
-        if($builder->getQuery()->columns === '') {
+        if($builder->getQuery()->columns == '') {
             $builder->addSelect(sprintf('%s.*', $model->getTable()));
         }
 

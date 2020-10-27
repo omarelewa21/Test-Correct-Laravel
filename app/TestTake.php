@@ -430,10 +430,7 @@ class TestTake extends BaseModel
         $this->schoolClasses = null;
     }
 
-    public function scopeWithoutArchived($query) {
-        (new ArchivedScope)->apply($query);
-        return $query;
-    }
+
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {

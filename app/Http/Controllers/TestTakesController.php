@@ -35,6 +35,8 @@ class TestTakesController extends Controller
     {
         $testTakes = TestTake::filtered($request->get('filter', []), $request->get('order', []))->with('test', 'test.subject', 'test.author', 'retakeTestTake', 'user', 'testTakeStatus', 'invigilatorUsers');
 
+        $testTakes->filterByArchived(request('filter'));
+
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 $testTakes = $this->filterIfNeededForDemo($testTakes->get());

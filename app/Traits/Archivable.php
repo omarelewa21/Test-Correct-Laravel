@@ -41,13 +41,12 @@ trait Archivable
         return (null !== $this->attributes['archivable_model_id']);
     }
 
-    public function scopeWithoutArchived($query)
+    public function scopeFilterByArchived($query, $filter)
     {
-        return $query->whereNull('archivable_model_id');
-    }
-
-    public function scopeArchived($query){
-        return $query->whereNotNull('archivable_model_id');
+        if (array_key_exists('archived', $filter) && $filter['archived'] == '0') {
+            $query->whereNull('archivable_model_id');
+        }
+        return $query;
     }
 
     public static function bootArchivable()
