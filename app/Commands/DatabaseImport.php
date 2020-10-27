@@ -56,7 +56,8 @@ class DatabaseImport
 	}
 
 	public static function addRequiredDatabaseData() {
-		
+
+
 		DatabaseImport::checkEnv();
 
 		// fix issue with missing temp school location if sovag
