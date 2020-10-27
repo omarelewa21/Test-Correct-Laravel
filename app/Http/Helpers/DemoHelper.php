@@ -28,8 +28,8 @@ use tcCore\Teacher;
 use tcCore\Test;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
-use tcCore\Text2speech;
-use tcCore\Text2speechLog;
+use tcCore\Text2Speech;
+use tcCore\Text2SpeechLog;
 use tcCore\User;
 
 class DemoHelper
@@ -413,11 +413,11 @@ class DemoHelper
             }
 
             if ($u->nr === '01') {
-                Text2speech::firstOrCreate(
+                Text2Speech::firstOrCreate(
                     ['user_id' => $user->getKey()],
                     ['price' => 0.0, 'active' => 1, 'acceptedby' => 0]
                 );
-                Text2speechLog::firstOrCreate(
+                Text2SpeechLog::firstOrCreate(
                     ['user_id' => $user->getKey()],
                     ['who' => 0, 'action' => 'ACCEPTED']
                 );

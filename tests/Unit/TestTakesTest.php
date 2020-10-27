@@ -11,8 +11,6 @@ namespace Tests\Unit;
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
 use tcCore\TestTake;
-use tcCore\Text2speech;
-use tcCore\Text2speechLog;
 use tcCore\User;
 use Tests\TestCase;
 

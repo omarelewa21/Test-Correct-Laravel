@@ -7,7 +7,9 @@
  */
 
 
-$factory->define(\tcCore\Text2speechLog::class, function (Faker\Generator $faker) {
+use tcCore\Text2SpeechLog;
+
+$factory->define(Text2SpeechLog::class, function (Faker\Generator $faker) {
     return [
         'who' => 2,
         'action' => 'ACCEPTED'

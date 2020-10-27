@@ -1,14 +1,15 @@
 <?php
 
-namespace tcCore\Jobs;
+namespace tcCore\Jobs\Rating;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use tcCore\Jobs\Job;
 use tcCore\Rating;
 use tcCore\SchoolClass;
 
-class UpdateRatingSchoolClass extends Job implements ShouldQueue
+class UpdateRatingsSchoolClass extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 

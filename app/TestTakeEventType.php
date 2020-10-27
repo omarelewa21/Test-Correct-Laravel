@@ -6,7 +6,7 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
 
-class testTakeEventType extends BaseModel {
+class TestTakeEventType extends BaseModel {
 
     use SoftDeletes;
     use UuidTrait;
