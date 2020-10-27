@@ -6,13 +6,14 @@
  * Time: 15:42
  */
 
-namespace Tests;
+namespace Tests\Feature;
 
 use tcCore\Jobs\CountSchoolLocationStudents;
 use tcCore\Role;
 use tcCore\Text2Speech;
 use tcCore\User;
 use tcCore\UserRole;
+use Tests\TestCase;
 
 class Text2SpeechTest extends TestCase
 {

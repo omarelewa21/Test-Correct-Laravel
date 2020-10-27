@@ -6,7 +6,7 @@
  * Time: 13:18
  */
 
-namespace Tests\Unit\Http\Controllers;
+namespace Tests\Unit\Http\Controllers\TestTakes;
 
 use tcCore\User;
 use Tests\TestCase;
