@@ -24,13 +24,15 @@ class ArchivedScope implements Scope
         }
 
         $modelsForUserQuery = DB::table('archived_models')
-            ->select('archivable_model_id', 'user_id as archivable_user_id');
+            ->select('archivable_model_id', 'user_id as archivable_user_id')
+            ->where('user_id', '=', DB::raw(Auth::user()->getKey()))
+            ->where('archivable_model_type', get_class($model));
 
         $builder->leftJoinSub(
             $modelsForUserQuery,
             't2',
-            function ($join) {
-                $join->on('test_takes.id', '=', 't2.archivable_model_id')
+            function ($join) use ($model){
+                $join->on($model->getTable().'.id', '=', 't2.archivable_model_id')
                     ->where('t2.archivable_user_id', '=', DB::raw(Auth::user()->getKey()));
             }
         );
