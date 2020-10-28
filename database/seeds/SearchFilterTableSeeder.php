@@ -31,14 +31,14 @@ class SearchFilterTableSeeder extends Seeder
 
                 'subject' => (object)[
                     'name' => 'Vak',
-                    'filter' => '1',
-                    'label' => 'Nederlands',
+                    'filter' => '6',
+                    'label' => 'Demovak',
                 ],
 
                 'period' => (object)[
                     'name' => 'Periode',
                     'filter' => '1',
-                    'label' => '2019',
+                    'label' => '2018',
                 ],
 
                 'educationLevels' => (object)[

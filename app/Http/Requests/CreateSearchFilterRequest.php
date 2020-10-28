@@ -13,6 +13,7 @@ class CreateSearchFilterRequest extends Request
      */
     public function authorize()
     {
+        logger($this);
         return true;
     }
 
