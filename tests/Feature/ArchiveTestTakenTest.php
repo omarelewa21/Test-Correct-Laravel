@@ -64,7 +64,7 @@ class ArchiveTestTakenTest extends TestCase
     }
 
     /** @test */
-    public function when_archived_for_a_teacher_the_normal_filter_will_not_show_the_archived_test_take()
+    public function when_archived_for_a_teacher_the_filter_archive_param_set_zero_will_not_show_the_archived_test_take()
     {
         $list = $this->getListOfTakenTests();
         $uuid = $list[0]['uuid'];
@@ -80,11 +80,47 @@ class ArchiveTestTakenTest extends TestCase
 
     }
 
+    /** @test */
+    public function when_archived_for_a_teacher_the_filter_archive_param_set_one_will_show_the_archived_test_take()
+    {
+        $list = $this->getListOfTakenTests();
+        $uuid = $list[0]['uuid'];
+        $response = $this->put(
+            route('test_take.archive', $uuid),
+            $this->getTeacherOneAuthRequestData()
+        )->assertSuccessful();
+
+        $list = $this->getListOfTakenTests('1');
+
+        $this->assertEquals(1, count($list));
+
+
+    }
+
+    /** @test */
+    public function when_a_test_take_is_archived_twice_it_has_only_one_entry()
+    {
+        $this->assertCount(0, ArchivedModel::all());
+        $list = $this->getListOfTakenTests();
+
+        $uuid = $list[0]['uuid'];
+
+        $response = $this->put(
+            route('test_take.archive', $uuid),
+            $this->getTeacherOneAuthRequestData()
+        )->assertSuccessful();
+        $response = $this->put(
+            route('test_take.archive', $uuid),
+            $this->getTeacherOneAuthRequestData()
+        )->assertSuccessful();
+        $this->assertCount(1, ArchivedModel::all());
+    }
+
 
     /**
      * @return array
      */
-    private function getListOfTakenTests(): array
+    private function getListOfTakenTests($archived = '0')
     {
         $listData = [
             'sort' => '',
@@ -96,6 +132,7 @@ class ArchiveTestTakenTest extends TestCase
             'filter' => [
                 'test_take_status_id' => ['6', '7'],
                 'invigilator_id' => 1486,
+                'archived'=> $archived
             ],
         ];
 
