@@ -38,7 +38,11 @@ trait Archivable
 
     public function getArchivedAttribute()
     {
-        return (null !== $this->attributes['archivable_model_id']);
+        if (array_key_exists('archivable_model_id', $this->attributes)) {
+            return (null !== $this->attributes['archivable_model_id']);
+        }
+        
+        return false;
     }
 
     public function scopeFilterByArchived($query, $filter)
