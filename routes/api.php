@@ -13,11 +13,17 @@
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use tcCore\Http\Controllers\Testing\TestingController;
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
 
 Route::get('/', 'HomeController@index');
+
+Route::get('/testing/selenium', [TestingController::class, 'seleniumState'])->name('testing.seleniumState');
+Route::post('/testing/selenium', [TestingController::class, 'seleniumToggle'])->name('testing.seleniumToggle');
+Route::post('/testing/testing', [TestingController::class, 'store'])->name('testing.store');
+
 
 /* TEST MULTIPLE QUESTION STUFF */
 
