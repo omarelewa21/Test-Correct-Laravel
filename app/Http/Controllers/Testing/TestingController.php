@@ -56,7 +56,7 @@ class TestingController extends Controller {
     public function seleniumState() {
         if (!app()->environment('production')) {
 
-            if($this->isSeleniumEnv()){
+            if($this->isSeleniumMode()){
                 return Response::make("true");
             }
 
