@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Kopen is kiezen" identifier="ITM-310014" label="32k8t8" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="614.50"><value>614.50</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><stylesheet href="../css/cito_generated.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<table class="cito_genclass_310014_1"><colgroup><col/><col/><col/></colgroup><tbody><tr><td colspan="3" class="cito_genclass_310014_2 cito_genclass_310014_3"><p><strong> kosten van de auto</strong></p></td></tr><tr><td class="cito_genclass_310014_4 cito_genclass_310014_5"><p> afschrijvingskosten</p></td><td class="cito_genclass_310014_4 cito_genclass_310014_6"><p class="cito_genclass_310014_7">€ 295</p></td><td class="cito_genclass_310014_4 cito_genclass_310014_8"><p class="cito_genclass_310014_9"> per maand</p></td></tr><tr><td class="cito_genclass_310014_10 cito_genclass_310014_11"><p> benzine</p></td><td class="cito_genclass_310014_10 cito_genclass_310014_12"><p class="cito_genclass_310014_13">€ 130</p></td><td class="cito_genclass_310014_10 cito_genclass_310014_14"><p class="cito_genclass_310014_15"> per maand</p></td></tr><tr><td class="cito_genclass_310014_16 cito_genclass_310014_17"><p> motorrijtuigenbelasting</p></td><td class="cito_genclass_310014_16 cito_genclass_310014_18"><p class="cito_genclass_310014_19">€ 225</p></td><td class="cito_genclass_310014_16 cito_genclass_310014_20"><p class="cito_genclass_310014_21"> per kwartaal</p></td></tr><tr><td class="cito_genclass_310014_22 cito_genclass_310014_23"><p> rekeningen garage</p></td><td class="cito_genclass_310014_22 cito_genclass_310014_24"><p class="cito_genclass_310014_25">€ 600</p></td><td class="cito_genclass_310014_22 cito_genclass_310014_26"><p class="cito_genclass_310014_27"> per jaar</p></td></tr><tr><td class="cito_genclass_310014_28 cito_genclass_310014_29"><p> verzekeringspremie</p></td><td class="cito_genclass_310014_28 cito_genclass_310014_30"><p class="cito_genclass_310014_31">€ 774</p></td><td class="cito_genclass_310014_28 cito_genclass_310014_32"><p class="cito_genclass_310014_33"> per jaar</p></td></tr></tbody></table><p><span><span><br/><span><span>Bekijk de informatie over de auto.</span></span></span></span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span>Bereken de kosten van de auto per maand.</span></strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p>€ <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="9"/> </p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE"/></customOperator><baseValue baseType="float">614.50</baseValue></equal><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

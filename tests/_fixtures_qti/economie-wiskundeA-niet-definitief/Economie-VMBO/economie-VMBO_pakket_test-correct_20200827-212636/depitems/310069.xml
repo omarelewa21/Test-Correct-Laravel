@@ -1,0 +1,59 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Nederland in het buitenland" identifier="ITM-310069" label="32k98q" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE3" cardinality="single" baseType="identifier"><correctResponse interpretation="B"><value>B</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span>De handel tussen Canada en de EU is sterk afhankelijk van de koers van de Canadese dollar ten opzichte van de euro.</span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span><span><span>Maak elke zin compleet.</span></span></span></strong></p><p><span><span>Voor Europese importeurs van Canadese producten is een <inlineChoiceInteraction id="I1f986566-4e79-4d5e-ae3e-c6c481f3038a" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>hoge</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>lage</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction> koers van de Canadese dollar gunstig, omdat de Canadese producten dan relatief <inlineChoiceInteraction id="I6ca605a1-81b4-4bb0-9f83-37d829fbc21a" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>duur</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>goedkoop</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction> zijn. Voor Europese exporteurs is een <inlineChoiceInteraction id="Ic23f551c-247a-4997-9878-0b3d3af84db5" responseIdentifier="RESPONSE3" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span>hoge</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span>lage</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction> koers van de euro gunstig, omdat dan de vraag naar Europese producten vanuit Canada kan toenemen.</span></span></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">B</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">B</baseValue></match><match><variable identifier="RESPONSE3"/><baseValue baseType="identifier">B</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

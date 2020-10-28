@@ -2,6 +2,7 @@
 
 namespace tcCore\Jobs;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Mail\Mailer;
 use Illuminate\Queue\SerializesModels;
@@ -41,9 +42,14 @@ class SendToetsenbakkerInviteMail extends Job implements ShouldQueue
 
         $template = 'emails.toetsenbakker_toetsinvite';
 
-        $mailer->send($template, ['fileManagement' => $fileManagement], function ($m) use($fileManagement) {
-            $m->to($fileManagement->typedetails->invite)->subject('Test-Correct, uitnodiging om een toets te bakken');
-        });
+        try {
+            $mailer->send($template, ['fileManagement' => $fileManagement], function ($m) use($fileManagement) {
+                $m->to($fileManagement->typedetails->invite)->subject('Test-Correct, uitnodiging om een toets te bakken');
+            });
+        } catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+        }
+
 
         // can't be set directly through $fileManagement->typedetails->invited_at = Carbon::now(); as it is a mutator
         $td = $fileManagement->typedetails;

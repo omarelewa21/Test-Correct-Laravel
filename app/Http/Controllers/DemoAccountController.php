@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Validator;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Exceptions\Handler;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Http\Requests\CreateDemoAccountRequest;
 use tcCore\Http\Requests\UpdateDemoAccountRequest;
@@ -68,6 +70,10 @@ class DemoAccountController extends Controller
 
         try {
             $registration->update($validatedRegistration);
+            // don't mail when admin;
+            if (!Auth::user()->isA('Administrator')) {
+                Mail::to('support@test-correct.nl')->send(new TeacherInTestSchoolTriesToUpload($registration));
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             logger('Failed to update registered teacher' . $e);
@@ -82,7 +88,7 @@ class DemoAccountController extends Controller
     public function store(CreateDemoAccountRequest $request)
     {
         // signal the DemoTeacherRegistration model to record the user in a DemoTeacherRegistration object;
-        $request->merge([
+        request()->merge([
             'shouldRegisterUser' => true,
         ]);
         if (auth()->user() === null) {
@@ -134,16 +140,22 @@ class DemoAccountController extends Controller
                     )
                 );
 
+                $demoHelper = (new DemoHelper())->setSchoolLocation(SchoolHelper::getTempTeachersSchoolLocation());
+
                 $teacher = Teacher::withTrashed()
-                    ->firstOrNew(([
+                    ->firstOrNew([
                         'user_id'    => $user->getKey(),
-                        'class_id'   => 1,
-                        'subject_id' => 5,
-                    ]));
+                        'class_id'   => $demoHelper->getDemoClass()->getKey(),
+                        'subject_id' => $demoHelper->getDemoSubject()->getKey(),
+                    ]);
 
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
 
-                dispatch_now(new SendWelcomeMail($user->getKey()));
+                try {
+                    dispatch_now(new SendWelcomeMail($user->getKey()));
+                } catch (\Throwable $th) {
+                    Bugsnag::notifyException($th);
+                }
             } else {
                 DemoTeacherRegistration::create($validatedRegistration);
             }
@@ -160,8 +172,13 @@ class DemoAccountController extends Controller
 
     public function notifySupportTeacherTriesToUpload(Request $request)
     {
-        $registration = DemoTeacherRegistration::where('user_id', request('userId'))->firstOrFail();
-        Mail::to('support@test-correct.nl')->send(new TeacherInTestSchoolTriesToUpload($registration));
+        $user = User::whereUuid(request('userId'))->firstOrFail();
+        $registration = DemoTeacherRegistration::whereUserId($user->id)->firstOrFail();
+        try {
+            Mail::to('support@test-correct.nl')->send(new TeacherInTestSchoolTriesToUpload($registration));
+        } catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+        }
     }
 
     //

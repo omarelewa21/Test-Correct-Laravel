@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Ramsey\Uuid\Uuid;
+use tcCore\EducationLevel;
 
 class CreateTestUploadRequest extends Request {
 
@@ -97,7 +99,22 @@ class CreateTestUploadRequest extends Request {
      */
     public function getWithValidator($validator){
         $validator->after(function ($validator) {
+            $data = ($this->all());
+            if (isset($data['education_level_id'])) {
+                if (!Uuid::isValid($data['education_level_id'])) {
+                    $validator->errors()->add('education_level_id','Het niveau van de toets kon niet bepaald worden.');
+                } else {
+                    $educationlevel = EducationLevel::whereUuid($data['education_level_id'])->first();
 
+                    if (!$educationlevel) {
+                        $validator->errors()->add('education_level_id','Het niveau van de toets kon niet bepaald worden.');
+                    } else {
+                        $data['education_level_id'] = $educationlevel->getKey();
+                    }
+                }
+            }
+
+            $this->merge($data);
         });
     }
 

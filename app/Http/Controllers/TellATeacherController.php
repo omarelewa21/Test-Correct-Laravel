@@ -15,11 +15,16 @@ class TellATeacherController extends Controller
 {
     public function store(CreateTellATeacherRequest $request)
     {
+
+
         $r = $request->validated();
         DB::beginTransaction();
         try {
             foreach ($r['data'] as $i => $data) {
-                $data['shouldRegisterUser'] = true;
+                if (! $request->has('shouldRegisterUser')) {
+                    $request->merge(['shouldRegisterUser' => true]);
+                }
+               // $data['shouldRegisterUser'] = true;
                 $data = array_merge($data,$r);
                 unset($data['data']);
                 ActingAsHelper::getInstance()->setUser(Auth::user());

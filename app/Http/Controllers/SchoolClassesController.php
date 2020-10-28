@@ -3,9 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use tcCore\EducationLevel;
 use tcCore\Http\Requests;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
+use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolClassRequest;
@@ -19,7 +21,7 @@ class SchoolClassesController extends Controller {
 	 * @param Request $request
 	 * @return
 	 */
-	public function index(Request $request)
+	public function index(Requests\IndexSchoolClassRequest $request)
 	{
 		SchoolHelper::denyIfTempTeacher();
 
@@ -35,6 +37,10 @@ class SchoolClassesController extends Controller {
 			case 'list':
 				return Response::make($schoolClasses->pluck('name', 'id'), 200);
 				break;
+            case 'uuidlist':
+                $classes = SchoolClass::filtered($request->get('filter', []), $request->get('order', []))->get();
+                return Response::make($classes, 200);
+                break;
 			case 'paginate':
 			default:
 				$schoolClasses = $schoolClasses->paginate(15);

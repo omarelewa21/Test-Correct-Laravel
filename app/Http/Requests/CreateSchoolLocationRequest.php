@@ -1,6 +1,9 @@
 <?php namespace tcCore\Http\Requests;
 
+use Ramsey\Uuid\Uuid;
+use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\User;
 
 class CreateSchoolLocationRequest extends Request {
 
@@ -40,7 +43,38 @@ class CreateSchoolLocationRequest extends Request {
             $data = ($this->all());
             if(isset($data['customer_code']) && SchoolLocation::where('customer_code',$data['customer_code'])->count() > 0){
                 $validator->errors()->add('customer_code','Er bestaat al een school locatie met dit klantnummer');
-            }
+			}
+			
+			if (isset($data['user_id'])) {
+                if(!Uuid::isValid($data['user_id'])){
+                    $validator->errors()->add('user_id','Deze gebruiker kon helaas niet worden gevonden.');
+                } else {
+
+                    $user = User::whereUuid($data['user_id'])->first();
+
+                    if (!$user) {
+                        $validator->errors()->add('user_id', 'Deze gebruiker kon helaas niet worden gevonden.');
+                    } else {
+                        $data['user_id'] = $user->getKey();
+                    }
+                }
+			}
+	
+			if (isset($data['school_id']) && $data['school_id']) {
+                if (!Uuid::isValid($data['school_id'])) {
+                    $validator->errors()->add('school_id','Deze school kon helaas niet worden gevonden.');
+                } else {
+                    $school = School::whereUuid($data['school_id'])->first();
+
+                    if (!$school) {
+                        $validator->errors()->add('school_id', 'Deze school kon helaas niet worden gevonden.');
+                    } else {
+                        $data['school_id'] = $school->getKey();
+                    }
+                }
+			}
+
+			$this->merge($data);
         });
     }
 

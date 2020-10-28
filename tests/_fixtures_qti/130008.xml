@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?><assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd" title="130008 geldschepping chartaal en giraal geld" identifier="ITM-130008" label="32k6yu" timeDependent="false" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="integer"><correctResponse interpretation="750"><value>750</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css" /><stylesheet href="../css/cito_userstyle.css" type="text/css" /><stylesheet href="../css/cito_generated.css" type="text/css" /><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+    
+
+
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span>De algemene bank ALB moet het rekeningcourant tegoed van haar klanten dekken met liquide middelen. Zowel de chartale middelen (geld in kas) als de tegoeden bij centrale banken mogen worden gebruikt voor de dekking. <br />De volgende balansposten horen bij de ALB:</span></p><table class="cito_genclass_130008_1"><colgroup><col /><col /><col /><col /></colgroup><tbody><tr><td colspan="4" class="cito_genclass_130008_2 cito_genclass_130008_3"><p class="cito_genclass_130008_4"><strong><span>Balans per 1-1-1990</span></strong></p></td></tr><tr><td colspan="2" class="cito_genclass_130008_5 cito_genclass_130008_6"><p class="cito_genclass_130008_7"><strong>Activa</strong></p></td><td colspan="2" class="cito_genclass_130008_5 cito_genclass_130008_8"><p class="cito_genclass_130008_9"><span />  <span />  <strong>Passiva</strong></p></td></tr><tr><td class="cito_genclass_130008_10 cito_genclass_130008_11"><p><span>kas</span> </p></td><td class="cito_genclass_130008_10 cito_genclass_130008_12"><p class="cito_genclass_130008_13"><span>100</span> </p></td><td class="cito_genclass_130008_10 cito_genclass_130008_14"><p><span>rekeningcourant tegoed</span> </p></td><td class="cito_genclass_130008_10 cito_genclass_130008_15"><p class="cito_genclass_130008_16"><span>500</span> </p></td></tr><tr><td class="cito_genclass_130008_17 cito_genclass_130008_18"><p><span>tegoed bij ECB</span> </p></td><td class="cito_genclass_130008_17 cito_genclass_130008_19"><p class="cito_genclass_130008_20"><span>50</span> </p></td><td class="cito_genclass_130008_17 cito_genclass_130008_21"><p><span>eigen vermogen</span> </p></td><td class="cito_genclass_130008_17 cito_genclass_130008_22"><p class="cito_genclass_130008_23"><span>40</span> </p></td></tr><tr><td class="cito_genclass_130008_24 cito_genclass_130008_25"><p><span>debiteuren</span> </p></td><td class="cito_genclass_130008_24 cito_genclass_130008_26"><p class="cito_genclass_130008_27"><span>280</span> </p></td><td colspan="2" class="cito_genclass_130008_24 cito_genclass_130008_28"><p><span />  <span />  </p></td></tr></tbody></table><p><span><span><br />Het dekkingspercentage / liquiditeitspercentage is door de ECB wettelijk voorgeschreven en dit moet minimaal 20% zijn. </span></span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span>Hoeveel giraal geld mag de ALB in totaal uitlenen?</span></strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p>€ <textEntryInteraction patternMask="^-?([0-9]{1,4})?$" responseIdentifier="RESPONSE" expectedLength="5" />  </p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><equal toleranceMode="exact"><variable identifier="RESPONSE" /><baseValue baseType="integer">750</baseValue></equal><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE" /></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE" /><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

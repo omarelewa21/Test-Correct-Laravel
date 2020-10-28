@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?><assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd" title="2.8-02" identifier="ITM-Test_item_370017a" label="32k6cy" timeDependent="false" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2"><responseDeclaration identifier="RESPONSE" cardinality="multiple" baseType="directedPair"><correctResponse interpretation="E G1&amp;C G2&amp;D G3&amp;F G4"><value>E G1</value><value>C G2</value><value>D G3</value><value>F G4</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css" /><stylesheet href="../css/cito_userstyle.css" type="text/css" /><stylesheet href="../css/cito_generated.css" type="text/css" /><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+						
+					
+            
+					
+          
+          <div class="qti-layout-row">
+          
+						<div class="qti-layout-col12">
+					
+							<div id="question">
+								<p><strong>Zet op de juiste plek.</strong></p>
+							</div>
+						
+    						<div id="gapmatch">
+								
+    									<gapMatchInteraction id="gapMatchScoring" responseIdentifier="RESPONSE" shuffle="false">
+                                      
+                        <gapText identifier="A" matchMax="1">
+                          <span><img src="../img/breuk-eenderde.gif" id="Id-I0e26c9ec-577f-4a44-968b-0634b895f1d3" alt="" width="14" height="28" /> </span>
+                        </gapText>
+											                
+                        <gapText identifier="B" matchMax="1">
+                          <span><img src="../img/breuk-eenachtste.gif" id="Id-I7a59aa2d-6c8f-40b5-ab15-371cf5e4f5a0" alt="" width="14" height="28" /> </span>
+                        </gapText>
+											                
+                        <gapText identifier="C" matchMax="1">
+                          <span><img src="../img/breuk-tweederde.gif" id="Id-I9392826d-7a32-4d61-acdc-87253e0e9a2d" alt="" width="14" height="28" /> </span>
+                        </gapText>
+											                
+                        <gapText identifier="D" matchMax="1">
+                          <span><img src="../img/breuk-tweevijfde.gif" id="Id-I4e7ada38-e552-4943-8507-c46d7fa1416d" alt="" width="14" height="28" /> </span>
+                        </gapText>
+											                
+                        <gapText identifier="E" matchMax="1">
+                          <span><img src="../img/breuk-drieachtste.gif" id="Id-I18379faa-be9a-48bc-b43c-4582725c81b4" alt="" width="14" height="28" /> </span>
+                        </gapText>
+											                
+                        <gapText identifier="F" matchMax="1">
+                          <span><img src="../img/breuk-vierzevende.gif" id="Id-Ia65fa2a6-ef02-4daa-8bb8-e1e142a3b26d" alt="" width="14" height="28" /> </span>
+                        </gapText>
+											
+								      <table class="cito_genclass_Test_item_370017a_1"><colgroup><col class="cito_genclass_Test_item_370017a_2" /><col class="cito_genclass_Test_item_370017a_3" /></colgroup><tbody><tr><td class="cito_genclass_Test_item_370017a_4 cito_genclass_Test_item_370017a_5"><p class="cito_genclass_Test_item_370017a_6"><strong>procenten</strong></p></td><td class="cito_genclass_Test_item_370017a_4 cito_genclass_Test_item_370017a_7"><p class="cito_genclass_Test_item_370017a_8"><strong>breuk</strong></p></td></tr><tr><td class="cito_genclass_Test_item_370017a_9 cito_genclass_Test_item_370017a_10"><p class="cito_genclass_Test_item_370017a_11">25%</p></td><td class="cito_genclass_Test_item_370017a_9 cito_genclass_Test_item_370017a_12"><p class="cito_genclass_Test_item_370017a_13"><img id="Id-IMG_a0005af0-0fe1-477c-ac90-7429ace3f8db" src="../img/breuk-eenvierde.gif" width="14" height="28" alt="" /> </p></td></tr><tr><td class="cito_genclass_Test_item_370017a_14 cito_genclass_Test_item_370017a_15"><p class="cito_genclass_Test_item_370017a_16">37,5%</p></td><td class="cito_genclass_Test_item_370017a_14 cito_genclass_Test_item_370017a_17"><p class="cito_genclass_Test_item_370017a_18"><span><gap identifier="G1" required="true" /></span> </p></td></tr><tr><td class="cito_genclass_Test_item_370017a_19 cito_genclass_Test_item_370017a_20"><p class="cito_genclass_Test_item_370017a_21">66,7%</p></td><td class="cito_genclass_Test_item_370017a_19 cito_genclass_Test_item_370017a_22"><p class="cito_genclass_Test_item_370017a_23"><span><gap identifier="G2" required="true" /></span> </p></td></tr><tr><td class="cito_genclass_Test_item_370017a_24 cito_genclass_Test_item_370017a_25"><p class="cito_genclass_Test_item_370017a_26">40%</p></td><td class="cito_genclass_Test_item_370017a_24 cito_genclass_Test_item_370017a_27"><p class="cito_genclass_Test_item_370017a_28"><span><gap identifier="G3" required="true" /></span> </p></td></tr><tr><td class="cito_genclass_Test_item_370017a_29 cito_genclass_Test_item_370017a_30"><p class="cito_genclass_Test_item_370017a_31">57,1%</p></td><td class="cito_genclass_Test_item_370017a_29 cito_genclass_Test_item_370017a_32"><p class="cito_genclass_Test_item_370017a_33"><span><gap identifier="G4" required="true" /></span> </p></td></tr></tbody></table><p> </p>
+                
+									</gapMatchInteraction>
+								
+							</div>
+						
+						</div>
+        
+        </div>
+				
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><member><baseValue baseType="directedPair">E G1</baseValue><variable identifier="RESPONSE" /></member><member><baseValue baseType="directedPair">C G2</baseValue><variable identifier="RESPONSE" /></member><member><baseValue baseType="directedPair">D G3</baseValue><variable identifier="RESPONSE" /></member><member><baseValue baseType="directedPair">F G4</baseValue><variable identifier="RESPONSE" /></member></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="integer">1</baseValue><variable identifier="SCORE" /></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE" /><baseValue baseType="integer">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

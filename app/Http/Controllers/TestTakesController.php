@@ -62,7 +62,7 @@ class TestTakesController extends Controller {
 							if ($schoolClass instanceof SchoolClass) {
 								if (!in_array($schoolClass->getKey(), $haveClasses)) {
 									$haveClasses[] = $schoolClass->getKey();
-									$response[$testTake->getKey()][] = ['schoolClass' => $schoolClass->getAttribute('name'), 'test' => $test];
+									$response[$testTake->getKey()][] = ['schoolClass' => $schoolClass->getAttribute('name'), 'test' => $test, 'uuid' => $testTake->uuid];
 
 								}
 							}
@@ -304,6 +304,10 @@ class TestTakesController extends Controller {
 				}]);
 
 				$questionId = $testTake->getAttribute('discussing_question_id');
+				if ($questionId != null) {
+					$testTake->setAttribute('discussing_question_uuid', Question::find($questionId)->uuid);
+				}
+				
 				$parents = null;
 				foreach($testTake->discussingParentQuestions as $discussingParentQuestions) {
 					if ($parents !== null) {
@@ -511,6 +515,9 @@ class TestTakesController extends Controller {
 			$testTake->load(['discussingParentQuestions' => function ($query) {
 				$query->orderBy('level');
 			}]);
+			if ($testTake->getAttribute('discussing_question_id') != null) {
+				$testTake->setAttribute('discussing_question_uuid', Question::find($testTake->getAttribute('discussing_question_id'))->uuid);
+			}			
 		}
 
 		$schoolClasses = $testTake->schoolClasses()->orderBy('name')->get();
@@ -681,8 +688,6 @@ class TestTakesController extends Controller {
 			$testTake->setAttribute('n_term', null);
 			$testTake->setAttribute('pass_mark', null);
 		}
-
-		Log::debug('preview', [$request->filled('preview'), $request->get('preview'), $request->all()]);
 
 		$questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 		if (

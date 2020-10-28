@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Algebra - exponentiële formules in standaardvorm schrijven 4" identifier="ITM-210025" label="32k787" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="100"><value>100</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="string"><correctResponse interpretation="0.1"><value>0.1</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p>Gegeven is de formule <m:math><m:mi>P</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:msup><m:mn>10</m:mn><m:mrow><m:mn>2</m:mn><m:mo>-</m:mo><m:mi>n</m:mi></m:mrow></m:msup></m:math><span>. </span></p><p><span>Deze formule kan worden herschreven in de vorm </span><span><m:math><m:mi>P</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:mi>b</m:mi><m:mo>·</m:mo><m:msup><m:mi>g</m:mi><m:mi>n</m:mi></m:msup></m:math></span><span>. </span>  </p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong>Bepaal <m:math><m:mi>b</m:mi></m:math> en <m:math><m:mi>g</m:mi></m:math>.</strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p><m:math><m:mi>b</m:mi></m:math> = <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="9"/>  en  <m:math><m:mi>g</m:mi></m:math> = <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE2" expectedLength="9"/> </p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE"/></customOperator><baseValue baseType="float">100</baseValue></equal><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE2"/></customOperator><baseValue baseType="float">0.1</baseValue></equal></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

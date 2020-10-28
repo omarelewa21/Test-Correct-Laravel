@@ -128,9 +128,7 @@ class GroupQuestionQuestionsController extends Controller
 //                    }
 
                     if ($groupQuestionQuestion->save()) {
-                        if($request->get('type') == 'CompletionQuestion'
-                            || $request->get('type') == 'MatchingQuestion'
-                            || $request->get('type') == 'RankingQuestion') {
+                        if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))){
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -164,9 +162,7 @@ class GroupQuestionQuestionsController extends Controller
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
                 if ($groupQuestionQuestion->save()) {
-                    if($request->get('type') == 'CompletionQuestion'
-                        || $request->get('type') == 'MatchingQuestion'
-                        || $request->get('type') == 'RankingQuestion') {
+                    if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))){
 //                        // delete old answers
 //                        $question->deleteAnswers($question);
 
@@ -314,9 +310,14 @@ class GroupQuestionQuestionsController extends Controller
         try {
             $qHelper = new QuestionHelper();
             $questionData = [];
-            if ($question->getQuestionInstance()->type == 'CompletionQuestion') {
+            $completionAnswerDirty = false;
+            if($question->getQuestionInstance()->type == 'CompletionQuestion') {
                 $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+                $currentAnswers = $question->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
+                $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
+                $completionAnswerDirty = ( ($currentAnswers !== $futureAnswers));
             }
+
 
             $totalData = array_merge($request->all(),$questionData);
 
@@ -329,8 +330,16 @@ class GroupQuestionQuestionsController extends Controller
 
 
             if (
-                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) &&
-                ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
+                ($groupQuestionQuestionManager->isUsed()
+                    || $question->isUsed($groupQuestionQuestion)
+                )
+                &&
+                ($completionAnswerDirty
+                    || $question->isDirty()
+                    || $questionInstance->isDirty()
+                    || $questionInstance->isDirtyAttainments()
+                    || $questionInstance->isDirtyTags()
+                    || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
                 $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
                 $groupQuestionQuestion = $groupQuestionQuestion->duplicate(
@@ -351,7 +360,7 @@ class GroupQuestionQuestionsController extends Controller
             }
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+            if ($completionAnswerDirty || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
                 if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
                     //$question = $question->duplicate($request->all());
                     $question = $question->duplicate($totalData);
@@ -371,9 +380,7 @@ class GroupQuestionQuestionsController extends Controller
 
             // Save the link
             if ($groupQuestionQuestion->save()) {
-                if ($questionInstance->type == 'CompletionQuestion'
-                    || $questionInstance->type == 'MatchingQuestion'
-                    || $questionInstance->type == 'RankingQuestion') {
+                if (Question::usesDeleteAndAddAnswersMethods($questionInstance->type)){
                     // delete old answers
                     $question->deleteAnswers($question);
 

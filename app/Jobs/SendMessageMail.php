@@ -2,6 +2,7 @@
 
 namespace tcCore\Jobs;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Mail\Mailer;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -46,10 +47,15 @@ class SendMessageMail extends Job implements ShouldQueue
                 $template = 'emails.message.staff';
             }
 
-            $mailer->send($template, ['receiver' => $messageReceiver->user, 'sentMessage' => $message, 'urlLogin' => $urlLogin], function ($m) use ($email, $name, $message) {
-                $m->to($email, $name);
-                $m->subject($message->getAttribute('subject'));
-            });
+            try {
+                $mailer->send($template, ['receiver' => $messageReceiver->user, 'sentMessage' => $message, 'urlLogin' => $urlLogin], function ($m) use ($email, $name, $message) {
+                    $m->to($email, $name);
+                    $m->subject($message->getAttribute('subject'));
+                });
+            } catch (\Throwable $th) {
+                Bugsnag::notifyException($th);
+            }
+
         }
     }
 }

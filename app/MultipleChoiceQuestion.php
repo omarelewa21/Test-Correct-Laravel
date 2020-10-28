@@ -4,8 +4,18 @@ namespace tcCore;
 
 use Illuminate\Support\Facades\Log;
 use tcCore\Lib\Question\QuestionInterface;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
+use tcCore\Traits\UuidTrait;
 
 class MultipleChoiceQuestion extends Question implements QuestionInterface {
+
+    use UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -83,6 +93,8 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
         $question->fill($attributes);
 
+        $question->setAttribute('uuid', Uuid::uuid4());
+
         if ($question->save() === false) {
             return false;
         }
@@ -119,9 +131,30 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         }
 
         $score = 0;
+        $maxScore = 0;
+        $countCorrectAnswers = 0;
+
+        $givenAnswers = 0;
+        foreach($answers as $key => $val){
+           if($val == 1) $givenAnswers++;
+        }
+
         foreach($multipleChoiceQuestionAnswers as $multipleChoiceQuestionAnswer) {
+            if($multipleChoiceQuestionAnswer->score > 0){
+                $countCorrectAnswers++;
+            }
             if (array_key_exists($multipleChoiceQuestionAnswer->getKey(), $answers) && $answers[$multipleChoiceQuestionAnswer->getKey()] == 1) {
                 $score += $multipleChoiceQuestionAnswer->getAttribute('score');
+            }
+            $maxScore += $multipleChoiceQuestionAnswer->getAttribute('score');
+        }
+
+
+        if($this->allOrNothingQuestion()){
+            if($score == $maxScore && $countCorrectAnswers === $givenAnswers){
+                return $this->score;
+            } else {
+                return 0;
             }
         }
 
@@ -135,6 +168,9 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
             $score = floor($score);
         }
 
+
         return $score;
     }
+
+
 }

@@ -2,10 +2,19 @@
 
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
+use tcCore\Traits\UuidTrait;
 
 class GroupQuestionQuestion extends BaseModel {
 
     use SoftDeletes;
+    use UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -83,6 +92,8 @@ class GroupQuestionQuestion extends BaseModel {
     public function duplicate($parent, array $attributes = [], $callbacks = true) {
         $groupQuestionQuestion = $this->replicate();
         $groupQuestionQuestion->fill($attributes);
+
+        $groupQuestionQuestion->setAttribute('uuid', Uuid::uuid4());
 
         if ($callbacks === false) {
             $groupQuestionQuestion->setCallbacks(false);

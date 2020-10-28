@@ -150,6 +150,7 @@ return [
          * Application Service Providers...
          */
         Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
+        Dyrynda\Database\LaravelEfficientUuidServiceProvider::class,
 
         'tcCore\Providers\AppServiceProvider',
 //        'tcCore\Providers\BusServiceProvider',

@@ -25,6 +25,8 @@ use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\School;
+use tcCore\SchoolClass;
 
 class UsersController extends Controller
 {
@@ -55,7 +57,7 @@ class UsersController extends Controller
                 return Response::make($users, 200);
                 break;
             case 'list':
-                return Response::make($users->get(['users.id', 'users.name_first', 'users.name_suffix', 'users.name', 'users.username'])->keyBy('id'), 200);
+                return Response::make($users->get(['users.id', 'users.uuid', 'users.name_first', 'users.name_suffix', 'users.name', 'users.username'])->keyBy('uuid'), 200);
                 break;
             case 'paginate':
             default:
@@ -193,7 +195,7 @@ class UsersController extends Controller
      * @param User $user
      * @return Response
      */
-    public function show(User $user, Request $request)
+    public function show(User $user, Requests\ShowUserRequest $request)
     {
         $user->load('roles', 'studentSchoolClasses', 'managerSchoolClasses', 'mentorSchoolClasses', 'teacher', 'teacher.schoolClass', 'teacher.subject', 'salesOrganization', 'school.schoolLocations', 'schoolLocation');
 
@@ -248,8 +250,9 @@ class UsersController extends Controller
 
         if (is_array($request->get('with')) && in_array('testsParticipated', $request->get('with'))) {
             $user->load(['testParticipants' => function ($query) {
-                $query->select(['test_participants.*', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
+                $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid','test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
             }]);
+
         }
 
         return Response::make($user, 200);
@@ -313,7 +316,7 @@ class UsersController extends Controller
         // Je gaat eruit met updateStudent, maar die kan enkel het wachtwoord aanpassen. Ik denk dat je wilt weten wie het update request uitvoert
         // als dat een student is dan moet die naar updateStudent en anders mag ook de rest....
         if (Auth::user()->hasRole('Student')) return $this->updateStudent($user, $request);
-
+        
         $user->fill($request->all());
 
         if ($request->filled('password')) {

@@ -3,18 +3,23 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\MessageBag;
+use Ramsey\Uuid\Uuid;
+use tcCore\SchoolLocation;
+use tcCore\User;
 
-class SchoolClassesStudentImportRequest extends Request {
-
+class SchoolClassesStudentImportRequest extends Request
+{
     protected $schoolLocation;
     protected $schoolClass;
-	/**
-	 * Determine if the user is authorized to make this request.
-	 *
-	 * @return bool
-	 */
-	public function authorize()
-	{
+
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
         $this->schoolLocation = $this->route('schoolLocation');
         $this->schoolClass = $this->route('schoolClass');
 
@@ -22,107 +27,158 @@ class SchoolClassesStudentImportRequest extends Request {
             Auth::user()->hasRole('School manager')
             && $this->schoolLocation !== null
             && Auth::user()->school_location_id == $this->schoolLocation->getKey();
-	}
+    }
 
-	/**
-	 * Get the validation rules that apply to the request.
-	 *
-	 * @return array
-	 */
-	public function rules()
-	{
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
         $this->filterInput();
 
-		return [
-		    //'data' => 'array',
-		    'data.*.username' => 'required|email|unique:users,username',
+        $extra_rule = [];
+        // unique constraint needs to be added on external_id can only exist within a school if it is the same user (that is username is the currect username)
+        foreach ($this->data as $key => $value) {
+            if (array_key_exists('username', $value)) {
+                $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'], $this->schoolLocation->getKey());
+            }
+        }
+
+        $rules = collect([
+            //'data' => 'array',
+            'data.*.username' => ['required', 'email', function ($attribute, $value, $fail) {
+                $student = User::whereUsername($value)->first();
+                if ($student) {
+                    if ($this->alreadyInDatabaseAndInThisClass($student)) {
+                        return $fail(sprintf('The %s has already been taken.', $attribute));
+                    }
+                    if ($this->alreadyInDatabaseButNotInThisSchoolLocation($student)) {
+                        return $fail(sprintf('The %s has already been taken.', $attribute));
+                    }
+                }
+            }],
             'data.*.name_first' => 'required',
-            'data.*.name' => 'required'
-        ];
-	}
+            'data.*.name' => 'required',
+            'data.*.name_suffix' => '',
+            'data.*.gender' => '',
+        ]);
 
-	/**
-	 * Get the sanitized input for the request.
-	 *
-	 * @return array
-	 */
-	public function sanitize()
-	{
-		return $this->all();
-	}
+        if ($extra_rule === []) {
+            $mergedRules = $rules->merge([
+                'data.*.external_id' => 'required',
+            ]);
+        } else {
+            $mergedRules = $rules->merge($extra_rule);
+        }
 
+        return $mergedRules->toArray();
+    }
 
-//    protected function failedValidation(Validator $validator) {
-//	    throw new HttpResponseException(response()->json($this->formatErrors($validator), 422));
-//	}
-
-//    protected function formatErrors(Validator $validator)
-//    {
-//        $results = [];
-//        $flags = ['username' => false, 'name_first' => false, 'name' => false];
-//        $messages = $validator->errors()->messages();
-//        logger($messages);
-//        foreach ($messages as $key => $value) {
-//            if (str_contains($key, 'username') && !$flags['username']) {
-//                $results[] = 'De emailadressen dienen aanwezig, welgevormd en unique te zijn.';
-//                $flags['username'] = true;
-//            }
-//            else if (str_contains($key, 'name_first') && !$flags['name_first']) {
-//                $results[] = 'De voornamen zijn verplicht';
-//                $flags['name_first'];
-//            }
-//            else if (str_contains($key, 'name') && !$flags['name']) {
-//                $results[] = 'De achternamen zijn verplicht';
-//                $flags['name'] = true;
-//            }
-//            else if (str_contains($key,'class')){
-//                $results[] = 'Het is niet duidelijk om welke klas het gaat';
-//            }
-//            if($flags['username'] == true && $flags['name_first'] == true && $flags['name'] == true){
-//                break;
-//            }
-//        }
-//        return $results;
-////        return $validator->errors()->all();
-//    }
+    /**
+     * Get the sanitized input for the request.
+     *
+     * @return array
+     */
+    public function sanitize()
+    {
+        return $this->all();
+    }
 
     /**
      * Configure the validator instance.
      *
-     * @param  \Illuminate\Validation\Validator $validator
+     * @param \Illuminate\Validation\Validator $validator
      * @return void
      */
-    public function withValidator($validator){
+    public function withValidator($validator)
+    {
         $validator->after(function ($validator) {
-            $data = $this->request->get('data');
-            if($this->schoolClass == null){
-                $validator->errors()->add('class','Er dient een klas opgegeven te worden');
+            if ($this->schoolClass == null) {
+                $validator->errors()->add('class', 'Er dient een klas opgegeven te worden');
             }
-//            $data = request()->input('data');
-//            $requiredFields = ['username','name_first','name'];
-//            $errorsFound = false;
-//            if(is_array($data)){
-//                foreach($requiredFields as $field){
-//                    $erroFields = [];
-//                    if(!array_key_exists($field,$data[0])){
-//                        $errorFields[]  = $field;
-//                    }
-//                    if(count($erroFields)){
-//                        $errorsFound = true;
-//                        $validator->errors()->add('data',sprintf('Niet alle verplichte velden zijn aanwezig (%s)',implode(',',$erroFields)));
-//                    }
-//                }
-//                if(!$errorsFound) {
-//                    foreach ($data as $user) {
-//
-//                    }
-//                }
-//            }
-//            else{
-//                $validator->errors()->add('data','Geen valide data ontvangen');
-//            }
-            request()->merge(['data' => $data]);
+
+            $data = $this->addDuplicateExternalIdErrors($validator);
+            $data = $this->addDuplicateUsernameErrors($validator);
+//            $this->addDuplicateUsernameInDatabaseErrors($validator);
+
+            if (isset($data['filter']) && isset($data['filter']['school_location_id']) && Uuid::isValid($data['filter']['school_location_id'])) {
+                $item = SchoolLocation::whereUuid($data['filter']['school_location_id'])->first();
+                if (!$item) {
+                    $validator->errors()->add('school_location_id', 'De school locatie kon niet gevonden worden.');
+                } else {
+                    $data['filter']['school_location_id'] = $item->getKey();
+                }
+            }
+            $this->merge(['data' => $data]);
         });
     }
 
+    private function addDuplicateExternalIdErrors($validator)
+    {
+        $data = collect(request()->input('data'));
+        $uniqueFields = ['external_id'];
+        $groupedByDuplicates = $data->groupBy(function ($row, $key) {
+            if (array_key_exists('external_id', $row)) {
+                return $row['external_id'];
+            }
+        })->map(function ($item) {
+            return collect($item)->count();
+        })->filter(function ($item, $key) {
+            return $item > 1;
+        });
+
+        if ($groupedByDuplicates->count() < $data->count()) {
+            collect($this->data)->each(function ($item, $key) use ($groupedByDuplicates, $validator) {
+                if (array_key_exists('external_id', $item) && array_key_exists($item['external_id'], $groupedByDuplicates->toArray())) {
+                    $validator->errors()->add(
+                        sprintf('data.%d.external_id', $key),
+                        'Deze import bevat dubbele studentennummers'
+                    );
+                }
+            });
+        }
+
+        return $data->toArray();
+    }
+
+    private function addDuplicateUsernameErrors($validator)
+    {
+        $data = collect(request()->input('data'));
+        $groupedByDuplicates = $data->groupBy(function ($row, $key) {
+            if (array_key_exists('username', $row)) {
+                return $row['username'];
+            }
+        })->map(function ($item) {
+            return collect($item)->count();
+        })->filter(function ($item, $key) {
+            return $item > 1;
+        });
+
+        if ($groupedByDuplicates->count() < $data->count()) {
+            collect($this->data)->each(function ($item, $key) use ($groupedByDuplicates, $validator) {
+                if (array_key_exists('username', $item) && array_key_exists($item['username'], $groupedByDuplicates->toArray())) {
+                    $validator->errors()->add(
+                        sprintf('data.%d.username', $key),
+                        'Deze import bevat dubbele emailadressen'
+                    );
+                }
+            });
+        }
+
+        return $data->toArray();
+    }
+
+    private function alreadyInDatabaseAndInThisClass($student)
+    {
+        return (collect($student->studentSchoolClasses)->map(function ($item) {
+            return $item->id;
+        })->contains($this->schoolClass->id));
+    }
+
+    private function alreadyInDatabaseButNotInThisSchoolLocation($student)
+    {
+        return $student->school_location_id !== $this->schoolLocation->id;
+    }
 }

@@ -7,13 +7,24 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\MtiBaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use Ramsey\Uuid\Uuid;
+use tcCore\Traits\UuidTrait;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
+    use UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     public $mtiBaseClass = 'tcCore\Question';
     public $mtiClassField = 'type';
     public $mtiParentTable = 'questions';
+
+
 
     /**
      * The attributes that should be mutated to dates.
@@ -34,7 +45,7 @@ class Question extends MtiBaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_id', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content'];
+    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_id', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content', 'metadata', 'external_id','scope','styling'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -51,6 +62,11 @@ class Question extends MtiBaseModel {
     protected $attainments = null;
 
     protected $tags = null;
+
+    public static function usesDeleteAndAddAnswersMethods($questionType)
+    {
+        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion'])->contains(strtolower($questionType));
+    }
 
     public function fill(array $attributes)
     {
@@ -82,6 +98,12 @@ class Question extends MtiBaseModel {
                 //because it is expected to be an array
                 if (!is_array($attributes['attainments'])) {
                     $attributes['attainments'] = [$attributes['attainments']];
+                }
+
+                foreach ($attributes['attainments'] as $key => $value) {
+                    if (Uuid::isValid($value)) {
+                        $attributes['attainments'][$key] = Attainment::whereUuid($value)->first()->getKey();
+                    }
                 }
 
                 $this->attainments = $attributes['attainments'];
@@ -209,7 +231,7 @@ class Question extends MtiBaseModel {
     }
 
     public function questions() {
-        return $this->belongsToMany('tcCore\Question', 'group_question_questions', 'group_question_id', 'question_id')->withPivot(['id', $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order', 'maintain_position'])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\Question', 'group_question_questions', 'group_question_id', 'question_id')->withPivot(['id', 'uuid', $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn(), 'order', 'maintain_position'])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function testQuestions() {
@@ -243,6 +265,10 @@ class Question extends MtiBaseModel {
     public function duplicate(array $attributes, $ignore = null) {
         $question = $this->replicate();
         $question->fill($attributes);
+
+        if (isset($question->uuid)) {
+            $question->uuid = Uuid::uuid4();
+        }
 
         $question->setAttribute('derived_question_id', $this->getKey());
 
@@ -307,6 +333,32 @@ class Question extends MtiBaseModel {
         $this->authors = null;
     }
 
+    protected function isClosedQuestion()
+    {
+//        $question = $this;
+//        if (get_class($question) !== 'tcCore\Question') {
+//            $question = $this->getQuestionInstance();
+//        }
+//
+//        return $question->scope === 'cito';
+        return $this->isCitoQuestion();
+    }
+
+    protected function allOrNothingQuestion()
+    {
+        return $this->isCitoQuestion();
+    }
+
+    public function isCitoQuestion()
+    {
+        $question = $this;
+        if (get_class($question) !== 'tcCore\Question') {
+            $question = $this->getQuestionInstance();
+        }
+
+        return $question->scope === 'cito';
+    }
+
     public function isDirtyAttainments() {
         if ($this->attainments === null) {
             return false;
@@ -358,7 +410,6 @@ class Question extends MtiBaseModel {
     }
 
     protected function saveTags() {
-        Log::debug($this->tags);
         $tags = $this->tagRelations()->withTrashed()->get();
         $this->syncTcRelation($tags, $this->tags, 'tag_id', function($question, $tagId) {
             TagRelation::create(['tag_relation_id' => $question->getKey(), 'tag_relation_type' => 'tcCore\Question', 'tag_id' => $tagId]);
@@ -501,7 +552,7 @@ class Question extends MtiBaseModel {
             $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
 
          //    $query->whereIn('subject_id',$subjectIds);
-        	
+
 
 	        if(!isset($filters['is_open_source_content']) || $filters['is_open_source_content'] == 0) {
 				$query->whereIn('subject_id', function ($query) use ($user) {
@@ -525,7 +576,7 @@ class Question extends MtiBaseModel {
                 $query->orWhere(function($q) use ($user, $subject){
                     // subject id = $subject->getKey() together with being an owner through the question_authors table
                     $q->where('subject_id',$subject->getKey());
-                    $q->whereIn('id',$user->questionAuthors()->pluck('question_id'));
+                    $q->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
                 });
                 // or subect_id in list AND subject not $subject->getKey()
                 $query->orWhere(function($q) use ($user,$subject){
@@ -596,7 +647,7 @@ class Question extends MtiBaseModel {
                     } else {
                         break;
                     }
-                    
+
                     if (is_array($value)) {
                         $query->whereIn('subtype', $value);
                     } else {
@@ -742,6 +793,58 @@ class Question extends MtiBaseModel {
             $movedEntity->save();
             $movedEntity->setReorder(true);
         }
+    }
+
+    public static function findByUuid($uuid) {
+
+        return Question::whereUuid($uuid)->first();
+
+//        $question = OpenQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = DrawingQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = RankingQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = MatchingQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = CompletionQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = InfoscreenQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = MultipleChoiceQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = MatrixQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        $question = GroupQuestion::whereUuid($uuid)->first();
+//        if (!empty($question)) {
+//            return $question;
+//        }
+//
+//        return null;
     }
 
     public function deleteAnswers(){}

@@ -80,6 +80,11 @@ class TeachersImportRequest extends Request
                             sprintf('data.%d.school_class', $index),
                             'de opgegeven klas dient in de database aanwezig te zijn voor deze schoollocatie'
                         );
+                    } else if($schoolClass->schoolYear->year != date('Y')){
+                        $validator->errors()->add(
+                            sprintf('data.%d.school_class', $index),
+                            'de opgegeven klas is niet aanwezig voor dit schooljaar ('.date('Y').')'
+                        );
                     } else {
 
                         $data[$index]['class_id'] = $schoolClass->getKey();
@@ -99,7 +104,7 @@ class TeachersImportRequest extends Request
                     }
                 }
             });
-            request()->merge(['data' => $data]);
+            $this->merge(['data' => $data]);
 
             $dataCollection = collect(request('data'));
             $unique = collect(request('data'))->unique();
@@ -117,15 +122,15 @@ class TeachersImportRequest extends Request
 
     private function getSchoolClassByName($school_class_name)
     {
-        return SchoolClass::filtered()->get()->first(function ($school_class) use ($school_class_name) {
-            return $school_class_name === $school_class->name;
+        return SchoolClass::filtered()->orderBy('created_at','desc')->get()->first(function ($school_class) use ($school_class_name) {
+            return strtolower($school_class_name) === strtolower($school_class->name);
         });
     }
 
     private function getSubjectByName($subject_name)
     {
         return Subject::filtered()->get()->first(function ($subject) use ($subject_name) {
-            return $subject_name === $subject->name;
+            return strtolower($subject_name) === strtolower($subject->name);
         });
     }
 

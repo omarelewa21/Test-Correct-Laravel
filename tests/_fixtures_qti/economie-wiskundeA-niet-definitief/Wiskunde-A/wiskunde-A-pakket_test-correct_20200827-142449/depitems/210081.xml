@@ -1,0 +1,30 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="exponentiële verbanden 5" identifier="ITM-210081" label="32k8av" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="17"><value>17</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span>Vanaf 1980 is de lengte van de bloeiperiode van paddenstoelen bij benadering te beschrijven met de formule </span><span><m:math><m:mi>B</m:mi><m:mo> </m:mo><m:mo>=</m:mo><m:mo> </m:mo><m:mn>30</m:mn><m:mo>·</m:mo><m:mn>1</m:mn><m:mo>,</m:mo><m:msup><m:mn>042</m:mn><m:mi>t</m:mi></m:msup></m:math></span><span>. <br/>Hierin is <m:math><m:mi>B</m:mi></m:math> </span><span>de lengte van de bloeiperiode in dagen en <m:math><m:mi>t</m:mi></m:math> </span><span>de tijd in jaren vanaf 1980. </span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span>Bereken na hoeveel hele jaren vanaf 1980 de bloeiperiode voor het eerst meer dan twee keer zo lang is geworden.</span></strong></p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p>na  <textEntryInteraction patternMask="^-?([0-9]{1,8})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="12"/>  jaar</p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE"/></customOperator><baseValue baseType="float">17</baseValue></equal><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

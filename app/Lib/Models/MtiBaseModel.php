@@ -4,6 +4,7 @@
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Illuminate\Support\Arr;
+use Ramsey\Uuid\Uuid;
 
 abstract class MtiBaseModel extends BaseModel
 {
@@ -109,6 +110,7 @@ abstract class MtiBaseModel extends BaseModel
                         throw new \Exception('Parent failed to save');
                     } elseif($instance->parentInstance !== null) {
                         $instance->setAttribute($instance->getKeyName(), $instance->parentInstance->getKey());
+                        $instance->setAttribute($instance->getUUIDKeyName(), $instance->parentInstance->getUUIDKey());
                     }
 
                     // First we need to create a fresh query instance and touch the creation and
@@ -140,7 +142,14 @@ abstract class MtiBaseModel extends BaseModel
     public function syncAttributesWithParent() {
         foreach($this->attributes as $key => $value) {
             if (array_key_exists($key, $this->parentInstance->attributes)) {
-                $this->parentInstance->$key = $value;
+                //fix for UUID casting
+                //UUID should be copied as string, because it will be properly casted
+                if ($key === $this->getUUIDKeyName()) {
+                    $this->parentInstance->$key = $this->getUUIDKey();
+                } else {
+                    $this->parentInstance->$key = $value;
+                }
+
             }
         }
     }
@@ -183,6 +192,9 @@ abstract class MtiBaseModel extends BaseModel
                 if ($instance->incrementing && $instance->parentInstance === null) {
                     $attributes = $this->attributes;
                     $instance->insertAndSetId($query, $attributes);
+
+                    // we also need the uuid to be in sync:
+                    $instance->setAttribute($this->getUUIDKeyName(),$this->getUUIDKey());
                 }
 
                 // If the table is not incrementing we'll simply insert this attributes as they
@@ -190,6 +202,7 @@ abstract class MtiBaseModel extends BaseModel
                 // there by the developer as the manually determined key for these models.
                 else {
                     $instance->setAttribute($this->getKeyName(), $instance->parentInstance->getKey());
+                    $instance->setAttribute($this->getUUIDKeyName(),$instance->parentInstance->getUUIDKey());
                     $attributes = $this->attributes;
                     $query->insert($attributes);
                 }

@@ -40,6 +40,46 @@ class GroupQuestionQuestionManager {
         return new static($testQuestion, $groupQuestionQuestionsOrdered);
     }
 
+    public static function getInstanceWithUuid($group_question_question_path) {
+
+        $group_question_question_path_parts = explode('.', $group_question_question_path);
+        $testQuestionId = array_shift($group_question_question_path_parts);
+        $groupQuestionQuestionIds = $group_question_question_path_parts;
+
+        $testQuestion = TestQuestion::whereUuid($testQuestionId)->firstOrFail();
+
+        $groupQuestionQuestionsOrdered = [];
+
+        if (!empty($groupQuestionQuestionIds)) {
+            $groupQuestionQuestions = [];
+
+            foreach ($groupQuestionQuestionIds as $key => $value) {
+                $groupQuestionQuestions[] = GroupQuestionQuestion::whereUuid($value)->firstOrFail();
+            }
+
+            $nextGroupQuestionQuestionId = $testQuestion->getAttribute('question_id');
+            $groupQuestionQuestionsCount = count($groupQuestionQuestions);
+    
+            while($nextGroupQuestionQuestionId !== false && count($groupQuestionQuestionsOrdered) < $groupQuestionQuestionsCount) {
+                $found = false;
+                foreach($groupQuestionQuestions as $groupQuestionQuestion) {
+                    if ($groupQuestionQuestion->getAttribute('group_question_id') == $nextGroupQuestionQuestionId) {
+                        $groupQuestionQuestionsOrdered[] = $groupQuestionQuestion;
+                        $nextGroupQuestionQuestionId = $groupQuestionQuestion->getAttribute('question_id');
+                        $found = true;
+                        break;
+                    }
+                }
+    
+                if ($found === false) {
+                    throw new ModelNotFoundException('group question question not found');
+                }
+            }
+        }
+
+        return new static($testQuestion, $groupQuestionQuestionsOrdered);
+    }
+
     protected function __construct($testQuestion, $groupQuestionQuestions)
     {
         $this->testQuestion = $testQuestion;
@@ -123,9 +163,9 @@ class GroupQuestionQuestionManager {
     }
 
     public function getGroupQuestionQuestionPath() {
-        $groupQuestionQuestionPath = $this->testQuestion->getKey();
+        $groupQuestionQuestionPath = $this->testQuestion->uuid;
         foreach($this->groupQuestionQuestions as $groupQuestionQuestion) {
-            $groupQuestionQuestionPath .= '.'.$groupQuestionQuestion->getKey();
+            $groupQuestionQuestionPath .= '.'.$groupQuestionQuestion->uuid;
         }
         return $groupQuestionQuestionPath;
     }

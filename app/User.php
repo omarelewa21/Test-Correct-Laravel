@@ -33,13 +33,21 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Roles;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class User extends BaseModel implements AuthenticatableContract, CanResetPasswordContract, AccessCheckable {
 
     use Authenticatable,
         SoftDeletes,
         Authorizable,
-        CanResetPassword;
+		CanResetPassword;
+	use UuidTrait;
+
+	protected $casts = [
+		'uuid' => EfficientUuid::class,
+	];
 
 	/**
 	 * The database table used by the model.
@@ -897,6 +905,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return (bool) FileManagement::where('handledby',$this->getKey())->where('type','testupload')->count();
     }
 
+    public function hasCitoToetsen()
+    {
+        return (bool) $this->subjects()->where('name','like','cito%')->count() > 0;
+    }
+
 	public function getNameFullAttribute()
 	{
 		$result = '';
@@ -1458,6 +1471,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $originalUser = User::find($this->invited_by);
         if (null === $originalUser) return false;
         return (strtolower(explode('@', $originalUser->username)[1]) === strtolower(explode('@', $this->username)[1]));
+    }
+
+	public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 
     public function scopeNotDemo($query, $tableAlias=null)

@@ -7,6 +7,7 @@ use tcCore\Http\Requests\CreateSchoolRequest;
 use tcCore\Http\Requests\UpdateSchoolRequest;
 use tcCore\School;
 use tcCore\UmbrellaOrganization;
+use tcCore\User;
 
 class SchoolsController extends Controller {
     /**
@@ -22,7 +23,7 @@ class SchoolsController extends Controller {
                 return Response::make($schools->get(), 200);
                 break;
             case 'list':
-                return Response::make($schools->pluck('name', 'id'), 200);
+                return Response::make($schools->select(['id', 'name', 'uuid'])->get()->keyBy('id'), 200);
                 break;
             case 'paginate':
             default:

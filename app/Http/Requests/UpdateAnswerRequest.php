@@ -57,7 +57,11 @@ class UpdateAnswerRequest extends Request {
         //unpack json answer and sanitize the input
         $answerJson = json_decode($input['json'], true);
 
-        //sanitize input to prevent XSS
+		//sanitize input to prevent XSS
+		if (!is_array($answerJson)) {
+			return;
+		}
+		
         foreach ($answerJson as $key => $value) {
             $answerJson[$key] = clean($value);
         }

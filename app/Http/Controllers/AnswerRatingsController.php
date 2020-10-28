@@ -2,11 +2,14 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use tcCore\Answer;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\AnswerRating;
 use tcCore\Http\Requests\CreateAnswerRatingRequest;
 use tcCore\Http\Requests\UpdateAnswerRatingRequest;
+use tcCore\TestTake;
+use tcCore\User;
 
 class AnswerRatingsController extends Controller {
 
@@ -15,16 +18,19 @@ class AnswerRatingsController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index(Request $request)
+	public function index(Requests\IndexAnswerRatingRequest $request)
 	{
 		$answerRatings = AnswerRating::filtered($request->get('filter', []), $request->get('order', []))->with('answer');
 		if (is_array($request->get('with')) && in_array('questions', $request->get('with'))) {
 			$answerRatings->with(['answer.question', 'answer.answerParentQuestions', 'answer.answerParentQuestions.groupQuestion']);
-		}
+		} else {
+            $answerRatings->with(['answer.question','answer.testparticipant']);
+        }
 
 		switch(strtolower($request->get('mode', 'paginate'))) {
 			case 'all':
 				$answerRatings = $answerRatings->get();
+				logger('number of answer ratings '.$answerRatings->count());
 				if (is_array($request->get('with')) && in_array('questions', $request->get('with'))) {
 					foreach ($answerRatings as $answerRating) {
 						$answerRating->answer->question->loadRelated();
@@ -106,7 +112,6 @@ class AnswerRatingsController extends Controller {
 	 */
 	public function update(AnswerRating $answerRating, UpdateAnswerRatingRequest $request)
 	{
-		//
 		if ($answerRating->update($request->all())) {
 			return Response::make($answerRating, 200);
 		} else {

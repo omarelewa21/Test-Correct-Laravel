@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?><assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd http://www.w3.org/1998/Math/MathML http://www.w3.org/Math/XMLSchema/mathml2/mathml2.xsd" title="1.8-05" identifier="ITM-Test_item_370005" label="32k6cq" timeDependent="false" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:m="http://www.w3.org/1998/Math/MathML"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"><correctResponse interpretation="10"><value>10</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css" /><stylesheet href="../css/cito_userstyle.css" type="text/css" /><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p>In het verband <em>N</em> = <m:math><m:mo> </m:mo><m:mfrac><m:mrow><m:mn mathsize="22px">3</m:mn><m:mi mathsize="22px">t</m:mi><m:mo mathsize="22px"> </m:mo><m:mo mathsize="22px">+</m:mo><m:mo mathsize="22px"> </m:mo><m:mn mathsize="22px">2</m:mn></m:mrow><m:mrow><m:mi mathsize="22px">t</m:mi><m:mo mathsize="22px"> </m:mo><m:mo mathsize="22px">-</m:mo><m:mo mathsize="22px"> </m:mo><m:mn mathsize="22px">4</m:mn></m:mrow></m:mfrac></m:math> is <em>t</em> = 6</p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p>Bereken <em>N</em>.</p>
+			  </div>
+
+			  <div id="questionwithinlinecontrol">
+				<p><em>N</em> = <textEntryInteraction patternMask="^-?([0-9]{1,5})?(([\,])([0-9]{0,3}))?$" responseIdentifier="RESPONSE" expectedLength="9" /> </p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><equal toleranceMode="exact"><customOperator definition="depcp:ParseCommaDecimal"><variable identifier="RESPONSE" /></customOperator><baseValue baseType="float">10</baseValue></equal><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="integer">1</baseValue><variable identifier="SCORE" /></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE" /><baseValue baseType="integer">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="integer">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

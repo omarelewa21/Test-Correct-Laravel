@@ -28,8 +28,8 @@ class OnboardingWizardReport extends Model
             'user_last_login'                             => $user->last_login,
             'school_location_name'                        => $user->schoolLocation->name,
             'school_location_customer_code'               => $user->schoolLocation->customer_code,
-            'test_items_created_amount'                   => Question::whereIn('id', $user->questionAuthors()->pluck('question_id'))->where('type', '<>', 'GroupQuestion')->count(),
-            'tests_created_amount'                        => $user->tests()->where('is_system_test', 0)->where('demo', 0)->count(),
+            'test_items_created_amount'                   => self::getTestItemsCreatedAmount($user),
+            'tests_created_amount'                        => self::getTestsCreatedAmount($user),
             'first_test_planned_date'                     => self::getFirstTestPlannedDate($user),
             'last_test_planned_date'                      => self::getLastTestPlannedDate($user),
             'first_test_taken_date'                       => self::getFirstTestTakenDate($user),
@@ -133,10 +133,10 @@ FROM onboarding_wizard_steps AS t1
 LEFT JOIN onboarding_wizard_steps AS t2 ON (t1.parent_id = t2.id)
 LEFT JOIN
   (SELECT onboarding_wizard_user_steps.*
-   FROM onboarding_wizard_user_steps 
-   
+   FROM onboarding_wizard_user_steps
+
    INNER JOIN onboarding_wizard_steps ON (onboarding_wizard_user_steps.`onboarding_wizard_step_id` = onboarding_wizard_steps.id)
-   
+
    WHERE user_id=%d
    AND onboarding_wizard_id = '%s'
    ) AS t3 ON (t1.id = t3.onboarding_wizard_step_id)
@@ -438,5 +438,15 @@ ORDER BY t2.displayorder,
             ->pluck('username')
             ->implode(',')
         );
+    }
+
+    public static function getTestsCreatedAmount(User $user)
+    {
+        return $user->tests()->where('is_system_test', 0)->where('demo', 0)->count();
+    }
+
+    public static function getTestItemsCreatedAmount(User $user)
+    {
+        return Question::whereIn('id', $user->questionAuthors()->pluck('question_id'))->where('type', '<>', 'GroupQuestion')->count();
     }
 }

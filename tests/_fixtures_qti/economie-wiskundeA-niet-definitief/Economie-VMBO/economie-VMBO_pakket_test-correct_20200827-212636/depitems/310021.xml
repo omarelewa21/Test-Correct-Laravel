@@ -1,0 +1,69 @@
+<assessmentItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 ../controlxsds/imsqti_v2p2p1.xsd" title="Informatie voor consumenten" identifier="ITM-310021" label="32k8vp" timeDependent="false"><responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"><correctResponse interpretation="A"><value>A</value></correctResponse></responseDeclaration><responseDeclaration identifier="RESPONSE2" cardinality="single" baseType="identifier"><correctResponse interpretation="F"><value>F</value></correctResponse></responseDeclaration><outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"><defaultValue><value>0</value></defaultValue></outcomeDeclaration><outcomeDeclaration identifier="MAXSCORE" cardinality="single" baseType="float"><defaultValue><value>1</value></defaultValue></outcomeDeclaration><stylesheet href="../css/cito_itemstyle.css" type="text/css"/><stylesheet href="../css/cito_userstyle.css" type="text/css"/><itemBody class="defaultBody" xml:lang="nl-NL"><div class="content">
+
+	  
+	
+				
+        
+        <div class="qti-layout-row">
+
+				
+        
+    
+		<div class="qti-layout-col12">
+
+			  <div id="itemBody">
+				<p><span><span>Steeds meer mensen baseren hun koopbeslissingen op consumenteninformatie.</span></span></p>
+			  </div>
+
+			  <div id="itemquestion">
+				<p><strong><span>Maak elke zin compleet.</span></strong></p><p><span><span>Een betrouwbaar oordeel over de kwaliteit van producten is te vinden in rapporten van <inlineChoiceInteraction id="I82510806-95af-42eb-a22b-5fa019d615ca" responseIdentifier="RESPONSE" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span><span><span><span>de Consumentenbond</span></span></span></span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span><span><span>de Reclame Code Commissie</span></span></span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span><span><span>het Nibud</span></span></span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>. <br/><span>Bij consumentenonderzoeken wordt een 'beste koop' aangegeven als</span> <inlineChoiceInteraction id="I3593de5a-4434-4323-add7-2c94c5de7085" responseIdentifier="RESPONSE2" shuffle="false" required="true">
+				
+					<inlineChoice identifier="A">
+            <span><span><span>duurzaamheid</span></span></span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="B">
+            <span><span><span>kwaliteit</span></span></span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="C">
+            <span>prijs</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="D">
+            <span>duurzaamheid en kwaliteit</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="E">
+            <span>duurzaamheid en prijs</span>
+          </inlineChoice>          
+				
+					<inlineChoice identifier="F">
+            <span>kwaliteit en prijs</span>
+          </inlineChoice>          
+				
+				</inlineChoiceInteraction>.</span></span></p>
+			  </div>
+
+			  <div id="answer">
+			  </div>
+		</div>
+
+  </div>
+			
+            
+			</div></itemBody><responseProcessing><responseCondition><responseIf><and><match><variable identifier="RESPONSE"/><baseValue baseType="identifier">A</baseValue></match><match><variable identifier="RESPONSE2"/><baseValue baseType="identifier">F</baseValue></match></and><setOutcomeValue identifier="SCORE"><sum><baseValue baseType="float">1</baseValue><variable identifier="SCORE"/></sum></setOutcomeValue></responseIf></responseCondition><responseCondition><responseIf><gte><variable identifier="SCORE"/><baseValue baseType="float">1</baseValue></gte><setOutcomeValue identifier="SCORE"><baseValue baseType="float">1</baseValue></setOutcomeValue></responseIf><responseElse><setOutcomeValue identifier="SCORE"><baseValue baseType="float">0</baseValue></setOutcomeValue></responseElse></responseCondition></responseProcessing></assessmentItem>

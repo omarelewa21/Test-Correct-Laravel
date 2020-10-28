@@ -13,6 +13,7 @@ use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestRequest;
 use tcCore\Http\Requests\UpdateTestRequest;
+use tcCore\User;
 
 class OnboardingWizardController extends Controller {
 
@@ -24,7 +25,7 @@ class OnboardingWizardController extends Controller {
             'onboarding_wizard_step_id' => $request->get('onboarding_wizard_step_id')
         ]);
 
-        $stepsCollection = $this->getStepsCollection();
+        $stepsCollection = $this->getStepsCollection(Auth::user());
 
 
         return Response::make(json_encode([
@@ -32,13 +33,13 @@ class OnboardingWizardController extends Controller {
         ]), 200);
     }
 
-    public function showStepsForUser(Request $request)
+    public function showStepsForUser(Request $request, User $user)
     {
-        return Response::make(json_encode($this->getStepsCollection()), 200);
+        return Response::make(json_encode($this->getStepsCollection($user)), 200);
     }
 
-    private function getStepsCollection() {
-        return OnboardingWizardReport::getStepsCollection(Auth::user());
+    private function getStepsCollection(User $user) {
+        return OnboardingWizardReport::getStepsCollection($user);
 //        $steps = Auth::user()->getOnboardingWizardSteps();
 //
 //        $sub_steps = $steps->map(function($step) {

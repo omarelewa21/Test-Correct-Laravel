@@ -24,7 +24,7 @@ class EducationLevelsController extends Controller {
 				return Response::make($educationLevels->get(), 200);
 				break;
 			case 'list':
-				return Response::make($educationLevels->select(['id', 'name', 'max_years'])->get()->keyBy('id'), 200);
+				return Response::make($educationLevels->select(['id', 'name', 'max_years', 'uuid'])->get()->keyBy('id'), 200);
 				break;
 			case 'paginate':
 			default:

@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Queue;
 use tcCore\Jobs\PValues\UpdatePValueUsers;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class FileManagement extends BaseModel {
 
@@ -11,6 +14,11 @@ class FileManagement extends BaseModel {
     protected $keyType = 'string';
 
     use SoftDeletes;
+    use UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -80,5 +88,7 @@ class FileManagement extends BaseModel {
     public function children(){
         return $this->hasMany('tcCore\FileManagement','parent_id');
     }
+
+
 
 }

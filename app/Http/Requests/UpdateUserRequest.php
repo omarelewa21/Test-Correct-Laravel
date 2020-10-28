@@ -4,6 +4,9 @@ use Illuminate\Contracts\Validation\Factory;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Ramsey\Uuid\Uuid;
+use tcCore\School;
+use tcCore\SchoolClass;
 use tcCore\User;
 
 class UpdateUserRequest extends Request {
@@ -79,12 +82,12 @@ class UpdateUserRequest extends Request {
 
 		$validator->sometimes('external_id', 'unique:users,external_id,'.$this->user->getKey().','.$this->user->getKeyName().',school_location_id,'.$this->user->getAttribute('school_location_id'), function($input) {
 			$schoolLocationId = $this->user->getAttribute('school_location_id');
-			return ((isset($input->school_location_id) && !empty($input->school_location_id)) || (!isset($input->school_location_id) && empty($schoolLocationId)));
+			return ((isset($input->school_location_id) && !empty($input->school_location_id)) || (!isset($input->school_location_id) && !empty($schoolLocationId)));
 		});
 
 		$validator->sometimes('external_id', 'unique:users,external_id,'.$this->user->getKey().','.$this->user->getKeyName().',school_id,'.$this->user->getAttribute('school_id'), function($input) {
 			$schoolId = $this->user->getAttribute('school_id');
-			return ((isset($input->school_id) && !empty($input->school_id)) || (!isset($input->school_id) && empty($schoolId)));
+			return ((isset($input->school_id) && !empty($input->school_id)) || (!isset($input->school_id) && !empty($schoolId)));
 		});
 
 		return $validator;
@@ -132,7 +135,72 @@ class UpdateUserRequest extends Request {
         $validator->after(function ($validator) {
             if($this->user->getOriginal('demo') == true){
                     $validator->errors()->add('demo', 'Een demo gebruiker kan niet aangepast worden.');
-            }
+			}
+
+			$data = ($this->all());
+			
+			//UUID to ID mapping
+			if (isset($data['school_id'])) {
+				if (!Uuid::isValid($data['school_id'])) {
+					$validator->errors()->add('school_id','Deze school kon helaas niet terug gevonden worden.');
+				} else {
+					$school = School::whereUuid($data['school_id'])->first();
+
+					if (!$school) {
+						$validator->errors()->add('school_id','Deze school kon helaas niet terug gevonden worden.');
+					} else {
+						$data['school_id'] = $school->getKey();
+					}
+				}
+			}
+
+			if (isset($data['add_mentor_school_class'])) {
+				if (!Uuid::isValid($data['add_mentor_school_class'])) {
+					$validator->errors()->add('add_mentor_school_class','Deze mentor klas kon helaas niet terug gevonden worden.');
+				} else {
+					$schoolclass = SchoolClass::whereUuid($data['add_mentor_school_class'])->first();
+
+					if (!$schoolclass) {
+						$validator->errors()->add('add_mentor_school_class','Deze mentor klas kon helaas niet terug gevonden worden.');
+					} else {
+						$data['add_mentor_school_class'] = $schoolclass->getKey();
+					}
+				}
+			}
+
+			if (isset($data['manager_school_classes'])) {
+				foreach ($data['manager_school_classes'] as $key => $value) {
+					if (!Uuid::isValid($value)) {
+						$validator->errors()->add('add_mentor_school_class','Deze manager kon helaas niet terug gevonden worden.');
+					} else {
+						$schoolclass = SchoolClass::whereUuid($value)->first();
+	
+						if (!$schoolclass) {
+							$validator->errors()->add('add_mentor_school_class','Deze manager kon helaas niet terug gevonden worden.');
+						} else {
+							$data['manager_school_classes'][$key] = $schoolclass->getKey();
+						}
+					}
+				}
+			}
+
+			if (isset($data['student_parents_of'])) {
+				foreach ($data['student_parents_of'] as $key => $value) {
+					if (!Uuid::isValid($value)) {
+						$validator->errors()->add('add_mentor_school_class','Deze ouder kon helaas niet terug gevonden worden.');
+					} else {
+						$user = User::whereUuid($value)->first();
+	
+						if (!$user) {
+							$validator->errors()->add('add_mentor_school_class','Deze ouder kon helaas niet terug gevonden worden.');
+						} else {
+							$data['student_parents_of'][$key] = $user->getKey();
+						}
+					}
+				}
+			}
+
+			$this->merge($data);
         });
     }
 

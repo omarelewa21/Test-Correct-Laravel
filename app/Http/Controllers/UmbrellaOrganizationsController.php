@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests\CreateUmbrellaOrganizationRequest;
 use tcCore\Http\Requests\UpdateUmbrellaOrganizationRequest;
 use tcCore\UmbrellaOrganization;
+use tcCore\User;
 
 class UmbrellaOrganizationsController extends Controller {
 
@@ -23,7 +24,7 @@ class UmbrellaOrganizationsController extends Controller {
 				return Response::make($umbrellaOrganizations->get(), 200);
 				break;
 			case 'list':
-				return Response::make($umbrellaOrganizations->pluck('name', 'id'), 200);
+				return Response::make($umbrellaOrganizations->select(['id', 'name', 'uuid'])->get()->keyBy('id'), 200);
 				break;
 			case 'paginate':
 			default:

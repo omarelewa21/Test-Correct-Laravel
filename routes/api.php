@@ -41,6 +41,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::post('test/{test}/duplicate', ['as' => 'test.duplicate', 'uses' => 'TestsController@duplicate']);
 	Route::resource('test', 'TestsController', ['except' => ['create', 'edit']]);
 
+    Route::resource('cito_test','Cito\TestsController')->only(['index','show']);
+
 	Route::put('test_question/{test_question}/reorder', 'TestQuestionsController@updateOrder');
 	Route::resource('test_question', 'TestQuestionsController', ['except' => ['create', 'edit']]);
 	Route::resource('test_question.attachment', 'TestQuestions\AttachmentsController', ['except' => ['create', 'edit']]);
@@ -107,6 +109,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	Route::resource('test_take_event_type', 'TestTakeEventTypesController', ['except' => ['create', 'store', 'edit', 'update', 'destroy']]);
 
+    Route::get('test_take/{test_take}/attainment/analysis','TestTakes\TestTakeAttainmentAnalysisController@index')->name('test_take_attainment_analysis.index');
+    Route::get('test_take/{test_take}/attainment/{attainment}/analysis','TestTakes\TestTakeAttainmentAnalysisController@show')->name('test_take_attainment_analysis.show');
+
     Route::get('test_participant/{test_participant}/answers_status_and_questions2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersStatusAndQuestions']);
 	Route::get('test_participant/{test_participant}/{test_take}/answers_status_and_test_take2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersStatusAndTestTake']);
     Route::get('test_participant/{test_participant}/answers_and_status2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersAndStatus']);
@@ -119,7 +124,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
      */
 	Route::put('test_participant/{test_participant}/answer2019/{answer}', ['uses' => 'TestParticipants\Answers2019Controller@update']);
 
-	Route::get('test_participant/{test_participant}/question_and_answer2019/{question}', ['uses' => 'TestParticipants\Answers2019Controller@showQuestionAndAnswer']);
+	Route::get('test_participant/{test_participant}/question_and_answer2019/{answer}', ['uses' => 'TestParticipants\Answers2019Controller@showQuestionAndAnswer']);
 
 	// Education level
 	Route::resource('education_level', 'EducationLevelsController', ['except' => ['create', 'edit']]);
@@ -139,7 +144,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('test_kind', 'TestKindsController', ['except' => ['create', 'edit']]);
 
 	// Needed lookups
-    Route::post('/school_class/importStudents/{schoolLocation}/{schoolClass}','SchoolClassesStudentImportController@store');
+    Route::post('/school_class/importStudents/{schoolLocation}/{schoolClass}','SchoolClassesStudentImportController@store')->name('school_classes.import');
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
@@ -173,6 +178,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
+
+    Route::post('/attainments/import','AttainmentImportController@import')->name('attainment.import');
+    Route::post('/attainments_cito/import','AttainmentCitoImportController@import')->name('attainment_cito.import');
+    Route::get('attainments/data','AttainmentCitoImportController@data')->name('attainment_cito.data');
 
     Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
     Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.update');
@@ -216,6 +225,12 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::get('admin/teacher_stats','AdminTeacherStatsController@index')->name('admin_teacher_stats');
     Route::get('qtiimport/data','QtiImportController@data')->name('qtiimport_data');
     Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
+
+    Route::get('qtiimportcito/data','QtiImportCitoController@data')->name('qtiimportcito_data');
+    Route::post('qtiimportcito/import','QtiImportCitoController@store')->name('qtiimportcito_import');
+
+    Route::get('qtiimportbatchcito/data','QtiImportBatchCitoController@data')->name('qtiimportbatchcito_data');
+    Route::post('qtiimportbatchcito/import','QtiImportBatchCitoController@store')->name('qtiimportbatchcito_import');
 
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
