@@ -55,7 +55,11 @@ trait Archivable
 
     public static function bootArchivable()
     {
-        static::addGlobalScope(new ArchivedScope);
+        // The Scope uses the auth user which is not available in jobs. 
+        // Currently 29-10-2020 no jobs are using the archivable trait.
+        if (Auth::user()){ 
+            static::addGlobalScope(new ArchivedScope);
+        }
     }
 
     public function archiveForUser(User $user)
