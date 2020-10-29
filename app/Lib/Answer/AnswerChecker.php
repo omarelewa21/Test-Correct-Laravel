@@ -9,10 +9,12 @@ use tcCore\TestParticipant;
 class AnswerChecker {
     static protected $questions;
 
-    public static function checkAnswerOfParticipant(TestParticipant $testParticipant) {
+    public static function checkAnswerOfParticipant(TestParticipant $testParticipant, bool $recalculate = false, bool $dryRun = false, $commandEnv = null) {
         $testTakeId = $testParticipant->testTake->getKey();
 
         $questions = QuestionGatherer::getQuestionsOfTest($testParticipant->testTake->getAttribute('test_id'), false);
+
+        $changed = false;
 
         foreach ($testParticipant->answers as $answer) {
             $questionId = $answer->getAttribute('question_id');
@@ -21,46 +23,95 @@ class AnswerChecker {
             }
 
             $question = $questions[$questionId];
-            static::checkAnswerOfQuestion($testTakeId, $question, $answer);
+            if(static::checkAnswerOfQuestion($testTakeId, $question, $answer, $recalculate, $dryRun, $commandEnv)){
+                $changed = true;
+            }
         }
+
+        return $changed;
     }
 
-    public static function checkAnswerOfQuestion($testTakeId, QuestionInterface $question, Answer $answer) {
+    protected static function getAnswerRating($testTakeId, Answer $answer, bool $recalculate = false)
+    {
+        if($recalculate === false){
+            return new AnswerRating();
+        }
+
+        $answerRating = AnswerRating::where('answer_id',$answer->getKey())->where('test_take_id',$testTakeId)->where('type','SYSTEM')->first();
+        if(null == $answerRating){
+            return new AnswerRating();
+        }
+
+        return $answerRating;
+
+    }
+
+    protected static function checkAnswerOfQuestion($testTakeId, QuestionInterface $question, Answer $answer, bool $recalculate = false, bool $dryRun = false, $commandEnv = null) {
         if (!$question instanceof QuestionInterface && !$answer instanceof Answer && $question->getKey() != $answer->getAttribute('question_id')) {
             return false;
         }
 
+        $changed = false;
+
         if ($answer->getAttribute('json') === null) {
-            $answerRating = new AnswerRating();
+            $answerRating = self::getAnswerRating($testTakeId, $answer, $recalculate);
             $answerRating->setAttribute('type', 'SYSTEM');
             $answerRating->setAttribute('test_take_id', $testTakeId);
             $answerRating->setAttribute('rating', 0);
 
-            return $answer->answerRatings()->save($answerRating);
+            if($answerRating->isDirty()){
+                $changed = true;
+            }
+
+            if($dryRun === false) {
+                $answer->answerRatings()->save($answerRating);
+            }
+            return $changed;
         }
 
         if (!$question->canCheckAnswer()) {
             return false;
         }
 
-        if (static::checkHasAnswerRating($answer)) {
-            return true;
+        if (static::checkHasAnswerRating($answer, $recalculate)) {
+            return false;
         }
 
         $rating = $question->checkAnswer($answer);
         if ($rating !== false) {
-            $answerRating = new AnswerRating();
+            $answerRating = self::getAnswerRating($testTakeId, $answer, $recalculate);
+            if($recalculate && null !== $commandEnv){
+                $text = sprintf('ANSWERID: %d; van %s => %s',$answer->getKey(), $answerRating->rating, $rating);
+                if($answerRating->rating > $rating){
+                    $commandEnv->toError($text);
+                } else if ((int) $answerRating == (int) $rating) {
+                    $commandEnv->toComment($text);
+                } else {
+                    $commandEnv->toInfo($text);
+                }
+            }
             $answerRating->setAttribute('type', 'SYSTEM');
             $answerRating->setAttribute('test_take_id', $testTakeId);
             $answerRating->setAttribute('rating', $rating);
 
-            return $answer->answerRatings()->save($answerRating);
+            if($answerRating->isDirty()){
+                $changed = true;
+            }
+
+            if($dryRun === false) {
+                $answer->answerRatings()->save($answerRating);
+            }
+
+            return $changed;
         } else {
             return false;
         }
     }
 
-    protected static function checkHasAnswerRating(Answer $answer) {
-        return ($answer->answerRatings()->where('user_id', null)->where('type', 'SYSTEM')->count() > 0);
+    protected static function checkHasAnswerRating(Answer $answer, bool $recalculate = false) {
+        if($recalculate === false) {
+            return ($answer->answerRatings()->where('user_id', null)->where('type', 'SYSTEM')->count() > 0);
+        }
+        return false;
     }
 }
