@@ -84,7 +84,7 @@ class AnswerChecker {
                 $text = sprintf('ANSWERID: %d; van %s => %s',$answer->getKey(), $answerRating->rating, $rating);
                 if($answerRating->rating > $rating){
                     $commandEnv->toError($text);
-                } else if ((int) $answerRating == (int) $rating) {
+                } else if ((int) $answerRating->rating == (int) $rating) {
                     $commandEnv->toComment($text);
                 } else {
                     $commandEnv->toInfo($text);
