@@ -241,5 +241,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
 
+    Route::post('search_filter','SearchFiltersController@store')->name('search_filter.store');
+    Route::put('search_filter/{uuid}','SearchFiltersController@update')->name('search_filter.update');
+    Route::get('search_filter/{key?}','SearchFiltersController@show')->name('search_filter.show');
+    Route::delete('search_filter/{uuid}','SearchFiltersController@delete')->name('search_filter.delete');
+    Route::put('search_filter/{uuid}/set_active','SearchFiltersController@setActive')->name('search_filter.set_active');
 
 });
