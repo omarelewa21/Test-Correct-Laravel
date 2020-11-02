@@ -14,7 +14,7 @@ class QtiImportDataRequest extends Request {
      */
     public function authorize()
     {
-        return Auth::user()->hasRole('Administrator');
+        return Auth::user()->hasRole('Account manager');
     }
 
     /**
