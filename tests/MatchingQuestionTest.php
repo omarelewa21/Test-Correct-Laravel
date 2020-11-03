@@ -1,5 +1,8 @@
 <?php
 
+namespace Tests;
+
+
 class MatchingQuestionTest extends TestCase {
 
     use \Illuminate\Foundation\Testing\DatabaseTransactions;
