@@ -24,7 +24,7 @@ class QuestionsController extends Controller {
     }
 
     public function index(Request $request) {
-        $questions = Question::filtered($request->get('filter', []), $request->get('order', []))
+        $questions = Question::opensourceAndDemo()->filtered($request->get('filter', []), $request->get('order', []))
             // don't show questions from the cito import
             ->where(function($query) {
                 $query->where('scope', '!=', 'cito') // should be in filtered, but can't be due to the way it is build starting with an or
