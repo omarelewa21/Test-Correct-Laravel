@@ -4,15 +4,24 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
 use tcCore\Jobs\Rating\CalculateRatingForTestParticipant;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class TestParticipant extends BaseModel
 {
 
     use SoftDeletes;
+    use UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -285,4 +294,10 @@ class TestParticipant extends BaseModel
             Queue::push(new CalculateRatingForTestParticipant($this));
         }
     }
+
+    public function getTestTakeUuidAttribute($value)
+    {
+        return Uuid::fromBytes($value)->toString();
+    }
+
 }

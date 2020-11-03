@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
+use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestRequest;
@@ -26,6 +27,9 @@ class TestsController extends Controller {
         \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
 		$tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
 //		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
+        $tests->each(function($test) {
+            $test->append(    'has_duplicates');
+        });
 		return Response::make($tests, 200);
 	}
 
@@ -56,6 +60,7 @@ class TestsController extends Controller {
 	public function show(Test $test)
 	{
 		$test->load('educationLevel', 'author', 'author.school', 'author.schoolLocation', 'subject', 'period', 'testKind');
+		$test->append(    'has_duplicates');
 		return Response::make($test, 200);
 	}
 
@@ -94,7 +99,7 @@ class TestsController extends Controller {
 
 	}
 
-	public function duplicate(Test $test, UpdateTestRequest $request) {
+	public function duplicate(Test $test, DuplicateTestRequest $request) {
 		$test = $test->userDuplicate($request->all(), Auth::id());
 
 		if ($test !== false) {

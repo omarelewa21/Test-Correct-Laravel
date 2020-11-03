@@ -1,5 +1,9 @@
 <?php namespace tcCore\Http\Requests;
 
+use Ramsey\Uuid\Uuid;
+use tcCore\Test;
+use tcCore\TestTake;
+
 class CreateTestTakeRequest extends Request {
 
 	/**
@@ -33,6 +37,46 @@ class CreateTestTakeRequest extends Request {
 		];
 	}
 
+
+    public function prepareForValidation()
+    {
+
+        $data = ($this->all());
+
+        if(isset($data["retake_test_take_id"]) && Uuid::isValid($data['retake_test_take_id'])){
+            $educationLevel = TestTake::whereUuid($data['retake_test_take_id'])->first();
+            if(!$educationLevel){
+                $this->addPrepareForValidationError('retake_test_take_id','Deze afname toets kon helaas niet terug gevonden worden.');
+            } else {
+                $data['retake_test_take_id'] = $educationLevel->getKey();
+            }
+        }
+
+        if(isset($data["test_id"]) && Uuid::isValid($data['test_id'])){
+            $educationLevel = Test::whereUuid($data['test_id'])->first();
+            if(!$educationLevel){
+                $this->addPrepareForValidationError('test_id','Deze toets kon helaas niet terug gevonden worden.');
+            } else {
+                $data['test_id'] = $educationLevel->getKey();
+            }
+        }
+
+        $this->merge($data);
+	}
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $this->addPrepareForValidationErrorsToValidatorIfNeeded($validator);
+        });
+    }
+	
 	/**
 	 * Get the sanitized input for the request.
 	 *

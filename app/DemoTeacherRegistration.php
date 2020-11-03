@@ -2,6 +2,7 @@
 
 namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Mail;
 use tcCore\Http\Helpers\SchoolHelper;
@@ -17,7 +18,11 @@ class DemoTeacherRegistration extends Model
 
         static::created(function (DemoTeacherRegistration $registration) {
             $count = DemoTeacherRegistration::where('username', $registration->username)->count();
-            Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, $count > 1));
+            try {
+                Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, $count > 1));
+            } catch (\Throwable $th) {
+                Bugsnag::notifyException($th);
+            }
         });
     }
 

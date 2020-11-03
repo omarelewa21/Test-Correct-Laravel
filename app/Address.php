@@ -2,10 +2,18 @@
 
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class Address extends BaseModel {
 
     use SoftDeletes;
+    use UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -85,4 +93,6 @@ class Address extends BaseModel {
 
         return $query;
     }
+
+
 }

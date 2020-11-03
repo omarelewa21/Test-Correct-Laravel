@@ -1,10 +1,11 @@
 <?php
 
-namespace tcCore\Jobs;
+namespace tcCore\Jobs\PValues;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use tcCore\Jobs\Job;
 use tcCore\PValue;
 use tcCore\SchoolClass;
 

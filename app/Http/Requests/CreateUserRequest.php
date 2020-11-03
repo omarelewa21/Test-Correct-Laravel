@@ -1,8 +1,12 @@
 <?php namespace tcCore\Http\Requests;
 
+use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
+
+use tcCore\School;
+use tcCore\SchoolClass;
 use tcCore\User;
 
 class CreateUserRequest extends Request {
@@ -93,12 +97,82 @@ class CreateUserRequest extends Request {
                 if(null === $r){
                     $validator->errors()->add('user_roles','U kunt een docent pas aanmaken nadat u een actuele periode heeft aangemaakt. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.');
                 }
-            }
+			}
+
+			$this->addPrepareForValidationErrorsToValidatorIfNeeded($validator);
+
         });
     }
 
+    public function prepareForValidation()
+    {
+        $data = $this->all();
+        //UUID to ID mapping
+        if (isset($data['school_id'])) {
+            if (!Uuid::isValid($data['school_id'])) {
+                $this->addPrepareForValidationError('school_id','Deze school kon helaas niet terug gevonden worden.');
+            } else {
+                $school = School::whereUuid($data['school_id'])->first();
 
-	/**
+                if (!$school) {
+                    $this->addPrepareForValidationError('school_id','Deze school kon helaas niet terug gevonden worden.');
+                } else {
+                    $data['school_id'] = $school->getKey();
+                }
+            }
+        }
+
+        if (isset($data['add_mentor_school_class'])) {
+            if (!Uuid::isValid($data['add_mentor_school_class'])) {
+                $this->addPrepareForValidationError('add_mentor_school_class','Deze mentor klas kon helaas niet terug gevonden worden.');
+            } else {
+                $schoolclass = SchoolClass::whereUuid($data['add_mentor_school_class'])->first();
+
+                if (!$schoolclass) {
+                    $this->addPrepareForValidationError('add_mentor_school_class','Deze mentor klas kon helaas niet terug gevonden worden.');
+                } else {
+                    $data['add_mentor_school_class'] = $schoolclass->getKey();
+                }
+            }
+        }
+
+        if (isset($data['manager_school_classes'])) {
+            foreach ($data['manager_school_classes'] as $key => $value) {
+                if (!Uuid::isValid($value)) {
+                    $this->addPrepareForValidationError('add_mentor_school_class','Deze manager kon helaas niet terug gevonden worden.');
+                } else {
+                    $schoolclass = SchoolClass::whereUuid($value)->first();
+
+                    if (!$schoolclass) {
+                        $this->addPrepareForValidationError('add_mentor_school_class','Deze manager kon helaas niet terug gevonden worden.');
+                    } else {
+                        $data['manager_school_classes'][$key] = $schoolclass->getKey();
+                    }
+                }
+            }
+        }
+
+        if (isset($data['student_parents_of'])) {
+            foreach ($data['student_parents_of'] as $key => $value) {
+                if (!Uuid::isValid($value)) {
+                    $this->addPrepareForValidationError('add_mentor_school_class','Deze ouder kon helaas niet terug gevonden worden.');
+                } else {
+                    $schoolclass = User::whereUuid($value)->first();
+
+                    if (!$schoolclass) {
+                        $this->addPrepareForValidationError('add_mentor_school_class','Deze ouder kon helaas niet terug gevonden worden.');
+                    } else {
+                        $data['student_parents_of'][$key] = $schoolclass->getKey();
+                    }
+                }
+            }
+        }
+
+        $this->merge($data);
+    }
+
+
+    /**
 	 * Get the sanitized input for the request.
 	 *
 	 * @return array

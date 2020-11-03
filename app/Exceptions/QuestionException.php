@@ -8,7 +8,7 @@
 
 namespace tcCore\Exceptions;
 
-
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use tcCore\Jobs\SendExceptionMail;
 
 class QuestionException extends \Exception
@@ -26,8 +26,13 @@ class QuestionException extends \Exception
     }
 
     public function sendExceptionMail(){
-        dispatch(
-            new SendExceptionMail($this->getMessage(), $this->getFile(), $this->getLine(), $this->getDetails())
-        );
+        try {
+            dispatch(
+                new SendExceptionMail($this->getMessage(), $this->getFile(), $this->getLine(), $this->getDetails())
+            );
+        } catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+        }
+
     }
 }

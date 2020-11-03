@@ -49,8 +49,8 @@ class FileManagementController extends Controller
         $fileManagement->fill($request->validated());
         $typeDetails = $fileManagement->typedetails;
         $originalEmail = property_exists($typeDetails,'invite') ? $typeDetails->invite : '';
-        $typeDetails->colorcode = request('colorcode');
-        $typeDetails->invite = request('invite');
+        $typeDetails->colorcode = $request->get('colorcode');
+        $typeDetails->invite = $request->get('invite');
         $fileManagement->typedetails = $typeDetails;
         if ($fileManagement->save() !== false) {
             $email = $request->get('invite');
@@ -93,13 +93,13 @@ class FileManagementController extends Controller
                 'school_location_id' => $schoolLocation->getKey(),
                 'type' => 'testupload',
                 'typedetails' => [
-                    'test_kind_id' => request('test_kind_id'),
-                    'education_level_year' => request('education_level_year'),
-                    'education_level_id' => request('education_level_id'),
-                    'subject' => request('subject'),
-                    'name' => request('name'),
-                    'correctiemodel' => request('correctiemodel'),
-                    'multiple' => request('multiple'),
+                    'test_kind_id' => $request->get('test_kind_id'),
+                    'education_level_year' => $request->get('education_level_year'),
+                    'education_level_id' => $request->get('education_level_id'),
+                    'subject' => $request->get('subject'),
+                    'name' => $request->get('name'),
+                    'correctiemodel' => $request->get('correctiemodel'),
+                    'multiple' => $request->get('multiple'),
                 ],
             ];
 
@@ -115,7 +115,7 @@ class FileManagementController extends Controller
 
                 $origfileName = $file->getClientOriginalName();
 
-                $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5),Str::slug(request('name')), pathinfo($origfileName, PATHINFO_EXTENSION));
+                $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5),Str::slug($request->get('name')), pathinfo($origfileName, PATHINFO_EXTENSION));
 
                 $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
 
@@ -141,7 +141,7 @@ class FileManagementController extends Controller
         $file = $request->file('file');
         $origfileName = $file->getClientOriginalName();
 
-        $fileName = sprintf('%s-%s.%s', date('YmdHis'), Str::slug(request('class')), pathinfo($origfileName, PATHINFO_EXTENSION));
+        $fileName = sprintf('%s-%s.%s', date('YmdHis'), Str::slug($request->get('class')), pathinfo($origfileName, PATHINFO_EXTENSION));
 
         $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
 
@@ -155,11 +155,11 @@ class FileManagementController extends Controller
             'school_location_id' => $schoolLocation->getKey(),
             'type' => 'classupload',
             'typedetails' => [
-                'class' => request('class'),
-                'education_level_year' => request('education_level_year'),
-                'education_level_id' => request('education_level_id'),
-                'is_main_school_class' => request('is_main_school_class'),
-                'subject' => request('subject'),
+                'class' => $request->get('class'),
+                'education_level_year' => $request->get('education_level_year'),
+                'education_level_id' => $request->get('education_level_id'),
+                'is_main_school_class' => $request->get('is_main_school_class'),
+                'subject' => $request->get('subject'),
             ],
         ];
 

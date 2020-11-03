@@ -22,7 +22,10 @@ class CreatePeriodRequest extends Request {
 		$this->filterInput();
 
 		return [
-			//
+		    'name' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'date|after:start_date',
+            'school_year_id' => 'required|integer|exists:school_years,id',
 		];
 	}
 

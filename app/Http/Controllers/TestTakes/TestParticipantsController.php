@@ -8,6 +8,7 @@ use tcCore\AnswerRating;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestParticipantRequest;
 use tcCore\Http\Requests\HeartbeatTestParticipantRequest;
+use tcCore\Http\Requests\IndexTestParticipantsRequest;
 use tcCore\Http\Requests\UpdateTestParticipantRequest;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Lib\Question\QuestionInterface;
@@ -23,8 +24,13 @@ class TestParticipantsController extends Controller
      *
      * @return Response
      */
-    public function index(TestTake $testTake, Request $request)
+    public function index(TestTake $testTake, IndexTestParticipantsRequest $request)
     {
+
+        if($request->has('from_retake') && $request->input('from_retake') == true){
+          $testTake = $request->retakeTestTake; // managed through the formRequest
+        }
+
         $testParticipants = $testTake->testParticipants()->with('user', 'testTakeStatus', 'schoolClass');
         $userRoles = $this->getUserRoles();
 
@@ -360,7 +366,8 @@ class TestParticipantsController extends Controller
 
     public function heartbeat($testTakeId, TestParticipant $testParticipant, HeartbeatTestParticipantRequest $request)
     {
-        if ($testParticipant->test_take_id !== (int)$testTakeId) {//$testTake->getKey()) {
+        $answer_id = (int)TestTake::whereUUid($testTakeId)->first()->getKey();
+        if ($testParticipant->test_take_id !== $answer_id) {//$testTake->getKey()) {
             return Response::make('Test participant not found', 404);
         }
 //        $testParticipant->load('testTake', 'testTake.discussingParentQuestions', 'testTake.testTakeStatus', 'testTakeStatus', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
@@ -370,7 +377,7 @@ class TestParticipantsController extends Controller
 
 
         if ($request->filled('answer_id')) {
-            $testParticipant->setAttribute('answer_id', $request->get('answer_id'));
+            $testParticipant->setAttribute('answer_id', $answer_id);
         }
 
         if ($testParticipant->save() !== false) {

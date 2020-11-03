@@ -6,16 +6,21 @@ use tcCore\Lib\User\Roles;
 
 abstract class BaseModel extends Model {
 
-    public function cloneModelOnly(array $except = null)
+    protected $exceptCloneModelOnly = [];
+
+    public function cloneModelOnly(array $except = [])
     {
+        $except = array_merge($except, $this->exceptCloneModelOnly);
+
         $defaults = [
             $this->getKeyName(),
+            'uuid',
             $this->getCreatedAtColumn(),
             $this->getUpdatedAtColumn(),
         ];
 
         $attributes = Arr::except(
-            $this->attributes, $except ? array_unique(array_merge($except, $defaults)) : $defaults
+            $this->attributes, array_unique(array_merge($except, $defaults))
         );
 
         $instance = new static;

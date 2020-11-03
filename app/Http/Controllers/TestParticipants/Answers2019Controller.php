@@ -67,8 +67,10 @@ class Answers2019Controller extends Controller
             200);
     }
 
-    public function showQuestionAndAnswer(TestParticipant $testParticipant, Question $question, Request $request)
+    public function showQuestionAndAnswer(TestParticipant $testParticipant, Answer $question_but_it_is_answer_uuid, Request $request)
     {
+        $question = $question_but_it_is_answer_uuid->question;//real question
+
         $answer = Answer::where('test_participant_id', $testParticipant->getKey())
                             ->where('question_id', $question->getKey())
                             ->with('answerParentQuestions', 'Question', 'answerParentQuestions', 'answerParentQuestions.groupQuestion', 'answerParentQuestions.groupQuestion.attachments')

@@ -7,10 +7,14 @@ use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\User\Roles;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class Section extends BaseModel implements AccessCheckable {
 
     use SoftDeletes;
+    use UuidTrait;
 
     /**
      * The attributes that should be mutated to dates.
@@ -42,6 +46,7 @@ class Section extends BaseModel implements AccessCheckable {
 
     protected $casts = [
         'demo' => 'boolean',
+        'uuid' => EfficientUuid::class,
     ];
 
     protected $schoolLocations;
@@ -172,4 +177,6 @@ class Section extends BaseModel implements AccessCheckable {
     {
         throw new AccessDeniedHttpException('Access to section denied');
     }
+
+
 }

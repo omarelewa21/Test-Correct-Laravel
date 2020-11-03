@@ -6,13 +6,14 @@
  * Time: 15:42
  */
 
-namespace Tests;
+namespace Tests\Feature;
 
 use tcCore\Jobs\CountSchoolLocationStudents;
 use tcCore\Role;
-use tcCore\Text2speech;
+use tcCore\Text2Speech;
 use tcCore\User;
 use tcCore\UserRole;
+use Tests\TestCase;
 
 class Text2SpeechTest extends TestCase
 {
@@ -30,7 +31,7 @@ class Text2SpeechTest extends TestCase
             'school_location_id' => $manager->school_location_id,
         ]);
 
-        factory(Text2speech::class)->create([
+        factory(Text2Speech::class)->create([
             'user_id' => $student->getKey(),
             'active' => true
         ]);

@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Ramsey\Uuid\Uuid;
+use tcCore\EducationLevel;
 
 class CreateTestUploadRequest extends Request {
 
@@ -95,9 +97,37 @@ class CreateTestUploadRequest extends Request {
      * @param  \Illuminate\Validation\Validator $validator
      * @return void
      */
-    public function getWithValidator($validator){
-        $validator->after(function ($validator) {
+    public function prepareForValidation(){
 
+        $data = ($this->all());
+        if (isset($data['education_level_id'])) {
+            if (!Uuid::isValid($data['education_level_id'])) {
+                $this->addPrepareForValidationError('education_level_id','Het niveau van de toets kon niet bepaald worden.');
+            } else {
+                $educationlevel = EducationLevel::whereUuid($data['education_level_id'])->first();
+
+                if (!$educationlevel) {
+                    $this->addPrepareForValidationError('education_level_id','Het niveau van de toets kon niet bepaald worden.');
+                } else {
+                    $data['education_level_id'] = $educationlevel->getKey();
+                }
+            }
+        }
+
+        $this->merge($data);
+
+    }
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $this->addPrepareForValidationErrorsToValidatorIfNeeded($validator);
         });
     }
 

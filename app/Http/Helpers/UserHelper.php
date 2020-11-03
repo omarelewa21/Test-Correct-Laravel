@@ -17,20 +17,6 @@ use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
-use tcCore\SchoolClass;
-use tcCore\SchoolLocation;
-use tcCore\SchoolLocationEducationLevel;
-use tcCore\SchoolLocationSection;
-use tcCore\SchoolYear;
-use tcCore\Section;
-use tcCore\Student;
-use tcCore\Subject;
-use tcCore\Teacher;
-use tcCore\Test;
-use tcCore\TestParticipant;
-use tcCore\TestTake;
-use tcCore\Text2speech;
-use tcCore\Text2speechLog;
 use tcCore\User;
 
 class UserHelper

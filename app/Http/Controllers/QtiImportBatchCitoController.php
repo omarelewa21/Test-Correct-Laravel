@@ -30,6 +30,7 @@ use ZipArchive;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Test;
+use tcCore\User;
 
 class QtiImportBatchCitoController extends Controller
 {
@@ -65,10 +66,11 @@ class QtiImportBatchCitoController extends Controller
             ->map(function ($t) {
                 return (object)[
                     'id' => $t->user->id,
+                    'uuid' => $t->user->uuid,
                     'name' => str_replace('  ', ' ', trim(sprintf('%s %s %s (%s)', $t->user->name_first, $t->user->name_suffix, $t->user->name, $t->user->abbreviation))),
-                    'school_location_id' => $t->user->school_location_id,
+                    'school_location_id' => $t->user->schoolLocation->uuid,
                     'subject_ids' => $t->user->subjects()->get()->map(function ($s) {
-                        return $s->id;
+                        return $s->uuid;
                     })->toArray(),
                 ];
             });
@@ -113,8 +115,15 @@ class QtiImportBatchCitoController extends Controller
 //                'zip_file' => 'required|mimes:zip',
             ]);
 
+            //UUID update
+            //convert UUIDs to IDs
+            $data = $request->all();
+            $data['school_location_id'] = SchoolLocation::whereUuid($data['school_location_id'])->first()->getKey();
+            $data['author_id'] = User::whereUuid($data['author_id'])->first()->getKey();
+            $data['education_level_id'] = EducationLevel::whereUuid($data['education_level_id'])->first()->getKey();
+            $data['subject_id'] = Subject::whereUuid($data['subject_id'])->first()->getKey();
 
-            $schoolLocationId = $request->get('school_location_id');
+            $schoolLocationId = $data['school_location_id'];
             $schoolLocation = SchoolLocation::find($schoolLocationId);
             $schoolYears = $schoolLocation->schoolLocationSchoolYears->map(function ($l) {
                 return $l->school_year_id;
@@ -126,7 +135,7 @@ class QtiImportBatchCitoController extends Controller
             }
             $period = $periods->first();
             $request->request->add(['period_id' => $period->id]);
-
+            $data['period_id'] = $period->id;
 
             $file = $request->file('zip_file');
 
@@ -134,7 +143,9 @@ class QtiImportBatchCitoController extends Controller
             $fileName = $file->getClientOriginalName();
             $this->basePath = storage_path('app/qti_import');
 
-            $this->requestData = $request->all();
+            $this->requestData = $data;
+            $request->merge($data);
+
             $startDir = $this->dateStamp = date('YmdHis');
             $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
             $file->move($this->packageDir, $fileName);
@@ -224,7 +235,6 @@ class QtiImportBatchCitoController extends Controller
 
 //        \Zipper::make($file)->extractTo($dir);
         Zip::open($file)->extract($dir);
-        logger('hier');
         $dirs = collect(scandir($dir))->filter(function ($file) {
             return $file != '.' && $file !== '..';
         });
@@ -258,7 +268,7 @@ class QtiImportBatchCitoController extends Controller
         if ($excelFile) {
             $this->manifest = new ExcelManifest($dir . '/' . $excelFile);
         }
-        logger($this->manifest->getTestListWithResources());
+//        logger($this->manifest->getTestListWithResources());
 
 
         // check for extra test zip files or is this a test itself

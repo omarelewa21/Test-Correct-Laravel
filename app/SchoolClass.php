@@ -4,17 +4,25 @@ use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use tcCore\Jobs\UpdatePValueSchoolClass;
-use tcCore\Jobs\UpdateRatingSchoolClass;
+use tcCore\Jobs\PValues\UpdatePValueSchoolClass;
+use tcCore\Jobs\Rating\UpdateRatingsSchoolClass;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Roles;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Traits\UuidTrait;
 
 class SchoolClass extends BaseModel implements AccessCheckable {
 
     use SoftDeletes;
+    use UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -53,7 +61,6 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         parent::fill($attributes);
 
         if(array_key_exists('demo_restriction_overrule',$attributes)){
-            logger('attribute found');
             $this->demoRestrictionOverrule = true;
         }
 
@@ -112,7 +119,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         {
             if ($schoolClass->getOriginal('education_level_id') != $schoolClass->getAttribute('education_level_id') || $schoolClass->getOriginal('education_level_year') != $schoolClass->getAttribute('education_level_year')) {
                 Queue::push(new UpdatePValueSchoolClass($schoolClass));
-                Queue::push(new UpdateRatingSchoolClass($schoolClass));
+                Queue::push(new UpdateRatingsSchoolClass($schoolClass));
             }
         });
 
@@ -379,4 +386,6 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     {
         throw new AccessDeniedHttpException('Access to school class denied');
     }
+
+
 }

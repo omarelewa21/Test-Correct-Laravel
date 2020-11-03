@@ -17,11 +17,22 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\TestParticipant\Factory;
+use Dyrynda\Database\Casts\EfficientUuid;
+use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Scopes\ArchivedScope;
+use tcCore\Traits\Archivable;
+use tcCore\Traits\UuidTrait;
 
 class TestTake extends BaseModel
 {
 
     use SoftDeletes;
+    use UuidTrait;
+    use Archivable;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -377,7 +388,7 @@ class TestTake extends BaseModel
           from
             `teachers`
           where
-            `user_id` = :userId AND 
+            `user_id` = :userId AND
             deleted_at is null
         ) and test_take_id = :testTakeId",
             ['userId' => $userToCheck->getKey(), 'testTakeId' => $this->getKey()]
@@ -419,6 +430,8 @@ class TestTake extends BaseModel
         $this->schoolClasses = null;
     }
 
+
+
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = $this->getUserRoles();
@@ -452,7 +465,7 @@ class TestTake extends BaseModel
 //                        ->where('deleted_at', null);
 //                });
                     // -- aanmaker van de test_take / inplanner
-                    $query->orWhere('user_id', Auth::id())
+                    $query->orWhere('test_takes.user_id', Auth::id())
                     // -- in de lijst met surveillanten
                     ->orWhereIn($this->getTable() . '.id', function ($query) {
                         $query->select('test_take_id')
@@ -506,7 +519,7 @@ class TestTake extends BaseModel
                 if ($subject === null) {
                     if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://portal.test-correct.nl/" || config('app.env') == "production") {
                         dispatch(new SendExceptionMail("Er is iets mis met de demoschool op " . config('app.url_login') . "! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!", __FILE__, 510, []));
-                    }                    
+                    }
                     return;
                 }
 
@@ -760,5 +773,6 @@ class TestTake extends BaseModel
 
         return $query->where(sprintf('%s.demo', $tableAlias), 0);
     }
+
 
 }

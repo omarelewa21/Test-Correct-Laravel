@@ -28,8 +28,8 @@ use tcCore\Teacher;
 use tcCore\Test;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
-use tcCore\Text2speech;
-use tcCore\Text2speechLog;
+use tcCore\Text2Speech;
+use tcCore\Text2SpeechLog;
 use tcCore\User;
 
 class DemoHelper
@@ -65,11 +65,23 @@ class DemoHelper
         return $this;
     }
 
+    public function getDemoSubject()
+    {
+        if ($this->schoolLocation === null) {
+            throw new \Exception('schoollocation not set');
+        }
+        $section = $this->getDemoSection();
+        if ($section !== null) {
+            return $this->getDemoSubjectIfExists($section);
+        }
+        return null;
+    }
+
     public function getDemoSubjectForTeacher(User $user)
     {
         $this->setSchoolLocation($user->schoolLocation);
         $section = $this->getDemoSection();
-        if($section !== null){
+        if ($section !== null) {
             return $this->getDemoSubjectIfExists($section);
         }
         return null;
@@ -79,13 +91,13 @@ class DemoHelper
     {
         $this->setSchoolLocation($user->schoolLocation);
         $schoolClass = $this->getDemoClass();
-        if($schoolClass === null || Teacher::where('user_id',$user->getKey())->where('class_id',$schoolClass->getKey())->count() < 1){
+        if ($schoolClass === null || Teacher::where('user_id', $user->getKey())->where('class_id', $schoolClass->getKey())->count() < 1) {
             return false;
         }
-        if(Test::where('name',$this->getTestNameForTeacher(null,$user))->count() < 1){
+        if (Test::where('name', $this->getTestNameForTeacher(null, $user))->count() < 1) {
             return false;
         }
-        if(Teacher::where('user_id',$user->getKey())->where('class_id',$schoolClass->getKey())->first() == null){
+        if (Teacher::where('user_id', $user->getKey())->where('class_id', $schoolClass->getKey())->first() == null) {
             return false;
         }
 
@@ -94,10 +106,10 @@ class DemoHelper
 
     public function createDemoForTeacherIfNeeded(User $user)
     {
-        if(!$this->hasTeacherDemoSetup($user)){
+        if (!$this->hasTeacherDemoSetup($user)) {
             $this->createDemoForSchoolLocationIfNeeded($user->schoolLocation);
             $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
-            if($schoolYear !== null) {
+            if ($schoolYear !== null) {
                 $this->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear, $user);
             }
         }
@@ -113,7 +125,7 @@ class DemoHelper
 
     public function createDemoForSchoolLocationIfNeeded(SchoolLocation $schoolLocation)
     {
-        if(!$this->hasSchoolDemoSetup($schoolLocation)){
+        if (!$this->hasSchoolDemoSetup($schoolLocation)) {
             $this->createDemoPartsForSchool($schoolLocation);
         }
     }
@@ -151,8 +163,7 @@ class DemoHelper
         $schoolClass = $this->getDemoClass();
         if (!$schoolClass) {
             $schoolClass = $this->createDemoClassIfNeeded($schoolYear);
-        }
-        else if($schoolClass->schoolYear !== $schoolYear) {
+        } else if ($schoolClass->schoolYear !== $schoolYear) {
             $schoolClass = $this->moveDemoClassToNewSchoolYear($schoolClass, $schoolYear);
         }
 
@@ -174,7 +185,7 @@ class DemoHelper
     {
         $this->setSchoolLocation($schoolLocation);
 
-        $userDetails =collect([
+        $userDetails = collect([
             ['nr' => '01'],
             ['nr' => '02'],
             ['nr' => '03'],
@@ -182,11 +193,11 @@ class DemoHelper
             ['nr' => '05'],
         ]);
         $userDetails->each(function ($u) use ($oldCustomerCode) {
-            $u = (object) $u;
+            $u = (object)$u;
             $user = User::where('school_location_id', $this->schoolLocation->getKey())
                 ->where('username', $this->getUsername('student', $u->nr, $oldCustomerCode))->first();
-            if($user){
-                $user->username = $this->getUsername('student',$u->nr);
+            if ($user) {
+                $user->username = $this->getUsername('student', $u->nr);
                 $user->demoRestrictionOverrule = true;
                 $user->save();
             }
@@ -194,9 +205,9 @@ class DemoHelper
 
         $user = User::where('school_location_id', $this->schoolLocation->getKey())
             ->where('username', $this->getUsername('teacher', null, $oldCustomerCode))->first();
-        if($user){
+        if ($user) {
             $user->username = $this->getUsername('teacher');
-            $user->name = sprintf('%s %s',self::TEACHERLASTNAMEBASE, $this->schoolLocation->customer_code);
+            $user->name = sprintf('%s %s', self::TEACHERLASTNAMEBASE, $this->schoolLocation->customer_code);
             $user->demoRestrictionOverrule = true;
             $user->save();
         }
@@ -266,8 +277,8 @@ class DemoHelper
     protected function getBaseDemoTest()
     {
 
-        $test = Test::where('name', self::BASEDEMOTESTNAME)->orderBy('created_at','desc')->get()->first(function(Test $t){
-            return TestTake::where('test_id',$t->getKey())->where('test_take_status_id',9)->count() > 0;
+        $test = Test::where('name', self::BASEDEMOTESTNAME)->orderBy('created_at', 'desc')->get()->first(function (Test $t) {
+            return TestTake::where('test_id', $t->getKey())->where('test_take_status_id', 9)->count() > 0;
         });
 
 
@@ -279,23 +290,22 @@ class DemoHelper
 
     protected function createDemoTestsForTeacher(Teacher $teacher, $students, Test $baseDemoTest, SchoolClass $schoolClass)
     {
-        $data = $this->createDemoTestForTeacher($teacher,$baseDemoTest);
+        $data = $this->createDemoTestForTeacher($teacher, $baseDemoTest);
 
         $periodId = PeriodRepository::getCurrentPeriod()->getKey();
 
-        $testTakes = TestTake::where('test_id',$baseDemoTest->getKey())->get()->transform(function(TestTake $testTake) use ($teacher, $students, $schoolClass, $periodId,$data){
+        $testTakes = TestTake::where('test_id', $baseDemoTest->getKey())->get()->transform(function (TestTake $testTake) use ($teacher, $students, $schoolClass, $periodId, $data) {
             $helper = new TestTakeDuplicateHelper();
-            $data = $helper->collect($testTake->getKey(), $data['test']->getKey(),$teacher->user->getKey(), $students->pluck('id'), $schoolClass->getKey(), $periodId)->duplicate()->getNew();
+            $data = $helper->collect($testTake->getKey(), $data['test']->getKey(), $teacher->user->getKey(), $students->pluck('id'), $schoolClass->getKey(), $periodId)->duplicate()->getNew();
             return $data['testTake'];
         });
 
         return [
             'new' => $data['new'],
-            'test'=> $data['test'],
+            'test' => $data['test'],
             'testTakes' => $testTakes,
         ];
     }
-
 
 
     /** create demo class */
@@ -338,10 +348,10 @@ class DemoHelper
 
     protected function getTestNameForTeacher(Teacher $teacher = null, User $user = null)
     {
-        if($teacher === null && $user === null){
+        if ($teacher === null && $user === null) {
             throw new \Exception('There needs to be a teacher or user to get the name of the test');
         }
-        if($user === null) {
+        if ($user === null) {
             $user = $teacher->user;
         }
         return str_replace('  ', ' ', sprintf(self::TESTNAME, $user->name_first, $user->name_suffix, $user->name));
@@ -355,7 +365,7 @@ class DemoHelper
             $userFactory = new Factory(new User());
             $user = $userFactory->generate([
                 'name_first' => ' ',
-                'name' => sprintf('%s %s', self::TEACHERLASTNAMEBASE,$this->schoolLocation->customer_code),
+                'name' => sprintf('%s %s', self::TEACHERLASTNAMEBASE, $this->schoolLocation->customer_code),
                 'abbreviation' => 'DD01',
                 'username' => $this->getUsername('teacher'),
                 'password' => ('Alblasserdam43'),
@@ -402,12 +412,12 @@ class DemoHelper
 
             }
 
-            if($u->nr === '01') {
-                Text2speech::firstOrCreate(
+            if ($u->nr === '01') {
+                Text2Speech::firstOrCreate(
                     ['user_id' => $user->getKey()],
                     ['price' => 0.0, 'active' => 1, 'acceptedby' => 0]
                 );
-                Text2speechLog::firstOrCreate(
+                Text2SpeechLog::firstOrCreate(
                     ['user_id' => $user->getKey()],
                     ['who' => 0, 'action' => 'ACCEPTED']
                 );
@@ -425,18 +435,18 @@ class DemoHelper
             $nr = '';
             $typeName = 'docent';
         }
-        if($customer_code === null) $customer_code = $this->schoolLocation->customer_code;
-        return str_replace(' ','-',sprintf('info+%s%s%s@test-correct.nl', $customer_code, $typeName, $nr));
+        if ($customer_code === null) $customer_code = $this->schoolLocation->customer_code;
+        return str_replace(' ', '-', sprintf('info+%s%s%s@test-correct.nl', $customer_code, $typeName, $nr));
     }
 
     /** section data */
     protected function getDemoSection()
     {
         $this->schoolLocation->refresh();
-        $sls = $this->schoolLocation->schoolLocationSections->first(function($s){
+        $sls = $this->schoolLocation->schoolLocationSections->first(function ($s) {
             return $s->section !== null && $s->section->name === self::SECTIONNAME;
         });
-        if($sls){
+        if ($sls) {
             return $sls->section;
         }
         return null;
@@ -446,12 +456,12 @@ class DemoHelper
     {
         $section = $this->getDemoSection();
         if ($section == null) {
-            $section = Section::create(['name' => self::SECTIONNAME,'demo'=>true]);
+            $section = Section::create(['name' => self::SECTIONNAME, 'demo' => true]);
         }
         SchoolLocationSection::firstOrCreate([
             'school_location_id' => $this->schoolLocation->getKey(),
             'section_id' => $section->getKey()
-            ],
+        ],
             ['demo' => true,]
         );
         $this->setSection($section);

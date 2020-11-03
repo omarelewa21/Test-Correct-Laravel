@@ -77,14 +77,6 @@ class ExcelAttainmentManifest
 
 }
 
-class ExcelAttainmentResourceImport implements WithHeadingRow
-{
-    use Importable;
 
-    public function headingRow(): int
-    {
-        return 1;
-    }
-}
 
 

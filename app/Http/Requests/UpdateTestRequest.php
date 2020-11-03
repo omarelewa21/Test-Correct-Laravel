@@ -2,6 +2,8 @@
 
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
+use Ramsey\Uuid\Uuid;
+use tcCore\EducationLevel;
 use tcCore\Http\Helpers\DemoHelper;
 
 class UpdateTestRequest extends Request {
@@ -67,6 +69,17 @@ class UpdateTestRequest extends Request {
                     $validator->errors()->add('name','Deze naam is helaas niet beschikbaar voor een toets');
                 }
             }
+
+            if(Uuid::isValid($data['education_level_id'])){
+                $educationLevel = EducationLevel::whereUuid($data['education_level_id'])->first();
+                if(!$educationLevel){
+                    $validator->errors()->add('education_level_id','Dit niveau kon helaas niet terug gevonden worden.');
+                } else {
+                    $data['education_level_id'] = $educationLevel->getKey();
+                }
+            }
+
+            $this->merge($data);
         });
     }
 

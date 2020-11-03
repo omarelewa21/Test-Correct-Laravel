@@ -11,30 +11,14 @@ namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Uuid;
 use tcCore\Answer;
 use tcCore\AnswerParentQuestion;
 use tcCore\AnswerRating;
-use tcCore\BaseSubject;
-use tcCore\EducationLevel;
 use tcCore\Invigilator;
-use tcCore\Lib\Repositories\PeriodRepository;
-use tcCore\Lib\User\Factory;
-use tcCore\Rating;
-use tcCore\SchoolClass;
-use tcCore\SchoolLocation;
-use tcCore\SchoolLocationSection;
-use tcCore\SchoolYear;
-use tcCore\Section;
-use tcCore\Student;
-use tcCore\Subject;
-use tcCore\Teacher;
-use tcCore\Test;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeEvent;
-use tcCore\Text2speech;
-use tcCore\Text2speechLog;
-use tcCore\User;
 
 class TestTakeDuplicateHelper
 {
@@ -162,6 +146,9 @@ class TestTakeDuplicateHelper
                 $new->fill([
                     'test_participant_id' => $this->new['refParticipantIds'][$a->test_participant_id],
                 ]);
+
+                $new->setAttribute('uuid', Uuid::uuid4());
+
                 if (!$new->save()) {
                     throw new \Exception('could not save the duplicated Answers');
                 }
@@ -187,6 +174,9 @@ class TestTakeDuplicateHelper
                 $new->fill([
                     'answer_id' => $this->new['refAnswerIds'][$a->answer_id],
                 ]);
+
+                $new->setAttribute('uuid', Uuid::uuid4());
+
                 if (!$new->save()) {
                     throw new \Exception('could not save the duplicated answer parent question');
                 }

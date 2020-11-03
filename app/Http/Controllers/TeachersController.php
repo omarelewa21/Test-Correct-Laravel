@@ -48,6 +48,11 @@ class TeachersController extends Controller
         /**
          * @var Teacher $teacher
          */
+        $request->merge([
+            'user_id' => User::whereUuid($request->get('user_id'))->first()->getKey(),
+            'class_id' => SchoolClass::whereUuid($request->get('class_id'))->first()->getKey()
+        ]);
+
         $teacher = Teacher::withTrashed()
             ->firstOrNew($request->only(['user_id', 'class_id', 'subject_id']));
         $teacher->fill($request->all());
