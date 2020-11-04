@@ -1,7 +1,9 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Mail;
 
 class PValue extends BaseModel {
 
@@ -100,7 +102,23 @@ class PValue extends BaseModel {
     public function savePValueUsers() {
         $users = $this->users()->withTrashed()->get();
         $this->syncTcRelation($users, $this->users, 'user_id', function($pValue, $user) {
-            PValueUser::create(['user_id' => $user, 'p_value_id' => $pValue->getKey()]);
+            //TCP-335
+            try {
+                PValueUser::create(['user_id' => $user, 'p_value_id' => $pValue->getKey()]);
+            } catch (\Throwable $th) {
+                $existingPValueUser = PValueUser::where(['user_id' => $user, 'p_value_id' => $pValue->getKey()]);
+                if (is_null($existingPValueUser)) {
+                    $body = 'Error in PValue.php: The PValueUser could not be created but the PValueUser with user_id "' . $user . '" and p_value_id "' . $pValue->getKey() . '" could not be created!';
+
+                    Bugsnag::notifyException(new \LogicException($body));
+
+                    Mail::raw($body, function ($message) {
+                        $message->to(env("MAIL_DEV_ADDRESS"), 'Auto Error Mailer');
+                        $message->subject('PValueUser error');
+                    });
+                }
+            }
+            
         });
 
         $this->users = null;
@@ -113,7 +131,22 @@ class PValue extends BaseModel {
     public function savePValueAttainments() {
         $attainments = $this->attainments()->withTrashed()->get();
         $this->syncTcRelation($attainments, $this->attainments, 'attainment_id', function($pValue, $attainment) {
-            PValueAttainment::create(['attainment_id' => $attainment, 'p_value_id' => $pValue->getKey()]);
+            //TCP-335
+            try {
+                PValueAttainment::create(['attainment_id' => $attainment, 'p_value_id' => $pValue->getKey()]);
+            } catch (\Throwable $th) {
+                $existingPValueAttainment = PValueAttainment::where(['attainment_id' => $attainment, 'p_value_id' => $pValue->getKey()]);
+                if (is_null($existingPValueAttainment)) {
+                    $body = 'Error in PValue.php: The PValueUser could not be created but the PValueUser with attainment_id "' . $attainment . '" and p_value_id "' . $pValue->getKey() . '" could not be created!';
+
+                    Bugsnag::notifyException(new \LogicException($body));
+
+                    Mail::raw($body, function ($message) {
+                        $message->to(env("MAIL_DEV_ADDRESS"), 'Auto Error Mailer');
+                        $message->subject('PValueUser error');
+                    });
+                }
+            }
         });
 
         $this->attainments = null;
