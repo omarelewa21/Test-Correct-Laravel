@@ -144,6 +144,11 @@ class Message extends BaseModel {
         $this->read = null;
     }
 
+    public function markRead() {
+        $this->read = 1;
+        $this->saveRead();
+    }
+
     public function fill(array $attributes) {
         parent::fill($attributes);
 
