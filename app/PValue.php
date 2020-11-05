@@ -1,11 +1,13 @@
 <?php namespace tcCore;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use tcCore\Jobs\SendExceptionMail;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Mail;
 
-class PValue extends BaseModel {
+class PValue extends BaseModel
+{
 
     use SoftDeletes;
 
@@ -56,7 +58,7 @@ class PValue extends BaseModel {
         parent::boot();
 
         // Progress additional answers
-        static::saved(function(PValue $pValue) {
+        static::saved(function (PValue $pValue) {
             if ($pValue->users !== null) {
                 $pValue->savePValueUsers();
             }
@@ -67,70 +69,101 @@ class PValue extends BaseModel {
         });
     }
 
-    public function answer() {
+    public function answer()
+    {
         return $this->belongsTo('tcCore\Answer');
     }
 
-    public function testParticipant() {
+    public function testParticipant()
+    {
         return $this->belongsTo('tcCore\TestParticipant');
     }
 
-    public function question() {
+    public function question()
+    {
         return $this->belongsTo('tcCore\Question');
     }
 
-    public function period() {
+    public function period()
+    {
         return $this->belongsTo('tcCore\Period');
     }
 
-    public function schoolClass() {
+    public function schoolClass()
+    {
         return $this->belongsTo('tcCore\SchoolClass');
     }
 
-    public function educationLevel() {
+    public function educationLevel()
+    {
         return $this->belongsTo('tcCore\EducationLevel');
     }
 
-    public function subject() {
+    public function subject()
+    {
         return $this->belongsTo('tcCore\Subject');
     }
 
-    public function users() {
+    public function users()
+    {
         return $this->hasMany('tcCore\PValueUser');
     }
 
-    public function savePValueUsers() {
+    public function savePValueUsers()
+    {
         $users = $this->users()->withTrashed()->get();
-        $this->syncTcRelation($users, $this->users, 'user_id', function($pValue, $user) {
+        $this->syncTcRelation($users, $this->users, 'user_id', function ($pValue, $user) {
+            $line = __LINE__;
             //TCP-335
             try {
                 PValueUser::create(['user_id' => $user, 'p_value_id' => $pValue->getKey()]);
             } catch (\Throwable $th) {
+
                 $existingPValueUser = PValueUser::where(['user_id' => $user, 'p_value_id' => $pValue->getKey()]);
+                $error = null;
                 if (is_null($existingPValueUser)) {
-                    $body = 'Error in PValue.php: The PValueUser could not be created but the PValueUser with user_id "' . $user . '" and p_value_id "' . $pValue->getKey() . '" could not be created!';
+                    // strange error as we should have been able to create the pValueUser as it wasn't there yet, but still we got an error
+                    $error = sprintf('Error while trying to create a PValueUser, error %s (user_id: %s, p_value_id: %s)',
+                        $th->getMessage(),
+                        $user,
+                        $pValue->getKey()
+                    );
 
-                    Bugsnag::notifyException(new \LogicException($body));
+                } else {
+                    $error = sprintf(
+                        'Failed to create a pValueUser while it was already there, with values for user_id %s and p_value_id %s',
+                        $user,
+                        $pValue->getKey()
+                    );
 
-                    Mail::raw($body, function ($message) {
-                        $message->to(env("MAIL_DEV_ADDRESS"), 'Auto Error Mailer');
-                        $message->subject('PValueUser error');
-                    });
+                }
+                if (null !== $error) {
+                    Bugsnag::notifyException(new \LogicException($error));
+
+                    dispatch_now(new SendExceptionMail($error,__FILE__,$line,[],'PValueUser error'));
+
+//                    Mail::raw($error, function ($message) {
+//                        $message->to(env("MAIL_DEV_ADDRESS"), 'Auto Error Mailer');
+//                        $message->subject('PValueUser error');
+//                    });
+
                 }
             }
-            
+
         });
 
         $this->users = null;
     }
 
-    public function attainments() {
+    public function attainments()
+    {
         return $this->hasMany('tcCore\PValueAttainment');
     }
 
-    public function savePValueAttainments() {
+    public function savePValueAttainments()
+    {
         $attainments = $this->attainments()->withTrashed()->get();
-        $this->syncTcRelation($attainments, $this->attainments, 'attainment_id', function($pValue, $attainment) {
+        $this->syncTcRelation($attainments, $this->attainments, 'attainment_id', function ($pValue, $attainment) {
             //TCP-335
             try {
                 PValueAttainment::create(['attainment_id' => $attainment, 'p_value_id' => $pValue->getKey()]);
@@ -152,19 +185,20 @@ class PValue extends BaseModel {
         $this->attainments = null;
     }
 
-    public function fill(array $attributes) {
+    public function fill(array $attributes)
+    {
         parent::fill($attributes);
 
         if (array_key_exists('users', $attributes)) {
             $this->users = $attributes['users'];
-        } elseif(array_key_exists('add_user', $attributes) || array_key_exists('delete_user', $attributes)) {
+        } elseif (array_key_exists('add_user', $attributes) || array_key_exists('delete_user', $attributes)) {
             $this->users = $this->users()->pluck('user_id')->all();
             if (array_key_exists('add_user', $attributes)) {
                 array_push($this->users, $attributes['add_user']);
             }
 
             if (array_key_exists('delete_user', $attributes)) {
-                if(($key = array_search($attributes['delete_user'], $this->users)) !== false) {
+                if (($key = array_search($attributes['delete_user'], $this->users)) !== false) {
                     unset($this->users[$key]);
                 }
             }
@@ -172,14 +206,14 @@ class PValue extends BaseModel {
 
         if (array_key_exists('attainments', $attributes)) {
             $this->attainments = $attributes['attainments'];
-        } elseif(array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment', $attributes)) {
+        } elseif (array_key_exists('add_attainment', $attributes) || array_key_exists('delete_attainment', $attributes)) {
             $this->attainments = $this->attainments()->pluck('attainment_id')->all();
             if (array_key_exists('add_attainment', $attributes)) {
                 array_push($this->attainments, $attributes['add_attainment']);
             }
 
             if (array_key_exists('delete_attainment', $attributes)) {
-                if(($key = array_search($attributes['delete_attainment'], $this->attainments)) !== false) {
+                if (($key = array_search($attributes['delete_attainment'], $this->attainments)) !== false) {
                     unset($this->attainments[$key]);
                 }
             }
