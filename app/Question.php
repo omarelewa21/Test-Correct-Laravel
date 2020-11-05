@@ -462,8 +462,7 @@ class Question extends MtiBaseModel {
         return $uses > 0;
     }
 
-    public function scopeOpensourceAndDemo($query){
-        $roles = $this->getUserRoles();
+    public function scopeOpensourceAndDemo($query, $filters = []){
         $user = Auth::user();
         $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
 
@@ -492,7 +491,7 @@ class Question extends MtiBaseModel {
             }
 
         } else {
-            if (in_array('Teacher', $roles)) {
+            if ($user->isA('Teacher')) {
                 $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
                 $query->orWhere(function($q) use ($user, $subject){
                     // subject id = $subject->getKey() together with being an owner through the question_authors table
