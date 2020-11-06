@@ -481,7 +481,11 @@ class Test extends BaseModel
                     }
                     break;
                 case 'education_level_year':
-                    $query->where('education_level_year', '=', $value);
+                    if (is_array($value)) {
+                        $query->whereIn('education_level_year', $value);
+                    } else {
+                        $query->where('education_level_year', '=', $value);
+                    }
                     break;
                 case 'period_id':
                     if (is_array($value)) {
@@ -672,7 +676,7 @@ class Test extends BaseModel
             select (id)
                 from (
                 select
-                  question_id as id 
+                  question_id as id
                   from
                   `test_questions`
                 where
@@ -681,14 +685,14 @@ class Test extends BaseModel
                   select question_id as id from group_question_questions where group_question_id in(
                   select question_id from test_questions where test_id = ? and deleted_at is null
                   ) and deleted_at is null
-                  
-                 
+
+
                 )as t
                  group by
                   `id`
-                
+
                 having
-                  COUNT(id) > 1        
+                  COUNT(id) > 1
         ', [$this->getKey(), $this->getKey()]);
 
     }
