@@ -9,66 +9,50 @@ use tcCore\Commands\SeleniumTest;
 class TestingController extends Controller {
 
     public function store() {
-        if (!app()->environment('production') && $this->isSeleniumMode()) {
-            if (request('flag') !== 'testdb') {
-                $file = database_path(sprintf('seeds/testing/db_dump_%s.sql', request('flag')));
-            } else {
-                $file = database_path('seeds/testdb.sql');
-            }
-
-            if (file_exists($file)) {
-
-                DatabaseImport::importSql(database_path('seeds/dropAllTablesAndViews.sql'));
-
-                DatabaseImport::importSql($file);
-
-                DatabaseImport::migrate();
-
-                DatabaseImport::addRequiredDatabaseData();
-
-                return Response::make("ok");
-            }
+        if (request('flag') !== 'testdb') {
+            $file =  database_path(sprintf('seeds/testing/db_dump_%s.sql', request('flag')));
+        } else {
+            $file = database_path('seeds/testdb.sql');
         }
+
+        if (file_exists($file)) {
+
+            DatabaseImport::importSql(database_path('seeds/dropAllTablesAndViews.sql'));
+
+            DatabaseImport::importSql($file);
+
+            DatabaseImport::migrate();
+
+            DatabaseImport::addRequiredDatabaseData();
+
+            return Response::make("ok");
+        }
+
 
         return Response::make("error");
     }
 
     public function seleniumToggle() {
-        if (!app()->environment('production')) {
-            $toggle = request('toggle');
+        $toggle = request('toggle');
 
-            if ($toggle == 'true') {
-                if(!$this->isSeleniumMode()) { // only do this if not already in selenium mode
-                    SeleniumTest::applySeleniumEnvFile();
-                }
-            } else {
-                if($this->isSeleniumMode()) { // only do this if in selenium mode
-                    SeleniumTest::restoreEnvFile();
-                }
-            }
-
-            return Response::make("ok");
+        if ($toggle == 'true') {
+            SeleniumTest::applySeleniumEnvFile();
+        } else {
+            SeleniumTest::restoreEnvFile();
         }
 
-        return Response::make('error');
+        return Response::make("ok");
     }
 
     public function seleniumState() {
-        if (!app()->environment('production')) {
+        $env = env('SELENIUM_TEST', false);
 
-            if($this->isSeleniumMode()){
-                return Response::make("true");
-            }
-
+        if ($env != 1) {
             return Response::make("false");
+        } else {
+            return Response::make("true");
         }
 
-        return Response::make('error');
-    }
-
-    protected function isSeleniumMode()
-    {
-        return (bool) env('SELENIUM_TEST', false) == 1;
     }
 
 }
