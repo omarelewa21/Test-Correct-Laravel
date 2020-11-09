@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Auth;
 class SearchFiltersController extends Controller
 {
     public function store(CreateSearchFilterRequest $request){
-    	return SearchFilter::create($request->validated());
+    	$searchFilter = SearchFilter::create($request->validated());
+
+    	return $searchFilter->activate();
     }
 
     public function update(CreateSearchFilterRequest $request,$uuid){
@@ -19,7 +21,8 @@ class SearchFiltersController extends Controller
     	if(is_null($searchFilter)){
     		return response()->json('[]');
     	}
-    	return $searchFilter->update($request->validated());
+    	$searchFilter->update($request->validated());
+        return $searchFilter->activate();
     }
 
     public function show($key=false){

@@ -13,7 +13,16 @@ class SearchFilter extends Model
     use UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'    => EfficientUuid::class,
         'filters' => 'array',
     ];
+
+    public function activate()
+    {
+        SearchFilter::where('user_id', $this->user_id)->where('key', $this->key)->update(['active' => false]);
+        $this->active = true;
+        $this->save();
+
+        return $this;
+    }
 }
