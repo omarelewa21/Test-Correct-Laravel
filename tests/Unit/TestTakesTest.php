@@ -8,9 +8,9 @@
 
 namespace Tests\Unit;
 
+use Illuminate\Support\Facades\DB;
+use tcCore\ArchivedModel;
 use tcCore\TestTake;
-use tcCore\Text2speech;
-use tcCore\Text2speechLog;
 use tcCore\User;
 use Tests\TestCase;
 
@@ -18,6 +18,22 @@ class TestTakesTest extends TestCase
 {
 
     use \Illuminate\Foundation\Testing\DatabaseTransactions;
+
+   /** @test */
+   public function a_test_takes_has_a_archived_attribute()
+   {
+       $teacherOne = User::whereUsername(self::USER_TEACHER)->first();
+       $this->actingAs($teacherOne);
+       $testTake = TestTake::first();
+
+       $this->assertFalse($testTake->archived);
+
+       $testTake->archiveForUser($teacherOne);
+// reload the testTake from database; // refresh and fresh don't apply global scope why?
+       $archivedTestTake = $testTake->find($testTake->id);
+
+       $this->assertTrue($archivedTestTake->archived);
+   }
 
     /** @test */
     public function load_planned_teacher_for_d1()

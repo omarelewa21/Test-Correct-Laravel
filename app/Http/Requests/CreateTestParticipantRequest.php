@@ -40,9 +40,8 @@ class CreateTestParticipantRequest extends Request {
      * @param \Illuminate\Validation\Validator $validator
      * @return void
      */
-    public function withValidator($validator)
+    public function prepareForValidation()
     {
-        $validator->after(function ($validator) {
             $data = ($this->all());
 
             if(isset($data["user_id"])){
@@ -97,6 +96,18 @@ class CreateTestParticipantRequest extends Request {
             }
 
             $this->merge($data);
+    }
+
+    /**
+     * Configure the validator instance.
+     *
+     * @param \Illuminate\Validation\Validator $validator
+     * @return void
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $this->addPrepareForValidationErrorsToValidatorIfNeeded($validator);
         });
     }
 

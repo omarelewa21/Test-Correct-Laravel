@@ -35,7 +35,27 @@ class CreateSchoolClassRequest extends Request {
 		];
 	}
 
-	    /**
+    public function prepareForValidation()
+    {
+
+        $data = ($this->all());
+
+        if(!Uuid::isValid($data['education_level_id'])){
+            $this->addPrepareForValidationError('education_level_id','Dit niveau kon helaas niet terug gevonden worden.');
+        } else {
+            $educationLevel = EducationLevel::whereUuid($data['education_level_id'])->first();
+
+            if (!$educationLevel) {
+                $this->addPrepareForValidationError('education_level_id', 'Dit niveau kon helaas niet terug gevonden worden.');
+            } else {
+                $data['education_level_id'] = $educationLevel->getKey();
+            }
+        }
+
+        $this->merge($data);
+    }
+
+    /**
      * Configure the validator instance.
      *
      * @param \Illuminate\Validation\Validator $validator
@@ -44,22 +64,7 @@ class CreateSchoolClassRequest extends Request {
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            $data = ($this->all());
-
-			
-			if(!Uuid::isValid($data['education_level_id'])){
-				$validator->errors()->add('education_level_id','Dit niveau kon helaas niet terug gevonden worden.');
-			}
-
-			$educationLevel = EducationLevel::whereUuid($data['education_level_id'])->first();
-
-			if (!$educationLevel) {
-				$validator->errors()->add('education_level_id','Dit niveau kon helaas niet terug gevonden worden.');
-			}
-
-			$data['education_level_id'] = $educationLevel->getKey();
-
-            $this->merge($data);
+            $this->addPrepareForValidationErrorsToValidatorIfNeeded($validator);
         });
     }
 

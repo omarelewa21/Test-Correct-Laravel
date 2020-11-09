@@ -5,7 +5,7 @@ namespace tcCore;
 use Illuminate\Database\Eloquent\Model;
 
 
-class Text2speechLog extends Model
+class Text2SpeechLog extends Model
 {
 
     /**

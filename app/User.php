@@ -208,11 +208,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	}
 
     public function text2SpeechDetails(){
-        return $this->hasOne(Text2speech::class);
+        return $this->hasOne(Text2Speech::class);
     }
 
     public function text2SpeechLog(){
-        return $this->hasMany(Text2speechLog::class);
+        return $this->hasMany(Text2SpeechLog::class);
     }
 
     public function hasText2Speech(){
@@ -309,13 +309,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $oldText2Speech = (bool) $user->getOriginal('text2speech');
             if(!$oldText2Speech && (bool) request()->input('text2speech')){
                 // we've got a new user with time dispensation
-                Text2speech::create([
+                Text2Speech::create([
                     'user_id'   => $user->getKey(),
                     'active'    => true,
                     'acceptedby'=> Auth::user()->getKey(),
                     'price'     => config('custom.text2speech.price')
                 ]);
-                Text2speechLog::create([
+                Text2SpeechLog::create([
                     'user_id'    => $user->getKey(),
                     'action'     => 'ACCEPTED',
                     'who'        => Auth::user()->getKey()
@@ -329,7 +329,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $user->text2SpeechDetails->active = $newActiveText2Speech;
                     $user->text2SpeechDetails->save();
 
-                    Text2speechLog::create([
+                    Text2SpeechLog::create([
                         'user_id'    => $user->getKey(),
                         'action'     => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
                         'who'        => Auth::user()->getKey()

@@ -29,6 +29,30 @@ class CreateUmbrellaOrganizationRequest extends Request {
 		];
 	}
 
+
+    public function prepareForValidation()
+    {
+
+        $data = ($this->all());
+
+        if (isset($data['user_id'])) {
+            if (!Uuid::isValid($data['user_id'])) {
+                $this->addPrepareForValidationError('user_id','Deze gebruiker kon helaas niet terug gevonden worden.');
+            }
+
+            $user = User::whereUuid($data['user_id'])->first();
+
+            if (!$user) {
+                $this->addPrepareForValidationError('user_id','Deze gebruiker kon helaas niet terug gevonden worden.');
+            } else {
+                $data['user_id'] = $user->getKey();
+            }
+        }
+
+        $this->merge($data);
+
+    }
+
     /**
      * Configure the validator instance.
      *
@@ -38,23 +62,7 @@ class CreateUmbrellaOrganizationRequest extends Request {
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-			$data = ($this->all());
-			
-			if (isset($data['user_id'])) {
-				if (!Uuid::isValid($data['user_id'])) {
-					$validator->errors()->add('user_id','Deze gebruiker kon helaas niet terug gevonden worden.');
-				}
-
-				$user = User::whereUuid($data['user_id'])->first();
-
-				if (!$user) {
-					$validator->errors()->add('user_id','Deze gebruiker kon helaas niet terug gevonden worden.');
-				} else {
-					$data['user_id'] = $user->getKey();
-				}
-			}
-
-            $this->merge($data);
+            $this->addPrepareForValidationErrorsToValidatorIfNeeded($validator);
         });
     }
 

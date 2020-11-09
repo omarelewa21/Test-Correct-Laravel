@@ -6,7 +6,9 @@
  * Time: 13:29
  */
 
-$factory->define(\tcCore\Text2speech::class, function (Faker\Generator $faker) {
+use tcCore\Text2Speech;
+
+$factory->define(Text2Speech::class, function (Faker\Generator $faker) {
     return [
         'acceptedby' => 2,
         'active' => true,

@@ -4,8 +4,8 @@ use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use tcCore\Jobs\UpdatePValueSchoolClass;
-use tcCore\Jobs\UpdateRatingSchoolClass;
+use tcCore\Jobs\PValues\UpdatePValueSchoolClass;
+use tcCore\Jobs\Rating\UpdateRatingsSchoolClass;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -119,7 +119,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         {
             if ($schoolClass->getOriginal('education_level_id') != $schoolClass->getAttribute('education_level_id') || $schoolClass->getOriginal('education_level_year') != $schoolClass->getAttribute('education_level_year')) {
                 Queue::push(new UpdatePValueSchoolClass($schoolClass));
-                Queue::push(new UpdateRatingSchoolClass($schoolClass));
+                Queue::push(new UpdateRatingsSchoolClass($schoolClass));
             }
         });
 

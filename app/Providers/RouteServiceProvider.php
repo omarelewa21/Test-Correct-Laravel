@@ -2,6 +2,7 @@
 
 use Illuminate\Routing\Router;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -46,7 +47,7 @@ use tcCore\TestParticipant;
 use tcCore\TestQuestion;
 use tcCore\TestTake;
 use tcCore\TestTakeEvent;
-use tcCore\testTakeEventType;
+use tcCore\TestTakeEventType;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
@@ -357,6 +358,8 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('test_take', function($item) {
+
+            //return TestTake::select('test_takes.*')->whereUuid($item)->firstOrFail();
             return TestTake::whereUuid($item)->firstOrFail();
         });
 
@@ -369,7 +372,7 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('test_take_event_type', function($item) {
-            return testTakeEventType::whereUuid($item)->firstOrFail();
+            return TestTakeEventType::whereUuid($item)->firstOrFail();
         });
 
         Route::bind('education_level', function($item) {
@@ -383,7 +386,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('student', function($item) {
             return Student::whereUuid($item)->firstOrFail();
         });
-        
+
         Route::bind('open_question', function($item) {
             return OpenQuestion::whereUuid($item)->firstOrFail();
         });
@@ -436,7 +439,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('multiple_choice_question', function($item) {
             return MultipleChoiceQuestion::whereUuid($item)->firstOrFail();
         });
-        
+
         Route::bind('attainment', function($item) {
             return Attainment::whereUuid($item)->firstOrFail();
         });
@@ -460,7 +463,7 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('license', function($item) {
             return License::whereUuid($item)->firstOrFail();
         });
-        
+
         Route::bind('message', function($item) {
             return Message::whereUuid($item)->firstOrFail();
         });
@@ -479,8 +482,8 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('fileManagement', function($item) {
             return FileManagement::whereUuid($item)->firstOrFail();
-        });     
-        
+        });
+
     }
 
     /**
