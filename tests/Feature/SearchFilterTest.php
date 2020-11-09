@@ -31,6 +31,8 @@ class SearchFilterTest extends TestCase
         $this->assertEquals(1, SearchFilter::count());
         $searchfilter = SearchFilter::first();
         $this->assertEquals('new filter', $searchfilter->name);
+        // it should be active once created;
+        $this->assertEquals(1, $searchfilter->active);
         $this->assertNotEmpty($searchfilter->uuid);
     }
 
