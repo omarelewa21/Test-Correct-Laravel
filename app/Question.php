@@ -515,6 +515,7 @@ class Question extends MtiBaseModel {
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
+        $query = $this->opensourceAndDemo($query,$filters);
         $joins = [];
 
         // Have to apply search filter first due to subquery left join with parameters
