@@ -462,7 +462,10 @@ class Question extends MtiBaseModel {
         return $uses > 0;
     }
 
+
     public function scopeOpensourceAndDemo($query, $filters = []){
+        $roles = $this->getUserRoles();
+
         $user = Auth::user();
         $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
 
@@ -512,6 +515,7 @@ class Question extends MtiBaseModel {
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
+        $query = $this->opensourceAndDemo($query,$filters);
         $joins = [];
 
         // Have to apply search filter first due to subquery left join with parameters
@@ -589,7 +593,7 @@ class Question extends MtiBaseModel {
             }
         }
 
-        $roles = $this->getUserRoles();
+  //      $roles = $this->getUserRoles();
 
   //       $user = Auth::user();
   //       $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
