@@ -66,9 +66,7 @@ class SearchFiltersController extends Controller
         }
         $userId = Auth::user()->id;
         $searchFilter = SearchFilter::where('user_id',$userId)->whereUuid($uuid)->first();
-        $searchFilter->active = false;
-        $searchFilter->save();
-        logger($searchFilter);
-        return response()->json($searchFilter);
+        SearchFilter::where('key', $searchFilter->key)->where('user_id', $userId)->update(['active'=> false]);
+        return response()->json($searchFilter->refresh());
     }
 }
