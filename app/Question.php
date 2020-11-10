@@ -702,6 +702,8 @@ class Question extends MtiBaseModel {
 
                     if (is_array($value)) {
                         $query->whereIn('subtype', $value);
+                    }elseif(strtolower($value) == 'long'){
+                        $query->where('subtype', '=', 'long')->orWhere('subtype', '=', 'medium');
                     } else {
                         $query->where('subtype', '=', $value);
                     }
