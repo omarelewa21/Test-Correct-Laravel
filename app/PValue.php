@@ -129,12 +129,12 @@ class PValue extends BaseModel
                         $pValue->getKey()
                     );
 
-                } else {
-                    $error = sprintf(
-                        'Failed to create a pValueUser while it was already there, with values for user_id %s and p_value_id %s',
-                        $user,
-                        $pValue->getKey()
-                    );
+//                } else { // first errors mailed show that this is only the case probably because of this->users not being unique or calling this method twice. So therefor no problem trying to add them twice
+//                    $error = sprintf(
+//                        'Failed to create a pValueUser while it was already there, with values for user_id %s and p_value_id %s',
+//                        $user,
+//                        $pValue->getKey()
+//                    );
 
                 }
                 if (null !== $error) {
