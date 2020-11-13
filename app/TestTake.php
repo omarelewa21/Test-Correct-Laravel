@@ -481,11 +481,15 @@ class TestTake extends BaseModel
                             ->whereNull('deleted_at')
                             ->whereIn('school_class_id', function ($query) {
                                 $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
+                                $teacherTable = with((new Teacher)->getTable());
+                                $schoolClassTable = with((new SchoolClass())->getTable());
                                 $query->select('class_id')
-                                    ->from(with((new Teacher)->getTable()))
+                                    ->from($teacherTable)
+                                    ->join($schoolClassTable, "$teacherTable.class_id",'=',"$schoolClassTable.id")
                                     ->where('user_id', Auth::id())
                                     ->where('school_year_id',$currentSchoolYearId)
-                                    ->whereNull('deleted_at');
+                                    ->whereNull("$teacherTable.deleted_at")
+                                    ->whereNull("$schoolClassTable.deleted_at");
                             })
                             ->whereIn($this->getTable() . '.id', function ($query) {
                                 $testTable = with(new Test())->getTable();
