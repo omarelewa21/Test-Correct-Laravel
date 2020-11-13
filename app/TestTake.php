@@ -16,6 +16,7 @@ use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Jobs\SendExceptionMail;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -479,9 +480,11 @@ class TestTake extends BaseModel
                             ->from(with(new TestParticipant())->getTable())
                             ->whereNull('deleted_at')
                             ->whereIn('school_class_id', function ($query) {
+                                $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
                                 $query->select('class_id')
                                     ->from(with((new Teacher)->getTable()))
                                     ->where('user_id', Auth::id())
+                                    ->where('school_year_id',$currentSchoolYearId)
                                     ->whereNull('deleted_at');
                             })
                             ->whereIn($this->getTable() . '.id', function ($query) {
