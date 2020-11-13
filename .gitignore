@@ -4,6 +4,8 @@
 /public/vendor
 .env
 .envBackupWhileStresstest
+.envBackupWhileSeleniumtest
+.env.selenium
 .idea
 /storage
 /storage/*.key
@@ -19,3 +21,5 @@ yarn-error.log
 /storage/drawing_question_bgs
 /public/waiting.txt
 launch.json
+public/vendor/telescope
+vendor/*

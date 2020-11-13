@@ -86,6 +86,18 @@ class MessageController extends Controller {
     }
 
     /**
+     * Mark the message as read
+     *
+     * @param  Message $message
+     * @return Response
+     */
+    public function markRead(Message $message)
+    {
+        $message->markRead();
+        return Response::make("ok");
+    }
+
+    /**
      * Remove the specified message from storage.
      *
      * @param  Message  $message

@@ -297,6 +297,16 @@ class SchoolClass extends BaseModel implements AccessCheckable {
                         $query->where('school_year_id', '=', $currentSchoolYear->getKey());
                     }
                     break;
+                case 'current':
+                    if ($value != true) {
+                        break;
+                    }
+                    $schoolYearRepository = new SchoolYearRepository();
+                    $currentSchoolYear = $schoolYearRepository->getCurrentSchoolYear();
+                    if ($currentSchoolYear instanceof SchoolYear) {
+                        $query->where('school_year_id', '=', $currentSchoolYear->getKey());
+                    }
+                    break;
                 case 'school_year_id':
                     if (is_array($value)) {
                         $query->whereIn('school_year_id', $value);

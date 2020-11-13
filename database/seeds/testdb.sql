@@ -13751,22 +13751,6 @@ VALUES
 /*!40000 ALTER TABLE `test_questions` ENABLE KEYS */;
 UNLOCK TABLES;
 
-
-# Dump of table test_rating_participants
-# ------------------------------------------------------------
-
-DROP TABLE IF EXISTS `test_rating_participants`;
-
-CREATE TABLE `test_rating_participants` (
-  `test_participant_id` int unsigned NOT NULL,
-  `test_rating_id` int unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-
-
 # Dump of table test_take_event_types
 # ------------------------------------------------------------
 

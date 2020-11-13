@@ -13,14 +13,19 @@
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use tcCore\Http\Controllers\Testing\TestingController;
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
 
 Route::get('/', 'HomeController@index');
 
+Route::get('/testing/selenium', [TestingController::class, 'seleniumState'])->name('testing.seleniumState');
+Route::post('/testing/selenium', [TestingController::class, 'seleniumToggle'])->name('testing.seleniumToggle');
+Route::post('/testing/testing', [TestingController::class, 'store'])->name('testing.store');
+
+
 /* TEST MULTIPLE QUESTION STUFF */
-Route::get('/testing/{id}', 'HomeController@test');
 
 Route::post('auth', ['uses' => 'Auth\AuthController@getApiKey']);
 Route::post('send_password_reset', ['uses' => 'Auth\PasswordController@sendPasswordReset']);
@@ -215,6 +220,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('section', 'SectionsController', ['except' => ['create', 'edit']]);
 	Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
 
+	Route::put('message/mark_read/{message}', 'MessageController@markRead')->name('message.mark_read');
 	Route::resource('message', 'MessageController', ['except' => ['create', 'edit']]);
 
 	Route::resource('address', 'AddressesController', ['except' => ['create', 'edit']]);
@@ -235,11 +241,14 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('qtiimportbatchcito/data','QtiImportBatchCitoController@data')->name('qtiimportbatchcito_data');
     Route::post('qtiimportbatchcito/import','QtiImportBatchCitoController@store')->name('qtiimportbatchcito_import');
 
-
-    Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
-
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
 
+    Route::post('search_filter','SearchFiltersController@store')->name('search_filter.store');
+    Route::put('search_filter/{uuid}','SearchFiltersController@update')->name('search_filter.update');
+    Route::get('search_filter/{key?}','SearchFiltersController@show')->name('search_filter.show');
+    Route::delete('search_filter/{uuid}','SearchFiltersController@delete')->name('search_filter.delete');
+    Route::put('search_filter/{uuid}/set_active','SearchFiltersController@setActive')->name('search_filter.set_active');
+    Route::put('search_filter/{uuid}/deactive','SearchFiltersController@deactive')->name('search_filter.deactive');
 
 });

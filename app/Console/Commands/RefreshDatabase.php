@@ -78,6 +78,8 @@ class RefreshDatabase extends Command
 
         $this->addRequiredDatabaseData();
 
+        $this->runseeder();
+
         $this->info('refresh database complete');
     }
 }

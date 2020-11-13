@@ -16,6 +16,8 @@ class SendExceptionMail extends Job implements ShouldQueue
     protected $lineNr;
     protected $details;
 
+    protected $subject = 'test-correct exception';
+
     /**
      * Create a new job instance.
      *
@@ -25,12 +27,15 @@ class SendExceptionMail extends Job implements ShouldQueue
      * @param $details (array)
      * @return void
      */
-    public function __construct($errMessage, $file, $lineNr, $details = [])
+    public function __construct($errMessage, $file, $lineNr, $details = [], $subject = null)
     {
         $this->errMessage = $errMessage;
         $this->file = $file;
         $this->lineNr = $lineNr;
         $this->details = $details;
+        if(null !== $subject) {
+            $this->subject = $subject;
+        }
     }
 
     /**
@@ -55,7 +60,7 @@ class SendExceptionMail extends Job implements ShouldQueue
                                   'server'     => $serverDetails], function ($m) {
             $m->to(
                 config('mail.mail_dev_address')
-            )->subject('test-correct exception');
+            )->subject($this->subject);
         });
     }
 }
