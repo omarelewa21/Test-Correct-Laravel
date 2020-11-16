@@ -13,7 +13,7 @@ use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
-use tcCore\Http\Requests\UserSwitchSchoolLocationRequest;
+use tcCore\Http\Requests\UserMoveSchoolLocationRequest;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\PValueRepository;
@@ -75,13 +75,13 @@ class UsersController extends Controller
     }
 
     /**
-     * Switch School Location
+     * Move School Location
      *
      * @param User $user
      * @param UpdateUserRequest $request
      * @return Response
      */
-    public function switch_school_location(User $user, UserSwitchSchoolLocationRequest $request)
+    public function move_school_location(User $user, UserMoveSchoolLocationRequest $request)
     {
         // nothing to do
         if ($user->school_location_id == $request->get('school_location_id')) {

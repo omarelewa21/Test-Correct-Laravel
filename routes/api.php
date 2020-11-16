@@ -196,7 +196,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
     Route::post('demo_account/notify_support_teacher_tries_to_upload', 'DemoAccountController@notifySupportTeacherTriesToUpload')->name('demo_account.notify_support_teacher_tries_to_upload');
 
-    Route::put('user/switch_school_location/{user}','UsersController@switch_school_location')->name('user.switch_school_location');
+    Route::put('user/move_school_location/{user}','UsersController@move_school_location')->name('user.move_school_location');
 
 	// Sales organization
 	Route::resource('sales_organization', 'SalesOrganizationsController', ['except' => ['create', 'edit']]);
