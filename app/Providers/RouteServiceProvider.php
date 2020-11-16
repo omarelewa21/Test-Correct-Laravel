@@ -495,12 +495,29 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->mapApiRoutes();
 
+        $this->mapWebRoutes();
+
         if (!$this->app->environment('production')){
             $this->mapTestingRoutes();
         }
 //        $this->mapWebRoutes();
         //
     }
+
+    /**
+     * Define the "web" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapWebRoutes()
+    {
+        Route::middleware('web')
+//            ->namespace($this->namespace)
+            ->group(base_path('routes/web.php'));
+    }
+
 
     /**
      * Define the "testing" routes for the application.
