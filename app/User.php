@@ -387,7 +387,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 				}
 
 				if ($user->getAttribute('school_location_id') !== $user->getOriginal('school_location_id')) {
-					$prevSchoolLocation = School::find($user->getOriginal('school_location_id'));
+					#MF 2020-11-17 changed School::find to SchoolLocation::find because of errors in jobs;
+				    $prevSchoolLocation = SchoolLocation::find($user->getOriginal('school_location_id'));
 				} else {
 					$prevSchoolLocation = null;
 				}
@@ -1485,6 +1486,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         return $query->where(sprintf('%s.demo', $tableAlias), 0);
+    }
+
+    public function allowedSchoolLocations()
+    {
+        return $this->belongsToMany(SchoolLocation::class);
+    }
+
+    public function isAllowedToSwitchToSchoolLocation(SchoolLocation $schoolLocation) {
+	    return null !== $this->allowedSchoolLocations()->firstWhere($schoolLocation->getKeyName(), $schoolLocation->getKey());
     }
 
 

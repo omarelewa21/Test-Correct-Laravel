@@ -13,7 +13,7 @@ class CreateSchoolLocationUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('school_location_users', function (Blueprint $table) {
+        Schema::create('school_location_user', function (Blueprint $table) {
             $table->bigInteger('school_location_id');
             $table->bigInteger('user_id');
             $table->timestamps();
@@ -29,6 +29,6 @@ class CreateSchoolLocationUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('school_location_users');
+        Schema::dropIfExists('school_location_user');
     }
 }

@@ -251,4 +251,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('search_filter/{uuid}/set_active','SearchFiltersController@setActive')->name('search_filter.set_active');
     Route::put('search_filter/{uuid}/deactive','SearchFiltersController@deactive')->name('search_filter.deactive');
 
+    Route::get('school_location_user', 'SchoolLocationUsersController@index')->name('school_location_user.index');
+    Route::put('school_location_user', 'SchoolLocationUsersController@update')->name('school_location_user.update');
+
 });
