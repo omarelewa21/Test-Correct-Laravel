@@ -16,6 +16,7 @@ use tcCore\Lib\Answer\AnswerChecker;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Jobs\SendExceptionMail;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\TestParticipant\Factory;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -475,27 +476,36 @@ class TestTake extends BaseModel
                     })
                     // -- ik heb toegang tot de lesgroep/klas van leerlingen && ik heb een bijpassend subject id
                     ->orWhereIn($this->getTable() . '.id', function ($query) {
+                        $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
+                        $teacherTable = with((new Teacher)->getTable());
+                        $schoolClassTable = with((new SchoolClass())->getTable());
                         $query->select('test_take_id')
                             ->from(with(new TestParticipant())->getTable())
                             ->whereNull('deleted_at')
-                            ->whereIn('school_class_id', function ($query) {
+                            ->whereIn('school_class_id', function ($query) use ($teacherTable,$schoolClassTable,$currentSchoolYearId){
                                 $query->select('class_id')
-                                    ->from(with((new Teacher)->getTable()))
+                                    ->from($teacherTable)
+                                    ->join($schoolClassTable, "$teacherTable.class_id",'=',"$schoolClassTable.id")
                                     ->where('user_id', Auth::id())
-                                    ->whereNull('deleted_at');
+                                    ->where('school_year_id',$currentSchoolYearId)
+                                    ->whereNull("$teacherTable.deleted_at")
+                                    ->whereNull("$schoolClassTable.deleted_at");
                             })
-                            ->whereIn($this->getTable() . '.id', function ($query) {
+                            ->whereIn($this->getTable() . '.id', function ($query) use ($teacherTable,$schoolClassTable,$currentSchoolYearId){
                                 $testTable = with(new Test())->getTable();
                                 $query
                                     ->select($this->getTable().'.id')
                                     ->from($this->getTable())
                                     ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
                                     ->whereNull($testTable.'.deleted_at')
-                                    ->whereIn($testTable . '.subject_id', function ($query) {
+                                    ->whereIn($testTable . '.subject_id', function ($query) use ($teacherTable,$schoolClassTable,$currentSchoolYearId){
                                         $query->select('subject_id')
-                                            ->from(with((new Teacher)->getTable()))
+                                            ->from($teacherTable)
+                                            ->join($schoolClassTable, "$teacherTable.class_id",'=',"$schoolClassTable.id")
                                             ->where('user_id', Auth::id())
-                                            ->whereNull('deleted_at');
+                                            ->where('school_year_id',$currentSchoolYearId)
+                                            ->whereNull("$teacherTable.deleted_at")
+                                            ->whereNull("$schoolClassTable.deleted_at");
                                     });
                             });
                     });
