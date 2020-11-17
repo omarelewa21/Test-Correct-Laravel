@@ -54,7 +54,7 @@ class Onboarding extends Component
 
     public function getMinCharRuleProperty()
     {
-        return strlen($this->password) < 8 ? 'red' : 'green';
+        return mb_strlen($this->password) < 8 ? 'red' : 'green';
     }
 
     public function getMinDigitRuleProperty()
