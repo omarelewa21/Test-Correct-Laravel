@@ -114,6 +114,13 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     {
         parent::boot();
 
+        self::created(function(SchoolClass $schoolClass){
+            if($schoolClass->demo==true){
+                $schoolClass->do_not_overwrite_from_interface = true;
+                $schoolClass->save();
+            }
+        });
+
         // Progress additional answers
         static::updated(function(SchoolClass $schoolClass)
         {
