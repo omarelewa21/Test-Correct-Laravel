@@ -12,6 +12,7 @@ use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestRequest;
 use tcCore\Http\Requests\UpdateTestRequest;
+use tcCore\User;
 
 class SchoolLocationUsersController extends Controller {
 
@@ -31,5 +32,20 @@ class SchoolLocationUsersController extends Controller {
         $user->save();
 
         return $user;
+    }
+
+    public function store(Request $request)
+    {
+        $user = User::whereUuid($request->get('user_uuid'))->first();
+        $schoolLocation = SchoolLocation::whereUuid($request->get('school_location'))->first();
+
+        $user->addSchoolLocation($schoolLocation);
+    }
+
+    public function delete(Request $request) {
+        $user = User::whereUuid($request->get('user_uuid'))->first();
+        $schoolLocation = SchoolLocation::whereUuid($request->get('school_location'))->first();
+
+        $user->removeSchoolLocation($schoolLocation);
     }
 }

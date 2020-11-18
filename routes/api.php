@@ -253,5 +253,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::get('school_location_user', 'SchoolLocationUsersController@index')->name('school_location_user.index');
     Route::put('school_location_user', 'SchoolLocationUsersController@update')->name('school_location_user.update');
+    Route::post('school_location_user', 'SchoolLocationUsersController@store')->name('school_location_user.store');
+    Route::delete('school_location_user', 'SchoolLocationUsersController@delete')->name('school_location_user.delete');
 
 });

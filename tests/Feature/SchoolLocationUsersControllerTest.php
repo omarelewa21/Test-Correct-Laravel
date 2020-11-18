@@ -16,13 +16,95 @@ class SchoolLocationUsersControllerTest extends TestCase
     /** @test */
     public function a_user_can_be_added_to_an_extra_school_location()
     {
-        $this->assertTrue(true);
+        $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
+        $teacherTwo = User::firstWhere('username', self::USER_TEACHER_TWO);
+
+        $this->assertFalse($teacherTwo->isAllowedToSwitchToSchoolLocation($schoolLocationTwo));
+
+        $response = $this->post(
+            route(
+                'school_location_user.store'
+            ),
+            static::getSchoolBeheerderAuthRequestData([
+                'user_uuid' => $teacherTwo->uuid,
+                'school_location' => $schoolLocationTwo->uuid
+            ])
+        );
+        $response->assertSuccessful();
+
+        $this->assertTrue($teacherTwo->isAllowedToSwitchToSchoolLocation($schoolLocationTwo));
     }
 
     /** @test */
     public function a_user_can_be_removed_from_an_extra_school_location()
     {
-        $this->assertTrue(true);
+        $teacherOne = User::firstWhere('username', self::USER_TEACHER);
+
+        $schoolLocationOne =  \tcCore\SchoolLocation::find(1);
+        $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
+
+        $teacherOne
+            ->addSchoolLocation($schoolLocationOne)
+            ->addSchoolLocation($schoolLocationTwo);
+
+        $this->assertTrue(
+            $teacherOne->isAllowedToSwitchToSchoolLocation($schoolLocationTwo)
+        );
+        $this->assertEquals($teacherOne->schoolLocation,$schoolLocationOne);
+
+        $response = $this->delete(
+            route(
+                'school_location_user.delete'
+            ),
+            static::getSchoolBeheerderAuthRequestData([
+                'user_uuid' => $teacherOne->uuid,
+                'school_location' => $schoolLocationTwo->uuid
+            ])
+        );
+
+        $this->assertFalse(
+            $teacherOne->isAllowedToSwitchToSchoolLocation($schoolLocationTwo)
+        );
+
+    }
+
+    /** @test */
+    public function when_a_user_is_removed_from_her_active_school_location_the_active_school_location_should_change()
+    {
+        $teacherOne = User::firstWhere('username', self::USER_TEACHER);
+
+        $schoolLocationOne =  \tcCore\SchoolLocation::find(1);
+        $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
+
+        $this->assertEquals(
+            $schoolLocationOne,
+            $teacherOne->schoolLocation
+        );
+
+        $teacherOne
+            ->addSchoolLocation($schoolLocationOne)
+            ->addSchoolLocation($schoolLocationTwo);
+
+        $this->assertTrue(
+            $teacherOne->isAllowedToSwitchToSchoolLocation($schoolLocationOne)
+        );
+        $this->assertEquals($teacherOne->schoolLocation,$schoolLocationOne);
+
+        $this->delete(
+            route(
+                'school_location_user.delete'
+            ),
+            static::getSchoolBeheerderAuthRequestData([
+                'user_uuid' => $teacherOne->uuid,
+                'school_location' => $schoolLocationOne->uuid
+            ])
+        )->isSuccessful();
+
+        $this->assertEquals(
+            $schoolLocationTwo,
+            $teacherOne->refresh()->schoolLocation
+        );
+
     }
 
     /** @test */
@@ -30,9 +112,15 @@ class SchoolLocationUsersControllerTest extends TestCase
     {
         $teacherOne = User::firstWhere('username', self::USER_TEACHER);
 
-        $this->assertEquals($teacherOne->schoolLocation, \tcCore\SchoolLocation::find(1));
-
+        $schoolLocationOne =  \tcCore\SchoolLocation::find(1);
         $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
+
+        $teacherOne
+            ->addSchoolLocation($schoolLocationOne)
+            ->addSchoolLocation($schoolLocationTwo);
+
+        $this->assertEquals($teacherOne->schoolLocation,$schoolLocationOne);
+
 
         $response = $this->put(
             route(
@@ -78,6 +166,16 @@ class SchoolLocationUsersControllerTest extends TestCase
     /** @test */
     public function a_user_can_request_a_list_of_school_locations()
     {
+        $teacherOne = User::firstWhere('username', self::USER_TEACHER);
+
+        $schoolLocationOne =  \tcCore\SchoolLocation::find(1);
+        $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
+
+        $teacherOne
+            ->addSchoolLocation($schoolLocationOne)
+            ->addSchoolLocation($schoolLocationTwo);
+
+
         $response = $this->get(static::authTeacherOneGetRequest(route('school_location_user.index'), []));
 
         $response->assertSuccessful();
@@ -86,8 +184,5 @@ class SchoolLocationUsersControllerTest extends TestCase
         $first = $response->decodeResponseJson()[0];
         $this->assertEquals(1, $first['id']);
         $this->assertEquals('Open source schoolocatie1', $first['name']);
-
     }
-
-
 }
