@@ -375,6 +375,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         return $this->hasMany('tcCore\SchoolLocationSection', 'school_location_id');
     }
 
+    public function sharedSections()
+    {
+        return $this->belongsToMany(Section::class,'school_location_shared_sections');
+    }
+
     protected function saveSections()
     {
         $schoolLocationSections = $this->schoolLocationSections()->withTrashed()->get();

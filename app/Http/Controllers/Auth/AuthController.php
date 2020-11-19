@@ -60,6 +60,8 @@ class AuthController extends Controller
 
             $user->setAttribute('hasCitoToetsen',$user->hasCitoToetsen());
 
+            $user->setAttribute('hasSharedSections',$user->hasSharedSections());
+
             $user->makeOnboardWizardIfNeeded();
 
             $clone = $user->replicate();

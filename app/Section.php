@@ -113,6 +113,11 @@ class Section extends BaseModel implements AccessCheckable {
         return $this->belongsToMany('tcCore\SchoolLocation', 'school_location_sections', 'section_id', 'school_location_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
+    public function sharedSchoolLocations()
+    {
+        return $this->belongsToMany(SchoolLocation::class,'school_location_shared_sections');
+    }
+
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();

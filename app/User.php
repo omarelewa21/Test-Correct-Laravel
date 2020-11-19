@@ -910,6 +910,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return (bool) $this->subjects()->where('name','like','cito%')->count() > 0;
     }
 
+    public function hasSharedSections()
+    {
+        return (bool) $this->schoolLocation->sharedSections()->count();
+    }
+
+
 	public function getNameFullAttribute()
 	{
 		$result = '';

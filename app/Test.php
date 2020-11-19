@@ -355,6 +355,136 @@ class Test extends BaseModel
         return $query;
     }
 
+    public function scopeSharedSectionsFiltered($query, $filters = [], $sorting = [])
+    {
+        $user = Auth::user();
+
+        $sharedSectionIds = $user->schoolLocation->sharedSections()->pluck('id')->unique();
+        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
+
+        if (count($sharedSectionIds) > 0) {
+            $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',$baseSubjectIds)->pluck('subject_id')->unique();
+        } else { // slower but as a fallback in case there's no cito school
+            $query->where('tests.id', -1);
+            return $query;
+        }
+
+        $query->whereIn('subject_id', $subjectIds);
+        $query->where('published', true);
+
+        if (!array_key_exists('is_system_test', $filters)) {
+            $query->where('is_system_test', '=', 0);
+        }
+
+        foreach ($filters as $key => $value) {
+            switch ($key) {
+                case 'nameOrAbbreviation':
+                    $query->where(function ($query) use ($value) {
+                        $query->where('name', 'LIKE', '%' . $value . '%')->orWhere('abbreviation', 'LIKE', '%' . $value . '%');
+                    });
+                    break;
+                case 'name':
+                    $query->where('name', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'abbreviation':
+                    $query->where('abbreviation', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'subject_id':
+                    if (is_array($value)) {
+                        $query->whereIn('subject_id', $value);
+                    } else {
+                        $query->where('subject_id', '=', $value);
+                    }
+                    break;
+                case 'education_level_id':
+                    if (is_array($value)) {
+                        $query->whereIn('education_level_id', $value);
+                    } else {
+                        $query->where('education_level_id', '=', $value);
+                    }
+                    break;
+                case 'education_level_year':
+                    $query->where('education_level_year', '=', $value);
+                    break;
+                case 'period_id':
+                    if (is_array($value)) {
+                        $query->whereIn('period_id', $value);
+                    } else {
+                        $query->where('period_id', '=', $value);
+                    }
+                    break;
+                case 'test_kind_id':
+                    if (is_array($value)) {
+                        $query->whereIn('test_kind_id', $value);
+                    } else {
+                        $query->where('test_kind_id', '=', $value);
+                    }
+                    break;
+                case 'status':
+                    $query->where('status', $value);
+                    break;
+                case 'created_at_start':
+                    $query->where('created_at', '>=', $value);
+                    break;
+                case 'created_at_end':
+                    $query->where('created_at', '<=', $value);
+                    break;
+                case 'is_system_test':
+                    $query->where('is_system_test', '=', $value);
+                    break;
+                case 'author_id':
+                    if (is_array($value)) {
+                        $query->whereIn('author_id', $value);
+                    } else {
+                        $query->where('author_id', '=', $value);
+                    }
+                    break;
+            }
+        }
+
+        foreach ($sorting as $key => $value) {
+            switch (strtolower($value)) {
+                case 'id':
+                case 'name':
+                case 'abbreviation':
+                case 'subject_id':
+                case 'education_level_id':
+                case 'education_level_year':
+                case 'period_id':
+                case 'test_kind_id':
+                case 'status':
+                case 'author_id':
+                    $key = $value;
+                    $value = 'asc';
+                    break;
+                case 'asc':
+                case 'desc':
+                    break;
+                default:
+                    $value = 'asc';
+            }
+            switch (strtolower($key)) {
+                case 'id':
+                case 'name':
+                case 'abbreviation':
+                case 'subject_id':
+                case 'education_level_id':
+                case 'education_level_year':
+                case 'period_id':
+                case 'test_kind_id':
+                case 'status':
+                case 'author_id':
+                    $query->orderBy($key, $value);
+                    break;
+            }
+        }
+
+        // don't show demo tests from other location
+        $query->where('demo', 0);
+
+        return $query;
+    }
+
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
