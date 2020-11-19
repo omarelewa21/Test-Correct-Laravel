@@ -49,7 +49,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::resource('cito_test','Cito\TestsController')->only(['index','show']);
 
-    Route::get('shared_section_test','SharedSections\TestsController')->only(['index','store']);
+    Route::resource('shared_section_test','SharedSections\TestsController')->only(['index','store']);
 
 	Route::put('test_question/{test_question}/reorder', 'TestQuestionsController@updateOrder');
 	Route::resource('test_question', 'TestQuestionsController', ['except' => ['create', 'edit']]);

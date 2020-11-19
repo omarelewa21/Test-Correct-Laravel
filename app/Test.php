@@ -363,7 +363,7 @@ class Test extends BaseModel
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
 
         if (count($sharedSectionIds) > 0) {
-            $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',$baseSubjectIds)->pluck('subject_id')->unique();
+            $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',$baseSubjectIds)->pluck('id')->unique();
         } else { // slower but as a fallback in case there's no cito school
             $query->where('tests.id', -1);
             return $query;
