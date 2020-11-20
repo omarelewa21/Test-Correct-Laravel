@@ -45,7 +45,6 @@ class SchoolLocationUsersControllerTest extends TestCase
         $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
 
         $teacherOne
-            ->addSchoolLocation($schoolLocationOne)
             ->addSchoolLocation($schoolLocationTwo);
 
         $this->assertTrue(
@@ -83,7 +82,6 @@ class SchoolLocationUsersControllerTest extends TestCase
         );
 
         $teacherOne
-            ->addSchoolLocation($schoolLocationOne)
             ->addSchoolLocation($schoolLocationTwo);
 
         $this->assertTrue(
@@ -117,7 +115,6 @@ class SchoolLocationUsersControllerTest extends TestCase
         $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
 
         $teacherOne
-            ->addSchoolLocation($schoolLocationOne)
             ->addSchoolLocation($schoolLocationTwo);
 
         $this->assertEquals($teacherOne->schoolLocation,$schoolLocationOne);
@@ -173,7 +170,6 @@ class SchoolLocationUsersControllerTest extends TestCase
         $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
 
         $teacherOne
-            ->addSchoolLocation($schoolLocationOne)
             ->addSchoolLocation($schoolLocationTwo);
 
 
@@ -184,6 +180,9 @@ class SchoolLocationUsersControllerTest extends TestCase
         $this->assertCount(2, $response->decodeResponseJson());
         $first = $response->decodeResponseJson()[0];
         $this->assertEquals(1, $first['id']);
+        $this->assertTrue( $first['active']);
+        $this->assertFalse($response->decodeResponseJson()[1]['active']);
+
         $this->assertEquals('Open source schoolocatie1', $first['name']);
     }
 
@@ -202,7 +201,5 @@ class SchoolLocationUsersControllerTest extends TestCase
             2,
             DB::table('school_location_user')->where('user_id', $user->getKey())->get()
         );
-
-
     }
 }

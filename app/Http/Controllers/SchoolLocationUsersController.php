@@ -18,7 +18,14 @@ class SchoolLocationUsersController extends Controller {
 
     public function index()
     {
-        return Auth::user()->allowedSchoolLocations;
+        return Auth::user()->allowedSchoolLocations->map(function($location) {
+            return (object) [
+                'id' => $location->id,
+                'uuid' => $location->uuid,
+                'name' => $location->name,
+                'active' => $location->is(Auth::user()->schoolLocation),
+            ];
+        });
     }
 
     public function update(Request $request)
@@ -31,7 +38,14 @@ class SchoolLocationUsersController extends Controller {
         $user = Auth::user()->schoolLocation()->associate($schoolLocation);
         $user->save();
 
-        return $user;
+        return $user->refresh()->allowedSchoolLocations->map(function($location) {
+            return (object) [
+                'id' => $location->id,
+                'uuid' => $location->uuid,
+                'name' => $location->name,
+                'active' => $location->is(Auth::user()->schoolLocation),
+            ];
+        });
     }
 
     public function store(Request $request)

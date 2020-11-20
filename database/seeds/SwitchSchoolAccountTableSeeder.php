@@ -153,7 +153,7 @@ class SwitchSchoolAccountTableSeeder extends Seeder
             'abbreviation'=> 'BB',
             'school_id'=> $comprehensiveSchool->getKey(),
             'school_location_id'=> $locationB->getKey(),
-            'username'=> 'admin-a@test-correct.nl',
+            'username'=> 'admin-b@test-correct.nl',
             'password'=> 'Sobit4456',
             'user_roles' => [4],
             'gender'=> 'Male',
