@@ -377,7 +377,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
 
     public function sharedSections()
     {
-        return $this->belongsToMany(Section::class,'school_location_shared_sections');
+        return $this->belongsToMany(Section::class,'school_location_shared_sections','school_location_id','section_id')->withTimestamps()->whereNull('school_location_shared_sections.deleted_at');
     }
 
     protected function saveSections()

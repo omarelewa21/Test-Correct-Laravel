@@ -20,6 +20,7 @@ abstract class TestCase extends BaseTestCase
     protected $baseUrl = 'http://test-correct.test';
 
     const USER_TEACHER = 'd1@test-correct.nl';
+    const USER_TEACHER2 = 'd2@test-correct.nl';
 
     const USER_BEHEERDER = 'opensourceschoollocatie1@test-correct.nl';
     const FIORETTI_TEACHER = 'd1@test-correct.nl';

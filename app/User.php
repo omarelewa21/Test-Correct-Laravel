@@ -1450,6 +1450,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->subjects()->pluck('id')->contains($test->subject->getKey());
     }
 
+    public function hasAccessToSharedSectionsTest(Test $test)
+    {
+        $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
+        $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();
+        return
+            collect($sharedSectionIds)->contains($test->subject->section()->pluck('id')->first())
+            &&
+            collect($baseSubjectIds)->contains($test->subject()->pluck('base_subject_id')->first());
+    }
+
     public function makeOnboardWizardIfNeeded()
     {
         if(null === $this->onboardingWizardUserState) {
