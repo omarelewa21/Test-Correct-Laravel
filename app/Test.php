@@ -361,6 +361,7 @@ class Test extends BaseModel
 
         $sharedSectionIds = $user->schoolLocation->sharedSections()->pluck('id')->unique();
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
+        $subjectIds = [];
 
         if (count($sharedSectionIds) > 0) {
             $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',$baseSubjectIds)->pluck('id')->unique();
