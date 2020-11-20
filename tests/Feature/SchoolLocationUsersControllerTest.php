@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use tcCore\Exceptions\Handler;
+use tcCore\SchoolLocation;
 use tcCore\User;
 use Tests\TestCase;
 
@@ -184,5 +185,24 @@ class SchoolLocationUsersControllerTest extends TestCase
         $first = $response->decodeResponseJson()[0];
         $this->assertEquals(1, $first['id']);
         $this->assertEquals('Open source schoolocatie1', $first['name']);
+    }
+
+    /** @test */
+    public function when_a_teacher_with_single_access_is_granted_double_access_the_first_school_is_also_added()
+    {
+        $user = User::whereUsername('teacher-b@test-correct.nl')->first();
+        $this->assertCount(
+            0,
+            DB::table('school_location_user')->where('user_id', $user->getKey())->get()
+        );
+
+        $user->addSchoolLocation(SchoolLocation::find(4));
+
+        $this->assertCount(
+            2,
+            DB::table('school_location_user')->where('user_id', $user->getKey())->get()
+        );
+
+
     }
 }

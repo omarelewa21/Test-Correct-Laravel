@@ -112,6 +112,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function fill(array $attributes)
     {
+        // note when called from seeder this fill method fails because it gets called with several
+        // attributes that are not on the database but are transformable to other fields
+        // or relations. They will end up in the insert query when guarding is off.
+        self::reguard();
         parent::fill($attributes);
 
         if (array_key_exists('student_school_classes', $attributes)) {
@@ -1550,6 +1554,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function addSchoolLocation(SchoolLocation $schoolLocation)
     {
+        if ($this->allowedSchoolLocations->count() === 0) {
+            $this->allowedSchoolLocations()->save($this->schoolLocation);
+        }
+
         $this->allowedSchoolLocations()->save($schoolLocation);
         return $this;
     }
