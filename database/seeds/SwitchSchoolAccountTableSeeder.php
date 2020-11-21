@@ -19,10 +19,8 @@ class SwitchSchoolAccountTableSeeder extends Seeder
         \tcCore\Http\Helpers\ActingAsHelper::getInstance()->reset();
 
 
-
-
         // maak een scholengemeenschap (table schools)
-        $comprehensiveSchool = \tcCore\School::make([
+        $comprehensiveSchool = \tcCore\School::create([
             'customer_code' => 'MS',
             'name' => 'MultiSchool Scholengemeenschap',
             'main_address' => 'Agrobusinespark 10',

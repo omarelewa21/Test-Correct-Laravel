@@ -256,4 +256,5 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('school_location_user', 'SchoolLocationUsersController@store')->name('school_location_user.store');
     Route::delete('school_location_user', 'SchoolLocationUsersController@delete')->name('school_location_user.delete');
 
+    Route::get('school_location_user/existing_teachers', 'SchoolLocationUsersController@getExistingTeachers')->name('school_location_user.get_existing_teachers');
 });

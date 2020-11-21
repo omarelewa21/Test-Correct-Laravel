@@ -62,4 +62,28 @@ class SchoolLocationUsersController extends Controller {
 
         $user->removeSchoolLocation($schoolLocation);
     }
+
+    public function getExistingTeachers(){
+
+
+        if (!Auth::user()->hasRole('Administrator')) {
+            abort(403);
+        }
+
+        if (null === Auth::user()->school_id) {
+            abort(404);
+        }
+
+        /**
+         * select *
+         * from users
+         * inner join user_roles on (users.id = user_roles.user_id and user_roles.`role_id` = 1)
+         * where school_id = 2
+         */
+
+        return User::join('user_roles', function ($join) {
+            $join->on('users.id', '=', 'user_roles.user_id')
+                ->where('user_roles.role_id', '=', 1); // teacher
+        })->where('school_id', Auth::user()->school_id)->get();
+    }
 }

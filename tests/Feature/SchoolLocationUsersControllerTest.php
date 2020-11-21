@@ -202,4 +202,31 @@ class SchoolLocationUsersControllerTest extends TestCase
             DB::table('school_location_user')->where('user_id', $user->getKey())->get()
         );
     }
+
+    /** @test */
+    public function when_a_admin()
+    {
+
+
+        $response = $this->get(
+             self::authUserGetRequest(
+                 route('school_location_user.get_existing_teachers'),
+                 [],
+                 User::firstWhere('username', 'admin-a@test-correct.nl')
+             )
+        );
+        $this->assertTrue(true);
+    }
+
+    /** @test */
+    public function when_hitting_the_get_existing_teacher_endpoint_as_non_admin_i_get_four_o_three()
+    {
+        $response = $this->get(
+            self::authUserGetRequest(
+                route('school_location_user.get_existing_teachers'),
+                [],
+                User::firstWhere('username', 'teacher-a@test-correct.nl')
+            )
+        )->assertStatus(403);
+    }
 }
