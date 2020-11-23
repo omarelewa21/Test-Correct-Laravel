@@ -9,6 +9,7 @@ use tcCore\Http\Requests;
 use tcCore\Http\Requests\DuplicateSharedSectionsTestRequest;
 use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Http\Requests\ShowSharedSectionsTestRequest;
+use tcCore\SchoolLocation;
 use tcCore\Section;
 use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
@@ -33,20 +34,17 @@ class SharedSectionsController extends Controller {
 		return Response::make($list, 200);
 	}
 
-//	public function show(ShowSharedSectionsTestRequest $request, Test $test)
-//    {
-//        return Response::make($test,200);
-//    }
-//
-//
-//	public function duplicate(Test $test, DuplicateSharedSectionsTestRequest $request) {
-//		$test = $test->userDuplicate($request->all(), Auth::id());
-//
-//		if ($test !== false) {
-//			return Response::make($test, 200);
-//		} else {
-//			return Response::make('Failed to duplicate tests', 500);
-//		}
-//	}
+
+	public function store(Request $request, Section $section){
+        $schoolLocationId = $request->get('school_location_id');
+        $section->sharedSchoolLocations()->attach($schoolLocationId);
+        return Response::make($section, 200);
+    }
+
+    public function destroy(Request $request, Section $section, SchoolLocation $school_location)
+    {
+        $school_location->sharedSections()->detach($section->getKey());
+        return Response::make($section, 200);
+    }
 
 }

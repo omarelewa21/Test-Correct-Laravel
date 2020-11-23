@@ -55,6 +55,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('shared_section_test','SharedSections\TestsController@index');
     Route::post('shared_section_test/{test}','SharedSections\TestsController@duplicate');
 
+    Route::get('shared_sections','SharedSectionsController@index');
+    Route::post('shared_sections/{section}','SharedSectionsController@store');
+    Route::delete('shared_sections/{section}/{school_location}','SharedSectionsController@destroy');
+
 	Route::put('test_question/{test_question}/reorder', 'TestQuestionsController@updateOrder');
 	Route::resource('test_question', 'TestQuestionsController', ['except' => ['create', 'edit']]);
 	Route::resource('test_question.attachment', 'TestQuestions\AttachmentsController', ['except' => ['create', 'edit']]);
