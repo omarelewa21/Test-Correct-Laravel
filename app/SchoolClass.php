@@ -403,7 +403,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         throw new AccessDeniedHttpException('Access to school class denied');
     }
 
-    private static function setDoNotOverwriteFromInterfaceOnDemoClass(&$schoolClass){
+    private static function setDoNotOverwriteFromInterfaceOnDemoClass($schoolClass){
         if($schoolClass->demo==true){
                 $schoolClass->do_not_overwrite_from_interface = true;
         }
