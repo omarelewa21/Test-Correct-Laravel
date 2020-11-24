@@ -793,6 +793,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
         $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();
 
+        $subjectIdsFromShared = collect([]);
+
         if (count($sharedSectionIds) > 0) {
             $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique();
         }
