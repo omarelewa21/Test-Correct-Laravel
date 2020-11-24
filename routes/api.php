@@ -196,7 +196,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
     Route::post('demo_account/notify_support_teacher_tries_to_upload', 'DemoAccountController@notifySupportTeacherTriesToUpload')->name('demo_account.notify_support_teacher_tries_to_upload');
 
-    Route::put('user/switch_school_location/{user}','UsersController@switch_school_location')->name('user.switch_school_location');
+    Route::put('user/move_school_location/{user}','UsersController@move_school_location')->name('user.move_school_location');
 
 	// Sales organization
 	Route::resource('sales_organization', 'SalesOrganizationsController', ['except' => ['create', 'edit']]);
@@ -251,4 +251,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('search_filter/{uuid}/set_active','SearchFiltersController@setActive')->name('search_filter.set_active');
     Route::put('search_filter/{uuid}/deactive','SearchFiltersController@deactive')->name('search_filter.deactive');
 
+    Route::get('school_location_user', 'SchoolLocationUsersController@index')->name('school_location_user.index');
+    Route::put('school_location_user', 'SchoolLocationUsersController@update')->name('school_location_user.update');
+    Route::post('school_location_user', 'SchoolLocationUsersController@store')->name('school_location_user.store');
+    Route::delete('school_location_user', 'SchoolLocationUsersController@delete')->name('school_location_user.delete');
+
+    Route::get('school_location_user/existing_teachers', 'SchoolLocationUsersController@getExistingTeachers')->name('school_location_user.get_existing_teachers');
 });

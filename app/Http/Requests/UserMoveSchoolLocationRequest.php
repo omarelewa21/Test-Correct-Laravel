@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use tcCore\User;
 
-class UserSwitchSchoolLocationRequest extends Request {
+class UserMoveSchoolLocationRequest extends Request {
 
 	/**
 	 * Determine if the user is authorized to make this request.
