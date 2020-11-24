@@ -17,7 +17,6 @@ class CreateSchoolLocationSharedSections extends Migration
             $table->biginteger('school_location_id');
             $table->biginteger('section_id');
             $table->timestamps();
-            $table->softDeletes();
             $table->primary(['school_location_id','section_id'],'school_location_school_shared_section_key');
         });
     }

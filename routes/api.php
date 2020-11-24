@@ -55,7 +55,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('shared_section_test','SharedSections\TestsController@index');
     Route::post('shared_section_test/{test}','SharedSections\TestsController@duplicate');
 
-    Route::get('shared_sections','SharedSectionsController@index');
+    Route::get('shared_sections/optional_school_locations/{section}','SharedSectionsController@optionalSchoolLocations');
+    Route::get('shared_sections/{section}','SharedSectionsController@index');
     Route::post('shared_sections/{section}','SharedSectionsController@store');
     Route::delete('shared_sections/{section}/{school_location}','SharedSectionsController@destroy');
 

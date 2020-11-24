@@ -8,7 +8,10 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DuplicateSharedSectionsTestRequest;
 use tcCore\Http\Requests\DuplicateTestRequest;
+use tcCore\Http\Requests\IndexSharedSectionsRequest;
+use tcCore\Http\Requests\OptionalSharedSectionSchoolLocationsRequest;
 use tcCore\Http\Requests\ShowSharedSectionsTestRequest;
+use tcCore\Http\Requests\StoreSharedSectionSchoolLocationRequest;
 use tcCore\SchoolLocation;
 use tcCore\Section;
 use tcCore\Test;
@@ -23,20 +26,23 @@ class SharedSectionsController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function index(Requests\AllowOnlyAsSchoolManagerRequest $request)
+	public function index(IndexSharedSectionsRequest $request, Section $section)
 	{
-        $list = collect([]);
-        Auth::user()->schoolLocation->sections->each(function(Section $section) use ($list){
-            if($section->sharedSchoolLocations){
-                $list->add($section);
-            }
-        });
-		return Response::make($list, 200);
+		return Response::make($section->sharedSchoolLocations, 200);
 	}
 
+	public function optionalSchoolLocations(OptionalSharedSectionSchoolLocationsRequest $request, Section $section)
+    {
+        $schoolLocations = SchoolLocation::where('school_id',Auth::user()->schoolLocation->school_id)->whereNotNull('school_id')->whereNotIn('id',$section->sharedSchoolLocations()->pluck('id'))->get();
+        $return = collect([]);
+        $schoolLocations->each(function(SchoolLocation $sl) use ($return){
+            $return[$sl->uuid] = $sl->name;
+        });
+        return Response::make($return, 200);
+    }
 
-	public function store(Request $request, Section $section){
-        $schoolLocationId = $request->get('school_location_id');
+	public function store(StoreSharedSectionSchoolLocationRequest $request, Section $section){
+        $schoolLocationId = $request->input('school_location_id');
         $section->sharedSchoolLocations()->attach($schoolLocationId);
         return Response::make($section, 200);
     }
