@@ -40,6 +40,8 @@ class UsersController extends Controller
     {
         $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
 
+
+
         if (is_array($request->get('with')) && in_array('school_location', $request->get('with'))) {
             $users->with('school.schoolLocations', 'schoolLocation');
         }
@@ -316,7 +318,7 @@ class UsersController extends Controller
         // Je gaat eruit met updateStudent, maar die kan enkel het wachtwoord aanpassen. Ik denk dat je wilt weten wie het update request uitvoert
         // als dat een student is dan moet die naar updateStudent en anders mag ook de rest....
         if (Auth::user()->hasRole('Student')) return $this->updateStudent($user, $request);
-        
+
         $user->fill($request->all());
 
         if ($request->filled('password')) {

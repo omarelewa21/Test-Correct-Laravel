@@ -64,7 +64,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
      *
      * @var array
      */
-    protected $fillable = ['sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name', 'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo', 'invited_by'];
+    protected $fillable = [
+        'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
+        'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
+        'invited_by'
+    ];
 
 
     /**
@@ -120,14 +124,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (array_key_exists('student_school_classes', $attributes)) {
             $this->studentSchoolClasses = $attributes['student_school_classes'];
-        } elseif (array_key_exists('add_student_school_class', $attributes) || array_key_exists('delete_student_school_class', $attributes)) {
+        } elseif (array_key_exists('add_student_school_class',
+                $attributes) || array_key_exists('delete_student_school_class', $attributes)) {
             $this->studentSchoolClasses = $this->students()->pluck('class_id')->all();
             if (array_key_exists('add_student_school_class', $attributes)) {
                 array_push($this->studentSchoolClasses, $attributes['add_student_school_class']);
             }
 
             if (array_key_exists('delete_student_school_class', $attributes)) {
-                if (($key = array_search($attributes['delete_student_school_class'], $this->studentSchoolClasses)) !== false) {
+                if (($key = array_search($attributes['delete_student_school_class'],
+                        $this->studentSchoolClasses)) !== false) {
                     unset($this->studentSchoolClasses[$key]);
                 }
             }
@@ -135,14 +141,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (array_key_exists('manager_school_classes', $attributes)) {
             $this->managerSchoolClasses = $attributes['manager_school_classes'];
-        } elseif (array_key_exists('add_manager_school_class', $attributes) || array_key_exists('delete_manager_school_class', $attributes)) {
+        } elseif (array_key_exists('add_manager_school_class',
+                $attributes) || array_key_exists('delete_manager_school_class', $attributes)) {
             $this->managerSchoolClasses = $this->managers()->pluck('school_class_id')->all();
             if (array_key_exists('add_manager_school_class', $attributes)) {
                 array_push($this->managerSchoolClasses, $attributes['add_manager_school_class']);
             }
 
             if (array_key_exists('delete_manager_school_class', $attributes)) {
-                if (($key = array_search($attributes['delete_manager_school_class'], $this->managerSchoolClasses)) !== false) {
+                if (($key = array_search($attributes['delete_manager_school_class'],
+                        $this->managerSchoolClasses)) !== false) {
                     unset($this->managerSchoolClasses[$key]);
                 }
             }
@@ -150,14 +158,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (array_key_exists('mentor_school_classes', $attributes)) {
             $this->mentorSchoolClasses = $attributes['mentor_school_classes'];
-        } elseif (array_key_exists('add_mentor_school_class', $attributes) || array_key_exists('delete_mentor_school_class', $attributes)) {
+        } elseif (array_key_exists('add_mentor_school_class',
+                $attributes) || array_key_exists('delete_mentor_school_class', $attributes)) {
             $this->mentorSchoolClasses = $this->mentors()->pluck('school_class_id')->all();
             if (array_key_exists('add_mentor_school_class', $attributes)) {
                 array_push($this->mentorSchoolClasses, $attributes['add_mentor_school_class']);
             }
 
             if (array_key_exists('delete_mentor_school_class', $attributes)) {
-                if (($key = array_search($attributes['delete_mentor_school_class'], $this->mentorSchoolClasses)) !== false) {
+                if (($key = array_search($attributes['delete_mentor_school_class'],
+                        $this->mentorSchoolClasses)) !== false) {
                     unset($this->mentorSchoolClasses[$key]);
                 }
             }
@@ -165,7 +175,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (array_key_exists('student_parents', $attributes)) {
             $this->studentParents = $attributes['student_parents'];
-        } elseif (array_key_exists('add_student_parent', $attributes) || array_key_exists('delete_student_parent', $attributes)) {
+        } elseif (array_key_exists('add_student_parent', $attributes) || array_key_exists('delete_student_parent',
+                $attributes)) {
             $this->studentParents = $this->studentParents()->pluck('student_parent_id')->all();
             if (array_key_exists('add_student_parent', $attributes)) {
                 array_push($this->studentParents, $attributes['add_student_parent']);
@@ -180,7 +191,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if (array_key_exists('student_parents_of', $attributes)) {
             $this->studentParentsOf = $attributes['student_parents_of'];
-        } elseif (array_key_exists('add_student_parent_of', $attributes) || array_key_exists('delete_student_parent_of', $attributes)) {
+        } elseif (array_key_exists('add_student_parent_of', $attributes) || array_key_exists('delete_student_parent_of',
+                $attributes)) {
             $this->studentParentsOf = $this->studentParentsOf()->pluck('user_id')->all();
             if (array_key_exists('add_student_parent_of', $attributes)) {
                 array_push($this->studentParentsOf, $attributes['add_student_parent_of']);
@@ -208,7 +220,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             }
         }
 
-        if (is_array($attributes) && array_key_exists('profile_image', $attributes) && $attributes['profile_image'] instanceof UploadedFile) {
+        if (is_array($attributes) && array_key_exists('profile_image',
+                $attributes) && $attributes['profile_image'] instanceof UploadedFile) {
             $this->fillFileProfileImage($attributes['profile_image']);
         }
     }
@@ -225,13 +238,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasText2Speech()
     {
-        return (bool)$this->text2speech;
+        return (bool) $this->text2speech;
     }
 
     public function hasActiveText2Speech()
     {
-        if (!$this->hasText2Speech()) return false;
-        return (bool)$this->text2SpeechDetails->active;
+        if (!$this->hasText2Speech()) {
+            return false;
+        }
+        return (bool) $this->text2SpeechDetails->active;
     }
 
     public function getHasText2speechAttribute()
@@ -309,43 +324,49 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if ($user->getOriginal('demo') == true && !isset($user->demoRestrictionOverrule)) {
                 return false;
             }
-            if (isset($user->demoRestrictionOverrule)) unset($user->demoRestrictionOverrule);
+            if (isset($user->demoRestrictionOverrule)) {
+                unset($user->demoRestrictionOverrule);
+            }
         });
 
         static::deleting(function (User $user) {
-            if ($user->getOriginal('demo') == true) return false;
+            if ($user->getOriginal('demo') == true) {
+                return false;
+            }
         });
 
         // Progress additional answers
         static::saved(function (User $user) {
-            $oldText2Speech = (bool)$user->getOriginal('text2speech');
-            if (!$oldText2Speech && (bool)request()->input('text2speech')) {
+            $oldText2Speech = (bool) $user->getOriginal('text2speech');
+            if (!$oldText2Speech && (bool) request()->input('text2speech')) {
                 // we've got a new user with time dispensation
                 Text2Speech::create([
-                    'user_id' => $user->getKey(),
-                    'active' => true,
+                    'user_id'    => $user->getKey(),
+                    'active'     => true,
                     'acceptedby' => Auth::user()->getKey(),
-                    'price' => config('custom.text2speech.price')
+                    'price'      => config('custom.text2speech.price')
                 ]);
                 Text2SpeechLog::create([
                     'user_id' => $user->getKey(),
-                    'action' => 'ACCEPTED',
-                    'who' => Auth::user()->getKey()
+                    'action'  => 'ACCEPTED',
+                    'who'     => Auth::user()->getKey()
                 ]);
-            } else if ($oldText2Speech && request()->has('active_text2speech')) {
-                // we've got a student with time dispensation and there might be a change in the active status
-                // we only change these settings if there is a active_time_dispensation value, otherwise it would be changed on password update as well for instance
-                $newActiveText2Speech = (bool)request()->input('active_text2speech');
-                $oldActiveText2Speech = (bool)$user->hasActiveText2Speech();
-                if ($newActiveText2Speech !== $oldActiveText2Speech) {
-                    $user->text2SpeechDetails->active = $newActiveText2Speech;
-                    $user->text2SpeechDetails->save();
+            } else {
+                if ($oldText2Speech && request()->has('active_text2speech')) {
+                    // we've got a student with time dispensation and there might be a change in the active status
+                    // we only change these settings if there is a active_time_dispensation value, otherwise it would be changed on password update as well for instance
+                    $newActiveText2Speech = (bool) request()->input('active_text2speech');
+                    $oldActiveText2Speech = (bool) $user->hasActiveText2Speech();
+                    if ($newActiveText2Speech !== $oldActiveText2Speech) {
+                        $user->text2SpeechDetails->active = $newActiveText2Speech;
+                        $user->text2SpeechDetails->save();
 
-                    Text2SpeechLog::create([
-                        'user_id' => $user->getKey(),
-                        'action' => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
-                        'who' => Auth::user()->getKey()
-                    ]);
+                        Text2SpeechLog::create([
+                            'user_id' => $user->getKey(),
+                            'action'  => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
+                            'who'     => Auth::user()->getKey()
+                        ]);
+                    }
                 }
             }
 
@@ -376,7 +397,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     File::delete($original);
                 }
 
-                $user->profileImage->move(storage_path('user_profile_images'), $user->getKey() . ' - ' . $user->getAttribute('profile_image_name'));
+                $user->profileImage->move(storage_path('user_profile_images'),
+                    $user->getKey().' - '.$user->getAttribute('profile_image_name'));
             }
 
             //Trigger jobs
@@ -599,12 +621,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getOriginalProfileImagePath()
     {
-        return ((substr(storage_path('user_profile_images'), -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images') . DIRECTORY_SEPARATOR) . $this->getOriginal($this->getKeyName()) . ' - ' . $this->getOriginal('profile_image_name');
+        return ((substr(storage_path('user_profile_images'),
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images').DIRECTORY_SEPARATOR).$this->getOriginal($this->getKeyName()).' - '.$this->getOriginal('profile_image_name');
     }
 
     public function getCurrentProfileImagePath()
     {
-        return ((substr(storage_path('user_profile_images'), -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images') . DIRECTORY_SEPARATOR) . $this->getKey() . ' - ' . $this->getAttribute('profile_image_name');
+        return ((substr(storage_path('user_profile_images'),
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images').DIRECTORY_SEPARATOR).$this->getKey().' - '.$this->getAttribute('profile_image_name');
     }
 
     public function fillFileProfileImage(UploadedFile $file)
@@ -620,7 +644,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function roles()
     {
-        return $this->belongsToMany('tcCore\Role', 'user_roles')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\Role', 'user_roles')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
 
@@ -661,15 +687,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function mentorSchoolClasses()
     {
-        return $this->belongsToMany('tcCore\SchoolClass', 'mentors', 'user_id', 'school_class_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\SchoolClass', 'mentors', 'user_id', 'school_class_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveMentorSchoolClasses()
     {
         $schoolClasses = $this->mentors()->withTrashed()->get();
-        $this->syncTcRelation($schoolClasses, $this->mentorSchoolClasses, 'school_class_id', function ($user, $schoolClass) {
-            Mentor::create(['school_class_id' => $schoolClass, 'user_id' => $user->getKey()]);
-        });
+        $this->syncTcRelation($schoolClasses, $this->mentorSchoolClasses, 'school_class_id',
+            function ($user, $schoolClass) {
+                Mentor::create(['school_class_id' => $schoolClass, 'user_id' => $user->getKey()]);
+            });
 
         $this->mentorSchoolClasses = null;
     }
@@ -682,15 +711,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function managerSchoolClasses()
     {
-        return $this->belongsToMany('tcCore\SchoolClass', 'managers', 'user_id', 'school_class_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\SchoolClass', 'managers', 'user_id', 'school_class_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveManagerSchoolClasses()
     {
         $schoolClasses = $this->managers()->withTrashed()->get();
-        $this->syncTcRelation($schoolClasses, $this->managerSchoolClasses, 'school_class_id', function ($user, $schoolClass) {
-            Manager::create(['school_class_id' => $schoolClass, 'user_id' => $user->getKey()]);
-        });
+        $this->syncTcRelation($schoolClasses, $this->managerSchoolClasses, 'school_class_id',
+            function ($user, $schoolClass) {
+                Manager::create(['school_class_id' => $schoolClass, 'user_id' => $user->getKey()]);
+            });
 
         $this->managerSchoolClasses = null;
     }
@@ -703,7 +735,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function studentSchoolClasses()
     {
-        return $this->belongsToMany('tcCore\SchoolClass', 'students', 'user_id', 'class_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\SchoolClass', 'students', 'user_id', 'class_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveStudentSchoolClasses()
@@ -734,7 +768,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function studentParentUsers()
     {
-        return $this->belongsToMany('tcCore\Users', 'student_parents', 'user_id', 'parent_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\Users', 'student_parents', 'user_id', 'parent_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveStudentParents()
@@ -754,7 +790,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function studentParentOfUsers()
     {
-        return $this->belongsToMany('tcCore\Users', 'student_parents', 'parent_id', 'user_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\Users', 'student_parents', 'parent_id', 'user_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveStudentParentsOf()
@@ -828,7 +866,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function invigilatorTestTakes()
     {
-        return $this->belongsToMany('tcCore\TestTake', 'invigilators')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()]);
+        return $this->belongsToMany('tcCore\TestTake', 'invigilators')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ]);
     }
 
     public function testParticipants()
@@ -853,7 +893,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function authors()
     {
-        return $this->belongsToMany('tcCore\Question', 'question_authors', 'user_id', 'question_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\Question', 'question_authors', 'user_id', 'question_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     // Account manager's umbrella organizations
@@ -904,14 +946,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         $state = $this->onboardingWizardUserState;
         $wizard = null;
-        if ($state) $wizard = $state->wizard;
+        if ($state) {
+            $wizard = $state->wizard;
+        }
 
         if ($wizard == null) {
             $roleIds = $this->roles()->pluck('id');
-            $wizard = OnboardingWizard::whereIn('role_id', $roleIds)->where('active', true)->orderBy('role_id')->first();
+            $wizard = OnboardingWizard::whereIn('role_id', $roleIds)->where('active',
+                true)->orderBy('role_id')->first();
             OnboardingWizardUserState::create([
-                'id' => Str::uuid(),
-                'user_id' => $this->getKey(),
+                'id'                   => Str::uuid(),
+                'user_id'              => $this->getKey(),
                 'onboarding_wizard_id' => $wizard->getKey()
             ]);
         }
@@ -953,12 +998,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isToetsenbakker()
     {
-        return (bool)FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
+        return (bool) FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
     }
 
     public function hasCitoToetsen()
     {
-        return (bool)$this->subjects()->where('name', 'like', 'cito%')->count() > 0;
+        return (bool) $this->subjects()->where('name', 'like', 'cito%')->count() > 0;
     }
 
     public function getNameFullAttribute()
@@ -967,11 +1012,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first'])) {
             $result .= $this->attributes['name_first'];
         }
-        if (array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first']) && array_key_exists('name_suffix', $this->attributes) && !empty($this->attributes['name_suffix'])) {
-            $result .= ' ' . $this->attributes['name_suffix'];
+        if (array_key_exists('name_first',
+                $this->attributes) && !empty($this->attributes['name_first']) && array_key_exists('name_suffix',
+                $this->attributes) && !empty($this->attributes['name_suffix'])) {
+            $result .= ' '.$this->attributes['name_suffix'];
         }
-        if ((array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first']) || (array_key_exists('name_suffix', $this->attributes) && !empty($this->attributes['name_suffix']))) && array_key_exists('name', $this->attributes) && !empty($this->attributes['name'])) {
-            $result .= ' ' . $this->attributes['name'];
+        if ((array_key_exists('name_first',
+                    $this->attributes) && !empty($this->attributes['name_first']) || (array_key_exists('name_suffix',
+                        $this->attributes) && !empty($this->attributes['name_suffix']))) && array_key_exists('name',
+                $this->attributes) && !empty($this->attributes['name'])) {
+            $result .= ' '.$this->attributes['name'];
         }
         return $result;
     }
@@ -988,7 +1038,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         $user = Auth::user()->getAttributes();
 
-        if (array_key_exists('school_id', $user) && $user['school_id'] !== null && array_key_exists('school_location_id', $user) && $user['school_location_id'] !== null) {
+        if (array_key_exists('school_id',
+                $user) && $user['school_id'] !== null && array_key_exists('school_location_id',
+                $user) && $user['school_location_id'] !== null) {
             $query->where(function ($query) use ($user) {
                 $query->where('users.school_id', $user['school_id'])
                     ->orWhere('users.school_location_id', $user['school_location_id']);
@@ -1002,7 +1054,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'name':
-                    $query->where('name', 'LIKE', '%' . $value . '%');
+                    $query->where('name', 'LIKE', '%'.$value.'%');
                     break;
                 case 'school_class_id':
                     $query->whereIn('users.id', function ($query) use ($value) {
@@ -1024,7 +1076,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $minRating = null;
 
                     if ($key === 'test_id_made') {
-                        $testTakeStatusses = TestTakeStatus::whereIn('name', ['Taking test', 'Handed in', 'Taken away', 'Taken', 'Discussing', 'Discussed', 'Rated'])->pluck('id');
+                        $testTakeStatusses = TestTakeStatus::whereIn('name', [
+                            'Taking test', 'Handed in', 'Taken away', 'Taken', 'Discussing', 'Discussed', 'Rated'
+                        ])->pluck('id');
                         if (array_key_exists('max_rating', $filters)) {
                             $maxRating = $filters['max_rating'];
                         }
@@ -1032,7 +1086,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                             $minRating = $filters['min_rating'];
                         }
                     } elseif ($key === 'test_take_id_participated') {
-                        $testTakeStatusses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->pluck('id');
+                        $testTakeStatusses = TestTakeStatus::whereIn('name',
+                            ['Planned', 'Test not taken'])->pluck('id');
                     }
 
                     $subQuery = function ($query) use ($testTakeIds, $testTakeStatusses, $maxRating, $minRating) {
@@ -1110,72 +1165,85 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         $roles = Roles::getUserRoles();
         // you are an Account manager
-        if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
-            //		if($this->hasRole(['Administrator','Account manager'])){
-            $userId = Auth::user()->getKey();
+        $query->where(function($query) use ($roles) {
+            if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
+                //		if($this->hasRole(['Administrator','Account manager'])){
+                $userId = Auth::user()->getKey();
 
-            $sHelper = new SchoolHelper();
-            $schoolIds = $sHelper->getRelatedSchoolIds(Auth::user());
-            $schoolLocationIds = $sHelper->getRelatedSchoolLocationIds(Auth::user());
+                $sHelper = new SchoolHelper();
+                $schoolIds = $sHelper->getRelatedSchoolIds(Auth::user());
+                $schoolLocationIds = $sHelper->getRelatedSchoolLocationIds(Auth::user());
 
-            $parentIds = StudentParent::whereIn('user_id', function ($query) use ($schoolIds, $schoolLocationIds) {
-                $query->select($this->getKeyName())
-                    ->from($this->getTable())
-                    ->where(function ($query) use ($schoolIds, $schoolLocationIds) {
-                        $query->whereIn('school_id', $schoolIds);
-                        $query->orWhereIn('school_location_id', $schoolLocationIds);
-                    })
-                    ->whereNull('deleted_at');
-            })->pluck('parent_id')->all();
+                $parentIds = StudentParent::whereIn('user_id', function ($query) use ($schoolIds, $schoolLocationIds) {
+                    $query->select($this->getKeyName())
+                        ->from($this->getTable())
+                        ->where(function ($query) use ($schoolIds, $schoolLocationIds) {
+                            $query->whereIn('school_id', $schoolIds);
+                            $query->orWhereIn('school_location_id', $schoolLocationIds);
+                        })
+                        ->whereNull('deleted_at');
+                })->pluck('parent_id')->all();
 
-            $query->where(function ($query) use ($schoolIds, $schoolLocationIds, $parentIds) {
-                $query->whereIn('school_id', $schoolIds);
-                $query->orWhereIn('school_location_id', $schoolLocationIds);
-                $query->orWhereIn('id', $parentIds);
-            });
-            // you are a school manager, teacher, invigilator, school management or mentor
-        } elseif (!in_array('Administrator', $roles) && (in_array('School manager', $roles) || in_array('Teacher', $roles) || in_array('Invigilator', $roles) || in_array('School management', $roles) || in_array('Mentor', $roles))) {
+                $query->where(function ($query) use ($schoolIds, $schoolLocationIds, $parentIds) {
+                    $query->whereIn('school_id', $schoolIds);
+                    $query->orWhereIn('school_location_id', $schoolLocationIds);
+                    $query->orWhereIn('id', $parentIds);
+                });
+                // you are a school manager, teacher, invigilator, school management or mentor
+            } elseif (!in_array('Administrator', $roles) && (in_array('School manager', $roles) || in_array('Teacher',
+                        $roles) || in_array('Invigilator', $roles) || in_array('School management',
+                        $roles) || in_array('Mentor', $roles))) {
 //        } elseif (!$this->hasRole('Administrator') &&
 //            ($this->hasRole(['School manager','Teacher','Invigilator', 'School management','Mentor']))) {
-            $user = Auth::user();
-            $schoolId = $user->getAttribute('school_id');
-            $schoolLocationId = $user->getAttribute('school_location_id');
+                $user = Auth::user();
+                $schoolId = $user->getAttribute('school_id');
+                $schoolLocationId = $user->getAttribute('school_location_id');
 
-            if ($schoolId !== null) {
-                $schoolLocationIds = SchoolLocation::where(function ($query) use ($schoolId, $schoolLocationId) {
-                    $query->where('school_id', $schoolId)->orWhere('id', $schoolLocationId);
-                })->pluck('id')->all();
-            } elseif ($schoolLocationId !== null) {
-                $schoolLocationIds = [$schoolLocationId];
-            } else {
-                $schoolLocationIds = [];
-            }
-
-            $parentIds = StudentParent::whereIn('user_id', function ($query) use ($schoolId, $schoolLocationIds) {
-                $query->select($this->getKeyName())
-                    ->from($this->getTable())
-                    ->where(function ($query) use ($schoolId, $schoolLocationIds) {
-                        $query->where('school_id', $schoolId);
-                        $query->orWhereIn('school_location_id', $schoolLocationIds);
-                    })
-                    ->whereNull('deleted_at');
-            })->pluck('parent_id')->all();
-
-            $query->where(function ($query) use ($schoolId, $schoolLocationIds, $parentIds) {
                 if ($schoolId !== null) {
-                    $query->where('school_id', $schoolId);
-                    $query->orWhereIn('school_location_id', $schoolLocationIds);
-                } elseif ($schoolLocationIds !== null) {
-                    $query->whereIn('school_location_id', $schoolLocationIds);
+                    $schoolLocationIds = SchoolLocation::where(function ($query) use ($schoolId, $schoolLocationId) {
+                        $query->where('school_id', $schoolId)->orWhere('id', $schoolLocationId);
+                    })->pluck('id')->all();
+                } elseif ($schoolLocationId !== null) {
+                    $schoolLocationIds = [$schoolLocationId];
+                } else {
+                    $schoolLocationIds = [];
                 }
 
-                $query->orWhereIn('id', $parentIds);
-            });
-            // you are probably a student or so
-        } elseif (!in_array('Administrator', $roles)) {
+                $parentIds = StudentParent::whereIn('user_id', function ($query) use ($schoolId, $schoolLocationIds) {
+                    $query->select($this->getKeyName())
+                        ->from($this->getTable())
+                        ->where(function ($query) use ($schoolId, $schoolLocationIds) {
+                            $query->where('school_id', $schoolId);
+                            $query->orWhereIn('school_location_id', $schoolLocationIds);
+                        })
+                        ->whereNull('deleted_at');
+                })->pluck('parent_id')->all();
+
+                $query->where(function ($query) use ($schoolId, $schoolLocationIds, $parentIds) {
+                    if ($schoolId !== null) {
+                        $query->where('school_id', $schoolId);
+                        $query->orWhereIn('school_location_id', $schoolLocationIds);
+                    } elseif ($schoolLocationIds !== null) {
+                        $query->whereIn('school_location_id', $schoolLocationIds);
+                    }
+
+                    $query->orWhereIn('id', $parentIds);
+                });
+                // you are probably a student or so
+            } elseif (!in_array('Administrator', $roles)) {
 //        } elseif (!$this->hasRole('Administrator')) {
-            $query->where('id', Auth::user()->getKey());
-        }
+                $query->where('id', Auth::user()->getKey());
+            }
+            $query->orWhereIn('users.id', $this->fromAnotherLocation(Auth::user()));
+
+        });
+
+
+
+
+
+
+
 
         foreach ($filters as $key => $value) {
             switch ($key) {
@@ -1229,16 +1297,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     }
                     break;
                 case 'username':
-                    $query->where('username', 'LIKE', '%' . $value . '%');
+                    $query->where('username', 'LIKE', '%'.$value.'%');
                     break;
                 case 'name_full':
-                    $query->where(DB::raw('CONCAT_WS(\' \', name_first, name_suffix, name)'), 'LIKE', '%' . $value . '%');
+                    $query->where(DB::raw('CONCAT_WS(\' \', name_first, name_suffix, name)'), 'LIKE', '%'.$value.'%');
                     break;
                 case 'name':
-                    $query->where('name', 'LIKE', '%' . $value . '%');
+                    $query->where('name', 'LIKE', '%'.$value.'%');
                     break;
                 case 'name_first':
-                    $query->where('name_first', 'LIKE', '%' . $value . '%');
+                    $query->where('name_first', 'LIKE', '%'.$value.'%');
                     break;
                 case 'send_welcome_email':
                     $query->where('send_welcome_email', '=', $value);
@@ -1274,7 +1342,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $query->whereIn('users.id', function ($query) use ($value) {
                         $query->select('managers.user_id')
                             ->from(with(new SchoolClass())->getTable())
-                            ->join(with(new Manager())->getTable(), 'managers.school_class_id', '=', 'school_classes.id')
+                            ->join(with(new Manager())->getTable(), 'managers.school_class_id', '=',
+                                'school_classes.id')
                             ->whereIn('school_classes.id', (is_array($value)) ? $value : [$value])
                             ->where('school_classes.deleted_at', null)
                             ->where('managers.deleted_at', null);
@@ -1358,7 +1427,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     /**
      * @param $roleName
-     * @param null $user if no user is given, the auth::user is taken
+     * @param  null  $user  if no user is given, the auth::user is taken
      * @return bool
      */
     public function hasRole($roleName, $user = null)
@@ -1403,16 +1472,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     ->orWhere('user_id', $userId);
             })->pluck('id')->all();
 
-            if (!in_array($this->getAttribute('school_id'), $schoolIds) && !in_array($this->getAttribute('school_location_id'), $schoolLocationIds)) {
-                $parentCount = StudentParent::whereIn('user_id', function ($query) use ($schoolIds, $schoolLocationIds) {
-                    $query->select($this->getKeyName())
-                        ->from($this->getTable())
-                        ->where(function ($query) use ($schoolIds, $schoolLocationIds) {
-                            $query->whereIn('school_id', $schoolIds);
-                            $query->orWhereIn('school_location_id', $schoolLocationIds);
-                        })
-                        ->whereNull('deleted_at');
-                })->where('parent_id', $this->getKey())->count();
+            if (!in_array($this->getAttribute('school_id'),
+                    $schoolIds) && !in_array($this->getAttribute('school_location_id'), $schoolLocationIds)) {
+                $parentCount = StudentParent::whereIn('user_id',
+                    function ($query) use ($schoolIds, $schoolLocationIds) {
+                        $query->select($this->getKeyName())
+                            ->from($this->getTable())
+                            ->where(function ($query) use ($schoolIds, $schoolLocationIds) {
+                                $query->whereIn('school_id', $schoolIds);
+                                $query->orWhereIn('school_location_id', $schoolLocationIds);
+                            })
+                            ->whereNull('deleted_at');
+                    })->where('parent_id', $this->getKey())->count();
 
                 return ($parentCount >= 1);
             } else {
@@ -1435,7 +1506,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $schoolLocationIds = [];
             }
 
-            if ($this->getAttribute('school_id') != $user->getAttribute('school_id') && !in_array($this->getAttribute('school_location_id'), $schoolLocationIds)) {
+            if ($this->getAttribute('school_id') != $user->getAttribute('school_id') && !in_array($this->getAttribute('school_location_id'),
+                    $schoolLocationIds)) {
                 $parentCount = StudentParent::whereIn('user_id', function ($query) use ($schoolId, $schoolLocationIds) {
                     $query->select($this->getKeyName())
                         ->from($this->getTable())
@@ -1506,8 +1578,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $this->onboardingWizardUserState()->save(
                     OnboardingWizardUserState::make(
                         [
-                            'id' => Str::uuid(),
-                            'show' => true,
+                            'id'                   => Str::uuid(),
+                            'show'                 => true,
                             'onboarding_wizard_id' => $wizard->getKey()
                         ]
                     )
@@ -1524,7 +1596,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function emailDomainInviterAndInviteeAreEqual()
     {
         $originalUser = User::find($this->invited_by);
-        if (null === $originalUser) return false;
+        if (null === $originalUser) {
+            return false;
+        }
         return (strtolower(explode('@', $originalUser->username)[1]) === strtolower(explode('@', $this->username)[1]));
     }
 
@@ -1549,7 +1623,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isAllowedToSwitchToSchoolLocation(SchoolLocation $schoolLocation)
     {
-        return null !== $this->allowedSchoolLocations()->firstWhere($schoolLocation->getKeyName(), $schoolLocation->getKey());
+        return null !== $this->allowedSchoolLocations()->firstWhere($schoolLocation->getKeyName(),
+                $schoolLocation->getKey());
     }
 
     public function addSchoolLocation(SchoolLocation $schoolLocation)
@@ -1565,8 +1640,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function removeSchoolLocation(SchoolLocation $schoolLocation)
     {
         if ($this->schoolLocation->is($schoolLocation)) {
-            $newActiveSchoolLocation = $this->allowedSchoolLocations()->where('school_location_id', '<>', $schoolLocation->getKey())->first();
-            if($newActiveSchoolLocation !== null) {
+            $newActiveSchoolLocation = $this->allowedSchoolLocations()->where('school_location_id', '<>',
+                $schoolLocation->getKey())->first();
+            if ($newActiveSchoolLocation !== null) {
                 $this->schoolLocation()->associate($newActiveSchoolLocation);
                 $this->save();
             }
@@ -1581,5 +1657,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this;
     }
 
-
+    private function fromAnotherLocation($user)
+    {
+        $school = SchoolLocation::where('id', $user->getAttribute('school_location_id'))->first();
+        return DB::table('school_location_user')
+            ->selectRaw('distinct user_id')
+            ->whereIn(
+                'school_location_user.school_location_id',
+                SchoolLocation::select('id')
+                    ->where([
+                        ['id','<>', $user->getAttribute('school_location_id')],
+                        ['school_id', $school->school_id],
+                    ])
+            );
+    }
 }
