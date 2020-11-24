@@ -151,7 +151,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	// School year + child
 	Route::get('school_year/list', ['as' => 'school_year.list', 'uses' => 'SchoolYearsController@lists']);
+	Route::get('school_year_active', ['as' => 'school_year_active', 'uses' => 'SchoolYearsController@activeSchoolYear']);
 	Route::resource('school_year', 'SchoolYearsController', ['except' => ['create', 'edit']]);
+	
 
 	Route::resource('period', 'PeriodsController', ['except' => ['create', 'edit']]);
 
