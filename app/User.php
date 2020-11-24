@@ -788,9 +788,30 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query;
     }
 
-    public function sections($query = null)
+	public function subjectsIncludingShared($query = null)
     {
-        $user = $this;
+        $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
+        $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();
+
+        if (count($sharedSectionIds) > 0) {
+            $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique();
+        }
+
+        $subjectIds = $subjectIdsFromShared->merge($this->subjects()->pluck('id')->unique());
+
+        if($query === null){
+            $query = Subject::whereIn('id',$subjectIds);
+        } else {
+            $query->from(with(new Subject())->getTable())
+                ->where('deleted_at', null)
+                ->whereIn('id',$subjectIds);
+        }
+
+        return $query;
+    }
+
+	public function sections($query = null) {
+		$user = $this;
 
         if ($query === null) {
             $query = Section::select();
@@ -961,20 +982,26 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return (bool)$this->subjects()->where('name', 'like', 'cito%')->count() > 0;
     }
 
-    public function getNameFullAttribute()
+    public function hasSharedSections()
     {
-        $result = '';
-        if (array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first'])) {
-            $result .= $this->attributes['name_first'];
-        }
-        if (array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first']) && array_key_exists('name_suffix', $this->attributes) && !empty($this->attributes['name_suffix'])) {
-            $result .= ' ' . $this->attributes['name_suffix'];
-        }
-        if ((array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first']) || (array_key_exists('name_suffix', $this->attributes) && !empty($this->attributes['name_suffix']))) && array_key_exists('name', $this->attributes) && !empty($this->attributes['name'])) {
-            $result .= ' ' . $this->attributes['name'];
-        }
-        return $result;
+        return (bool) $this->schoolLocation->sharedSections()->count();
     }
+
+
+	public function getNameFullAttribute()
+	{
+		$result = '';
+		if (array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first'])) {
+			$result .= $this->attributes['name_first'];
+		}
+		if (array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first']) && array_key_exists('name_suffix', $this->attributes) && !empty($this->attributes['name_suffix'])) {
+			$result .= ' '.$this->attributes['name_suffix'];
+		}
+		if ((array_key_exists('name_first', $this->attributes) && !empty($this->attributes['name_first']) || (array_key_exists('name_suffix', $this->attributes) && !empty($this->attributes['name_suffix']))) && array_key_exists('name', $this->attributes) && !empty($this->attributes['name'])) {
+			$result .= ' '.$this->attributes['name'];
+		}
+		return $result;
+	}
 
     public function scopeStudentFiltered($query, $filters = [], $sorting = [])
     {
@@ -1496,6 +1523,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function hasAccessToTest(Test $test)
     {
         return $this->subjects()->pluck('id')->contains($test->subject->getKey());
+    }
+
+    public function hasAccessToSharedSectionsTest(Test $test)
+    {
+        $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
+        $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();
+        return
+            collect($sharedSectionIds)->contains($test->subject->section()->pluck('id')->first())
+            &&
+            collect($baseSubjectIds)->contains($test->subject()->pluck('base_subject_id')->first());
     }
 
     public function makeOnboardWizardIfNeeded()
