@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Response;
 use tcCore\DrawingQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests;
+use tcCore\Http\Requests\IndexQuestionsRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Question;
 
@@ -23,9 +24,9 @@ class QuestionsController extends Controller {
         }
     }
 
-    public function index(Request $request) {
+    public function index(IndexQuestionsRequest $request) {
 
-        $filters = $request->get('filter',[]);
+        $filters = $request->input('filter',[]);
         $questions = Question::filtered($filters, $request->get('order', []))
             // don't show questions from the cito import
             ->where(function($query) {

@@ -241,6 +241,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('grading_scale', 'GradingScalesController', ['except' => ['create', 'edit']]);
 
 	Route::resource('base_subject', 'BaseSubjectsController', ['only' => ['index']]);
+    Route::resource('my_base_subject', 'MyBaseSubjectsController', ['only' => ['index']]);
 
 	Route::resource('tag', 'TagsController', ['only' => ['index', 'show']]);
 
