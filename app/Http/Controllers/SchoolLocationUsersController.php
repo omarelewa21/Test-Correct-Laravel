@@ -50,40 +50,62 @@ class SchoolLocationUsersController extends Controller {
 
     public function store(Request $request)
     {
-        $user = User::whereUuid($request->get('user_uuid'))->first();
-        $schoolLocation = SchoolLocation::whereUuid($request->get('school_location'))->first();
+        if (!Auth::user()->hasRole('School manager')) {
+            abort(403);
+        }
 
-        $user->addSchoolLocation($schoolLocation);
+        $user = User::whereUuid($request->get('user_uuid'))->first();
+//        $schoolLocation = SchoolLocation::whereUuid($request->get('school_location'))->first();
+
+        $user->addSchoolLocation(Auth::user()->schoolLocation);
     }
 
     public function delete(Request $request) {
         $user = User::whereUuid($request->get('user_uuid'))->first();
-        $schoolLocation = SchoolLocation::whereUuid($request->get('school_location'))->first();
 
-        $user->removeSchoolLocation($schoolLocation);
+        $user->removeSchoolLocation(Auth::user()->schoolLocation);
     }
 
     public function getExistingTeachers(){
 
 
-        if (!Auth::user()->hasRole('Administrator')) {
+        if (!Auth::user()->hasRole('School manager')) {
             abort(403);
         }
 
-        if (null === Auth::user()->school_id) {
-            abort(404);
-        }
+
 
         /**
-         * select *
-         * from users
-         * inner join user_roles on (users.id = user_roles.user_id and user_roles.`role_id` = 1)
-         * where school_id = 2
+         * select *, t2.user_id as active
+        * from users
+        * inner join user_roles on (users.id = user_roles.user_id and user_roles.`role_id` = 1)
+        * left join (select user_id from school_location_user where school_location_id = 5) as t2
+        * on (users.id = t2.user_id)
+        ( where school_id = 2
          */
 
-        return User::join('user_roles', function ($join) {
+        // externalId toevoegen,
+
+//        return User::selectRaw('users.*, t2.user_id as active')->join('user_roles', function ($join) {
+//            $join->on('users.id', '=', 'user_roles.user_id')
+//                ->where('user_roles.role_id', '=', 1); // teacher
+//
+//        })
+//
+//            ->leftJoin()
+//            ->where('school_id', Auth::user()->school_id)->get();
+
+        $users = User::join('user_roles', function ($join) {
             $join->on('users.id', '=', 'user_roles.user_id')
                 ->where('user_roles.role_id', '=', 1); // teacher
-        })->where('school_id', Auth::user()->school_id)->get();
+        })->where('school_id', Auth::user()->school_id)->paginate(15);
+
+        $withActiveUsers = $users->map(function($user)  {
+            $user->active = $user->allowedSchoolLocations->contains(Auth::user()->schoolLocation);
+
+            return $user;
+        });
+
+        return $withActiveUsers;
     }
 }

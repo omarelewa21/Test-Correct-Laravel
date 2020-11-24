@@ -17,8 +17,9 @@ class SchoolLocationUsersControllerTest extends TestCase
     /** @test */
     public function a_user_can_be_added_to_an_extra_school_location()
     {
-        $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
-        $teacherTwo = User::firstWhere('username', self::USER_TEACHER_TWO);
+        $schoolLocationTwo = \tcCore\SchoolLocation::find(4);
+        $teacherTwo = User::firstWhere('username','teacher-b@test-correct.nl' );
+        $adminA = User::firstWhere('username','admin-a@test-correct.nl');
 
         $this->assertFalse($teacherTwo->isAllowedToSwitchToSchoolLocation($schoolLocationTwo));
 
@@ -26,13 +27,12 @@ class SchoolLocationUsersControllerTest extends TestCase
             route(
                 'school_location_user.store'
             ),
-            static::getSchoolBeheerderAuthRequestData([
+            static::getUserAuthRequestData($adminA, [
                 'user_uuid' => $teacherTwo->uuid,
-                'school_location' => $schoolLocationTwo->uuid
             ])
         );
-        $response->assertSuccessful();
 
+        $response->assertSuccessful();
         $this->assertTrue($teacherTwo->isAllowedToSwitchToSchoolLocation($schoolLocationTwo));
     }
 
@@ -166,7 +166,6 @@ class SchoolLocationUsersControllerTest extends TestCase
     {
         $teacherOne = User::firstWhere('username', self::USER_TEACHER);
 
-        $schoolLocationOne =  \tcCore\SchoolLocation::find(1);
         $schoolLocationTwo = \tcCore\SchoolLocation::find(2);
 
         $teacherOne

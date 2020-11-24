@@ -1544,7 +1544,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function allowedSchoolLocations()
     {
-        return $this->belongsToMany(SchoolLocation::class);
+        return $this->belongsToMany(SchoolLocation::class)->withTimestamps();
     }
 
     public function isAllowedToSwitchToSchoolLocation(SchoolLocation $schoolLocation)
@@ -1573,6 +1573,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         $this->allowedSchoolLocations()->detach($schoolLocation);
+// when only one left also delete that one;
+        if ($this->allowedSchoolLocations()->count() === 1) {
+            $this->allowedSchoolLocations()->detach($this->allowedSchoolLocations()->first());
+        }
 
         return $this;
     }

@@ -17,7 +17,6 @@ class CreateSchoolLocationUsersTable extends Migration
             $table->bigInteger('school_location_id');
             $table->bigInteger('user_id');
             $table->timestamps();
-            $table->softDeletes();
             $table->primary(['school_location_id','user_id']);
         });
     }
