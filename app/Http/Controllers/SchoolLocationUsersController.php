@@ -61,6 +61,11 @@ class SchoolLocationUsersController extends Controller {
     }
 
     public function delete(Request $request) {
+        if (!Auth::user()->hasRole('School manager')) {
+            abort(403);
+        }
+
+
         $user = User::whereUuid($request->get('user_uuid'))->first();
 
         $user->removeSchoolLocation(Auth::user()->schoolLocation);
@@ -73,39 +78,23 @@ class SchoolLocationUsersController extends Controller {
             abort(403);
         }
 
-
-
-        /**
-         * select *, t2.user_id as active
-        * from users
-        * inner join user_roles on (users.id = user_roles.user_id and user_roles.`role_id` = 1)
-        * left join (select user_id from school_location_user where school_location_id = 5) as t2
-        * on (users.id = t2.user_id)
-        ( where school_id = 2
-         */
-
-        // externalId toevoegen,
-
-//        return User::selectRaw('users.*, t2.user_id as active')->join('user_roles', function ($join) {
-//            $join->on('users.id', '=', 'user_roles.user_id')
-//                ->where('user_roles.role_id', '=', 1); // teacher
-//
-//        })
-//
-//            ->leftJoin()
-//            ->where('school_id', Auth::user()->school_id)->get();
+        $schoolLocationIds = SchoolLocation::where('school_id',Auth::user()->schoolLocation->school_id)
+            ->whereNotNull('school_id')->pluck('id');
 
         $users = User::join('user_roles', function ($join) {
             $join->on('users.id', '=', 'user_roles.user_id')
                 ->where('user_roles.role_id', '=', 1); // teacher
-        })->where('school_id', Auth::user()->school_id)->paginate(15);
 
-        $withActiveUsers = $users->map(function($user)  {
+        })->whereIn('school_location_id', $schoolLocationIds)
+            ->where('demo', '<>', 1)
+            ->orderBy('name_first')
+            ->orderBy('name')
+            ->paginate(15);
+
+        return $users->map(function($user)  {
             $user->active = $user->allowedSchoolLocations->contains(Auth::user()->schoolLocation);
 
             return $user;
         });
-
-        return $withActiveUsers;
     }
 }
