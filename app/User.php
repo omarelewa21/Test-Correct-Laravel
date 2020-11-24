@@ -934,7 +934,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasSharedSections()
     {
-        return (bool) $this->schoolLocation->sharedSections()->count();
+        return (bool) null !== $this->schoolLocation && $this->schoolLocation->sharedSections()->count();
     }
 
 
