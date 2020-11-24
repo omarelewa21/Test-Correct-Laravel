@@ -515,7 +515,6 @@ class Question extends MtiBaseModel {
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
-        $user = Auth::user();
         $query = $this->opensourceAndDemo($query,$filters);
         $joins = [];
 
@@ -643,58 +642,6 @@ class Question extends MtiBaseModel {
 
         foreach($filters as $key => $value) {
             switch($key) {
-                case 'base_subject_id':
-
-                    if(isset($filters['source'])){
-                        switch($filters['source']){
-                            case 'schoolLocation': // only my colleages and me
-                                if(is_array($value)) {
-                                    $subjectIds = $user->subjects()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIds = $user->subjects()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
-                                break;
-                            case 'school': // including shared sections
-                            default:
-                                if(is_array($value)) {
-                                    $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
-                                } else {
-                                    $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
-                                }
-                                $subjectIds = $subjectIds->pluck('id');
-                                $query->whereIn('subject_id',$subjectIds);
-                                break;
-                        }
-                    } else {
-                        if(is_array($value)) {
-                            $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
-                        } else {
-                            $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
-                        }
-                        $subjectIds = $subjectIds->pluck('id');
-                        $query->whereIn('subject_id',$subjectIds);
-                    }
-
-                    break;
-                case 'source':
-                    if(isset($filters['base_subject_id'])){
-                        // we don't have to do anything, cause here above already caught;
-                    } else {
-                        switch($filters['source']){
-                            case 'me': // i need to be the author
-                                $query->where('author_id',$user->getKey());
-                            case 'schoolLocation': // only my colleages and me
-                                $query->whereIn('subject_id',$user->subjects()->pluck('id'));
-                                break;
-                            case 'school': // including shared sections
-                            default:
-                                $query->whereIn('subject_id',$user->subjectsIncludingShared()->pluck('id'));
-                                break;
-                        }
-                    }
-                    break;
                 case 'id':
                     if (is_array($value)) {
                         $query->whereIn($this->table.'.id', $value);
