@@ -75,6 +75,11 @@ class Test extends BaseModel
         });
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(SchoolLocation::class);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
@@ -365,7 +370,7 @@ class Test extends BaseModel
 
         if (count($sharedSectionIds) > 0) {
             $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',$baseSubjectIds)->pluck('id')->unique();
-        } else { // slower but as a fallback in case there's no cito school
+        } else {
             $query->where('tests.id', -1);
             return $query;
         }

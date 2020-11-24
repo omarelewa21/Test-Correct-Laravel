@@ -761,7 +761,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique();
         }
 
-        $subjectIds = $subjectIdsFromShared + $this->subjects()->pluck('id')->unique();
+        $subjectIds = $subjectIdsFromShared->merge($this->subjects()->pluck('id')->unique());
 
         if($query === null){
             $query = Subject::whereIn('id',$subjectIds);

@@ -505,7 +505,7 @@ class Question extends MtiBaseModel {
                 $query->orWhere(function($q) use ($user,$subject){
                     $q->where('subject_id','<>',$subject->getKey());
                     $q->whereIn('subject_id', function ($query) use ($user) {
-                        $user->subjects($query)->select('id');
+                        $user->subjectsIncludingShared($query)->select('id');
                     });
                 });
             }
