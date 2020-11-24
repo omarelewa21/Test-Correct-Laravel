@@ -21,7 +21,7 @@ class AddOwnerIdToTests extends Migration
         try {
             tcCore\Test::withTrashed()->chunkById(100, function ($tests) {
                 collect($tests)->each(function (tcCore\Test $t) {
-                    $user = User::findOrFail($t->author_id);
+                    $user = User::withTrashed()->findOrFail($t->author_id);
                     $t->owner_id = $user->school_location_id;
                     $t->save();
                 });
