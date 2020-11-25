@@ -565,7 +565,6 @@ class TestTake extends BaseModel
             ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id');
         // 20200207 MF t zou kunnen dat er een kopie van een test wordt gemaakt voordat een test_take wordt gescheduled maar dat weet ik niet zeker, maar any how het zou niet nodig hoeven zijn dat test niet deleted is.
         // ->where($testTable . '.' . with(new Test())->getDeletedAtColumn(), null);
-
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'user_id':
@@ -703,6 +702,11 @@ class TestTake extends BaseModel
                     } else {
                         $query->whereIn($this->getTable() . '.id', TestParticipant::where('school_class_id', $value)->distinct()->pluck('test_take_id'));
                     }
+                    break;
+                case 'school_class_name':
+                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereHas('schoolClass', function($q) use ($value){
+                                                                                                    $q->where('name', 'LIKE', '%' . $value . '%');
+                                                                                                })->distinct()->pluck('test_take_id'));
                     break;
                 case 'location':
                     $query->where('location', 'LIKE', '%' . $value . '%');
