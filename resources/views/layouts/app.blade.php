@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="/css/onboarding.css">
 
 </head>
-<body class="antialiased font-sans bg-gray-200">
+<body class="antialiased font-sans bg-light-grey">
 {{ $slot }}
 
 @livewireScripts

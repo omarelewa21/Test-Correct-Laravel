@@ -54,17 +54,29 @@ class Onboarding extends Component
 
     public function getMinCharRuleProperty()
     {
-        return mb_strlen($this->password) < 8 ? 'red' : 'green';
+        if(empty($this->password)) {
+            return 0;
+        } else {
+            return mb_strlen($this->password) < 8 ? 'red' : 'green';
+        }
     }
 
     public function getMinDigitRuleProperty()
     {
-        return preg_match('/\d/', $this->password) ? 'green' : 'red';
+        if (empty($this->password)) {
+            return 0;
+        } else {
+            return preg_match('/\d/', $this->password) ? 'green' : 'red';
+        }
     }
 
     public function getSpecialCharRuleProperty()
     {
-        return preg_match('/[^a-zA-Z\d]/', $this->password) ? 'green' : 'red';
+        if (empty($this->password)) {
+            return 0;
+        } else {
+            return preg_match('/[^a-zA-Z\d]/', $this->password) ? 'green' : 'red';
+        }
     }
 
     public function step1()

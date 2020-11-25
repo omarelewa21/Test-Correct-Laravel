@@ -19,10 +19,12 @@
     font-family: Nunito Bold;
     src: url("Nunito/Nunito-Bold.ttf");
 }
+
 @font-face {
     font-family: Nunito Regular;
     src: url("Nunito/Nunito-Regular.ttf");
 }
+
 @font-face {
     font-family: Zilla Slab Regular;
     src: url("Zilla_Slab/ZillaSlab-Regular.ttf");
@@ -31,42 +33,55 @@
 .cta-primary {
     color: var(--cta-primary);
 }
+
 .cta-primary-mid-dark {
     color: var(--cta-primary-mid-dark);
 }
+
 .cta-primary-dark {
     color: var(--cta-primary-dark);
 }
+
 .cta-secondary {
     color: var(--cta-secondary);
 }
+
 .primary {
     color: var(--primary);
 }
+
 .secondary {
     color: var(--secondary);
 }
+
 .highlight-primary {
     color: var(--highlight-primary);
 }
+
 .base {
     color: var(--system-base);
 }
+
 .system-secondary {
     color: var(--system-secondary);
 }
+
 .mid-grey {
     color: var(--mid-grey);
 }
+
 .light-grey {
     color: var(--light-grey);
 }
+
 .blue-grey {
     color: var(--blue-grey);
 }
+
 .shadow-blue {
     color: var(--shadow-blue);
 }
+
 .off-white {
     color: var(--off-white);
 }
@@ -74,36 +89,47 @@
 .bg-cta-primary {
     background: var(--cta-primary);
 }
+
 .bg-cta-secondary {
     background: var(--cta-secondary);
 }
+
 .bg-primary {
     background: var(--primary);
 }
+
 .bg-secondary {
     background: var(--secondary);
 }
+
 .bg-highlight-primary {
     background: var(--highlight-primary);
 }
+
 .bg-system-primary {
     background: var(--system-primary);
 }
+
 .bg-system-secondary {
     background: var(--system-secondary);
 }
+
 .bg-mid-grey {
     background: var(--mid-grey);
 }
+
 .bg-light-grey {
     background: var(--light-grey);
 }
+
 .bg-blue-grey {
     background: var(--blue-grey);
 }
+
 .bg-shadow-blue {
     background: var(--shadow-blue);
 }
+
 .bg-off-white {
     background: var(--off-white);
 }
@@ -116,35 +142,43 @@ h1 {
     font-size: 2rem;
     font-family: Nunito Bold;
 }
+
 h2 {
     font-size: 1.75rem;
     font-family: Nunito Bold;
 }
+
 h3 {
     font-size: 1.5rem;
     font-family: Zilla Slab Regular;
 }
+
 h4 {
     font-size: 1.5rem;
     font-family: Nunito Bold;
 }
+
 h5 {
     font-size: 1.25rem;
     font-family: Nunito Bold;
 }
+
 h6 {
     font-size: 1.125rem;
     font-family: Nunito Bold;
 }
+
 h7 {
     font-size: 1rem;
     font-family: Nunito Bold;
 }
+
 .body1 {
     font-size: 1.125rem;
     line-height: 2rem;
     font-family: Nunito Regular;
 }
+
 .body2 {
     font-size: 1rem;
     line-height: 1.5rem;
@@ -161,6 +195,13 @@ h7 {
     font-family: Nunito Regular;
 }
 
+.card-header-img {
+}
+
+.content-section {
+    box-shadow: 0px 3px 18px 0px rgba(77, 87, 143, 0.1);
+}
+
 .tc-logo {
     height: 3.125rem;
     width: 17.125rem;
@@ -175,64 +216,137 @@ h7 {
     text-align: center;
 }
 
-.active div{
+.step-finished {
+    background: url("../svg/icons/x.svg");
+    width: 30px;
+    height: 30px;
+}
+
+.active .header-number {
     background: var(--primary);
 }
+
 .active span {
     color: var(--primary);
 }
+
 .button {
-    height: 40px;
-    margin: 0 20px 0 20px;
     border-radius: 10px;
     font-size: 18px;
-    font-family: Avenir Heavy;
+    font-family: Nunito Bold;
     padding: 0 20px 0 20px;
 }
+
 .button:focus {
     outline: none;
     padding: 0 18px 0 18px;
 }
 
+.button-sm {
+    min-height: 40px;
+}
+
+.button-md {
+    min-height: 50px;
+}
+
+.button-lg {
+    min-height: 60px;
+}
+
+.text-button {
+    min-height: 40px;
+    color: var(--system-base);
+    font-family: Nunito Bold;
+}
+
+.text-button:hover {
+    color: var(--primary);
+}
+
+.text-button:focus {
+    outline: none;
+}
+
+
 .cta-button {
     background: var(--cta-primary);
     color: white;
 }
+
 .cta-button:hover {
-    background: linear-gradient(90deg, rgba(39,151,61,1) 0%,rgba(61,187,86,1) 100%);
-    box-shadow: 0 1px 18px 0 rgba(77,87,143,0.5);
+    background: linear-gradient(90deg, rgba(39, 151, 61, 1) 0%, rgba(61, 187, 86, 1) 100%);
+    box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
 }
+
 .cta-button:active {
-    background: linear-gradient(90deg, rgba(57,180,81,1) 0%,rgba(61,187,86,1) 100%);
-    box-shadow: 0 1px 6px 0 rgba(77,87,143,0.5);
+    background: linear-gradient(90deg, rgba(57, 180, 81, 1) 0%, rgba(61, 187, 86, 1) 100%);
+    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
 }
+
 .cta-button:focus {
     background: var(--cta-primary);
     border: 2px solid var(--cta-primary-dark);
 }
+
 .cta-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
+    box-shadow: none;
 }
+
 .primary-button {
     background: var(--primary);
     color: white;
 }
+
 .primary-button:hover {
-    background: linear-gradient(90deg, rgba(0,77,245,1) 0%, rgba(71,129,255,1) 100%);
-    box-shadow: 0 1px 18px 0 rgba(77,87,143,0.5);
+    /*background: red;*/
+    background: linear-gradient(90deg, rgba(0, 77, 245, 1) 0%, rgba(71, 129, 255, 1) 100%);
+    box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
 }
+
 .primary-button:active {
-    background: linear-gradient(90deg, rgba(43,108,251,1) 0%, rgba(71,129,255,1) 100%);
-    box-shadow: 0 1px 6px 0 rgba(77,87,143,0.5);
+    background: linear-gradient(90deg, rgba(43, 108, 251, 1) 0%, rgba(71, 129, 255, 1) 100%);
+    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
 }
+
 .primary-button:focus {
     background: var(--primary);
     border: 2px solid var(--system-base)
 }
+
 .primary-button:disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
+    box-shadow: none;
+}
+
+.secondary-button {
+    background: var(--blue-grey);
+    color: var(--system-base);
+}
+
+.secondary-button:hover {
+    /*background: red;*/
+    background: linear-gradient(90deg, rgba(233, 239, 250, 1) 0%, rgba(206, 218, 243, 1) 100%);
+    box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
+}
+
+.secondary-button:active {
+    background: linear-gradient(90deg, rgba(239, 244, 254, 1) 0%, rgba(233, 239, 250, 1) 100%);
+    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
+}
+
+.secondary-button:focus {
+    background: var(--system-secondary);
+    border: 2px solid #99AACE;
+}
+
+.secondary-button:disabled {
+    background: var(--light-grey);
+    color: var(--mid-grey);
+    box-shadow: none;
 }
 
 .select-button {
@@ -242,11 +356,13 @@ h7 {
     color: var(--system-base);
     padding: 16px;
 }
+
 .select-button:hover, .select-button:focus {
     border: 1px solid var(--primary);
     color: var(--primary);
     outline: none;
 }
+
 .select-button:active {
     color: var(--primary);
     border: 2px solid var(--primary);
@@ -254,41 +370,51 @@ h7 {
     padding: 15px;
 }
 
-.btn-img{
+.btn-img {
     display: block;
     margin-right: 15px;
     text-indent: -9999px;
     width: 46px;
+    min-width: 46px;
     height: 46px;
     transition: ease-in-out 150ms;
 }
+
 .man {
     background: url("../svg/icons/men grey.svg");
 }
+
 .woman {
     background: url("../svg/icons/women grey.svg");
 }
+
 .other {
     background: url("../svg/icons/x grey.svg");
 }
+
 .select-button:hover .man, .select-button:focus .man {
     background: url("../svg/icons/men.svg");
     transition: ease-in-out 150ms;
 }
+
 .select-button:active .man {
     background: url("../svg/icons/men.svg");
 }
+
 .select-button:hover .woman, .select-button:focus .woman {
     background: url("../svg/icons/women.svg");
     transition: ease-in-out 150ms;
 }
+
 .select-button:active .woman {
     background: url("../svg/icons/women.svg");
 }
+
 .select-button:hover .other, .select-button:focus .other {
-     background: url("../svg/icons/x.svg");
-     transition: ease-in-out 150ms;
- }
+    background: url("../svg/icons/x.svg");
+    transition: ease-in-out 150ms;
+}
+
 .select-button:active .other {
     background: url("../svg/icons/x.svg");
 }
@@ -300,9 +426,11 @@ h7 {
     background: var(--off-white);
     border: 1px solid var(--blue-grey)
 }
-.form-input:hover{
+
+.form-input:hover {
     border: 1px solid var(--primary);
 }
+
 .form-input:focus, .form-input:active {
     color: var(--primary);
     border: 1px solid var(--primary);
@@ -313,12 +441,41 @@ h7 {
     display: flex;
     flex-direction: column-reverse;
 }
+
 input:focus + label {
     color: var(--primary);
 }
 
-.requirement-list {
-    list-style-type: disc;
-    margin-left: 25px;
-    font-size: 14px;
+.notification {
+    min-height: 32px;
+    border: 1px solid;
+    border-radius: 4px;
+    padding: 0 16px 0 16px;
+}
+.notification > .title {
+    font-family: Nunito Bold;
+    font-size: 1rem;
+}
+.notification > .body {
+    font-family: Nunito Regular;
+    font-size: 0.875rem;
+    line-height: normal;
+}
+
+.informational {
+    background: #E6EDFA;
+    border-color: var(--blue-grey);
+    color: var(--primary);
+}
+
+.warning {
+    background-color: #FFFCD7;
+    border-color: #ECDB00;
+    color: #857B01;
+}
+
+.error {
+    background: #FFEDEB;
+    border-color: #EBCCC8;
+    color: #CF1B04
 }
