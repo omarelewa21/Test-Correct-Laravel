@@ -1441,7 +1441,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 	}
 
     public function hasAccessToTest(Test $test){
-        return $this->subjects()->pluck('id')->contains($test->subject->getKey());
+        return null !== $test->subject && $this->subjects()->pluck('id')->contains($test->subject->getKey());
     }
 
     public function makeOnboardWizardIfNeeded()
