@@ -571,7 +571,13 @@ class Test extends BaseModel
                 } elseif ($schoolId !== null) {
                     $query->where('school_id', $schoolId);
                 } elseif ($schoolLocationId !== null) {
-                    $query->where('school_location_id', $schoolLocationId);
+//                    $query->where('school_location_id', $schoolLocationId);
+                    $query->where(function($query) use ($schoolLocationId) {
+                       $query->whereIn(
+                           'users.id',
+                           DB::table('school_location_user')->select('user_id')->where('school_location_id', $schoolLocationId)
+                       )->orWhere('school_location_id', $schoolLocationId);
+                    });
                 }
             });
 
