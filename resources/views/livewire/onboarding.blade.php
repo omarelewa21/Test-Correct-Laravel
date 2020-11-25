@@ -1,3 +1,4 @@
+<div>
 <div class="py-5 bg-white onboarding-header">
     <div class="max-w-2xl mx-auto grid grid-cols-3 gap-4 mid-grey">
         <div class="col-span-3">
@@ -35,8 +36,8 @@
                 </div>
             </div>
             <div class="col-span-2 bg-white rounded-10 p-4 sm:p-10 content-section">
-                @if($this->step === 2)
-                    <div class="grid grid-cols-12">
+                @if($this->step === 1)
+                    <div class="grid grid-cols-12" wire:key="step1">
                         {{--content header--}}
                         <div class="col-span-3 sm:col-span-2 md:col-span-1">
                             <img class="card-header-img" src="/svg/stickers/profile.svg" alt="">
@@ -55,7 +56,7 @@
                                         @if($this->registration->gender === 'male')
                                             <button type="button"
                                                     class="inline-flex w-full items-center p-4 select-button transition duration-150 ease-in-out">
-                                                <div class="btn-img man"></div>
+                                                <div class="btn-img man active"></div>
                                                 Meneer
                                             </button>
                                         @else
@@ -77,7 +78,7 @@
                                         @if($this->registration->gender === 'female')
                                             <button type="button"
                                                     class="inline-flex w-full items-center select-button transition duration-150 ease-in-out">
-                                                <div class="btn-img woman"></div>
+                                                <div class="btn-img woman active"></div>
                                                 Mevrouw
                                             </button>
                                         @else
@@ -96,11 +97,11 @@
                                         @if($this->registration->gender === 'different')
                                             <button type="button"
                                                     class="inline-flex items-center p-4 w-full select-button transition duration-150 ease-in-out">
-                                                <div class="btn-img other"></div>
+                                                <div class="btn-img other active"></div>
                                                 Anders:
                                                 <input id="gender_different" wire:model="registration.gender_different"
                                                        class="form-input"
-                                                       disabled>
+                                                       >
                                             </button>
                                         @else
                                             <button wire:click="$set('registration.gender', 'different')"
@@ -110,7 +111,9 @@
                                                 <div class="w-full text-left"><span>Anders: </span>
                                                     <input id="gender_different"
                                                            wire:model="registration.gender_different"
-                                                           class="form-input sm:ml-2 mr-0 w-9/12">
+                                                           disabled
+                                                           class="form-input sm:ml-2 mr-0 w-9/12"
+                                                    >
                                                 </div>
                                             </button>
                                         @endif
@@ -142,7 +145,7 @@
                                         @enderror
                                     </div>
                                     <div class="col-span-12 sm:col-span-6 col-start-1 sm:col-start-1 lg:col-start-auto lg:col-span-3 input-group">
-                                        <input id="password" wire:model="password"
+                                        <input id="password" wire:model="password" type="password"
                                                class="mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5">
                                         <label for="password"
                                                class="block text-sm font-medium leading-5 text-gray-700">Creeër
@@ -150,7 +153,7 @@
                                     </div>
 
                                     <div class="col-span-12 sm:col-span-6 col-start-1 sm:col-start-1 md:col-start-auto lg:col-span-3 input-group">
-                                        <input id="password_confirm" wire:model="password_confirmation"
+                                        <input id="password_confirm" wire:model="password_confirmation" type="password"
                                                class="mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5">
                                         <label for="password_confirm"
                                                class="block text-sm font-medium leading-5 text-gray-700">Herhaal
@@ -168,7 +171,7 @@
                                         </div>
                                         <div class="text-{{ $this->specialCharRule  }}-700">@if($this->specialCharRule === 'green')
                                                 check @elseif($this->specialCharRule === 'red') X @endif Min 1 speciaal
-                                            teken (bijv $ of @)</span></div>
+                                            teken (bijv $ of @)</div>
                                     </div>
 
                                 </div>
@@ -275,7 +278,7 @@
                             </form>
                         </div>
                     </div>
-                @elseif($this->step === 1)
+                @elseif($this->step === 3)
                     <div class="grid grid-cols-12">
                         {{--content header--}}
                         <div class="col-span-3 sm:col-span-2 md:col-span-1">
@@ -361,4 +364,5 @@
             </div>
         </div>
     </div>
+</div>
 </div>

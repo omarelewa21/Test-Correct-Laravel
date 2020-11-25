@@ -23,6 +23,7 @@ class Onboarding extends Component
                 'registration.gender_different' => 'sometimes',
                 'registration.name_first' => 'required|string',
                 'registration.name' => 'required|string',
+                'registration.name_suffix' => 'sometimes',
                 'password' => 'required|min:8|same:password_confirmation',
             ];
         }
@@ -34,6 +35,7 @@ class Onboarding extends Component
                 'registration.city' => 'required',
             ];
         }
+        return [];
     }
 
     public function mount()

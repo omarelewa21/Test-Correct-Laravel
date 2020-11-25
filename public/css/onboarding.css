@@ -397,7 +397,7 @@ h7 {
     transition: ease-in-out 150ms;
 }
 
-.select-button:active .man {
+.select-button:active .man, .man.active {
     background: url("../svg/icons/men.svg");
 }
 
@@ -406,7 +406,7 @@ h7 {
     transition: ease-in-out 150ms;
 }
 
-.select-button:active .woman {
+.select-button:active .woman, .woman.active {
     background: url("../svg/icons/women.svg");
 }
 
@@ -415,7 +415,7 @@ h7 {
     transition: ease-in-out 150ms;
 }
 
-.select-button:active .other {
+.select-button:active .other, .other.active {
     background: url("../svg/icons/x.svg");
 }
 
