@@ -1522,9 +1522,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->username;
     }
 
-    public function hasAccessToTest(Test $test)
-    {
-        return $this->subjects()->pluck('id')->contains($test->subject->getKey());
+    public function hasAccessToTest(Test $test){
+        return null !== $test->subject && $this->subjects()->pluck('id')->contains($test->subject->getKey());
     }
 
     public function hasAccessToSharedSectionsTest(Test $test)
