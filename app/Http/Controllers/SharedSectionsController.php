@@ -33,7 +33,11 @@ class SharedSectionsController extends Controller {
 
 	public function optionalSchoolLocations(OptionalSharedSectionSchoolLocationsRequest $request, Section $section)
     {
-        $schoolLocations = SchoolLocation::where('school_id',Auth::user()->schoolLocation->school_id)->whereNotNull('school_id')->whereNotIn('id',$section->sharedSchoolLocations()->pluck('id'))->get();
+        $schoolLocations = SchoolLocation::where('school_id',Auth::user()->schoolLocation->school_id)
+            ->whereNotNull('school_id')
+            ->whereNotIn('id',$section->sharedSchoolLocations()->pluck('id'))
+            ->where('id','!=',Auth::user()->schoolLocation->getKey())
+            ->get();
         $return = collect([]);
         $schoolLocations->each(function(SchoolLocation $sl) use ($return){
             $return[$sl->uuid] = $sl->name;
