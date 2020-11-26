@@ -1215,87 +1215,90 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
+
         $roles = Roles::getUserRoles();
         // you are an Account manager
-        $query->where(function($query) use ($roles) {
-            if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
-                //		if($this->hasRole(['Administrator','Account manager'])){
-                $userId = Auth::user()->getKey();
+        if (!in_array('Administrator', $roles)) {
+            $query->where(function ($query) use ($roles) {
+                if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
+                    logger(__LINE__);
+                    //		if($this->hasRole(['Administrator','Account manager'])){
+                    $userId = Auth::user()->getKey();
 
-                $sHelper = new SchoolHelper();
-                $schoolIds = $sHelper->getRelatedSchoolIds(Auth::user());
-                $schoolLocationIds = $sHelper->getRelatedSchoolLocationIds(Auth::user());
+                    $sHelper = new SchoolHelper();
+                    $schoolIds = $sHelper->getRelatedSchoolIds(Auth::user());
+                    $schoolLocationIds = $sHelper->getRelatedSchoolLocationIds(Auth::user());
 
-                $parentIds = StudentParent::whereIn('user_id', function ($query) use ($schoolIds, $schoolLocationIds) {
-                    $query->select($this->getKeyName())
-                        ->from($this->getTable())
-                        ->where(function ($query) use ($schoolIds, $schoolLocationIds) {
-                            $query->whereIn('school_id', $schoolIds);
-                            $query->orWhereIn('school_location_id', $schoolLocationIds);
-                        })
-                        ->whereNull('deleted_at');
-                })->pluck('parent_id')->all();
+                    $parentIds = StudentParent::whereIn('user_id',
+                        function ($query) use ($schoolIds, $schoolLocationIds) {
+                            $query->select($this->getKeyName())
+                                ->from($this->getTable())
+                                ->where(function ($query) use ($schoolIds, $schoolLocationIds) {
+                                    $query->whereIn('school_id', $schoolIds);
+                                    $query->orWhereIn('school_location_id', $schoolLocationIds);
+                                })
+                                ->whereNull('deleted_at');
+                        })->pluck('parent_id')->all();
 
-                $query->where(function ($query) use ($schoolIds, $schoolLocationIds, $parentIds) {
-                    $query->whereIn('school_id', $schoolIds);
-                    $query->orWhereIn('school_location_id', $schoolLocationIds);
-                    $query->orWhereIn('id', $parentIds);
-                });
-                // you are a school manager, teacher, invigilator, school management or mentor
-            } elseif (!in_array('Administrator', $roles) && (in_array('School manager', $roles) || in_array('Teacher',
-                        $roles) || in_array('Invigilator', $roles) || in_array('School management',
-                        $roles) || in_array('Mentor', $roles))) {
+                    $query->where(function ($query) use ($schoolIds, $schoolLocationIds, $parentIds) {
+                        $query->whereIn('school_id', $schoolIds);
+                        $query->orWhereIn('school_location_id', $schoolLocationIds);
+                        $query->orWhereIn('id', $parentIds);
+                    });
+                    // you are a school manager, teacher, invigilator, school management or mentor
+                } elseif (!in_array('Administrator', $roles) && (in_array('School manager',
+                            $roles) || in_array('Teacher',
+                            $roles) || in_array('Invigilator', $roles) || in_array('School management',
+                            $roles) || in_array('Mentor', $roles))) {
 //        } elseif (!$this->hasRole('Administrator') &&
 //            ($this->hasRole(['School manager','Teacher','Invigilator', 'School management','Mentor']))) {
-                $user = Auth::user();
-                $schoolId = $user->getAttribute('school_id');
-                $schoolLocationId = $user->getAttribute('school_location_id');
+                    $user = Auth::user();
+                    $schoolId = $user->getAttribute('school_id');
+                    $schoolLocationId = $user->getAttribute('school_location_id');
 
-                if ($schoolId !== null) {
-                    $schoolLocationIds = SchoolLocation::where(function ($query) use ($schoolId, $schoolLocationId) {
-                        $query->where('school_id', $schoolId)->orWhere('id', $schoolLocationId);
-                    })->pluck('id')->all();
-                } elseif ($schoolLocationId !== null) {
-                    $schoolLocationIds = [$schoolLocationId];
-                } else {
-                    $schoolLocationIds = [];
-                }
-
-                $parentIds = StudentParent::whereIn('user_id', function ($query) use ($schoolId, $schoolLocationIds) {
-                    $query->select($this->getKeyName())
-                        ->from($this->getTable())
-                        ->where(function ($query) use ($schoolId, $schoolLocationIds) {
-                            $query->where('school_id', $schoolId);
-                            $query->orWhereIn('school_location_id', $schoolLocationIds);
-                        })
-                        ->whereNull('deleted_at');
-                })->pluck('parent_id')->all();
-
-                $query->where(function ($query) use ($schoolId, $schoolLocationIds, $parentIds) {
                     if ($schoolId !== null) {
-                        $query->where('school_id', $schoolId);
-                        $query->orWhereIn('school_location_id', $schoolLocationIds);
-                    } elseif ($schoolLocationIds !== null) {
-                        $query->whereIn('school_location_id', $schoolLocationIds);
+                        $schoolLocationIds = SchoolLocation::where(function ($query) use (
+                            $schoolId,
+                            $schoolLocationId
+                        ) {
+                            $query->where('school_id', $schoolId)->orWhere('id', $schoolLocationId);
+                        })->pluck('id')->all();
+                    } elseif ($schoolLocationId !== null) {
+                        $schoolLocationIds = [$schoolLocationId];
+                    } else {
+                        $schoolLocationIds = [];
                     }
 
-                    $query->orWhereIn('id', $parentIds);
-                });
-                // you are probably a student or so
-            } elseif (!in_array('Administrator', $roles)) {
+                    $parentIds = StudentParent::whereIn('user_id',
+                        function ($query) use ($schoolId, $schoolLocationIds) {
+                            $query->select($this->getKeyName())
+                                ->from($this->getTable())
+                                ->where(function ($query) use ($schoolId, $schoolLocationIds) {
+                                    $query->where('school_id', $schoolId);
+                                    $query->orWhereIn('school_location_id', $schoolLocationIds);
+                                })
+                                ->whereNull('deleted_at');
+                        })->pluck('parent_id')->all();
+
+                    $query->where(function ($query) use ($schoolId, $schoolLocationIds, $parentIds) {
+                        if ($schoolId !== null) {
+                            $query->where('school_id', $schoolId);
+                            $query->orWhereIn('school_location_id', $schoolLocationIds);
+                        } elseif ($schoolLocationIds !== null) {
+                            $query->whereIn('school_location_id', $schoolLocationIds);
+                        }
+
+                        $query->orWhereIn('id', $parentIds);
+                    });
+                    // you are probably a student or so
+                } else {
 //        } elseif (!$this->hasRole('Administrator')) {
-                $query->where('id', Auth::user()->getKey());
-            }
-            $query->orWhereIn('users.id', $this->fromAnotherLocation(Auth::user()));
+                    $query->where('id', Auth::user()->getKey());
+                }
+                $query->orWhereIn('users.id', $this->fromAnotherLocation(Auth::user()));
 
-        });
-
-
-
-
-
-
-
+            });
+        }
 
         foreach ($filters as $key => $value) {
             switch ($key) {
