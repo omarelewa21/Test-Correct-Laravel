@@ -1660,6 +1660,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     private function fromAnotherLocation($user)
     {
         $school = SchoolLocation::where('id', $user->getAttribute('school_location_id'))->first();
+        if ($school === null) {
+            return [];
+        }
         return DB::table('school_location_user')
             ->selectRaw('distinct user_id')
             ->whereIn(
