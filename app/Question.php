@@ -691,7 +691,7 @@ class Question extends MtiBaseModel {
                                 break;
                             case 'school': // including shared sections
                             default:
-                                $query->whereIn('subject_id',$user->subjectsIncludingShared()->pluck('id'));
+                                $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));
                                 break;
                         }
                     }
