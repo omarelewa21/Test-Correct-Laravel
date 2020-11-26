@@ -19,7 +19,7 @@ class MyBaseSubjectsController extends Controller {
     public function index(AllowOnlyAsTeacherRequest $request)
     {
 
-        $baseSubjects = BaseSubject::whereIn('id',Auth::user()->subjects()->pluck('base_subject_id')->unique()->toArray());
+        $baseSubjects = BaseSubject::whereIn('id',Auth::user()->subjects()->pluck('base_subject_id')->unique()->toArray())->orderBy('name');
 
         switch(strtolower($request->get('mode', 'all'))) {
             case 'all':
