@@ -394,7 +394,6 @@ h7 {
 
 .select-button:hover .man, .select-button:focus .man {
     background: url("../svg/icons/men.svg");
-    transition: ease-in-out 150ms;
 }
 
 .select-button:active .man, .man.active {
@@ -403,7 +402,6 @@ h7 {
 
 .select-button:hover .woman, .select-button:focus .woman {
     background: url("../svg/icons/women.svg");
-    transition: ease-in-out 150ms;
 }
 
 .select-button:active .woman, .woman.active {
@@ -412,10 +410,31 @@ h7 {
 
 .select-button:hover .other, .select-button:focus .other {
     background: url("../svg/icons/x.svg");
-    transition: ease-in-out 150ms;
 }
 
 .select-button:active .other, .other.active {
+    background: url("../svg/icons/x.svg");
+}
+
+.btn-active {
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    background-color: var(--off-white);
+    padding: 15px;
+}
+.btn-active:hover, .btn-active:focus {
+    color: var(--primary);
+    border: 2px solid var(--primary);
+    background-color: var(--off-white);
+    padding: 15px;
+}
+.btn-active .man {
+    background: url("../svg/icons/men.svg");
+}
+.btn-active .woman {
+    background: url("../svg/icons/women.svg");
+}
+.btn-active .other {
     background: url("../svg/icons/x.svg");
 }
 
@@ -455,6 +474,7 @@ input:focus + label {
 .notification > .title {
     font-family: Nunito Bold;
     font-size: 1rem;
+    line-height: 30px;
 }
 .notification > .body {
     font-family: Nunito Regular;

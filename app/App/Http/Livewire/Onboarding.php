@@ -93,5 +93,9 @@ class Onboarding extends Component
 
     }
 
+    public function updated($propertyName)
+    {
+        $this->validateOnly($propertyName);
+    }
 
 }
