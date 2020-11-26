@@ -776,7 +776,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query;
     }
 
-    public function subjectsOnlyShared($query)
+    public function subjectsOnlyShared($query =  null)
     {
         $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
         $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();

@@ -659,9 +659,9 @@ class Question extends MtiBaseModel {
                             case 'school': // including shared sections
                             default:
                                 if(is_array($value)) {
-                                    $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
+                                    $subjectIds = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
                                 } else {
-                                    $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
+                                    $subjectIds = $user->subjectsOnlyShared()->where('base_subject_id','=',$value);
                                 }
                                 $subjectIds = $subjectIds->pluck('id');
                                 $query->whereIn('subject_id',$subjectIds);
