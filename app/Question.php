@@ -684,7 +684,8 @@ class Question extends MtiBaseModel {
                     } else {
                         switch($filters['source']){
                             case 'me': // i need to be the author
-                                $query->where('author_id',$user->getKey());
+                                $query->join('question_authors','questions.id','=','question_authors.question_id')
+                                    ->where('question_authors.user_id','=',$user->getKey());
                             case 'schoolLocation': // only my colleages and me
                                 $query->whereIn('subject_id',$user->subjects()->pluck('id'));
                                 break;
