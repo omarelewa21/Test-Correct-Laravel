@@ -657,11 +657,19 @@ class Question extends MtiBaseModel {
                                 $query->whereIn('subject_id',$subjectIds);
                                 break;
                             case 'school': // including shared sections
-                            default:
                                 if(is_array($value)) {
                                     $subjectIds = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
                                 } else {
                                     $subjectIds = $user->subjectsOnlyShared()->where('base_subject_id','=',$value);
+                                }
+                                $subjectIds = $subjectIds->pluck('id');
+                                $query->whereIn('subject_id',$subjectIds);
+                                break;
+                            default:
+                                if(is_array($value)) {
+                                    $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
+                                } else {
+                                    $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
                                 }
                                 $subjectIds = $subjectIds->pluck('id');
                                 $query->whereIn('subject_id',$subjectIds);
@@ -690,8 +698,10 @@ class Question extends MtiBaseModel {
                                 $query->whereIn('subject_id',$user->subjects()->pluck('id'));
                                 break;
                             case 'school': // including shared sections
-                            default:
                                 $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));
+                                break;
+                            default:
+                                $query->whereIn('subject_id',$user->subjectsIncludingShared()->pluck('id'));
                                 break;
                         }
                     }
