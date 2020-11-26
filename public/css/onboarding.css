@@ -106,8 +106,8 @@
     background: var(--highlight-primary);
 }
 
-.bg-system-primary {
-    background: var(--system-primary);
+.bg-system-base {
+    background: var(--system-base);
 }
 
 .bg-system-secondary {
@@ -195,9 +195,6 @@ h7 {
     font-family: Nunito Regular;
 }
 
-.card-header-img {
-}
-
 .content-section {
     box-shadow: 0px 3px 18px 0px rgba(77, 87, 143, 0.1);
 }
@@ -216,10 +213,9 @@ h7 {
     text-align: center;
 }
 
-.step-finished {
-    background: url("../svg/icons/x.svg");
+.header-check {
     width: 30px;
-    height: 30px;
+    margin-right: 10px;
 }
 
 .active .header-number {
@@ -268,15 +264,16 @@ h7 {
     outline: none;
 }
 
-
 .cta-button {
     background: var(--cta-primary);
+    background: linear-gradient(90deg, var(--cta-primary) 0%, var(--cta-primary) 100%);
     color: white;
 }
 
 .cta-button:hover {
     background: linear-gradient(90deg, rgba(39, 151, 61, 1) 0%, rgba(61, 187, 86, 1) 100%);
     box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
+    transition: ease-in-out .3s;
 }
 
 .cta-button:active {
@@ -370,6 +367,43 @@ h7 {
     padding: 15px;
 }
 
+svg, .hair {
+    stroke: var(--mid-grey);
+    fill: var(--mid-grey);
+}
+
+.eye {
+    stroke: none !important;
+    fill: var(--mid-grey);
+}
+
+.select-button:hover svg, .select-button:hover .hair {
+    stroke: var(--primary);
+    fill: var(--primary);
+}
+
+.select-button:hover .eye {
+    fill: var(--primary);
+}
+
+.btn-active svg, .btn-active .hair {
+    stroke: var(--primary);
+    fill: var(--primary);
+}
+
+.btn-active .eye {
+    fill: var(--primary);
+}
+
+.btn-active:hover svg, .btn-active:hover .hair {
+    stroke: var(--primary);
+    fill: var(--primary);
+}
+
+.btn-active:hover .eye {
+    fill: var(--primary);
+}
+
 .btn-img {
     display: block;
     margin-right: 15px;
@@ -422,18 +456,22 @@ h7 {
     background-color: var(--off-white);
     padding: 15px;
 }
+
 .btn-active:hover, .btn-active:focus {
     color: var(--primary);
     border: 2px solid var(--primary);
     background-color: var(--off-white);
     padding: 15px;
 }
+
 .btn-active .man {
     background: url("../svg/icons/men.svg");
 }
+
 .btn-active .woman {
     background: url("../svg/icons/women.svg");
 }
+
 .btn-active .other {
     background: url("../svg/icons/x.svg");
 }
@@ -456,6 +494,10 @@ h7 {
     outline: none;
 }
 
+.form-input.border-red {
+    border-color: red;
+}
+
 .input-group {
     display: flex;
     flex-direction: column-reverse;
@@ -471,11 +513,13 @@ input:focus + label {
     border-radius: 4px;
     padding: 0 16px 0 16px;
 }
+
 .notification > .title {
     font-family: Nunito Bold;
     font-size: 1rem;
     line-height: 30px;
 }
+
 .notification > .body {
     font-family: Nunito Regular;
     font-size: 0.875rem;

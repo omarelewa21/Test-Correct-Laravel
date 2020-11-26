@@ -9,7 +9,7 @@ class Onboarding extends Component
 {
     public $registration;
 
-    public $step = 1;
+    public $step = 3;
 
     public $password;
 
@@ -24,7 +24,7 @@ class Onboarding extends Component
                 'registration.name_first' => 'required|string',
                 'registration.name' => 'required|string',
                 'registration.name_suffix' => 'sometimes',
-                'password' => 'required|min:8|same:password_confirmation',
+                'password' => 'required|min:8|regex:/\d/|regex:/[^a-zA-Z\d]/|same:password_confirmation',
             ];
         }
         if ($this->step === 2) {
@@ -32,6 +32,8 @@ class Onboarding extends Component
                 'registration.school_location' => 'required',
                 'registration.website_url' => 'required',
                 'registration.address' => 'required',
+                'registration.number' => 'required',
+                'registration.postcode' => 'required',
                 'registration.city' => 'required',
             ];
         }
@@ -56,7 +58,7 @@ class Onboarding extends Component
 
     public function getMinCharRuleProperty()
     {
-        if(empty($this->password)) {
+        if (empty($this->password)) {
             return 0;
         } else {
             return mb_strlen($this->password) < 8 ? 'red' : 'green';
@@ -98,4 +100,19 @@ class Onboarding extends Component
         $this->validateOnly($propertyName);
     }
 
+    protected $messages = [
+        'registration.name_first.required' => 'Voornaam is verplicht',
+        'registration.name.required' => 'Achternaam is verplicht',
+        'registration.gender.required' => 'Geef uw geslacht op',
+        'password.required' => 'Wachtwoord is verplicht',
+        'password.min' => 'Wachtwoord moet langer zijn dan 8 karakters',
+        'password.regex' => 'Wachtwoord voldoet niet aan de eisen',
+        'password.same' => 'Wachtwoord komt niet overeen',
+        'registration.school_location.required' => 'Schoolnaam is verplicht',
+        'registration.website_url.required' => 'Website is verplicht',
+        'registration.address.required' => 'Adres is verplicht',
+        'registration.number.required' => 'Huisnummer is verplicht',
+        'registration.postcode.required' => 'Postcode is verplicht',
+        'registration.city.required' => 'Plaatsnaam is verplicht',
+    ];
 }
