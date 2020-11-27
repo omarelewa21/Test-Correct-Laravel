@@ -256,6 +256,10 @@ h7 {
     font-family: Nunito Bold;
 }
 
+.leading-50 {
+    line-height: 50px;
+}
+
 .text-button:hover {
     color: var(--primary);
 }

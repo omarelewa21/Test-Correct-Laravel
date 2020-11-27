@@ -14,7 +14,7 @@ class AddEmailToDemoTeacherRegistrations extends Migration
     public function up()
     {
         Schema::table('demo_teacher_registrations', function (Blueprint $table) {
-            $table->string('email');
+            $table->string('email')->nullable();
         });
     }
 

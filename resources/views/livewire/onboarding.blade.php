@@ -363,13 +363,6 @@
                                             @endif
                                         </div>
 
-                                        <div class="col-span-12 sm:col-span-6 lg:col-span-9 input-group">
-                                            <input id="email" wire:model.lazy="registration.email"
-                                                   class="mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 border-solid border-2 @error('registration.email') border-red @enderror">
-                                            <label for="email"
-                                                   class="block text-sm font-medium leading-5 text-gray-700">E-mail</label>
-                                        </div>
-
                                         <div class="col-span-12 sm:col-span-6 lg:col-span-3 input-group">
                                             <input id="name_first" wire:model.lazy="registration.name_first"
                                                    class="mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 border-solid border-2 @error('registration.name_first') border-red @enderror">
@@ -432,11 +425,6 @@
                                     </div>
                                     <div class="w-7/12">
                                         @error('registration.gender')
-                                        <div class="notification error mt-5">
-                                            <span class="title">{{ $message }}</span>
-                                        </div>
-                                        @enderror
-                                        @error('registration.email')
                                         <div class="notification error mt-5">
                                             <span class="title">{{ $message }}</span>
                                         </div>
@@ -567,26 +555,18 @@
                                         </div>
 
                                         <div class="col-span-6">
-                                            <button
+                                            <a
                                                     wire:click="backToStepOne"
-                                                    class="text-button transition ease-in-out duration-150">
+                                                    class="text-button transition ease-in-out duration-150 cursor-pointer leading-50">
                                                 < Terug naar jouw docentprofiel
-                                            </button>
+                                            </a>
                                         </div>
                                         <div class="col-span-12 md:col-span-6">
-                                            @if($btnDisabled)
-                                                <button
-                                                        wire:click="step2"
-                                                        class="button button-md primary-button md:float-right transition duration-150 ease-in-out btn-disabled">
-                                                    Maak mijn Test-Correct account >
-                                                </button>
-                                            @else
-                                                <button
-                                                        wire:click="step2"
-                                                        class="button button-md primary-button md:float-right transition duration-150 ease-in-out">
-                                                    Maak mijn Test-Correct account >
-                                                </button>
-                                            @endif
+                                            <button
+                                                    wire:click="step2"
+                                                    class="button button-md primary-button md:float-right transition duration-150 ease-in-out">
+                                                Maak mijn Test-Correct account
+                                            </button>
                                         </div>
                                     </div>
                                 </form>
