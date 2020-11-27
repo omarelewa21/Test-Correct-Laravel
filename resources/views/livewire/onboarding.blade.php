@@ -127,7 +127,7 @@
                                                             <circle stroke-width="2" cx="23" cy="23" r="22"/>
                                                         </g>
                                                     </svg>
-                                                    <svg class="absolute top-2 right-2" width="22" height="22"
+                                                    <svg class="absolute top-2 right-2 overflow-visible" width="22" height="22"
                                                          xmlns="http://www.w3.org/2000/svg">
                                                         <g fill="none" fill-rule="evenodd">
                                                             <circle fill="#004DF5" cx="11" cy="11" r="11"/>
@@ -234,7 +234,7 @@
                                                             <circle stroke-width="2" cx="23" cy="23" r="22"/>
                                                         </g>
                                                     </svg>
-                                                    <svg class="absolute top-2 right-2" width="22" height="22"
+                                                    <svg class="absolute top-2 right-2 overflow-visible" width="22" height="22"
                                                          xmlns="http://www.w3.org/2000/svg">
                                                         <g fill="none" fill-rule="evenodd">
                                                             <circle fill="#004DF5" cx="11" cy="11" r="11"/>
@@ -292,7 +292,7 @@
                                                 <button type="button"
                                                         class="relative inline-flex items-center p-4 w-full select-button  btn-active">
                                                     <x-icon.gender-other></x-icon.gender-other>
-                                                    <svg class="absolute top-2 right-2" width="22" height="22"
+                                                    <svg class="absolute top-2 right-2 overflow-visible" width="22" height="22"
                                                          xmlns="http://www.w3.org/2000/svg">
                                                         <g fill="none" fill-rule="evenodd">
                                                             <circle fill="#004DF5" cx="11" cy="11" r="11"/>
@@ -359,6 +359,14 @@
                                                 </button>
                                             @endif
                                         </div>
+
+                                        <div class="col-span-12 sm:col-span-6 lg:col-span-9 input-group">
+                                            <input id="email" wire:model.lazy="registration.email"
+                                                   class="mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 border-solid border-2 @error('registration.email') border-red @enderror">
+                                            <label for="email"
+                                                   class="block text-sm font-medium leading-5 text-gray-700">E-mail</label>
+                                        </div>
+
                                         <div class="col-span-12 sm:col-span-6 lg:col-span-3 input-group">
                                             <input id="name_first" wire:model.lazy="registration.name_first"
                                                    class="mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 border-solid border-2 @error('registration.name_first') border-red @enderror">
@@ -393,7 +401,7 @@
 
                                         <div
                                             class="col-span-12 sm:col-span-6 col-start-1 sm:col-start-1 md:col-start-auto lg:col-span-3 input-group">
-                                            <input id="password_confirm" wire:model.lazy="password_confirmation"
+                                            <input id="password_confirm" wire:model="password_confirmation"
                                                    type="password"
                                                    class="mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 @error('password') border-red @enderror">
                                             <label for="password_confirm"
@@ -404,23 +412,28 @@
                                         <div class="col-span-12 lg:col-span-3 mid-grey">
                                             <div
                                                 class="text-{{$this->minCharRule}}-700">@if($this->minCharRule === 'green')
-                                                    check @elseif($this->minCharRule === 'red') X @endif Min 8 chars
+                                                    check @elseif($this->minCharRule === 'red') X @endif Min. 8 tekens
                                             </div>
                                             <div
                                                 class="text-{{ $this->minDigitRule  }}-700">@if($this->minDigitRule === 'green')
-                                                    check @elseif($this->minDigitRule === 'red') X @endif Min 1 cijfer
+                                                    check @elseif($this->minDigitRule === 'red') X @endif Min. 1 cijfer
                                             </div>
                                             <div
                                                 class="text-{{ $this->specialCharRule  }}-700">@if($this->specialCharRule === 'green')
-                                                    check @elseif($this->specialCharRule === 'red') X @endif Min 1
+                                                    check @elseif($this->specialCharRule === 'red') X @endif Min. 1
                                                 speciaal
-                                                teken (bijv $ of @)
+                                                teken (bijv. $ of @)
                                             </div>
                                         </div>
 
                                     </div>
-                                    <div class="col-span-12">
+                                    <div class="w-7/12">
                                         @error('registration.gender')
+                                        <div class="notification error mt-5">
+                                            <span class="title">{{ $message }}</span>
+                                        </div>
+                                        @enderror
+                                        @error('registration.email')
                                         <div class="notification error mt-5">
                                             <span class="title">{{ $message }}</span>
                                         </div>
@@ -445,13 +458,13 @@
                                     <div class="sm:text-right mt-14">
 
                                         @if ($btnDisabled)
-                                            <button wire:key="btn-disabled"
+                                            <button
                                                     class="button button-md primary-button transition ease-in-out duration-150 btn-disabled"
                                             >
                                                 Ga naar jouw schoolgegevens
                                             </button>
                                         @else
-                                            <button wire:key="btn-enabled"
+                                            <button
                                                     class="button button-md primary-button transition ease-in-out duration-150">
                                                 Ga naar jouw schoolgegevens
                                             </button>
@@ -494,9 +507,9 @@
                                                    class="block text-sm font-medium leading-5 text-gray-700">Adres</label>
                                         </div>
                                         <div class="col-span-6 sm:col-span-3 md:col-span-2 input-group">
-                                            <input id="number" wire:model.lazy="registration.house_number"
+                                            <input id="house_number" wire:model.lazy="registration.house_number"
                                                    class="mt-1 form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5 @error('registration.house_number') border-red @enderror">
-                                            <label for="number"
+                                            <label for="house_number"
                                                    class="block text-sm font-medium leading-5 text-gray-700">Huisnummer</label>
                                         </div>
                                         <div class="col-span-3 col-start-1 md:col-start-1 md:col-span-2 input-group">
@@ -636,7 +649,6 @@
                         <span class="bold">Log in -></span>
                     </button>
                 </div>
-                {{  json_encode($this->getErrorBag()) }}
                 <div class="col-span-1 px-3">
                     <span>Ben je een student?</span>
                     <button class="text-button">

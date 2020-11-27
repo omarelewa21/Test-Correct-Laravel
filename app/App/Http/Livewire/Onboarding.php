@@ -24,6 +24,7 @@ class Onboarding extends Component
                 'registration.gender'           => 'required|in:male,female,different',
                 'registration.gender_different' => 'sometimes',
                 'registration.name_first'       => 'required|string',
+                'registration.email'            => 'required|email',
                 'registration.name'             => 'required|string',
                 'registration.name_suffix'      => 'sometimes',
                 'password'                      => 'required|min:8|regex:/\d/|regex:/[^a-zA-Z\d]/|same:password_confirmation',
@@ -40,6 +41,7 @@ class Onboarding extends Component
                 'registration.gender'           => 'sometimes',
                 'registration.gender_different' => 'sometimes',
                 'registration.name_first'       => 'sometimes',
+                'registration.email'            => 'sometimes',
                 'registration.name'             => 'sometimes',
                 'registration.name_suffix'      => 'sometimes',
                 'password'                      => 'sometimes',
@@ -107,8 +109,8 @@ class Onboarding extends Component
     public function step2()
     {
         $this->validate();
-        $this->step = 3;
         $this->registration->save();
+        $this->step = 3;
     }
 
 
@@ -117,8 +119,14 @@ class Onboarding extends Component
         $this->btnDisabled = false;
 
         if ($this->step == 1) {
-            $this->btnDisabled = (empty($this->registration->name_first)
-                || empty($this->registration->name));
+            $this->btnDisabled = (
+                empty($this->registration->name_first)
+                || empty($this->registration->gender)
+                || empty($this->registration->email)
+                || empty($this->registration->name)
+                || empty($this->password_confirmation)
+                || empty($this->password)
+            );
         }
         if ($propertyName === 'password_confirmation') {
             $propertyName = 'password';
@@ -130,6 +138,8 @@ class Onboarding extends Component
     protected $messages = [
         'registration.name_first.required'      => 'Voornaam is verplicht',
         'registration.name.required'            => 'Achternaam is verplicht',
+        'registration.email.required'           => 'E-mailadres is verplicht',
+        'registration.email.email'              => 'E-mailadres is niet correct',
         'registration.gender.required'          => 'Geef uw geslacht op',
         'password.required'                     => 'Wachtwoord is verplicht',
         'password.min'                          => 'Wachtwoord moet langer zijn dan 8 karakters',
@@ -138,7 +148,7 @@ class Onboarding extends Component
         'registration.school_location.required' => 'Schoolnaam is verplicht',
         'registration.website_url.required'     => 'Website is verplicht',
         'registration.address.required'         => 'Adres is verplicht',
-        'registration.number.required'          => 'Huisnummer is verplicht',
+        'registration.house_number.required'          => 'Huisnummer is verplicht',
         'registration.postcode.required'        => 'Postcode is verplicht',
         'registration.city.required'            => 'Plaatsnaam is verplicht',
     ];
