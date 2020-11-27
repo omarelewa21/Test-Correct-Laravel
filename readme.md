@@ -62,7 +62,7 @@ where
 	AND users.demo = 0
 
 
-- all active users with date restriction (! you need to change year and created_at in order to get the current results)
+- all active users with date restriction (! you need to change school_years.year and users.created_at TWICE in order to get the current results)
 select 
 	school_locations.customer_code,
 	school_locations.name,
