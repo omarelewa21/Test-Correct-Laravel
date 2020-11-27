@@ -9,7 +9,7 @@ class Onboarding extends Component
 {
     public $registration;
 
-    public $step = 3;
+    public $step = 1;
 
     public $password;
 

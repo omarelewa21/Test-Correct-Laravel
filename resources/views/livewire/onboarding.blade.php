@@ -77,7 +77,7 @@
                                                    class="block text-sm font-medium leading-5">Aanhef</label>
                                             @if($this->registration->gender === 'male')
                                                 <button type="button"
-                                                        class="inline-flex w-full items-center p-4 select-button btn-active">
+                                                        class="relative inline-flex w-full items-center p-4 select-button btn-active">
                                                     <svg class="mr-3" width="46" height="46"
                                                          xmlns="http://www.w3.org/2000/svg">
                                                         <g fill="none" fill-rule="evenodd">
@@ -119,6 +119,12 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                   d="M19.806 22.854l-3.677-.613"/>
                                                             <circle stroke-width="2" cx="23" cy="23" r="22"/>
+                                                        </g>
+                                                    </svg>
+                                                    <svg class="absolute top-2 right-2" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+                                                        <g fill="none" fill-rule="evenodd">
+                                                            <circle fill="#004DF5" cx="11" cy="11" r="11"/>
+                                                            <path d="M6 10.5l4 4 6-8" stroke="#FFF" stroke-linecap="round" stroke-width="3"/>
                                                         </g>
                                                     </svg>
                                                     Meneer
@@ -181,7 +187,7 @@
                                                    class="hidden md:block text-sm font-medium leading-5 text-gray-700">&nbsp;</label>
                                             @if($this->registration->gender === 'female')
                                                 <button type="button"
-                                                        class="inline-flex w-full items-center select-button  btn-active">
+                                                        class="relative inline-flex w-full items-center select-button  btn-active">
                                                     <svg class="mr-3" width="46" height="46"
                                                          xmlns="http://www.w3.org/2000/svg">
                                                         <g fill="none" fill-rule="evenodd">
@@ -209,6 +215,12 @@
                                                                       stroke-linecap="round" stroke-linejoin="round"/>
                                                             </g>
                                                             <circle stroke-width="2" cx="23" cy="23" r="22"/>
+                                                        </g>
+                                                    </svg>
+                                                    <svg class="absolute top-2 right-2" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+                                                        <g fill="none" fill-rule="evenodd">
+                                                            <circle fill="#004DF5" cx="11" cy="11" r="11"/>
+                                                            <path d="M6 10.5l4 4 6-8" stroke="#FFF" stroke-linecap="round" stroke-width="3"/>
                                                         </g>
                                                     </svg>
                                                     Mevrouw
@@ -255,7 +267,7 @@
                                                    class="text-sm font-medium leading-5 text-gray-700 hidden lg:block">&nbsp;</label>
                                             @if($this->registration->gender === 'different')
                                                 <button type="button"
-                                                        class="inline-flex items-center p-4 w-full select-button  btn-active">
+                                                        class="relative inline-flex items-center p-4 w-full select-button  btn-active">
                                                     <svg class="mr-3" width="46" height="46"
                                                          xmlns="http://www.w3.org/2000/svg">
                                                         <g fill="none" fill-rule="evenodd">
@@ -288,11 +300,17 @@
                                                             <circle stroke-width="2" cx="23" cy="23" r="22"/>
                                                         </g>
                                                     </svg>
+                                                    <svg class="absolute top-2 right-2" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
+                                                        <g fill="none" fill-rule="evenodd">
+                                                            <circle fill="#004DF5" cx="11" cy="11" r="11"/>
+                                                            <path d="M6 10.5l4 4 6-8" stroke="#FFF" stroke-linecap="round" stroke-width="3"/>
+                                                        </g>
+                                                    </svg>
                                                     <div class="">
                                                         <span>Anders: </span>
                                                         <input id="gender_different"
                                                                wire:model="registration.gender_different"
-                                                               class="form-input sm:ml-2 mr-0 ">
+                                                               class="form-input sm:ml-2 mr-0 other-input">
                                                     </div>
                                                 </button>
                                             @else
@@ -336,7 +354,7 @@
                                                         <input id="gender_different"
                                                                wire:model="registration.gender_different"
                                                                disabled
-                                                               class="form-input sm:ml-2 mr-0 ">
+                                                               class="form-input sm:ml-2 mr-0 other-input">
                                                     </div>
                                                 </button>
                                             @endif

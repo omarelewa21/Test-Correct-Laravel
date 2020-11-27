@@ -273,7 +273,7 @@ h7 {
 .cta-button:hover {
     background: linear-gradient(90deg, rgba(39, 151, 61, 1) 0%, rgba(61, 187, 86, 1) 100%);
     box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
-    transition: ease-in-out .3s;
+    transition: ease-in-out  150ms;
 }
 
 .cta-button:active {
@@ -358,6 +358,8 @@ h7 {
     border: 1px solid var(--primary);
     color: var(--primary);
     outline: none;
+    transition: ease-in-out 150ms;
+
 }
 
 .select-button:active {
@@ -380,10 +382,12 @@ svg, .hair {
 .select-button:hover svg, .select-button:hover .hair {
     stroke: var(--primary);
     fill: var(--primary);
+    transition: ease-in-out 150ms;
 }
 
 .select-button:hover .eye {
     fill: var(--primary);
+    transition: ease-in-out 150ms;
 }
 
 .btn-active svg, .btn-active .hair {
@@ -402,16 +406,6 @@ svg, .hair {
 
 .btn-active:hover .eye {
     fill: var(--primary);
-}
-
-.btn-img {
-    display: block;
-    margin-right: 15px;
-    text-indent: -9999px;
-    width: 46px;
-    min-width: 46px;
-    height: 46px;
-    transition: ease-in-out 150ms;
 }
 
 .man {
@@ -505,6 +499,11 @@ svg, .hair {
 
 input:focus + label {
     color: var(--primary);
+}
+
+.other-input {
+    min-width: 220px;
+    max-width: 80%;
 }
 
 .notification {
