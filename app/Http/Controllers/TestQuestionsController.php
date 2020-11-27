@@ -270,10 +270,24 @@ class TestQuestionsController extends Controller {
             $questionInstance = $question->getQuestionInstance();
 
             $testQuestion->fill($request->all());
+// this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
+            if (!$completionAnswerDirty
+                && !$question->isDirty()
+                && $questionInstance->isDirty()
+                && !$questionInstance->isDirtyAttainments()
+                && !$questionInstance->isDirtyTags()
+                && ! ($question instanceof DrawingQuestion && $question->isDirtyFile())
+                && (array_key_exists('add_to_database', $questionInstance->getDirty()) && count($questionInstance->getDirty()) === 1)
+            ) {
+                if (!$questionInstance->save()) {
+                    throw new QuestionException('Failed to save question');
+                }
 
-            // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if ($completionAnswerDirty
+                // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
+            } elseif ($completionAnswerDirty
                 || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+
+
                 if ($question->isUsed($testQuestion)) {
                     $question = $question->duplicate(array_merge($request->all(),$questionData));
                     //$question = $question->duplicate($request->all());

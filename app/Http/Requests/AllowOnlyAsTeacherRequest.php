@@ -1,12 +1,11 @@
 <?php namespace tcCore\Http\Requests;
 
-use Illuminate\Contracts\Validation\Factory;
-use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use tcCore\User;
+use Ramsey\Uuid\Uuid;
+use tcCore\EducationLevel;
+use tcCore\Http\Helpers\DemoHelper;
 
-class UserSwitchSchoolLocationRequest extends Request {
+class AllowOnlyAsTeacherRequest extends Request {
 
 	/**
 	 * Determine if the user is authorized to make this request.
@@ -15,7 +14,8 @@ class UserSwitchSchoolLocationRequest extends Request {
 	 */
 	public function authorize()
 	{
-        return Auth::user()->isA('Administrator');
+		return Auth::user() &&
+            Auth::user()->isA('Teacher');
 	}
 
 	/**
@@ -27,9 +27,7 @@ class UserSwitchSchoolLocationRequest extends Request {
 	{
 		$this->filterInput();
 
-		return [
-			'school_location_id' => 'required'
-		];
+		return [];
 	}
 
 	/**
@@ -41,4 +39,5 @@ class UserSwitchSchoolLocationRequest extends Request {
 	{
 		return $this->all();
 	}
+
 }

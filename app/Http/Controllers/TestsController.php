@@ -44,6 +44,7 @@ class TestsController extends Controller {
 		//
 		$test = new Test($request->all());
 		$test->setAttribute('author_id', Auth::id());
+		$test->setAttribute('owner_id', Auth::user()->school_location_id);
 		if ($test->save()) {
 			return Response::make($test, 200);
 		} else {
@@ -59,7 +60,7 @@ class TestsController extends Controller {
 	 */
 	public function show(Test $test)
 	{
-		$test->load('educationLevel', 'author', 'author.school', 'author.schoolLocation', 'subject', 'period', 'testKind');
+		$test->load('educationLevel', 'author', 'author.school', 'author.schoolLocation', 'subject', 'period', 'testKind','owner');
 		$test->append(    'has_duplicates');
 		return Response::make($test, 200);
 	}

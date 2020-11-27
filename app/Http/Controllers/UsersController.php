@@ -13,7 +13,7 @@ use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
-use tcCore\Http\Requests\UserSwitchSchoolLocationRequest;
+use tcCore\Http\Requests\UserMoveSchoolLocationRequest;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\PValueRepository;
@@ -39,6 +39,8 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
+
+
 
         if (is_array($request->get('with')) && in_array('school_location', $request->get('with'))) {
             $users->with('school.schoolLocations', 'schoolLocation');
@@ -75,13 +77,13 @@ class UsersController extends Controller
     }
 
     /**
-     * Switch School Location
+     * Move School Location
      *
      * @param User $user
      * @param UpdateUserRequest $request
      * @return Response
      */
-    public function switch_school_location(User $user, UserSwitchSchoolLocationRequest $request)
+    public function move_school_location(User $user, UserMoveSchoolLocationRequest $request)
     {
         // nothing to do
         if ($user->school_location_id == $request->get('school_location_id')) {
@@ -316,7 +318,7 @@ class UsersController extends Controller
         // Je gaat eruit met updateStudent, maar die kan enkel het wachtwoord aanpassen. Ik denk dat je wilt weten wie het update request uitvoert
         // als dat een student is dan moet die naar updateStudent en anders mag ook de rest....
         if (Auth::user()->hasRole('Student')) return $this->updateStudent($user, $request);
-        
+
         $user->fill($request->all());
 
         if ($request->filled('password')) {

@@ -138,6 +138,8 @@ class DemoHelper
         // create demo subject (vak) if not existent
         $this->createDemoSubjectIfNeeded();
         // create demo teacher
+
+        logger('demoteacher created method after demoPartsForSchool');
         $this->createDemoTeacherIfNeeded();
         // create demo students
         $this->createDemoStudentsIfNeeded();
@@ -361,10 +363,10 @@ class DemoHelper
     {
         $user = User::where('username', $this->getUsername('teacher'))->first();
         if (null === $user) {
-
             $userFactory = new Factory(new User());
+
             $user = $userFactory->generate([
-                'name_first' => ' ',
+                'name_first' => ' a',
                 'name' => sprintf('%s %s', self::TEACHERLASTNAMEBASE, $this->schoolLocation->customer_code),
                 'abbreviation' => 'DD01',
                 'username' => $this->getUsername('teacher'),

@@ -49,6 +49,17 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::resource('cito_test','Cito\TestsController')->only(['index','show']);
 
+    Route::get('shared_sections','SharedSectionsController@index');
+
+    Route::get('shared_section_test/{test}','SharedSections\TestsController@show');
+    Route::get('shared_section_test','SharedSections\TestsController@index');
+    Route::post('shared_section_test/{test}','SharedSections\TestsController@duplicate');
+
+    Route::get('shared_sections/optional_school_locations/{section}','SharedSectionsController@optionalSchoolLocations');
+    Route::get('shared_sections/{section}','SharedSectionsController@index');
+    Route::post('shared_sections/{section}','SharedSectionsController@store');
+    Route::delete('shared_sections/{section}/{school_location}','SharedSectionsController@destroy');
+
 	Route::put('test_question/{test_question}/reorder', 'TestQuestionsController@updateOrder');
 	Route::resource('test_question', 'TestQuestionsController', ['except' => ['create', 'edit']]);
 	Route::resource('test_question.attachment', 'TestQuestions\AttachmentsController', ['except' => ['create', 'edit']]);
@@ -140,7 +151,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	// School year + child
 	Route::get('school_year/list', ['as' => 'school_year.list', 'uses' => 'SchoolYearsController@lists']);
+	Route::get('school_year_active', ['as' => 'school_year_active', 'uses' => 'SchoolYearsController@activeSchoolYear']);
 	Route::resource('school_year', 'SchoolYearsController', ['except' => ['create', 'edit']]);
+	
 
 	Route::resource('period', 'PeriodsController', ['except' => ['create', 'edit']]);
 
@@ -196,7 +209,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('demo_account/{user}/registration_completed', 'DemoAccountController@showRegistrationCompleted')->name('demo_account.registration_completed');
     Route::post('demo_account/notify_support_teacher_tries_to_upload', 'DemoAccountController@notifySupportTeacherTriesToUpload')->name('demo_account.notify_support_teacher_tries_to_upload');
 
-    Route::put('user/switch_school_location/{user}','UsersController@switch_school_location')->name('user.switch_school_location');
+    Route::put('user/move_school_location/{user}','UsersController@move_school_location')->name('user.move_school_location');
 
 	// Sales organization
 	Route::resource('sales_organization', 'SalesOrganizationsController', ['except' => ['create', 'edit']]);
@@ -228,6 +241,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('grading_scale', 'GradingScalesController', ['except' => ['create', 'edit']]);
 
 	Route::resource('base_subject', 'BaseSubjectsController', ['only' => ['index']]);
+    Route::resource('my_base_subject', 'MyBaseSubjectsController', ['only' => ['index']]);
 
 	Route::resource('tag', 'TagsController', ['only' => ['index', 'show']]);
 
@@ -251,4 +265,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('search_filter/{uuid}/set_active','SearchFiltersController@setActive')->name('search_filter.set_active');
     Route::put('search_filter/{uuid}/deactive','SearchFiltersController@deactive')->name('search_filter.deactive');
 
+    Route::get('school_location_user', 'SchoolLocationUsersController@index')->name('school_location_user.index');
+    Route::put('school_location_user', 'SchoolLocationUsersController@update')->name('school_location_user.update');
+    Route::post('school_location_user', 'SchoolLocationUsersController@store')->name('school_location_user.store');
+    Route::delete('school_location_user', 'SchoolLocationUsersController@delete')->name('school_location_user.delete');
+
+    Route::get('school_location_user/existing_teachers', 'SchoolLocationUsersController@getExistingTeachers')->name('school_location_user.get_existing_teachers');
 });

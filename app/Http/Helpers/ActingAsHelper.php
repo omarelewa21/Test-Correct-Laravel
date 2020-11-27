@@ -24,7 +24,7 @@ class ActingAsHelper
 
     public static function getInstance()
     {
-        if (static::$instance === null) {
+        if (static::$instance === null ) {
             static::$instance = new Static();
         }
         return static::$instance;
@@ -39,5 +39,9 @@ class ActingAsHelper
     public function getUser()
     {
         return $this->user;
+    }
+
+    public function reset() {
+        $this->user = null;
     }
 }
