@@ -366,7 +366,7 @@ class DemoHelper
             $userFactory = new Factory(new User());
 
             $user = $userFactory->generate([
-                'name_first' => ' a',
+                'name_first' => ' ',
                 'name' => sprintf('%s %s', self::TEACHERLASTNAMEBASE, $this->schoolLocation->customer_code),
                 'abbreviation' => 'DD01',
                 'username' => $this->getUsername('teacher'),
