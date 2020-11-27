@@ -15,26 +15,40 @@ class Onboarding extends Component
 
     public $password_confirmation;
 
+    public $btnDisabled = true;
+
     public function rules()
     {
         if ($this->step === 1) {
             return [
-                'registration.gender' => 'required|in:male,female,different',
+                'registration.gender'           => 'required|in:male,female,different',
                 'registration.gender_different' => 'sometimes',
-                'registration.name_first' => 'required|string',
-                'registration.name' => 'required|string',
-                'registration.name_suffix' => 'sometimes',
-                'password' => 'required|min:8|regex:/\d/|regex:/[^a-zA-Z\d]/|same:password_confirmation',
+                'registration.name_first'       => 'required|string',
+                'registration.name'             => 'required|string',
+                'registration.name_suffix'      => 'sometimes',
+                'password'                      => 'required|min:8|regex:/\d/|regex:/[^a-zA-Z\d]/|same:password_confirmation',
+                'registration.school_location'  => 'sometimes',
+                'registration.website_url'      => 'sometimes',
+                'registration.address'          => 'sometimes',
+                'registration.house_number'     => 'sometimes',
+                'registration.postcode'         => 'sometimes',
+                'registration.city'             => 'sometimes',
             ];
         }
         if ($this->step === 2) {
             return [
-                'registration.school_location' => 'required',
-                'registration.website_url' => 'required',
-                'registration.address' => 'required',
-                'registration.number' => 'required',
-                'registration.postcode' => 'required',
-                'registration.city' => 'required',
+                'registration.gender'           => 'sometimes',
+                'registration.gender_different' => 'sometimes',
+                'registration.name_first'       => 'sometimes',
+                'registration.name'             => 'sometimes',
+                'registration.name_suffix'      => 'sometimes',
+                'password'                      => 'sometimes',
+                'registration.school_location'  => 'required',
+                'registration.website_url'      => 'required',
+                'registration.address'          => 'required',
+                'registration.house_number'     => 'required',
+                'registration.postcode'         => 'required',
+                'registration.city'             => 'required',
             ];
         }
         return [];
@@ -42,8 +56,8 @@ class Onboarding extends Component
 
     public function mount()
     {
+//        dd('aa');
         $this->registration = new DemoTeacherRegistration;
-
     }
 
     public function backToStepOne()
@@ -87,32 +101,45 @@ class Onboarding extends Component
     {
         $this->validate();
         $this->step = 2;
+
     }
 
     public function step2()
     {
         $this->validate();
-
+        $this->step = 3;
+        $this->registration->save();
     }
+
 
     public function updated($propertyName)
     {
+        $this->btnDisabled = false;
+
+        if ($this->step == 1) {
+            $this->btnDisabled = (empty($this->registration->name_first)
+                || empty($this->registration->name));
+        }
+        if ($propertyName === 'password_confirmation') {
+            $propertyName = 'password';
+        }
+
         $this->validateOnly($propertyName);
     }
 
     protected $messages = [
-        'registration.name_first.required' => 'Voornaam is verplicht',
-        'registration.name.required' => 'Achternaam is verplicht',
-        'registration.gender.required' => 'Geef uw geslacht op',
-        'password.required' => 'Wachtwoord is verplicht',
-        'password.min' => 'Wachtwoord moet langer zijn dan 8 karakters',
-        'password.regex' => 'Wachtwoord voldoet niet aan de eisen',
-        'password.same' => 'Wachtwoord komt niet overeen',
+        'registration.name_first.required'      => 'Voornaam is verplicht',
+        'registration.name.required'            => 'Achternaam is verplicht',
+        'registration.gender.required'          => 'Geef uw geslacht op',
+        'password.required'                     => 'Wachtwoord is verplicht',
+        'password.min'                          => 'Wachtwoord moet langer zijn dan 8 karakters',
+        'password.regex'                        => 'Wachtwoord voldoet niet aan de eisen',
+        'password.same'                         => 'Wachtwoord komt niet overeen',
         'registration.school_location.required' => 'Schoolnaam is verplicht',
-        'registration.website_url.required' => 'Website is verplicht',
-        'registration.address.required' => 'Adres is verplicht',
-        'registration.number.required' => 'Huisnummer is verplicht',
-        'registration.postcode.required' => 'Postcode is verplicht',
-        'registration.city.required' => 'Plaatsnaam is verplicht',
+        'registration.website_url.required'     => 'Website is verplicht',
+        'registration.address.required'         => 'Adres is verplicht',
+        'registration.number.required'          => 'Huisnummer is verplicht',
+        'registration.postcode.required'        => 'Postcode is verplicht',
+        'registration.city.required'            => 'Plaatsnaam is verplicht',
     ];
 }

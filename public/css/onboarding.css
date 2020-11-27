@@ -313,7 +313,7 @@ h7 {
     border: 2px solid var(--system-base)
 }
 
-.primary-button:disabled {
+.primary-button.btn-disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
     box-shadow: none;
