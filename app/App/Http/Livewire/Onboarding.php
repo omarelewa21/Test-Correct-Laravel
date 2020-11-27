@@ -21,36 +21,36 @@ class Onboarding extends Component
     {
         if ($this->step === 1) {
             return [
-                'registration.gender'           => 'required|in:male,female,different',
+                'registration.gender' => 'required|in:male,female,different',
                 'registration.gender_different' => 'sometimes',
-                'registration.name_first'       => 'required|string',
-                'registration.email'            => 'required|email',
-                'registration.name'             => 'required|string',
-                'registration.name_suffix'      => 'sometimes',
-                'password'                      => 'required|min:8|regex:/\d/|regex:/[^a-zA-Z\d]/|same:password_confirmation',
-                'registration.school_location'  => 'sometimes',
-                'registration.website_url'      => 'sometimes',
-                'registration.address'          => 'sometimes',
-                'registration.house_number'     => 'sometimes',
-                'registration.postcode'         => 'sometimes',
-                'registration.city'             => 'sometimes',
+                'registration.name_first' => 'required|string',
+                'registration.email' => 'required|email',
+                'registration.name' => 'required|string',
+                'registration.name_suffix' => 'sometimes',
+                'password' => 'required|min:8|regex:/\d/|regex:/[^a-zA-Z\d]/|same:password_confirmation',
+                'registration.school_location' => 'sometimes',
+                'registration.website_url' => 'sometimes',
+                'registration.address' => 'sometimes',
+                'registration.house_number' => 'sometimes',
+                'registration.postcode' => 'sometimes',
+                'registration.city' => 'sometimes',
             ];
         }
         if ($this->step === 2) {
             return [
-                'registration.gender'           => 'sometimes',
+                'registration.gender' => 'sometimes',
                 'registration.gender_different' => 'sometimes',
-                'registration.name_first'       => 'sometimes',
-                'registration.email'            => 'sometimes',
-                'registration.name'             => 'sometimes',
-                'registration.name_suffix'      => 'sometimes',
-                'password'                      => 'sometimes',
-                'registration.school_location'  => 'required',
-                'registration.website_url'      => 'required',
-                'registration.address'          => 'required',
-                'registration.house_number'     => 'required',
-                'registration.postcode'         => 'required',
-                'registration.city'             => 'required',
+                'registration.name_first' => 'sometimes',
+                'registration.email' => 'sometimes',
+                'registration.name' => 'sometimes',
+                'registration.name_suffix' => 'sometimes',
+                'password' => 'sometimes',
+                'registration.school_location' => 'required',
+                'registration.website_url' => 'required',
+                'registration.address' => 'required',
+                'registration.house_number' => 'required',
+                'registration.postcode' => 'required',
+                'registration.city' => 'required',
             ];
         }
         return [];
@@ -128,6 +128,18 @@ class Onboarding extends Component
                 || empty($this->password)
             );
         }
+            $this->btnDisabled = false;
+        if ($this->step == 2) {
+            $this->btnDisabled = (
+                empty($this->registration->school_location)
+                || empty($this->registration->website)
+                || empty($this->registration->address)
+                || empty($this->registration->house_number)
+                || empty($this->registration->postcode)
+                || empty($this->registration->city)
+            );
+            }
+
         if ($propertyName === 'password_confirmation') {
             $propertyName = 'password';
         }
@@ -136,20 +148,20 @@ class Onboarding extends Component
     }
 
     protected $messages = [
-        'registration.name_first.required'      => 'Voornaam is verplicht',
-        'registration.name.required'            => 'Achternaam is verplicht',
-        'registration.email.required'           => 'E-mailadres is verplicht',
-        'registration.email.email'              => 'E-mailadres is niet correct',
-        'registration.gender.required'          => 'Geef uw geslacht op',
-        'password.required'                     => 'Wachtwoord is verplicht',
-        'password.min'                          => 'Wachtwoord moet langer zijn dan 8 karakters',
-        'password.regex'                        => 'Wachtwoord voldoet niet aan de eisen',
-        'password.same'                         => 'Wachtwoord komt niet overeen',
+        'registration.name_first.required' => 'Voornaam is verplicht',
+        'registration.name.required' => 'Achternaam is verplicht',
+        'registration.email.required' => 'E-mailadres is verplicht',
+        'registration.email.email' => 'E-mailadres is niet correct',
+        'registration.gender.required' => 'Geef uw geslacht op',
+        'password.required' => 'Wachtwoord is verplicht',
+        'password.min' => 'Wachtwoord moet langer zijn dan 8 karakters',
+        'password.regex' => 'Wachtwoord voldoet niet aan de eisen',
+        'password.same' => 'Wachtwoord komt niet overeen',
         'registration.school_location.required' => 'Schoolnaam is verplicht',
-        'registration.website_url.required'     => 'Website is verplicht',
-        'registration.address.required'         => 'Adres is verplicht',
-        'registration.house_number.required'          => 'Huisnummer is verplicht',
-        'registration.postcode.required'        => 'Postcode is verplicht',
-        'registration.city.required'            => 'Plaatsnaam is verplicht',
+        'registration.website_url.required' => 'Website is verplicht',
+        'registration.address.required' => 'Adres is verplicht',
+        'registration.house_number.required' => 'Huisnummer is verplicht',
+        'registration.postcode.required' => 'Postcode is verplicht',
+        'registration.city.required' => 'Plaatsnaam is verplicht',
     ];
 }
