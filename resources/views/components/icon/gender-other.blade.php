@@ -1,4 +1,4 @@
-<svg class="mr-3" width="46" height="46"
+<svg class="mr-3 inline-block" width="46" height="46"
      xmlns="http://www.w3.org/2000/svg">
     <g fill="none" fill-rule="evenodd">
         <path

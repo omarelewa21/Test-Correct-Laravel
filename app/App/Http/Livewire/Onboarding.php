@@ -9,7 +9,7 @@ class Onboarding extends Component
 {
     public $registration;
 
-    public $step = 1;
+    public $step = 3;
 
     public $password;
 
@@ -80,6 +80,7 @@ class Onboarding extends Component
     public function backToStepOne()
     {
         $this->step = 1;
+        $this->btnStepOneDisabledCheck();
     }
 
     public function render()
@@ -118,38 +119,55 @@ class Onboarding extends Component
     {
         $this->validate();
         $this->step = 2;
+        $this->btnStepTwoDisabledCheck();
     }
 
     public function step2()
     {
         $this->validate();
         $this->registration->save();
+        $this->registration->addUserToRegistration($this->password);
         $this->step = 3;
     }
 
-
-    public function updated($propertyName)
-    {
-        $this->btnDisabled = false;
-
+    private function btnStepOneDisabledCheck() {
         if ($this->step == 1) {
             $this->btnDisabled = (
                 empty($this->registration->name_first)
                 || empty($this->registration->gender)
-                || empty($this->registration->email)
                 || empty($this->registration->name)
                 || empty($this->password_confirmation)
                 || empty($this->password)
             );
         }
+    }
+    private function btnStepTwoDisabledCheck() {
         if ($this->step == 2) {
             $this->btnDisabled = (
-            empty($this->registration->city)
+                empty($this->registration->city)
+                || empty($this->registration->school_location)
+                || empty($this->registration->website_url)
+                || empty($this->registration->address)
+                || empty($this->registration->postcode)
+                || empty($this->registration->house_number)
             );
         }
+    }
+
+
+    public function updated($propertyName)
+    {
+        $this->btnDisabled = true;
+
+        $this->btnStepOneDisabledCheck();
+        $this->btnStepTwoDisabledCheck();
 
         if ($propertyName === 'password_confirmation') {
             $propertyName = 'password';
+        }
+
+        if ($this->registration->gender != 'different') {
+            $this->registration->gender_different = '';
         }
 
         $this->validateOnly($propertyName);

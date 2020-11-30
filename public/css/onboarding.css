@@ -185,6 +185,13 @@ h7 {
     font-family: Nunito Regular;
 }
 
+.bold {
+    font-family: Nunito Bold;
+}
+.regular {
+    font-family: Nunito Regular;
+}
+
 
 .onboarding-header {
     color: var(--primary);
@@ -192,16 +199,51 @@ h7 {
 }
 
 .onboarding-body {
-    font-family: Nunito Regular;
+    font-family: Nunito bold;
 }
 
 .content-section {
     box-shadow: 0px 3px 18px 0px rgba(77, 87, 143, 0.1);
 }
 
+.gender-section {
+    flex-wrap: wrap;
+    display: flex;
+}
+.gender-section .different {
+    flex-grow: 1;
+}
+
+.name, .password {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.input-group #name_first, .input-group #password, .input-group #password_confirm {
+    min-width: 230px;
+}
+.input-group #name_suffix {
+    width: 120px;
+}
+.input-group.lastname {
+    flex-grow: 1;
+    min-width: 300px;
+}
+
 .tc-logo {
     height: 3.125rem;
     width: 17.125rem;
+    transition: ease-in-out 150ms;
+}
+.tc-logo:hover {
+    box-shadow: 0 1px 9px 0 rgba(77, 87, 143, 0.5);
+    transition: ease-in-out 150ms;
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .header-number {
@@ -218,11 +260,11 @@ h7 {
     margin-right: 10px;
 }
 
-.active .header-number {
+.header-number.active {
     background: var(--primary);
 }
 
-.active span {
+span.active {
     color: var(--primary);
 }
 
@@ -254,6 +296,10 @@ h7 {
     min-height: 40px;
     color: var(--system-base);
     font-family: Nunito Bold;
+}
+
+.rotate-svg > svg{
+    transform: rotate(180deg);
 }
 
 .leading-50 {
@@ -302,7 +348,6 @@ h7 {
 }
 
 .primary-button:hover {
-    /*background: red;*/
     background: linear-gradient(90deg, rgba(0, 77, 245, 1) 0%, rgba(71, 129, 255, 1) 100%);
     box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
 }
@@ -499,15 +544,28 @@ svg, .hair {
 .input-group {
     display: flex;
     flex-direction: column-reverse;
+    transition: ease-in-out 150ms;
+}
+
+label {
+    font-family: Nunito Regular;
+}
+input {
+    font-family: Nunito Regular;
+}
+
+.input-group:hover input {
+    transition: ease-in-out 150ms;
 }
 
 input:focus + label {
+    font-family: Nunito Bold;
     color: var(--primary);
+    transition: ease-in-out 150ms;
 }
 
 .other-input {
     min-width: 220px;
-    max-width: 80%;
 }
 
 .notification {
@@ -515,6 +573,8 @@ input:focus + label {
     border: 1px solid;
     border-radius: 4px;
     padding: 16px;
+    max-width: 475px;
+
 }
 
 .notification > .title {
@@ -527,6 +587,7 @@ input:focus + label {
     font-family: Nunito Regular;
     font-size: 0.875rem;
     line-height: normal;
+    display: block;
 }
 
 .informational {
