@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 class SearchFiltersController extends Controller
 {
     public function store(CreateSearchFilterRequest $request){
+        logger($request->validated());
     	$searchFilter = SearchFilter::create($request->validated());
 
     	return $searchFilter->activate();

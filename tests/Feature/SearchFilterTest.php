@@ -184,6 +184,40 @@ class SearchFilterTest extends TestCase
         $this->assertEquals(1, count($activeFilters));
     }
 
+    /** @test */
+
+    public function a_user_can_store_a_cached_search_filter(){
+        $this->assertEquals(0, SearchFilter::count());
+        $attributes = $this->getValidAttributes();
+        $attributes['cached_filter'] = true;
+        $response = $this->post(
+            '/search_filter', $attributes
+
+        )->assertSuccessful();
+        $this->assertEquals(1, SearchFilter::count());
+        $searchfilter = SearchFilter::first();
+        $this->assertEquals(1, $searchfilter->cached_filter);
+    }
+
+    /** @test */
+    public function there_can_only_be_one_cached_search_filter(){
+        $this->assertEquals(0, SearchFilter::count());
+        $attributes = $this->getValidAttributes();
+        $attributes['cached_filter'] = true;
+        $response = $this->post(
+            '/search_filter', $attributes
+
+        )->assertSuccessful();
+        $response = $this->post(
+            '/search_filter', $attributes
+
+        )->assertSuccessful();
+        $this->assertEquals(1, SearchFilter::count());
+        $searchfilters = SearchFilter::where('cached_filter',true)->get();
+        $this->assertEquals(1, $searchfilters->count());
+    }
+
+
     private function getValidAttributes($overrides = [])
     {
         return static::getTeacherOneAuthRequestData(array_merge([
