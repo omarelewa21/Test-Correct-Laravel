@@ -15,6 +15,7 @@ class CreateTestAuthorsTable extends Migration
     {
         \DB::beginTransaction();
         try {
+            $this->down();
             Schema::create('test_authors', function (Blueprint $table) {
                 $table->integer('test_id');
                 $table->integer('user_id');
