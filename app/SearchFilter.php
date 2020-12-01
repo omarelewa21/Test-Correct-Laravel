@@ -25,4 +25,20 @@ class SearchFilter extends Model
 
         return $this;
     }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::created(function($model){
+            if(!$model->cached_filter){
+                return;
+            }
+            SearchFilter::where('user_id', '=', $model->user_id)
+                        ->where('key', '=', $model->key)
+                        ->where('id','!=',$model->id)
+                        ->where('cached_filter','=',true)
+                        ->delete();
+        });
+    }
 }
