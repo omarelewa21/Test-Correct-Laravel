@@ -39,11 +39,6 @@ class SearchFilter extends Model
                         ->where('id','!=',$model->id)
                         ->where('cached_filter','=',true)
                         ->delete();
-            if(!is_null($model->name)){
-                return;
-            }
-            $model->name = 'Bewaard filter';
-            $model->save();
         });
     }
 }
