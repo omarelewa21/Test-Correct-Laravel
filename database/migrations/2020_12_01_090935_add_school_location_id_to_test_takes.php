@@ -14,7 +14,7 @@ class AddSchoolLocationIdToTestTakes extends Migration
     public function up()
     {
         Schema::table('test_takes', function (Blueprint $table) {
-            $table->unsignedInteger('school_location_id')->nullable();
+            $table->unsignedInteger('school_location_id')->nullable()->default(0);
         });
 
         DB::statement('
@@ -23,7 +23,7 @@ class AddSchoolLocationIdToTestTakes extends Migration
 
         Schema::table('test_takes', function (Blueprint $table) {
             $table->foreign('school_location_id')->references('id')->on('school_locations');
-            $table->unsignedInteger('school_location_id')->nullable(false)->change();
+//            $table->unsignedInteger('school_location_id')->nullable(false)->change();
         });
     }
 
