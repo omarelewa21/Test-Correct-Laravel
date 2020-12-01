@@ -333,6 +333,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if ($user->getOriginal('demo') == true) {
                 return false;
             }
+            if ($user->allowedSchoolLocations->contains(Auth::user()->schoolLocation->getKey())){
+                $user->removeSchoolLocation(Auth::user()->schoolLocation);
+                return false;
+            }
         });
 
         // Progress additional answers
