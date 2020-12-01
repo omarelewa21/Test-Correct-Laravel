@@ -13,18 +13,18 @@ class AddSchoolLocationIdToTestTakes extends Migration
      */
     public function up()
     {
+        if(Schema::hasColumn('test_takes','school_location_id')){
+            $this->down();
+        }
+
         Schema::table('test_takes', function (Blueprint $table) {
-//            $table->unsignedInteger('school_location_id')->nullable()->default(0);
+            $table->unsignedInteger('school_location_id')->default(0)->index();
         });
 
         DB::statement('
                 UPDATE test_takes set school_location_id = (select school_location_id from users where id = test_takes.user_id)
             ');
 
-        Schema::table('test_takes', function (Blueprint $table) {
-            $table->foreign('school_location_id')->references('id')->on('school_locations');
-//            $table->unsignedInteger('school_location_id')->nullable(false)->change();
-        });
     }
 
     /**
@@ -35,7 +35,6 @@ class AddSchoolLocationIdToTestTakes extends Migration
     public function down()
     {
         Schema::table('test_takes', function (Blueprint $table) {
-            $table->dropForeign(['school_location_id']);
             $table->dropColumn('school_location_id');
         });
     }
