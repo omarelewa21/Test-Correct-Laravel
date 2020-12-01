@@ -12,7 +12,7 @@ use tcCore\TestQuestion;
 class SmallsourcesMultiplechoiceHelper extends QtiBaseQuestionHelper
 {
     protected $type = 'CompletionQuestion';
-    protected $subType = 'Multi';
+    protected $subType = 'multi';
     protected $convertedAr = [];
 
     public function validate($question)
