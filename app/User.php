@@ -1215,13 +1215,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
-
         $roles = Roles::getUserRoles();
         // you are an Account manager
         if (!in_array('Administrator', $roles)) {
             $query->where(function ($query) use ($roles) {
                 if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
-                    logger(__LINE__);
                     //		if($this->hasRole(['Administrator','Account manager'])){
                     $userId = Auth::user()->getKey();
 
@@ -1303,6 +1301,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'teacher_students': // only show students in the classes of the teacher
+                    $user = $user ?? Auth::user();
                     $value = $user->teacher->pluck('class_id')->toArray();
                     $query->whereIn('users.id', function ($query) use ($value) {
                         $query->select('students.user_id')
