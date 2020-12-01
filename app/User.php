@@ -1693,11 +1693,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function addSchoolLocation(SchoolLocation $schoolLocation)
     {
-        if ($this->allowedSchoolLocations->count() === 0) {
-            $this->allowedSchoolLocations()->save($this->schoolLocation);
-        }
+        if(!$schoolLocation->is($this->schoolLocation)){
+            if ($this->allowedSchoolLocations->count() === 0) {
+                $this->allowedSchoolLocations()->save($this->schoolLocation);
+            }
 
-        $this->allowedSchoolLocations()->save($schoolLocation);
+            $this->allowedSchoolLocations()->save($schoolLocation);
+        }
         return $this;
     }
 

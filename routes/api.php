@@ -159,6 +159,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	// Subjects
 	Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
+	Route::resource('cito_subject','Cito\SubjectsController')->only(['index']);
 
 	// Test kinds
 	Route::get('test_kind/list', ['as' => 'test_kind.list', 'uses' => 'TestKindsController@lists']);
