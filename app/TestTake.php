@@ -714,6 +714,29 @@ class TestTake extends BaseModel
                 case 'weight':
                     $query->where('weight', '=', $value);
                     break;
+                case 'subject_id':
+                    $query->whereIn( $this->getTable() . '.id', 
+                                    function ($query) use ($value) 
+                                    {
+                                        $testTable = with(new Test())->getTable();
+                                        $query
+                                            ->select($this->getTable().'.id')
+                                            ->from($this->getTable())
+                                            ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
+                                            ->whereNull($testTable.'.deleted_at')
+                                            ->where(
+                                                    function($query) use ($value, $testTable)
+                                                    {
+                                                        $query->where(
+                                                                        function($query) use ($testTable, $value) 
+                                                                        {
+                                                                            $query->where($testTable . '.subject_id', $value);
+                                                                        }
+                                                                    );
+                                                    }
+                                                );
+                                    });
+                    break;
             }
         }
 
