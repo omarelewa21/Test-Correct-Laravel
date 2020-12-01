@@ -36,7 +36,8 @@ class Kernel extends HttpKernel
         'api'            => 'tcCore\Http\Middleware\ApiKey',
         'dl'             => 'tcCore\Http\Middleware\DuplicateLogin',
         'authorize'      => 'tcCore\Http\Middleware\Authorize',
-        'authorizeBinds' => 'tcCore\Http\Middleware\AuthorizeBinds'
+        'authorizeBinds' => 'tcCore\Http\Middleware\AuthorizeBinds',
+        'cakeLaravelFilter' => 'tcCore\Http\Middleware\CakeLaravelFilter',
     ];
 
     /**

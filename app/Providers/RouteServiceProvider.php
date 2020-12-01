@@ -522,6 +522,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapApiRoutes()
     {
         Route::namespace($this->namespace)
+            ->middleware(['cakeLaravelFilter'])
             ->group(base_path('routes/api.php'));
     }
 
