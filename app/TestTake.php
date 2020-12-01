@@ -560,6 +560,8 @@ class TestTake extends BaseModel
             });
         }
 
+        $query->where($this->getTable().'.school_location_id', Auth::user()->school_location_id);
+
         $testTable = with(new Test())->getTable();
         $query->select($this->getTable() . '.*')
             ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id');
