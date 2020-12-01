@@ -21,6 +21,7 @@ class CreateTestAuthorsTable extends Migration
                 $table->integer('user_id');
                 $table->timestamps();
                 $table->softDeletes();
+                $table->primary(['test_id','user_id']);
             });
 
             \tcCore\Test::withTrashed()->get()->each(function (\tcCore\Test $test) {
