@@ -44,7 +44,7 @@ class Shortcode extends BaseModel
 
     public function getLinkAttribute()
     {
-        return sprintf('%s%s',config('custom.shortcode.link'),$this->code);
+        return sprintf('%s%s',config('shortcode.link'),$this->code);
     }
 
     public static function boot()

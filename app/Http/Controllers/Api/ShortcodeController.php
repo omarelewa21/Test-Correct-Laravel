@@ -12,7 +12,7 @@ class ShortcodeController extends Controller
 {
     public function registerClickAndRedirect(Request $request, Shortcode $shortcode)
     {
-        $redirectUrl = config('custom.shortcode.redirecturl');
+        $redirectUrl = config('shortcode.redirecturl');
         $stitchSign = '?';
         if(substr_count($redirectUrl,'?') > 0){
             $stitchSign = '&';
