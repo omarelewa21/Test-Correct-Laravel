@@ -10,7 +10,7 @@ return [
     | the ip address which is allowed to perfom the request
     |
     */
-    'server_addr' => env('CAKE_LARAVEL_FILTER_SERVER_ADDR','127.0.0.1'),
+    'remote_addr' => env('CAKE_LARAVEL_FILTER_SERVER_ADDR','127.0.0.1'),
 
     /*
     |--------------------------------------------------------------------------
