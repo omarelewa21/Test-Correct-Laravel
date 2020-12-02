@@ -12,7 +12,7 @@ use Tests\TestCase;
 
 class SearchFilterTest extends TestCase
 {
-    use DatabaseTransactions;
+    //use DatabaseTransactions;
 
     protected function setUp(): void
     {
@@ -215,7 +215,7 @@ class SearchFilterTest extends TestCase
         $this->assertEquals(1, SearchFilter::count());
         $searchfilters = SearchFilter::where('cached_filter',true)->get();
         $this->assertEquals(1, $searchfilters->count());
-    }
+     }
 
 
     private function getValidAttributes($overrides = [])
