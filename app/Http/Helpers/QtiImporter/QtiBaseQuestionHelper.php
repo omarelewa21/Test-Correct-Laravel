@@ -270,4 +270,26 @@ class QtiBaseQuestionHelper
             return $a['correct'];
         });
     }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function getSubType(){
+        return $this->subType;
+    }
+
+    public function getConvertedAr($key = null)
+    {
+        if (null === $key) {
+            return $this->convertedAr;
+        }
+        if (array_key_exists($key, $this->convertedAr)) {
+            return $this->convertedAr[$key];
+        }
+
+        throw new \Exception("key $key was not found in converted Arr. call without key to see full array");
+
+    }
 }

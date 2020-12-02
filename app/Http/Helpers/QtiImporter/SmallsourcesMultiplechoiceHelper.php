@@ -15,6 +15,8 @@ class SmallsourcesMultiplechoiceHelper extends QtiBaseQuestionHelper
     protected $subType = 'multi';
     protected $convertedAr = [];
 
+
+
     public function validate($question)
     {
         if (!isset($question->question_content->question_body)) {
