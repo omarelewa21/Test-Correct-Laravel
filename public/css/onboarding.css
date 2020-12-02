@@ -3,7 +3,7 @@
     --cta-primary-mid-dark: #27973D;
     --cta-primary-dark: #006314;
     --cta-secondary: #004DF5;
-    --primary: #004DF5;
+    --primary: #004df5;
     --secondary: #ECD900;
     --highlight-primary: #ECD900;
     --system-base: #041F74;
@@ -141,41 +141,42 @@
 h1 {
     font-size: 2rem;
     font-family: Nunito Bold;
+    line-height: 1.5rem;
 }
 
 h2 {
     font-size: 1.75rem;
     font-family: Nunito Bold;
+    line-height: 1.5rem;
 }
 
 h3 {
     font-size: 1.5rem;
     font-family: Zilla Slab Regular;
+    line-height: 1.5rem;
 }
 
 h4 {
     font-size: 1.5rem;
     font-family: Nunito Bold;
+    line-height: 1.5rem;
 }
 
 h5 {
     font-size: 1.25rem;
     font-family: Nunito Bold;
+    line-height: 1.5rem;
 }
 
 h6 {
     font-size: 1.125rem;
     font-family: Nunito Bold;
-}
-
-h7 {
-    font-size: 1rem;
-    font-family: Nunito Bold;
+    line-height: 1.5rem;
 }
 
 .body1 {
     font-size: 1.125rem;
-    line-height: 2rem;
+    line-height: 1.5rem;
     font-family: Nunito Regular;
 }
 
@@ -192,10 +193,18 @@ h7 {
     font-family: Nunito Regular;
 }
 
+.text-0 {
+    color: var(--mid-grey);
+}
+.text-1 {
+    color: green;
+}
+
 
 .onboarding-header {
     color: var(--primary);
     font-family: Nunito Regular;
+    box-shadow: 0px 3px 8px 0px rgba(77,87,143,0.07);
 }
 
 .onboarding-body {
@@ -203,31 +212,44 @@ h7 {
 }
 
 .content-section {
+    min-height: 36rem;
     box-shadow: 0px 3px 18px 0px rgba(77, 87, 143, 0.1);
+    display: flex;
+}
+.content-form {
+    min-height: 31rem;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-content: start;
+    flex-grow: 1;
 }
 
 .gender-section {
     flex-wrap: wrap;
     display: flex;
 }
-.gender-section .different {
-    flex-grow: 1;
-}
 
-.name, .password {
+
+.name, .password, .school-info {
     display: flex;
     flex-wrap: wrap;
 }
-
-.input-group #name_first, .input-group #password, .input-group #password_confirm {
-    min-width: 230px;
+.school-info .input-group {
+    margin-bottom: 1rem;
 }
+
+.email-section input {
+    max-width: 476px;
+}
+
 .input-group #name_suffix {
     width: 120px;
 }
 .input-group.lastname {
     flex-grow: 1;
     min-width: 300px;
+    max-width: 476px;
 }
 
 .tc-logo {
@@ -236,8 +258,11 @@ h7 {
     transition: ease-in-out 150ms;
 }
 .tc-logo:hover {
-    box-shadow: 0 1px 9px 0 rgba(77, 87, 143, 0.5);
+    opacity: 70%;
     transition: ease-in-out 150ms;
+}
+.tc-logo:active {
+    opacity: 50%;
 }
 
 .step-indicator {
@@ -266,6 +291,16 @@ h7 {
 
 span.active {
     color: var(--primary);
+}
+
+.card-header-text {
+    position: absolute;
+    left: 5rem;
+}
+
+.klaar-text {
+    position: absolute;
+    left: 5rem;
 }
 
 .button {
@@ -305,6 +340,9 @@ span.active {
 .leading-50 {
     line-height: 50px;
 }
+.leading-30 {
+    line-height: 30px;
+}
 
 .text-button:hover {
     color: var(--primary);
@@ -342,30 +380,42 @@ span.active {
     box-shadow: none;
 }
 
-.primary-button {
-    background: var(--primary);
-    color: white;
-}
-
-.primary-button:hover {
-    background: linear-gradient(90deg, rgba(0, 77, 245, 1) 0%, rgba(71, 129, 255, 1) 100%);
-    box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
-}
-
-.primary-button:active {
-    background: linear-gradient(90deg, rgba(43, 108, 251, 1) 0%, rgba(71, 129, 255, 1) 100%);
-    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
-}
-
-.primary-button:focus {
-    background: var(--primary);
-    border: 2px solid var(--system-base)
-}
-
 .primary-button.btn-disabled {
     background: var(--light-grey);
     color: var(--mid-grey);
     box-shadow: none;
+}
+.primary-button.btn-disabled:hover {
+    background: var(--light-grey);
+    color: var(--mid-grey);
+    box-shadow: none;
+}
+.primary-button.btn-disabled:focus {
+    border: none;
+}
+
+.primary-button {
+    color: white;
+    background-color: rgba(0,77,245,1);
+    background-image: radial-gradient(ellipse farthest-side at 10% 10%,rgba(0,77,245,.5) 0,rgba(0,77,245,0) 100%);
+    background-size: 0px 0px;
+    background-repeat: no-repeat;
+    box-shadow: 0 1px 2px 1px rgba(0,0,0,.15);
+    transition: color 0.3s cubic-bezier(.215,.61,.355,1);
+}
+
+.primary-button:hover {
+    background-color: rgba(71,129,255,1);
+    background-size: 100% 100%;
+    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(.215,.61,.355,1);
+}
+.primary-button:focus {
+    outline: none;
+    border: none;
+}
+.primary-button:active {
+    border: none;
 }
 
 .secondary-button {
@@ -428,13 +478,13 @@ svg, .hair {
     fill: var(--mid-grey);
 }
 
-.select-button:hover svg, .select-button:hover .hair {
+.select-button:hover svg, .select-button:hover .hair, .select-button:focus svg, .select-button:focus .hair {
     stroke: var(--primary);
     fill: var(--primary);
     transition: ease-in-out 150ms;
 }
 
-.select-button:hover .eye {
+.select-button:hover .eye, .select-button:focus .eye {
     fill: var(--primary);
     transition: ease-in-out 150ms;
 }
@@ -455,34 +505,6 @@ svg, .hair {
 
 .btn-active:hover .eye {
     fill: var(--primary);
-}
-
-.man {
-    background: url("../svg/icons/men grey.svg");
-}
-
-.woman {
-    background: url("../svg/icons/women grey.svg");
-}
-
-.other {
-    background: url("../svg/icons/x grey.svg");
-}
-
-.select-button:hover .man, .select-button:focus .man {
-    background: url("../svg/icons/men.svg");
-}
-
-.select-button:active .man, .man.active {
-    background: url("../svg/icons/men.svg");
-}
-
-.select-button:hover .woman, .select-button:focus .woman {
-    background: url("../svg/icons/women.svg");
-}
-
-.select-button:active .woman, .woman.active {
-    background: url("../svg/icons/women.svg");
 }
 
 .select-button:hover .other, .select-button:focus .other {
@@ -574,13 +596,17 @@ input:focus + label {
     border-radius: 4px;
     padding: 16px;
     max-width: 475px;
-
+}
+.stretched {
+    max-width: none;
+}
+.notification-shadow {
+    box-shadow: 0px 2px 4px 0px rgba(77,87,143,0.5);
 }
 
 .notification > .title {
     font-family: Nunito Bold;
     font-size: 1rem;
-    line-height: 30px;
 }
 
 .notification > .body {

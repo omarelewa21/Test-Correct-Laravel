@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\SchoolHelper;
-use tcCore\Jobs\SendWelcomeMail;
+use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Lib\User\Factory;
 use tcCore\Mail\TeacherRegistered;
 
@@ -134,7 +134,7 @@ class DemoTeacherRegistration extends Model
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
 
                 try {
-                    dispatch_now(new SendWelcomeMail($user->getKey()));
+                    dispatch_now(new SendOnboardingWelcomeMail($user->getKey()));
                 } catch (\Throwable $th) {
                     Bugsnag::notifyException($th);
                 }

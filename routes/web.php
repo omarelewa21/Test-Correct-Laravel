@@ -1,6 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
+use tcCore\Jobs\SendOnboardingWelcomeMail;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,5 +14,9 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+if (App::environment('local')) {
+    Route::get('/testmail', function () {
+        return (new SendOnboardingWelcomeMail(1540))->render();
+    });
+}
 Route::get('/onboarding', tcCore\App\Http\Livewire\Onboarding::class);

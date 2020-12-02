@@ -2,14 +2,16 @@
 
 namespace tcCore\App\Http\Livewire;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\DemoTeacherRegistration;
+use tcCore\User;
 
 class Onboarding extends Component
 {
     public $registration;
 
-    public $step = 3;
+    public $step = 2;
 
     public $password;
 
@@ -17,9 +19,16 @@ class Onboarding extends Component
 
     public $btnDisabled = true;
 
-    protected $queryString = ['step', 'email'];
+    protected $queryString = ['step', 'email', 'confirmed'];
 
     public $email;
+    public $confirmed;
+    public $gender = 'male';
+
+    public $warningStepOne = 0;
+    public $warningStepTwo = 0;
+    public $warningStepOneConfirmed = 0;
+    public $warningStepTwoConfirmed = 0;
 
     public function rules()
     {
@@ -33,9 +42,10 @@ class Onboarding extends Component
             'registration.gender'           => 'sometimes',
             'registration.gender_different' => 'sometimes',
             'registration.name_first'       => 'sometimes',
-            'registration.username'         => 'sometimes',
+            'registration.username'         => 'required|email',
             'registration.name'             => 'sometimes',
             'registration.name_suffix'      => 'sometimes',
+            'registration.confirmed'        => 'sometimes',
             'password'                      => 'sometimes',
         ];
 
@@ -69,8 +79,21 @@ class Onboarding extends Component
     {
         $this->registration = new DemoTeacherRegistration;
         $this->registration->username = $this->email;
+        $this->registration->confirmed = $this->confirmed;
+        $this->registration->gender = $this->gender;
+
+
         if (!$this->step != 1) {
             $this->step = 1;
+        }
+        if (!$this->email) {
+            $this->email = '';
+        }
+        if (!$this->confirmed) {
+            $this->confirmed = 0;
+        }
+        if ($this->confirmed === 1 && !$this->email) {
+            $this->confirmed = 0;
         }
 
         //To do
@@ -93,7 +116,7 @@ class Onboarding extends Component
         if (empty($this->password)) {
             return 0;
         } else {
-            return mb_strlen($this->password) < 8 ? 'red' : 'green';
+            return mb_strlen($this->password) < 8 ? false : true;
         }
     }
 
@@ -102,7 +125,7 @@ class Onboarding extends Component
         if (empty($this->password)) {
             return 0;
         } else {
-            return preg_match('/\d/', $this->password) ? 'green' : 'red';
+            return preg_match('/\d/', $this->password) ? true : false;
         }
     }
 
@@ -111,37 +134,74 @@ class Onboarding extends Component
         if (empty($this->password)) {
             return 0;
         } else {
-            return preg_match('/[^a-zA-Z\d]/', $this->password) ? 'green' : 'red';
+            return preg_match('/[^a-zA-Z\d]/', $this->password) ? true : false;
         }
     }
 
     public function step1()
     {
         $this->validate();
+        if (!$this->checkInputForLength() && $this->warningStepOneConfirmed === 0) {
+            $this->warningStepOneConfirmed = 1;
+            return;
+        }
         $this->step = 2;
         $this->btnStepTwoDisabledCheck();
+        $this->warningStepOneConfirmed = 0;
     }
 
     public function step2()
     {
         $this->validate();
+        if (!$this->checkInputForLength() && $this->warningStepTwoConfirmed === 0) {
+            $this->warningStepTwoConfirmed = 1;
+            return;
+        }
         $this->registration->save();
         $this->registration->addUserToRegistration($this->password);
         $this->step = 3;
     }
 
-    private function btnStepOneDisabledCheck() {
-        if ($this->step == 1) {
-            $this->btnDisabled = (
-                empty($this->registration->name_first)
-                || empty($this->registration->gender)
-                || empty($this->registration->name)
-                || empty($this->password_confirmation)
-                || empty($this->password)
-            );
+    public function loginUser()
+    {
+        $user = User::where('username', $this->registration->username)->first();
+        Auth::login($user);
+        if (Auth::check()) {
+            redirect('dashboard');
+        } else {
+            redirect('/');
+        }
+
+    }
+
+    private function btnStepOneDisabledCheck()
+    {
+        if ($this->registration->confirmed != 1) {
+            if ($this->step == 1) {
+                $this->btnDisabled = (
+                    empty($this->registration->name_first)
+                    || empty($this->registration->gender)
+                    || empty($this->registration->name)
+                    || empty($this->password_confirmation)
+                    || empty($this->password)
+                    || empty($this->registration->username)
+                );
+            }
+        } else {
+            if ($this->step == 1) {
+                $this->btnDisabled = (
+                    empty($this->registration->name_first)
+                    || empty($this->registration->gender)
+                    || empty($this->registration->name)
+                    || empty($this->password_confirmation)
+                    || empty($this->password)
+                );
+            }
         }
     }
-    private function btnStepTwoDisabledCheck() {
+
+    private function btnStepTwoDisabledCheck()
+    {
         if ($this->step == 2) {
             $this->btnDisabled = (
                 empty($this->registration->city)
@@ -154,8 +214,35 @@ class Onboarding extends Component
         }
     }
 
+    public function checkInputForLength()
+    {
+        if ($this->step == 1) {
+            if (strlen($this->registration->name_first) <= 1
+                || strlen($this->registration->name) <= 1) {
+                $this->warningStepOne = 1;
+                return false;
+            } else {
+                $this->warningStepOne = 0;
+                return true;
+            }
+        }
+        if ($this->step == 2) {
+            if (strlen($this->registration->city) <= 1
+                || strlen($this->registration->school_location) <= 1
+                || strlen($this->registration->website_url) <= 1
+                || strlen($this->registration->address) <= 1) {
+                $this->warningStepTwo = 1;
+                return false;
+            } else {
+                $this->warningStepTwo = 0;
+                return true;
+            }
+        }
+    }
 
-    public function updated($propertyName)
+
+    public
+    function updated($propertyName)
     {
         $this->btnDisabled = true;
 
@@ -170,10 +257,13 @@ class Onboarding extends Component
             $this->registration->gender_different = '';
         }
 
-        $this->validateOnly($propertyName);
+        if ($propertyName != 'password') {
+            $this->validateOnly($propertyName);
+        }
     }
 
-    protected $messages = [
+    protected
+        $messages = [
         'registration.name_first.required'      => 'Voornaam is verplicht',
         'registration.name.required'            => 'Achternaam is verplicht',
         'registration.gender.required'          => 'Geef uw geslacht op',
@@ -187,5 +277,7 @@ class Onboarding extends Component
         'registration.house_number.required'    => 'Huisnummer is verplicht',
         'registration.postcode.required'        => 'Postcode is verplicht',
         'registration.city.required'            => 'Plaatsnaam is verplicht',
+        'registration.username.required'        => 'E-mailadres is verplicht',
+        'registration.username.email'           => 'E-mailadres is niet geldig',
     ];
 }
