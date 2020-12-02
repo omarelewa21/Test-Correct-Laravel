@@ -1221,7 +1221,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (!in_array('Administrator', $roles)) {
             $query->where(function ($query) use ($roles) {
                 if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
-                    logger(__LINE__);
+//                    logger(__LINE__);
                     //		if($this->hasRole(['Administrator','Account manager'])){
                     $userId = Auth::user()->getKey();
 
