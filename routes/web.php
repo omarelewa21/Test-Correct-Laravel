@@ -16,7 +16,7 @@ use tcCore\Jobs\SendOnboardingWelcomeMail;
 */
 if (App::environment('local')) {
     Route::get('/testmail', function () {
-        return (new SendOnboardingWelcomeMail(1540))->render();
+        return (new SendOnboardingWelcomeMail(1522))->render();
     });
 }
 Route::get('/onboarding', tcCore\App\Http\Livewire\Onboarding::class);

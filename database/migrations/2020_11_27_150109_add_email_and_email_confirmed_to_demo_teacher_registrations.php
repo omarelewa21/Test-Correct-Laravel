@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddEmailToDemoTeacherRegistrations extends Migration
+class AddEmailAndEmailConfirmedToDemoTeacherRegistrations extends Migration
 {
     /**
      * Run the migrations.
@@ -15,6 +15,7 @@ class AddEmailToDemoTeacherRegistrations extends Migration
     {
         Schema::table('demo_teacher_registrations', function (Blueprint $table) {
             $table->string('email')->nullable();
+            $table->integer('registration_email_confirmed')->nullable();
         });
     }
 
@@ -27,6 +28,7 @@ class AddEmailToDemoTeacherRegistrations extends Migration
     {
         Schema::table('demo_teacher_registrations', function (Blueprint $table) {
             $table->dropColumn('email');
+            $table->dropColumn('registration_email_confirmed');
         });
     }
 }

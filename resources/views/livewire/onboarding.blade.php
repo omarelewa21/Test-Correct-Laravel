@@ -73,7 +73,7 @@
                             {{--content form--}}
                             <div class="flex-grow">
                                 <form class="h-full relative" wire:submit.prevent="step1" action="#" method="POST">
-                                    @if($this->registration->confirmed != 1)
+                                    @if($this->shouldDisplayEmail)
                                         <div class="email-section mb-4 w-full md:w-1/2">
                                             <div class="mb-4">
                                                 <div class="input-group">
@@ -186,50 +186,46 @@
                                             </div>
                                         </div>
                                         <div class="password items-start">
-                                            <div class="w-7/12 flex">
-                                                <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
-                                                    <input id="password" wire:model="password" type="password"
-                                                           class="form-input @error('password') border-red @enderror">
-                                                    <label for="password"
-                                                           class="transition ease-in-out duration-150">Creeër
-                                                        wachtwoord</label>
-                                                </div>
 
-                                                <div class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
-                                                    <input id="password_confirm" wire:model="password_confirmation"
-                                                           type="password"
-                                                           class="form-input @error('password') border-red @enderror">
-                                                    <label for="password_confirm"
-                                                           class="transition ease-in-out duration-150">
-                                                        Herhaal wachtwoord</label>
-                                                </div>
-
+                                            <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
+                                                <input id="password" wire:model="password" type="password"
+                                                       class="form-input @error('password') border-red @enderror">
+                                                <label for="password"
+                                                       class="transition ease-in-out duration-150">Creeër
+                                                    wachtwoord</label>
                                             </div>
-                                            <div class="flex-grow">
 
-                                                <div class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2">
-                                                    <div
-                                                            class="text-{{$this->minCharRule}}">@if($this->minCharRule)
-                                                            <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
-                                                            <x-icon.close-small></x-icon.close-small> @else
-                                                            <x-icon.dot></x-icon.dot> @endif Min. 8
-                                                        tekens
-                                                    </div>
-                                                    <div
-                                                            class="text-{{$this->minDigitRule}}">@if($this->minDigitRule)
-                                                            <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
-                                                            <x-icon.close-small></x-icon.close-small> @else
-                                                            <x-icon.dot></x-icon.dot> @endif Min. 1
-                                                        cijfer
-                                                    </div>
-                                                    <div
-                                                            class="text-{{$this->specialCharRule}}">@if($this->specialCharRule)
-                                                            <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
-                                                            <x-icon.close-small></x-icon.close-small> @else
-                                                            <x-icon.dot></x-icon.dot> @endif Min. 1
-                                                        speciaal
-                                                        teken (bijv. $ of @)
-                                                    </div>
+                                            <div class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
+                                                <input id="password_confirm" wire:model="password_confirmation"
+                                                       type="password"
+                                                       class="form-input @error('password') border-red @enderror">
+                                                <label for="password_confirm"
+                                                       class="transition ease-in-out duration-150">
+                                                    Herhaal wachtwoord</label>
+                                            </div>
+
+                                            <div class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto">
+                                                <div
+                                                        class="text-{{$this->minCharRule}}">@if($this->minCharRule)
+                                                        <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
+                                                        <x-icon.close-small></x-icon.close-small> @else
+                                                        <x-icon.dot></x-icon.dot> @endif Min. 8
+                                                    tekens
+                                                </div>
+                                                <div
+                                                        class="text-{{$this->minDigitRule}}">@if($this->minDigitRule)
+                                                        <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
+                                                        <x-icon.close-small></x-icon.close-small> @else
+                                                        <x-icon.dot></x-icon.dot> @endif Min. 1
+                                                    cijfer
+                                                </div>
+                                                <div
+                                                        class="text-{{$this->specialCharRule}}">@if($this->specialCharRule)
+                                                        <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
+                                                        <x-icon.close-small></x-icon.close-small> @else
+                                                        <x-icon.dot></x-icon.dot> @endif Min. 1
+                                                    speciaal
+                                                    teken (bijv. $ of @)
                                                 </div>
                                             </div>
                                         </div>
@@ -467,14 +463,15 @@
                 <div class="sm:flex text-center justify-center pt-4">
                     <div class="w-full sm:w-auto sm:pr-2">
                         <span class="regular">Heb je al een account?</span>
-                        <a class="text-button">
+                        <a class="text-button"
+                           href="@if(env('APP_ENV')) https://testportal.test-correct.nl/ @else https://portal.test-correct.nl @endif">
                             <span class="bold">Log in</span>
                             <x-icon.arrow></x-icon.arrow>
                         </a>
                     </div>
                     <div class="w-full sm:w-auto sm:pl-2 mt-2 sm:mt-0">
                         <span class="regular">Ben je een student?</span>
-                        <a class="text-button">
+                        <a class="text-button" href="https://test-correct.nl/downloads">
                             <span class="bold">Kijk hier</span>
                             <x-icon.arrow></x-icon.arrow>
                         </a>
