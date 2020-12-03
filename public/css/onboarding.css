@@ -17,17 +17,17 @@
 
 @font-face {
     font-family: Nunito Bold;
-    src: url("Nunito/Nunito-Bold.ttf");
+    src: url("public/fonts/Nunito/Nunito-Bold.ttf");
 }
 
 @font-face {
     font-family: Nunito Regular;
-    src: url("Nunito/Nunito-Regular.ttf");
+    src: url("public/fonts/Nunito/Nunito-Regular.ttf");
 }
 
 @font-face {
     font-family: Zilla Slab Regular;
-    src: url("Zilla_Slab/ZillaSlab-Regular.ttf");
+    src: url("public/fonts/Zilla_Slab/ZillaSlab-Regular.ttf");
 }
 
 .cta-primary {

@@ -1,4 +1,4 @@
-@extends('emails.layout')
+@extends('emails.onboarding-layout')
 
 @section('content')
     @php
@@ -11,21 +11,11 @@
 
     @endphp
     <tr>
-        <td colspan="999" style="padding:20px;">
-            Hallo {{$name}}!<br/>
-            <br/>
-            Je collega  nodigt je uit om Test-Correct uit te proberen, een platform voor digitaal toetsen.
-            We hebben direct een account voor je aangemaakt voor Test-Correct. Je bent daarmee een stap dichterbij een onderwijsinnovatie die echt eenvoudig is om te gebruiken en toch een wezenlijk verschil maakt!<br/>
-            <br/>
-            Het ontdekken hoe Test-Correct werkt kan enkele minuten duren, of misschien een uur, maar wanneer je het eenmaal doorhebt is het klik-klak-klaar.<br/>
-            <br/>
-            Mijn naam is Alex en ik wil je graag helpen om alles zo soepel mogelijk te laten verlopen: een soort mentor :-)<br/>
-            <br/>
-            Ik raad je aan om direct te beginnen met onze demo tour. Ik leid je daar op een leuke en interactieve manier door de belangrijkste stappen van Test-Correct.<br/>
-            <br/>
-            Hieronder staan je inloggegevens:<br/>
-            E-mail: {{ $user->username }}<br/>
-            Wachtwoord: <br/>
+        <td colspan="999" class="pl-40 pr-40" style="">
+            <h5 class="mb-4">Hallo {{$name}}</h5>
+            <p>Je hebt je aangemeld met het e-mailadres {{$user->username}}</p>
+            <p>Verifieer je e-mailadres</p>
+
             <br/>
             <a href="{{ config('app.url_login')}}" style="background-color: #42b947;padding: 15px 30px;margin-bottom: 30px;display: inline-block;color:#ffffff;text-decoration:none">Login en start demo</a><br/>
             <br/>
@@ -33,6 +23,11 @@
             <br/>
             Alex<br />
             Test-Correct Mentor
+        </td>
+    </tr>
+    <tr class="footer">
+        <td class="p-40">
+            <h5>Footer</h5>
         </td>
     </tr>
 @stop
