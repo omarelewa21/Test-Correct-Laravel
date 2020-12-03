@@ -30,7 +30,17 @@ return [
     | the server name which should be active when a request is performed
     |
     */
-    'server_name' => env('CAKE_LARAVEL_FILTER_SERVER_NAME','tc-live.webbix.nl'),
+    'server_name' => env('CAKE_LARAVEL_FILTER_SERVER_NAME','test-correct.test'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | key
+    |--------------------------------------------------------------------------
+    |
+    | the server name which should be active when a request is performed
+    |
+    */
+    'key' => env('CAKE_LARAVEL_FILTER_KEY',''),
 
     /*
     |--------------------------------------------------------------------------
