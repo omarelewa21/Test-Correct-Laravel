@@ -77,8 +77,6 @@ class OnboardingWizardReportTest extends TestCase
         $firstUser->fill(['account_verified' => null]);
         $firstUser->save();
 
-
-
         \tcCore\OnboardingWizardReport::updateForAllTeachers();
 
         $this->assertCount(
