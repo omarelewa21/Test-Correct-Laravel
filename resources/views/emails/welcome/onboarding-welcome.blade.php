@@ -11,13 +11,13 @@
 
     @endphp
     <tr>
-        <td colspan="999" class="pl-40 pr-40" style="">
+        <td colspan="999" class="pl-40 pr-40 pb-40" style="">
             <h5 class="mb-4">Hallo {{$name}}</h5>
-            <p>Je hebt je aangemeld met het e-mailadres {{$user->username}}</p>
+            <p>Je hebt je aangemeld met het e-mailadres <span class="text-bold">{{$user->username}}</span></p>
             <p>Verifieer je e-mailadres</p>
 
             <br/>
-            <a href="{{ config('app.url_login')}}" style="background-color: #42b947;padding: 15px 30px;margin-bottom: 30px;display: inline-block;color:#ffffff;text-decoration:none">Login en start demo</a><br/>
+            <a href="{{ config('app.url_login')}}" class="button cta-button stretched">Login en start demo</a><br/>
             <br/>
             Met vriendelijke groet,<br/>
             <br/>
@@ -25,8 +25,8 @@
             Test-Correct Mentor
         </td>
     </tr>
-    <tr class="footer">
-        <td class="p-40">
+    <tr class="footer rounded-b-10">
+        <td class="p-40 rounded-b-10">
             <h5>Footer</h5>
         </td>
     </tr>

@@ -10,6 +10,9 @@
             --system-base: #041F74;
             --blue-grey: #C3D0ED;
             --off-white: #F9FAFF;
+            --cta-primary: #3DBB56;
+            --cta-primary-mid-dark: #27973D;
+            --cta-primary-dark: #006314;
         }
 
         h1, h2, h3, h4, h5, h6 {
@@ -32,6 +35,10 @@
         .body2 p {
             margin: 0;
         }
+        .rounded-b-10 {
+            border-bottom-right-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
 
         .footer {
             background-color: var(--off-white);
@@ -40,6 +47,109 @@
             border-bottom-left-radius: 10px;
         }
 
+        /*Buttons*/
+        .button {
+            border-radius: 10px;
+            font-size: 18px;
+            font-family: 'Nunito';
+            font-weight: 700;
+            background-color: #42b947;
+            padding: 15px 30px;
+            margin-bottom: 30px;
+            display: inline-block;
+        }
+        .button,
+        .button * {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .button.stretched {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: var(--cta-primary);
+            background: linear-gradient(90deg, var(--cta-primary) 0%, var(--cta-primary) 100%);
+        }
+
+        .cta-button:hover {
+            background: linear-gradient(90deg, rgba(39, 151, 61, 1) 0%, rgba(61, 187, 86, 1) 100%);
+            box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
+            transition: ease-in-out  150ms;
+        }
+
+        .cta-button:active {
+            background: linear-gradient(90deg, rgba(57, 180, 81, 1) 0%, rgba(61, 187, 86, 1) 100%);
+            box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
+        }
+
+        .cta-button:focus {
+            background: var(--cta-primary);
+            border: 2px solid var(--cta-primary-dark);
+        }
+
+
+
+
+        /*Paddings / Margins*/
+        .p-40 {
+            padding: 40px;
+        }
+        .pl-40 {
+            padding-left: 40px;
+        }
+
+        .pr-40 {
+            padding-right: 40px;
+        }
+
+        .pt-40 {
+            padding-top: 40px;
+        }
+
+        .pb-40 {
+            padding-bottom: 40px;
+        }
+
+        .p-20 {
+            padding: 20px;
+        }
+        .pl-20 {
+            padding-left: 20px;
+        }
+
+        .pr-20 {
+            padding-right: 20px;
+        }
+
+        .pt-20 {
+            padding-top: 20px;
+        }
+
+        .pb-20 {
+            padding-bottom: 20px;
+        }
+        .m-4 {
+            margin: 1rem;
+        }
+
+        .mt-4 {
+            margin-top: 1rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .ml-4 {
+            margin-left: 201rem
+        }
+
+        .mr-4 {
+            margin-right: 1rem;
+        }
+
+        /*Oude CSS*/
         root,
         html,
         body {
@@ -60,7 +170,6 @@
             padding-left: 20px;
             padding-right: 20px;
             box-sizing: border-box;
-            font-family: 'Nunito', sans-serif;
             font-weight: 400;
         }
 
@@ -134,6 +243,7 @@
             letter-spacing: 0px;
         }
 
+
         .text-center {
             text-align: center;
         }
@@ -143,7 +253,7 @@
         }
 
         .text-bold {
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .text-myriad {
@@ -167,62 +277,7 @@
             padding-left: 30px !important;
         }
 
-        .p-40 {
-            padding: 40px;
-        }
-        .pl-40 {
-            padding-left: 40px;
-        }
 
-        .pr-40 {
-            padding-right: 40px;
-        }
-
-        .pt-40 {
-            padding-top: 40px;
-        }
-
-        .pb-40 {
-            padding-bottom: 40px;
-        }
-
-        .p-20 {
-            padding: 20px;
-        }
-        .pl-20 {
-            padding-left: 20px;
-        }
-
-        .pr-20 {
-            padding-right: 20px;
-        }
-
-        .pt-20 {
-            padding-top: 20px;
-        }
-
-        .pb-20 {
-            padding-bottom: 20px;
-        }
-        .m-4 {
-            margin: 1rem;
-        }
-
-        .mt-4 {
-            margin-top: 1rem;
-        }
-
-        .mb-4 {
-            margin-bottom: 1rem;
-        }
-
-        .ml-4 {
-            margin-left: 201rem
-        }
-
-        .mr-4 {
-            margin-right: 1rem;
-        }
 
         .banner {
             background-color: #2c6d8d;
@@ -236,27 +291,6 @@
         .banner * {
             font-size: 15px;
             color: #ffffff;
-        }
-
-        .button {
-            background-color: #42b947;
-            padding: 15px 30px;
-            margin-bottom: 30px;
-            display: inline-block;
-        }
-
-        .button.danger {
-            background-color: #aa0000;
-        }
-
-        .button,
-        .button * {
-            color: #ffffff;
-            text-decoration: none;
-        }
-
-        .button i {
-            margin-right: 5px;
         }
 
         .table.full {
@@ -372,7 +406,7 @@
         </td>
     </tr>
     </thead>
-    <tbody id="content" class="body2" style="font-family: Arial; font-size: 15px;">
+    <tbody id="content" class="body2">
     @yield('content')
     </tbody>
 </table>

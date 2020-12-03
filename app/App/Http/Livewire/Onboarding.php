@@ -182,12 +182,7 @@ class Onboarding extends Component
     {
         $user = User::where('username', $this->registration->username)->first();
         Auth::login($user);
-        if (Auth::check()) {
-            redirect('dashboard');
-        } else {
-            redirect('/');
-        }
-
+        redirect('http://testportal.test-correct.test');
     }
 
     private function btnStepOneDisabledCheck()
