@@ -15,5 +15,6 @@ class DatabaseSeeder extends Seeder {
 		$this->call('EanCodeTableSeeder');
 		$this->call('SearchFilterTableSeeder');
         $this->call(SwitchSchoolAccountTableSeeder::class);
+        $this->call(CitoAccountSeeder::class);
 	}
 }
