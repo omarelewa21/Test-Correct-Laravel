@@ -1219,11 +1219,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
+
         $roles = Roles::getUserRoles();
         // you are an Account manager
         if (!in_array('Administrator', $roles)) {
             $query->where(function ($query) use ($roles) {
                 if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
+//                    logger(__LINE__);
                     //		if($this->hasRole(['Administrator','Account manager'])){
                     $userId = Auth::user()->getKey();
 

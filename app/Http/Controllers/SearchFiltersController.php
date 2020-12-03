@@ -12,7 +12,6 @@ class SearchFiltersController extends Controller
 {
     public function store(CreateSearchFilterRequest $request){
     	$searchFilter = SearchFilter::create($request->validated());
-
     	return $searchFilter->activate();
     }
 
