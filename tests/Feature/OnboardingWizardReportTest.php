@@ -49,7 +49,7 @@ class OnboardingWizardReportTest extends TestCase
             $teacher->user->save();
         });
 
-       \tcCore\OnboardingWizardReport::updateForAllTeachers();
+       \tcCore\OnboardingWizardReport::updateForAllTeachers(false);
 
         $this->assertCount(
             4,
@@ -77,7 +77,7 @@ class OnboardingWizardReportTest extends TestCase
         $firstUser->fill(['account_verified' => null]);
         $firstUser->save();
 
-        \tcCore\OnboardingWizardReport::updateForAllTeachers();
+        \tcCore\OnboardingWizardReport::updateForAllTeachers(false);
 
         $this->assertCount(
             4,

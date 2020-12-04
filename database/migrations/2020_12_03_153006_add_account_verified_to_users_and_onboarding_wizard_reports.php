@@ -20,7 +20,7 @@ class AddAccountVerifiedToUsersAndOnboardingWizardReports extends Migration
                 $table->dateTime('account_verified')->nullable();
             });
 
-            \DB::table('users')->update(['account_verified' => Carbon::now()]);
+            \DB::statement('UPDATE users SET account_verified = created_at');
 
             Schema::table('onboarding_wizard_reports', function (Blueprint $table) {
                 $table->dateTime('account_verified')->nullable();

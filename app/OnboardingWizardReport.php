@@ -162,9 +162,11 @@ ORDER BY t2.displayorder,
         return 'no steps yes';
     }
 
-    public static function updateForAllTeachers()
+    public static function updateForAllTeachers($shouldTruncate = true)
     {
-        OnboardingWizardReport::truncate();
+        if($shouldTruncate) {
+            OnboardingWizardReport::truncate();
+        }
 
         User::whereIn('id', Teacher::pluck('user_id'))
             ->where('demo', 0)
