@@ -99,11 +99,14 @@
         .cta-button:active {
             background: linear-gradient(90deg, rgba(57, 180, 81, 1) 0%, rgba(61, 187, 86, 1) 100%);
             box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
+            border: none;
         }
 
         .cta-button:focus {
             background: var(--cta-primary);
             border: 2px solid var(--cta-primary-dark);
+            padding: 13px 28px;
+            outline: none;
         }
 
         .svg-stroke-white {
