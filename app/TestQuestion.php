@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\QuestionHelper;
@@ -101,6 +102,7 @@ class TestQuestion extends BaseModel {
 
         $testQuestion = new TestQuestion();
         $testQuestion->fill($questionAttributes);
+
         $test = $testQuestion->test;
 
         $qHelper = new QuestionHelper();

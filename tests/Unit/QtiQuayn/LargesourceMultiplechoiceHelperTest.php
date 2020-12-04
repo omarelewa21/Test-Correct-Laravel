@@ -11,12 +11,13 @@ namespace Tests\Unit\QtiQuayn;
 
 use tcCore\Http\Controllers\QtiImportController;
 use tcCore\Test;
+use tcCore\TestQuestion;
 use tcCore\User;
 use Tests\TestCase;
 
 class LargesourceMultiplechoiceHelperTest extends TestCase
 {
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+//    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
     /** @test */
     public function a_multiplechoice_questions_has_answers()
@@ -28,7 +29,7 @@ class LargesourceMultiplechoiceHelperTest extends TestCase
         $question = simplexml_load_file(__DIR__.'/../../_fixtures_quayn_qti/largesourceMultiplechoiceSample1.xml',
             'SimpleXMLElement', LIBXML_NOCDATA);
 
-        $result = QtiImportController::parseQuestion($question,$test,$zipDir, $basePath);
+        $result = QtiImportController::parseQuestion($question, $test, $zipDir, $basePath);
 
 
         $this->assertEquals('CompletionQuestion', $result->helper->getType());
@@ -39,5 +40,58 @@ class LargesourceMultiplechoiceHelperTest extends TestCase
         $this->assertEquals('inhoudsopgave.', trim($answers[1]['answer']));
         $this->assertEquals('voorkant van een boek.', trim($answers[2]['answer']));
         $this->assertEquals('achterkant van een boek.', trim($answers[3]['answer']));
+    }
+
+    /** @test */
+    public function sample_two_of_multiplechoice_question_has_answers()
+    {
+        $this->actingAs(User::find(1486));
+
+        $zipDir = '';
+        $basePath = '';
+
+
+        $question = simplexml_load_file(__DIR__.'/../../_fixtures_quayn_qti/largesourceMultiplechoiceSample2.xml',
+            'SimpleXMLElement', LIBXML_NOCDATA);
+
+        $result = QtiImportController::parseQuestion($question, $this->getStubTest(), $zipDir, $basePath);
+
+        $testQuestion = TestQuestion::store(
+            array_merge(
+                $result->helper->getConvertedAr(),
+                [
+                    'type'                   => 'CompletionQuestion',
+                    'score'                  => 3,
+                    'order'                  => 9,
+                    'subtype'                => 'multi',
+                    'maintain_position'      => '',
+                    'discuss'                => '',
+                    'decimal_score'          => '',
+                    'add_to_database'        => '',
+                    'attainments'            => '',
+                    'note_type'              => '',
+                    'is_open_source_content' => '',
+                    'test_id'                => 38,
+                ]
+          )
+        );
+
+
+
+        $this->assertEquals('CompletionQuestion', $result->helper->getType());
+        $this->assertEquals('multi', $result->helper->getSubType());
+        $answers = $result->helper->getConvertedAr('answer');
+        $this->assertCount(2, $answers);
+        $this->assertEquals('Juist.', trim($answers[0]['answer']));
+        $this->assertEquals('Onjuist.', trim($answers[1]['answer']));
+    }
+
+    private function getStubTest()
+    {
+        $test = new Test();
+        $test->subject_id = 1;
+        $test->eduction_level_id = 1;
+        $test->education_level_year = 1;
+        return $test;
     }
 }
