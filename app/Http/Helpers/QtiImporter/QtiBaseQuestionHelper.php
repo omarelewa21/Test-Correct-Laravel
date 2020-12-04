@@ -14,6 +14,7 @@ use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Lib\Question\Factory;
 use tcCore\QuestionAttachment;
+use tcCore\QuestionAuthor;
 use tcCore\Test;
 use tcCore\TestQuestion;
 
@@ -36,14 +37,18 @@ class QtiBaseQuestionHelper
         return $this->errors;
     }
 
-    protected function addError($question, $error = null, \Exception $e = null){
-        if(is_array($question)) $question = (object) $question;
-
-        if($error != null){
-            $error = sprintf('Question %s (%s) has an error: %s',$question->question_info->question_title, $question['type'],$error);
+    protected function addError($question, $error = null, \Exception $e = null)
+    {
+        if (is_array($question)) {
+            $question = (object) $question;
         }
-        else{
-            $error = sprintf('Question %s (%s) has an error: %s',$question->question_info->question_title, $question['type'],$e->getMessage());
+
+        if ($error != null) {
+            $error = sprintf('Question %s (%s) has an error: %s', $question->question_info->question_title,
+                $question['type'], $error);
+        } else {
+            $error = sprintf('Question %s (%s) has an error: %s', $question->question_info->question_title,
+                $question['type'], $e->getMessage());
         }
         $this->errors[] = $error;
         return $this;
@@ -53,7 +58,7 @@ class QtiBaseQuestionHelper
     {
         $this->testRun = $testRun;
         $this->test = $test;
-        $this->volgNr = $volgNr+1; // 1 based instead of 0 based
+        $this->volgNr = $volgNr + 1; // 1 based instead of 0 based
         try {
             $this->load($question, $storageDir, $baseDir);
 //            if(!$testRun) echo "loaded" . PHP_EOL;
@@ -79,9 +84,8 @@ class QtiBaseQuestionHelper
     {
         DB::beginTransaction();
         try {
-            $this->handle($question,true, $test, 0, $storageDir, $baseDir);
-        }
-        catch(\Exception $e){
+            $this->handle($question, true, $test, 0, $storageDir, $baseDir);
+        } catch (\Exception $e) {
             DB::rollBack();
             $this->addError($question, $e);
             return false;
@@ -100,61 +104,38 @@ class QtiBaseQuestionHelper
     public function save($withoutTransaction = false, $volgnr = 1)
     {
 
-        if(substr_count($this->convertedAr['question'],'<img src=') > 0){
+        if (substr_count($this->convertedAr['question'], '<img src=') > 0) {
             try {
                 $this->convertedAr['question'] = $this->handleInlineImages($this->convertedAr['question']);
-            }
-            catch(\Exception $e){
+            } catch (\Exception $e) {
                 dd($e);
             }
         }
-        if(!$withoutTransaction) DB::beginTransaction();
-        try{
-
-            $question = Factory::makeQuestion($this->type);
-            if (!$question) {
-                throw new QuestionException('Failed to create question with factory', 500);
-            }
-            $testQuestion = new TestQuestion();
-            $testQuestion->fill(array_merge($this->convertedAr, ['order' => $volgnr, 'test_id' => $this->test->getKey()]));
-            $test = $testQuestion->test;
-            $qHelper = new QuestionHelper();
-            $questionData = ['answers' => $this->convertedAr['answer']];
-
-
-            $totalData = array_merge($this->convertedAr,$questionData);
-            $question->fill($totalData);
-            $questionInstance = $question->getQuestionInstance();
-            if ($questionInstance->getAttribute('subject_id') === null) {
-                $questionInstance->setAttribute('subject_id', $test->subject->getKey());
-            }
-            if ($questionInstance->getAttribute('education_level_id') === null) {
-                $questionInstance->setAttribute('education_level_id', $test->educationLevel->getKey());
-            }
-            if ($questionInstance->getAttribute('education_level_year') === null) {
-                $questionInstance->setAttribute('education_level_year', $test->getAttribute('education_level_year'));
-            }
-            if ($question->save()) {
-                $testQuestion->setAttribute('question_id', $question->getKey());
-                if ($testQuestion->save()) {
-                    $testQuestion->question->addAnswers($testQuestion, $totalData['answer']);
-
-                    $this->addAttachments($testQuestion);
-                    $this->addLargeSource($testQuestion);
-
-                }else{
-                    throw new QuestionException('Failed to create test question');
-                }
-            } else {
-                throw new QuestionException('Failed to create question');
-            }
+        if (!$withoutTransaction) {
+            DB::beginTransaction();
         }
-        catch(\Exception $e){
-            if(!$withoutTransaction) DB::rollback();
+
+        try {
+            $questionAttributes = array_merge(
+                $this->convertedAr,
+                [
+                    'order'   => $volgnr,
+                    'test_id' => $this->test->getKey(),
+                    'type'    => $this->type,
+                ]
+            );
+            $testQuestion = TestQuestion::store($questionAttributes);
+
+        } catch (\Exception $e) {
+            if (!$withoutTransaction) {
+                DB::rollback();
+            }
             throw $e;
             return false;
         }
-        if(!$withoutTransaction) DB::commit();
+        if (!$withoutTransaction) {
+            DB::commit();
+        }
         return true;
     }
 
@@ -164,28 +145,30 @@ class QtiBaseQuestionHelper
         $dom = new DOMDocument();
         $dom->loadHTML($question, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         $imgs = $dom->getElementsByTagName('img');
-        foreach($imgs as $img) {
+        foreach ($imgs as $img) {
             $src = $img->getAttribute('src');
             // check if file exists
-            $storagePath = sprintf('%s/%s/%s',$this->baseDir,$this->storageDir,$src);
-            if(!file_exists($storagePath)){
-                throw new QuestionException(sprintf('could not find inline image %s',$storagePath));
+            $storagePath = sprintf('%s/%s/%s', $this->baseDir, $this->storageDir, $src);
+            if (!file_exists($storagePath)) {
+                throw new QuestionException(sprintf('could not find inline image %s', $storagePath));
             }
 
-            if($this->testRun){ return $question;} // we don't need to actually move the file there
+            if ($this->testRun) {
+                return $question;
+            } // we don't need to actually move the file there
 
-            $file = new UploadedFile($storagePath,basename($src));
+            $file = new UploadedFile($storagePath, basename($src));
 
 
-            $filename = sprintf('%s-%s.%s',date('YmdHis'),Str::random(10),$file->getExtension());
+            $filename = sprintf('%s-%s.%s', date('YmdHis'), Str::random(10), $file->getExtension());
 
             $copyStorageDir = storage_path('inlineimages');
-            if(!file_exists($copyStorageDir)) {
+            if (!file_exists($copyStorageDir)) {
                 mkdir($copyStorageDir, 0777);
             }
 
-            copy ($storagePath,sprintf('%s/%s',$copyStorageDir, $filename));
-            $img->setAttribute('src',sprintf('/questions/inlineimage/%s',$filename));
+            copy($storagePath, sprintf('%s/%s', $copyStorageDir, $filename));
+            $img->setAttribute('src', sprintf('/questions/inlineimage/%s', $filename));
         }
         $html = $dom->saveHTML();
         $dom = null;
@@ -193,30 +176,33 @@ class QtiBaseQuestionHelper
         return $html;
     }
 
-    protected function handleAttachments(Testquestion $testQuestion, $attachment){
+    protected function handleAttachments(Testquestion $testQuestion, $attachment)
+    {
 
-        if(strlen($attachment) < 3) {
+        if (strlen($attachment) < 3) {
             return true;
         }
 
         // check if file exists
-        $storagePath = sprintf('%s/%s/%s',$this->baseDir,$this->storageDir,$attachment);
-        if(!file_exists($storagePath)){
-            throw new QuestionException(sprintf('could not find attachment %s',$storagePath));
+        $storagePath = sprintf('%s/%s/%s', $this->baseDir, $this->storageDir, $attachment);
+        if (!file_exists($storagePath)) {
+            throw new QuestionException(sprintf('could not find attachment %s', $storagePath));
         }
 
-        if($this->testRun){ return true;} // we don't need to actually move the file there
+        if ($this->testRun) {
+            return true;
+        } // we don't need to actually move the file there
 
         $question = $testQuestion->question;
 
-        $file = new UploadedFile($storagePath,basename($attachment));
+        $file = new UploadedFile($storagePath, basename($attachment));
 
         $attachmentData = [
-            'file' => $file,
-            'type' => $file->getType(),
-            'title' => basename($attachment),
-            'file_name' => time(),
-            'file_size' => $file->getSize(),
+            'file'           => $file,
+            'type'           => $file->getType(),
+            'title'          => basename($attachment),
+            'file_name'      => time(),
+            'file_size'      => $file->getSize(),
             'file_extension' => $file->getExtension(),
             'file_mime_type' => mime_content_type($storagePath)
         ];
@@ -229,32 +215,35 @@ class QtiBaseQuestionHelper
         $attachment->file_mime_type = $file->getMimeType();
 
         if ($attachment->save() === false) {
-            throw new QuestionException(sprintf('Failed to create attachment %s',$storagePath));
+            throw new QuestionException(sprintf('Failed to create attachment %s', $storagePath));
         }
-        $attachment->file_name = sprintf('%d-%d',time(),$attachment->id);// for safety as we import many files the same second maybe
+        $attachment->file_name = sprintf('%d-%d', time(),
+            $attachment->id);// for safety as we import many files the same second maybe
         $attachment->save();
-        copy ($storagePath,sprintf('%s/%s - %s',storage_path('attachments'), $attachment->getKey(),$attachment->getAttribute('file_name')));
-
+        copy($storagePath, sprintf('%s/%s - %s', storage_path('attachments'), $attachment->getKey(),
+            $attachment->getAttribute('file_name')));
 
 
         $questionAttachment = new QuestionAttachment();
         $questionAttachment->setAttribute('question_id', $question->getKey());
         $questionAttachment->setAttribute('attachment_id', $attachment->getKey());
 
-        if($questionAttachment->save()) {
+        if ($questionAttachment->save()) {
             return true;
         } else {
-            throw new QuestionException(sprintf('Failed to create question attachment %s',$storagePath));
+            throw new QuestionException(sprintf('Failed to create question attachment %s', $storagePath));
         }
     }
 
-    protected function addLargeSource(Testquestion $testQuestion){
+    protected function addLargeSource(Testquestion $testQuestion)
+    {
         $attachment = (string) $this->question->question_content->question_large_source;
 
         return $this->handleAttachments($testQuestion, $attachment);
     }
 
-    protected function addAttachments(TestQuestion $testQuestion){
+    protected function addAttachments(TestQuestion $testQuestion)
+    {
         $attachment = (string) $this->question->question_content->question_source;
         return $this->handleAttachments($testQuestion, $attachment);
 
@@ -265,8 +254,9 @@ class QtiBaseQuestionHelper
         return "<?xml version='1.0'?><document>".$string."</document>";
     }
 
-    protected function orderAnswersByCorrect($answers){
-        return $answers->sortByDesc(function($a,$key){
+    protected function orderAnswersByCorrect($answers)
+    {
+        return $answers->sortByDesc(function ($a, $key) {
             return $a['correct'];
         });
     }
@@ -276,7 +266,8 @@ class QtiBaseQuestionHelper
         return $this->type;
     }
 
-    public function getSubType(){
+    public function getSubType()
+    {
         return $this->subType;
     }
 
