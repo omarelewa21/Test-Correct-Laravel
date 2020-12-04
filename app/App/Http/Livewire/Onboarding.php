@@ -180,9 +180,7 @@ class Onboarding extends Component
 
     public function loginUser()
     {
-        $user = User::where('username', $this->registration->username)->first();
-        Auth::login($user);
-        redirect('http://testportal.test-correct.test');
+        $this->redirect(config('app.url_login'));
     }
 
     private function btnStepOneDisabledCheck()

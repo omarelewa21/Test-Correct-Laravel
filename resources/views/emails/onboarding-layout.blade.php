@@ -15,6 +15,10 @@
             --cta-primary-dark: #006314;
         }
 
+        table {
+            font-family: 'Nunito';
+        }
+
         h1, h2, h3, h4, h5, h6 {
             margin: 0;
         }
@@ -35,6 +39,10 @@
         .body2 p {
             margin: 0;
         }
+        .base {
+            color: var(--system-base);
+        }
+
         .rounded-b-10 {
             border-bottom-right-radius: 10px;
             border-bottom-left-radius: 10px;
@@ -47,6 +55,14 @@
             border-bottom-left-radius: 10px;
         }
 
+        tfoot {
+            color: var(--primary)
+        }
+
+        .block {
+            display: block;
+        }
+
         /*Buttons*/
         .button {
             border-radius: 10px;
@@ -55,27 +71,29 @@
             font-weight: 700;
             background-color: #42b947;
             padding: 15px 30px;
-            margin-bottom: 30px;
             display: inline-block;
         }
+
         .button,
         .button * {
             color: #ffffff;
             text-decoration: none;
         }
+
         .button.stretched {
-            width: 100%;
+            display: block;
         }
 
         .cta-button {
             background: var(--cta-primary);
             background: linear-gradient(90deg, var(--cta-primary) 0%, var(--cta-primary) 100%);
+            color: white;
         }
 
         .cta-button:hover {
             background: linear-gradient(90deg, rgba(39, 151, 61, 1) 0%, rgba(61, 187, 86, 1) 100%);
             box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
-            transition: ease-in-out  150ms;
+            transition: ease-in-out 150ms;
         }
 
         .cta-button:active {
@@ -88,13 +106,36 @@
             border: 2px solid var(--cta-primary-dark);
         }
 
+        .svg-stroke-white {
+            stroke: white;
+        }
 
+        .head-border {
+            border: 1px solid var(--blue-grey);
+            border-top-left-radius:  10px;
+            border-top-right-radius:  10px;
+            border-bottom: 0px;
+        }
+        .border-l-r {
+            border: 1px solid var(--blue-grey);
+            border-bottom: 0;
+            border-top: 0;
+        }
+        .border-all {
+            border: 1px solid var(--blue-grey);
+        }
 
 
         /*Paddings / Margins*/
+        .px-5 {
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+        }
+
         .p-40 {
             padding: 40px;
         }
+
         .pl-40 {
             padding-left: 40px;
         }
@@ -114,6 +155,7 @@
         .p-20 {
             padding: 20px;
         }
+
         .pl-20 {
             padding-left: 20px;
         }
@@ -129,6 +171,26 @@
         .pb-20 {
             padding-bottom: 20px;
         }
+        .p-4 {
+            padding: 1rem;
+        }
+
+        .pl-4 {
+            padding-left: 1rem;
+        }
+
+        .pr-4 {
+            padding-right: 1rem;
+        }
+
+        .pt-4 {
+            padding-top: 1rem;
+        }
+
+        .pb-4 {
+            padding-bottom: 1rem;
+        }
+
         .m-4 {
             margin: 1rem;
         }
@@ -142,11 +204,35 @@
         }
 
         .ml-4 {
-            margin-left: 201rem
+            margin-left: 1rem
         }
 
         .mr-4 {
             margin-right: 1rem;
+        }
+
+        .mt-40 {
+            margin-top: 40px;
+        }
+
+        .mb-40 {
+            margin-bottom: 40px;
+        }
+
+        .ml-40 {
+            margin-left: 40px;
+        }
+
+        .mr-40 {
+            margin-right: 40px;
+        }
+
+        .td-img {
+            width: 64px;
+        }
+
+        .td-text {
+            width: 255px;
         }
 
         /*Oude CSS*/
@@ -243,6 +329,9 @@
             letter-spacing: 0px;
         }
 
+        .text-v-top {
+            vertical-align: top;
+        }
 
         .text-center {
             text-align: center;
@@ -278,7 +367,6 @@
         }
 
 
-
         .banner {
             background-color: #2c6d8d;
             text-align: center;
@@ -297,24 +385,6 @@
             width: 100%;
         }
 
-        .table {
-            border: 1px solid #cccccc;
-        }
-
-        .table tr {
-            border-bottom: 1px solid #cccccc;
-        }
-
-        .table tr:last-child {
-            border-bottom: none;
-        }
-
-        .table th,
-        .table td {
-            padding: 10px;
-            border-right: 1px solid #cccccc;
-        }
-
         .table th:last-child,
         .table td:last-child {
             border-right: none;
@@ -325,14 +395,14 @@
         }
 
         #wrapper {
-            background-color: #ffffff;
+            /*background-color: #ffffff;*/
             max-width: 720px;
             margin-left: auto;
             margin-right: auto;
             margin-top: 50px;
             margin-bottom: 50px;
-            border: 1px solid var(--blue-grey);
-            border-radius: 10px;
+            /*border: 1px solid var(--blue-grey);*/
+            /*border-radius: 10px;*/
         }
 
         #wrapper #header {
@@ -399,16 +469,19 @@
 
 <table id="wrapper" border="0" width="720px" cellpadding="0" cellspacing="0"
        style="background:white; width: 720px; margin-left: auto; margin-right: auto; margin: 0px auto;">
-    <thead id="header">
-    <tr>
-        <th colspan="999" class="pt-20 pb-20">
-            <img width="247px" height="50px" src="/svg/logos/Logo-Test-Correct recolored.svg"/>
-        </td>
-    </tr>
-    </thead>
-    <tbody id="content" class="body2">
-    @yield('content')
-    </tbody>
+        <thead id="header">
+        <tr>
+            <th colspan="999" class="pt-20 pb-20 head-border">
+                <img width="247px" height="50px" src="/svg/logos/Logo-Test-Correct recolored.svg"/>
+            </td>
+        </tr>
+        </thead>
+        <tbody id="content" class="body2">
+        @yield('content')
+        </tbody>
+    <tfoot class="body2">
+    @yield('tfoot')
+    </tfoot>
 </table>
 </body>
 </html>
