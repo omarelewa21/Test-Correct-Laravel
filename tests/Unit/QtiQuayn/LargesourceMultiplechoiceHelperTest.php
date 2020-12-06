@@ -9,6 +9,7 @@
 namespace Tests\Unit\QtiQuayn;
 
 
+use Illuminate\Support\Str;
 use tcCore\Http\Controllers\QtiImportController;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -56,6 +57,16 @@ class LargesourceMultiplechoiceHelperTest extends TestCase
 
         $result = QtiImportController::parseQuestion($question, $this->getStubTest(), $zipDir, $basePath);
 
+        $answers = collect($result->helper->getConvertedAr()['answer'])->sort(function($a, $b) {
+            return $b['correct'] > $a['correct'];
+        })->map(function($answer) {
+          return trim($answer['answer']);
+        })->implode('|');
+
+        $answers = sprintf('[%s]',$answers);
+
+
+
         $testQuestion = TestQuestion::store(
             array_merge(
                 $result->helper->getConvertedAr(),
@@ -72,7 +83,8 @@ class LargesourceMultiplechoiceHelperTest extends TestCase
                     'note_type'              => '',
                     'is_open_source_content' => '',
                     'test_id'                => 38,
-                ]
+                ],
+                ['question' => $result->helper->getConvertedAr()['question'].$answers]
           )
         );
 
