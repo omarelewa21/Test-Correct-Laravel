@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests\CreateSchoolYearRequest;
 use tcCore\Http\Requests\UpdateSchoolYearRequest;
 use tcCore\SchoolYear;
+use Carbon\Carbon;
 
 class SchoolYearsController extends Controller
 {
@@ -29,6 +30,38 @@ class SchoolYearsController extends Controller
                 return Response::make($schoolYears->paginate(15), 200);
                 break;
         }
+    }
+
+    /**
+     * Calculate the most actual and relevant schoolyear by its periods.
+     * 
+     * @return Response
+     */
+    public function activeSchoolYear(Request $request)
+    {  
+        $schoolYears = SchoolYear::filtered($request->get('filter', []), $request->get('order', []))->with('schoolLocations')->get();
+        $periodsCollection = collect();
+        foreach ($schoolYears as $schoolYear) {
+            $periods = $schoolYear->periods()->get();
+            foreach ($periods as $period) {
+                $periodsCollection->add($period);
+            }
+        }
+        $sortedByEndDate = $periodsCollection->sortByDesc("end_date");
+        foreach ($sortedByEndDate as $period) {
+            $endDate = new Carbon($period->end_date);
+            $startDate = new Carbon($period->start_date);
+            if($endDate->isPast()){
+                continue;
+            }
+            if($startDate->isFuture()){
+                continue;
+            }
+            $currentSchoolYear = $period->schoolYear()->get();
+            return Response::make($currentSchoolYear, 200);
+        }
+        $emptySchoolYear = new SchoolYear();
+        return Response::make($emptySchoolYear, 200);
     }
 
     /**

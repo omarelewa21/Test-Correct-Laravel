@@ -6,20 +6,25 @@ use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Role;
+use tcCore\SchoolLocation;
 use tcCore\User;
 use tcCore\UserRole;
 
-class InvigilatorsController extends Controller {
+class InvigilatorsController extends Controller
+{
 
     /**
      * Returns an id and name-array for a select-box.
      *
      * @return Response
      */
-    public function lists() {
+    public function lists()
+    {
+        $fields = ['id', 'name_first', 'name_suffix', 'name'];
+
         $query = User::withTrashed()->orderBy('name', 'asc')
             ->join(with(new UserRole())->getTable(), 'user_roles.user_id', '=', 'users.id')
-            ->whereIn('user_roles.role_id', function($query){
+            ->whereIn('user_roles.role_id', function ($query) {
                 $query->select('id')
                     ->from(with(new Role())->getTable())
                     ->whereIn('name', ['Teacher', 'Invigilator'])
@@ -29,20 +34,28 @@ class InvigilatorsController extends Controller {
 
         $user = Auth::user()->getAttributes();
 
-        if (array_key_exists('school_id', $user) && $user['school_id'] !== null && array_key_exists('school_location_id', $user) && $user['school_location_id'] !== null) {
-            $query->where(function ($query) use($user) {
+        if (array_key_exists('school_id',
+                $user) && $user['school_id'] !== null && array_key_exists('school_location_id',
+                $user) && $user['school_location_id'] !== null) {
+            $query->where(function ($query) use ($user) {
                 $query->where('school_id', $user['school_id'])
                     ->orWhere('school_location_id', $user['school_location_id']);
             });
-        } elseif(array_key_exists('school_id', $user) && $user['school_id'] !== null) {
+        } elseif (array_key_exists('school_id', $user) && $user['school_id'] !== null) {
             $query->where('school_id', $user['school_id']);
-        } elseif(array_key_exists('school_location_id', $user) && $user['school_location_id'] !== null) {
+        } elseif (array_key_exists('school_location_id', $user) && $user['school_location_id'] !== null) {
             $query->where('school_location_id', $user['school_location_id']);
         } else {
             return Response::make('User not attached to school or school location', 403);
         }
 
-        return Response::make($query->get(['id', 'name_first', 'name_suffix', 'name'])->keyBy('id'));
+        $query->union(User::select($fields)->join(with(new UserRole())->getTable(), 'user_roles.user_id', '=',
+            'users.id')
+            ->whereIn('users.id',
+                DB::table('school_location_user')->select('user_id')->where('school_location_id', $user['school_location_id']))
+        );
+
+        return Response::make($query->get($fields)->keyBy('id'));
     }
 
 }

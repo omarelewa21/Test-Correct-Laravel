@@ -114,6 +114,10 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     {
         parent::boot();
 
+        self::creating(function(SchoolClass $schoolClass){
+            self::setDoNotOverwriteFromInterfaceOnDemoClass($schoolClass);
+        });
+
         // Progress additional answers
         static::updated(function(SchoolClass $schoolClass)
         {
@@ -136,6 +140,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
             if ($schoolClass->managers !== null) {
                 $schoolClass->saveManagers();
             }
+
         });
 
         static::updating(function (SchoolClass $schoolClass){
@@ -143,8 +148,9 @@ class SchoolClass extends BaseModel implements AccessCheckable {
                 return false;
             }
             if(isset($schoolClass->demoRestrictionOverrule)) unset($schoolClass->demoRestrictionOverrule);
-
+            self::setDoNotOverwriteFromInterfaceOnDemoClass($schoolClass);
         });
+
 
         static::deleting(function (SchoolClass $schoolClass){
             if($schoolClass->getOriginal('demo') == true) return false;
@@ -397,5 +403,10 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         throw new AccessDeniedHttpException('Access to school class denied');
     }
 
+    private static function setDoNotOverwriteFromInterfaceOnDemoClass($schoolClass){
+        if($schoolClass->demo==true){
+                $schoolClass->do_not_overwrite_from_interface = true;
+        }
+    }
 
 }

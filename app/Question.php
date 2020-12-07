@@ -505,7 +505,7 @@ class Question extends MtiBaseModel {
                 $query->orWhere(function($q) use ($user,$subject){
                     $q->where('subject_id','<>',$subject->getKey());
                     $q->whereIn('subject_id', function ($query) use ($user) {
-                        $user->subjects($query)->select('id');
+                        $user->subjectsIncludingShared($query)->select('id');
                     });
                 });
             }
@@ -515,6 +515,7 @@ class Question extends MtiBaseModel {
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
+        $user = Auth::user();
         $query = $this->opensourceAndDemo($query,$filters);
         $joins = [];
 
@@ -593,55 +594,72 @@ class Question extends MtiBaseModel {
             }
         }
 
-  //      $roles = $this->getUserRoles();
-
-  //       $user = Auth::user();
-  //       $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
-
-  //       if($schoolLocation->is_allowed_to_view_open_source_content == 1) {
-
-  //       	$baseSubjectId = $user->subjects()->select('base_subject_id')->first();
-  //           $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
-
-  //        //    $query->whereIn('subject_id',$subjectIds);
-
-
-	 //        if(!isset($filters['is_open_source_content']) || $filters['is_open_source_content'] == 0) {
-		// 		$query->whereIn('subject_id', function ($query) use ($user) {
-	 //                $user->subjects($query)->select('id');
-	 //            });
-
-	 //        	$query->orWhere('is_open_source_content','=',1);
-
-		//     }elseif( $filters['is_open_source_content'] == 1 ) {
-		//     	$query->whereIn('subject_id', function ($query) use ($user) {
-	 //                $user->subjects($query)->select('id');
-	 //            });
-		//     }else{
-		//     	$query->whereIn('subject_id',$subjectIds);
-		//     	$query->where('is_open_source_content','=',1);
-		//     }
-
-		// } else {
-		// 	if (in_array('Teacher', $roles)) {
-  //               $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-  //               $query->orWhere(function($q) use ($user, $subject){
-  //                   // subject id = $subject->getKey() together with being an owner through the question_authors table
-  //                   $q->where('subject_id',$subject->getKey());
-  //                   $q->whereIn('questions.id',$user->questionAuthors()->pluck('question_id'));
-  //               });
-  //               // or subect_id in list AND subject not $subject->getKey()
-  //               $query->orWhere(function($q) use ($user,$subject){
-  //                   $q->where('subject_id','<>',$subject->getKey());
-  //                   $q->whereIn('subject_id', function ($query) use ($user) {
-  //                       $user->subjects($query)->select('id');
-  //                   });
-  //               });
-	 //        }
-		// }
-
         foreach($filters as $key => $value) {
             switch($key) {
+                case 'base_subject_id':
+
+                    if(isset($filters['source'])){
+                        switch($filters['source']){
+                            case 'schoolLocation': // only my colleages and me
+                                if(is_array($value)) {
+                                    $subjectIds = $user->subjects()->whereIn('base_subject_id', $value);
+                                } else {
+                                    $subjectIds = $user->subjects()->where('base_subject_id','=',$value);
+                                }
+                                $subjectIds = $subjectIds->pluck('id');
+                                $query->whereIn('subject_id',$subjectIds);
+                                break;
+                            case 'school': // including shared sections
+                                if(is_array($value)) {
+                                    $subjectIds = $user->subjectsOnlyShared()->whereIn('base_subject_id', $value);
+                                } else {
+                                    $subjectIds = $user->subjectsOnlyShared()->where('base_subject_id','=',$value);
+                                }
+                                $subjectIds = $subjectIds->pluck('id');
+                                $query->whereIn('subject_id',$subjectIds);
+                                break;
+                            default:
+                                if(is_array($value)) {
+                                    $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
+                                } else {
+                                    $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
+                                }
+                                $subjectIds = $subjectIds->pluck('id');
+                                $query->whereIn('subject_id',$subjectIds);
+                                break;
+                        }
+                    } else {
+                        if(is_array($value)) {
+                            $subjectIds = $user->subjectsIncludingShared()->whereIn('base_subject_id', $value);
+                        } else {
+                            $subjectIds = $user->subjectsIncludingShared()->where('base_subject_id','=',$value);
+                        }
+                        $subjectIds = $subjectIds->pluck('id');
+                        $query->whereIn('subject_id',$subjectIds);
+                    }
+
+                    break;
+                case 'source':
+                    if(isset($filters['base_subject_id'])){
+                        // we don't have to do anything, cause here above already caught;
+                    } else {
+                        switch($filters['source']){
+                            case 'me': // i need to be the author
+                                $query->join('question_authors','questions.id','=','question_authors.question_id')
+                                    ->where('question_authors.user_id','=',$user->getKey());
+                                break;
+                            case 'schoolLocation': // only my colleages and me
+                                $query->whereIn('subject_id',$user->subjects()->pluck('id'));
+                                break;
+                            case 'school': // including shared sections
+                                $query->whereIn('subject_id',$user->subjectsOnlyShared()->pluck('id'));
+                                break;
+                            default:
+                                $query->whereIn('subject_id',$user->subjectsIncludingShared()->pluck('id'));
+                                break;
+                        }
+                    }
+                    break;
                 case 'id':
                     if (is_array($value)) {
                         $query->whereIn($this->table.'.id', $value);
