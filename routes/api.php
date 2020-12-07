@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use tcCore\Http\Controllers\Testing\TestingController;
 
+// file name was api.php and is now apicake.php in order to make room for the direct access urls
+
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
 
