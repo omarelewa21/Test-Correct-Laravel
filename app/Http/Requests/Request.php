@@ -68,14 +68,23 @@ abstract class Request extends FormRequest {
 			return;
 		}
 
-		//sanitize input to prevent XSS
-		//value is passed as reference
-		array_walk_recursive($input, function(&$value, $key) {
-			if (!empty($value) && is_string($value)) {
-				$value = clean($value);
-			}			
-		});
+		static::filter($input);
 
 		return $this->replace($input);
+	}
+
+	public static function filter(&$input)
+	{
+		//sanitize input to prevent XSS
+		//value is passed as reference
+		if (is_array($input)) {
+			array_walk_recursive($input, function(&$value, $key) {
+				if (!empty($value) && is_string($value)) {
+					$value = clean($value);
+				}			
+			});
+		} else {
+			$input = clean($input);
+		}
 	}
 }
