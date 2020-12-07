@@ -105,11 +105,11 @@ class DemoTeacherRegistration extends Model
 //                    }
                 ;
 
+                $tempTeachersSchoolLocation = SchoolHelper::getTempTeachersSchoolLocation();
                 $data = array_merge(
                     $password ? ['password' => $password] : [],
                     $this->toArray(), [
-                        'school_location_id' => SchoolHelper::getTempTeachersSchoolLocation()->getKey(),
-                        'school_id'          => SchoolHelper::getTempTeachersSchoolLocation()->school_id,
+                        'school_location_id' => $tempTeachersSchoolLocation->getKey(),
                         'user_roles'         => 1, // Teacher;
                     ]
                 );
@@ -122,7 +122,7 @@ class DemoTeacherRegistration extends Model
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate($data);
 
-                $demoHelper = (new DemoHelper())->setSchoolLocation(SchoolHelper::getTempTeachersSchoolLocation());
+                $demoHelper = (new DemoHelper())->setSchoolLocation($tempTeachersSchoolLocation);
 
                 $teacher = Teacher::withTrashed()
                     ->firstOrNew([

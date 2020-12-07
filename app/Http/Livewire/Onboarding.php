@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\App\Http\Livewire;
+namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;

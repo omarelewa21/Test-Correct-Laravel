@@ -8,12 +8,15 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
 use tcCore\BaseSubject;
+use tcCore\EmailConfirmation;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests;
+use tcCore\Http\Requests\AllowOnlyAsTeacherRequest;
 use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
 use tcCore\Http\Requests\UserMoveSchoolLocationRequest;
+use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\PValueRepository;
@@ -189,6 +192,21 @@ class UsersController extends Controller
         }
 
         return Response::make($users, 200);
+    }
+    public function sendOnboardingWelcomeEmail(AllowOnlyAsTeacherRequest $request)
+    {
+        dispatch_now(new SendOnboardingWelcomeMail(Auth::id()));
+
+        return Response::make('ok', 200);
+    }
+
+    public function ConfirmEmail(Request $request, EmailConfirmation $emailConfirmation)
+    {
+        // indien emailConfirmation === null => doorverwijzen naar login pagina
+        dd($emailConfirmation);
+        return Response::redirectTo(config('app.url_login'));
+        // indien wel oke, gebruiker erbij zoeken en account_verified op nu zetten, vervolgens pagina weergeven met bevestiging en knop naar login pagina
+
     }
 
     /**

@@ -190,12 +190,13 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('answer', 'AnswersController', ['only' => ['index', 'show']]);
 
 	// Users
-	Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
-	Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
-	Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
-	Route::post('/tell_a_teacher', 'TellATeacherController@store');
+    Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
+    Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
+    Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
+    Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
+    Route::post('/tell_a_teacher', 'TellATeacherController@store');
 
-	Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
+    Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
 	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');

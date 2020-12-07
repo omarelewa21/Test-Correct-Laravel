@@ -15,6 +15,7 @@ use tcCore\CompletionQuestion;
 use tcCore\Contact;
 use tcCore\DrawingQuestion;
 use tcCore\EducationLevel;
+use tcCore\EmailConfirmation;
 use tcCore\FileManagement;
 use tcCore\GradingScale;
 use tcCore\GroupQuestion;
@@ -273,6 +274,10 @@ class RouteServiceProvider extends ServiceProvider
             throw new NotFoundHttpException('Umbrella organization not found');
         });
 
+        Route::model('email_confirmation', 'tcCore\EmailConfirmation', function () {
+            throw new NotFoundHttpException('Email Confirmation not found');
+        });
+
         /**
          * Route::model('user_role','tcCore\UserRole', function() {
          * throw new NotFoundHttpException('User role not found');
@@ -482,6 +487,10 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('fileManagement', function($item) {
             return FileManagement::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('EmailConfirmation', function($item) {
+            return EmailConfirmation::whereUuid($item)->firstOrFail();
         });
 
     }
