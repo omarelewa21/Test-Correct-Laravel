@@ -267,7 +267,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getloginLogCount()
     {
-        return $this->loginLogs()->count();
+        return $this->loginLogs->count();
     }
 
     public function loginLogs()
