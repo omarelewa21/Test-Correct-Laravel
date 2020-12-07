@@ -493,7 +493,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map()
     {
-        $this->mapApiRoutes();
+        $this->mapApiCakeRoutes();
 
         if (!$this->app->environment('production')){
             $this->mapTestingRoutes();
@@ -515,15 +515,17 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Define the api routes for the application.
+     * Define the api cake routes for the application.
      *
      * @return void
      */
-    protected function mapApiRoutes()
+    protected function mapApiCakeRoutes()
     {
         Route::namespace($this->namespace)
+            ->prefix('api-c') // added to make room for the urls from direct access
+            ->prefix('api-c')
             ->middleware(['cakeLaravelFilter'])
-            ->group(base_path('routes/api.php'));
+            ->group(base_path('routes/apicake.php'));
     }
 
 }
