@@ -5,6 +5,7 @@ namespace tcCore\App\Http\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\DemoTeacherRegistration;
+use tcCore\Http\Requests\Request;
 use tcCore\User;
 
 class Onboarding extends Component
@@ -241,6 +242,10 @@ class Onboarding extends Component
         }
     }
 
+    public function updating(&$name, &$value)
+    {
+        Request::filter($value);
+    }
 
     public function updated($propertyName)
     {
