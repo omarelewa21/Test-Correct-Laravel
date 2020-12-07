@@ -522,6 +522,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapApiCakeRoutes()
     {
         Route::namespace($this->namespace)
+            ->prefix('api-c') // added to make room for the urls from direct access
             ->prefix('api-c')
             ->middleware(['cakeLaravelFilter'])
             ->group(base_path('routes/apicake.php'));
