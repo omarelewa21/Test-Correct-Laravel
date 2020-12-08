@@ -112,7 +112,6 @@ class TestQuestion extends BaseModel {
         }
 
         $totalData = array_merge($questionAttributes, $questionData);
-
         $question->fill($totalData);
 
         $questionInstance = $question->getQuestionInstance();

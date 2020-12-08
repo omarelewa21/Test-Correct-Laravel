@@ -6,6 +6,7 @@ namespace tcCore\Http\Helpers\QtiImporter;
 
 use DOMDocument;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -26,6 +27,7 @@ class QtiBaseQuestionHelper
     protected $storageDir;
     protected $baseDir;
     protected $testRun;
+    protected $shouldUpload = true;
 
     public function hasErrors()
     {
@@ -35,6 +37,14 @@ class QtiBaseQuestionHelper
     public function getErrors()
     {
         return $this->errors;
+    }
+
+    public function setShoudUpload($value) {
+        $this->shouldUpload = !! $value;
+    }
+
+    public function __construct(){
+        $this->shouldUpload = !App::environment('testing');
     }
 
     protected function addError($question, $error = null, \Exception $e = null)
@@ -141,34 +151,37 @@ class QtiBaseQuestionHelper
 
     protected function handleInlineImages($question)
     {
+
         libxml_use_internal_errors(true);
         $dom = new DOMDocument();
         $dom->loadHTML($question, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        $imgs = $dom->getElementsByTagName('img');
-        foreach ($imgs as $img) {
-            $src = $img->getAttribute('src');
-            // check if file exists
-            $storagePath = sprintf('%s/%s/%s', $this->baseDir, $this->storageDir, $src);
-            if (!file_exists($storagePath)) {
-                throw new QuestionException(sprintf('could not find inline image %s', $storagePath));
+        if ($this->shouldUpload) {
+            $imgs = $dom->getElementsByTagName('img');
+            foreach ($imgs as $img) {
+                $src = $img->getAttribute('src');
+                // check if file exists
+                $storagePath = sprintf('%s/%s/%s', $this->baseDir, $this->storageDir, $src);
+                if (!file_exists($storagePath)) {
+                    throw new QuestionException(sprintf('could not find inline image %s', $storagePath));
+                }
+
+                if ($this->testRun) {
+                    return $question;
+                } // we don't need to actually move the file there
+
+                $file = new UploadedFile($storagePath, basename($src));
+
+
+                $filename = sprintf('%s-%s.%s', date('YmdHis'), Str::random(10), $file->getExtension());
+
+                $copyStorageDir = storage_path('inlineimages');
+                if (!file_exists($copyStorageDir)) {
+                    mkdir($copyStorageDir, 0777);
+                }
+
+                copy($storagePath, sprintf('%s/%s', $copyStorageDir, $filename));
+                $img->setAttribute('src', sprintf('/questions/inlineimage/%s', $filename));
             }
-
-            if ($this->testRun) {
-                return $question;
-            } // we don't need to actually move the file there
-
-            $file = new UploadedFile($storagePath, basename($src));
-
-
-            $filename = sprintf('%s-%s.%s', date('YmdHis'), Str::random(10), $file->getExtension());
-
-            $copyStorageDir = storage_path('inlineimages');
-            if (!file_exists($copyStorageDir)) {
-                mkdir($copyStorageDir, 0777);
-            }
-
-            copy($storagePath, sprintf('%s/%s', $copyStorageDir, $filename));
-            $img->setAttribute('src', sprintf('/questions/inlineimage/%s', $filename));
         }
         $html = $dom->saveHTML();
         $dom = null;

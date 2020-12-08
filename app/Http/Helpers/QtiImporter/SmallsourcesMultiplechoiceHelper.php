@@ -82,6 +82,16 @@ class SmallsourcesMultiplechoiceHelper extends QtiBaseQuestionHelper
             $question = sprintf('%s<br />[%d]',$question,$nr);
         }
 
+        $answersToString = $answers->sort(function($a, $b) {
+            return $b['correct'] > $a['correct'];
+        })->map(function($answer) {
+            return trim($answer['answer']);
+        })->implode('|');
+
+        $answersToString = sprintf('[%s]',$answersToString);
+        $question = str_replace("[$nr]", $answersToString, $question);
+
+
         return [
             'answers' => $this->orderAnswersByCorrect($answers)->toArray(),
             'question' => $question,

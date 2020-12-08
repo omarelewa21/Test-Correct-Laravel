@@ -10,7 +10,9 @@ namespace Tests\Unit\QtiQuayn;
 
 
 use Illuminate\Support\Str;
+use tcCore\CompletionQuestion;
 use tcCore\Http\Controllers\QtiImportController;
+use tcCore\Http\Requests\Request;
 use tcCore\Test;
 use tcCore\TestQuestion;
 use tcCore\User;
@@ -18,7 +20,7 @@ use Tests\TestCase;
 
 class LargesourceMultiplechoiceHelperTest extends TestCase
 {
-//    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
     /** @test */
     public function a_multiplechoice_questions_has_answers()
@@ -57,38 +59,28 @@ class LargesourceMultiplechoiceHelperTest extends TestCase
 
         $result = QtiImportController::parseQuestion($question, $this->getStubTest(), $zipDir, $basePath);
 
-        $answers = collect($result->helper->getConvertedAr()['answer'])->sort(function($a, $b) {
-            return $b['correct'] > $a['correct'];
-        })->map(function($answer) {
-          return trim($answer['answer']);
-        })->implode('|');
-
-        $answers = sprintf('[%s]',$answers);
-
-
+        $questionAttributes = array_merge(
+            $result->helper->getConvertedAr(),
+            [
+                'type'                   => 'CompletionQuestion',
+                'score'                  => 3,
+                'order'                  => 9,
+                'subtype'                => 'multi',
+                'maintain_position'      => '',
+                'discuss'                => '',
+                'decimal_score'          => '',
+                'add_to_database'        => '',
+                'attainments'            => '',
+                'note_type'              => '',
+                'is_open_source_content' => '',
+                'test_id'                => 38,
+            ]
+        );
+        Request::filter($questionAttributes);
 
         $testQuestion = TestQuestion::store(
-            array_merge(
-                $result->helper->getConvertedAr(),
-                [
-                    'type'                   => 'CompletionQuestion',
-                    'score'                  => 3,
-                    'order'                  => 9,
-                    'subtype'                => 'multi',
-                    'maintain_position'      => '',
-                    'discuss'                => '',
-                    'decimal_score'          => '',
-                    'add_to_database'        => '',
-                    'attainments'            => '',
-                    'note_type'              => '',
-                    'is_open_source_content' => '',
-                    'test_id'                => 38,
-                ],
-                ['question' => $result->helper->getConvertedAr()['question'].$answers]
-          )
+            $questionAttributes
         );
-
-
 
         $this->assertEquals('CompletionQuestion', $result->helper->getType());
         $this->assertEquals('multi', $result->helper->getSubType());
@@ -96,6 +88,8 @@ class LargesourceMultiplechoiceHelperTest extends TestCase
         $this->assertCount(2, $answers);
         $this->assertEquals('Juist.', trim($answers[0]['answer']));
         $this->assertEquals('Onjuist.', trim($answers[1]['answer']));
+
+        $this->assertInstanceOf(CompletionQuestion::class, $testQuestion->question);
     }
 
     private function getStubTest()
