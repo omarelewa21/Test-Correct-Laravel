@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +43,6 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         $users = User::filtered($request->get('filter', []), $request->get('order', []))->with('salesOrganization');
-
 
 
         if (is_array($request->get('with')) && in_array('school_location', $request->get('with'))) {
@@ -154,7 +154,7 @@ class UsersController extends Controller
 
         $data = $request->all();
 
-        if(!Auth::user()->isA(['Administrator','Account manager']) && Auth::user()->school_location_id !== null) {
+        if (!Auth::user()->isA(['Administrator', 'Account manager']) && Auth::user()->school_location_id !== null) {
             $data['school_location_id'] = ActingAsHelper::getInstance()->getUser()->school_location_id;//SchoolHelper::getTempTeachersSchoolLocation()->getKey();
         }
 
@@ -193,6 +193,7 @@ class UsersController extends Controller
 
         return Response::make($users, 200);
     }
+
     public function sendOnboardingWelcomeEmail(AllowOnlyAsTeacherRequest $request)
     {
         dispatch_now(new SendOnboardingWelcomeMail(Auth::id()));
@@ -200,13 +201,24 @@ class UsersController extends Controller
         return Response::make('ok', 200);
     }
 
-    public function ConfirmEmail(Request $request, EmailConfirmation $emailConfirmation)
+    public function confirmEmail(Request $request, EmailConfirmation $emailConfirmation)
     {
         // indien emailConfirmation === null => doorverwijzen naar login pagina
-        dd($emailConfirmation);
-        return Response::redirectTo(config('app.url_login'));
-        // indien wel oke, gebruiker erbij zoeken en account_verified op nu zetten, vervolgens pagina weergeven met bevestiging en knop naar login pagina
+        if ($emailConfirmation === null) {
+            return Response::redirectTo(config('app.url_login'));
+        }
 
+        // indien wel oke, gebruiker erbij zoeken en account_verified op nu zetten, vervolgens pagina weergeven met bevestiging en knop naar login pagina
+        $user = User::findOrFail($emailConfirmation->user->id);
+        $alreadyVerified = true;
+
+        if ($user->account_verified === null) {
+            $user->setAttribute('account_verified', Carbon::now());
+            $user->save();
+            $alreadyVerified = false;
+        }
+
+        return view('account_verified', ['name' => $user->name, 'username' => $user->username, 'already_verified' => $alreadyVerified]);
     }
 
     /**
@@ -270,7 +282,7 @@ class UsersController extends Controller
 
         if (is_array($request->get('with')) && in_array('testsParticipated', $request->get('with'))) {
             $user->load(['testParticipants' => function ($query) {
-                $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid','test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
+                $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
             }]);
 
         }

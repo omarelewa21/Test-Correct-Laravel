@@ -475,7 +475,7 @@
         <thead id="header">
         <tr>
             <th colspan="999" class="pt-20 pb-20 head-border">
-                <img width="247px" height="50px" src="/svg/logos/Logo-Test-Correct recolored.svg"/>
+                <img width="247px" height="50px" src="/svg/logos/Logo-Test-Correct-recolored.svg"/>
             </td>
         </tr>
         </thead>

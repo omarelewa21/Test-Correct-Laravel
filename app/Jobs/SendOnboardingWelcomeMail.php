@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use tcCore\EmailConfirmation;
+use tcCore\Http\Livewire\Onboarding;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use tcCore\User;
@@ -47,7 +48,6 @@ class SendOnboardingWelcomeMail extends Mailable implements ShouldQueue
         );
 
         $template = 'emails.welcome.onboarding-welcome';
-
         $mailer->send($template, ['user' => $user, 'url' => $this->url, 'token' => $emailConfirmation->uuid], function ($m) use ($user) {
             $m->to($user->getEmailForPasswordReset())->subject('Welkom in Test-Correct');
         });

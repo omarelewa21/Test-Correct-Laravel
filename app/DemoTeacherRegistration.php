@@ -21,14 +21,14 @@ class DemoTeacherRegistration extends Model
     {
         parent::boot();
 
-        static::created(function (DemoTeacherRegistration $registration) {
-            $count = DemoTeacherRegistration::where('username', $registration->username)->count();
-            try {
-                Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, $count > 1));
-            } catch (\Throwable $th) {
-                Bugsnag::notifyException($th);
-            }
-        });
+//        static::created(function (DemoTeacherRegistration $registration) {
+//            $count = DemoTeacherRegistration::where('username', $registration->username)->count();
+//            try {
+//                Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, $count > 1));
+//            } catch (\Throwable $th) {
+//                Bugsnag::notifyException($th);
+//            }
+//        });
     }
 
 

@@ -8,9 +8,6 @@ use tcCore\Traits\UuidTrait;
 
 class EmailConfirmation extends Model
 {
-    public $incrementing = false;
-    protected $keyType = 'string';
-    protected $primaryKey = 'uuid';
 
     use UuidTrait;
 
@@ -31,7 +28,7 @@ class EmailConfirmation extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id'];
+    protected $fillable = ['user_id', 'uuid'];
 
     /**
      * The attributes excluded from the model's JSON form.

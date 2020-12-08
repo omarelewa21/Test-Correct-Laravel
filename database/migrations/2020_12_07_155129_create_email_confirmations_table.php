@@ -14,8 +14,9 @@ class CreateEmailConfirmationsTable extends Migration
     public function up()
     {
         Schema::create('email_confirmations', function (Blueprint $table) {
-            $table->binary('uuid')->unique()->primary();
+            $table->id();
             $table->bigInteger('user_id');
+            $table->binary('uuid');
             $table->timestamps();
         });
     }

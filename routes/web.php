@@ -20,4 +20,9 @@ if (App::environment('local')) {
     });
 }
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class);
-Route::get('/user/confirm_email/{EmailConfirmation}', 'UserController@confirmEmail');
+Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\UsersController@confirmEmail');
+
+Route::group(['domain' => 'testwelcome.testcorrect'], function () {
+    Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\UsersController@confirmEmail');
+
+});

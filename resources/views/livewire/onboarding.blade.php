@@ -3,7 +3,7 @@
         <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">
             <div class="col-span-3">
                 <a class="mx-auto tc-logo block" href="/">
-                    <img class="" src="/svg/logos/Logo-Test-Correct recolored.svg"
+                    <img class="" src="/svg/logos/Logo-Test-Correct-recolored.svg"
                          alt="Test-Correct">
                 </a>
             </div>
@@ -445,8 +445,8 @@
                                     <div class="notification warning stretched mb-4 md:mb-16">
                                         <span class="title">Verifieer je e-mailadres</span>
                                         <span class="body">Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvange?
-                                            <a href="#stuurMailOpnieuw" class="bold">Stuur de e-mail nog een keer <x-icon.arrow-small></x-icon.arrow-small></a> of <a
-                                                    href="ZoekOndersteuning" class="bold">zoek ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span>
+                                            <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">Stuur de e-mail nog een keer <x-icon.arrow-small></x-icon.arrow-small></a> of
+                                            <a href="ZoekOndersteuning" class="bold">zoek ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span>
                                     </div>
                                     <div class="md:absolute bottom-0 sm:right-0">
                                         <button class=" button button-md cta-button" wire:click="loginUser">
@@ -464,7 +464,7 @@
                     <div class="w-full sm:w-auto sm:pr-2">
                         <span class="regular">Heb je al een account?</span>
                         <a class="text-button"
-                           href="@if(env('APP_ENV')) https://testportal.test-correct.nl/ @else https://portal.test-correct.nl @endif">
+                           href="{{config('app.url_login')}}">
                             <span class="bold">Log in</span>
                             <x-icon.arrow></x-icon.arrow>
                         </a>

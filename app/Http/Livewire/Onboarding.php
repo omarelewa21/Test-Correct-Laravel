@@ -16,7 +16,7 @@ class Onboarding extends Component
     public $password;
     public $password_confirmation;
 
-    public $step = 2;
+    public $step = 1;
 
     public $btnDisabled = true;
     public $confirmed;
@@ -98,7 +98,7 @@ class Onboarding extends Component
         $this->registration->username = $this->email;
         $this->registration->gender = $this->gender;
 
-        if (!$this->step != 1) {
+        if (!$this->step != 1 || $this->step = '4') {
             $this->step = 1;
         }
         if (!$this->email) {
@@ -182,6 +182,13 @@ class Onboarding extends Component
     public function loginUser()
     {
         $this->redirect(config('app.url_login'));
+    }
+
+    public function resendEmailVerificationMail()
+    {
+        $user = User::findOrFail($this->registration->username);
+
+        $user->sendOnboardingWelcomeMail();
     }
 
     private function btnStepOneDisabledCheck()
