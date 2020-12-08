@@ -108,21 +108,32 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
             if (substr($question, 0, 1) != '<') {
                 $question = sprintf('<div>%s</div>', $question);
             }
-            try {
-                $dom->loadHTML($question,
-                    LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); // sometimes loadhtml doesn't work and we need loadxml therefor this construction
-            } catch (\Exception $e) {
-                try {
-                    $dom->loadXML($question);
-                } catch (\Exception $e) {
-                    throw new \Exception($e);
-                }
-            }
-//            $dom->loadXML($question);//HTML($question, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-            $list = $dom->getElementsByTagName('input');
             global $counter;
 
+
+//            try {
+//                $dom->loadHTML($question,
+//                    LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); // sometimes loadhtml doesn't work and we need loadxml therefor this construction
+//            } catch (\Exception $e) {
+//                echo "--- load html failed for counter $counter \n";
+//
+//                try {
+//                    $dom->loadXML($question);
+//                } catch (\Exception $e) {
+//                    throw new \Exception($e);
+//                }
+//            }
+            try {
+                $dom->loadXML($question);
+            } catch (\Exception $e) {
+                throw new \Exception($e);
+            }
+
             echo "-----$counter ------------------\n";
+            echo $dom->saveXML();
+
+//            $dom->loadXML($question);//HTML($question, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $list = $dom->getElementsByTagName('input');
             var_dump($dom->saveXML($list->item(0)));
 
             for ($n = $list->length - 1; $n >= 0; --$n) {
