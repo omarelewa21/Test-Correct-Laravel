@@ -108,29 +108,12 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
             if (substr($question, 0, 1) != '<') {
                 $question = sprintf('<div>%s</div>', $question);
             }
-            global $counter;
 
-
-//            try {
-//                $dom->loadHTML($question,
-//                    LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD); // sometimes loadhtml doesn't work and we need loadxml therefor this construction
-//            } catch (\Exception $e) {
-//                echo "--- load html failed for counter $counter \n";
-//
-//                try {
-//                    $dom->loadXML($question);
-//                } catch (\Exception $e) {
-//                    throw new \Exception($e);
-//                }
-//            }
             try {
                 $dom->loadXML($question);
             } catch (\Exception $e) {
                 throw new \Exception($e);
             }
-
-            echo "-----$counter ------------------\n";
-            echo $dom->saveXML();
 
 //            $dom->loadXML($question);//HTML($question, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             $list = $dom->getElementsByTagName('input');
@@ -154,7 +137,6 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
 
                 $answers = $this->orderAnswersByCorrect($answers);
 
-
                 $t = $dom->createElement('span');
                 $t->appendChild($dom->createTextNode('['.$nr.']'));
                 $select->parentNode->replaceChild($t, $select);
@@ -164,7 +146,7 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
 
         }
         if ($answers->count() < 1) {
-//            dd((string) $this->question->question_content->question_body);
+            throw new \Exception((string) $this->question->question_content->question_body);
         }
 
         foreach ($this->question->question_content->children() as $tag) {
@@ -175,7 +157,6 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
                 }
             }
         }
-
 
         return [
             'question' => $question,
