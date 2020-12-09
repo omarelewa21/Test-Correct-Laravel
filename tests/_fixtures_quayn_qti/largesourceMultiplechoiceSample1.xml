@@ -1,0 +1,79 @@
+<question id="NN-20171216111540KJNXLKMBDD" type="LARGESOURCE_MULTIPLECHOICE">
+    <question_metadata>
+        <question_category>
+            <![CDATA[Index of inhoudsopgave]]>
+        </question_category>
+        <question_book>
+            <![CDATA[Taalpunt NL]]>
+        </question_book>
+        <question_edition>
+            <![CDATA[1 HV]]>
+        </question_edition>
+        <question_chapter>
+            <![CDATA[H2]]>
+        </question_chapter>
+        <question_paragraph>
+            <![CDATA[Theorieblok blz. 40 en 50]]>
+        </question_paragraph>
+    </question_metadata>
+    <question_info>
+        <question_number>32</question_number>
+        <question_chain number=""/>
+        <question_allowrandomize value="true"/>
+        <question_alwaysselect value="false"/>
+        <question_title>
+            <![CDATA[Meerkeuzevraag]]>
+        </question_title>
+        <question_layout value="0"/>
+        <question_availabletime value="00:00:00"/>
+        <question_timeload value=""/>
+        <question_showcomment value="inherit"/>
+        <question_showtip value="inherit"/>
+        <question_calculator value="false"/>
+        <question_selfassessment value="false"/>
+        <question_maxwords value="-1"/>
+        <question_numbernotation value="false"/>
+        <question_author_memo finished="false"/>
+        <question_editorial_memo finished="false"/>
+    </question_info>
+    <question_content>
+        <question_body>
+            <![CDATA[De bron hiernaast bevat een]]>
+        </question_body>
+        <question_large_source>
+            <![CDATA[sources/index-5-b.png]]>
+        </question_large_source>
+        <question_answer correct="true" score="1">
+            <text>
+                <![CDATA[trefwoordenregister.]]>
+            </text>
+            <comment/>
+            <hint/>
+            <jump targetid=""/>
+        </question_answer>
+        <question_answer correct="false" score="">
+            <text>
+                <![CDATA[inhoudsopgave.]]>
+            </text>
+            <comment/>
+            <hint/>
+            <jump targetid=""/>
+        </question_answer>
+        <question_answer correct="false" score="">
+            <text>
+                <![CDATA[voorkant van een boek.]]>
+            </text>
+            <comment/>
+            <hint/>
+            <jump targetid=""/>
+        </question_answer>
+        <question_answer correct="false" score="">
+            <text>
+                <![CDATA[achterkant van een boek.]]>
+            </text>
+            <comment/>
+            <hint/>
+            <jump targetid=""/>
+        </question_answer>
+    </question_content>
+</question>

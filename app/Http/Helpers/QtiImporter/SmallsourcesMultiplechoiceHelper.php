@@ -15,6 +15,8 @@ class SmallsourcesMultiplechoiceHelper extends QtiBaseQuestionHelper
     protected $subType = 'multi';
     protected $convertedAr = [];
 
+
+
     public function validate($question)
     {
         if (!isset($question->question_content->question_body)) {
@@ -79,6 +81,16 @@ class SmallsourcesMultiplechoiceHelper extends QtiBaseQuestionHelper
         else{
             $question = sprintf('%s<br />[%d]',$question,$nr);
         }
+
+        $answersToString = $answers->sort(function($a, $b) {
+            return $b['correct'] > $a['correct'];
+        })->map(function($answer) {
+            return trim($answer['answer']);
+        })->implode('|');
+
+        $answersToString = sprintf('[%s]',$answersToString);
+        $question = str_replace("[$nr]", $answersToString, $question);
+
 
         return [
             'answers' => $this->orderAnswersByCorrect($answers)->toArray(),

@@ -1,11 +1,15 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Lib\Question\Factory;
 use tcCore\Traits\UuidTrait;
 
 class TestQuestion extends BaseModel {
@@ -82,6 +86,72 @@ class TestQuestion extends BaseModel {
         static::restored($metadataCallback);
 
         static::deleted($metadataCallback);
+    }
+
+    /**
+     * @param $questionAttributes
+     * @return TestQuestion
+     * @throws QuestionException
+     */
+    public static function store($questionAttributes)
+    {
+        $question = Factory::makeQuestion($questionAttributes['type']);
+        if (!$question) {
+            throw new QuestionException('Failed to create question with factory', 500);
+        }
+
+        $testQuestion = new TestQuestion();
+        $testQuestion->fill($questionAttributes);
+
+        $test = $testQuestion->test;
+
+        $qHelper = new QuestionHelper();
+        $questionData = [];
+        if ($questionAttributes['type'] == 'CompletionQuestion') {
+            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionAttributes['question']);
+        }
+
+        $totalData = array_merge($questionAttributes, $questionData);
+        $question->fill($totalData);
+
+        $questionInstance = $question->getQuestionInstance();
+        if ($questionInstance->getAttribute('subject_id') === null) {
+            $questionInstance->setAttribute('subject_id', $test->subject->getKey());
+        }
+
+        if ($questionInstance->getAttribute('education_level_id') === null) {
+            $questionInstance->setAttribute('education_level_id', $test->educationLevel->getKey());
+        }
+
+        if ($questionInstance->getAttribute('education_level_year') === null) {
+            $questionInstance->setAttribute('education_level_year', $test->getAttribute('education_level_year'));
+        }
+
+        if ($question->save()) {
+            $testQuestion->setAttribute('question_id', $question->getKey());
+
+            if ($testQuestion->save()) {
+
+                if (Question::usesDeleteAndAddAnswersMethods($questionAttributes['type'])) {
+//                        // delete old answers
+//                        $question->deleteAnswers($question);
+
+                    // add new answers
+                    $testQuestion->question->addAnswers($testQuestion, $totalData['answers']);
+                }
+            } else {
+                throw new QuestionException('Failed to create test question');
+            }
+
+        } else {
+            throw new QuestionException('Failed to create question');
+        }
+
+        if (!QuestionAuthor::addAuthorToQuestion($question)) {
+            throw new QuestionException('Failed to attach author to question');
+        }
+
+        return $testQuestion;
     }
 
     public function setCallbacks($callbacks) {
