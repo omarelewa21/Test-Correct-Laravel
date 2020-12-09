@@ -117,7 +117,6 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
 
 //            $dom->loadXML($question);//HTML($question, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             $list = $dom->getElementsByTagName('input');
-            var_dump($dom->saveXML($list->item(0)));
 
             for ($n = $list->length - 1; $n >= 0; --$n) {
                 $nr = $n + 1;
