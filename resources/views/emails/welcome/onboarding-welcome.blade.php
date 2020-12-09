@@ -6,8 +6,8 @@
                 <h5 class="mb-4">Welkom bij Test-Correct</h5>
                 <p>Je hebt je aangemeld met het e-mailadres <span class="text-bold">{{$user->username}}</span></p>
                 <p>Verifieer je e-mailadres</p>
-{{--                <a href="{{ config('app.base_url'). 'user/confirm_email/'.$token}}"--}}
-                <a href="{{ 'http://testcorrect.test/user/confirm_email/'.$token}}"
+                <a href="{{ config('app.base_url'). 'user/confirm_email/'.$token}}"
+{{--                <a href="{{ 'http://testcorrect.test/user/confirm_email/'.$token}}"--}}
                    class="mt-40 button cta-button stretched text-center svg-stroke-white">Verifieer je e-mailadres
                     <x-icon.arrow></x-icon.arrow>
                 </a>

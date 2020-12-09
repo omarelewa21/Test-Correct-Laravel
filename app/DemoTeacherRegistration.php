@@ -21,14 +21,14 @@ class DemoTeacherRegistration extends Model
     {
         parent::boot();
 
-//        static::created(function (DemoTeacherRegistration $registration) {
-//            $count = DemoTeacherRegistration::where('username', $registration->username)->count();
-//            try {
-//                Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, $count > 1));
-//            } catch (\Throwable $th) {
-//                Bugsnag::notifyException($th);
-//            }
-//        });
+        static::created(function (DemoTeacherRegistration $registration) {
+            $count = DemoTeacherRegistration::where('username', $registration->username)->count();
+            try {
+                Mail::to('support@test-correct.nl')->send(new TeacherRegistered($registration, $count > 1));
+            } catch (\Throwable $th) {
+                Bugsnag::notifyException($th);
+            }
+        });
     }
 
 
@@ -100,6 +100,9 @@ class DemoTeacherRegistration extends Model
 
             $user = User::where('username', request('username'))->first();
             if (!$user) {
+                $user = User::where('username', $this->username)->first();
+            }
+            if (!$user) {
 //                    if ($user->isA('teacher')) {
 //                        }else{logger('klas '.$schoolClass->getKey.' bestaat al voor '.$user->getKey());}
 //                    }
@@ -134,7 +137,7 @@ class DemoTeacherRegistration extends Model
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
 
                 try {
-                    dispatch_now(new SendOnboardingWelcomeMail($user->getKey()));
+                    Mail::to($user->getEmailForPasswordReset())->send(new SendOnboardingWelcomeMail($user));
                 } catch (\Throwable $th) {
                     Bugsnag::notifyException($th);
                 }

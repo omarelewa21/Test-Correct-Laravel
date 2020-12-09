@@ -2,6 +2,7 @@
 
 namespace tcCore\Jobs;
 
+use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailer;
 use Illuminate\Queue\SerializesModels;
@@ -17,9 +18,9 @@ use tcCore\User;
 
 class SendOnboardingWelcomeMail extends Mailable implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue,Queueable, SerializesModels;
 
-    protected $userId;
+    protected $user;
     protected $url;
     protected $key;
 
@@ -30,31 +31,25 @@ class SendOnboardingWelcomeMail extends Mailable implements ShouldQueue
      * @param $url
      * @return void
      */
-    public function __construct($userId, $url = '')
+    public function __construct(User $user, $url = '')
     {
         $this->key = Str::random(5);
-        $this->userId = $userId;
+        $this->user = $user;
         /** @TODO this var should be removed because it is not used MF 9-6-2020 */
         $this->url = $url;
     }
 
-    public function handle(Mailer $mailer)
-    {
-        $user = User::findOrFail($this->userId);
-        $user->setAttribute('send_welcome_email', true);
-        $user->save();
-        $emailConfirmation = EmailConfirmation::create(
-            ['user_id' => $user->getKey()]
-        );
-
-        $template = 'emails.welcome.onboarding-welcome';
-        $mailer->send($template, ['user' => $user, 'url' => $this->url, 'token' => $emailConfirmation->uuid], function ($m) use ($user) {
-            $m->to($user->getEmailForPasswordReset())->subject('Welkom in Test-Correct');
-        });
-    }
-
     public function build()
     {
-        return $this->view('emails.welcome.onboarding-welcome');
+        $this->user->setAttribute('send_welcome_email', true);
+        $this->user->save();
+        $emailConfirmation = EmailConfirmation::create(
+            ['user_id' => $this->user->getKey()]
+        );
+        return $this->view('emails.welcome.onboarding-welcome')
+            ->subject('Welkom in Test-Correct')
+            ->with([
+                'user' => $this->user, 'url' => $this->url, 'token' => $emailConfirmation->uuid
+            ]);
     }
 }
