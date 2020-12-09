@@ -3,9 +3,11 @@
 namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Livewire\Component;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Requests\Request;
+use tcCore\TemporaryLogin;
 use tcCore\User;
 
 class Onboarding extends Component
@@ -182,7 +184,14 @@ class Onboarding extends Component
 
     public function loginUser()
     {
-        $this->redirect(config('app.url_login'));
+        $user = User::where('username', $this->registration->username)->first();
+        if ($user) {
+            $temporaryLogin = TemporaryLogin::create(
+                ['user_id' => $user->getKey()]
+            );
+            $temporaryLoginUrl = $temporaryLogin->createCakeUrl();
+            Redirect::to($temporaryLoginUrl);
+        }
     }
 
     public function resendEmailVerificationMail()

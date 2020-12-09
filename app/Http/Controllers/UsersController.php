@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Response;
 use tcCore\BaseSubject;
 use tcCore\EmailConfirmation;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\AllowOnlyAsTeacherRequest;
@@ -19,12 +21,15 @@ use tcCore\Http\Requests\UpdatePasswordForUserRequest;
 use tcCore\Http\Requests\UserMoveSchoolLocationRequest;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Jobs\SendWelcomeMail;
+use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TeacherRepository;
 use tcCore\Lib\User\Factory;
+use tcCore\LoginLog;
 use tcCore\OnboardingWizardUserStep;
 use tcCore\Subject;
+use tcCore\TemporaryLogin;
 use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
@@ -381,5 +386,54 @@ class UsersController extends Controller
         } else {
             return Response::make('Failed to delete user', 500);
         }
+    }
+
+    public function temporaryLogin(Request $request, $tlid)
+    {
+        $temporaryLogin = TemporaryLogin::whereUuid($tlid)->where('created_at','<', Carbon::now()->subMinutes(5))->first();
+
+        $user = User::where('id', $temporaryLogin->user_id)->first();
+
+        $user->setAttribute('session_hash', $user->generateSessionHash());
+        if((bool) $user->demo === true){
+            $user->demoRestrictionOverrule = true;
+        }
+        $user->save();
+        $user->load('roles');
+
+        $hidden = $user->getHidden();
+
+        if (($key = array_search('api_key', $hidden)) !== false) {
+            unset($hidden[$key]);
+        }
+        if (($key = array_search('session_hash', $hidden)) !== false) {
+            unset($hidden[$key]);
+        }
+
+        if($user->isA('teacher')){
+            (new DemoHelper())->createDemoForTeacherIfNeeded($user);
+            $this->dispatch(new SetSchoolYearForDemoClassToCurrent($user->schoolLocation));
+        }
+
+
+
+        $user->setAttribute('isToetsenbakker',$user->isToetsenbakker());
+
+        $user->setAttribute('hasCitoToetsen',$user->hasCitoToetsen());
+
+        $user->setAttribute('hasSharedSections',$user->hasSharedSections());
+
+        $user->makeOnboardWizardIfNeeded();
+
+        $clone = $user->replicate();
+        $clone->{$user->getKeyName()} = $user->getKey();
+        $clone->setHidden($hidden);
+
+        $clone->logins = $user->getLoginLogCount();
+        $clone->is_temp_teacher = $user->getIsTempTeacher();
+        LoginLog::create(['user_id' => $user->getKey()]);
+
+        return new JsonResponse($clone);
+
     }
 }

@@ -34,6 +34,8 @@ Route::post('password_reset', ['uses' => 'Auth\PasswordController@passwordReset'
 Route::get('edu-ix/{ean}/{session_id}/{signature}', 'EduK\HomeController@create');
 Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController@store');
 
+Route::get('temporary_login/{tlid}', ['as' => 'user.temporary_login', 'uses'=>'UsersController@temporaryLogin']);
+
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 
     // app_version_info

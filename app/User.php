@@ -687,6 +687,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasMany('tcCore\Mentor');
     }
 
+    public function temporaryLogin() {
+        return $this->belongsTo('tcCore\TemporaryLogin');
+    }
+
     public function mentorSchoolClasses()
     {
         return $this->belongsToMany('tcCore\SchoolClass', 'mentors', 'user_id', 'school_class_id')->withPivot([
