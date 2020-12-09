@@ -442,11 +442,16 @@
                                                  alt=""></button>
                                     </div>
 
+                                    @if($resendVerificationMail)
+                                        <div class="notification warning mb-4">
+                                            <span class="title">De verificatie e-mail is opnieuw naar je verzonden.</span>
+                                        </div>
+                                    @endif
                                     <div class="notification warning stretched mb-4 md:mb-16">
                                         <span class="title">Verifieer je e-mailadres</span>
-                                        <span class="body">Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvange?
+                                        <span class="body">Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?
                                             <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">Stuur de e-mail nog een keer <x-icon.arrow-small></x-icon.arrow-small></a> of
-                                            <a href="ZoekOndersteuning" class="bold">zoek ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span>
+                                            <a href="https://support.test-correct.nl/knowledge" class="bold">zoek ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span>
                                     </div>
                                     <div class="md:absolute bottom-0 sm:right-0">
                                         <button class=" button button-md cta-button" wire:click="loginUser">

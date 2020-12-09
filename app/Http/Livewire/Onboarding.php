@@ -21,6 +21,7 @@ class Onboarding extends Component
     public $btnDisabled = true;
     public $confirmed;
     public $shouldDisplayEmail = false;
+    public $resendVerificationMail = false;
 
     public $warningStepOne = false;
     public $warningStepTwo = false;
@@ -186,9 +187,13 @@ class Onboarding extends Component
 
     public function resendEmailVerificationMail()
     {
-        $user = User::findOrFail($this->registration->username);
-
-        $user->sendOnboardingWelcomeMail();
+        $user = User::where('username', $this->registration->username)->first();
+        if ($user) {
+            if ($user->account_verified === null) {
+                $user->resendEmailVerificationMail();
+                $this->resendVerificationMail = true;
+            }
+        }
     }
 
     private function btnStepOneDisabledCheck()
