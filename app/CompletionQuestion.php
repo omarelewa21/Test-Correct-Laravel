@@ -119,7 +119,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
         }
 
         foreach($completionQuestionAnswers as $tag => $choices) {
-            if (count($choices) <= 1) {
+            if (count($choices) < 1) {
                 return false;
             }
 
