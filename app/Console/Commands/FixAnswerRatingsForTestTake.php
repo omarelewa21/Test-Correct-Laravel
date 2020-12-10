@@ -19,7 +19,7 @@ use tcCore\TestParticipant;
 use tcCore\TestQuestion;
 use tcCore\TestTake;
 
-class FixCompletionQuestionAnswerRatingsForTestTake extends Command
+class FixAnswerRatingsForTestTake extends Command
 {
 
     use BaseCommandTrait;
@@ -35,7 +35,7 @@ class FixCompletionQuestionAnswerRatingsForTestTake extends Command
      *
      * @var string
      */
-    protected $description = 'fix completion question answer ratings (wrong right answer)';
+    protected $description = 'fix answer ratings for test take';
 
     /**
      * Create a new command instance.
