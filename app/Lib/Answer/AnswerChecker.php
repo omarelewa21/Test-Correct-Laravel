@@ -57,9 +57,7 @@ class AnswerChecker {
             $answerRating = self::getAnswerRating($testTakeId, $answer, $recalculate);
             $answerRating->setAttribute('type', 'SYSTEM');
             $answerRating->setAttribute('test_take_id', $testTakeId);
-            if((int) $answerRating->rating != 0) {
-                $answerRating->setAttribute('rating', 0);
-            }
+            $answerRating->setAttribute('rating', 0);
 
             if($answerRating->isDirty()){
                 $changed = true;
