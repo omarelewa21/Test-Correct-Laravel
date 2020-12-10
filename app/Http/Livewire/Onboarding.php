@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Requests\Request;
@@ -24,6 +25,7 @@ class Onboarding extends Component
     public $confirmed;
     public $shouldDisplayEmail = false;
     public $resendVerificationMail = false;
+    public $newRegistration = false;
 
     public $warningStepOne = false;
     public $warningStepTwo = false;
@@ -45,7 +47,10 @@ class Onboarding extends Component
         'registration.website_url.required'     => 'Website is verplicht',
         'registration.address.required'         => 'Adres is verplicht',
         'registration.house_number.required'    => 'Huisnummer is verplicht',
+        'registration.house_number.regex'       => 'Huisnummer bevat geen nummer',
         'registration.postcode.required'        => 'Postcode is verplicht',
+        'registration.postcode.min'             => 'Postcode is niet geldig',
+        'registration.postcode.regex'           => 'Postcode is niet geldig',
         'registration.city.required'            => 'Plaatsnaam is verplicht',
         'registration.username.required'        => 'E-mailadres is verplicht',
         'registration.username.email'           => 'E-mailadres is niet geldig',
@@ -86,8 +91,8 @@ class Onboarding extends Component
                 'registration.school_location' => 'required',
                 'registration.website_url'     => 'required',
                 'registration.address'         => 'required',
-                'registration.house_number'    => 'required',
-                'registration.postcode'        => 'required',
+                'registration.house_number'    => 'required|regex:/\d/',
+                'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
                 'registration.city'            => 'required',
             ]);
         }
@@ -178,20 +183,25 @@ class Onboarding extends Component
             return;
         }
         $this->registration->save();
-        $this->registration->addUserToRegistration($this->password);
+        $this->newRegistration = $this->registration->addUserToRegistration($this->password);
         $this->step = 3;
     }
 
     public function loginUser()
     {
-        $user = User::where('username', $this->registration->username)->first();
-        if ($user) {
-            $temporaryLogin = TemporaryLogin::create(
-                ['user_id' => $user->getKey()]
-            );
-            $temporaryLoginUrl = $temporaryLogin->createCakeUrl();
-            Redirect::to($temporaryLoginUrl);
+        logger($this->newRegistration);
+        $redirectUrl = config('app.url_login');
+        if ($this->newRegistration) {
+            $user = User::where('username', $this->registration->username)->first();
+            if ($user) {
+                $temporaryLogin = TemporaryLogin::create(
+                    ['user_id' => $user->getKey()]
+                );
+                $redirectUrl = $temporaryLogin->createCakeUrl();
+            }
         }
+        logger($redirectUrl);
+        Redirect::to($redirectUrl);
     }
 
     public function resendEmailVerificationMail()

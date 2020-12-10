@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
@@ -97,7 +98,7 @@ class DemoTeacherRegistration extends Model
     public function addUserToRegistration($password = null)
     {
         try {
-
+            $newRegistration = false;
             $user = User::where('username', request('username'))->first();
             if (!$user) {
                 $user = User::where('username', $this->username)->first();
@@ -141,6 +142,8 @@ class DemoTeacherRegistration extends Model
                 } catch (\Throwable $th) {
                     Bugsnag::notifyException($th);
                 }
+
+                $newRegistration = true;
             }
         } catch (\Exception $e) {
             DB::rollBack();
@@ -148,5 +151,6 @@ class DemoTeacherRegistration extends Model
             return Response::make('Failed to register teacher' . print_r($e->getMessage(), true), 500);
         }
         DB::commit();
+        return $newRegistration;
     }
 }

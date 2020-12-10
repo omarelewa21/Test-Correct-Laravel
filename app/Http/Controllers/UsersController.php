@@ -390,9 +390,14 @@ class UsersController extends Controller
 
     public function temporaryLogin(Request $request, $tlid)
     {
-        $temporaryLogin = TemporaryLogin::whereUuid($tlid)->where('created_at','<', Carbon::now()->subMinutes(5))->first();
+        $temporaryLogin = TemporaryLogin::whereUuid($tlid)->where('created_at','>', Carbon::now()->subSeconds(10))->first();
+        logger($temporaryLogin);
+        if (!$temporaryLogin) {
+            return;
+        }
 
         $user = User::where('id', $temporaryLogin->user_id)->first();
+        $temporaryLogin->forceDelete();
 
         $user->setAttribute('session_hash', $user->generateSessionHash());
         if((bool) $user->demo === true){
