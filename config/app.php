@@ -4,6 +4,8 @@ return [
 
     'url_login' => env('URL_LOGIN'),
 
+    'base_url' => env('BASE_URL',''),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

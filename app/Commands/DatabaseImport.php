@@ -11,83 +11,96 @@ use tcCore\Teacher;
 
 class DatabaseImport
 {
-	private static function checkEnv()
-	{
-		if (!in_array(env('APP_ENV'), ['local', 'testing'])) {
+    private static function checkEnv()
+    {
+        if (!in_array(env('APP_ENV'), ['local', 'testing'])) {
             exit();
-		} else {
-			return true;
-		}
-	}
+        } else {
+            return true;
+        }
+    }
 
-	public static function importSql($file)
-	{
+    public static function importSql($file)
+    {
         DatabaseImport::checkEnv();
-		ini_set('max_execution_time', 180);
+        ini_set('max_execution_time', 180);
 
-		$host = DB::connection()->getConfig('host');
-		$portString = '';
-		if (strlen(env('DB_PORT')) > 1) {
-			$portString = sprintf(' --port %d ', env('DB_PORT'));
-			$host = explode(':', $host)[0];
-		}
+        $host = DB::connection()->getConfig('host');
+        $portString = '';
+        if (strlen(env('DB_PORT')) > 1) {
+            $portString = sprintf(' --port %d ', env('DB_PORT'));
+            $host = explode(':', $host)[0];
+        }
 
         //FIXME: TC-138
-		//IT IS UNSAFE TO PARSE PASSWORDS OVER COMMANDLINE!!!
-		$command = sprintf(
-			'mysql -h %s %s -u %s -p%s %s < %s',
-			$host,
-			$portString,
-			DB::connection()->getConfig('username'),
-			DB::connection()->getConfig('password'),
-			DB::connection()->getConfig('database'),
-			$file
+        //IT IS UNSAFE TO PARSE PASSWORDS OVER COMMANDLINE!!!
+        $command = sprintf(
+            'mysql -h %s %s -u %s -p%s %s < %s',
+            $host,
+            $portString,
+            DB::connection()->getConfig('username'),
+            DB::connection()->getConfig('password'),
+            DB::connection()->getConfig('database'),
+            $file
         );
+
+        if (DB::connection()->getConfig('password') == '') {
+            $command = sprintf(
+                'mysql -h %s %s -u %s %s < %s',
+                $host,
+                $portString,
+                DB::connection()->getConfig('username'),
+                DB::connection()->getConfig('database'),
+                $file
+            );
+        }
+
 
         $process = Process::fromShellCommandline($command);
         $process->run();
-	}
+    }
 
-	public static function migrate()
-	{
-		DatabaseImport::checkEnv();
+    public static function migrate()
+    {
+        DatabaseImport::checkEnv();
 
-		Artisan::call('migrate --force');
-	}
+        Artisan::call('migrate --force');
+    }
 
-	public static function addRequiredDatabaseData() {
+    public static function addRequiredDatabaseData()
+    {
 
 
-		DatabaseImport::checkEnv();
+        DatabaseImport::checkEnv();
 
-		// fix issue with missing temp school location if sovag
-		if(null == SchoolLocation::where('customer_code','TC-tijdelijke-docentaccounts')->first()){
-			SchoolLocation::where('id',1)->update(['customer_code' =>'TC-tijdelijke-docentaccounts']);
-		}
+        // fix issue with missing temp school location if sovag
+        if (null == SchoolLocation::where('customer_code', 'TC-tijdelijke-docentaccounts')->first()) {
+            SchoolLocation::where('id', 1)->update(['customer_code' => 'TC-tijdelijke-docentaccounts']);
+        }
 
-		// not needed => tc-tijdelijke-docentaccounts should be enough
+        // not needed => tc-tijdelijke-docentaccounts should be enough
 //		if (SchoolLocation::where('customer_code', DemoHelper::SCHOOLLOCATIONNAME)->first() == null) {
 //			$demoSchool = SchoolLocation::find(1)->replicate();
 //			$demoSchool->customer_code = DemoHelper::SCHOOLLOCATIONNAME;
 //			$demoSchool->save();
 //		}
 
-		//TCP-156
-		$teacherUsers = Teacher::with('user')->get()->map(function($t) {
+        //TCP-156
+        $teacherUsers = Teacher::with('user')->get()->map(function ($t) {
             return $t->user;
         })->unique('id');
 
-		// if run in selenium test we need to relogin the current user
+        // if run in selenium test we need to relogin the current user
         $origUser = Auth::user();
 
-		foreach ($teacherUsers as $teacher) {
-			Auth::loginUsingId($teacher->getKey());
-			ActingAsHelper::getInstance()->setUser($teacher);
-			(new DemoHelper)->createDemoForTeacherIfNeeded($teacher);
-		}
-
-		if(null !== $origUser){
-		    Auth::loginUsingId($origUser->getKey());
+        foreach ($teacherUsers as $teacher) {
+            Auth::loginUsingId($teacher->getKey());
+            ActingAsHelper::getInstance()->setUser($teacher);
+            (new DemoHelper)->createDemoForTeacherIfNeeded($teacher);
         }
-	}
+
+        if (null !== $origUser) {
+            Auth::loginUsingId($origUser->getKey());
+        }
+    }
 }

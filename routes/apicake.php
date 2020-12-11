@@ -36,6 +36,8 @@ Route::post('password_reset', ['uses' => 'Auth\PasswordController@passwordReset'
 Route::get('edu-ix/{ean}/{session_id}/{signature}', 'EduK\HomeController@create');
 Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController@store');
 
+Route::get('temporary_login/{tlid}', ['as' => 'user.temporary_login', 'uses'=>'UsersController@temporaryLogin']);
+
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 
     // app_version_info
@@ -193,12 +195,13 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('answer', 'AnswersController', ['only' => ['index', 'show']]);
 
 	// Users
-	Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
-	Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
-	Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
-	Route::post('/tell_a_teacher', 'TellATeacherController@store');
+    Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
+    Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
+    Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
+    Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
+    Route::post('/tell_a_teacher', 'TellATeacherController@store');
 
-	Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
+    Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
 	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
