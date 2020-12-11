@@ -1,0 +1,55 @@
+<?php
+
+namespace tcCore\Jobs;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailer;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
+use tcCore\EmailConfirmation;
+use tcCore\Http\Livewire\Onboarding;
+use tcCore\Lib\User\Factory;
+use tcCore\Lib\User\Roles;
+use tcCore\User;
+
+class SendOnboardingWelcomeMail extends Mailable implements ShouldQueue
+{
+    use InteractsWithQueue,Queueable, SerializesModels;
+
+    protected $user;
+    protected $url;
+    protected $key;
+
+    /**
+     * Create a new job instance.
+     *
+     * @param $userId
+     * @param $url
+     * @return void
+     */
+    public function __construct(User $user, $url = '')
+    {
+        $this->key = Str::random(5);
+        $this->user = $user;
+        /** @TODO this var should be removed because it is not used MF 9-6-2020 */
+        $this->url = $url;
+    }
+
+    public function build()
+    {
+        $this->user->setAttribute('send_welcome_email', true);
+        $this->user->save();
+        $emailConfirmation = EmailConfirmation::create(
+            ['user_id' => $this->user->getKey()]
+        );
+        return $this->view('emails.welcome.onboarding-welcome')
+            ->subject('Welkom in Test-Correct')
+            ->with([
+                'user' => $this->user, 'url' => $this->url, 'token' => $emailConfirmation->uuid
+            ]);
+    }
+}

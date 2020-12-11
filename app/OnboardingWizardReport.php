@@ -58,7 +58,8 @@ class OnboardingWizardReport extends Model
             'last_updated_from_TC'                        => Carbon::now(),
             'invited_by'                                  => self::invitedBy($user),
             'invited_users_amount'                        => self::invitedUsersAmount($user),
-            'invited_users'                               => self::invitedUsers($user)
+            'invited_users'                               => self::invitedUsers($user),
+            'account_verified'                            => $user->account_verified
         ]);
     }
 
@@ -161,11 +162,14 @@ ORDER BY t2.displayorder,
         return 'no steps yes';
     }
 
-    public static function updateForAllTeachers()
+    public static function updateForAllTeachers($shouldTruncate = true)
     {
-        OnboardingWizardReport::truncate();
+        if($shouldTruncate) {
+            OnboardingWizardReport::truncate();
+        }
 
-        User::whereIn('id', Teacher::pluck('user_id'))->where('demo', 0)
+        User::whereIn('id', Teacher::pluck('user_id'))
+            ->where('demo', 0)
             ->where('username', 'not like', '%@teachandlearncompany.com')
             ->where('username', 'not like', '%@test-correct.nl')
             ->each(function ($teacher) {

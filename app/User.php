@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -26,6 +27,7 @@ use tcCore\Jobs\CountSchoolStudents;
 use tcCore\Jobs\CountSchoolTeachers;
 use tcCore\Jobs\CountSchoolTests;
 use tcCore\Jobs\CountSchoolTestsTaken;
+use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -67,7 +69,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by'
+        'invited_by', 'account_verified'
     ];
 
 
@@ -683,6 +685,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function mentors()
     {
         return $this->hasMany('tcCore\Mentor');
+    }
+
+    public function temporaryLogin() {
+        return $this->belongsTo('tcCore\TemporaryLogin');
     }
 
     public function mentorSchoolClasses()
@@ -1737,5 +1743,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         ['school_id', $school->school_id],
                     ])
             );
+    }
+
+    public function resendEmailVerificationMail() {
+       return Mail::to($this->username)->send(new SendOnboardingWelcomeMail($this));
     }
 }

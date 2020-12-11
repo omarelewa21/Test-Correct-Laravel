@@ -43,3 +43,97 @@ where
 order by
 	school_locations.name,
 	users.username
+
+- churn rate data (let op dure query)
+select 
+	users.id,
+	users.created_at as creation_date,
+	(select min(created_at) from login_logs where user_id = users.id) as first_login,
+	(select min(created_at) from tests where tests.author_id = users.id AND tests.demo = 0) as first_test_created,
+	(select min(DATE_FORMAT(time_start,'%Y-%m-%d')) from test_takes where test_takes.user_id = users.id AND test_takes.demo = 0) as first_test_take,
+	(select min(updated_at) from test_takes where test_takes.user_id = users.id AND test_take_status_id = 9 AND test_takes.demo = 0) as first_test_rated
+from 
+	users
+inner join user_roles on (user_roles.user_id = users.id)
+where 
+	users.deleted_at is null 
+	AND username not like '%test-correct%'
+	AND user_roles.role_id = 1
+	AND users.demo = 0
+
+
+- all active users with date restriction (! you need to change school_years.year and users.created_at TWICE in order to get the current results)
+select 
+	school_locations.customer_code,
+	school_locations.name,
+	t.teacher_count,
+	s.students
+from
+	school_locations
+	inner join 
+(
+select 
+	count(users.id) as teacher_count, 
+	school_locations.id
+from
+	users
+	inner join school_locations on (school_locations.id = users.school_location_id)
+where
+	users.id IN (
+		select distinct(user_id)  as user_id from teachers where deleted_at is null AND class_id in (
+			select 
+				distinct(school_classes.id) as school_classes_id
+			from
+				school_classes
+				inner join school_years on (school_classes.`school_year_id` = school_years.id)
+			where
+				school_classes.deleted_at is null AND
+				school_classes.demo = 0 AND
+				school_years.year = 2019 AND
+				school_years.deleted_at is null
+				
+		)
+	) AND
+	users.deleted_at is null AND
+	users.demo = 0 AND
+	users.username not like '%test-correct.nl' AND
+	users.created_at <= '2020-03-21'
+group by 
+	school_locations.customer_code,
+	school_locations.name,
+	school_locations.id
+) t on t.id = school_locations.id
+inner join (
+select 
+  count(users.id) as students, 
+  school_locations.id,
+  school_locations.customer_code,
+  school_locations.name
+from
+  users
+  inner join school_locations on (school_locations.id = users.school_location_id)
+where
+  users.id IN (
+    select distinct(user_id)  as user_id from students where deleted_at is null AND class_id in (
+      select 
+        distinct(school_classes.id) as school_classes_id
+      from
+        school_classes
+        inner join school_years on (school_classes.`school_year_id` = school_years.id)
+      where
+        school_classes.deleted_at is null AND
+        school_classes.demo = 0 AND 
+        school_years.year = 2019 AND
+        school_years.deleted_at is null
+        
+    )
+  ) AND
+  users.deleted_at is null AND
+  users.demo = 0 AND
+  users.username not like '%test-correct.nl' AND
+  	users.created_at <= '2020-03-21'
+group by 
+  school_locations.customer_code,
+  school_locations.name,
+  school_locations.id
+) s on (s.id = school_locations.id)
