@@ -402,12 +402,11 @@ class QtiImportController extends Controller
         Auth::loginUsingId($this->requestData['author_id']);
 
         $questions = $xml->question;
-
         foreach ($questions as $question) {
             try {
                 $parsedResult = self::parseQuestion($question, $test, $this->currentTest->zipDir, $this->basePath);
             } catch (\Exception $e) {
-                $this->addToLog($this->getMessage());
+                $this->addToLog($e->getMessage());
             }
             $this->currentTest->questions[$this->getSafeQuestionId($question)] = $parsedResult;
             $this->currentTest->errorCount += count($parsedResult->errors);

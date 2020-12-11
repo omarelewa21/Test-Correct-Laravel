@@ -20,7 +20,7 @@ use Tests\TestCase;
 
 class LargesourceFibHelperTest extends TestCase
 {
-    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+//    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
     /** @test */
     public function sample_one_should_have_the_text_included()
@@ -259,6 +259,57 @@ class LargesourceFibHelperTest extends TestCase
 
         $this->assertInstanceOf(CompletionQuestion::class, $testQuestion->question);
     }
+
+    /** @test */
+    public function sample_six_should_have_question_large_sourcetext_tag_merged_with_question_body_answers()
+    {
+        $this->actingAs(User::find(1486));
+
+        $zipDir = '';
+        $basePath = '';
+
+        $question = simplexml_load_file(__DIR__.'/../../_fixtures_quayn_qti/largesourceFibSample6.xml',
+            'SimpleXMLElement', LIBXML_NOCDATA);
+
+        $result = QtiImportController::parseQuestion($question, $this->getStubTest(), $zipDir, $basePath);
+
+        $questionAttributes = array_merge(
+            $result->helper->getConvertedAr(),
+            [
+                'type'                   => 'CompletionQuestion',
+                'score'                  => 3,
+                'order'                  => 9,
+                'subtype'                => 'completion',
+                'maintain_position'      => '',
+                'discuss'                => '',
+                'decimal_score'          => '',
+                'add_to_database'        => '',
+                'attainments'            => '',
+                'note_type'              => '',
+                'is_open_source_content' => '',
+                'test_id'                => 30,
+            ]
+        );
+        Request::filter($questionAttributes);
+
+
+        $testQuestion = TestQuestion::store(
+            $questionAttributes
+        );
+
+        $this->assertStringContainsString(
+            'nschappers hebben in Xuchang',
+            $testQuestion->question->getQuestionInstance()->getAttribute('question')
+        );
+
+        $this->assertEquals('CompletionQuestion', $result->helper->getType());
+        $this->assertEquals('completion', $result->helper->getSubType());
+        $answers = $result->helper->getConvertedAr('answer');
+        $this->assertCount(2, $answers);
+
+        $this->assertInstanceOf(CompletionQuestion::class, $testQuestion->question);
+    }
+
 
 
     private function getStubTest()
