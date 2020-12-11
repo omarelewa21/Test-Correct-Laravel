@@ -325,7 +325,7 @@
                                                        class="">Postcode</label>
                                             </div>
                                             <div class="input-group w-9/12 sm:w-3/5 pl-2">
-                                                <input id="city" wire:model.lazy="registration.city"
+                                                <input id="city" wire:model="registration.city"
                                                        class="form-input @error('registration.city') border-red @enderror">
                                                 <label for="city"
                                                        class="">Plaatsnaam</label>
@@ -458,6 +458,21 @@
                                             <span class="mr-3">Inloggen op Test-Correct</span>
                                             <x-icon.arrow></x-icon.arrow>
                                         </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    @elseif($this->step === 'error')
+                        <div class="content-form">
+                            {{--content header--}}
+                            <div class="mb-4 relative">
+                                <h1 class="">Er is helaas iets fout gegaan...</h1>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="body1 h-full relative">
+                                    <div class="notification error stretched">
+                                        <span class="title">Neem contact op met de helpdesk voor <a href="https://support.test-correct.nl/knowledge" class="bold">ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span></span>
                                     </div>
                                 </div>
                             </div>

@@ -183,13 +183,16 @@ class Onboarding extends Component
             return;
         }
         $this->registration->save();
-        $this->newRegistration = $this->registration->addUserToRegistration($this->password);
-        $this->step = 3;
+        try {
+            $this->newRegistration = $this->registration->addUserToRegistration($this->password);
+            $this->step = 3;
+        } catch(\Throwable $e){
+            $this->step = 'error';
+        }
     }
 
     public function loginUser()
     {
-        logger($this->newRegistration);
         $redirectUrl = config('app.url_login');
         if ($this->newRegistration) {
             $user = User::where('username', $this->registration->username)->first();
@@ -200,7 +203,6 @@ class Onboarding extends Component
                 $redirectUrl = $temporaryLogin->createCakeUrl();
             }
         }
-        logger($redirectUrl);
         Redirect::to($redirectUrl);
     }
 
