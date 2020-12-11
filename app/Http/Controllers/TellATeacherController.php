@@ -17,6 +17,7 @@ class TellATeacherController extends Controller
     {
 
 
+
         $r = $request->validated();
         DB::beginTransaction();
         try {

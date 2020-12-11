@@ -32,10 +32,8 @@ class CreateTellATeacherRequest extends Request
         $this->filterInput();
 
         return [
-		    'data' => 'required|array',
-            'data.*.username' => 'required|email',
-            'data.*.name_first'   => 'required',
-            'data.*.name'         => 'required',
+		    'data.email_addresses' => 'required',
+
             'school_location_id'  => 'required',
             'user_roles'          => 'required',
             'invited_by'          => 'required',
@@ -62,39 +60,40 @@ class CreateTellATeacherRequest extends Request
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            logger(request('data.email_addresses'));
             $usernameErrors = [];
-            collect(request('data'))->map(function ($row, $index) use ($validator, &$usernameErrors) {
-                if(User::where('username',$row['username'])->count() > 0){
-                    $usernameErrors[] = $row['username'];
-                }
-            });
-            if (count($usernameErrors)){
-                if (count($usernameErrors) === 1){
-                    $validator->errors()->add(
-                        sprintf('username'),
-                        sprintf('Er is al een collega met e-mailadres (%s) bij ons bekend',$usernameErrors[0])
-                    );
-                }
-                else {
-                    $validator->errors()->add(
-                        sprintf('username'),
-                        sprintf('Er zijn al collegas met e-mailadressen (%s) bij ons bekend',implode(',',$usernameErrors))
-                    );
-                }
-            }
-
-            $dataCollection = collect(request('data'))->map(function($a){return $a['username'];});
-            $unique = $dataCollection->unique();
-            $dataAr = $dataCollection->toArray();
-            if($unique->count() < $dataCollection->count()) {
-                $duplicates = $dataCollection->keys()->diff($unique->keys());
-                $duplicates->each(function($duplicate) use ($validator, $dataAr) {
-                    $validator->errors()->add(
-                        sprintf('data.%d.duplicate', $duplicate),
-                        sprintf('Dit e-mailadres (%s) komt meerdere keren voor',$dataAr[$duplicate])
-                    );
-                });
-            }
+//            collect(request('data'))->map(function ($row, $index) use ($validator, &$usernameErrors) {
+//                if(User::where('username',$row['username'])->count() > 0){
+//                    $usernameErrors[] = $row['username'];
+//                }
+//            });
+//            if (count($usernameErrors)){
+//                if (count($usernameErrors) === 1){
+//                    $validator->errors()->add(
+//                        sprintf('username'),
+//                        sprintf('Er is al een collega met e-mailadres (%s) bij ons bekend',$usernameErrors[0])
+//                    );
+//                }
+//                else {
+//                    $validator->errors()->add(
+//                        sprintf('username'),
+//                        sprintf('Er zijn al collegas met e-mailadressen (%s) bij ons bekend',implode(',',$usernameErrors))
+//                    );
+//                }
+//            }
+//
+//            $dataCollection = collect(request('data'))->map(function($a){return $a['username'];});
+//            $unique = $dataCollection->unique();
+//            $dataAr = $dataCollection->toArray();
+//            if($unique->count() < $dataCollection->count()) {
+//                $duplicates = $dataCollection->keys()->diff($unique->keys());
+//                $duplicates->each(function($duplicate) use ($validator, $dataAr) {
+//                    $validator->errors()->add(
+//                        sprintf('data.%d.duplicate', $duplicate),
+//                        sprintf('Dit e-mailadres (%s) komt meerdere keren voor',$dataAr[$duplicate])
+//                    );
+//                });
+//            }
         });
     }
 }
