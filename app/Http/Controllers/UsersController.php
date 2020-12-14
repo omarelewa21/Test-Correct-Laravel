@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\JsonResponse;
@@ -7,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
 use tcCore\BaseSubject;
@@ -201,7 +203,11 @@ class UsersController extends Controller
 
     public function sendOnboardingWelcomeEmail(AllowOnlyAsTeacherRequest $request)
     {
-        dispatch_now(new SendOnboardingWelcomeMail(Auth::id()));
+        try {
+            Mail::to(Auth::user()->getEmailForPasswordReset())->send(new SendOnboardingWelcomeMail(Auth::user()));
+        } catch (\Throwable $th) {
+            Bugsnag::notifyException($th);
+        }
 
         return Response::make('ok', 200);
     }
@@ -391,7 +397,6 @@ class UsersController extends Controller
     public function temporaryLogin(Request $request, $tlid)
     {
         $temporaryLogin = TemporaryLogin::whereUuid($tlid)->where('created_at','>', Carbon::now()->subSeconds(10))->first();
-        logger($temporaryLogin);
         if (!$temporaryLogin) {
             return;
         }

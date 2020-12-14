@@ -34,14 +34,14 @@
                 </tr>
                 <tr>
                     <td>Aanhef</td>
-                    <td>{{ $demo->gender }}</td>
+                    @if($demo->gender == 'male')
+                        <td>Meneer</td>
+                    @elseif($demo->gender == 'female')
+                        <td>Mevrouw</td>
+                    @elseif($demo->gender == 'different')
+                        <td>{{$demo->gender_different}}</td>
+                    @endif
                 </tr>
-                @if($demo->gender == 'Other')
-                    <tr>
-                        <td>Aanhef anders</td>
-                        <td>{{ $demo->gender_different }}</td>
-                    </tr>
-                @endif
                 <tr>
                     <td>name</td>
                     <td>{{ $demo->name_first }} {{ $demo->name_suffix }} {{ $demo->name }}</td>

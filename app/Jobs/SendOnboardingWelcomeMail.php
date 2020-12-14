@@ -16,9 +16,9 @@ use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use tcCore\User;
 
-class SendOnboardingWelcomeMail extends Mailable implements ShouldQueue
+class SendOnboardingWelcomeMail extends Mailable
 {
-    use InteractsWithQueue,Queueable, SerializesModels;
+    use Queueable, SerializesModels;
 
     protected $user;
     protected $url;
