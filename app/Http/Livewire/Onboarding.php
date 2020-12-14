@@ -15,7 +15,6 @@ class Onboarding extends Component
 {
     public $registration;
     public $email;
-    public $gender = 'male';
     public $password;
     public $password_confirmation;
 
@@ -104,7 +103,7 @@ class Onboarding extends Component
     {
         $this->registration = new DemoTeacherRegistration;
         $this->registration->username = $this->email;
-        $this->registration->gender = $this->gender;
+        $this->registration->gender = 'male';
 
         if (!$this->step != 1 || $this->step = '4') {
             $this->step = 1;
@@ -189,7 +188,6 @@ class Onboarding extends Component
 
     public function loginUser()
     {
-        logger($this->newRegistration);
         $redirectUrl = config('app.url_login');
         if ($this->newRegistration) {
             $user = User::where('username', $this->registration->username)->first();
@@ -200,7 +198,6 @@ class Onboarding extends Component
                 $redirectUrl = $temporaryLogin->createCakeUrl();
             }
         }
-        logger($redirectUrl);
         Redirect::to($redirectUrl);
     }
 

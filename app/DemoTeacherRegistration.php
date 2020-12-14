@@ -147,7 +147,6 @@ class DemoTeacherRegistration extends Model
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            logger('Failed to register teacher' . $e);
             return Response::make('Failed to register teacher' . print_r($e->getMessage(), true), 500);
         }
         DB::commit();

@@ -4,6 +4,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
 
+    <link rel="icon" href="https://www.test-correct.nl/wp-content/uploads/2019/01/cropped-fav-32x32.png" sizes="32x32" />
+    <link rel="icon" href="https://www.test-correct.nl/wp-content/uploads/2019/01/cropped-fav-192x192.png" sizes="192x192" />
+
     <!-- Tailwind CSS -->
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
 
@@ -20,7 +23,7 @@
 <header class="py-5 bg-white onboarding-header">
     <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">
         <div class="col-span-3">
-            <a class="mx-auto tc-logo block" href="/">
+            <a class="mx-auto tc-logo block" href="{{config('app.url_login')}}">
                 <img class="" src="/svg/logos/Logo-Test-Correct-recolored.svg"
                      alt="Test-Correct">
             </a>
