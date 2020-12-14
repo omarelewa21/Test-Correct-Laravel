@@ -153,7 +153,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::get('school_year/list', ['as' => 'school_year.list', 'uses' => 'SchoolYearsController@lists']);
 	Route::get('school_year_active', ['as' => 'school_year_active', 'uses' => 'SchoolYearsController@activeSchoolYear']);
 	Route::resource('school_year', 'SchoolYearsController', ['except' => ['create', 'edit']]);
-	
+
 
 	Route::resource('period', 'PeriodsController', ['except' => ['create', 'edit']]);
 
@@ -193,7 +193,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
 	Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
 	Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
-	Route::post('/tell_a_teacher', 'TellATeacherController@store');
+	Route::post('/tell_a_teacher', 'TellATeacherController@store')->name('tell_a_teacher.store');
 
 	Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
 	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);

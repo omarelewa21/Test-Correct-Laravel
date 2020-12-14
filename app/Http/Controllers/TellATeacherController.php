@@ -15,32 +15,29 @@ class TellATeacherController extends Controller
 {
     public function store(CreateTellATeacherRequest $request)
     {
-
-
-
         $r = $request->validated();
-        DB::beginTransaction();
-        try {
-            foreach ($r['data'] as $i => $data) {
-                if (! $request->has('shouldRegisterUser')) {
-                    $request->merge(['shouldRegisterUser' => true]);
-                }
-               // $data['shouldRegisterUser'] = true;
-                $data = array_merge($data,$r);
-                unset($data['data']);
-                ActingAsHelper::getInstance()->setUser(Auth::user());
-                if(!(new UserHelper())->createUserFromData($data)){
-                    logger(sprintf('Error while inviting other teachers %s',json_encode($data)));
-                    throw new \Exception(sprintf('Could not create user %s',$data['username']));
-                }
-            }
-        } catch(\Exception $e){
-            DB::rollback();
-            logger($e->getMessage());
-            return Response::make('Failed to create users', 500);
-        }
-
-        DB::commit();
-        return Response::make(sprintf('%d',count($r['data'])), 200);
+//        DB::beginTransaction();
+//        try {
+//            foreach ($r['data'] as $i => $data) {
+//                if (! $request->has('shouldRegisterUser')) {
+//                    $request->merge(['shouldRegisterUser' => true]);
+//                }
+//               // $data['shouldRegisterUser'] = true;
+//                $data = array_merge($data,$r);
+//                unset($data['data']);
+//                ActingAsHelper::getInstance()->setUser(Auth::user());
+//                if(!(new UserHelper())->createUserFromData($data)){
+//                    logger(sprintf('Error while inviting other teachers %s',json_encode($data)));
+//                    throw new \Exception(sprintf('Could not create user %s',$data['username']));
+//                }
+//            }
+//        } catch(\Exception $e){
+//            DB::rollback();
+//            logger($e->getMessage());
+//            return Response::make('Failed to create users', 500);
+//        }
+//
+//        DB::commit();
+//        return Response::make(sprintf('%d',count($r['data'])), 200);
     }
 }

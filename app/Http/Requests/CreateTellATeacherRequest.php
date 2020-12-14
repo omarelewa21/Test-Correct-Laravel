@@ -23,6 +23,18 @@ class CreateTellATeacherRequest extends Request
     }
 
     /**
+     * @inheritDoc
+     */
+    protected function prepareForValidation()
+    {
+        if (strstr($this->email_addresses, ';')) {
+            $this->merge(['email_addresses' => explode(';', $this->email_addresses)]);
+        } else {
+            $this->merge(['email_addresses' => [$this->email_addresses]]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array
@@ -31,13 +43,13 @@ class CreateTellATeacherRequest extends Request
     {
         $this->filterInput();
 
-        return [
-		    'data.email_addresses' => 'required',
 
-            'school_location_id'  => 'required',
-            'user_roles'          => 'required',
-            'invited_by'          => 'required',
-            'send_welcome_mail'   => '',
+        return [
+            'email_addresses.*'  => 'email',
+            'school_location_id' => 'required',
+            'user_roles'         => 'required',
+            'invited_by'         => 'required',
+            'send_welcome_mail'  => 'sometimes',
         ];
     }
 
@@ -54,14 +66,14 @@ class CreateTellATeacherRequest extends Request
     /**
      * Configure the validator instance.
      *
-     * @param \Illuminate\Validation\Validator $validator
+     * @param  \Illuminate\Validation\Validator  $validator
      * @return void
      */
     public function withValidator($validator)
     {
-        $validator->after(function ($validator) {
-            logger(request('data.email_addresses'));
-            $usernameErrors = [];
+//        dd($validator->getRules());
+
+        $usernameErrors = [];
 //            collect(request('data'))->map(function ($row, $index) use ($validator, &$usernameErrors) {
 //                if(User::where('username',$row['username'])->count() > 0){
 //                    $usernameErrors[] = $row['username'];
@@ -94,6 +106,6 @@ class CreateTellATeacherRequest extends Request
 //                    );
 //                });
 //            }
-        });
+//        });
     }
 }
