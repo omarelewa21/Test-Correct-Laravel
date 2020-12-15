@@ -49,12 +49,3 @@
         </tr>
 
 @stop
-
-{{--@section('tfoot')--}}
-{{--    <tr>--}}
-{{--        <td class="text-center pt-4">--}}
-{{--            <span class="block">Heb je je niet aangemeld voor een Test-Correct account?</span>--}}
-{{--            <a class="base text-bold" href="" >Annuleer de aanmelding</a>--}}
-{{--        </td>--}}
-{{--    </tr>--}}
-{{--@stop--}}

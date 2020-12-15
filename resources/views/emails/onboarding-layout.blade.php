@@ -63,7 +63,6 @@
             display: block;
         }
 
-        /*Buttons*/
         .button {
             border-radius: 10px;
             font-size: 18px;
@@ -82,31 +81,6 @@
 
         .button.stretched {
             display: block;
-        }
-
-        .cta-button {
-            background: var(--cta-primary);
-            background: linear-gradient(90deg, var(--cta-primary) 0%, var(--cta-primary) 100%);
-            color: white;
-        }
-
-        .cta-button:hover {
-            background: linear-gradient(90deg, rgba(39, 151, 61, 1) 0%, rgba(61, 187, 86, 1) 100%);
-            box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
-            transition: ease-in-out 150ms;
-        }
-
-        .cta-button:active {
-            background: linear-gradient(90deg, rgba(57, 180, 81, 1) 0%, rgba(61, 187, 86, 1) 100%);
-            box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
-            border: none;
-        }
-
-        .cta-button:focus {
-            background: var(--cta-primary);
-            border: 2px solid var(--cta-primary-dark);
-            padding: 13px 28px;
-            outline: none;
         }
 
         .svg-stroke-white {
@@ -128,8 +102,6 @@
             border: 1px solid var(--blue-grey);
         }
 
-
-        /*Paddings / Margins*/
         .px-5 {
             padding-left: 1.25rem;
             padding-right: 1.25rem;
@@ -238,7 +210,6 @@
             width: 255px;
         }
 
-        /*Oude CSS*/
         root,
         html,
         body {
@@ -398,14 +369,11 @@
         }
 
         #wrapper {
-            /*background-color: #ffffff;*/
             max-width: 720px;
             margin-left: auto;
             margin-right: auto;
             margin-top: 50px;
             margin-bottom: 50px;
-            /*border: 1px solid var(--blue-grey);*/
-            /*border-radius: 10px;*/
         }
 
         #wrapper #header {
@@ -464,6 +432,8 @@
             color: #333333;
             font-size: 14px !important;
         }
+
+
     </style>
 </head>
 
