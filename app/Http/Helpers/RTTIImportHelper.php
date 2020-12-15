@@ -167,10 +167,13 @@ class RTTIImportHelper {
                     $teacher_is_mentor = $row[$column_index['IsMentor']];
                     
                     $now = Carbon::now();
+                    
+                    $school_location_id = $this->getSchoolLocationId($external_sub_code, $external_main_code);
 
-                    if (!in_array($study_year, range(($now->year - 10), ($now->year + 10)))) {
+                    if ($school_location_id == NULL) {
+                        $this->importLog('Cannot find school location by brin/location code ' . $external_main_code . ' ' . $external_sub_code);
 
-                        throw new \Exception('Invalid study year ' . $study_year);
+                        throw new \Exception('De Brincode/locatiecode ' . $external_main_code . ' ' . $external_sub_code . ' in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.');
                     }
 
                     if (strlen($external_sub_code) == 1) {
@@ -181,11 +184,9 @@ class RTTIImportHelper {
                     $teacher_email = 'rtti_' . $teacher_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
 
                     
-                    $school_location_id = $this->getSchoolLocationId($external_sub_code, $external_main_code);
-                    if ($school_location_id == NULL) {
-                        $this->importLog('Cannot find school location by brin/location code ' . $external_main_code . ' ' . $external_sub_code);
+                    if (!in_array($study_year, range(($now->year - 10), ($now->year + 10)))) {
 
-                        throw new \Exception('De Brincode/locatiecode ' . $external_main_code . ' ' . $external_sub_code . ' in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.');
+                        throw new \Exception('Invalid study year ' . $study_year);
                     }
 
                     // collect years
@@ -610,23 +611,23 @@ class RTTIImportHelper {
                             }
                             break;
                         case "Studierichting":
-                            if (!ctype_alnum($row[$fieldindex]) || strlen($row[$fieldindex]) > 45) {
-                                $errors[] = $field . " incorrect " . $row[$fieldindex];
+                            if (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || \strlen($row[$fieldindex]) > 45) {
+                                $errors[] = $field . " incorrect (" . $row[$fieldindex] . ")";
                             }
                             break;
                         case "lesJaarlaag":
                             if (!ctype_digit($row[$fieldindex])) {
-                                $errors[] = $field . " incorrect " . $row[$fieldindex];
+                                $errors[] = $field . " incorrect (" . $row[$fieldindex] . ")";
                             }
                             break;
                         case "Schooljaar":
                             if (!ctype_digit(substr($row[$fieldindex], 0, 4))) {
-                                $errors[] = $field . " incorrect " . $row[$fieldindex];
+                                $errors[] = $field . " incorrect (" . $row[$fieldindex] . ").";
                             }
                             break;
-                        case "leeStamNummer": // @Todo check is not empty
+                        case "leeStamNummer": 
                             if ($row[$fieldindex] == "" || !ctype_alnum($row[$fieldindex]) || strlen($row[$fieldindex]) > 45) {
-                                $errors[] = "Een stamnummer (" . $row[$fieldindex] . ") van een leerling kan maximaal 45 tekens lang zijn.";
+                                $errors[] = "Een stamnummer (" . $row[$fieldindex] . ") van een leerling kan maximaal 45 tekens lang zijn en mag niet leeg zijn.";
                             }
                             break;
                         case "leeAchternaam":
