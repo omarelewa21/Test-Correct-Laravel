@@ -13751,7 +13751,6 @@ VALUES
 /*!40000 ALTER TABLE `test_questions` ENABLE KEYS */;
 UNLOCK TABLES;
 
-
 # Dump of table test_take_event_types
 # ------------------------------------------------------------
 

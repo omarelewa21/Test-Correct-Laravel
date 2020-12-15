@@ -261,6 +261,11 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('qtiimportbatchcito/data','QtiImportBatchCitoController@data')->name('qtiimportbatchcito_data');
     Route::post('qtiimportbatchcito/import','QtiImportBatchCitoController@store')->name('qtiimportbatchcito_import');
 
+    Route::get('rttiimport/data','RttiImportController@data')->name('rttiimport_data');
+    Route::post('rttiimport/import','RttiImportController@store')->name('rttiimport_import');
+   
+    //Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
+
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
 
