@@ -279,7 +279,9 @@ class TestTake extends BaseModel
         });
 
         static::creating(function(TestTake $testTake) {
-            $testTake->school_location_id = Auth::user()->school_location_id;
+            if($testTake->school_location_id === null) {
+                $testTake->school_location_id = Auth::user()->school_location_id;
+            }
         });
 
         static::created(function (TestTake $testTake) {

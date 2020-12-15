@@ -335,7 +335,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if ($user->getOriginal('demo') == true) {
                 return false;
             }
-            if ($this->isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation($user)){
+            if (static::isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation($user)){
                 $user->removeSchoolLocation(Auth::user()->schoolLocation);
                 return false;
             }
@@ -628,7 +628,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     /**
      * is user linked to multiple school locations and is the performing user a member of the school location the to be trashed user is linked to.
      */
-    private function isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation(User $user)
+    private static function isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation(User $user)
     {
         return (bool) $user->allowedSchoolLocations()->count() > 1
             && null !== Auth::user()->schoolLocation
