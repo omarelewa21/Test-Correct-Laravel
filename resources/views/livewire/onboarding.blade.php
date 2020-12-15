@@ -2,7 +2,7 @@
     <div class="py-5 bg-white onboarding-header">
         <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">
             <div class="col-span-3">
-                <a class="mx-auto tc-logo block" href="/">
+                <a class="mx-auto tc-logo block" href="{{config('app.url_login')}}">
                     <img class="" src="/svg/logos/Logo-Test-Correct-recolored.svg"
                          alt="Test-Correct">
                 </a>
@@ -428,18 +428,18 @@
                                     </div>
                                     <div class="flex flex-wrap mb-4">
                                         <span class="w-full mb-3">Deel op social media dat je een Test-Correct docent account hebt aangemaakt.</span>
-                                        <button class="float-left mr-2 button button-sm secondary-button transition">
-                                            <img class="w-20"
+                                        <a class="float-left mr-2 button button-sm secondary-button transition" href="https://www.linkedin.com/company/9225774">
+                                            <img class="w-20 mt-2"
                                                  src="/svg/logos/Logo-LinkedIn.svg"
-                                                 alt=""></button>
-                                        <button class="float-left mr-2 button button-sm secondary-button transition">
-                                            <img class="w-20"
+                                                 alt=""></a>
+                                        <a class="float-left mr-2 button button-sm secondary-button transition" href="https://twitter.com/testcorrect">
+                                            <img class="w-20 mt-3"
                                                  src="/svg/logos/Logo-Twitter.svg"
-                                                 alt=""></button>
-                                        <button class="float-left mr-2 button button-sm secondary-button transition">
-                                            <img class="w-20 "
+                                                 alt=""></a>
+                                        <a class="float-left mr-2 button button-sm secondary-button transition" href="https://www.facebook.com/TestCorrect/">
+                                            <img class="w-20 mt-3"
                                                  src="/svg/logos/Logo-Facebook.svg"
-                                                 alt=""></button>
+                                                 alt=""></a>
                                     </div>
 
                                     @if($resendVerificationMail)
