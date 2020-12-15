@@ -1746,7 +1746,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 'school_location_user.school_location_id',
                 SchoolLocation::select('id')
                     ->where([
-                        ['id','<>', $user->getAttribute('school_location_id')],
+                        ['id', $user->getAttribute('school_location_id')],
                         ['school_id', $school->school_id],
                     ])
             );
