@@ -428,15 +428,15 @@
                                     </div>
                                     <div class="flex flex-wrap mb-4">
                                         <span class="w-full mb-3">Deel op social media dat je een Test-Correct docent account hebt aangemaakt.</span>
-                                        <a class="float-left mr-2 button button-sm secondary-button transition" href="https://www.linkedin.com/company/9225774">
+                                        <a class="float-left mr-2 button button-sm secondary-button transition" target="_blank" href="https://www.linkedin.com/company/9225774">
                                             <img class="w-20 mt-2"
                                                  src="/svg/logos/Logo-LinkedIn.svg"
                                                  alt=""></a>
-                                        <a class="float-left mr-2 button button-sm secondary-button transition" href="https://twitter.com/testcorrect">
+                                        <a class="float-left mr-2 button button-sm secondary-button transition" target="_blank" href="https://twitter.com/testcorrect">
                                             <img class="w-20 mt-3"
                                                  src="/svg/logos/Logo-Twitter.svg"
                                                  alt=""></a>
-                                        <a class="float-left mr-2 button button-sm secondary-button transition" href="https://www.facebook.com/TestCorrect/">
+                                        <a class="float-left mr-2 button button-sm secondary-button transition" target="_blank" href="https://www.facebook.com/TestCorrect/">
                                             <img class="w-20 mt-3"
                                                  src="/svg/logos/Logo-Facebook.svg"
                                                  alt=""></a>

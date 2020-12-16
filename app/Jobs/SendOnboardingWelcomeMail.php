@@ -47,7 +47,7 @@ class SendOnboardingWelcomeMail extends Mailable
             ['user_id' => $this->user->getKey()]
         );
         return $this->view('emails.welcome.onboarding-welcome')
-            ->subject('Welkom in Test-Correct')
+            ->subject('Welkom bij Test-Correct')
             ->with([
                 'user' => $this->user, 'url' => $this->url, 'token' => $emailConfirmation->uuid
             ]);
