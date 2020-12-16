@@ -477,7 +477,7 @@
     <tr>
         <th colspan="999" class="pt-20 pb-20 head-border">
             <img width="274" height="50" id="logo"
-                 src="{{config('app.base_url')}}Logo-Test-Correct-recolored.png"
+                 src="{{config('app.base_url')}}img/Logo-Test-Correct-recolored.png"
                  alt="Test-Correct"/>
         </td>
     </tr>
