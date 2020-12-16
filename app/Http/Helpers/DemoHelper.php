@@ -139,7 +139,6 @@ class DemoHelper
         $this->createDemoSubjectIfNeeded();
         // create demo teacher
 
-        logger('demoteacher created method after demoPartsForSchool');
         $this->createDemoTeacherIfNeeded();
         // create demo students
         $this->createDemoStudentsIfNeeded();
