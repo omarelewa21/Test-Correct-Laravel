@@ -83,7 +83,7 @@ class FileManagementController extends Controller {
                 'user_id' => Auth::user()->getKey(),
                 'school_location_id' => $schoolLocation->getKey(),
                 'type' => 'testupload',
-                'typedetails' => [
+                'typedetails' => [ // request data?
                     'test_kind_id' => $request->get('test_kind_id'),
                     'education_level_year' => $request->get('education_level_year'),
                     'education_level_id' => $request->get('education_level_id'),

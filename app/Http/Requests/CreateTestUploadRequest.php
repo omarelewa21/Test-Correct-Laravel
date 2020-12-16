@@ -22,6 +22,16 @@ class CreateTestUploadRequest extends Request {
         return
                 Auth::user()->hasRole('Teacher') && $this->schoolLocation !== null && Auth::user()->school_location_id == $this->schoolLocation->getKey();
     }
+    
+    public function isForm() {
+        
+        // test if the request is form data or file data
+        // if files is not set its a form!
+        if($this->files == []) return true;
+        
+        return false;
+        
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -35,25 +45,26 @@ class CreateTestUploadRequest extends Request {
         // differentiate validation
         if (isset($this->education_level_year)) {
 
+            // sometimes?
+            
             // form submit
             return [
-                'form_id'=>'required',
+                'form_id' => 'required',
                 'test_kind_id' => 'required',
                 'education_level_year' => 'required',
                 'education_level_id' => 'required',
                 'subject' => 'required',
                 'name' => 'required|string'
             ];
-            
-        } else {
-            
-            // file submit
-            return [
-                'files'=>'',
-                'form_id'=>'required'
-            ];
         }
+
+        // file submit
+        return [
+            'files' => '',
+            'form_id' => 'required'
+        ];
     }
+    
 
     /**
      * Get the sanitized input for the request.
