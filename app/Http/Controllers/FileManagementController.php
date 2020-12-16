@@ -1,4 +1,6 @@
-<?php namespace tcCore\Http\Controllers;
+<?php
+
+namespace tcCore\Http\Controllers;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -24,37 +26,31 @@ use tcCore\Http\Requests\CreateTeacherRequest;
 use tcCore\Http\Requests\UpdateTeacherRequest;
 use tcCore\UmbrellaOrganization;
 
-class FileManagementController extends Controller
-{
+class FileManagementController extends Controller {
 
-    protected function getBasePath()
-    {
+    protected function getBasePath() {
         return storage_path('app/files');
-
     }
 
-    public function getStatuses()
-    {
+    public function getStatuses() {
         return Response(FileManagementStatus::all(), 200);
     }
 
-    protected function sendInvite(FileManagement $fileManagement){
+    protected function sendInvite(FileManagement $fileManagement) {
         Queue::push(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
 //        dispatch_now(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
-
     }
 
-    public function update(UpdateFileManagementRequest $request, FileManagement $fileManagement)
-    {
+    public function update(UpdateFileManagementRequest $request, FileManagement $fileManagement) {
         $fileManagement->fill($request->validated());
         $typeDetails = $fileManagement->typedetails;
-        $originalEmail = property_exists($typeDetails,'invite') ? $typeDetails->invite : '';
+        $originalEmail = property_exists($typeDetails, 'invite') ? $typeDetails->invite : '';
         $typeDetails->colorcode = $request->get('colorcode');
         $typeDetails->invite = $request->get('invite');
         $fileManagement->typedetails = $typeDetails;
         if ($fileManagement->save() !== false) {
             $email = $request->get('invite');
-            if($originalEmail != $email && strlen($email) > 3){
+            if ($originalEmail != $email && strlen($email) > 3) {
                 $this->sendInvite($fileManagement);
             }
 
@@ -70,21 +66,16 @@ class FileManagementController extends Controller
      * @param file
      * @return Response
      */
-    public function download(Requests\DownloadFileManagementRequest $request, FileManagement $fileManagement)
-    {
+    public function download(Requests\DownloadFileManagementRequest $request, FileManagement $fileManagement) {
         return Response::download(sprintf('%s/%s/%s', $this->getBasePath(), $fileManagement->schoolLocation->getKey(), $fileManagement->name));
     }
 
+    public function storeTestUpload(CreateTestUploadRequest $request, SchoolLocation $schoolLocation) {
 
-    public function storeTestUpload(CreateTestUploadRequest $request, SchoolLocation $schoolLocation)
-    {
+        $form_id = $request['form_id'];
 
-        DB::beginTransaction();
-        try {
-
-
-            $main = new FileManagement();
-
+        if (isset($request['education_level_year'])) {
+            
             $data = [
                 'id' => Str::uuid(),
                 'origname' => '',
@@ -100,22 +91,52 @@ class FileManagementController extends Controller
                     'name' => $request->get('name'),
                     'correctiemodel' => $request->get('correctiemodel'),
                     'multiple' => $request->get('multiple'),
+                    'form_id' => $request->get('form_id')
                 ],
             ];
+
+            $main = new FileManagement();
 
             $main->fill($data);
 
             $main->save();
 
-            foreach (request('files') as $file) {
+            $parent_id = $main->getKey();
+
+            FileManagement::where('parent_id', $form_id)->update(['parent_id' => $parent_id, 'typedetails' => $data['typedetails']]);
+
+            Response::make($main, 200);
+            
+        } else {
+            
+            // there is only one file at a time
+            $file = $request->file('files')[0];
+
+            // file data is temporary placeholder
+
+            $data = [
+                'id' => Str::uuid(),
+                'origname' => '',
+                'name' => '',
+                'user_id' => Auth::user()->getKey(),
+                'school_location_id' => $schoolLocation->getKey(),
+                'type' => 'testupload',
+                'typedetails' => []
+            ];
+
+            DB::beginTransaction();
+
+            try {
 
                 $child = new FileManagement();
+                
                 $data['id'] = Str::uuid();
-                $data['parent_id'] = $main->getKey();
+
+                $data['parent_id'] = $form_id;
 
                 $origfileName = $file->getClientOriginalName();
 
-                $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5),Str::slug($request->get('name')), pathinfo($origfileName, PATHINFO_EXTENSION));
+                $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($request->get('name')), pathinfo($origfileName, PATHINFO_EXTENSION));
 
                 $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
 
@@ -125,20 +146,22 @@ class FileManagementController extends Controller
                 $child->fill($data);
 
                 $child->save();
+                
+            } catch (\Exception $e) {
+                DB::rollback();
+                logger('===== error ' . $e->getMessage());
+                Response::make('Het is helaas niet gelukt om de upload te verwerken, probeer het nogmaals.', 500);
             }
-        } catch (\Exception $e) {
-            DB::rollback();
-            logger('===== error ' . $e->getMessage());
-            Response::make('Het is helaas niet gelukt om de upload te verwerken, probeer het nogmaals.', 500);
+            
+            DB::commit();
+            Response::make($child, 200);
         }
-        DB::commit();
-        Response::make($main, 200);
     }
 
+    public function storeClassUpload(CreateClassUploadRequest $request, SchoolLocation $schoolLocation) {
 
-    public function storeClassUpload(CreateClassUploadRequest $request, SchoolLocation $schoolLocation)
-    {
         $file = $request->file('file');
+        
         $origfileName = $file->getClientOriginalName();
 
         $fileName = sprintf('%s-%s.%s', date('YmdHis'), Str::slug($request->get('class')), pathinfo($origfileName, PATHINFO_EXTENSION));
@@ -177,36 +200,33 @@ class FileManagementController extends Controller
      *
      * @return Response
      */
-    public function index(Requests\IndexFileManagementRequest $request)
-    {
+    public function index(Requests\IndexFileManagementRequest $request) {
 
         $files = FileManagement::whereNull('parent_id')
-            ->orderby('file_management_status_id')
-            ->with(['user', 'handler', 'status','status.parent']);
+                ->orderby('file_management_status_id')
+                ->with(['user', 'handler', 'status', 'status.parent']);
 
         $user = Auth::user();
 
         if ($user->hasRole('Teacher')) {
             $files->where(function ($query) use ($user) {
                 $query->where('user_id', $user->getKey())
-                    ->orWhere('handledby', $user->getKey());
+                        ->orWhere('handledby', $user->getKey());
             });
-            if($user->isToetsenbakker()){
-                $files->where('archived',false);
-            }
-            else {
+            if ($user->isToetsenbakker()) {
+                $files->where('archived', false);
+            } else {
 //                $files->where('school_location_id', $user->school_location_id)
 //                    ->whereIN('file_management_status_id', [1, 2, 3, 4, 5, 6, 8]);
                 $files->where('school_location_id', $user->school_location_id);
             }
-
         } else if ($user->hasRole('Account manager')) {
             $files->whereIn('school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user))
-                ->with(['schoolLocation']);
-                // we want to order by filemanagementstatus displayorder, but as it has the same fieldnames as file_managements table
-                // we can't use a join. Therefor we first get all the statusIds in the correct order and then order by them
-                $statusIds = FileManagementStatus::orderBy('displayorder')->pluck('id')->toArray();
-                $files->orderByRaw('FIELD(file_management_status_id,'.implode(',',$statusIds).')','asc');
+                    ->with(['schoolLocation']);
+            // we want to order by filemanagementstatus displayorder, but as it has the same fieldnames as file_managements table
+            // we can't use a join. Therefor we first get all the statusIds in the correct order and then order by them
+            $statusIds = FileManagementStatus::orderBy('displayorder')->pluck('id')->toArray();
+            $files->orderByRaw('FIELD(file_management_status_id,' . implode(',', $statusIds) . ')', 'asc');
         }
 
         if ($request->get('type')) {
@@ -231,8 +251,7 @@ class FileManagementController extends Controller
      * Display the specified file.
      * @return
      */
-    public function show(ShowFileManagementRequest $request, FileManagement $fileManagement)
-    {
+    public function show(ShowFileManagementRequest $request, FileManagement $fileManagement) {
         $fileManagement->load(['user', 'handler', 'status', 'children', 'schoolLocation']);
 
         $user = Auth::user();
@@ -247,4 +266,5 @@ class FileManagementController extends Controller
 
         return Response::make($fileManagement, 200);
     }
+
 }
