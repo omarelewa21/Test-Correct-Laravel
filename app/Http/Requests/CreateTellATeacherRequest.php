@@ -27,10 +27,10 @@ class CreateTellATeacherRequest extends Request
      */
     protected function prepareForValidation()
     {
-        if (strstr($this->email_addresses, ';')) {
-            $this->merge(['email_addresses' => explode(';', $this->email_addresses)]);
+        if (strstr($this->data['email_addresses'], ';')) {
+            $this->merge(['email_addresses' => explode(';', $this->data['email_addresses'])]);
         } else {
-            $this->merge(['email_addresses' => [$this->email_addresses]]);
+            $this->merge(['email_addresses' => [$this->data['email_addresses']]]);
         }
     }
 
@@ -66,12 +66,12 @@ class CreateTellATeacherRequest extends Request
     /**
      * Configure the validator instance.
      *
-     * @param  \Illuminate\Validation\Validator  $validator
+     * @param \Illuminate\Validation\Validator $validator
      * @return void
      */
     public function withValidator($validator)
     {
-//        dd($validator->getRules());
+        logger($validator->getRules());
 
         $usernameErrors = [];
 //            collect(request('data'))->map(function ($row, $index) use ($validator, &$usernameErrors) {
