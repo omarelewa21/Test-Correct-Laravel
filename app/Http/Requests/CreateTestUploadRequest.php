@@ -32,6 +32,12 @@ class CreateTestUploadRequest extends Request {
         return false;
         
     }
+    
+    public function isFile() {
+        
+        return $this['files'];
+        
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -43,7 +49,7 @@ class CreateTestUploadRequest extends Request {
         $this->filterInput();
 
         // differentiate validation
-        if (isset($this->education_level_year)) {
+        if (!$this->isFile()) {
 
             // sometimes?
             
