@@ -296,4 +296,13 @@ class QtiBaseQuestionHelper
         throw new \Exception("key $key was not found in converted Arr. call without key to see full array");
 
     }
+
+    protected function appendQuestionSourceAsImageToQuestion($string)
+    {
+        if ($this->question && $this->question->question_content && $this->question->question_content->question_source) {
+            $source = trim($this->question->question_content->question_source->__toString());
+            $string .= sprintf('<BR><img src="%s" style="max-width: 100%%"/>', $source);
+        }
+        return $string;
+    }
 }
