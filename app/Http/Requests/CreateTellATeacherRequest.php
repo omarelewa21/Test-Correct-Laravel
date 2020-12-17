@@ -69,43 +69,34 @@ class CreateTellATeacherRequest extends Request
      * @param  \Illuminate\Validation\Validator  $validator
      * @return void
      */
-    public function withValidator($validator)
+    protected function getValidatorInstance()
     {
-//        dd($validator->getRules());
+        return parent::getValidatorInstance()->after(function($validator){
+            // Call the after method of the FormRequest (see below)
+            $this->after($validator);
+        });
+    }
 
-        $usernameErrors = [];
-//            collect(request('data'))->map(function ($row, $index) use ($validator, &$usernameErrors) {
-//                if(User::where('username',$row['username'])->count() > 0){
-//                    $usernameErrors[] = $row['username'];
-//                }
-//            });
-//            if (count($usernameErrors)){
-//                if (count($usernameErrors) === 1){
-//                    $validator->errors()->add(
-//                        sprintf('username'),
-//                        sprintf('Er is al een collega met e-mailadres (%s) bij ons bekend',$usernameErrors[0])
-//                    );
-//                }
-//                else {
-//                    $validator->errors()->add(
-//                        sprintf('username'),
-//                        sprintf('Er zijn al collegas met e-mailadressen (%s) bij ons bekend',implode(',',$usernameErrors))
-//                    );
-//                }
-//            }
-//
-//            $dataCollection = collect(request('data'))->map(function($a){return $a['username'];});
-//            $unique = $dataCollection->unique();
-//            $dataAr = $dataCollection->toArray();
-//            if($unique->count() < $dataCollection->count()) {
-//                $duplicates = $dataCollection->keys()->diff($unique->keys());
-//                $duplicates->each(function($duplicate) use ($validator, $dataAr) {
-//                    $validator->errors()->add(
-//                        sprintf('data.%d.duplicate', $duplicate),
-//                        sprintf('Dit e-mailadres (%s) komt meerdere keren voor',$dataAr[$duplicate])
-//                    );
-//                });
-//            }
-//        });
+    public function after($validator)
+    {
+        if ($emailErrors = $validator->errors()->get('email_addresses.*')) {
+            $keysWithErrors = collect($emailErrors)->map(function ($error, $pattern) {
+                return (int) str_replace('email_addresses.', '', $pattern);
+            });
+
+            $errorMsg = collect($this->get('email_addresses'))
+                ->map(function ($emailAddress, $key) use ($keysWithErrors) {
+                    if ($keysWithErrors->contains($key)) {
+                        return sprintf('<strong>%s</strong>', $emailAddress);
+                    }
+                    return $emailAddress;
+                })->implode(';');
+            $pattern = 'De e-mailadressen %s zijn niet valide.';
+
+            if (count($this->get('email_addresses')) == 1) {
+                $pattern = 'Het e-mailadres %s is niet valide.';
+            }
+            $validator->getMessageBag()->add('form' ,sprintf($pattern, $errorMsg));
+        }
     }
 }
