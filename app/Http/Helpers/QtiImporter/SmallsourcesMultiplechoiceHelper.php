@@ -91,6 +91,8 @@ class SmallsourcesMultiplechoiceHelper extends QtiBaseQuestionHelper
         $answersToString = sprintf('[%s]',$answersToString);
         $question = str_replace("[$nr]", $answersToString, $question);
 
+        $question = $this->appendQuestionSourceAsImageToQuestion($question);
+
 
         return [
             'answers' => $this->orderAnswersByCorrect($answers)->toArray(),
@@ -98,4 +100,5 @@ class SmallsourcesMultiplechoiceHelper extends QtiBaseQuestionHelper
             'score' => $maxScore,
         ];
     }
+
 }

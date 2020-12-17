@@ -157,6 +157,8 @@ class SmallsourcesFibHelper extends QtiBaseQuestionHelper
             }
         }
 
+        $question = $this->appendQuestionSourceAsImageToQuestion($question);
+
         return [
             'question' => $question,
             'answers'  => $answers->toArray()

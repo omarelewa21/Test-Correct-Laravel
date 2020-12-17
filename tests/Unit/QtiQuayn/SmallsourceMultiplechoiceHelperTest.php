@@ -40,4 +40,30 @@ class SmallsourceMultiplechoiceHelperTest extends TestCase
         $this->assertEquals('door op de achterkant van het boek te kijken.', trim($answers[2]['answer']));
         $this->assertEquals('door de eerste bladzijde te lezen of een ander fragment.', trim($answers[3]['answer']));
     }
+
+    /** @test */
+    public function example_two_has_an_image_has_answers()
+    {
+        $zipDir = '';
+        $basePath = '';
+
+        $test = new Test();
+        $question = simplexml_load_file(__DIR__.'/../../_fixtures_quayn_qti/smallsourceMultiplechoiceSample2.xml',
+            'SimpleXMLElement', LIBXML_NOCDATA);
+
+        $result = QtiImportController::parseQuestion($question,$test,$zipDir, $basePath);
+
+        $helper = $result->helper;
+        $this->assertEquals('CompletionQuestion', $helper->getType());
+        $this->assertEquals('multi', $helper->getSubType());
+        $answers = $helper->getConvertedAr('answer');
+        $this->assertCount(3, $answers);
+        $this->assertEquals('Alleen door een verschil in erfelijke eigenschappen.', trim($answers[0]['answer']));
+        $this->assertEquals('Alleen door invloeden uit het milieu.', trim($answers[1]['answer']));
+        $this->assertEquals('Zowel door een verschil in erfelijke eigenschappen als door invloeden uit het milieu.', trim($answers[2]['answer']));
+        $this->assertStringContainsString(
+            'sources/Bvj_3gt_Th3_A_01.jpg',
+            $helper->getConvertedAr('question')
+        );
+    }
 }
