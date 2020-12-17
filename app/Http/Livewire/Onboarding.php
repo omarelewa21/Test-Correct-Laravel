@@ -67,7 +67,7 @@ class Onboarding extends Component
             'registration.gender'                       => 'sometimes',
             'registration.gender_different'             => 'sometimes',
             'registration.name_first'                   => 'sometimes',
-            'registration.username'                     => 'required|email',
+            'registration.username'                     => 'required|email:rfc,dns',
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
@@ -127,7 +127,7 @@ class Onboarding extends Component
     public function backToStepOne()
     {
         $this->step = 1;
-        $this->btnStepOneDisabledCheck();
+//        $this->btnStepOneDisabledCheck();
     }
 
     public function render()
@@ -170,7 +170,7 @@ class Onboarding extends Component
             return;
         }
         $this->step = 2;
-        $this->btnStepTwoDisabledCheck();
+//        $this->btnStepTwoDisabledCheck();
         $this->warningStepOneConfirmed = false;
     }
 
@@ -277,10 +277,10 @@ class Onboarding extends Component
 
     public function updated($propertyName)
     {
-        $this->btnDisabled = true;
-
-        $this->btnStepOneDisabledCheck();
-        $this->btnStepTwoDisabledCheck();
+        $this->btnDisabled = false;
+//
+//        $this->btnStepOneDisabledCheck();
+//        $this->btnStepTwoDisabledCheck();
 
         if ($propertyName === 'password_confirmation') {
             $propertyName = 'password';
