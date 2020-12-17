@@ -2,7 +2,7 @@
     <div class="py-5 bg-white onboarding-header">
         <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">
             <div class="col-span-3">
-                <a class="mx-auto tc-logo block" href="{{config('app.url_login')}}">
+                <a class="mx-auto tc-logo block" href="https://test-correct.nl">
                     <img class="" src="/svg/logos/Logo-Test-Correct-recolored.svg"
                          alt="Test-Correct">
                 </a>
