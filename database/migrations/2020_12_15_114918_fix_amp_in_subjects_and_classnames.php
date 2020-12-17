@@ -16,15 +16,15 @@ class FixAmpInSubjectsAndClassnames extends Migration
     public function up()
     {
         SchoolClass::where('name','like','%&%')->where('name','not like','%&amp;%')->get()->each(function(SchoolClass $sc){
-            $name = $sc->name;
-            Request::filter($name);
+            $name = str_replace('&','&amp;',$sc->name);
+//            Request::filter($name);
             $sc->name = $name;
             $sc->save();
         });
 
         \tcCore\Subject::where('name','like','%&%')->where('name','not like','%&amp;%')->get()->each(function(\tcCore\Subject $s){
-            $name = $s->name;
-            Request::filter($name);
+            $name = str_replace('&','&amp;',$s->name);
+//            Request::filter($name);
             $s->name = $name;
             $s->save();
         });
