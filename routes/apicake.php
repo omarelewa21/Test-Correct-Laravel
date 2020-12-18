@@ -157,7 +157,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::get('school_year/list', ['as' => 'school_year.list', 'uses' => 'SchoolYearsController@lists']);
 	Route::get('school_year_active', ['as' => 'school_year_active', 'uses' => 'SchoolYearsController@activeSchoolYear']);
 	Route::resource('school_year', 'SchoolYearsController', ['except' => ['create', 'edit']]);
-	
+
 
 	Route::resource('period', 'PeriodsController', ['except' => ['create', 'edit']]);
 
@@ -199,7 +199,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
     Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
-    Route::post('/tell_a_teacher', 'TellATeacherController@store');
+    Route::post('/tell_a_teacher', 'TellATeacherController@store')->name('tell_a_teacher.store');
 
     Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
 	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
@@ -263,7 +263,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::get('rttiimport/data','RttiImportController@data')->name('rttiimport_data');
     Route::post('rttiimport/import','RttiImportController@store')->name('rttiimport_import');
-   
+
     //Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
 
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
