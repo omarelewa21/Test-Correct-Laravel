@@ -68,7 +68,7 @@ class CreateTellATeacherRequest extends Request
                     return (int)str_replace('email_addresses.', '', $pattern);
                 });
 
-                $errorMsg = collect($this->get('email_addresses'))
+                $errorMsg = collect($this->email_addresses)
                     ->map(function ($emailAddress, $key) use ($keysWithErrors) {
                         if ($keysWithErrors->contains($key)) {
                             return sprintf('<strong>%s</strong>', $emailAddress);
@@ -77,7 +77,7 @@ class CreateTellATeacherRequest extends Request
                     })->implode(';');
                 $pattern = 'De e-mailadressen %s zijn niet valide.';
 
-                if (count($this->get('email_addresses')) == 1) {
+                if (count($this->email_addresses) == 1) {
                     $pattern = 'Het e-mailadres %s is niet valide.';
                 }
                 $validator->getMessageBag()->add('form', sprintf($pattern, $errorMsg));
