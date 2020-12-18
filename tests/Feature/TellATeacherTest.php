@@ -66,6 +66,7 @@ class TellATeacherTest extends TestCase
         $errors = $response->decodeResponseJson()['errors'];
         $this->assertArrayHasKey('email_addresses.0', $errors);
         $this->assertEquals(['The email_addresses.0 must be a valid email address.'], $errors['email_addresses.0']);
+        $this->assertEquals(['Het e-mailadres <strong>not_valid</strong> is niet valide.'], $errors['form']);
     }
 
     /** @test */
@@ -105,6 +106,7 @@ class TellATeacherTest extends TestCase
         $errors = $response->decodeResponseJson()['errors'];
         $this->assertArrayHasKey('email_addresses.1', $errors);
         $this->assertEquals(['The email_addresses.1 must be a valid email address.'], $errors['email_addresses.1']);
+        $this->assertEquals(['De e-mailadressen m.folkerts@sobit.nl;<strong>bogus</strong>;martin@sobit.nl zijn niet valide.'], $errors['form']);
     }
 
 
