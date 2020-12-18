@@ -82,6 +82,7 @@ class TellATeacherTest extends TestCase
     /** @test */
     public function a_teacher_can_invite_a_collegue_but_the_message_cannot_be_empty()
     {
+        Mail::fake();
         $response = $this->post(
             route('tell_a_teacher.store'),
             $this->getTeacherFromPrivateSchoolRequestData(
@@ -102,6 +103,8 @@ class TellATeacherTest extends TestCase
             'Het bericht is verplicht',
             $response->decodeResponseJson()['errors']['data.message'][0]
         );
+
+        Mail::assertNothingSent();
     }
 
     /** @test */
@@ -134,7 +137,7 @@ class TellATeacherTest extends TestCase
     }
 
     /** @test */
-    public function a_teacher_can_invite_a_collegue_but_the_email_address_should_bv_valid_in_step2_also()
+    public function a_teacher_can_invite_a_collegue_but_the_email_address_should_be_valid_in_step2_also()
     {
         Mail::fake();
         $response = $this->post(
@@ -148,7 +151,7 @@ class TellATeacherTest extends TestCase
                         'email_addresses' => 'fientjevanamersfoort@.nl',
                     ],
                     'step'               => '2',
-                    'submit'             => 'false',
+                    'submit'             => 'true',
                 ])
             )
         )->assertStatus(422);
@@ -174,6 +177,7 @@ class TellATeacherTest extends TestCase
                     'data'               => ['email_addresses' => 'not_valid'],
                     'school_location_id' => 3,
                     'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
+                    'step'               => 1,
                 ])
             )
         )->assertStatus(422);
@@ -199,6 +203,7 @@ class TellATeacherTest extends TestCase
                     'data'               => ['email_addresses' => 'm.folkerts@sobit.nl;martin@sobit.nl'],
                     'school_location_id' => 3,
                     'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
+                    'step'               => 1,
                 ])
             )
         )->assertSuccessful();

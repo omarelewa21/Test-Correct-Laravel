@@ -249,8 +249,9 @@
                  alt="Test-Correct"/>
         </td>
     </tr>
-    <tr style="padding-left: 40px;padding-right: 40px">
-        <td>
+    <tr>
+        <td style="padding-left: 40px;padding-right: 40px">
+        <td style="padding-left: 40px;padding-right: 40px">
             <h5 style="color: #fff; font-size: 20px; font-weight:700;">Je collega {{$inviter}} nodigd je uit voor Test-Correct</h5>
         </td>
     </tr>

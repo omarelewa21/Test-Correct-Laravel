@@ -19,8 +19,8 @@ class TellATeacherController extends Controller
     {
 
         if ($request->step == 2) {
-            collect($request->email_addresses)->map(function($address) {
-                Mail::to($address)->send(new SendTellATeacherMail(Auth::user()));
+            collect($request->email_addresses)->map(function($address) use ($request) {
+                Mail::to($address)->send(new SendTellATeacherMail(Auth::user(), $request->data['message']));
             });
         }
 

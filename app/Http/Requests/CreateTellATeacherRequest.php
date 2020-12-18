@@ -1,6 +1,7 @@
 <?php namespace tcCore\Http\Requests;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 
 class CreateTellATeacherRequest extends Request
@@ -45,7 +46,7 @@ class CreateTellATeacherRequest extends Request
             'user_roles'         => 'required',
             'invited_by'         => 'required',
             'send_welcome_mail'  => 'sometimes',
-            'step'               => 'in:1,2',
+            'step'               => ['required', Rule::in([1,2])],
         ];
 
 
