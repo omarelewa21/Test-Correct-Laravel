@@ -1,0 +1,30 @@
+<question id='nn-20160722092224WFXBMQDHNR' type='LARGESOURCE_FIB'>
+    <question_metadata>
+        <question_category><![CDATA[Eindtoets B]]></question_category>
+        <question_book><![CDATA[Biologie voor jou]]></question_book>
+        <question_edition><![CDATA[3 vmbo-gt]]></question_edition>
+        <question_chapter><![CDATA[3 Erfelijkheid]]></question_chapter>
+        <question_paragraph><![CDATA[Basisstof 2]]></question_paragraph>
+        <question_extra_field01><![CDATA[Onthouden]]></question_extra_field01>
+    </question_metadata>
+    <question_info>
+        <question_number>33</question_number>
+        <question_chain number='' />
+        <question_alwaysselect value='false' />
+        <question_title><![CDATA[Open vragen]]></question_title>
+        <question_layout value='0' />
+        <question_availabletime value='00:00:00' />
+        <question_timeload value='' />
+        <question_showcomment value='inherit' />
+        <question_showtip value='inherit' />
+        <question_calculator value='false' />
+        <question_author_memo finished='false' />
+        <question_editorial_memo finished='false' />
+    </question_info>
+    <question_content>
+        <question_body><![CDATA[<font face='Arial' size='3' color='#000000'>Lees de context &#39;China of Afrika?&#39;. Deze context bestaat uit artikel 1 en artikel 2.<br /><br />Professor Jin Li (artikel 2) heeft het Y-chromosoom onderzocht van mensen uit alle hoeken van Oost-Azi&#235;.<br /><br />Vul de zinnen aan.<br /><br />Bij een <input type='text' name='answer1'><answer>man</answer></input> komen in een lichaamscel twee ongelijke geslachtschromosomen voor. Een daarvan is het Y-chromosoom. Het andere is het <input type='text' name='answer2'><answer>X</answer></input>-chromosoom.</font>]]></question_body>
+        <question_large_sourcetext><![CDATA[<font face='Arial' size='3' color='#000000'><strong>China of Afrika?</strong><br /><br /><i>Artikel 1</i><br /><i><strong>Out of China</strong></i><br />Wetenschappers hebben in Xuchang in China de fossiele schedel van een mensachtige opgegraven. Deze mensachtige leefde daar 80 000 tot 100 000 jaar geleden. De vondst is in tegenspraak met de &#39;Out of Africa&#39;-theorie. Volgens de &#39;Out of Africa&#39;-theorie ontstond de moderne mens in Oost-Afrika en verspreidde hij zich 60 000 tot 100 000 jaar geleden over de hele planeet.<br />De vondst in Xuchang ondersteunt de theorie dat de mensheid op verschillende plaatsen op de wereld is ontstaan. Wetenschappers die deze theorie aanhangen, denken dat de moderne mens afstamt van verschillende oermens-stammen. Sommige daarvan leefden in Europa, andere in Azi&#235;. De Chinezen bijvoorbeeld komen oorspronkelijk uit China en niet uit Afrika. Deze theorie wordt daarom de &#39;Out of China&#39;-theorie genoemd.<br /><i>Naar: China Daily, 28 januari 2008.</i><br /><br /><i>Artikel 2</i><br /><i><strong>Out of Africa</strong></i><br />Professor Jin Li uit China heeft het Y-chromosoom onderzocht van mensen uit alle hoeken van Oost-Azi&#235;. Hij vond dat er een kleine verandering was opgetreden in het DNA van het Y-chromosoom. Die verandering vond 31 000 tot 79 000 jaar geleden plaats in Afrika. Alle door Jin Li onderzochte Oost-Aziaten hadden deze verandering.<br /><i>Naar: The world of Chinese, september 2013.</i></font>]]></question_large_sourcetext>
+        <question_answer score='4' penalty=''>
+        </question_answer>
+    </question_content>
+</question>

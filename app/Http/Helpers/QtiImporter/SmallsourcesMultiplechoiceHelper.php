@@ -12,8 +12,10 @@ use tcCore\TestQuestion;
 class SmallsourcesMultiplechoiceHelper extends QtiBaseQuestionHelper
 {
     protected $type = 'CompletionQuestion';
-    protected $subType = 'Multi';
+    protected $subType = 'multi';
     protected $convertedAr = [];
+
+
 
     public function validate($question)
     {
@@ -80,10 +82,23 @@ class SmallsourcesMultiplechoiceHelper extends QtiBaseQuestionHelper
             $question = sprintf('%s<br />[%d]',$question,$nr);
         }
 
+        $answersToString = $answers->sort(function($a, $b) {
+            return $b['correct'] > $a['correct'];
+        })->map(function($answer) {
+            return trim($answer['answer']);
+        })->implode('|');
+
+        $answersToString = sprintf('[%s]',$answersToString);
+        $question = str_replace("[$nr]", $answersToString, $question);
+
+        $question = $this->appendQuestionSourceAsImageToQuestion($question);
+
+
         return [
             'answers' => $this->orderAnswersByCorrect($answers)->toArray(),
             'question' => $question,
             'score' => $maxScore,
         ];
     }
+
 }

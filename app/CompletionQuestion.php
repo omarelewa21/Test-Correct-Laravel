@@ -107,8 +107,10 @@ class CompletionQuestion extends Question implements QuestionInterface {
     }
 
     public function canCheckAnswer() {
-        if($this->isClosedQuestion()){
+        if($this->isClosedQuestion()){ // cito based
             return true;
+        } else if($this->subtype == 'completion') { // don't auto check gatentekst
+            return false;
         }
 
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');

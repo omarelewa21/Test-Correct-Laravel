@@ -332,7 +332,7 @@ class PValueRepository {
             $results[$teacherId] = $result;
         }
 
-        $comparedTeachers = User::whereIn('id', array_keys($results))->get();
+        $comparedTeachers = User::whereIn('id', array_keys($results))->where('school_location_id', $teacher->school_location_id)->get();
         foreach($comparedTeachers as &$comparedTeacher) {
             $comparedTeacher->setAttribute('p_value_own', $results[$comparedTeacher->getKey()]['own']);
             $comparedTeacher->setAttribute('p_value_this', $results[$comparedTeacher->getKey()]['this']);

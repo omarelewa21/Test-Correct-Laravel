@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use tcCore\Http\Controllers\Testing\TestingController;
 
+// file name was api.php and is now apicake.php in order to make room for the direct access urls
+
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
 
@@ -33,6 +35,8 @@ Route::post('password_reset', ['uses' => 'Auth\PasswordController@passwordReset'
 
 Route::get('edu-ix/{ean}/{session_id}/{signature}', 'EduK\HomeController@create');
 Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController@store');
+
+Route::get('temporary_login/{tlid}', ['as' => 'user.temporary_login', 'uses'=>'UsersController@temporaryLogin']);
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 
@@ -153,12 +157,13 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::get('school_year/list', ['as' => 'school_year.list', 'uses' => 'SchoolYearsController@lists']);
 	Route::get('school_year_active', ['as' => 'school_year_active', 'uses' => 'SchoolYearsController@activeSchoolYear']);
 	Route::resource('school_year', 'SchoolYearsController', ['except' => ['create', 'edit']]);
-
+	
 
 	Route::resource('period', 'PeriodsController', ['except' => ['create', 'edit']]);
 
 	// Subjects
 	Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
+	Route::resource('cito_subject','Cito\SubjectsController')->only(['index']);
 
 	// Test kinds
 	Route::get('test_kind/list', ['as' => 'test_kind.list', 'uses' => 'TestKindsController@lists']);
@@ -190,12 +195,13 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('answer', 'AnswersController', ['only' => ['index', 'show']]);
 
 	// Users
-	Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
-	Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
-	Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
-	Route::post('/tell_a_teacher', 'TellATeacherController@store')->name('tell_a_teacher.store');
+    Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
+    Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
+    Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
+    Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
+    Route::post('/tell_a_teacher', 'TellATeacherController@store');
 
-	Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
+    Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
 	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
@@ -254,6 +260,11 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::get('qtiimportbatchcito/data','QtiImportBatchCitoController@data')->name('qtiimportbatchcito_data');
     Route::post('qtiimportbatchcito/import','QtiImportBatchCitoController@store')->name('qtiimportbatchcito_import');
+
+    Route::get('rttiimport/data','RttiImportController@data')->name('rttiimport_data');
+    Route::post('rttiimport/import','RttiImportController@store')->name('rttiimport_import');
+   
+    //Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
 
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');

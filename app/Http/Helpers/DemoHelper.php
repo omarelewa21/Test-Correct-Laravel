@@ -139,7 +139,6 @@ class DemoHelper
         $this->createDemoSubjectIfNeeded();
         // create demo teacher
 
-        logger('demoteacher created method after demoPartsForSchool');
         $this->createDemoTeacherIfNeeded();
         // create demo students
         $this->createDemoStudentsIfNeeded();
@@ -298,7 +297,7 @@ class DemoHelper
 
         $testTakes = TestTake::where('test_id', $baseDemoTest->getKey())->get()->transform(function (TestTake $testTake) use ($teacher, $students, $schoolClass, $periodId, $data) {
             $helper = new TestTakeDuplicateHelper();
-            $data = $helper->collect($testTake->getKey(), $data['test']->getKey(), $teacher->user->getKey(), $students->pluck('id'), $schoolClass->getKey(), $periodId)->duplicate()->getNew();
+            $data = $helper->collect($testTake->getKey(), $data['test']->getKey(), $teacher->user->getKey(), $students->pluck('id'), $schoolClass->getKey(), $periodId, $this->schoolLocation->getKey())->duplicate()->getNew();
             return $data['testTake'];
         });
 
