@@ -27,10 +27,10 @@ class CreateTellATeacherRequest extends Request
      */
     protected function prepareForValidation()
     {
-        if (strstr($this->email_addresses, ';')) {
-            $this->merge(['email_addresses' => explode(';', $this->email_addresses)]);
+        if (strstr($this->data['email_addresses'], ';')) {
+            $this->merge(['email_addresses' => explode(';', $this->data['email_addresses'])]);
         } else {
-            $this->merge(['email_addresses' => [$this->email_addresses]]);
+            $this->merge(['email_addresses' => [$this->data['email_addresses']]]);
         }
     }
 

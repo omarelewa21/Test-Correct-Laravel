@@ -57,7 +57,7 @@ class TellATeacherTest extends TestCase
             route('tell_a_teacher.store'),
             $this->getTeacherFromPrivateSchoolRequestData(
                 $this->getValidAttributes([
-                    'email_addresses'    => 'not_valid',
+                    'data'               => ['email_addresses' => 'not_valid'],
                     'school_location_id' => 3,
                     'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
                 ])
@@ -78,7 +78,7 @@ class TellATeacherTest extends TestCase
             route('tell_a_teacher.store'),
             $this->getTeacherFromPrivateSchoolRequestData(
                 $this->getValidAttributes([
-                    'email_addresses'    => 'm.folkerts@sobit.nl;martin@sobit.nl',
+                    'data'               => ['email_addresses' => 'm.folkerts@sobit.nl;martin@sobit.nl'],
                     'school_location_id' => 3,
                     'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
                 ])
@@ -96,7 +96,7 @@ class TellATeacherTest extends TestCase
             route('tell_a_teacher.store'),
             $this->getTeacherFromPrivateSchoolRequestData(
                 $this->getValidAttributes([
-                    'email_addresses'    => 'm.folkerts@sobit.nl;bogus;martin@sobit.nl',
+                    'data'               => ['email_addresses' => 'm.folkerts@sobit.nl;bogus;martin@sobit.nl'],
                     'school_location_id' => 3,
                     'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
                 ])
@@ -320,7 +320,7 @@ class TellATeacherTest extends TestCase
             'user_roles'         => [1],
             'send_welcome_mail'  => true,
             'invited_by'         => $this->getTeacherFromTempSchool()->getKey(),
-            'email_addresses'    => 'fientje.van.amersfoort@some_bogus.nl',
+            'data'               => ['email_addresses' => 'fientje.van.amersfoort@some_bogus.nl'],
         ], $overrides);
     }
 
