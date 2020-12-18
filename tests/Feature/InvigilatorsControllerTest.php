@@ -12,7 +12,7 @@ use tcCore\Student;
 use tcCore\User;
 use Tests\TestCase;
 
-class SchoolClassStudentImportControllerTest extends TestCase
+class InvigilatorsControllerTest extends TestCase
 {
     use DatabaseTransactions;
 

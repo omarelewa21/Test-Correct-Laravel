@@ -71,7 +71,8 @@ class SchoolLocationUsersController extends Controller {
         $user->removeSchoolLocation(Auth::user()->schoolLocation);
     }
 
-    public function getExistingTeachers(){
+    public function getExistingTeachers(Request $request){
+        $filters = $request->get('filter',[]);
 
 
         if (!Auth::user()->hasRole('School manager')) {
@@ -81,15 +82,32 @@ class SchoolLocationUsersController extends Controller {
         $schoolLocationIds = SchoolLocation::where('school_id',Auth::user()->schoolLocation->school_id)
             ->whereNotNull('school_id')->pluck('id');
 
-        $users = User::join('user_roles', function ($join) {
+        $qbUsers = User::join('user_roles', function ($join) {
             $join->on('users.id', '=', 'user_roles.user_id')
                 ->where('user_roles.role_id', '=', 1); // teacher
 
         })->whereIn('school_location_id', $schoolLocationIds)
             ->where('demo', '<>', 1)
+            ->where('school_location_id', '<>', Auth::user()->school_location_id)
             ->orderBy('name_first')
-            ->orderBy('name')
-            ->paginate(15);
+            ->orderBy('name');
+
+        foreach ($filters as $key => $value) {
+            switch ($key) {
+                case 'username':
+                    $qbUsers->where('username', 'LIKE', '%'.$value.'%');
+                    break;
+                case 'name_first':
+                    $qbUsers->where('name_first', 'LIKE', '%'.$value.'%');
+                    break;
+                case 'name':
+                    $qbUsers->where('name', 'LIKE', '%'.$value.'%');
+                    break;
+            }
+        }
+
+
+        $users = $qbUsers->paginate(15);
 
         return $users->map(function($user)  {
             $user->active = $user->allowedSchoolLocations->contains(Auth::user()->schoolLocation);

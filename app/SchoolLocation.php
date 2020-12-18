@@ -339,7 +339,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         static::updated(function(SchoolLocation $schoolLocation){
            $originalCustomerCode = $schoolLocation->getOriginal('customer_code');
            if($originalCustomerCode !== $schoolLocation->customer_code){
-               logger('change code');
+//               logger('change code');
                (new DemoHelper())->changeDemoUsersAsSchoolLocationCustomerCodeChanged($schoolLocation,$originalCustomerCode);
            }
         });

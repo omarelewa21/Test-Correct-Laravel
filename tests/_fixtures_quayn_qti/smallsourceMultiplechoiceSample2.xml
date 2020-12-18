@@ -1,0 +1,64 @@
+<question id="nn-20160719114545EAVEUJZCEJ" type="SMALLSOURCES_MULTIPLECHOICE">
+    <question_metadata>
+        <question_category>
+            <![CDATA[Eindtoets A]]>
+        </question_category>
+        <question_book>
+            <![CDATA[Biologie voor jou]]>
+        </question_book>
+        <question_edition>
+            <![CDATA[3 vmbo-gt]]>
+        </question_edition>
+        <question_chapter>
+            <![CDATA[3 Erfelijkheid]]>
+        </question_chapter>
+        <question_paragraph>
+            <![CDATA[Basisstof 1]]>
+        </question_paragraph>
+        <question_extra_field01>
+            <![CDATA[Begrijpen]]>
+        </question_extra_field01>
+    </question_metadata>
+    <question_info>
+        <question_number>6</question_number>
+        <question_chain number=""/>
+        <question_alwaysselect value="false"/>
+        <question_title>
+            <![CDATA[Meerkeuzevragen]]>
+        </question_title>
+        <question_layout value="0"/>
+        <question_availabletime value="00:00:00"/>
+        <question_timeload value=""/>
+        <question_showcomment value="inherit"/>
+        <question_showtip value="inherit"/>
+        <question_calculator value="false"/>
+        <question_author_memo finished="false"/>
+        <question_editorial_memo finished="false"/>
+    </question_info>
+    <question_content>
+        <question_body>
+            <![CDATA[<font face='Arial' size='3' color='#000000'>Een cavia brengt een aantal jongen ter wereld (zie de afbeelding). Deze nakomelingen groeien gezond op. Na een jaar verschillen zij sterk in grootte.<br /><br />Waardoor kan dit verschil in grootte worden veroorzaakt?</font>]]>
+        </question_body>
+        <question_source>
+            <![CDATA[sources/Bvj_3gt_Th3_A_01.jpg]]>
+        </question_source>
+        <question_answer correct="false" score="">
+            <text>
+                <![CDATA[<font face='Arial' size='3' color='#000000'>Alleen door een verschil in erfelijke eigenschappen.</font>]]>
+            </text>
+            <jump targetid=""/>
+        </question_answer>
+        <question_answer correct="false" score="">
+            <text>
+                <![CDATA[<font face='Arial' size='3' color='#000000'>Alleen door invloeden uit het milieu.</font>]]>
+            </text>
+            <jump targetid=""/>
+        </question_answer>
+        <question_answer correct="true" score="3">
+            <text>
+                <![CDATA[<font face='Arial' size='3' color='#000000'>Zowel door een verschil in erfelijke eigenschappen als door invloeden uit het milieu.</font>]]>
+            </text>
+            <jump targetid=""/>
+        </question_answer>
+    </question_content>
+</question>

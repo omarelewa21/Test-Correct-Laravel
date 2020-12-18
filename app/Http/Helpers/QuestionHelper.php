@@ -40,8 +40,6 @@ class QuestionHelper extends BaseHelper
 
     public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question)
     {
-
-
         $obj = (object) [
             'answers'   => [],
             'nr'        => 0

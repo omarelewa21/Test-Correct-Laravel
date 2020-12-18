@@ -60,6 +60,7 @@ class Test extends BaseModel
         parent::boot();
 
         static::created(function (Test $test) {
+            TestAuthor::addAuthorToTest($test, $test->author_id);
             Queue::push(new CountTeacherTests($test->author));
         });
 
@@ -122,6 +123,11 @@ class Test extends BaseModel
     public function testQuestions()
     {
         return $this->hasMany('tcCore\TestQuestion', 'test_id');
+    }
+
+    public function testAuthors()
+    {
+        return $this->hasMany(TestAuthor::class);
     }
 
     /**
@@ -799,6 +805,19 @@ class Test extends BaseModel
             $test->setAttribute('system_test_id', $this->getKey());
             $test->save();
         }
+
+        // existing testauthors duplicate
+        $this->testAuthors()->pluck('user_id')->each(function($userId) use ($test){
+            TestAuthor::addAuthorToTest($test, $userId);
+        });
+
+        // add testauthor if author_id is not null
+        if(null !== $authorId){
+            TestAuthor::addAuthorToTest($test, $authorId);
+        }
+
+        $test->setAttribute('derived_test_id',$this->getKey());
+        $test->save();
 
         return $test;
     }

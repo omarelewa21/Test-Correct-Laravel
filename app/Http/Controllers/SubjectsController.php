@@ -41,8 +41,9 @@ class SubjectsController extends Controller {
 	 */
 	public function store(CreateSubjectRequest $request)
 	{
-		//
+		
 		$subject = new Subject($request->all());
+                
 		if ($subject->save()) {
 			return Response::make($subject, 200);
 		} else {

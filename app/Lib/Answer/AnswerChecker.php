@@ -83,10 +83,13 @@ class AnswerChecker {
             if($recalculate && null !== $commandEnv){
                 $text = sprintf('ANSWERID: %d; van %s => %s',$answer->getKey(), $answerRating->rating, $rating);
                 if($answerRating->rating > $rating){
+                    $changed = true;
                     $commandEnv->toError($text);
                 } else if ((int) $answerRating->rating == (int) $rating) {
+                    $changed = false;
                     $commandEnv->toComment($text);
                 } else {
+                    $changed = true;
                     $commandEnv->toInfo($text);
                 }
             }
@@ -94,9 +97,9 @@ class AnswerChecker {
             $answerRating->setAttribute('test_take_id', $testTakeId);
             $answerRating->setAttribute('rating', $rating);
 
-            if($answerRating->isDirty()){
-                $changed = true;
-            }
+//            if($answerRating->isDirty()){
+//                $changed = true;
+//            }
 
             if($dryRun === false) {
                 $answer->answerRatings()->save($answerRating);

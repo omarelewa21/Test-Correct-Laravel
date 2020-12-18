@@ -15,6 +15,7 @@ use tcCore\CompletionQuestion;
 use tcCore\Contact;
 use tcCore\DrawingQuestion;
 use tcCore\EducationLevel;
+use tcCore\EmailConfirmation;
 use tcCore\FileManagement;
 use tcCore\GradingScale;
 use tcCore\GroupQuestion;
@@ -273,6 +274,10 @@ class RouteServiceProvider extends ServiceProvider
             throw new NotFoundHttpException('Umbrella organization not found');
         });
 
+        Route::model('email_confirmation', 'tcCore\EmailConfirmation', function () {
+            throw new NotFoundHttpException('Email Confirmation not found');
+        });
+
         /**
          * Route::model('user_role','tcCore\UserRole', function() {
          * throw new NotFoundHttpException('User role not found');
@@ -484,6 +489,10 @@ class RouteServiceProvider extends ServiceProvider
             return FileManagement::whereUuid($item)->firstOrFail();
         });
 
+        Route::bind('EmailConfirmation', function($item) {
+            return EmailConfirmation::whereUuid($item)->firstOrFail();
+        });
+
     }
 
     /**
@@ -493,7 +502,9 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map()
     {
-        $this->mapApiRoutes();
+        $this->mapApiCakeRoutes();
+
+        $this->mapWebRoutes();
 
         if (!$this->app->environment('production')){
             $this->mapTestingRoutes();
@@ -501,6 +512,21 @@ class RouteServiceProvider extends ServiceProvider
 //        $this->mapWebRoutes();
         //
     }
+
+    /**
+     * Define the "web" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapWebRoutes()
+    {
+        Route::middleware('web')
+//            ->namespace($this->namespace)
+            ->group(base_path('routes/web.php'));
+    }
+
 
     /**
      * Define the "testing" routes for the application.
@@ -515,14 +541,16 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Define the api routes for the application.
+     * Define the api cake routes for the application.
      *
      * @return void
      */
-    protected function mapApiRoutes()
+    protected function mapApiCakeRoutes()
     {
         Route::namespace($this->namespace)
-            ->group(base_path('routes/api.php'));
+            ->prefix('api-c') // added to make room for the urls from direct access
+            ->middleware(['cakeLaravelFilter'])
+            ->group(base_path('routes/apicake.php'));
     }
 
 }

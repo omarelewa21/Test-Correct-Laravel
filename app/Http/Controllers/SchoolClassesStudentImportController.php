@@ -39,8 +39,13 @@ class SchoolClassesStudentImportController extends Controller {
                 $user = User::where('username',$merged['username'])->first();
                 if($user) {
                     if ($user->isA('student')) {
-                        $classExists = (bool) $user->students->firstWhere('class_id', $schoolClass->getKey());
-                        if(!$classExists){
+
+                        $_deletedClass = $user->students()->withTrashed()->Where('class_id', $schoolClass->getKey())->first();
+
+                        if((bool) $_deletedClass){
+                            $_deletedClass->restore();
+                        }
+                        else{
                             $user->students()->create([
                                'class_id' => $schoolClass->getKey()
                             ]);
@@ -55,6 +60,7 @@ class SchoolClassesStudentImportController extends Controller {
         }
         catch(\Exception $e){
             DB::rollback();
+            logger('Error importing students '.$e->getMessage());
             return Response::make($e->getMessage(), 500);
         }
         DB::commit();

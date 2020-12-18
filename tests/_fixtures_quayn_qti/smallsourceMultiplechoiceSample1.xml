@@ -1,0 +1,83 @@
+<question id="NN-20171211202126EDBCURSHMQ" type="SMALLSOURCES_MANYCHOICE">
+    <question_metadata>
+        <question_category>
+            <![CDATA[Theorieblokken]]>
+        </question_category>
+        <question_book>
+            <![CDATA[Taalpunt NL]]>
+        </question_book>
+        <question_edition>
+            <![CDATA[1HV]]>
+        </question_edition>
+        <question_chapter>
+            <![CDATA[2]]>
+        </question_chapter>
+    </question_metadata>
+    <question_info>
+        <question_number>6</question_number>
+        <question_chain number=""/>
+        <question_allowrandomize value="true"/>
+        <question_alwaysselect value="false"/>
+        <question_title>
+            <![CDATA[Meermeerkeuzevraag]]>
+        </question_title>
+        <question_layout value="0"/>
+        <question_availabletime value="00:00:00"/>
+        <question_timeload value=""/>
+        <question_showcomment value="inherit"/>
+        <question_showtip value="inherit"/>
+        <question_calculator value="false"/>
+        <question_selfassessment value="false"/>
+        <question_maxwords value="-1"/>
+        <question_numbernotation value="false"/>
+        <question_author_memo finished="false"/>
+        <question_editorial_memo finished="false"/>
+    </question_info>
+    <question_content>
+        <question_body>
+            <![CDATA[<p>Je mag meer antwoorden kiezen!</p><p>Je kiest een boek </p>]]>
+        </question_body>
+        <question_answer correct="true" penalty="1" score="5">
+            <text>
+                <![CDATA[door de afbeelding op de voorkant te bekijken.]]>
+            </text>
+            <comment/>
+            <hint/>
+        </question_answer>
+        <question_answer correct="true" penalty="" score="">
+            <text>
+                <![CDATA[door de titel te lezen en de naam van de schrijver.]]>
+            </text>
+            <comment/>
+            <hint/>
+        </question_answer>
+        <question_answer correct="true" penalty="" score="">
+            <text>
+                <![CDATA[door op de achterkant van het boek te kijken.]]>
+            </text>
+            <comment/>
+            <hint/>
+        </question_answer>
+        <question_answer correct="true" penalty="" score="">
+            <text>
+                <![CDATA[door de eerste bladzijde te lezen of een ander fragment.]]>
+            </text>
+            <comment/>
+            <hint/>
+        </question_answer>
+        <question_answer correct="true" penalty="" score="">
+            <text>
+                <![CDATA[door de mening van anderen mee te laten spelen.]]>
+            </text>
+            <comment/>
+            <hint/>
+        </question_answer>
+        <question_answer correct="false" penalty="" score="">
+            <text>
+                <![CDATA[omdat je van dat genre boeken houdt.]]>
+            </text>
+            <comment/>
+            <hint/>
+        </question_answer>
+    </question_content>
+</question>

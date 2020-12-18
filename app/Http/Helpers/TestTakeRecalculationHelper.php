@@ -25,6 +25,8 @@ class TestTakeRecalculationHelper
 
     protected $commandEnv = false;
 
+    protected $updatedAnswers = 0;
+
     protected function hasCommandEnv()
     {
         return $this->commandEnv !== null;
@@ -35,12 +37,24 @@ class TestTakeRecalculationHelper
         $this->commandEnv = $commandEnv;
     }
 
+    public function resetUpdatedAnswers()
+    {
+        $this->updatedAnswers = 0;
+        return $this;
+    }
+
+    public function getUpdatedAnswerCount()
+    {
+        return $this->updatedAnswers;
+    }
+
     public function recalculateSystemRatingsForTestTake(TestTake $testTake, bool $dryRun = false)
     {
         $changed = false;
         $testTake->testParticipants->each(function(TestParticipant $tp) use (&$changed, $dryRun){
            if(AnswerChecker::checkAnswerOfParticipant($tp, true, $dryRun, $this->commandEnv)){
                $changed = true;
+               $this->updatedAnswers++;
            }
         });
         return $changed;

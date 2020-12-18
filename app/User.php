@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -26,6 +27,7 @@ use tcCore\Jobs\CountSchoolStudents;
 use tcCore\Jobs\CountSchoolTeachers;
 use tcCore\Jobs\CountSchoolTests;
 use tcCore\Jobs\CountSchoolTestsTaken;
+use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Auth\Passwords\CanResetPassword;
@@ -67,7 +69,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by'
+        'invited_by', 'account_verified'
     ];
 
 
@@ -267,7 +269,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getloginLogCount()
     {
-        return $this->loginLogs->count();
+        return $this->loginLogs()->count();
     }
 
     public function loginLogs()
@@ -331,6 +333,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         static::deleting(function (User $user) {
             if ($user->getOriginal('demo') == true) {
+                return false;
+            }
+            if (static::isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation($user)){
+                $user->removeSchoolLocation(Auth::user()->schoolLocation);
                 return false;
             }
         });
@@ -619,6 +625,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
     }
 
+    /**
+     * is user linked to multiple school locations and is the performing user a member of the school location the to be trashed user is linked to.
+     */
+    private static function isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation(User $user)
+    {
+        return (bool) $user->allowedSchoolLocations()->count() > 1
+            && null !== Auth::user()->schoolLocation
+            && $user->allowedSchoolLocations->contains(Auth::user()->schoolLocation->getKey());
+    }
+
     public function getOriginalProfileImagePath()
     {
         return ((substr(storage_path('user_profile_images'),
@@ -683,6 +699,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function mentors()
     {
         return $this->hasMany('tcCore\Mentor');
+    }
+
+    public function temporaryLogin() {
+        return $this->belongsTo('tcCore\TemporaryLogin');
     }
 
     public function mentorSchoolClasses()
@@ -1221,7 +1241,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (!in_array('Administrator', $roles)) {
             $query->where(function ($query) use ($roles) {
                 if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
-                    logger(__LINE__);
+//                    logger(__LINE__);
                     //		if($this->hasRole(['Administrator','Account manager'])){
                     $userId = Auth::user()->getKey();
 
@@ -1303,6 +1323,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'teacher_students': // only show students in the classes of the teacher
+                    $user = $user ?? Auth::user();
                     $value = $user->teacher->pluck('class_id')->toArray();
                     $query->whereIn('users.id', function ($query) use ($value) {
                         $query->select('students.user_id')
@@ -1693,11 +1714,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function addSchoolLocation(SchoolLocation $schoolLocation)
     {
-        if ($this->allowedSchoolLocations->count() === 0) {
-            $this->allowedSchoolLocations()->save($this->schoolLocation);
-        }
+        if(!$schoolLocation->is($this->schoolLocation)){
+            if ($this->allowedSchoolLocations->count() === 0) {
+                $this->allowedSchoolLocations()->save($this->schoolLocation);
+            }
 
-        $this->allowedSchoolLocations()->save($schoolLocation);
+            $this->allowedSchoolLocations()->save($schoolLocation);
+        }
         return $this;
     }
 
@@ -1733,9 +1756,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 'school_location_user.school_location_id',
                 SchoolLocation::select('id')
                     ->where([
-                        ['id','<>', $user->getAttribute('school_location_id')],
+                        ['id', $user->getAttribute('school_location_id')],
                         ['school_id', $school->school_id],
                     ])
             );
+    }
+
+    public function resendEmailVerificationMail() {
+       return Mail::to($this->username)->send(new SendOnboardingWelcomeMail($this));
     }
 }
