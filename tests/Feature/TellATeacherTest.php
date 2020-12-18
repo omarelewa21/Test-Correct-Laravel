@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
 use tcCore\DemoTeacherRegistration;
+use tcCore\Jobs\SendTellATeacherMail;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Mail\TeacherRegistered;
 use tcCore\Teacher;
@@ -32,8 +33,10 @@ class TellATeacherTest extends TestCase
     /** @test */
     public function a_teacher_can_invite_a_collegue()
     {
-        $this->assertFalse(User::whereUsername('fientje.van.amersfoort@some_bogus.nl')->exists());
-        $this->assertFalse(DemoTeacherRegistration::whereUsername('fientje.van.amersfoort@some_bogus.nl')->exists());
+        Mail::fake();
+
+        $this->assertFalse(User::whereUsername('fientje.van.amersfoort@sobit.nl')->exists());
+        $this->assertFalse(DemoTeacherRegistration::whereUsername('fientje.van.amersfoort@sobit.nl')->exists());
 
         $this->assertCount(0, DemoTeacherRegistration::all());
 
@@ -43,14 +46,125 @@ class TellATeacherTest extends TestCase
                 $this->getValidAttributes([
                     'school_location_id' => 3,
                     'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
+                    'step'               => '1',
+                    'submit'             => 'false',
                 ])
             )
         )->assertSuccessful();
+
+        $this->assertEquals(
+            ['success' => true],
+            $response->decodeResponseJson()
+        );
+
+        $response = $this->post(
+            route('tell_a_teacher.store'),
+            $this->getTeacherFromPrivateSchoolRequestData(
+                $this->getValidAttributes([
+                    'school_location_id' => 3,
+                    'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
+                    'data'               => [
+                        'message'         => 'lorem ipsum',
+                        'email_addresses' => 'fientje.van.amersfoort@sobit.nl',
+                    ],
+                    'step'               => '2',
+                    'submit'             => 'true',
+                ])
+            )
+        )->assertSuccessful();
+//        dd($response->decodeResponseJson());
+        Mail::assertSent(SendTellATeacherMail::class, function ($mail) {
+            return $mail->hasTo('fientje.van.amersfoort@sobit.nl');
+        });
     }
+
+
+    /** @test */
+    public function a_teacher_can_invite_a_collegue_but_the_message_cannot_be_empty()
+    {
+        $response = $this->post(
+            route('tell_a_teacher.store'),
+            $this->getTeacherFromPrivateSchoolRequestData(
+                $this->getValidAttributes([
+                    'school_location_id' => 3,
+                    'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
+                    'data'               => [
+                        'message'         => '',
+                        'email_addresses' => 'fientjevanamersfoort@sobit.nl',
+                    ],
+                    'step'               => '2',
+                    'submit'             => 'true',
+                ])
+            )
+        )->assertStatus(422);
+
+        $this->assertEquals(
+            'Het bericht is verplicht',
+            $response->decodeResponseJson()['errors']['data.message'][0]
+        );
+    }
+
+    /** @test */
+    public function a_teacher_can_invite_a_collegue_but_the_message_cannot_be_short()
+    {
+        Mail::fake();
+
+        $response = $this->post(
+            route('tell_a_teacher.store'),
+            $this->getTeacherFromPrivateSchoolRequestData(
+                $this->getValidAttributes([
+                    'school_location_id' => 3,
+                    'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
+                    'data'               => [
+                        'message'         => 'abcede',
+                        'email_addresses' => 'fientjevanamersfoort@sobit.nl',
+                    ],
+                    'step'               => '2',
+                    'submit'             => 'false',
+                ])
+            )
+        )->assertStatus(422);
+
+        $this->assertEquals(
+            'Het bericht moet minimaal 10 karakters lang zijn.',
+            $response->decodeResponseJson()['errors']['data.message'][0]
+        );
+
+        Mail::assertNothingSent();
+    }
+
+    /** @test */
+    public function a_teacher_can_invite_a_collegue_but_the_email_address_should_bv_valid_in_step2_also()
+    {
+        Mail::fake();
+        $response = $this->post(
+            route('tell_a_teacher.store'),
+            $this->getTeacherFromPrivateSchoolRequestData(
+                $this->getValidAttributes([
+                    'school_location_id' => 3,
+                    'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
+                    'data'               => [
+                        'message'         => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sollicitudin nibh a velit dictum, vitae pe',
+                        'email_addresses' => 'fientjevanamersfoort@.nl',
+                    ],
+                    'step'               => '2',
+                    'submit'             => 'false',
+                ])
+            )
+        )->assertStatus(422);
+        $this->assertEquals(
+            ["Het e-mailadres <strong>fientjevanamersfoort@.nl</strong> is niet valide."],
+            $response->decodeResponseJson()['errors']['form']
+        );
+
+        Mail::assertNothingSent();
+    }
+
 
     /** @test */
     public function e_mail_addresses_should_be_a_valid_email()
     {
+        Mail::fake();
         $this->assertCount(0, DemoTeacherRegistration::all());
 
         $response = $this->post(
@@ -68,11 +182,14 @@ class TellATeacherTest extends TestCase
         $this->assertArrayHasKey('email_addresses.0', $errors);
         $this->assertEquals(['The email_addresses.0 must be a valid email address.'], $errors['email_addresses.0']);
         $this->assertEquals(['Het e-mailadres <strong>not_valid</strong> is niet valide.'], $errors['form']);
+        Mail::assertNothingSent();
     }
 
     /** @test */
     public function a_request_can_have_multiple_email_addresses_semicolon_seperated()
     {
+
+
         $this->assertCount(0, DemoTeacherRegistration::all());
 
         $response = $this->post(
@@ -85,6 +202,34 @@ class TellATeacherTest extends TestCase
                 ])
             )
         )->assertSuccessful();
+
+    }
+
+    /** @test */
+    public function a_request_can_have_multiple_email_addresses_semicolon_seperated_then_multiple_mails_should_be_sent()
+    {
+
+        Mail::fake();
+
+        $this->assertCount(0, DemoTeacherRegistration::all());
+
+        $response = $this->post(
+            route('tell_a_teacher.store'),
+            $this->getTeacherFromPrivateSchoolRequestData(
+                $this->getValidAttributes([
+                    'data'               => [
+                        'email_addresses' => 'm.folkerts@sobit.nl;martin@sobit.nl',
+                        'message' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean sollicitudin nibh a velit dictum, vitae pe'
+                    ],
+                    'school_location_id' => 3,
+                    'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
+                    'step'=> '2',
+
+                ])
+            )
+        )->assertSuccessful();
+        Mail::assertSent(SendTellATeacherMail::class, 2);
+
     }
 
 
@@ -107,7 +252,8 @@ class TellATeacherTest extends TestCase
         $errors = $response->decodeResponseJson()['errors'];
         $this->assertArrayHasKey('email_addresses.1', $errors);
         $this->assertEquals(['The email_addresses.1 must be a valid email address.'], $errors['email_addresses.1']);
-        $this->assertEquals(['De e-mailadressen m.folkerts@sobit.nl;<strong>bogus</strong>;martin@sobit.nl zijn niet valide.'], $errors['form']);
+        $this->assertEquals(['De e-mailadressen m.folkerts@sobit.nl;<strong>bogus</strong>;martin@sobit.nl zijn niet valide.'],
+            $errors['form']);
     }
 
 
@@ -321,7 +467,7 @@ class TellATeacherTest extends TestCase
             'user_roles'         => [1],
             'send_welcome_mail'  => true,
             'invited_by'         => $this->getTeacherFromTempSchool()->getKey(),
-            'data'               => ['email_addresses' => 'fientje.van.amersfoort@some_bogus.nl'],
+            'data'               => ['email_addresses' => 'fientje.van.amersfoort@sobit.nl'],
         ], $overrides);
     }
 

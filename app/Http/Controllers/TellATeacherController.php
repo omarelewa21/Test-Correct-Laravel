@@ -12,13 +12,19 @@ use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests\CreateTellATeacherRequest;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Jobs\SendTellATeacherMail;
-use tcCore\User;
 
 class TellATeacherController extends Controller
 {
     public function store(CreateTellATeacherRequest $request)
     {
-        $r = $request->validated();
+
+        if ($request->step == 2) {
+            collect($request->email_addresses)->map(function($address) {
+                Mail::to($address)->send(new SendTellATeacherMail(Auth::user()));
+            });
+        }
+
+        return ['success'=> true];
 //        DB::beginTransaction();
 //        try {
 //            foreach ($r['data'] as $i => $data) {
