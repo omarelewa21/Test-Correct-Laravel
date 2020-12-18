@@ -13,7 +13,6 @@ class CreateSearchFilterRequest extends Request
      */
     public function authorize()
     {
-        logger($this);
         return true;
     }
 
@@ -37,6 +36,7 @@ class CreateSearchFilterRequest extends Request
             'filters'=>'required',
             'key'=>'required',
             'user_id' => '',
+            'cached_filter'=> 'sometimes',
         ];
     }
 }

@@ -72,57 +72,7 @@ class TestQuestionsController extends Controller {
         DB::beginTransaction();
         try{
             if ($request->get('question_id') === null) {
-                $question = Factory::makeQuestion($request->get('type'));
-                if (!$question) {
-                    throw new QuestionException('Failed to create question with factory', 500);
-                }
-
-                $testQuestion = new TestQuestion();
-                $testQuestion->fill($request->all());
-                $test = $testQuestion->test;
-
-                $qHelper = new QuestionHelper();
-                $questionData = [];
-                if($request->get('type') == 'CompletionQuestion') {
-                    $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
-                }
-
-                $totalData = array_merge($request->all(),$questionData);
-
-                $question->fill($totalData);
-
-                $questionInstance = $question->getQuestionInstance();
-                if ($questionInstance->getAttribute('subject_id') === null) {
-                    $questionInstance->setAttribute('subject_id', $test->subject->getKey());
-                }
-
-                if ($questionInstance->getAttribute('education_level_id') === null) {
-                    $questionInstance->setAttribute('education_level_id', $test->educationLevel->getKey());
-                }
-
-                if ($questionInstance->getAttribute('education_level_year') === null) {
-                    $questionInstance->setAttribute('education_level_year', $test->getAttribute('education_level_year'));
-                }
-
-                if ($question->save()) {
-                    $testQuestion->setAttribute('question_id', $question->getKey());
-
-                    if ($testQuestion->save()) {
-
-                        if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))) {
-//                        // delete old answers
-//                        $question->deleteAnswers($question);
-
-                            // add new answers
-                            $testQuestion->question->addAnswers($testQuestion,$totalData['answers']);
-                        }
-                    }else{
-                        throw new QuestionException('Failed to create test question');
-                    }
-
-                } else {
-                    throw new QuestionException('Failed to create question');
-                }
+                $testQuestion = TestQuestion::store($request->all());
             } else {
                 $testQuestion = new TestQuestion();
 
@@ -155,10 +105,11 @@ class TestQuestionsController extends Controller {
                     throw new QuestionException('Failed to create test question');
                 }
                 $question = $testQuestion->question;
+                if (!QuestionAuthor::addAuthorToQuestion($question)) {
+                    throw new QuestionException('Failed to attach author to question');
+                }
             }
-            if (!QuestionAuthor::addAuthorToQuestion($question)) {
-                throw new QuestionException('Failed to attach author to question');
-            }
+
         }
         catch(\Exception $e){
             DB::rollback();
@@ -352,4 +303,5 @@ class TestQuestionsController extends Controller {
             return Response::make('Failed to delete test question', 500);
         }
     }
+
 }

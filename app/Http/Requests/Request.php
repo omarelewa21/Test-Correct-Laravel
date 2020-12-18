@@ -33,49 +33,58 @@ abstract class Request extends FormRequest {
         }
     }
 
-	public function forbiddenResponse()
-	{
-		// Optionally, send a custom response on authorize failure
-		// (default is to just redirect to initial page with errors)
-		//
-		// Can return a response, a view, a redirect, or whatever else
-		return Response::make('Permission denied!', 403);
-	}
+    public function forbiddenResponse()
+    {
+        // Optionally, send a custom response on authorize failure
+        // (default is to just redirect to initial page with errors)
+        //
+        // Can return a response, a view, a redirect, or whatever else
+        return Response::make('Permission denied!', 403);
+    }
 
-	// OPTIONAL OVERRIDE
-	/**
-	 * @param array $errors
-	 * @return JsonResponse
+    // OPTIONAL OVERRIDE
+    /**
+     * @param array $errors
+     * @return JsonResponse
      */
-	public function response(array $errors)
-	{
-		// If you want to customize what happens on a failed validation,
-		// override this method.
-		// See what it does natively here:
-		// https://github.com/laravel/framework/blob/master/src/Illuminate/Foundation/Http/FormRequest.php
-		return new JsonResponse($errors, 422);
-	}
+    public function response(array $errors)
+    {
+        // If you want to customize what happens on a failed validation,
+        // override this method.
+        // See what it does natively here:
+        // https://github.com/laravel/framework/blob/master/src/Illuminate/Foundation/Http/FormRequest.php
+        return new JsonResponse($errors, 422);
+    }
 
-	protected function getUserRoles() {
-		return Roles::getUserRoles();
-	}
+    protected function getUserRoles() {
+        return Roles::getUserRoles();
+    }
 
-	public function filterInput()
-	{
-		try {
-			$input = $this->all();
-		} catch (\Throwable $th) {
-			return;
-		}
+    public function filterInput()
+    {
+        try {
+            $input = $this->all();
+        } catch (\Throwable $th) {
+            return;
+        }
 
-		//sanitize input to prevent XSS
-		//value is passed as reference
-		array_walk_recursive($input, function(&$value, $key) {
-			if (!empty($value) && is_string($value)) {
-				$value = clean($value);
-			}			
-		});
+        static::filter($input);
 
-		return $this->replace($input);
-	}
+        return $this->replace($input);
+    }
+
+    public static function filter(&$input)
+    {
+        //sanitize input to prevent XSS
+        //value is passed as reference
+        if (is_array($input)) {
+            array_walk_recursive($input, function(&$value, $key) {
+                if (!empty($value) && is_string($value)) {
+                    $value = clean($value);
+                }
+            });
+        } else {
+            $input = clean($input);
+        }
+    }
 }

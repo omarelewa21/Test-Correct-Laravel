@@ -29,10 +29,11 @@ class TestTakeDuplicateHelper
     protected $studentIds;
     protected $schoolClassId;
     protected $periodId;
+    protected $schoolLocationId;
 
     protected $new;
 
-    public function collect($id, $testId,$teacherId, $studentIds, $schoolClassId, $periodId)
+    public function collect($id, $testId,$teacherId, $studentIds, $schoolClassId, $periodId, $schoolLocationId)
     {
         $this->id = $id;
         $this->testId = $testId;
@@ -40,6 +41,7 @@ class TestTakeDuplicateHelper
         $this->studentIds= collect($studentIds);
         $this->schoolClassId = $schoolClassId;
         $this->periodId = $periodId;
+        $this->schoolLocationId = $schoolLocationId;
 
         $this->data = collect([]);
         $this->getTestTake();
@@ -94,6 +96,7 @@ class TestTakeDuplicateHelper
         $testTake->user_id = $this->teacherId;
         $testTake->period_id = $this->periodId;
         $testTake->test_id = $this->testId;
+        $testTake->school_location_id = $this->schoolLocationId;
         $testTake->demo = 1;
         if($testTake->discussed_user_id !== null){
             $testTake->discussed_user_id = $this->teacherId;

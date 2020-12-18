@@ -278,6 +278,12 @@ class TestTake extends BaseModel
             }
         });
 
+        static::creating(function(TestTake $testTake) {
+            if($testTake->school_location_id === null) {
+                $testTake->school_location_id = Auth::user()->school_location_id;
+            }
+        });
+
         static::created(function (TestTake $testTake) {
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
@@ -560,6 +566,8 @@ class TestTake extends BaseModel
             });
         }
 
+        $query->where($this->getTable().'.school_location_id', Auth::user()->school_location_id);
+
         $testTable = with(new Test())->getTable();
         $query->select($this->getTable() . '.*')
             ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id');
@@ -713,6 +721,29 @@ class TestTake extends BaseModel
                     break;
                 case 'weight':
                     $query->where('weight', '=', $value);
+                    break;
+                case 'subject_id':
+                    $query->whereIn( $this->getTable() . '.id', 
+                                    function ($query) use ($value) 
+                                    {
+                                        $testTable = with(new Test())->getTable();
+                                        $query
+                                            ->select($this->getTable().'.id')
+                                            ->from($this->getTable())
+                                            ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
+                                            ->whereNull($testTable.'.deleted_at')
+                                            ->where(
+                                                    function($query) use ($value, $testTable)
+                                                    {
+                                                        $query->where(
+                                                                        function($query) use ($testTable, $value) 
+                                                                        {
+                                                                            $query->where($testTable . '.subject_id', $value);
+                                                                        }
+                                                                    );
+                                                    }
+                                                );
+                                    });
                     break;
             }
         }
