@@ -17,16 +17,13 @@ class TellATeacherController extends Controller
     public function store(CreateTellATeacherRequest $request)
     {
         $r = $request->validated();
-        $inviter = User::where('id', Auth::user()->getKey())->first();
+        $inviter = User::where('id', $request->invited_by)->first();
 
         if ($inviter->name_suffix) {
             $inviter_fullname = $inviter->name_first . " ". $inviter->name_suffix ." " . $inviter->name;
         } else {
             $inviter_fullname = $inviter->name_first . " " . $inviter->name;
         }
-
-        logger('submit: ' . $request->submit);
-        logger($inviter_fullname);
 
         if ($request->submit) {
 
