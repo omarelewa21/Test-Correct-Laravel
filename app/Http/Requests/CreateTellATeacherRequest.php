@@ -1,12 +1,7 @@
 <?php namespace tcCore\Http\Requests;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Str;
-use tcCore\SchoolClass;
-use tcCore\Subject;
-use tcCore\User;
+
 
 class CreateTellATeacherRequest extends Request
 {
@@ -63,40 +58,30 @@ class CreateTellATeacherRequest extends Request
         return $this->all();
     }
 
-    /**
-     * Configure the validator instance.
-     *
-     * @param  \Illuminate\Validation\Validator  $validator
-     * @return void
-     */
+
     protected function getValidatorInstance()
     {
-        return parent::getValidatorInstance()->after(function($validator){
+        return parent::getValidatorInstance()->after(function($validator) {
             // Call the after method of the FormRequest (see below)
-            $this->after($validator);
-        });
-    }
+            if ($emailErrors = $validator->errors()->get('email_addresses.*')) {
+                $keysWithErrors = collect($emailErrors)->map(function ($error, $pattern) {
+                    return (int)str_replace('email_addresses.', '', $pattern);
+                });
 
-    public function after($validator)
-    {
-        if ($emailErrors = $validator->errors()->get('email_addresses.*')) {
-            $keysWithErrors = collect($emailErrors)->map(function ($error, $pattern) {
-                return (int) str_replace('email_addresses.', '', $pattern);
-            });
+                $errorMsg = collect($this->get('email_addresses'))
+                    ->map(function ($emailAddress, $key) use ($keysWithErrors) {
+                        if ($keysWithErrors->contains($key)) {
+                            return sprintf('<strong>%s</strong>', $emailAddress);
+                        }
+                        return $emailAddress;
+                    })->implode(';');
+                $pattern = 'De e-mailadressen %s zijn niet valide.';
 
-            $errorMsg = collect($this->get('email_addresses'))
-                ->map(function ($emailAddress, $key) use ($keysWithErrors) {
-                    if ($keysWithErrors->contains($key)) {
-                        return sprintf('<strong>%s</strong>', $emailAddress);
-                    }
-                    return $emailAddress;
-                })->implode(';');
-            $pattern = 'De e-mailadressen %s zijn niet valide.';
-
-            if (count($this->get('email_addresses')) == 1) {
-                $pattern = 'Het e-mailadres %s is niet valide.';
+                if (count($this->get('email_addresses')) == 1) {
+                    $pattern = 'Het e-mailadres %s is niet valide.';
+                }
+                $validator->getMessageBag()->add('form', sprintf($pattern, $errorMsg));
             }
-            $validator->getMessageBag()->add('form' ,sprintf($pattern, $errorMsg));
-        }
+        });
     }
 }

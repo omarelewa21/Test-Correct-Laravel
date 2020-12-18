@@ -63,6 +63,7 @@ class TellATeacherTest extends TestCase
                 ])
             )
         )->assertStatus(422);
+
         $errors = $response->decodeResponseJson()['errors'];
         $this->assertArrayHasKey('email_addresses.0', $errors);
         $this->assertEquals(['The email_addresses.0 must be a valid email address.'], $errors['email_addresses.0']);
