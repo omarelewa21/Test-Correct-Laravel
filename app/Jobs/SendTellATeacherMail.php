@@ -14,6 +14,7 @@ class SendTellATeacherMail extends Mailable
     use Queueable, SerializesModels;
 
     protected $inviter;
+    protected $inviteText;
 
     /**
      * Create a new job instance.
@@ -22,18 +23,25 @@ class SendTellATeacherMail extends Mailable
      * @param $url
      * @return void
      */
-    public function __construct(User $inviter)
+    public function __construct(User $inviter, $inviteText)
     {
         $this->inviter = $inviter;
-
+        $this->inviteText = $inviteText;
     }
 
     public function build()
     {
+        if ($this->inviter->name_suffix) {
+            $fullname = $this->inviter->name_first.' '.$this->inviter->name_suffix.' '.$this->inviter->name;
+        } else {
+            $fullname = $this->inviter->name_first.' '.$this->inviter->name;
+        }
+        logger($this->inviteText);
         return $this->view('emails.tell-a-teacher')
-            ->subject($this->inviter->username.' heeft je uitgenodigd voor Test-Correct')
+            ->subject('Je collega '.$fullname.' heeft je uitgenodigd voor Test-Correct')
             ->with([
-                'user' => $this->user, 'url' => $this->url, 'token' => $emailConfirmation->uuid
+                'inviter' => $fullname,
+                'inviteText' => $this->inviteText
             ]);
     }
 }

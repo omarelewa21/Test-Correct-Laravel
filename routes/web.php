@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
+use tcCore\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +18,7 @@ use tcCore\Jobs\SendOnboardingWelcomeMail;
 */
 if (App::environment('local')) {
     Route::get('/testmail', function () {
-        return (new SendOnboardingWelcomeMail(1546))->render();
+        return (new \tcCore\Jobs\SendTellATeacherMail(User::where('id', 1486)->first(), 'hallo'))->render();
     });
 }
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class);

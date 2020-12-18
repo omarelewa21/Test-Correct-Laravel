@@ -5,11 +5,14 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests\CreateTellATeacherRequest;
 use tcCore\Http\Requests\CreateUserRequest;
+use tcCore\Jobs\SendTellATeacherMail;
+use tcCore\User;
 
 class TellATeacherController extends Controller
 {
