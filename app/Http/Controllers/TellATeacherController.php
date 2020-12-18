@@ -5,17 +5,26 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Requests\CreateTellATeacherRequest;
 use tcCore\Http\Requests\CreateUserRequest;
+use tcCore\Jobs\SendTellATeacherMail;
 
 class TellATeacherController extends Controller
 {
     public function store(CreateTellATeacherRequest $request)
     {
-        $r = $request->validated();
+
+        if ($request->step == 2) {
+            collect($request->email_addresses)->map(function($address) {
+                Mail::to($address)->send(new SendTellATeacherMail(Auth::user()));
+            });
+        }
+
+        return ['success'=> true];
 //        DB::beginTransaction();
 //        try {
 //            foreach ($r['data'] as $i => $data) {

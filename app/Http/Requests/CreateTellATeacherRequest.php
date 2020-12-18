@@ -39,12 +39,26 @@ class CreateTellATeacherRequest extends Request
         $this->filterInput();
 
 
-        return [
-            'email_addresses.*'  => 'email:rfc,dns',
+        $rules = [
+            'email_addresses.*'  => 'email:rfc', // ,dns?
             'school_location_id' => 'required',
             'user_roles'         => 'required',
             'invited_by'         => 'required',
             'send_welcome_mail'  => 'sometimes',
+            'step'               => 'in:1,2',
+        ];
+
+
+        return $this->step == 2 && $this->submit == true
+            ? $rules + ['data.message' => 'required|string|min:10']
+            : $rules;
+    }
+
+    public function messages()
+    {
+        return [
+            'data.message.required' => 'Het bericht is verplicht',
+            'data.message.min'      => 'Het bericht moet minimaal :min karakters lang zijn.',
         ];
     }
 
@@ -61,11 +75,11 @@ class CreateTellATeacherRequest extends Request
 
     protected function getValidatorInstance()
     {
-        return parent::getValidatorInstance()->after(function($validator) {
+        return parent::getValidatorInstance()->after(function ($validator) {
             // Call the after method of the FormRequest (see below)
             if ($emailErrors = $validator->errors()->get('email_addresses.*')) {
                 $keysWithErrors = collect($emailErrors)->map(function ($error, $pattern) {
-                    return (int)str_replace('email_addresses.', '', $pattern);
+                    return (int) str_replace('email_addresses.', '', $pattern);
                 });
 
                 $errorMsg = collect($this->email_addresses)
