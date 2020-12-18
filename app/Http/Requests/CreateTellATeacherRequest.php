@@ -40,7 +40,7 @@ class CreateTellATeacherRequest extends Request
 
 
         return [
-            'email_addresses.*'  => 'email',
+            'email_addresses.*'  => 'email:rfc,dns',
             'school_location_id' => 'required',
             'user_roles'         => 'required',
             'invited_by'         => 'required',
