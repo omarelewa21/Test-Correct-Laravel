@@ -74,8 +74,8 @@ class FileManagementController extends Controller {
 
         $form_id = $request['form_id'];
 
-        if (isset($request['education_level_year'])) {
-            
+        if (!$request->isFile()) {
+
             $data = [
                 'id' => Str::uuid(),
                 'origname' => '',
@@ -83,7 +83,7 @@ class FileManagementController extends Controller {
                 'user_id' => Auth::user()->getKey(),
                 'school_location_id' => $schoolLocation->getKey(),
                 'type' => 'testupload',
-                'typedetails' => [ // request data?
+                'typedetails' => [// request data?
                     'test_kind_id' => $request->get('test_kind_id'),
                     'education_level_year' => $request->get('education_level_year'),
                     'education_level_id' => $request->get('education_level_id'),
@@ -105,10 +105,27 @@ class FileManagementController extends Controller {
 
             FileManagement::where('parent_id', $form_id)->update(['parent_id' => $parent_id, 'typedetails' => $data['typedetails']]);
 
+            // rename all files so the name includes the subject name
+
+            $stored_files = FileManagement::where('parent_id', $parent_id)->get();
+
+            $storage_path = sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey());
+
+            // add subject to filename
+            foreach ($stored_files as $file) {
+
+                $new_name = sprintf('%s-%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($request->get('name')), $request->get('subject'), pathinfo($file->origname, PATHINFO_EXTENSION));
+
+                rename($storage_path . '/' . $file->name, $storage_path . '/' . $new_name);
+
+                FileManagement::where('name', $file->name)->update(['name' => $new_name]);
+                
+            }
+
             Response::make($main, 200);
             
         } else {
-            
+
             // there is only one file at a time
             $file = $request->file('files')[0];
 
@@ -129,7 +146,7 @@ class FileManagementController extends Controller {
             try {
 
                 $child = new FileManagement();
-                
+
                 $data['id'] = Str::uuid();
 
                 $data['parent_id'] = $form_id;
@@ -146,13 +163,12 @@ class FileManagementController extends Controller {
                 $child->fill($data);
 
                 $child->save();
-                
             } catch (\Exception $e) {
                 DB::rollback();
                 logger('===== error ' . $e->getMessage());
                 Response::make('Het is helaas niet gelukt om de upload te verwerken, probeer het nogmaals.', 500);
             }
-            
+
             DB::commit();
             Response::make($child, 200);
         }
@@ -161,7 +177,7 @@ class FileManagementController extends Controller {
     public function storeClassUpload(CreateClassUploadRequest $request, SchoolLocation $schoolLocation) {
 
         $file = $request->file('file');
-        
+
         $origfileName = $file->getClientOriginalName();
 
         $fileName = sprintf('%s-%s.%s', date('YmdHis'), Str::slug($request->get('class')), pathinfo($origfileName, PATHINFO_EXTENSION));
