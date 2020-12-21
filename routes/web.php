@@ -18,7 +18,7 @@ use tcCore\User;
 */
 if (App::environment('local')) {
     Route::get('/testmail', function () {
-        return (new \tcCore\Jobs\SendTellATeacherMail(User::where('id', 1486)->first(), 'hallo'))->render();
+        return (new \tcCore\Jobs\SendTellATeacherMail(User::where('id', 1486)->first(), 'Bericht van uitnodiging', 'test@sobit.nl', 1234))->render();
     });
 }
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class);

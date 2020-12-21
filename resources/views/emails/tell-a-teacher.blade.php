@@ -77,7 +77,6 @@
 
         .cta-button {
             background: var(--cta-primary);
-            background: linear-gradient(90deg, var(--cta-primary) 0%, var(--cta-primary) 100%);
             color: white;
         }
 
@@ -238,29 +237,79 @@
 
 <body class="pt-40" leftMargin="0" topMargin="0" Marginwidth="0" Marginheight="0"
       style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;Margin:0 auto; background-color:#F9FAFF">
-
 <table id="wrapper" border="0" width="720px" cellpadding="0" cellspacing="0"
        style="background:white; width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto;">
     <thead id="header" style="background-color: #004df5; padding-top: 40px;padding-left: 40px;padding-right: 40px">
     <tr>
-        <th colspan="999" class="pt-20 pb-20 head-border">
-            <img width="164" height="30" id="logo"
-                 src="{{config('app.base_url')}}img/Logo-Test-Correct-wit.png"
-                 alt="Test-Correct"/>
+        <td background="{{ config('app.base_url')}}img/email_bg_tell_a_teacher.png" bgcolor="#004df5"
+            width="720" height="338" valign="top">
+            <!--[if gte mso 9]>
+            <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false"
+                    style="width:720px;height:340px;">
+                <v:fill type="tile" src="{{ config('app.base_url')}}img/email_bg_tell_a_teacher.png"
+                        color="#004df5"/>
+                <v:textbox inset="0,0,0,0">
+            <![endif]-->
+            <div>
+                <table style="width: 100%; color: #ffffff">
+                    <tr>
+                        <th colspan="999" class="pt-20 pb-20 head-border">
+                            <img width="164" height="30" id="logo"
+                                 src="{{config('app.base_url')}}img/Logo-Test-Correct-wit.png"
+                                 alt="Test-Correct"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 40px;padding-right: 40px">
+                            <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">Je
+                                collega {{$inviter}} nodigt je uit voor Test-Correct</h5>
+                            <table>
+                                <tr>
+                                    <td style="width: 100%">Samen met je collega's kun je:</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table>
+                                            <tr style="margin-bottom: 8px">
+                                                <td style="width: 21px">
+                                                    <img width="16"
+                                                         src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
+                                                         alt=""/>
+                                                </td>
+                                                <td style="width: 280px">
+                                                    <span style="margin-bottom: 8px">Overleggen over de voortgang van jouw studenten en ervaringen
+                                                    delen.</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <img width="16"
+                                                         src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
+                                                         alt=""/>
+                                                </td>
+                                                <td>Gebruikmaken van elkaars toetsen en toetsvragen.</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <!--[if gte mso 9]>
+            </v:textbox>
+            </v:rect>
+            <![endif]-->
         </td>
     </tr>
-    <tr>
-        <td style="padding-left: 40px;padding-right: 40px">
-        <td style="padding-left: 40px;padding-right: 40px">
-            <h5 style="color: #fff; font-size: 20px; font-weight:700;">Je collega {{$inviter}} nodigd je uit voor Test-Correct</h5>
-        </td>
-    </tr>
+
     </thead>
     <tbody id="content" class="body2">
     <tr style="border-collapse:collapse; border-radius:4px;border-color: red; border-style: solid; border-width: 1px; background-color:#ffffff;">
         <td colspan="999" class="pl-40 pr-40 pb-40 border-l-r" style="color: #041F74;">
             <p style="color: #041F74;font-size: 16px ">{{ $inviteText }}</p>
-            <a href="{{ config('app.base_url')}}"
+            <a href="{{ config('app.base_url')}}onboarding?step=1&email={{$receivingEmailAddress}}&sc={{$shortcode}}"
                style="border-radius: 10px;
             font-size: 18px;
             font-family: 'Nunito', sans-serif;

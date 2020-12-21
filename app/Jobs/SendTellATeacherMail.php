@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 use tcCore\EmailConfirmation;
+use tcCore\Lib\Models\StiBaseModel;
 use tcCore\User;
 
 class SendTellATeacherMail extends Mailable
@@ -15,6 +16,8 @@ class SendTellATeacherMail extends Mailable
 
     protected $inviter;
     protected $inviteText;
+    protected $receivingEmailAddress;
+    protected $shortcode;
 
     /**
      * Create a new job instance.
@@ -23,10 +26,12 @@ class SendTellATeacherMail extends Mailable
      * @param $url
      * @return void
      */
-    public function __construct(User $inviter, $inviteText)
+    public function __construct(User $inviter, $inviteText, $receivingEmailAddress, $shortcode)
     {
         $this->inviter = $inviter;
         $this->inviteText = $inviteText;
+        $this->receivingEmailAddress = $receivingEmailAddress;
+        $this->shortcode = $shortcode;
     }
 
     public function build()
@@ -36,12 +41,13 @@ class SendTellATeacherMail extends Mailable
         } else {
             $fullname = $this->inviter->name_first.' '.$this->inviter->name;
         }
-        logger($this->inviteText);
         return $this->view('emails.tell-a-teacher')
             ->subject('Je collega '.$fullname.' heeft je uitgenodigd voor Test-Correct')
             ->with([
                 'inviter' => $fullname,
-                'inviteText' => $this->inviteText
+                'inviteText' => $this->inviteText,
+                'receivingEmailAddress' => $this->receivingEmailAddress,
+                'shortcode' => $this->shortcode,
             ]);
     }
 }
