@@ -105,8 +105,6 @@ class FileManagementController extends Controller {
 
             FileManagement::where('parent_id', $form_id)->update(['parent_id' => $parent_id, 'typedetails' => $data['typedetails']]);
 
-            // rename all files so the name includes the subject name
-
             $stored_files = FileManagement::where('parent_id', $parent_id)->get();
 
             $storage_path = sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey());
@@ -121,7 +119,7 @@ class FileManagementController extends Controller {
                 FileManagement::where('name', $file->name)->update(['name' => $new_name]);
                 
             }
-
+          
             Response::make($main, 200);
             
         } else {
