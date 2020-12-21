@@ -19,5 +19,9 @@ if (App::environment('local')) {
         return (new SendOnboardingWelcomeMail(1546))->render();
     });
 }
-Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class);
+
+Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\UsersController@confirmEmail');
+Route::get('/', function() {
+   return redirect(route('onboarding.welcome'));
+});
