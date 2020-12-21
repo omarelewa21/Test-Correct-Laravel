@@ -10,6 +10,8 @@ use tcCore\BaseSubject;
 use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\SchoolLocation;
+use tcCore\Test;
+
 
 class CitoAccountSeeder extends Seeder
 {
@@ -125,6 +127,36 @@ class CitoAccountSeeder extends Seeder
             'gender'             => 'Male',
         ]);
         $locationB = SchoolLocation::where('customer_code','standaard testschool')->first();
+
+        // add a schoolYear for the current year;
+        $schoolYearB = (new SchoolYear);
+        $schoolYearB->fill([
+            'year'             => '2020',
+            'school_locations' => [$locationB->getKey()],
+        ]);
+        $schoolYearB->save();
+
+        $periodLocationB = (new Period());
+        $periodLocationB->fill([
+            'school_year_id'     => $schoolYear->getKey(),
+            'name'               => 'huidige voor MS A',
+            'school_location_id' => $locationA->getKey(),
+            'start_date'         => \Carbon\Carbon::now()->subMonths(6),
+            'end_date'           => \Carbon\Carbon::now()->addMonths(6),
+        ]);
+        $periodLocationB->save();
+
+        $classB = \tcCore\SchoolClass::create([
+            'school_location_id' => $locationB->getKey(),
+            'school_year_id' => $schoolYearB->getKey(),
+            'name' => 'schoolclass for Cito testing',
+            'education_level_id' => 1,
+            'education_level_year' => 1,
+            'is_main_school_class' => 0,
+            'do_not_overwrite_from_interface' => 0,
+            'demo' => 0
+        ]);
+
         $userFactory = new Factory(new User());
         $teacherB = $userFactory->generate([
             'name_first'         => 'Teacher',
@@ -153,7 +185,7 @@ class CitoAccountSeeder extends Seeder
 		])->each(function($subjectName) {
 			BaseSubject::create(['name'=>$subjectName]);
 		});
-		BaseSubject::all()->each(function($baseSubject) use($teacherA,$teacherB,$class) {
+		BaseSubject::all()->each(function($baseSubject) use($teacherA,$teacherB,$class,$classB,$periodLocationB) {
 			$subject = Subject::create([	'name'=>$baseSubject->name,
 								'section_id'=>1,
 								'base_subject_id'=>$baseSubject->id	
@@ -164,23 +196,33 @@ class CitoAccountSeeder extends Seeder
 										]);
 			$teacher = Teacher::create([	'user_id'=>$teacherB->id,
 											'subject_id'=>$subject->id,
-											'class_id'=>3
+											'class_id'=>$classB->id
 										]);
-		});
-        // collect(['c', 'd', 'e', 'f', 'g', 'h', 'k', 'l'])->each(function ($letter) use ($locationB, $comprehensiveSchool) {
-        //     $userFactory = new Factory(new User());
-        //     $userFactory->generate([
-        //         'name_first'         => 'Teacher',
-        //         'name_suffix'        => '',
-        //         'name'               => sprintf('Teacher %s', strtoupper($letter)),
-        //         'abbreviation'       => sprintf('T%s', strtoupper($letter)),
-        //         'school_location_id' => $locationB->getKey(),
-        //         'username'           => sprintf('teacher-%s@test-correct.nl', $letter),
-        //         'password'           => 'Sobit4456',
-        //         'user_roles'         => [1],
-        //         'gender'             => 'Male',
-        //     ]);
-        // });
+		
+            $test = new Test([
+                                  'subject_id'=>$subject->id,
+                                  'education_level_id'=>1,
+                                  'period_id'=>$periodLocationB->id,
+                                  'test_kind_id'=>3,
+                                  'name'=>'test cito '.$subject->name,
+                                  'abbreviation'=>'CITO',
+                                  'education_level_year'=>1,
+                                  'status'=>1,
+                                  'introduction'=>'Beste docent,
+
+Dit is de test toets voor de cito.',
+                                  'shuffle'=>false,
+                                  'is_system_test'=>false,
+                                  'question_count'=>0,
+                                  'is_open_source_content'=>false,
+                                  'demo'=>false,
+                                  'scope'=>'cito',
+                                  'published'=>'1',
+                            ]);
+            $test->setAttribute('author_id', $teacherB->id);
+            $test->setAttribute('owner_id', $teacherB->school_location_id);
+            $test->save();
+        });
 
 
         
