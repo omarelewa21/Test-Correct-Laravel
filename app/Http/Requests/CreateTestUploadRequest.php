@@ -1,4 +1,6 @@
-<?php namespace tcCore\Http\Requests;
+<?php
+
+namespace tcCore\Http\Requests;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
@@ -8,58 +10,82 @@ use tcCore\EducationLevel;
 
 class CreateTestUploadRequest extends Request {
 
-	/**
-	 * Determine if the user is authorized to make this request.
-	 *
-	 * @return bool
-	 */
-	public function authorize()
-	{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize() {
 
         $this->schoolLocation = $this->route('schoolLocation');
 
         return
-            Auth::user()->hasRole('Teacher')
-            && $this->schoolLocation !== null
-            && Auth::user()->school_location_id == $this->schoolLocation->getKey();
-	}
+                Auth::user()->hasRole('Teacher') && $this->schoolLocation !== null && Auth::user()->school_location_id == $this->schoolLocation->getKey();
+    }
+    
+    public function isForm() {
+        
+        // test if the request is form data or file data
+        // if files is not set its a form!
+        if($this->files == []) return true;
+        
+        return false;
+        
+    }
+    
+    public function isFile() {
+        
+        return $this['files'];
+        
+    }
 
-	/**
-	 * Get the validation rules that apply to the request.
-	 *
-	 * @return array
-	 */
-	public function rules()
-	{
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules() {
+
         $this->filterInput();
 
-		return [
-		    'files' => 'required',
-            'test_kind_id' => 'required',
-            'education_level_year' => 'required',
-            'education_level_id' => 'required',
-            'subject' => 'required',
-            'name' => 'required|string'
+        // differentiate validation
+        if (!$this->isFile()) {
+
+            // sometimes?
+            
+            // form submit
+            return [
+                'form_id' => 'required',
+                'test_kind_id' => 'required',
+                'education_level_year' => 'required',
+                'education_level_id' => 'required',
+                'subject' => 'required',
+                'name' => 'required|string'
+            ];
+        }
+
+        // file submit
+        return [
+            'files' => '',
+            'form_id' => 'required'
         ];
-	}
+    }
+    
 
-	/**
-	 * Get the sanitized input for the request.
-	 *
-	 * @return array
-	 */
-	public function sanitize()
-	{
-		return $this->all();
-	}
-
+    /**
+     * Get the sanitized input for the request.
+     *
+     * @return array
+     */
+    public function sanitize() {
+        return $this->all();
+    }
 
     protected function failedValidation(Validator $validator) {
         throw new HttpResponseException(response()->json($this->formatErrors($validator), 422));
     }
 
-    protected function formatErrors(Validator $validator)
-    {
+    protected function formatErrors(Validator $validator) {
 
         return $validator->errors()->all();
 
@@ -90,24 +116,23 @@ class CreateTestUploadRequest extends Request {
 ////        return $validator->errors()->all();
     }
 
-
     /**
      * Configure the validator instance.
      *
      * @param  \Illuminate\Validation\Validator $validator
      * @return void
      */
-    public function prepareForValidation(){
+    public function prepareForValidation() {
 
         $data = ($this->all());
         if (isset($data['education_level_id'])) {
             if (!Uuid::isValid($data['education_level_id'])) {
-                $this->addPrepareForValidationError('education_level_id','Het niveau van de toets kon niet bepaald worden.');
+                $this->addPrepareForValidationError('education_level_id', 'Het niveau van de toets kon niet bepaald worden.');
             } else {
                 $educationlevel = EducationLevel::whereUuid($data['education_level_id'])->first();
 
                 if (!$educationlevel) {
-                    $this->addPrepareForValidationError('education_level_id','Het niveau van de toets kon niet bepaald worden.');
+                    $this->addPrepareForValidationError('education_level_id', 'Het niveau van de toets kon niet bepaald worden.');
                 } else {
                     $data['education_level_id'] = $educationlevel->getKey();
                 }
@@ -115,7 +140,6 @@ class CreateTestUploadRequest extends Request {
         }
 
         $this->merge($data);
-
     }
 
     /**
@@ -124,8 +148,7 @@ class CreateTestUploadRequest extends Request {
      * @param \Illuminate\Validation\Validator $validator
      * @return void
      */
-    public function withValidator($validator)
-    {
+    public function withValidator($validator) {
         $validator->after(function ($validator) {
             $this->addPrepareForValidationErrorsToValidatorIfNeeded($validator);
         });
