@@ -7,6 +7,11 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use tcCore\Exceptions\Handler;
 use tcCore\User;
+use tcCore\Period;
+use tcCore\Teacher;
+use tcCore\Subject;
+use tcCore\SchoolClass;
+use tcCore\SchoolYear;
 use Tests\TestCase;
 
 class TeacherControllerTest extends TestCase
@@ -75,6 +80,54 @@ class TeacherControllerTest extends TestCase
         );
     }
 
+    /** @test */
+    public function school_class_is_validated_by_period(){
+        $schoolbeheerder = $this->getSchoolBeheerder();
+        $schoolClass = SchoolClass::where('school_location_id',$schoolbeheerder->school_location_id)->first();
+        $teacher = Teacher::where('class_id',$schoolClass->id)->first();
+        $subject = Subject::where('id',$teacher->subject_id)->first();
+
+        $period = Period::where('school_year_id',$schoolClass->school_year_id);
+        $period->update([   'start_date'         => \Carbon\Carbon::now()->subMonths(6),
+                            'end_date'           => \Carbon\Carbon::now()->addMonths(6),
+                        ]);
+        $schoolYear = SchoolYear::find($schoolClass->school_year_id);
+        $schoolYear->year = \Carbon\Carbon::now()->subYear(1)->format('Y');
+        $schoolYear->save();
+        $response = $this->postJson(
+            static::AuthSchoolBeheerderGetRequest(route('teacher.import')),
+            ['data' => $this->getData([
+                "school_class" => $schoolClass->name,
+                "subject"      => "Vak biologie"
+            ])]
+        );
+        $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function school_class_validation_fails_by_incorrect_period(){
+        $schoolbeheerder = $this->getSchoolBeheerder();
+        $schoolClass = SchoolClass::where('school_location_id',$schoolbeheerder->school_location_id)->first();
+        $teacher = Teacher::where('class_id',$schoolClass->id)->first();
+        $subject = Subject::where('id',$teacher->subject_id)->first();
+
+        $period = Period::where('school_year_id',$schoolClass->school_year_id);
+        $period->update([   'start_date'         => \Carbon\Carbon::now()->subMonths(6),
+                            'end_date'           => \Carbon\Carbon::now()->subMonths(3),
+                        ]);
+        $schoolYear = SchoolYear::find($schoolClass->school_year_id);
+        $schoolYear->year = \Carbon\Carbon::now()->format('Y');
+        $schoolYear->save();
+        $response = $this->postJson(
+            static::AuthSchoolBeheerderGetRequest(route('teacher.import')),
+            ['data' => $this->getData([
+                "school_class" => $schoolClass->name,
+                "subject"      => "Vak biologie"
+            ])]
+        );
+        $response->assertStatus(422);
+    }
+
 
     private function getData($overrides = [])
     {
@@ -95,6 +148,7 @@ class TeacherControllerTest extends TestCase
 
 
     }
+
 
     private function getDataThreeItems()
     {

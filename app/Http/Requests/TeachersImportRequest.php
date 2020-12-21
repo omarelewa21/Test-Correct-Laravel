@@ -80,10 +80,10 @@ class TeachersImportRequest extends Request
                             sprintf('data.%d.school_class', $index),
                             'de opgegeven klas dient in de database aanwezig te zijn voor deze schoollocatie'
                         );
-                    } else if($schoolClass->schoolYear->year != date('Y')){
+                    } else if(!$this->schoolClassPeriodIsActual($schoolClass)){
                         $validator->errors()->add(
                             sprintf('data.%d.school_class', $index),
-                            'de opgegeven klas is niet aanwezig voor dit schooljaar ('.date('Y').')'
+                            'de opgegeven klas is niet aanwezig voor dit schooljaar ('.$schoolClass->schoolYear->year.')'
                         );
                     } else {
 
@@ -132,6 +132,16 @@ class TeachersImportRequest extends Request
         return Subject::filtered()->get()->first(function ($subject) use ($subject_name) {
             return strtolower($subject_name) === strtolower($subject->name);
         });
+    }
+
+    private function schoolClassPeriodIsActual($schoolClass){
+        $periods = $schoolClass->schoolYear->periods;
+        foreach ($periods as $key => $period) {
+            if($period->isActual()){
+                return true;
+            }
+        }
+        return false;
     }
 
 }
