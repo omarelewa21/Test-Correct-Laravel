@@ -4,12 +4,7 @@ namespace Tests\Unit\QtiVersionTwoDotTwoDotTwo;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Collection;
-use tcCore\Http\Helpers\QtiImporter\v2dot2dot2\QtiParser;
 use tcCore\QtiModels\ExcelManifest;
-use tcCore\QtiModels\QtiManifest;
-use tcCore\User;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class QtiExcelManifestTest extends TestCase

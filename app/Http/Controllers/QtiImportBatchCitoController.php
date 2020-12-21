@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use tcCore\EducationLevel;
-use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
+use tcCore\Http\Helpers\QtiImporter\VersionTwoDotTwoDotZero\QtiResource;
 use tcCore\Http\Middleware\RedirectIfAuthenticated;
 use tcCore\Http\Requests\QtiImportCitoDataRequest;
 use tcCore\Jobs\SendExceptionMail;

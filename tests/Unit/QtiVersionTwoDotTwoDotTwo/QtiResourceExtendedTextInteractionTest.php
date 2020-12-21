@@ -3,14 +3,10 @@
 namespace Tests\Unit\QtiVersionTwoDotTwoDotTwo;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use tcCore\CompletionQuestion;
-use tcCore\Http\Helpers\QtiImporter\v2dot2dot2\QtiParser;
 use tcCore\OpenQuestion;
 use tcCore\User;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
+use tcCore\Http\Helpers\QtiImporter\VersionTwoDotTwoDotZero\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
 class QtiResourceExtendedTextInteractionTest extends TestCase

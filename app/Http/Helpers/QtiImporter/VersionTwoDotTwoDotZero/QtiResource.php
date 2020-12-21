@@ -55,6 +55,7 @@ class QtiResource
     {
         $this->resource = $resource;
         $this->baseDir = pathinfo($resource->href)['dirname'];
+
         $this->qtiFactory = new QtiFactory($this);
     }
 
@@ -663,7 +664,8 @@ class QtiResource
 
         return collect($this->stylesheets)->map(function ($path) {
             $pathToStylesheet = sprintf('%s/%s', $this->baseDir, $path['href']);
-            if (app()->runningUnitTests()) {
+            global $signal_running_integration_tests;
+            if (app()->runningUnitTests() && $signal_running_integration_tests !== null) {
                 $pathToStylesheet = sprintf('%s/Test-maatwerktoetsen_v01/aa/%s', $this->baseDir, $path['href']);
             }
             // remove depitems folder;

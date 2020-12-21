@@ -23,7 +23,7 @@ use Tests\Traits\OpenQuestionTrait;
 use Tests\Traits\TestTrait;
 use tcCore\Http\Helpers\SchoolHelper;
 
-class QuaynImportTest extends TestCase
+class WootsImportTest extends TestCase
 {
 //    use DatabaseTransactions;
 //
@@ -39,7 +39,48 @@ class QuaynImportTest extends TestCase
 
         $response = $this->post(
             route(
-                'qtiimport_import'
+                'qtiimportcito_import'
+            ),
+            static::getUserAuthRequestData($accountManager, [
+                "school_location_id"   => SchoolLocation::find(1)->uuid,
+                "author_id"            => User::find(1496)->uuid,
+                "subject_id"           => Subject::find(6)->uuid,
+                "education_level_id"   => EducationLevel::find(9)->uuid,
+                "education_level_year" => 1,
+                "test_kind_id"         => "2",
+                "abbr"                 => "",
+                "period_id"            => 1,
+                'zip_file'             => new \Illuminate\Http\UploadedFile(
+                    $path,
+                    $filename,
+                    'zip',
+                    null,
+                    true
+                ),
+            ])
+        );
+
+        dd($response->decodeResponseJson());
+
+        $this->assertStringContainsString(
+            'De import is succesvol verlopen!',
+            $response->decodeResponseJson()['data']
+        );
+    }
+
+    /** @test */
+    public function a_manager_can_upload_a_cito_zip_file()
+    {
+        $accountManager = User::whereUsername('accountmanager@test-correct.nl')->first();
+        $filename = 'economie-VMBO_pakket_test-correct_20200827-212636.zip';
+        $stub = base_path('tests/_fixtures_qti/economie-wiskundeA-niet-definitief/Economie-VMBO/'.$filename);
+        $path = sys_get_temp_dir().'/'.$filename;
+
+        copy($stub, $path);
+
+        $response = $this->post(
+            route(
+                'qtiimportcito_import'
             ),
             static::getUserAuthRequestData($accountManager, [
                 "school_location_id"   => SchoolLocation::find(1)->uuid,
