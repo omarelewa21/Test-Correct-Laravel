@@ -284,8 +284,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('school_location_user/existing_teachers', 'SchoolLocationUsersController@getExistingTeachers')->name('school_location_user.get_existing_teachers');
 
     Route::get('shortcode/{shortcode}','ShortcodeController@show')->name('shortcode.show');
-    Route::post('shortcode','ShortcodeController@store')->name('shortcode.store');
-
+    Route::post('shortcode','Api\ShortcodeController@store')->name('shortcode.store');
+    Route::get('inv/{shortcode}', 'Api\ShortcodeController@registerClickAndRedirect')->name('shortcode.registerclickandredirect');
     Route::put('shortcodeclick/{shortcodeClick}','ShortcodeClickController@update')->name('shortcodeClick.update');
     // goes to the web part
     // Route::get('tlc/{shortcode}','ShortcodeController@registerClickAndRedirect')->name('shortcode.registerAndRedirect');

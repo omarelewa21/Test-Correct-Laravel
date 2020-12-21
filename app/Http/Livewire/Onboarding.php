@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Requests\Request;
+use tcCore\Shortcode;
+use tcCore\ShortcodeClick;
 use tcCore\TemporaryLogin;
 use tcCore\User;
 
@@ -17,7 +19,7 @@ class Onboarding extends Component
     public $email;
     public $password;
     public $password_confirmation;
-
+    public $ref;
     public $step = 1;
 
     public $btnDisabled = true;
@@ -32,7 +34,7 @@ class Onboarding extends Component
     public $warningStepOneConfirmed = false;
     public $warningStepTwoConfirmed = false;
 
-    protected $queryString = ['step', 'email', 'confirmed'];
+    protected $queryString = ['step', 'email', 'confirmed', 'ref'];
 
     protected $messages = [
         'registration.name_first.required'      => 'Voornaam is verplicht',
@@ -72,6 +74,7 @@ class Onboarding extends Component
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
             'password'                                  => 'sometimes',
+            'registration.invited_by'                   => 'sometimes',
         ];
 
         if ($this->step === 1) {
@@ -104,6 +107,7 @@ class Onboarding extends Component
         $this->registration = new DemoTeacherRegistration;
         $this->registration->username = $this->email;
         $this->registration->gender = 'male';
+        $this->registration->invited_by = $this->ref;
 
         if (!$this->step != 1 || $this->step = '4') {
             $this->step = 1;
@@ -114,6 +118,11 @@ class Onboarding extends Component
         if ($this->isUserConfirmedWithEmail()) {
             $this->confirmed = 0;
             $this->shouldDisplayEmail = true;
+        }
+        if ($this->ref) {
+            $shortcodeId = ShortcodeClick::whereUuid($this->ref)->first();
+            $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
+            $this->registration->invited_by = $invited_by->user_id;
         }
 
         $this->registration->registration_email_confirmed = $this->confirmed;

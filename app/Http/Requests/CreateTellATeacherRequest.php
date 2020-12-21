@@ -50,7 +50,7 @@ class CreateTellATeacherRequest extends Request
         ];
 
 
-        return $this->step == 2 && $this->submit == true
+        return $this->step == 2
             ? $rules + ['data.message' => 'required|string|min:10']
             : $rules;
     }

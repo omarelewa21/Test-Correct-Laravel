@@ -307,9 +307,9 @@
     </thead>
     <tbody id="content" class="body2">
     <tr style="border-collapse:collapse; border-radius:4px;border-color: red; border-style: solid; border-width: 1px; background-color:#ffffff;">
-        <td colspan="999" class="pl-40 pr-40 pb-40 border-l-r" style="color: #041F74;">
+        <td colspan="999" class="p-40 border-l-r" style="color: #041F74;">
             <p style="color: #041F74;font-size: 16px ">{{ $inviteText }}</p>
-            <a href="{{ config('app.base_url')}}onboarding?step=1&email={{$receivingEmailAddress}}&sc={{$shortcode}}"
+            <a href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}"
                style="border-radius: 10px;
             font-size: 18px;
             font-family: 'Nunito', sans-serif;

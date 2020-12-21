@@ -12,14 +12,9 @@ class Shortcode extends BaseModel
 {
 
     use SoftDeletes;
-    use UuidTrait;
 
     const SHORTCODE_PREFIX = '';
     const SHORTCODE_LENGTH = 6;
-
-    protected $casts = [
-        'uuid' => EfficientUuid::class,
-    ];
 
     protected $appends = ['link'];
 
