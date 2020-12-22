@@ -114,7 +114,7 @@ class DemoTeacherRegistration extends Model
                     $this->toArray(), [
                         'school_location_id' => $tempTeachersSchoolLocation->getKey(),
                         'user_roles'         => 1, // Teacher;
-                        'invited_by'        => $invited_by,
+                        'invited_by'         => $invited_by,
                     ]
                 );
 
@@ -126,9 +126,11 @@ class DemoTeacherRegistration extends Model
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate($data);
 
-                $shortcodeClick = ShortcodeClick::whereUuid($ref)->first();
-                $shortcodeClick->setAttribute('user_id', $user->getKey());
-                $shortcodeClick->save();
+                if (!$ref === null) {
+                    $shortcodeClick = ShortcodeClick::whereUuid($ref)->first();
+                    $shortcodeClick->setAttribute('user_id', $user->getKey());
+                    $shortcodeClick->save();
+                }
 
                 $demoHelper = (new DemoHelper())->setSchoolLocation($tempTeachersSchoolLocation);
 
