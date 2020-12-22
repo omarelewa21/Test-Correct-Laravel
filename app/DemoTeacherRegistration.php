@@ -95,7 +95,7 @@ class DemoTeacherRegistration extends Model
         }
     }
 
-    public function addUserToRegistration($password = null)
+    public function addUserToRegistration($password = null, $invited_by = null)
     {
         try {
             $newRegistration = false;
@@ -108,13 +108,13 @@ class DemoTeacherRegistration extends Model
 //                        }else{logger('klas '.$schoolClass->getKey.' bestaat al voor '.$user->getKey());}
 //                    }
                 ;
-
                 $tempTeachersSchoolLocation = SchoolHelper::getTempTeachersSchoolLocation();
                 $data = array_merge(
                     $password ? ['password' => $password] : [],
                     $this->toArray(), [
                         'school_location_id' => $tempTeachersSchoolLocation->getKey(),
                         'user_roles'         => 1, // Teacher;
+                        'invited_by'        => $invited_by,
                     ]
                 );
 

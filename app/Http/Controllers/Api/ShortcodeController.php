@@ -51,7 +51,8 @@ class ShortcodeController extends Controller
                 ]);
             }
             return response()->json([
-                'data' => $shortcode
+                'data' => $shortcode,
+                'url' => config('shortcode.shortcode.link'),
             ], 200);
         } catch (\Throwable $e) {
             abort(500);

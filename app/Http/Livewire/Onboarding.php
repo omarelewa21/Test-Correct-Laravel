@@ -20,6 +20,7 @@ class Onboarding extends Component
     public $password;
     public $password_confirmation;
     public $ref;
+    public $invited_by;
     public $step = 1;
 
     public $btnDisabled = true;
@@ -74,7 +75,6 @@ class Onboarding extends Component
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
             'password'                                  => 'sometimes',
-            'registration.invited_by'                   => 'sometimes',
         ];
 
         if ($this->step === 1) {
@@ -107,7 +107,6 @@ class Onboarding extends Component
         $this->registration = new DemoTeacherRegistration;
         $this->registration->username = $this->email;
         $this->registration->gender = 'male';
-        $this->registration->invited_by = $this->ref;
 
         if (!$this->step != 1 || $this->step = '4') {
             $this->step = 1;
@@ -122,7 +121,7 @@ class Onboarding extends Component
         if ($this->ref) {
             $shortcodeId = ShortcodeClick::whereUuid($this->ref)->first();
             $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
-            $this->registration->invited_by = $invited_by->user_id;
+            $this->invited_by = $invited_by->user_id;
         }
 
         $this->registration->registration_email_confirmed = $this->confirmed;
@@ -192,7 +191,7 @@ class Onboarding extends Component
         }
         $this->registration->save();
         try {
-            $this->newRegistration = $this->registration->addUserToRegistration($this->password);
+            $this->newRegistration = $this->registration->addUserToRegistration($this->password,$this->invited_by);
             $this->step = 3;
         } catch(\Throwable $e){
             $this->step = 'error';
