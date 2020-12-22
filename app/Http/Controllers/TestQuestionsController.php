@@ -90,7 +90,6 @@ class TestQuestionsController extends Controller {
 //                     */
 //                    $qHelper->storeAnswersForCompletionQuestion($testQuestion, $questionData['answers']);
 //                }
-
                 if ($testQuestion->save()) {
                     if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))) {
 //                        // delete old answers
