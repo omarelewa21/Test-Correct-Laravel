@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Requests\Request;
+use tcCore\SchoolLocation;
 use tcCore\Shortcode;
 use tcCore\ShortcodeClick;
 use tcCore\TemporaryLogin;
@@ -177,6 +178,10 @@ class Onboarding extends Component
             $this->warningStepOneConfirmed = true;
             return;
         }
+        if ($this->ref != null && $this->isInvitedBySameDomain($this->registration->username)) {
+            $this->fillSchoolData($this->invited_by);
+            $this->step = 2;
+        }
         $this->step = 2;
 //        $this->btnStepTwoDisabledCheck();
         $this->warningStepOneConfirmed = false;
@@ -193,7 +198,7 @@ class Onboarding extends Component
         try {
             $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->invited_by, $this->ref);
             $this->step = 3;
-        } catch(\Throwable $e){
+        } catch (\Throwable $e) {
             $this->step = 'error';
         }
     }
@@ -280,6 +285,21 @@ class Onboarding extends Component
             $this->warningStepTwo = false;
             return true;
         }
+    }
+
+    public function isInvitedBySameDomain($username)
+    {
+        $inviter = User::find($this->invited_by);
+        $inviterDomain = explode('@', $inviter->username)[1];
+
+        return $inviterDomain === explode('@', $username)[1];
+    }
+
+    public function fillSchoolData($inviter)
+    {
+        $inviter = User::find($inviter);
+        $schoolInfo = SchoolLocation::find($inviter->school_location_id);
+        dd($schoolInfo);
     }
 
     public function updating(&$name, &$value)
