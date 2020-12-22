@@ -191,7 +191,7 @@ class Onboarding extends Component
         }
         $this->registration->save();
         try {
-            $this->newRegistration = $this->registration->addUserToRegistration($this->password,$this->invited_by);
+            $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->invited_by, $this->ref);
             $this->step = 3;
         } catch(\Throwable $e){
             $this->step = 'error';

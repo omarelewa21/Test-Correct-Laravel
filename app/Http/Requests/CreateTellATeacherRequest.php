@@ -23,11 +23,14 @@ class CreateTellATeacherRequest extends Request
      */
     protected function prepareForValidation()
     {
-        if (strstr($this->data['email_addresses'], ';')) {
-            $this->merge(['email_addresses' => explode(';', $this->data['email_addresses'])]);
-        } else {
-            $this->merge(['email_addresses' => [$this->data['email_addresses']]]);
-        }
+        // trim whitepaces
+        $emailAddresses = trim($this->data['email_addresses']);
+        // trim ; if last char
+        $emailAddresses = rtrim($emailAddresses,';');
+        // trim , if last char
+        $emailAddresses = rtrim($emailAddresses, ',');
+        // split on , or ; (if you want to add another split character, make sure to rtrim that one as well)
+        $this->merge(['email_addresses' => array_map('trim',preg_split('/(,|;)/',$emailAddresses))]);
     }
 
     /**

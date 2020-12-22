@@ -95,7 +95,7 @@ class DemoTeacherRegistration extends Model
         }
     }
 
-    public function addUserToRegistration($password = null, $invited_by = null)
+    public function addUserToRegistration($password = null, $invited_by = null, $ref = null)
     {
         try {
             $newRegistration = false;
@@ -125,6 +125,10 @@ class DemoTeacherRegistration extends Model
 
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate($data);
+
+                $shortcodeClick = ShortcodeClick::whereUuid($ref)->first();
+                $shortcodeClick->setAttribute('user_id', $user->getKey());
+                $shortcodeClick->save();
 
                 $demoHelper = (new DemoHelper())->setSchoolLocation($tempTeachersSchoolLocation);
 

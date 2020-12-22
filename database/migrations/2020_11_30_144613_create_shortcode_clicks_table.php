@@ -18,7 +18,7 @@ class CreateShortcodeClicksTable extends Migration
             $table->timestamps();
             $table->string('shortcode_id');
             $table->string('ip');
-            $table->uuid('uuid');
+            $table->efficientUuid('uuid')->index()->unique();
             $table->integer('user_id')->nullable(); // user_id of the user who is created through this process
         });
     }
