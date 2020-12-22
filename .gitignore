@@ -24,4 +24,7 @@ launch.json
 public/vendor/telescope
 vendor/*
 /public/.DS_Store
+storage/*
+storage/*/*
+storage/*/*/*
 !.gitignore
