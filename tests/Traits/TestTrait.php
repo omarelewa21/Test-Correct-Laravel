@@ -43,6 +43,13 @@ trait TestTrait
         return $response->decodeResponseJson()['id'];
     }
 
+    private function getTestQuestionsByGet($attributes){
+        $response = $this->get(static::authTeacherOneGetRequest('/api-c/test_question', $attributes));
+        $response->assertStatus(200);
+
+        return $response->decodeResponseJson();
+    }
+
     private function duplicateTest($testId){
         $test = Test::find($testId);
         $response = $this->post(
