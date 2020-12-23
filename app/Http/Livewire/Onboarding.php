@@ -75,6 +75,7 @@ class Onboarding extends Component
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
+            'registration.invitee'                      => 'sometimes',
             'password'                                  => 'sometimes',
         ];
 
@@ -122,7 +123,7 @@ class Onboarding extends Component
         if ($this->ref) {
             $shortcodeId = ShortcodeClick::whereUuid($this->ref)->first();
             $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
-            $this->invited_by = $invited_by->user_id;
+            $this->registration->invitee = $invited_by->user_id;
         }
 
         $this->registration->registration_email_confirmed = $this->confirmed;
@@ -179,8 +180,9 @@ class Onboarding extends Component
             return;
         }
         if ($this->ref != null && $this->isInvitedBySameDomain($this->registration->username)) {
-            $this->fillSchoolData($this->invited_by);
-            $this->step = 2;
+            $this->fillSchoolData($this->registration->invitee);
+        } else {
+            $this->clearSchoolData();
         }
         $this->step = 2;
 //        $this->btnStepTwoDisabledCheck();
@@ -196,7 +198,7 @@ class Onboarding extends Component
         }
         $this->registration->save();
         try {
-            $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->invited_by, $this->ref);
+            $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
             $this->step = 3;
         } catch (\Throwable $e) {
             $this->step = 'error';
@@ -289,7 +291,7 @@ class Onboarding extends Component
 
     public function isInvitedBySameDomain($username)
     {
-        $inviter = User::find($this->invited_by);
+        $inviter = User::find($this->registration->invitee);
         $inviterDomain = explode('@', $inviter->username)[1];
 
         return $inviterDomain === explode('@', $username)[1];
@@ -299,7 +301,20 @@ class Onboarding extends Component
     {
         $inviter = User::find($inviter);
         $schoolInfo = SchoolLocation::find($inviter->school_location_id);
-        dd($schoolInfo);
+        $this->registration->school_location = $schoolInfo->name;
+        $this->registration->address = $schoolInfo->visit_address;
+        $this->registration->postcode = $schoolInfo->visit_postal;
+        $this->registration->house_number = filter_var($schoolInfo->visit_address, FILTER_SANITIZE_NUMBER_INT);
+        $this->registration->city = $schoolInfo->visit_city;
+    }
+
+    public function clearSchoolData()
+    {
+        $this->registration->school_location = null;
+        $this->registration->address = null;
+        $this->registration->postcode = null;
+        $this->registration->house_number = null;
+        $this->registration->city = null;
     }
 
     public function updating(&$name, &$value)

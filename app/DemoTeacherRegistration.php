@@ -32,9 +32,6 @@ class DemoTeacherRegistration extends Model
         });
     }
 
-
-    //
-
     public static function registerIfApplicable(User $user)
     {
         if (request('shouldRegisterUser') == true) {
@@ -126,7 +123,7 @@ class DemoTeacherRegistration extends Model
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate($data);
 
-                if (!$ref === null) {
+                if ($ref != null) {
                     $shortcodeClick = ShortcodeClick::whereUuid($ref)->first();
                     $shortcodeClick->setAttribute('user_id', $user->getKey());
                     $shortcodeClick->save();
