@@ -27,15 +27,9 @@ class CreateTestUploadRequest extends Request {
         
         // test if the request is form data or file data
         // if files is not set its a form!
-        if($this->files == []) return true;
+        if(isset($this->education_level_year)) return true;
         
         return false;
-        
-    }
-    
-    public function isFile() {
-        
-        return $this['files'];
         
     }
 
@@ -49,9 +43,7 @@ class CreateTestUploadRequest extends Request {
         $this->filterInput();
 
         // differentiate validation
-        if (!$this->isFile()) {
-
-            // sometimes?
+        if ($this->isForm()) {
             
             // form submit
             return [
@@ -66,7 +58,6 @@ class CreateTestUploadRequest extends Request {
 
         // file submit
         return [
-            'files' => '',
             'form_id' => 'required'
         ];
     }
