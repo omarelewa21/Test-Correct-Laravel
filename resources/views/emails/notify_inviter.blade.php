@@ -262,7 +262,7 @@
                     <tr>
                         <td style="padding-left: 40px;padding-right: 40px">
                             <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">Je
-                                collega {{$inviter}} nodigt je uit voor Test-Correct</h5>
+                                collega {{$invitee->getNameFullAttribute()}} heeft zich aangemeld voor Test-Correct!</h5>
                             <table>
                                 <tr>
                                     <td style="width: 100%">Samen met je collega's kun je:</td>
@@ -308,8 +308,9 @@
     <tbody id="content" class="body2">
     <tr style="border-collapse:collapse; border-radius:4px;border-color: red; border-style: solid; border-width: 1px; background-color:#ffffff;">
         <td colspan="999" class="p-40 border-l-r" style="color: #041F74;">
-            <p style="color: #041F74;font-size: 16px ">{{ $inviteText }}</p>
-            <a href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}"
+            <p style="color: #041F74;font-size: 16px; margin-bottom: 8px ">Beste {{$inviter->getNameFullAttribute()}},</p>
+            <p style="color: #041F74;font-size: 16px ">Je collega heeft zich aangemeld via jouw code</p>
+            <a href="{{ config('app.url_login')}}"
                style="border-radius: 10px;
             font-size: 18px;
             font-family: 'Nunito', sans-serif;
@@ -322,8 +323,7 @@
             text-align: center;
             stroke: white;
             Margin-top: 16px;"
-               class="mt-40 button cta-button stretched text-center svg-stroke-white">Maak jouw gratis account
-                <x-icon.arrow></x-icon.arrow>
+               class="mt-40 button cta-button stretched text-center svg-stroke-white">Werk samen
             </a>
         </td>
     </tr>

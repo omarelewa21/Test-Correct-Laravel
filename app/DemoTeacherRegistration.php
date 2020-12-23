@@ -133,7 +133,7 @@ class DemoTeacherRegistration extends Model
                     //Send mail to inviter that there is a new registration from their invite
                     $inviter = User::find($invited_by);
                     try {
-                        Mail::to($user->getEmailForPasswordReset())->send(new SendNotifyInviterMail($inviter,$user));
+                        Mail::to($inviter->getEmailForPasswordReset())->send(new SendNotifyInviterMail($inviter,$user));
                     } catch (\Throwable $e) {
                         Bugsnag::notifyException($e);
                     }
