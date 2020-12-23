@@ -10,11 +10,15 @@ use tcCore\MatchingQuestion;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\TestTrait;
+use Tests\Traits\MatchingQuestionTrait;
 use Illuminate\Support\Facades\DB;
 
 class CopyTestTest extends TestCase
 {
     use DatabaseTransactions;
+    use TestTrait;
+    use MatchingQuestionTrait;
 
     private $originalTestId;
     private $originalQuestionId;
@@ -50,7 +54,7 @@ class CopyTestTest extends TestCase
         $this->assertTrue(count($result)==0);
         $attributes = $this->getAttributesForEditQuestion4($this->originalTestId);
         $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
-        $this->editQuestion($copyQuestion->uuid,$attributes);
+        $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
         $this->assertTrue(count($result)>=0);
     }
@@ -61,96 +65,95 @@ class CopyTestTest extends TestCase
         $this->setupScenario4();
         $tests = Test::where('name','TToets van GM4')->get();
         $this->assertTrue(count($tests)==1);
+
         $questions = Test::find($this->originalTestId)->testQuestions;
         $this->assertTrue(count($questions)==1);
-        $this->assertTrue(!is_null($questions->first()->question->getQuestionInstance()->matchingQuestionAnswers));
+        $this->assertTrue(!is_null($questions->first()->question->matchingQuestionAnswers));
+
         $originalQuestionArray = $questions->pluck('question_id')->toArray();
         $tests = Test::where('name','Kopie #1 TToets van GM4')->get();
         $this->assertTrue(count($tests)==1);
+
         $copyQuestions = Test::find($this->copyTestId)->testQuestions;
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
         $result = array_diff($originalQuestionArray, $copyQuestionArray);
         $this->assertTrue(count($result)==0);
+
         $attributes = $this->getAttributesForEditQuestion4($this->originalTestId);
         $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
-        $this->editQuestion($copyQuestion->uuid,$attributes);
+        $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        $this->assertTrue(count($result)>=0);
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)>0);
+
+        $answers = $copyQuestion->question->matchingQuestionAnswers;
+        foreach ($answers as $key => $answerObj) {
+        	switch ($key) {
+        		case '0':
+        			$this->assertEquals('aa2', $answerObj->answer);
+        			break;
+        		case '1':
+        			$this->assertEquals('bb2', $answerObj->answer);
+        			break;
+        		case '2':
+        			$this->assertEquals('cc2', $answerObj->answer);
+        			break;
+        		case '3':
+        			$this->assertEquals('dd2', $answerObj->answer);
+        			break;
+        		case '4':
+        			$this->assertEquals('ee2', $answerObj->answer);
+        			break;
+        		case '5':
+        			$this->assertEquals('ff2', $answerObj->answer);
+        			break;
+        	}
+        }
+
+
         $originalQuestions = Test::find($this->originalTestId)->testQuestions;
-        foreach ($originalQuestions as $key => $testQuestion) {
-        	dd($testQuestion->question->getQuestionInstance()->matchingQuestionAnswers);
+        $this->assertTrue(count($originalQuestions)==1);
+
+        $testQuestion = $originalQuestions->first();
+        $answers = $testQuestion->question->matchingQuestionAnswers;
+        foreach ($answers as $key => $answerObj) {
+        	switch ($key) {
+        		case '0':
+        			$this->assertEquals('aa', $answerObj->answer);
+        			break;
+        		case '1':
+        			$this->assertEquals('bb', $answerObj->answer);
+        			break;
+        		case '2':
+        			$this->assertEquals('cc', $answerObj->answer);
+        			break;
+        		case '3':
+        			$this->assertEquals('dd', $answerObj->answer);
+        			break;
+        		case '4':
+        			$this->assertEquals('ee', $answerObj->answer);
+        			break;
+        		case '5':
+        			$this->assertEquals('ff', $answerObj->answer);
+        			break;
+        	}
         }
     }
 
     private function setupScenario4(){
-    	$this->createTLCTest();
+    	$attributes = $this->getAttributesForTest4();
+    	unset($attributes['school_classes']);
+    	$this->createTLCTest($attributes);
     	$attributes = $this->getAttributesForQuestion4($this->originalTestId);
-        $this->createQuestion($attributes);
+        $this->createMatchingQuestion($attributes);
         $this->duplicateTest($this->originalTestId);
     }
 
-    private function createTLCTest(){
-    	$response = $this->post(
-            'api-c/test',
-            static::getTeacherOneAuthRequestData(
-                $this->getAttributesForTest4()
-            )
-        );
-        $response->assertStatus(200);
-        $testId = $response->decodeResponseJson()['id'];
-        $this->originalTestId = $testId;
-    }
-
-    private function createQuestion($attributes){
-    	$response = $this->post(
-            'api-c/test_question',
-            static::getTeacherOneAuthRequestData(
-                $attributes
-            )
-        );
-        $response->assertStatus(200);
-        $questionId = $response->decodeResponseJson()['id'];
-        $this->originalQuestionId = $questionId;
-    }
-
-    private function editQuestion($uuid,$attributes){
-    	$response = $this->put(
-            'api-c/test_question/'.$uuid,
-            static::getTeacherOneAuthRequestData(
-                $attributes
-            )
-        );
-        $response->assertStatus(200);
-    }
-
-    private function duplicateTest($testId){
-    	$test = Test::find($testId);
-    	$response = $this->post(
-            '/api-c/test/'.$test->uuid.'/duplicate',
-            static::getTeacherOneAuthRequestData(
-                ['status'=>0]
-            )
-        );
-        $response->assertStatus(200);
-        $testId = $response->decodeResponseJson()['id'];
-        $this->copyTestId = $testId;
-    }
-
-    private function clearDB(){
-    	$tests = Test::where('name','TToets van GM4')->get();
-    	foreach ($test as $key => $test) {
-    		$questions = $test->questions;
-    		foreach ($questions as $key => $question) {
-    			# code...
-    		}
-    	}
-    	$sql = "delete from tests where name='TToets van GM4'";
-    	DB::delete($sql);
-    }
 
     private function getAttributesForTest4(){
 
-        return $this->getAttributes([
+        return $this->getTestAttributes([
             'name'                   => 'TToets van GM4',
             'abbreviation'           => 'TTGM4',
             'subject_id'             => '6',
@@ -159,276 +162,54 @@ class CopyTestTest extends TestCase
     
     }
 
-    private function getAttributes($overrides = [])
-    {
-        return array_merge([
-            'name'                   => 'Test Title',
-            'abbreviation'           => 'TT',
-            'test_kind_id'           => '3',
-            'subject_id'             => '1',
-            'education_level_id'     => '1',
-            'education_level_year'   => '1',
-            'period_id'              => '1',
-            'shuffle'                => '0',
-            'is_open_source_content' => '1',
-            'introduction'           => 'Hello this is the intro txt',
-        ], $overrides);
-    }
+    // private function getAttributes($overrides = [])
+    // {
+    //     return array_merge([
+    //         'name'                   => 'Test Title',
+    //         'abbreviation'           => 'TT',
+    //         'test_kind_id'           => '3',
+    //         'subject_id'             => '1',
+    //         'education_level_id'     => '1',
+    //         'education_level_year'   => '1',
+    //         'period_id'              => '1',
+    //         'shuffle'                => '0',
+    //         'is_open_source_content' => '1',
+    //         'introduction'           => 'Hello this is the intro txt',
+    //     ], $overrides);
+    // }
 
     private function getAttributesForEditQuestion4($testId){
     	$attributes = array_merge($this->getAttributesForTest4($testId),[	"question"=> "<p>GM42</p>",
-    																		"answers"=> [
-																				[
-																					"order"=> "1",
-																					"left"=> "aa2",
-																					"right"=> "bb2"
-																				],
-																				[
-																					"order"=> "2",
-																					"left"=> "cc2",
-																					"right"=> "dd2"
-																				],
-																				[
-																					"order"=> "3",
-																					"left"=> "ee2",
-																					"right"=> "ff2"
-																				],
-																				[
-																					"order"=> "3",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "4",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "5",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "6",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "7",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "8",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "9",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "10",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "11",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "12",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "13",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "14",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "15",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "16",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "17",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "18",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "19",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "20",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "21",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "22",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "23",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "24",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "25",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "26",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "27",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "28",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "29",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "30",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "31",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "32",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "33",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "34",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "35",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "36",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "37",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "38",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "39",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "40",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "41",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "42",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "43",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "44",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "45",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "46",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "47",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "48",
-																					"left"=> "",
-																					"right"=> ""
-																				],
-																				[
-																					"order"=> "49",
-																					"left"=> "",
-																					"right"=> ""
-																				]
-																			],
+    																		"answers"=> array_merge([
+																										[
+																											"order"=> "0",
+																											"left"=> "aa2",
+																											"right"=> "bb2"
+																										],
+																										[
+																											"order"=> "1",
+																											"left"=> "",
+																											"right"=> ""
+																										],
+																										[
+																											"order"=> "2",
+																											"left"=> "cc2",
+																											"right"=> "dd2"
+																										],
+																										[
+																											"order"=> "3",
+																											"left"=> "",
+																											"right"=> ""	
+																										],
+																										[
+																											"order"=> "4",
+																											"left"=> "ee2",
+																											"right"=> "ff2"
+																										]
+    																								],$this->getRestOfAnswerArray(4,49))
+
+																				
+																			,
 
     																	]);
 		unset($attributes["test_id"]);
@@ -450,258 +231,24 @@ class CopyTestTest extends TestCase
 					],
 					"note_type"=> "NONE",
 					"is_open_source_content"=> 1,
-					"answers"=> [
-						[
-							"order"=> "1",
-							"left"=> "aa",
-							"right"=> "bb"
-						],
-						[
-							"order"=> "2",
-							"left"=> "cc",
-							"right"=> "dd"
-						],
-						[
-							"order"=> "3",
-							"left"=> "ee",
-							"right"=> "ff"
-						],
-						[
-							"order"=> "3",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "4",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "5",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "6",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "7",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "8",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "9",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "10",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "11",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "12",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "13",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "14",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "15",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "16",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "17",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "18",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "19",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "20",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "21",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "22",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "23",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "24",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "25",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "26",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "27",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "28",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "29",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "30",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "31",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "32",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "33",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "34",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "35",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "36",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "37",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "38",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "39",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "40",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "41",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "42",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "43",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "44",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "45",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "46",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "47",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "48",
-							"left"=> "",
-							"right"=> ""
-						],
-						[
-							"order"=> "49",
-							"left"=> "",
-							"right"=> ""
-						]
-					],
+					"answers"=> array_merge([
+												[
+													"order"=> "1",
+													"left"=> "aa",
+													"right"=> "bb"
+												],
+												[
+													"order"=> "2",
+													"left"=> "cc",
+													"right"=> "dd"
+												],
+												[
+													"order"=> "3",
+													"left"=> "ee",
+													"right"=> "ff"
+												],
+											],$this->getRestOfAnswerArray(4,49))
+					,
 					"tags"=> [
 					],
 					"rtti"=> "R",
@@ -729,6 +276,7 @@ class CopyTestTest extends TestCase
 // 	Resultaat: vraag originele toets niet gewijzigd
 // 			Meerkeuze vraag antwoorden tekstueel aanpassen
 // 	Resultaat: vraag originele toets niet gewijzigd
+// 	Carlo: 
 
 
 // scenario 2:
@@ -829,11 +377,11 @@ class CopyTestTest extends TestCase
 // 			Combinatie vraag aanpassen: Antwoord tekstueel veranderen
 // 	Resultaat: vraag originele toets gewijzigd
 
-// scenario 10:
+// scenario 9:
 // 	inloggen d1@test-correct.nl
 // 	Itembank->Schoollocatie->Toets construeren
-// 	Toets: 	Titel: Toets van GM10
-// 			Afkorting: TGM10
+// 	Toets: 	Titel: Toets van GM9
+// 			Afkorting: TGM9
 // 			Introductie tekst: intro
 // 			Rest: default
 // 			Combinatie vraag aanmaken: 	RTTI: R
