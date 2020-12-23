@@ -103,13 +103,12 @@ class QtiManifest
     public function getProperties()
     {
         $meta = $this->originalXml->metadata->children('depcp', true)->metadata;
-
         return [
-            'id'       => $meta->id ? $meta->id->__toString() : 'someId',
-            'name'     => $meta->meta ? $meta->name->__toString() : 'someMeta',
-            'version'  => $meta->version ? $meta->version->__toString() : 'someVersion',
-            'guid'     => $meta->guid ? $meta->guid->__toString() : 'someGuid',
-            'testType' => $meta->testType ? $meta->testType->__toString() : 'someTestType',
+            'id'       => $meta->id !== null && $meta->id->__toString() ? $meta->id->__toString() : 'someId',
+            'name'     => $meta->name !== null && $meta->name->__toString() ? $meta->name->__toString() : 'someMeta',
+            'version'  => $meta->version !== null && $meta->version->__toString() ? $meta->version->__toString() : 'someVersion',
+            'guid'     => $meta->guid !== null && $meta->guid->__toString() ? $meta->guid->__toString() : 'someGuid',
+            'testType' => $meta->testType !== null && $meta->testType->__toString() ? $meta->testType->__toString() : 'someTestType',
         ];
     }
 

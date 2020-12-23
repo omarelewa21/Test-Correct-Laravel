@@ -332,7 +332,6 @@ class QtiImportCitoController extends Controller
         $xml = simplexml_load_file($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA);
         $this->manifest = (new QtiManifest())->setOriginalXml($xml);
 
-
         // add the test
         $test = $this->addTest($xml, ['scope' => 'cito']);
         $this->currentTest->name = $test->name;
@@ -341,11 +340,8 @@ class QtiImportCitoController extends Controller
         // test for as the rest of the system is depending on this
         Auth::loginUsingId($this->requestData['author_id']);
 
-        $questions = $xml->question;
-        $errors = [];
-        // first test all
-        foreach ($this->manifest->getResources() as $resourceInfo) {
 
+        foreach ($this->manifest->getResources() as $key => $resourceInfo) {
             $resource = new Resource(
                 $resourceInfo->identifier,
                 'imsqti_item_xmlv2p2',
@@ -355,6 +351,7 @@ class QtiImportCitoController extends Controller
                 $test,
                 $this->manifest->getManufacturer()
             );
+
             $this->instance = (new QtiResource($resource))->handle();
         }
     }
@@ -385,9 +382,7 @@ class QtiImportCitoController extends Controller
     protected function addTest($xml, $overrides = [])
     {
         $fillableData = $this->getRequestData((new Test())->getFillable());
-
         $shuffle = 0;
-
 
         try {
 
