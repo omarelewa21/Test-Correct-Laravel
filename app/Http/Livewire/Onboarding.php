@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Requests\Request;
+use tcCore\SchoolLocation;
+use tcCore\Shortcode;
+use tcCore\ShortcodeClick;
 use tcCore\TemporaryLogin;
 use tcCore\User;
 
@@ -17,7 +20,8 @@ class Onboarding extends Component
     public $email;
     public $password;
     public $password_confirmation;
-
+    public $ref;
+    public $invited_by;
     public $step = 1;
 
     public $btnDisabled = true;
@@ -32,7 +36,7 @@ class Onboarding extends Component
     public $warningStepOneConfirmed = false;
     public $warningStepTwoConfirmed = false;
 
-    protected $queryString = ['step', 'email', 'confirmed'];
+    protected $queryString = ['step', 'email', 'confirmed', 'ref'];
 
     protected $messages = [
         'registration.name_first.required'      => 'Voornaam is verplicht',
@@ -71,6 +75,7 @@ class Onboarding extends Component
             'registration.name'                         => 'sometimes',
             'registration.name_suffix'                  => 'sometimes',
             'registration.registration_email_confirmed' => 'sometimes',
+            'registration.invitee'                      => 'sometimes',
             'password'                                  => 'sometimes',
         ];
 
@@ -114,6 +119,11 @@ class Onboarding extends Component
         if ($this->isUserConfirmedWithEmail()) {
             $this->confirmed = 0;
             $this->shouldDisplayEmail = true;
+        }
+        if ($this->ref) {
+            $shortcodeId = ShortcodeClick::whereUuid($this->ref)->first();
+            $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
+            $this->registration->invitee = $invited_by->user_id;
         }
 
         $this->registration->registration_email_confirmed = $this->confirmed;
@@ -169,6 +179,11 @@ class Onboarding extends Component
             $this->warningStepOneConfirmed = true;
             return;
         }
+        if ($this->ref != null && $this->isInvitedBySameDomain($this->registration->username)) {
+            $this->fillSchoolData($this->registration->invitee);
+        } else {
+            $this->clearSchoolData();
+        }
         $this->step = 2;
 //        $this->btnStepTwoDisabledCheck();
         $this->warningStepOneConfirmed = false;
@@ -183,9 +198,9 @@ class Onboarding extends Component
         }
         $this->registration->save();
         try {
-            $this->newRegistration = $this->registration->addUserToRegistration($this->password);
+            $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
             $this->step = 3;
-        } catch(\Throwable $e){
+        } catch (\Throwable $e) {
             $this->step = 'error';
         }
     }
@@ -272,6 +287,34 @@ class Onboarding extends Component
             $this->warningStepTwo = false;
             return true;
         }
+    }
+
+    public function isInvitedBySameDomain($username)
+    {
+        $inviter = User::find($this->registration->invitee);
+        $inviterDomain = explode('@', $inviter->username)[1];
+
+        return $inviterDomain === explode('@', $username)[1];
+    }
+
+    public function fillSchoolData($inviter)
+    {
+        $inviter = User::find($inviter);
+        $schoolInfo = SchoolLocation::find($inviter->school_location_id);
+        $this->registration->school_location = $schoolInfo->name;
+        $this->registration->address = $schoolInfo->visit_address;
+        $this->registration->postcode = $schoolInfo->visit_postal;
+        $this->registration->house_number = filter_var($schoolInfo->visit_address, FILTER_SANITIZE_NUMBER_INT);
+        $this->registration->city = $schoolInfo->visit_city;
+    }
+
+    public function clearSchoolData()
+    {
+        $this->registration->school_location = null;
+        $this->registration->address = null;
+        $this->registration->postcode = null;
+        $this->registration->house_number = null;
+        $this->registration->city = null;
     }
 
     public function updating(&$name, &$value)

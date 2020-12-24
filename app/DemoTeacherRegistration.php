@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Jobs\SendNotifyInviterMail;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Lib\User\Factory;
 use tcCore\Mail\TeacherRegistered;
@@ -31,9 +32,6 @@ class DemoTeacherRegistration extends Model
             }
         });
     }
-
-
-    //
 
     public static function registerIfApplicable(User $user)
     {
@@ -95,7 +93,7 @@ class DemoTeacherRegistration extends Model
         }
     }
 
-    public function addUserToRegistration($password = null)
+    public function addUserToRegistration($password = null, $invited_by = null, $ref = null)
     {
         try {
             $newRegistration = false;
@@ -108,13 +106,13 @@ class DemoTeacherRegistration extends Model
 //                        }else{logger('klas '.$schoolClass->getKey.' bestaat al voor '.$user->getKey());}
 //                    }
                 ;
-
                 $tempTeachersSchoolLocation = SchoolHelper::getTempTeachersSchoolLocation();
                 $data = array_merge(
                     $password ? ['password' => $password] : [],
                     $this->toArray(), [
                         'school_location_id' => $tempTeachersSchoolLocation->getKey(),
                         'user_roles'         => 1, // Teacher;
+                        'invited_by'         => $invited_by,
                     ]
                 );
 
@@ -126,6 +124,21 @@ class DemoTeacherRegistration extends Model
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate($data);
 
+                if ($ref != null) {
+                    //Update shortcodeclick with new userId
+                    $shortcodeClick = ShortcodeClick::whereUuid($ref)->first();
+                    $shortcodeClick->setAttribute('user_id', $user->getKey());
+                    $shortcodeClick->save();
+
+                    //Send mail to inviter that there is a new registration from their invite
+                    $inviter = User::find($invited_by);
+                    try {
+                        Mail::to($inviter->getEmailForPasswordReset())->send(new SendNotifyInviterMail($inviter,$user));
+                    } catch (\Throwable $e) {
+                        Bugsnag::notifyException($e);
+                    }
+                }
+
                 $demoHelper = (new DemoHelper())->setSchoolLocation($tempTeachersSchoolLocation);
 
                 $teacher = Teacher::withTrashed()
@@ -136,7 +149,6 @@ class DemoTeacherRegistration extends Model
                     ]);
 
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
-
                 try {
                     Mail::to($user->getEmailForPasswordReset())->send(new SendOnboardingWelcomeMail($user));
                 } catch (\Throwable $th) {
