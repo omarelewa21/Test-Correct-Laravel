@@ -94,6 +94,23 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
+    public static function AuthSchoolBeheerderGetRequest($url, $params=[]) {
+
+        $user = \tcCore\User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first();
+        if(!$user->session_hash) {
+            $user->session_hash = $user->generateSessionHash();
+            $user->save();
+        }
+
+        return sprintf(
+            '%s/?session_hash=%s&signature=aaebbf4a062594c979128ec2f2ef477d4f7d08893c6940cc736b62b106f6498f&user=%s&%s',
+            $url,
+            $user->session_hash,
+            static::USER_SCHOOLBEHEERDER,
+            http_build_query($params, '', '&')
+        );
+    }
+
     public static function getStudentOneAuthRequestData($overrides = [])
     {
         return self::getUserAuthRequestData(
@@ -236,6 +253,11 @@ abstract class TestCase extends BaseTestCase
 
     protected function deleteUser($student){
         User::find($student->getKey())->delete();
+    }
+
+    protected function getSchoolBeheerder(){
+        $user = User::where('username',static::USER_SCHOOLBEHEERDER)->first();
+        return $user;
     }
 
 }
