@@ -83,8 +83,8 @@ class QtiResource
         $this->handleStyleSheets();
 
         $this->handleItemBody();
-
         $this->handleInlineImages();
+
         $this->handleQuestion();
 
         $this->handleExtraAnswersIfNeeded();
@@ -236,20 +236,27 @@ class QtiResource
 
 
         if ($this->xml->itemBody->children()[0] === null) {
-           // Woots items can have no itemBody only interaction where question text is inside prompt;
+            // Woots items can have no itemBody only interaction where question text is inside prompt;
             if ($this->promptToBeAddedToItemBody == '') {
                 throw new \Exception(
                     sprintf('No valid question can be constructed with resource %s', $this->resource->href)
                 );
             }
-        } else {
-            $dom1->loadXML($this->xml->itemBody->children()[0]->asXML());
-            $this->handleStyling($dom1);
-            $this->question_xml = $dom1->saveXML();
-        }
-        $this->question_xml .= $this->promptToBeAddedToItemBody;
-    }
+            $itemBodyXML = Str::of('<div></div>');
 
+        } else {
+            $itemBodyXML = Str::of($this->xml->itemBody->children()[0]->__toString())->trim();
+            if($itemBodyXML->length() === 0) {
+                $itemBodyXML = Str::of($this->xml->itemBody->children()[0]->asXML());
+            };
+            $itemBodyXML->prepend('<div>')->append('</div>');
+        }
+
+        $dom1->loadXML($itemBodyXML->__toString());
+        $this->handleStyling($dom1);
+        $this->handlePromptToBeAddedToItemBody($dom1);
+        $this->question_xml = $dom1->saveXML();
+    }
 
     private function replaceMatchInteraction()
     {
@@ -483,7 +490,7 @@ class QtiResource
 
     protected function handleInlineImages()
     {
-        libxml_use_internal_errors(true);
+//        libxml_use_internal_errors(true);
         $dom = $this->uploadImages($this->question_xml);
         $this->question_xml = $dom->saveHTML();
     }
@@ -777,5 +784,22 @@ class QtiResource
             ->map(function ($prompt) {
                 return $prompt->__toString();
             })->join('');
+    }
+
+    /**
+     * @param  DOMDocument  $dom1
+     */
+    private function handlePromptToBeAddedToItemBody(DOMDocument $dom1): void
+    {
+        if (!empty($this->promptToBeAddedToItemBody)) {
+            $fragment = $dom1->createDocumentFragment();
+            $fragment->appendXML(
+                sprintf(
+                    '<div class="question_prompt">%s</div>',
+                    $this->promptToBeAddedToItemBody
+                )
+            );
+            $dom1->documentElement->appendChild($fragment);
+        }
     }
 }
