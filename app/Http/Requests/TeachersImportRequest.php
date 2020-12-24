@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SchoolClass;
 use tcCore\Subject;
 
@@ -80,7 +81,7 @@ class TeachersImportRequest extends Request
                             sprintf('data.%d.school_class', $index),
                             'de opgegeven klas dient in de database aanwezig te zijn voor deze schoollocatie'
                         );
-                    } else if(!$this->schoolClassPeriodIsActual($schoolClass)){
+                    } else if(!$this->schoolClassYearIsActual($schoolClass)){
                         $validator->errors()->add(
                             sprintf('data.%d.school_class', $index),
                             'de opgegeven klas is niet aanwezig voor dit schooljaar ('.$schoolClass->schoolYear->year.')'
@@ -134,14 +135,9 @@ class TeachersImportRequest extends Request
         });
     }
 
-    private function schoolClassPeriodIsActual($schoolClass){
-        $periods = $schoolClass->schoolYear->periods;
-        foreach ($periods as $key => $period) {
-            if($period->isActual()){
-                return true;
-            }
-        }
-        return false;
+    private function schoolClassYearIsActual($schoolClass){
+        $currentYear = SchoolYearRepository::getCurrentSchoolYear();
+        return (null !== $currentYear && $currentYear->getKey() === $schoolClass->schoolYear->getKey());
     }
 
 }
