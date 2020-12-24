@@ -81,6 +81,7 @@ class CopyTestTest extends TestCase
 
         $attributes = $this->getAttributesForEditQuestion4($this->originalTestId);
         $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        
         $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
         $this->checkCopyQuestionsAfterEdit($this->copyTestId,$originalQuestionArray);
 
@@ -111,109 +112,48 @@ class CopyTestTest extends TestCase
         			break;
         	}
         }
-
-        $attributes = $this->getScenario4GetAttributes();
-        $response = $this->getTestQuestionsByGet($attributes);
-        $answers = $response[0]['question']['matching_question_answers'];
-        foreach ($answers as $key => $answerArray) {
-        	switch ($key) {
-        		case '0':
-        			$this->assertEquals('aa', $answerArray['answer']);
-        			break;
-        		case '1':
-        			$this->assertEquals('bb', $answerArray['answer']);
-        			break;
-        		case '2':
-        			$this->assertEquals('cc', $answerArray['answer']);
-        			break;
-        		case '3':
-        			$this->assertEquals('dd', $answerArray['answer']);
-        			break;
-        		case '4':
-        			$this->assertEquals('ee', $answerArray['answer']);
-        			break;
-        		case '5':
-        			$this->assertEquals('ff', $answerArray['answer']);
-        			break;
-        	}
-        }
     }
 
     /** @test */
-    public function it_should_copy_questionsScenario4AfterCreateOriginal(){
-    	$originalTestId = Test::where('name','Toets van GM4')->first()->id;
-    	$this->duplicateTest($originalTestId);
-    	$copyTestId = $this->copyTestId;
-    	$questions = Test::find($originalTestId)->testQuestions;
-
-    	$this->assertTrue(count($questions)==1);
-        $this->assertTrue(!is_null($questions->first()->question->matchingQuestionAnswers));
-
-        $originalQuestionArray = $questions->pluck('question_id')->toArray();
-    	$attributes = $this->getAttributesForEditQuestion4($originalTestId);
-        $copyQuestion = Test::find($copyTestId)->testQuestions->first();
-        $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
-        $this->checkCopyQuestionsAfterEdit($copyTestId,$originalQuestionArray);
-        $this->it_should_copy_questionsAfterScenario4Live();
-    }
-
-    /** @test */
-    public function it_should_copy_questionsScenario4AfterCreateCopy(){
-    	$originalTestId = Test::where('name','Toets van GM4')->first()->id;
-    	$copyTestId = Test::where('name','Kopie #1 Toets van GM4')->first()->id;
-    	$questions = Test::find($originalTestId)->testQuestions;
-
-    	$this->assertTrue(count($questions)==1);
-        $this->assertTrue(!is_null($questions->first()->question->matchingQuestionAnswers));
-
-        $originalQuestionArray = $questions->pluck('question_id')->toArray();
-    	$attributes = $this->getAttributesForEditQuestion4($originalTestId);
-        $copyQuestion = Test::find($copyTestId)->testQuestions->first();
-        $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
-        $this->checkCopyQuestionsAfterEdit($copyTestId,$originalQuestionArray);
-        $this->it_should_copy_questionsAfterScenario4Live();
-    }
-
-    /** @test */
-    public function it_should_copy_questionsAfterScenario4Live()
+    public function it_should_not_copy_questionsForRubriceerWhenAntwoordOptiesAreTheSame()
     {
-    	$originalTestId = Test::where('name','Toets van GM4')->first()->id;
-    	$copyTestId = Test::where('name','Kopie #1 Toets van GM4')->first()->id;
-    	$this->originalTestId = $originalTestId;
-    	$questions = Test::find($originalTestId)->testQuestions;
+        $this->setupScenario4();
+        $tests = Test::where('name','TToets van GM4')->get();
+        $this->assertTrue(count($tests)==1);
 
+        $questions = Test::find($this->originalTestId)->testQuestions;
         $this->assertTrue(count($questions)==1);
         $this->assertTrue(!is_null($questions->first()->question->matchingQuestionAnswers));
 
         $originalQuestionArray = $questions->pluck('question_id')->toArray();
-    	$this->checkCopyQuestionsAfterEdit($copyTestId,$originalQuestionArray);
 
-    	$attributes = $this->getGetAttributes($originalTestId);
-        $response = $this->getTestQuestionsByGet($attributes);
-        $answers = $response[0]['question']['matching_question_answers'];
-        foreach ($answers as $key => $answerArray) {
-        	switch ($key) {
-        		case '0':
-        			$this->assertEquals('aa', $answerArray['answer']);
-        			break;
-        		case '1':
-        			$this->assertEquals('bb', $answerArray['answer']);
-        			break;
-        		case '2':
-        			$this->assertEquals('cc', $answerArray['answer']);
-        			break;
-        		case '3':
-        			$this->assertEquals('dd', $answerArray['answer']);
-        			break;
-        		case '4':
-        			$this->assertEquals('ee', $answerArray['answer']);
-        			break;
-        		case '5':
-        			$this->assertEquals('ff', $answerArray['answer']);
-        			break;
-        	}
-        }
+        $tests = Test::where('name','Kopie #1 TToets van GM4')->get();
+        $this->assertTrue(count($tests)==1);
+
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+
+        $attributes = $this->getAttributesForQuestion4($this->originalTestId);
+        unset($attributes["test_id"]);
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        
+        $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+
+        $this->assertTrue(count($result)==0);
+
+        
     }
+
+
+
+   
 
     private function setupScenario4(){
     	$attributes = $this->getAttributesForTest4();
@@ -236,24 +176,10 @@ class CopyTestTest extends TestCase
     
     }
 
-    // private function getAttributes($overrides = [])
-    // {
-    //     return array_merge([
-    //         'name'                   => 'Test Title',
-    //         'abbreviation'           => 'TT',
-    //         'test_kind_id'           => '3',
-    //         'subject_id'             => '1',
-    //         'education_level_id'     => '1',
-    //         'education_level_year'   => '1',
-    //         'period_id'              => '1',
-    //         'shuffle'                => '0',
-    //         'is_open_source_content' => '1',
-    //         'introduction'           => 'Hello this is the intro txt',
-    //     ], $overrides);
-    // }
+    
 
     private function getAttributesForEditQuestion4($testId){
-    	$attributes = array_merge($this->getAttributesForQuestion4($testId),[	"question"=> "<p>GM42</p>",
+    	$attributes = array_merge($this->getAttributesForQuestion4($testId),[	
     																		"answers"=> array_merge([
 																										[
 																											"order"=> "0",

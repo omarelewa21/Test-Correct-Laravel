@@ -69,6 +69,7 @@ class TestQuestionsController extends Controller {
      */
     public function store(CreateTestQuestionRequest $request)
     {
+
         DB::beginTransaction();
         try{
             if ($request->get('question_id') === null) {
@@ -199,7 +200,6 @@ class TestQuestionsController extends Controller {
     {
         // Fill and check if question is modified
         $question = $testQuestion->question;
-        logger([$question->getKey(), get_class($question)]);
 
         DB::beginTransaction();
         try {
@@ -218,8 +218,10 @@ class TestQuestionsController extends Controller {
             $question->fill($totalData);
 
             $questionInstance = $question->getQuestionInstance();
-
             $testQuestion->fill($request->all());
+
+
+
 // this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
             if (!$completionAnswerDirty
                 && !$question->isDirty()
@@ -235,10 +237,15 @@ class TestQuestionsController extends Controller {
 
                 // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
             } elseif ($completionAnswerDirty
-                || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
-
-
+                || $question->isDirty() 
+                || $questionInstance->isDirty() 
+                || $questionInstance->isDirtyAttainments() 
+                || $questionInstance->isDirtyTags()
+                || $questionInstance->isDirtyAnswerOptions($totalData) 
+                || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
+            {
                 if ($question->isUsed($testQuestion)) {
+                    
                     $question = $question->duplicate(array_merge($request->all(),$questionData));
                     //$question = $question->duplicate($request->all());
                     if ($question === false) {
