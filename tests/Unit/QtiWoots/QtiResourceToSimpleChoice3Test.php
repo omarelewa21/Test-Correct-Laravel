@@ -12,7 +12,7 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\VersionTwoDotTwoDotZero\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceToSingleChoice2Test extends TestCase
+class QtiResourceToSingleChoice3Test extends TestCase
 {
     use DatabaseTransactions;
 
@@ -27,7 +27,7 @@ class QtiResourceToSingleChoice2Test extends TestCase
         $resource = new Resource(
             'QUE_2812145_1',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_woots_qti/QUE_2812148_1.xml'),
+            storage_path('../tests/_fixtures_woots_qti/QUE_2812152_1.xml'),
             '1',
             'dd36d7c3-7562-4446-9874-4cc1cdd0dc38'
         );
@@ -104,12 +104,12 @@ class QtiResourceToSingleChoice2Test extends TestCase
         $this->assertXmlStringEqualsXmlString(
             '<?xml version="1.0"?>
 <choiceInteraction maxChoices="1" responseIdentifier="RESPONSE" shuffle="false">
-  <prompt>&lt;div&gt;Hoe groot is de kans dat de eerste kitten uit dit nestje een Bambino Sphinx is? &lt;/div&gt;</prompt>
-  <simpleChoice identifier="choice1">&lt;div&gt;3/16&lt;/div&gt;</simpleChoice>
-  <simpleChoice identifier="choice2">&lt;div&gt;1/8&lt;/div&gt;</simpleChoice>
-  <simpleChoice identifier="choice3">&lt;div&gt;1/6&lt;/div&gt;</simpleChoice>
-  <simpleChoice identifier="choice4">&lt;div&gt;2/3&lt;/div&gt;</simpleChoice>
-  <simpleChoice identifier="choice5">&lt;div&gt;3/4&lt;/div&gt;</simpleChoice>
+  <prompt>&lt;div&gt;Tot welke schakel in de voedselketen behoort de sprinkhaan op basis van de bovenstaande
+                informatie?&lt;/div&gt;
+            </prompt>
+  <simpleChoice identifier="choice1">&lt;div&gt;tot de consumenten 1e orde&lt;/div&gt;</simpleChoice>
+  <simpleChoice identifier="choice2">&lt;div&gt;tot de consumenten 2e orde&lt;/div&gt;</simpleChoice>
+  <simpleChoice identifier="choice3">&lt;div&gt;tot de consumenten 3e orde&lt;/div&gt;</simpleChoice>
 </choiceInteraction>',
             $this->instance->interaction);
     }
@@ -118,10 +118,13 @@ class QtiResourceToSingleChoice2Test extends TestCase
     public function the_question_should_contain_all_document_fragments()
     {
         $this->assertEquals(
-            '<div class="redactor-content custom-qti-style" data-js-katex="" data-js-redactor-content=""><div><p>Het
-            fokken op extreme uiterlijke kenmerken van dieren, zoals bij de Bambino Sphinx-kat, kan leiden tot ernstige
-            gezondheids- en welzijnsproblemen. Carola Schouten, minister van Landbouw, Natuur en Voedselkwaliteit, wil
-            daarom met meer voorlichting voorkomen dat mensen zo&rsquo;n haarloze kat met te korte poten aanschaffen.</p></div><div class="question_prompt"><div>Hoe groot is de kans dat de eerste kitten uit dit nestje een Bambino Sphinx is? </div></div></div>
+            '<div class="redactor-content custom-qti-style" data-js-katex="" data-js-redactor-content=""><div>De parasitaire
+            paardenhaarworm (<em>Paragordius varius</em>) plant zich voort in ondiep water. Een vrouwtje
+            legt zo&rsquo;n 6 miljoen eitjes waaruit na een week of drie de larven komen. De larven zwemmen vrij door het
+            water tot ze samen met zo&ouml;plankton en watervlooien worden opgeslokt door een muggenlarve. In de muggenlarve
+            boren de paardenhaarwormlarven zich door de wand van het maagdarmkanaal. <br></div><div class="question_prompt"><div>Tot welke schakel in de voedselketen behoort de sprinkhaan op basis van de bovenstaande
+                informatie?</div>
+            </div></div>
 ',
             $this->instance->question_xml
         );
@@ -140,18 +143,16 @@ class QtiResourceToSingleChoice2Test extends TestCase
         );
 
         $answerLinks = MultipleChoiceQuestionAnswerLink::where('multiple_choice_question_id', $instance->id)->get();
-        $this->assertCount(5, $answerLinks);
+        $this->assertCount(3, $answerLinks);
 
         $this->assertEquals(
             $answerLinks->map(function ($link) {
                 return Str::of($link->multipleChoiceQuestionAnswer->answer)->trim()->__toString();
             })->toArray(), [
-                '<div>3/16</div>',
-                '<div>1/8</div>',
-                '<div>1/6</div>',
-                '<div>2/3</div>',
-                '<div>3/4</div>',
-          ]
+                '<div>tot de consumenten 1e orde</div>',
+                '<div>tot de consumenten 2e orde</div>',
+                '<div>tot de consumenten 3e orde</div>',
+            ]
         );
     }
 }

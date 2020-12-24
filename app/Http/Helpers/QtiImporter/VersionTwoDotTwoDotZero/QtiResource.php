@@ -251,8 +251,14 @@ class QtiResource
             };
             $itemBodyXML->prepend('<div>')->append('</div>');
         }
+    // because we use loadXML all tags should be closed;
+        $dom1->loadXML($itemBodyXML->replace('<br>', '<br/>')->__toString());
+        if ($dom1->documentElement === null) {
+            logger($itemBodyXML);
+            logger($this->xml->itemBody->children()[0]);
 
-        $dom1->loadXML($itemBodyXML->__toString());
+            throw new \Exception(sprintf('%s %s %s', __FUNCTION__, __LINE__, $this->resource->href));
+        }
         $this->handleStyling($dom1);
         $this->handlePromptToBeAddedToItemBody($dom1);
         $this->question_xml = $dom1->saveXML();
@@ -680,6 +686,9 @@ class QtiResource
 
     private function handleSimpleChoiceAnswers(): void
     {
+        // woots contains <BR> which is not xml;
+        $this->interaction = Str::of($this->interaction)->replace('&lt;br&gt;', '&lt;br/&gt;')->__toString();
+
         $el = simplexml_load_string($this->interaction);
         $answers = [];
 

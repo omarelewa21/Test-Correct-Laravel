@@ -1,0 +1,39 @@
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd"
+                identifier="QUE_2812152_1" title="Een paardenhaarworm in actie " adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE" cardinality="single" basetype="identifier">
+        <correctResponse>
+            <value>choice3</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" basetype="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <itemBody>
+        <p>&lt;div class="redactor-content" data-js-katex="" data-js-redactor-content=""&gt;&lt;div&gt;De parasitaire
+            paardenhaarworm (&lt;em&gt;Paragordius varius&lt;/em&gt;) plant zich voort in ondiep water. Een vrouwtje
+            legt zo’n 6 miljoen eitjes waaruit na een week of drie de larven komen. De larven zwemmen vrij door het
+            water tot ze samen met zoöplankton en watervlooien worden opgeslokt door een muggenlarve. In de muggenlarve
+            boren de paardenhaarwormlarven zich door de wand van het maagdarmkanaal. &lt;br&gt;&lt;/div&gt;&lt;/div&gt;
+        </p>
+        <p>&lt;div class="redactor-content" data-js-katex="" data-js-redactor-content=""&gt;&lt;div&gt;De
+            paardenhaarworm leeft in het achterlijf van zijn eindgastheer. Kop en poten laat hij ongemoeid. Toch
+            beïnvloedt de paardenhaarworm de communicatie tussen zenuwcellen van het centraal zenuwstelsel van de
+            gastheer. Normaal leeft de gastheer niet in de buurt van water, maar als een geïnfecteerde gastheer vlak bij
+            water komt zal hij ineens in het water springen. Dit komt door de beïnvloeding door de parasiet.&lt;/div&gt;&lt;/div&gt;
+        </p>
+        <p>&lt;div class="redactor-content" data-js-katex="" data-js-redactor-content=""&gt;&lt;/div&gt;</p>
+        <p>&lt;div class="redactor-content" data-js-katex="" data-js-redactor-content=""&gt;&lt;/div&gt;</p>
+        <choiceInteraction responseIdentifier="RESPONSE" shuffle="false" maxChoices="1">
+            <prompt>&lt;div&gt;Tot welke schakel in de voedselketen behoort de sprinkhaan op basis van de bovenstaande
+                informatie?&lt;/div&gt;
+            </prompt>
+            <simpleChoice identifier="choice1">&lt;div&gt;tot de consumenten 1e orde&lt;/div&gt;</simpleChoice>
+            <simpleChoice identifier="choice2">&lt;div&gt;tot de consumenten 2e orde&lt;/div&gt;</simpleChoice>
+            <simpleChoice identifier="choice3">&lt;div&gt;tot de consumenten 3e orde&lt;/div&gt;</simpleChoice>
+        </choiceInteraction>
+    </itemBody>
+    <responseProcessing template="http://www.imsglobal.org/question/qti_v2p1/rptemplates/match_correct"/>
+</assessmentItem><to_str/><to_str/>
