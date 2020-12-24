@@ -1,8 +1,9 @@
 <?php
 
-namespace Tests\Unit\QtiVersionTwoDotTwoDotTwo;
+namespace Tests\Unit\QtiWoots;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
 use tcCore\MultipleChoiceQuestionAnswerLink;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -11,7 +12,7 @@ use Tests\TestCase;
 use tcCore\Http\Helpers\QtiImporter\VersionTwoDotTwoDotZero\QtiResource;
 use tcCore\QtiModels\QtiResource as Resource;
 
-class QtiResourceToSingleChoiceTest extends TestCase
+class QtiResourceToSingleChoice4Test extends TestCase
 {
     use DatabaseTransactions;
 
@@ -24,9 +25,9 @@ class QtiResourceToSingleChoiceTest extends TestCase
         $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
 
         $resource = new Resource(
-            'ITM-330008',
+            'QUE_2812160_1',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/330008.xml'),
+            storage_path('../tests/_fixtures_woots_qti/QUE_2812160_1.xml'),
             '1',
             'dd36d7c3-7562-4446-9874-4cc1cdd0dc38'
         );
@@ -39,57 +40,33 @@ class QtiResourceToSingleChoiceTest extends TestCase
         $this->assertInstanceOf(\SimpleXMLElement::class, $this->instance->getXML());
     }
 
-    /** @test */
-    public function it_can_handle_item_attributes()
-    {
-        $this->assertEquals([
-            'title' => 'Baksteentjes',
-            'identifier' => 'ITM-330008',
-            'label' => '32k6cb',
-            'timeDependent' => 'false',
-        ], $this->instance->attributes);
-
-    }
 
     /** @test */
     public function it_can_handle_response_processing()
     {
         $this->assertEquals(
-            ['correct_answer' => 'C', 'score_when_correct' => '1'],
+            ['correct_answer' => 'choice3', 'score_when_correct' => '1'],
             $this->instance->responseProcessing
         );
     }
 
-    /** @test */
-    public function it_can_handle_inline_images()
-    {
-        collect($this->instance->images)->each(function($path){
-            $pathWithoutQuestion = str_replace('/questions', '', $path);
-            $pathWithImagesInsteadOfImage = str_replace('/inlineimage', '/inlineimages', $pathWithoutQuestion);
-            $this->assertFileExists(storage_path($pathWithImagesInsteadOfImage));
-        });
-    }
 
     /** @test */
     public function it_can_handle_correct_response()
     {
         $this->assertEquals([
-            'attributes' => [
-                'identifier' => 'RESPONSE',
+            'attributes'                  => [
+                'identifier'  => 'RESPONSE',
                 'cardinality' => 'single',
-                'baseType' => 'identifier',
+                'basetype'    => 'identifier',
             ],
-            'correct_response_attributes' => [
-                'interpretation' => 'C',
-            ],
-            'values' => [
-                'C',
-            ],
-            'outcome_declaration' => [
-                'attributes' => [
-                    'identifier' => 'SCORE',
+            'correct_response_attributes' => [],
+            'values'                      => ['choice3'],
+            'outcome_declaration'         => [
+                'attributes'    => [
+                    'identifier'  => 'SCORE',
                     'cardinality' => 'single',
-                    'baseType' => 'integer',
+                    'basetype'    => 'float',
                 ],
                 'default_value' => '0',
             ],
@@ -100,24 +77,10 @@ class QtiResourceToSingleChoiceTest extends TestCase
     public function it_can_handle_stylesheets()
     {
         $this->assertEquals(
-            [
-                [
-                    'href' => '../css/cito_itemstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => '../css/cito_userstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => '../css/cito_generated_330008.css',
-                    'type' => 'text/css',
-                ],
-            ],
+            [],
             $this->instance->stylesheets
         );
     }
-
 
 
     /** @test */
@@ -136,23 +99,20 @@ class QtiResourceToSingleChoiceTest extends TestCase
     }
 
     /** @test */
-    public function it_can_handle_the_item_body()
+    public function it_can_extract_the_item_interaction()
     {
         $this->assertXmlStringEqualsXmlString(
             '<?xml version="1.0"?>
-<choiceInteraction id="choiceInteraction1" maxChoices="1" responseIdentifier="RESPONSE" shuffle="false">
-  <simpleChoice identifier="A">
-    <p>0,4 g</p>
-  </simpleChoice>
-  <simpleChoice identifier="B">
-    <p>2,5 g</p>
-  </simpleChoice>
-  <simpleChoice identifier="C">
-    <p>8,1 g</p>
-  </simpleChoice>
+<choiceInteraction maxChoices="1" responseIdentifier="RESPONSE" shuffle="false">
+  <prompt>&lt;div&gt;Bij welk van deze situaties is het het moeilijkst om de ongewenste eigenschap uit het ras te krijgen en de gewenste eigenschap te behouden?&lt;/div&gt;</prompt>
+  <simpleChoice identifier="choice1">&lt;div&gt;bij situatie 1&lt;/div&gt;</simpleChoice>
+  <simpleChoice identifier="choice2">&lt;div&gt;bij situatie 2&lt;br/&gt;&lt;/div&gt;</simpleChoice>
+  <simpleChoice identifier="choice3">&lt;div&gt;bij situatie 3&lt;br/&gt;&lt;/div&gt;</simpleChoice>
 </choiceInteraction>',
             $this->instance->interaction);
     }
+
+
 
     /** @test */
     public function it_can_add_the_question_to_the_database()
@@ -165,36 +125,17 @@ class QtiResourceToSingleChoiceTest extends TestCase
             $this->instance->question->subtype
         );
 
-        $this->assertStringContainsString(
-            'De steentjes zijn van baksteen. Het volume baksteen van elk steentje is 4,5 cm',
-            ($instance->question)
-        );
-
         $answerLinks = MultipleChoiceQuestionAnswerLink::where('multiple_choice_question_id', $instance->id)->get();
         $this->assertCount(3, $answerLinks);
 
         $this->assertEquals(
             $answerLinks->map(function ($link) {
-                return $link->multipleChoiceQuestionAnswer->answer;
+                return Str::of($link->multipleChoiceQuestionAnswer->answer)->trim()->__toString();
             })->toArray(), [
-                '<p>0,4 g</p>
-',
-                '<p>2,5 g</p>
-',
-                '<p>8,1 g</p>
-',
+                '<div>bij situatie 1</div>',
+                '<div>bij situatie 2<br></div>',
+                '<div>bij situatie 3<br></div>',
             ]
-        );
-
-        $correctLink = $answerLinks->first(function ($link) {
-            return $link->multipleChoiceQuestionAnswer->score == 1;
-        });
-
-
-        $this->assertEquals(
-            '<p>8,1 g</p>
-',
-            $correctLink->multipleChoiceQuestionAnswer->answer
         );
     }
 }

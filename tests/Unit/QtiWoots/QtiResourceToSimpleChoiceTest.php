@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\QtiVersionTwoDotTwoDotTwo;
+namespace Tests\Unit\QtiWoots;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\MultipleChoiceQuestionAnswerLink;
@@ -24,9 +24,9 @@ class QtiResourceToSingleChoiceTest extends TestCase
         $this->actingAs(User::where('username', 'd1@test-correct.nl')->first());
 
         $resource = new Resource(
-            'ITM-330008',
+            'QUE_2812145_1',
             'imsqti_item_xmlv2p2',
-            storage_path('../tests/_fixtures_qti/Test-maatwerktoetsen_v01/depitems/330008.xml'),
+            storage_path('../tests/_fixtures_woots_qti/QUE_2812145_1.xml'),
             '1',
             'dd36d7c3-7562-4446-9874-4cc1cdd0dc38'
         );
@@ -39,36 +39,16 @@ class QtiResourceToSingleChoiceTest extends TestCase
         $this->assertInstanceOf(\SimpleXMLElement::class, $this->instance->getXML());
     }
 
-    /** @test */
-    public function it_can_handle_item_attributes()
-    {
-        $this->assertEquals([
-            'title' => 'Baksteentjes',
-            'identifier' => 'ITM-330008',
-            'label' => '32k6cb',
-            'timeDependent' => 'false',
-        ], $this->instance->attributes);
-
-    }
 
     /** @test */
     public function it_can_handle_response_processing()
     {
         $this->assertEquals(
-            ['correct_answer' => 'C', 'score_when_correct' => '1'],
+            ['correct_answer' => '', 'score_when_correct' => '1'],
             $this->instance->responseProcessing
         );
     }
 
-    /** @test */
-    public function it_can_handle_inline_images()
-    {
-        collect($this->instance->images)->each(function($path){
-            $pathWithoutQuestion = str_replace('/questions', '', $path);
-            $pathWithImagesInsteadOfImage = str_replace('/inlineimage', '/inlineimages', $pathWithoutQuestion);
-            $this->assertFileExists(storage_path($pathWithImagesInsteadOfImage));
-        });
-    }
 
     /** @test */
     public function it_can_handle_correct_response()
@@ -77,19 +57,15 @@ class QtiResourceToSingleChoiceTest extends TestCase
             'attributes' => [
                 'identifier' => 'RESPONSE',
                 'cardinality' => 'single',
-                'baseType' => 'identifier',
+                'basetype' => 'identifier',
             ],
-            'correct_response_attributes' => [
-                'interpretation' => 'C',
-            ],
-            'values' => [
-                'C',
-            ],
+            'correct_response_attributes' => [ ],
+            'values' => [],
             'outcome_declaration' => [
                 'attributes' => [
                     'identifier' => 'SCORE',
                     'cardinality' => 'single',
-                    'baseType' => 'integer',
+                    'basetype' => 'float',
                 ],
                 'default_value' => '0',
             ],
@@ -100,20 +76,7 @@ class QtiResourceToSingleChoiceTest extends TestCase
     public function it_can_handle_stylesheets()
     {
         $this->assertEquals(
-            [
-                [
-                    'href' => '../css/cito_itemstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => '../css/cito_userstyle.css',
-                    'type' => 'text/css',
-                ],
-                [
-                    'href' => '../css/cito_generated_330008.css',
-                    'type' => 'text/css',
-                ],
-            ],
+            [],
             $this->instance->stylesheets
         );
     }
@@ -140,16 +103,15 @@ class QtiResourceToSingleChoiceTest extends TestCase
     {
         $this->assertXmlStringEqualsXmlString(
             '<?xml version="1.0"?>
-<choiceInteraction id="choiceInteraction1" maxChoices="1" responseIdentifier="RESPONSE" shuffle="false">
-  <simpleChoice identifier="A">
-    <p>0,4 g</p>
-  </simpleChoice>
-  <simpleChoice identifier="B">
-    <p>2,5 g</p>
-  </simpleChoice>
-  <simpleChoice identifier="C">
-    <p>8,1 g</p>
-  </simpleChoice>
+<choiceInteraction maxChoices="1" responseIdentifier="RESPONSE" shuffle="false">
+  <prompt>&lt;div&gt;Door mee te doen met de Biologie Olympiade ga je er mee akkoord dat jouw docent jouw
+                gegevens aan ons doorgeeft. Wil je de toets maken, maar wil je om privacyredenen niet dat jouw docent je
+                gegevens aan ons doorgeeft? Geef dat dan hieronder aan. Je doet dan niet meer mee aan de wedstrijd.&lt;/div&gt;
+            </prompt>
+  <simpleChoice identifier="choice1">&lt;div&gt;Ik doe&#xA0;mee aan de wedstrijd.&lt;/div&gt;</simpleChoice>
+  <simpleChoice identifier="choice2">&lt;div&gt;Stuur mijn gegevens&#xA0;niet op. Ik doe &lt;strong&gt;niet&lt;/strong&gt;
+                mee aan de wedstrijd.&lt;/div&gt;
+            </simpleChoice>
 </choiceInteraction>',
             $this->instance->interaction);
     }
@@ -166,35 +128,23 @@ class QtiResourceToSingleChoiceTest extends TestCase
         );
 
         $this->assertStringContainsString(
-            'De steentjes zijn van baksteen. Het volume baksteen van elk steentje is 4,5 cm',
+            '<div>Door mee te doen met de Biologie Olympiade ga je er mee akkoord dat jouw docent jouw',
             ($instance->question)
         );
 
         $answerLinks = MultipleChoiceQuestionAnswerLink::where('multiple_choice_question_id', $instance->id)->get();
-        $this->assertCount(3, $answerLinks);
+        $this->assertCount(2, $answerLinks);
 
         $this->assertEquals(
             $answerLinks->map(function ($link) {
                 return $link->multipleChoiceQuestionAnswer->answer;
-            })->toArray(), [
-                '<p>0,4 g</p>
+            })->toArray(),[
+          '<div>Ik doe&nbsp;mee aan de wedstrijd.</div>
 ',
-                '<p>2,5 g</p>
-',
-                '<p>8,1 g</p>
-',
-            ]
-        );
+   '<div>Stuur mijn gegevens&nbsp;niet op. Ik doe <strong>niet</strong>
+                mee aan de wedstrijd.</div>
+']
 
-        $correctLink = $answerLinks->first(function ($link) {
-            return $link->multipleChoiceQuestionAnswer->score == 1;
-        });
-
-
-        $this->assertEquals(
-            '<p>8,1 g</p>
-',
-            $correctLink->multipleChoiceQuestionAnswer->answer
         );
     }
 }

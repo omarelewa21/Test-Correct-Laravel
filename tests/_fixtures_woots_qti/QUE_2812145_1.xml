@@ -1,0 +1,25 @@
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd"
+                identifier="QUE_2812145_1" title="Deelname en privacy" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE" cardinality="single" basetype="identifier">
+        <correctResponse></correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" basetype="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <itemBody>
+        <choiceInteraction responseIdentifier="RESPONSE" shuffle="false" maxChoices="1">
+            <prompt>&lt;div&gt;Door mee te doen met de Biologie Olympiade ga je er mee akkoord dat jouw docent jouw
+                gegevens aan ons doorgeeft. Wil je de toets maken, maar wil je om privacyredenen niet dat jouw docent je
+                gegevens aan ons doorgeeft? Geef dat dan hieronder aan. Je doet dan niet meer mee aan de wedstrijd.&lt;/div&gt;
+            </prompt>
+            <simpleChoice identifier="choice1">&lt;div&gt;Ik doe mee aan de wedstrijd.&lt;/div&gt;</simpleChoice>
+            <simpleChoice identifier="choice2">&lt;div&gt;Stuur mijn gegevens niet op. Ik doe &lt;strong&gt;niet&lt;/strong&gt;
+                mee aan de wedstrijd.&lt;/div&gt;
+            </simpleChoice>
+        </choiceInteraction>
+    </itemBody>
+    <responseProcessing template="http://www.imsglobal.org/question/qti_v2p1/rptemplates/match_correct"/>
+</assessmentItem>

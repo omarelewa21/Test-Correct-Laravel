@@ -16,6 +16,7 @@ class QtiManifest
     protected $resources;
     protected $originalXml;
     public $namespaces = [];
+    private $manufacturer = 'CITO';
 
 
     protected function _init()
@@ -27,6 +28,7 @@ class QtiManifest
     public function __construct()
     {
         $this->_init();
+        $this->setManufacturer();
     }
 
     public function addMetaData($metaDataKey, $metaDataValue)
@@ -54,6 +56,10 @@ class QtiManifest
     public function getResources()
     {
         return $this->resources;
+    }
+
+    public function getManufacturer() {
+        return $this->manufacturer;
     }
 
     public function setOriginalXml($xml)
@@ -98,13 +104,12 @@ class QtiManifest
     {
         $meta = $this->originalXml->metadata->children('depcp', true)->metadata;
         return [
-            'id' => $meta->id->__toString(),
-            'name' => $meta->name->__toString(),
-            'version' => $meta->version->__toString(),
-            'guid' => $meta->guid->__toString(),
-            'testType' => $meta->testType->__toString(),
+            'id'       => $meta->id !== null && $meta->id->__toString() ? $meta->id->__toString() : 'someId',
+            'name'     => $meta->name !== null && $meta->name->__toString() ? $meta->name->__toString() : 'someMeta',
+            'version'  => $meta->version !== null && $meta->version->__toString() ? $meta->version->__toString() : 'someVersion',
+            'guid'     => $meta->guid !== null && $meta->guid->__toString() ? $meta->guid->__toString() : 'someGuid',
+            'testType' => $meta->testType !== null && $meta->testType->__toString() ? $meta->testType->__toString() : 'someTestType',
         ];
-
     }
 
     public function getTestResourcesList()
@@ -119,13 +124,15 @@ class QtiManifest
         foreach ($dom->getElementsByTagName('resource') as $resource) {
             if ($resource->getAttribute('href') && $resource->getAttribute('type') == 'imsqti_item_xmlv2p2') {
                 $resourceObj = [
-                    'href' => $resource->getAttribute('href'),
+                    'href'       => $resource->getAttribute('href'),
                     'identifier' => $resource->getAttribute('identifier'),
-                    'guid' => $resource->getAttribute('guid'),
+                    'guid'       => $resource->getAttribute('guid'),
 
                 ];
                 foreach ($resource->getElementsByTagNameNS($namespaceURI, 'property') as $property) {
-                    $resourceObj[$property->getElementsByTagNameNS($namespaceURI, 'name')->item(0)->nodeValue] = $property->getElementsByTagNameNS($namespaceURI, 'value')->item(0)->nodeValue;
+                    $resourceObj[$property->getElementsByTagNameNS($namespaceURI,
+                        'name')->item(0)->nodeValue] = $property->getElementsByTagNameNS($namespaceURI,
+                        'value')->item(0)->nodeValue;
                 }
                 $list->add($resourceObj);
             }
@@ -155,12 +162,18 @@ class QtiManifest
     public function getName()
     {
         $props = $this->getProperties();
+
         return sprintf('%s | %s', $props['id'], $props['name']);
     }
 
     public function getId()
     {
         return $this->getProperties()['id'];
+    }
+
+    private function setManufacturer()
+    {
+        $this->manufacturer = 'WOOTS';
     }
 
 }
