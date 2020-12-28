@@ -20,23 +20,7 @@ class SubjectsController extends Controller {
      */
     public function index(Request $request) {
 
-        if ($request->mode == 'year') {
-
-            $schoolyear = SchoolYearRepository::getCurrentSchoolYear();
-
-            $subjects = Subject::select('subjects.*')
-                    ->leftJoin('teachers', 'subjects.id', '=', 'teachers.subject_id')
-                    ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
-                    ->where('school_classes.school_year_id', $schoolyear->id)
-                    ->orderBy('subjects.name','asc')
-                    ->with('baseSubject');
-
-            return Response::make($subjects->distinct()->pluck('name', 'id'), 200);
-            
-        } else {
-
-            $subjects = Subject::filtered($request->get('filter', []), $request->get('order', ['name' => 'asc']))->with('baseSubject');
-        }
+        $subjects = Subject::filtered($request->get('filter', []), $request->get('order', ['name' => 'asc']))->with('baseSubject');
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':

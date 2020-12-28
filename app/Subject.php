@@ -5,6 +5,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -97,6 +98,21 @@ class Subject extends BaseModel implements AccessCheckable {
                         $query->select('subject_id')
                             ->from(with(new Teacher())->getTable())
                             ->whereNull('deleted_at');
+                        if (is_array($value)) {
+                            $query->whereIn('user_id', $value);
+                        } else {
+                            $query->where('user_id', '=', $value);
+                        }
+                    });
+                    break;
+                case 'user_current':
+                    $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+                    $query->whereIn('id', function ($query) use ($value, $schoolYear) {
+                        $query->select('subject_id')
+                            ->from(with(new Teacher())->getTable())
+                            ->whereNull('teachers.deleted_at')
+                            ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
+                            ->where('school_classes.school_year_id', $schoolYear->getKey());
                         if (is_array($value)) {
                             $query->whereIn('user_id', $value);
                         } else {
