@@ -1,4 +1,6 @@
-<?php namespace tcCore\Http\Requests;
+<?php
+
+namespace tcCore\Http\Requests;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
@@ -8,8 +10,8 @@ use Ramsey\Uuid\Uuid;
 use tcCore\SchoolLocation;
 use tcCore\User;
 
-class SchoolClassesStudentImportRequest extends Request
-{
+class SchoolClassesStudentImportRequest extends Request {
+
     protected $schoolLocation;
     protected $schoolClass;
 
@@ -18,15 +20,12 @@ class SchoolClassesStudentImportRequest extends Request
      *
      * @return bool
      */
-    public function authorize()
-    {
+    public function authorize() {
         $this->schoolLocation = $this->route('schoolLocation');
         $this->schoolClass = $this->route('schoolClass');
 
         return
-            Auth::user()->hasRole('School manager')
-            && $this->schoolLocation !== null
-            && Auth::user()->school_location_id == $this->schoolLocation->getKey();
+                Auth::user()->hasRole('School manager') && $this->schoolLocation !== null && Auth::user()->school_location_id == $this->schoolLocation->getKey();
     }
 
     /**
@@ -34,8 +33,8 @@ class SchoolClassesStudentImportRequest extends Request
      *
      * @return array
      */
-    public function rules()
-    {
+    public function rules() {
+
         $this->filterInput();
 
         $extra_rule = [];
@@ -48,17 +47,26 @@ class SchoolClassesStudentImportRequest extends Request
 
         $rules = collect([
             //'data' => 'array',
-            'data.*.username' => ['required', 'email', function ($attribute, $value, $fail) {
-                $student = User::whereUsername($value)->first();
-                if ($student) {
-                    if ($this->alreadyInDatabaseAndInThisClass($student)) {
-                        return $fail(sprintf('The %s has already been taken.', $attribute));
+            // add unique:users ?
+            'data.*.username' => ['required', 'email:rfc,filter,dns,spoof', function ($attribute, $value, $fail) {
+
+                    if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+ 
+                        return $fail(sprintf('The email address contains international characters.', $value));
+                        
                     }
-                    if ($this->alreadyInDatabaseButNotInThisSchoolLocation($student)) {
-                        return $fail(sprintf('The %s has already been taken.', $attribute));
+
+                    $student = User::whereUsername($value)->first();
+
+                    if ($student) {
+                        if ($this->alreadyInDatabaseAndInThisClass($student)) {
+                            return $fail(sprintf('The %s has already been taken.', $attribute));
+                        }
+                        if ($this->alreadyInDatabaseButNotInThisSchoolLocation($student)) {
+                            return $fail(sprintf('The %s has already been taken.', $attribute));
+                        }
                     }
-                }
-            }],
+                }],
             'data.*.name_first' => 'required',
             'data.*.name' => 'required',
             'data.*.name_suffix' => '',
@@ -81,8 +89,7 @@ class SchoolClassesStudentImportRequest extends Request
      *
      * @return array
      */
-    public function sanitize()
-    {
+    public function sanitize() {
         return $this->all();
     }
 
@@ -92,8 +99,7 @@ class SchoolClassesStudentImportRequest extends Request
      * @param \Illuminate\Validation\Validator $validator
      * @return void
      */
-    public function withValidator($validator)
-    {
+    public function withValidator($validator) {
         $validator->after(function ($validator) {
             if ($this->schoolClass == null) {
                 $validator->errors()->add('class', 'Er dient een klas opgegeven te worden');
@@ -115,17 +121,16 @@ class SchoolClassesStudentImportRequest extends Request
         });
     }
 
-    private function addDuplicateExternalIdErrors($validator)
-    {
+    private function addDuplicateExternalIdErrors($validator) {
         $data = collect(request()->input('data'));
         $uniqueFields = ['external_id'];
         $groupedByDuplicates = $data->groupBy(function ($row, $key) {
-            if (array_key_exists('external_id', $row)) {
-                return $row['external_id'];
-            }
-        })->map(function ($item) {
-            return collect($item)->count();
-        })->filter(function ($item, $key) {
+                    if (array_key_exists('external_id', $row)) {
+                        return $row['external_id'];
+                    }
+                })->map(function ($item) {
+                    return collect($item)->count();
+                })->filter(function ($item, $key) {
             return $item > 1;
         });
 
@@ -133,8 +138,7 @@ class SchoolClassesStudentImportRequest extends Request
             collect($this->data)->each(function ($item, $key) use ($groupedByDuplicates, $validator) {
                 if (array_key_exists('external_id', $item) && array_key_exists($item['external_id'], $groupedByDuplicates->toArray())) {
                     $validator->errors()->add(
-                        sprintf('data.%d.external_id', $key),
-                        'Deze import bevat dubbele studentennummers'
+                            sprintf('data.%d.external_id', $key), 'Deze import bevat dubbele studentennummers'
                     );
                 }
             });
@@ -143,16 +147,15 @@ class SchoolClassesStudentImportRequest extends Request
         return $data->toArray();
     }
 
-    private function addDuplicateUsernameErrors($validator)
-    {
+    private function addDuplicateUsernameErrors($validator) {
         $data = collect(request()->input('data'));
         $groupedByDuplicates = $data->groupBy(function ($row, $key) {
-            if (array_key_exists('username', $row)) {
-                return $row['username'];
-            }
-        })->map(function ($item) {
-            return collect($item)->count();
-        })->filter(function ($item, $key) {
+                    if (array_key_exists('username', $row)) {
+                        return $row['username'];
+                    }
+                })->map(function ($item) {
+                    return collect($item)->count();
+                })->filter(function ($item, $key) {
             return $item > 1;
         });
 
@@ -160,8 +163,7 @@ class SchoolClassesStudentImportRequest extends Request
             collect($this->data)->each(function ($item, $key) use ($groupedByDuplicates, $validator) {
                 if (array_key_exists('username', $item) && array_key_exists($item['username'], $groupedByDuplicates->toArray())) {
                     $validator->errors()->add(
-                        sprintf('data.%d.username', $key),
-                        'Deze import bevat dubbele emailadressen'
+                            sprintf('data.%d.username', $key), 'Deze import bevat dubbele emailadressen'
                     );
                 }
             });
@@ -170,15 +172,14 @@ class SchoolClassesStudentImportRequest extends Request
         return $data->toArray();
     }
 
-    private function alreadyInDatabaseAndInThisClass($student)
-    {
+    private function alreadyInDatabaseAndInThisClass($student) {
         return (collect($student->studentSchoolClasses)->map(function ($item) {
-            return $item->id;
-        })->contains($this->schoolClass->id));
+                    return $item->id;
+                })->contains($this->schoolClass->id));
     }
 
-    private function alreadyInDatabaseButNotInThisSchoolLocation($student)
-    {
+    private function alreadyInDatabaseButNotInThisSchoolLocation($student) {
         return $student->school_location_id !== $this->schoolLocation->id;
     }
+
 }
