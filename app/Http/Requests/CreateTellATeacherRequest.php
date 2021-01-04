@@ -54,7 +54,7 @@ class CreateTellATeacherRequest extends Request
 
 
         return $this->step == 2
-            ? $rules + ['data.message' => 'required|string|min:10']
+            ? $rules + ['data.message' => 'required|string|min:10|max:640']
             : $rules;
     }
 
@@ -63,6 +63,7 @@ class CreateTellATeacherRequest extends Request
         return [
             'data.message.required' => 'Het bericht is verplicht',
             'data.message.min'      => 'Het bericht moet minimaal :min karakters lang zijn.',
+            'data.message.max'      => 'Het bericht mag maximaal :max karakters lang zijn.',
         ];
     }
 

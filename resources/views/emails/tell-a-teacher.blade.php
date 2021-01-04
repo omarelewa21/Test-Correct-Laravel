@@ -265,7 +265,7 @@
                                 collega {{$inviter}} nodigt je uit voor Test-Correct</h5>
                             <table>
                                 <tr>
-                                    <td style="width: 100%">Samen met je collega's kun je:</td>
+                                    <td style="width: 100%; color: #ffffff">Samen met je collega's kun je:</td>
                                 </tr>
                                 <tr>
                                     <td>
@@ -276,7 +276,7 @@
                                                          src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
                                                          alt=""/>
                                                 </td>
-                                                <td style="width: 280px">
+                                                <td style="width: 280px; color: #ffffff">
                                                     <span style="margin-bottom: 8px">Overleggen over de voortgang van jouw studenten en ervaringen
                                                     delen.</span>
                                                 </td>
@@ -287,7 +287,7 @@
                                                          src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
                                                          alt=""/>
                                                 </td>
-                                                <td>Gebruikmaken van elkaars toetsen en toetsvragen.</td>
+                                                <td style="color: #ffffff"><span>Gebruikmaken van elkaars toetsen en toetsvragen.</span></td>
                                             </tr>
                                         </table>
                                     </td>
@@ -306,7 +306,7 @@
 
     </thead>
     <tbody id="content" class="body2">
-    <tr style="border-collapse:collapse; border-radius:4px;border-color: red; border-style: solid; border-width: 1px; background-color:#ffffff;">
+    <tr style="border-collapse:collapse; border-radius:4px;border-color: white; border-style: solid; border-width: 1px; background-color:#ffffff;">
         <td colspan="999" class="p-40 border-l-r" style="color: #041F74;">
             <p style="color: #041F74;font-size: 16px ">{{ $inviteText }}</p>
             <a href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}"

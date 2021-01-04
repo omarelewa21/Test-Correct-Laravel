@@ -137,6 +137,35 @@ class TellATeacherTest extends TestCase
     }
 
     /** @test */
+    public function a_teacher_can_invite_a_collegue_but_the_message_cannot_be_long()
+    {
+        Mail::fake();
+
+        $response = $this->post(
+            route('tell_a_teacher.store'),
+            $this->getTeacherFromPrivateSchoolRequestData(
+                $this->getValidAttributes([
+                    'school_location_id' => 3,
+                    'invited_by'         => $this->getTeacherFromPrivateSchool()->getKey(),
+                    'data'               => [
+                        'message'         => 'Ik wil je graag uitnodigen voor het platform Test-Correct. Ik gebruik het al en kan het zeker aanraden. Met Test-Correct kun je digitaal Toetsen en goed samenwerken. Maak jouw gratis account aan en ga aan de slag!Ik wil je graag uitnodigen voor het platform Test-Correct. Ik gebruik het al en kan het zeker aanraden. Met Test-Correct kun je digitaal Toetsen en goed samenwerken. Maak jouw gratis account aan en ga aan de slag!Ik wil je graag uitnodigen voor het platform Test-Correct. Ik gebruik het al en kan het zeker aanraden. Met Test-Correct kun je digitaal Toetsen en goed samenwerken. Maak jouw gratis account aan en ga aan de slag!Ik wil je graag uitnodigen voor het platform Test-Correct. Ik gebruik het al en kan het zeker aanraden. Met Test-Correct kun je digitaal Toetsen en goed samenwerken. Maak jouw gratis account aan en ga aan de slag!',
+                        'email_addresses' => 'fientjevanamersfoort@sobit.nl',
+                    ],
+                    'step'               => '2',
+                    'submit'             => 'false',
+                ])
+            )
+        )->assertStatus(422);
+
+        $this->assertEquals(
+            'Het bericht mag maximaal 640 karakters lang zijn.',
+            $response->decodeResponseJson()['errors']['data.message'][0]
+        );
+
+        Mail::assertNothingSent();
+    }
+
+    /** @test */
     public function a_teacher_can_invite_a_collegue_but_the_email_address_should_be_valid_in_step2_also()
     {
         Mail::fake();
