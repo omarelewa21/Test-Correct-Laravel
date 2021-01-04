@@ -425,6 +425,19 @@ class Question extends MtiBaseModel {
                 }
                 return true;
             break;
+            case 'RankingQuestion':
+                $requestAnswers = $totalData['answers'];
+                try{
+                    $question = RankingQuestion::findOrFail($this->id);
+                    $answers = $question->answers;
+                    if($requestAnswers==$answers){
+                        return false;
+                    }
+                }catch(Exception $e){
+                    return true;
+                }
+                return true;
+            break;
             default:
                 return false;
             break;
