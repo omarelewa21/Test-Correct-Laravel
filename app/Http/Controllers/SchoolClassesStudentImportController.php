@@ -42,48 +42,29 @@ class SchoolClassesStudentImportController extends Controller {
 
                 $merged = array_merge($u, $defaultData);
 
-                // switch between trusted stamnummer or email
-                if (isset($merged['trust_email']) && $merged['trust_email'] == 'on') {
-                    $user = User::where('username', $merged['username'])->first();
-                } else {
-                    $user = User::where('external_id', $merged['external_id'])->first();
-                }
-                
-                if(isset($merged['school_class_name'])) {
-                    
-                    $school_class_name = $merged['school_class_name'];
-                    
-                    $row_class_id = SchoolClass::where('name',trim($school_class_name))->first()->getkey();
+                $user = User::where('username', $merged['username'])->first();
 
+                if (isset($merged['school_class_name'])) {
+
+                    $school_class_name = $merged['school_class_name'];
+
+                    $school_class_id = SchoolClass::where('name', trim($school_class_name))->first()->getkey();
                 } else {
-                    
-                    $school_class_name = "";
+
+                    $school_class_id = $schoolClass->getKey();
                 }
-                
-                //switch between default or supplied class
-                if(isset($merged['fill_classname']) && $merged['fill_classname']=='on') {
+
+                if ($school_class_id == NULL) {
                     
-                    if(isset($row_class_id)) {
-                        $school_class_id = $row_class_id;
-                    } else {
-                        $school_class_id = $schoolClass->getKey();
-                    }
+                     return Response::make("School class id not fond for class " . $school_class_name, 422);
                     
-                } else {
-                    
-                    if(isset($row_class_id)) {
-                        $school_class_id = $row_class_id;
-                    } else {
-                        logger('error no class name or class not found' .  $school_class_name);
-                        logger($merged);
-                    }
                 }
 
 
                 if ($user) {
                     if ($user->isA('student')) {
 
-                        $_deletedClass = $user->students()->withTrashed()->Where('class_id',$school_class_id)->first();
+                        $_deletedClass = $user->students()->withTrashed()->Where('class_id', $school_class_id)->first();
 
                         if ((bool) $_deletedClass) {
                             $_deletedClass->restore();

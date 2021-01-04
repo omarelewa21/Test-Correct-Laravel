@@ -63,9 +63,7 @@ class SchoolClassesStudentImportRequest extends Request
             'data.*.name' => 'required',
             'data.*.name_suffix' => '',
             'data.*.gender' => '',
-            'data.*.school_class_name' => 'sometimes', 
-            'data.*.trust_email' => 'sometimes', 
-            'data.*.fill_classname' => 'sometimes'        
+            'data.*.school_class_name' => 'sometimes'      
         ]);
 
         if ($extra_rule === []) {
