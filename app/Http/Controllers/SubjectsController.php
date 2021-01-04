@@ -8,6 +8,7 @@ use tcCore\Http\Requests;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Subject;
+use tcCore\User;
 use tcCore\Http\Requests\CreateSubjectRequest;
 use tcCore\Http\Requests\UpdateSubjectRequest;
 
@@ -19,15 +20,18 @@ class SubjectsController extends Controller {
      * @return Response
      */
     public function index(Request $request) {
-
+        
         if ($request->mode == 'year') {
 
             $schoolyear = SchoolYearRepository::getCurrentSchoolYear();
+            
+            $school_location_id= User::where('id',$request['filter']['user_id'])->value('school_location_id');
 
             $subjects = Subject::select('subjects.*')
                     ->leftJoin('teachers', 'subjects.id', '=', 'teachers.subject_id')
                     ->leftJoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
                     ->where('school_classes.school_year_id', $schoolyear->id)
+                    ->where('school_classes.school_location_id', $school_location_id)
                     ->orderBy('subjects.name','asc')
                     ->with('baseSubject');
 
