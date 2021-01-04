@@ -61,15 +61,6 @@ class SchoolClassesController extends Controller
      */
     public function store(CreateSchoolClassRequest $request)
     {
-        $possibleSameName = SchoolClass::where('school_location_id', $request->school_location_id)
-            ->where('school_year_id', $request->school_year_id)
-            ->where('name', $request->name)->first();
-        if ($possibleSameName != null) {
-            if ($possibleSameName['name'] === $request->name) {
-                return Response::make('Double class names for same year.', 422);
-            }
-        }
-
         $schoolClass = new SchoolClass();
 
         $schoolClass->fill($request->all());
