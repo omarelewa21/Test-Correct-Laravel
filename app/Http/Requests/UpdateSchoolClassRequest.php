@@ -38,13 +38,13 @@ class UpdateSchoolClassRequest extends Request
 
 
         if (!Uuid::isValid($data['education_level_id'])) {
-            $this->addPrepareForValidationError('education_level_id', 'Dit niveau kon helaas niet terug gevonden worden.');
+            $this->addPrepareForValidationError('education_level_id', 'Dit niveau kon helaas niet teruggevonden worden.');
         }
 
         $educationLevel = EducationLevel::whereUuid($data['education_level_id'])->first();
 
         if (!$educationLevel) {
-            $this->addPrepareForValidationError('education_level_id', 'Dit niveau kon helaas niet terug gevonden worden.');
+            $this->addPrepareForValidationError('education_level_id', 'Dit niveau kon helaas niet teruggevonden worden.');
         }
 
         $data['education_level_id'] = $educationLevel->getKey();
