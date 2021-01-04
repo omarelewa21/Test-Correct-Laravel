@@ -49,28 +49,27 @@ class SchoolClassesStudentImportController extends Controller {
                     $school_class_name = $merged['school_class_name'];
 
                     $school_class_id = SchoolClass::where('name', trim($school_class_name))->first()->getkey();
+                    
                 } else {
-
                     $school_class_id = $schoolClass->getKey();
                 }
 
                 if ($school_class_id == NULL) {
-                    
-                     return Response::make("School class id not fond for class " . $school_class_name, 422);
-                    
+
+                    return Response::make("School class id not fond for class " . $school_class_name, 422);
                 }
 
-
                 if ($user) {
+                    
                     if ($user->isA('student')) {
 
                         $_deletedClass = $user->students()->withTrashed()->Where('class_id', $school_class_id)->first();
 
                         if ((bool) $_deletedClass) {
-                            $_deletedClass->restore();
+                            $_deletedClass->restore();                      
                         } else {
                             $user->students()->create([
-                                'class_id' => $schoolClass->getKey()
+                                'class_id' => $school_class_id
                             ]);
                         }
                     }
@@ -87,15 +86,6 @@ class SchoolClassesStudentImportController extends Controller {
         DB::commit();
         return Response::make(json_encode(count($data['data']) . ' studenten zijn toegevoegd'), 200);
 
-//		$schoolClass = new SchoolClass();
-//
-//		$schoolClass->fill($request->all());
-//
-//		if ($schoolClass->save() !== false) {
-//			return Response::make($schoolClass, 200);
-//		} else {
-//			return Response::make('Failed to create school class', 500);
-//		}
     }
 
 }
