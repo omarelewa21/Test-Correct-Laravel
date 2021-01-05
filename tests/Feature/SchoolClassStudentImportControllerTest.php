@@ -18,6 +18,33 @@ class SchoolClassStudentImportControllerTest extends TestCase
 
 
     /** @test */
+    public function it_can_import_a_user_rejects_international_characters()
+    {
+        $this->assertCount(0, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
+
+        $countStudentsBefore = \tcCore\Student::count();
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(3)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "12345",
+                'name_first'  => "Jan",
+                'name_suffix' => "",
+                'name'        => "Janssen",
+                'username'    => "carloschéoep+K999jjanssen@hotmail.com",
+            ]],
+        ]));
+        
+         $this->assertEquals(422, $response->getStatusCode());
+    
+    }
+    
+    /** @test */
     public function it_can_import_a_user()
     {
         $this->assertCount(0, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());

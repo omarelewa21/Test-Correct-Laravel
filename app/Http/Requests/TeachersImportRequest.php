@@ -40,7 +40,28 @@ class TeachersImportRequest extends Request
 
         return [
 //		    'data.*' => 'distinct',
-            'data.*.username'     => 'required|email',
+             'data.*.username' => ['required', 'email:rfc,filter,dns,spoof', function ($attribute, $value, $fail) {
+
+                    if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+ 
+                        return $fail(sprintf('The teacher email address contains international characters.', $value));
+                        
+                    }
+
+                    /*
+                    $teacher = User::whereUsername($value)->first();
+
+                    if ($teacher) {
+                        if ($this->alreadyInDatabaseAndInThisClass($student)) {
+                            return $fail(sprintf('The %s has already been taken.', $attribute));
+                        }
+                        if ($this->alreadyInDatabaseButNotInThisSchoolLocation($student)) {
+                            return $fail(sprintf('The %s has already been taken.', $attribute));
+                        }
+                    }
+                     * 
+                     */
+                }],
             'data.*.name_first'   => 'required',
             'data.*.name'         => 'required',
             'data.*.school_class' => 'required',
