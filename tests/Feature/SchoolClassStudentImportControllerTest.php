@@ -20,9 +20,6 @@ class SchoolClassStudentImportControllerTest extends TestCase
     /** @test */
     public function it_can_import_a_user_rejects_international_characters()
     {
-        $this->assertCount(0, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
-
-        $countStudentsBefore = \tcCore\Student::count();
 
         $response = $this->post(
             route(
@@ -40,8 +37,14 @@ class SchoolClassStudentImportControllerTest extends TestCase
             ]],
         ]));
         
-         $this->assertEquals(422, $response->getStatusCode());
-    
+        $this->assertEquals(422, $response->getStatusCode());
+         
+        $decodedResponse = $response->decodeResponseJson();
+         
+        $this->assertArrayHasKey('data.0.username', $decodedResponse['errors']);
+        $this->assertEquals('The data.0.username must be a valid email address.', $decodedResponse['errors']['data.0.username'][0]);
+        $this->assertEquals('The email address contains international characters.', $decodedResponse['errors']['data.0.username'][1]);
+
     }
     
     /** @test */
