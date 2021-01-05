@@ -44,7 +44,14 @@ class CreateTellATeacherRequest extends Request
 
 
         $rules = [
-            'email_addresses.*'  => 'email:rfc', // ,dns?
+            'email_addresses.*'  => ['email:rfc',function ($attribute, $value, $fail) {
+
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+
+                    return $fail(sprintf('The email address contains international characters.', $value));
+
+                }
+            }],
             'school_location_id' => 'required',
             'user_roles'         => 'required',
             'invited_by'         => 'required',
@@ -54,7 +61,7 @@ class CreateTellATeacherRequest extends Request
 
 
         return $this->step == 2
-            ? $rules + ['data.message' => 'required|string|min:10']
+            ? $rules + ['data.message' => 'required|string|min:10|max:640']
             : $rules;
     }
 
@@ -63,6 +70,7 @@ class CreateTellATeacherRequest extends Request
         return [
             'data.message.required' => 'Het bericht is verplicht',
             'data.message.min'      => 'Het bericht moet minimaal :min karakters lang zijn.',
+            'data.message.max'      => 'Het bericht mag maximaal :max karakters lang zijn.',
         ];
     }
 
@@ -89,7 +97,7 @@ class CreateTellATeacherRequest extends Request
                 $errorMsg = collect($this->email_addresses)
                     ->map(function ($emailAddress, $key) use ($keysWithErrors) {
                         if ($keysWithErrors->contains($key)) {
-                            return sprintf('<strong>%s</strong>', $emailAddress);
+                            return sprintf('<ins>%s</ins>', $emailAddress);
                         }
                         return $emailAddress;
                     })->implode(';');
