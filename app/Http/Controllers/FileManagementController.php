@@ -74,7 +74,11 @@ class FileManagementController extends Controller {
 
         $form_id = $request['form_id'];
 
-        if (!$request->isFile()) {
+        logger($request->isForm());
+
+        if ($request->isForm()) {
+
+            DB::beginTransaction();
 
             $data = [
                 'id' => Str::uuid(),
@@ -95,34 +99,45 @@ class FileManagementController extends Controller {
                 ],
             ];
 
-            $main = new FileManagement();
+            try {
 
-            $main->fill($data);
+                $main = new FileManagement();
 
-            $main->save();
+                $main->fill($data);
 
-            $parent_id = $main->getKey();
+                $main->save();
 
-            FileManagement::where('parent_id', $form_id)->update(['parent_id' => $parent_id, 'typedetails' => $data['typedetails']]);
+                $parent_id = $main->getKey();
 
-            $stored_files = FileManagement::where('parent_id', $parent_id)->get();
+                FileManagement::where('parent_id', $form_id)->update(['parent_id' => $parent_id, 'typedetails' => $data['typedetails']]);
 
-            $storage_path = sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey());
+                $stored_files = FileManagement::where('parent_id', $parent_id)->get();
 
-            // add subject to filename
-            foreach ($stored_files as $file) {
+                $storage_path = sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey());
 
-                $new_name = sprintf('%s-%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($request->get('name')), $request->get('subject'), pathinfo($file->origname, PATHINFO_EXTENSION));
+                // add subject to filename
 
-                rename($storage_path . '/' . $file->name, $storage_path . '/' . $new_name);
+                foreach ($stored_files as $file) {
 
-                FileManagement::where('name', $file->name)->update(['name' => $new_name]);
-                
+                    $new_name = sprintf('%s-%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($request->get('name')), $request->get('subject'), pathinfo($file->origname, PATHINFO_EXTENSION));
+
+                    rename($storage_path . '/' . $file->name, $storage_path . '/' . $new_name);
+
+                    FileManagement::where('name', $file->name)->update(['name' => $new_name]);
+                }
+            } catch (\Exception $e) {
+
+                DB::rollback();
+                logger('===== error ' . $e->getMessage());
+                Response::make('Het is helaas niet gelukt om de formulier gegevens te verwerken, probeer het nogmaals.', 500);
             }
-          
+
+            DB::commit();
+            
             Response::make($main, 200);
             
         } else {
+
 
             // there is only one file at a time
             $file = $request->file('files')[0];
@@ -161,7 +176,9 @@ class FileManagementController extends Controller {
                 $child->fill($data);
 
                 $child->save();
+                
             } catch (\Exception $e) {
+
                 DB::rollback();
                 logger('===== error ' . $e->getMessage());
                 Response::make('Het is helaas niet gelukt om de upload te verwerken, probeer het nogmaals.', 500);
