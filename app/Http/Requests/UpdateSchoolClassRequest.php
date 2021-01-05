@@ -4,6 +4,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Validation\Rule;
 use Ramsey\Uuid\Uuid;
 use tcCore\EducationLevel;
+use tcCore\SchoolClass;
 
 class UpdateSchoolClassRequest extends Request
 {
@@ -82,11 +83,14 @@ class UpdateSchoolClassRequest extends Request
             'mentor_id'            => '',
             'manager_id'           => '',
             'name'                 => [
-                Rule::unique('school_classes')->where('school_location_id', $this->school_location_id)
-                    ->where('school_year_id', $this->school_year_id)
-                    ->where('name', $this->name)
-                    ->whereNot('id', $schoolClass->getKey())
-            ],
+                function ($attribute, $value, $fail) {
+                    $schoolClass = SchoolClass::where('school_location_id', $this->school_location_id)
+                        ->where('school_year_id', $this->school_year_id)
+                        ->where('name', $this->name)->first();
+                    if ($schoolClass) {
+                        $fail('Deze klasnaam bestaat al in dit schooljaar');
+                    }
+                }],
             'is_main_school_class' => ''
         ];
     }
