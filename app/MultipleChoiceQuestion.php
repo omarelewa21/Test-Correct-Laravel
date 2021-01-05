@@ -172,5 +172,49 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         return $score;
     }
 
+    public function deleteAnswers()
+    {
+        $this->multipleChoiceQuestionAnswerLinks->each(function($qAL){
+            if (!$qAL->delete()) {
+                throw new QuestionException('Failed to delete multiple choice question answer link', 422);
+            }
+            // if ($qAL->multipleChoiceQuestionAnswer->isUsed($qAL)) {
+            //     // all okay, this one should be kept
+            // } else {
+            //     if (!$qAL->multipleChoiceQuestionAnswer->delete()) {
+            //         throw new QuestionException('Failed to delete multiple choice question answer', 422);
+            //     }
+            // }
+        });
+        return true;
+    }
+
+    public function addAnswers($mainQuestion, $answers)
+    {
+        $question = $this;
+        foreach($answers as $answerDetails) {
+            if($answerDetails['answer'] != '') {
+
+                $multipleChoiceQuestionAnswer = new MultipleChoiceQuestionAnswer();
+
+                $multipleChoiceQuestionAnswer->fill($answerDetails);
+                if (!$multipleChoiceQuestionAnswer->save()) {
+                    throw new QuestionException('Failed to create multiple choice question answer', 422);
+                }
+
+                $multipleChoiceQuestionAnswersLink = new MultipleChoiceQuestionAnswerLink();
+                // important!!!
+                $multipleChoiceQuestionAnswersLink->fill($answerDetails);
+                $multipleChoiceQuestionAnswersLink->setAttribute('multiple_choice_question_id', $question->getKey());
+                $multipleChoiceQuestionAnswersLink->setAttribute('multiple_choice_question_answer_id', $multipleChoiceQuestionAnswer->getKey());
+
+                if (!$multipleChoiceQuestionAnswersLink->save()) {
+                    throw new QuestionException('Failed to create multiple choice question answer', 422);
+                }
+            }
+        }
+        return true;
+    }
+
 
 }

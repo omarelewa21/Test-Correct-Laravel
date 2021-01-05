@@ -66,7 +66,7 @@ class Question extends MtiBaseModel {
 
     public static function usesDeleteAndAddAnswersMethods($questionType)
     {
-        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion'])->contains(strtolower($questionType));
+        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion','multiplechoicequestion'])->contains(strtolower($questionType));
     }
 
     public function fill(array $attributes)
@@ -429,6 +429,19 @@ class Question extends MtiBaseModel {
                 $requestAnswers = $totalData['answers'];
                 try{
                     $question = RankingQuestion::findOrFail($this->id);
+                    $answers = $question->answers;
+                    if($requestAnswers==$answers){
+                        return false;
+                    }
+                }catch(Exception $e){
+                    return true;
+                }
+                return true;
+            break;
+            case 'MultipleChoiceQuestion':
+                $requestAnswers = $totalData['answers'];
+                try{
+                    $question = MultipleChoiceQuestion::findOrFail($this->id);
                     $answers = $question->answers;
                     if($requestAnswers==$answers){
                         return false;

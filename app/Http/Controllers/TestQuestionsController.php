@@ -221,7 +221,6 @@ class TestQuestionsController extends Controller {
             $testQuestion->fill($request->all());
 
 
-
 // this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
             if (!$completionAnswerDirty
                 && !$question->isDirty()
@@ -265,7 +264,7 @@ class TestQuestionsController extends Controller {
 
 
 //            Log::debug($testQuestion->toSql());
-//            DB::enableQueryLog();
+            DB::enableQueryLog();
             // Save the link
             if ($testQuestion->save()) {
                 if(Question::usesDeleteAndAddAnswersMethods($questionInstance->type)){
@@ -275,7 +274,7 @@ class TestQuestionsController extends Controller {
                     // add new answers
                     $question->addAnswers($testQuestion,$totalData['answers']);
                 }
-//                Log::debug(DB::getQueryLog());
+                dump(DB::getQueryLog());
 //                return Response::make($testQuestion, 200);
             } else {
                 throw new QuestionException('Failed to update test question');
