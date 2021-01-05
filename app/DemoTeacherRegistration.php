@@ -126,6 +126,9 @@ class DemoTeacherRegistration extends Model
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate($data);
 
+                $this->setAttribute('user_id',$user->getKey());
+                $this->save();
+
                 $demoHelper = (new DemoHelper())->setSchoolLocation($tempTeachersSchoolLocation);
 
                 $teacher = Teacher::withTrashed()
