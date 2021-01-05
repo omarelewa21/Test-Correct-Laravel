@@ -1,4 +1,6 @@
-<?php namespace tcCore\Http\Controllers;
+<?php
+
+namespace tcCore\Http\Controllers;
 
 use Composer\Package\Package;
 use Illuminate\Http\Request;
@@ -59,8 +61,20 @@ class SchoolClassesController extends Controller
      * @param CreateSchoolClassRequest $request
      * @return
      */
-    public function store(CreateSchoolClassRequest $request)
-    {
+    public function store(CreateSchoolClassRequest $request) {
+
+        $name_check = SchoolClass::select('name')
+                ->where('school_location_id',$request->school_location_id)
+                ->where( 'name', $request->name )
+                ->where( 'school_year_id', $request->school_year_id )
+                ->first();
+
+        if ($name_check != NULL) {
+
+            return Response::make('This classname is already in use in this schoolyear', 500);
+
+        }
+
         $schoolClass = new SchoolClass();
 
         $schoolClass->fill($request->all());
