@@ -238,29 +238,25 @@
 <body class="pt-40" leftMargin="0" topMargin="0" Marginwidth="0" Marginheight="0"
       style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;Margin:0 auto; background-color:#F9FAFF">
 <table id="wrapper" border="0" width="720px" cellpadding="0" cellspacing="0"
-       style="background:white; width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto;">
-    <thead id="header" style="background-color: #004df5; padding-top: 40px;padding-left: 40px;padding-right: 40px">
+       style="width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto;border-top-left-radius: 5px;border-top-right-radius: 5px;">
+    <thead id="header" style="background-color: #004df5; padding-top: 40px;padding-left: 40px;padding-right: 40px;padding-bottom:40px;">
     <tr>
-        <td background="{{ config('app.base_url')}}img/email_bg_tell_a_teacher.png" bgcolor="#004df5"
-            width="720" height="338" valign="top">
-            <!--[if gte mso 9]>
-            <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false"
-                    style="width:720px;height:340px;">
-                <v:fill type="tile" src="{{ config('app.base_url')}}img/email_bg_tell_a_teacher.png"
-                        color="#004df5"/>
-                <v:textbox inset="0,0,0,0">
-            <![endif]-->
+        <td style="border: 1px solid var(--blue-grey);
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            border-bottom: 0px;"
+            width="720" border="0" cellspacing="0" cellpadding="0" valign="top">
             <div>
                 <table style="width: 100%; color: #ffffff">
-                    <tr>
-                        <th colspan="999" class="pt-20 pb-20 head-border">
-                            <img width="164" height="30" id="logo"
+                    <tr style="Margin-right: 0;Margin-left: 0;Margin:0 auto">
+                        <th colspan="999" class="pt-20 pb-20 head-border" style="Margin-right: 0;Margin-left: 0;Margin:0 auto">
+                            <img width="164" height="30" id="logo" style="Margin-right: 0;Margin-left: 0;Margin:0 auto"
                                  src="{{config('app.base_url')}}img/Logo-Test-Correct-wit.png"
                                  alt="Test-Correct"/>
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding-left: 40px;padding-right: 40px">
+                        <td style="padding-left: 40px;padding-right: 40px;padding-bottom: 40px">
                             <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">Je
                                 collega {{$inviter}} nodigt je uit voor Test-Correct</h5>
                             <table>
@@ -287,7 +283,8 @@
                                                          src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
                                                          alt=""/>
                                                 </td>
-                                                <td style="color: #ffffff"><span>Gebruikmaken van elkaars toetsen en toetsvragen.</span></td>
+                                                <td style="color: #ffffff"><span>Gebruikmaken van elkaars toetsen en toetsvragen.</span>
+                                                </td>
                                             </tr>
                                         </table>
                                     </td>
@@ -297,37 +294,36 @@
                     </tr>
                 </table>
             </div>
-            <!--[if gte mso 9]>
-            </v:textbox>
-            </v:rect>
-            <![endif]-->
         </td>
     </tr>
-
     </thead>
-    <tbody id="content" class="body2">
+</table>
+<table border="0" width="720px" cellpadding="0" cellspacing="0" style="width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto; border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;">
+    <tbody id="content" class="body2" style="width:720px">
     <tr style="border-collapse:collapse; border-radius:4px;border-color: white; border-style: solid; border-width: 1px; background-color:#ffffff;">
-        <td colspan="999" class="p-40 border-l-r" style="color: #041F74;">
-            <p style="color: #041F74;font-size: 16px ">{{ $inviteText }}</p>
-            <a href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}"
-               style="border-radius: 10px;
-            font-size: 18px;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 700;
-            background-color: #42b947;
-            Padding: 15px 30px;
-            display: block;
-            background: var(--cta-primary);
-            color: white;
-            text-align: center;
-            stroke: white;
-            Margin-top: 16px;"
-               class="mt-40 button cta-button stretched text-center svg-stroke-white">Maak jouw gratis account
-                <x-icon.arrow></x-icon.arrow>
-            </a>
+        <td colspan="999" class="p-40 border-l-r" style="color: #041F74;
+border: 1px solid var(--blue-grey);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            border-top: 0px;">
+            <p style="color: #041F74;font-size: 16px;Margin-bottom: 20px">{{ $inviteText }}</p>
+            <div><!--[if mso]>
+                  <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}" style="height:40px;v-text-anchor:middle;width:200px;Margin-top: 10px;" arcsize="10%" stroke="f" fillcolor="#3DBB56">
+                    <w:anchorlock/>
+                    <center>
+                  <![endif]-->
+                <a href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}"
+                   style="background-color:#3DBB56;border-radius:4px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:13px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;Margin-top: 10px;">Maak
+                    jouw gratis account</a>
+                <!--[if mso]>
+                </center>
+                </v:roundrect>
+                <![endif]-->
+            </div>
         </td>
     </tr>
     </tbody>
 </table>
 </body>
 </html>
+

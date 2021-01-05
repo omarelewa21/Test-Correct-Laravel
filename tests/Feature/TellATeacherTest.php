@@ -185,7 +185,7 @@ class TellATeacherTest extends TestCase
             )
         )->assertStatus(422);
         $this->assertEquals(
-            ["Het e-mailadres <strong>fientjevanamersfoort@.nl</strong> is niet valide."],
+            ["Het e-mailadres <ins>fientjevanamersfoort@.nl</ins> is niet valide."],
             $response->decodeResponseJson()['errors']['form']
         );
 
@@ -214,7 +214,7 @@ class TellATeacherTest extends TestCase
         $errors = $response->decodeResponseJson()['errors'];
         $this->assertArrayHasKey('email_addresses.0', $errors);
         $this->assertEquals(['The email_addresses.0 must be a valid email address.'], $errors['email_addresses.0']);
-        $this->assertEquals(['Het e-mailadres <strong>not_valid</strong> is niet valide.'], $errors['form']);
+        $this->assertEquals(['Het e-mailadres <ins>not_valid</ins> is niet valide.'], $errors['form']);
         Mail::assertNothingSent();
     }
 
@@ -286,7 +286,7 @@ class TellATeacherTest extends TestCase
         $errors = $response->decodeResponseJson()['errors'];
         $this->assertArrayHasKey('email_addresses.1', $errors);
         $this->assertEquals(['The email_addresses.1 must be a valid email address.'], $errors['email_addresses.1']);
-        $this->assertEquals(['De e-mailadressen m.folkerts@sobit.nl;<strong>bogus</strong>;martin@sobit.nl zijn niet valide.'],
+        $this->assertEquals(['De e-mailadressen m.folkerts@sobit.nl;<ins>bogus</ins>;martin@sobit.nl zijn niet valide.'],
             $errors['form']);
     }
 
