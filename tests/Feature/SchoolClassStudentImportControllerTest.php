@@ -48,6 +48,39 @@ class SchoolClassStudentImportControllerTest extends TestCase
             User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->first()->students()->first()->class_id
         );
     }
+    
+    /** @test */
+    public function it_can_import_a_user_with_class()
+    {
+        $this->assertCount(0, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
+
+        $countStudentsBefore = \tcCore\Student::count();
+
+        $response = $this->post(
+            route(
+                'school_classes.import', [
+                'schoolLocation' => SchoolLocation::find(3)->uuid,
+                'schoolClass'    => SchoolClass::find(8)->uuid
+            ])
+            , static::getSchoolBeheerderAuthRequestData([
+            'data' => [[
+                'external_id' => "12345",
+                'name_first'  => "Jan",
+                'name_suffix' => "",
+                'name'        => "Janssen",
+                'username'    => "carloschoep+K999jjanssen@hotmail.com",
+                'school_class_name'=>"Biologie"
+            ]],
+        ]))->assertSuccessful();
+        $this->assertEquals('1 studenten zijn toegevoegd', $response->decodeResponseJson());
+
+        $this->assertCount(1, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
+        $this->assertCount(++$countStudentsBefore, Student::get());
+        $this->assertEquals(
+            8,
+            User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->first()->students()->first()->class_id
+        );
+    }
 
     /** @test */
     public function it_can_import_multiple_users()
