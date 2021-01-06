@@ -102,10 +102,7 @@ class DemoTeacherRegistration extends Model
                 $user = User::where('username', $this->username)->first();
             }
             if (!$user) {
-//                    if ($user->isA('teacher')) {
-//                        }else{logger('klas '.$schoolClass->getKey.' bestaat al voor '.$user->getKey());}
-//                    }
-                ;
+
                 $tempTeachersSchoolLocation = SchoolHelper::getTempTeachersSchoolLocation();
                 $data = array_merge(
                     $password ? ['password' => $password] : [],
@@ -123,6 +120,9 @@ class DemoTeacherRegistration extends Model
 
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate($data);
+                $this->setAttribute('user_id',$user->getKey());
+                $this->save();
+
 
                 if ($ref != null) {
                     //Update shortcodeclick with new userId
@@ -139,6 +139,7 @@ class DemoTeacherRegistration extends Model
                     }
                 }
 
+
                 $demoHelper = (new DemoHelper())->setSchoolLocation($tempTeachersSchoolLocation);
 
                 $teacher = Teacher::withTrashed()
@@ -149,6 +150,7 @@ class DemoTeacherRegistration extends Model
                     ]);
 
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
+
                 try {
                     Mail::to($user->getEmailForPasswordReset())->send(new SendOnboardingWelcomeMail($user));
                 } catch (\Throwable $th) {
