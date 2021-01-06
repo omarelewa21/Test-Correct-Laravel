@@ -104,7 +104,7 @@ class QtiImportCitoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(QtiImportCitoDataRequest $request)
     {
         set_time_limit(3 * 60);
         $return = "";
@@ -330,10 +330,10 @@ class QtiImportCitoController extends Controller
         $xml_file = sprintf('%s/%s/%s', $this->basePath, $this->currentTest->zipDir, $this->currentTest->xmlFile);
         $this->currentTest->fullXmlFilePath = $xml_file;
         $xml = simplexml_load_file($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA);
-        $this->manifest = (new QtiManifest())->setOriginalXml($xml);
+        $this->manifest = (new QtiManifest($xml_file))->setOriginalXml($xml);
 
         // add the test
-        $test = $this->addTest($xml, ['scope' => 'cito']);
+        $test = $this->addTest($xml, ['scope' => $this->manifest->getScope()]);
         $this->currentTest->name = $test->name;
 
         // we need to set the auth user to the user we want to import the

@@ -14,6 +14,7 @@ use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\Subject;
 use tcCore\Teacher;
+use tcCore\Test;
 use tcCore\TestQuestion;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -48,7 +49,7 @@ class WootsImportTest extends TestCase
                 "education_level_id"   => EducationLevel::find(9)->uuid,
                 "education_level_year" => 1,
                 "test_kind_id"         => "2",
-                "abbr"                 => "",
+                "abbr"                 => "ABC",
                 "period_id"            => 1,
                 'zip_file'             => new \Illuminate\Http\UploadedFile(
                     $path,
@@ -60,12 +61,17 @@ class WootsImportTest extends TestCase
             ])
         );
 
-        dd($response->decodeResponseJson());
+        $response->decodeResponseJson();
 
         $this->assertStringContainsString(
             'De import is succesvol verlopen!',
             $response->decodeResponseJson()['data']
         );
+
+        $lastTest = Test::orderBy('id', 'desc')->first();
+        $this->assertEquals('NBO voorronde 20_21-qti',$lastTest->name);
+        $this->assertEquals('ABC',$lastTest->abbreviation);
+        $this->assertEmpty($lastTest->scope);
     }
 
     /** @test */

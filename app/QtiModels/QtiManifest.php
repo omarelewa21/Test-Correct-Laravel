@@ -16,6 +16,7 @@ class QtiManifest
     protected $resources;
     protected $originalXml;
     public $namespaces = [];
+    private $file;
     private $manufacturer = 'CITO';
 
 
@@ -25,10 +26,11 @@ class QtiManifest
         $this->resources = collect([]);
     }
 
-    public function __construct()
+    public function __construct($file = null)
     {
         $this->_init();
         $this->setManufacturer();
+        $this->file = $file;
     }
 
     public function addMetaData($metaDataKey, $metaDataValue)
@@ -58,7 +60,8 @@ class QtiManifest
         return $this->resources;
     }
 
-    public function getManufacturer() {
+    public function getManufacturer()
+    {
         return $this->manufacturer;
     }
 
@@ -100,15 +103,22 @@ class QtiManifest
         }
     }
 
+    public function getScope() {
+        if ($this->manufacturer === 'CITO') {
+            return 'cito';
+        }
+        return '';
+    }
+
     public function getProperties()
     {
         $meta = $this->originalXml->metadata->children('depcp', true)->metadata;
         return [
-            'id'       => $meta->id !== null && $meta->id->__toString() ? $meta->id->__toString() : 'someId',
-            'name'     => $meta->name !== null && $meta->name->__toString() ? $meta->name->__toString() : 'someMeta',
-            'version'  => $meta->version !== null && $meta->version->__toString() ? $meta->version->__toString() : 'someVersion',
-            'guid'     => $meta->guid !== null && $meta->guid->__toString() ? $meta->guid->__toString() : 'someGuid',
-            'testType' => $meta->testType !== null && $meta->testType->__toString() ? $meta->testType->__toString() : 'someTestType',
+            'id'       => $meta->id !== null && $meta->id->__toString() ? $meta->id->__toString() : $this->getDefaultId(),
+            'name'     => $meta->name !== null && $meta->name->__toString() ? $meta->name->__toString() : $this->getDefaultName(),
+            'version'  => $meta->version !== null && $meta->version->__toString() ? $meta->version->__toString() : $this->getDefaultVersion(),
+            'guid'     => $meta->guid !== null && $meta->guid->__toString() ? $meta->guid->__toString() : $this->getDefaultUuid(),
+            'testType' => $meta->testType !== null && $meta->testType->__toString() ? $meta->testType->__toString() : $this->getDefaultTestType(),
         ];
     }
 
@@ -163,6 +173,10 @@ class QtiManifest
     {
         $props = $this->getProperties();
 
+        if ($this->manufacturer === 'WOOTS'){
+            return $props['name'];
+        }
+
         return sprintf('%s | %s', $props['id'], $props['name']);
     }
 
@@ -174,6 +188,60 @@ class QtiManifest
     private function setManufacturer()
     {
         $this->manufacturer = 'WOOTS';
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultId(): string
+    {
+        if ($this->manufacturer === 'WOOTS') {
+            return '';
+        }
+        return 'someId';
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultName(): string
+    {
+        if ($this->manufacturer === 'WOOTS') {
+            $info = pathinfo($this->file);
+            if (array_key_exists('dirname', $info)) {
+                $arr = explode(DIRECTORY_SEPARATOR, $info['dirname']);
+                $var = array_pop($arr);
+                if (!empty($var)) {
+                    return $var;
+                }
+            }
+
+        }
+        return 'someMeta';
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultVersion(): string
+    {
+        return 'someVersion';
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultUuid(): string
+    {
+        return 'someGuid';
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultTestType(): string
+    {
+        return 'someTestType';
     }
 
 }

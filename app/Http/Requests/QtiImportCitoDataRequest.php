@@ -28,6 +28,16 @@ class QtiImportCitoDataRequest extends Request {
         ];
     }
 
+    public function prepareForValidation()
+    {
+        // abbreviation field is called abbr on the form ;(
+        if (!empty($this->abbr)) {
+            $this->merge([
+                'abbreviation' => $this->abbr,
+            ]);
+        }
+    }
+
     /**
      * Get the sanitized input for the request.
      *
