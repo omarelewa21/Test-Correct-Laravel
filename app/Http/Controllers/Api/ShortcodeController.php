@@ -26,7 +26,7 @@ class ShortcodeController extends Controller
             'ip'           => $_SERVER['REMOTE_ADDR'],
         ]);
 
-        return redirect()->away(sprintf('%s%sref=%s&email=%s', $redirectUrl, $stitchSign, $click->uuid, request('email', '')));
+        return redirect()->away(sprintf('%s%sref=%s&email=%s', $redirectUrl, $stitchSign, $click->uuid, urlencode(request('email', ''))));
     }
 
     public function show(Request $request, Shortcode $shortcode)
