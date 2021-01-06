@@ -264,7 +264,7 @@ class TestQuestionsController extends Controller {
 
 
 //            Log::debug($testQuestion->toSql());
-            DB::enableQueryLog();
+//            DB::enableQueryLog();
             // Save the link
             if ($testQuestion->save()) {
                 if(Question::usesDeleteAndAddAnswersMethods($questionInstance->type)){
@@ -274,7 +274,7 @@ class TestQuestionsController extends Controller {
                     // add new answers
                     $question->addAnswers($testQuestion,$totalData['answers']);
                 }
-                dump(DB::getQueryLog());
+//                Log::debug(DB::getQueryLog());
 //                return Response::make($testQuestion, 200);
             } else {
                 throw new QuestionException('Failed to update test question');
