@@ -28,8 +28,6 @@ class CreateSchoolClassRequest extends Request
     {
         $this->filterInput();
 
-        logger([$this->name, request('name', $this->name)]);
-
         return [
             'subject_id'           => '',
             'education_level_id'   => '',
