@@ -66,6 +66,31 @@ class MulipleChoiceQuestionTest extends TestCase
         $answer = $questions->first()->question->multipleChoiceQuestionAnswers->first();
         $this->assertEquals('aa', $answer->answer);
      }
+
+     /** @test */
+     public function can_create_test_and_mc_arq_question(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForARQQuestion($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
+     }
+
+     /** @test */
+     public function can_create_test_and_mc_arq_question_with_answers(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForARQQuestion($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
+        $this->assertEquals(5, count($questions->first()->question->multipleChoiceQuestionAnswers));
+     }
    
     
 
@@ -159,6 +184,47 @@ class MulipleChoiceQuestionTest extends TestCase
                                     "score"=> "0"
                                     ]
                                 ],$this->getRestOfAnswerArray(3,10)),
+                    "tags"=> [
+                    ],
+                    "rtti"=> "R",
+                    "bloom"=> "Onthouden",
+                    "miller"=> "Weten",
+                    "test_id"=> $testId,
+                ];
+    }
+
+    private function getAttributesForARQQuestion($testId){
+        return [    
+                    "type"=> "MultipleChoiceQuestion",
+                    "score"=> "150",
+                    "question"=> "<p>GM7</p> ",
+                    "order"=> 0,
+                    "maintain_position"=> "0",
+                    "discuss"=> "1",
+                    "subtype"=> "ARQ",
+                    "decimal_score"=> "0",
+                    "add_to_database"=> 1,
+                    "attainments"=> [
+                    ],
+                    "note_type"=> "NONE",
+                    "is_open_source_content"=> 1,
+                    "answers"=> [
+                                    [
+                                    "score"=> "10"
+                                    ],
+                                    [
+                                    "score"=> "20"
+                                    ],
+                                    [
+                                    "score"=> "30"
+                                    ],
+                                    [
+                                    "score"=> "40"
+                                    ],
+                                    [
+                                    "score"=> "50"
+                                    ]
+                                ],
                     "tags"=> [
                     ],
                     "rtti"=> "R",

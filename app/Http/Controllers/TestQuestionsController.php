@@ -71,7 +71,6 @@ class TestQuestionsController extends Controller {
      */
     public function store(CreateTestQuestionRequest $request)
     {
-
         DB::beginTransaction();
         try{
             if ($request->get('question_id') === null) {

@@ -193,24 +193,44 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
     {
         $question = $this;
         foreach($answers as $answerDetails) {
-            if($answerDetails['answer'] != '') {
+            if(!$this->isValidAnswerDetails($answerDetails)){
+                continue;
+            }
+            $multipleChoiceQuestionAnswer = new MultipleChoiceQuestionAnswer();
 
-                $multipleChoiceQuestionAnswer = new MultipleChoiceQuestionAnswer();
+            $multipleChoiceQuestionAnswer->fill($answerDetails);
+            if (!$multipleChoiceQuestionAnswer->save()) {
+                throw new QuestionException('Failed to create multiple choice question answer', 422);
+            }
 
-                $multipleChoiceQuestionAnswer->fill($answerDetails);
-                if (!$multipleChoiceQuestionAnswer->save()) {
-                    throw new QuestionException('Failed to create multiple choice question answer', 422);
-                }
+            $multipleChoiceQuestionAnswersLink = new MultipleChoiceQuestionAnswerLink();
+            // important!!!
+            $multipleChoiceQuestionAnswersLink->fill($answerDetails);
+            $multipleChoiceQuestionAnswersLink->setAttribute('multiple_choice_question_id', $question->getKey());
+            $multipleChoiceQuestionAnswersLink->setAttribute('multiple_choice_question_answer_id', $multipleChoiceQuestionAnswer->getKey());
 
-                $multipleChoiceQuestionAnswersLink = new MultipleChoiceQuestionAnswerLink();
-                // important!!!
-                $multipleChoiceQuestionAnswersLink->fill($answerDetails);
-                $multipleChoiceQuestionAnswersLink->setAttribute('multiple_choice_question_id', $question->getKey());
-                $multipleChoiceQuestionAnswersLink->setAttribute('multiple_choice_question_answer_id', $multipleChoiceQuestionAnswer->getKey());
+            if (!$multipleChoiceQuestionAnswersLink->save()) {
+                throw new QuestionException('Failed to create multiple choice question answer', 422);
+            }
 
-                if (!$multipleChoiceQuestionAnswersLink->save()) {
-                    throw new QuestionException('Failed to create multiple choice question answer', 422);
-                }
+        }
+        return true;
+    }
+
+    private function isValidAnswerDetails($answer)
+    {
+        if(!array_key_exists('answer', $answer)&&!array_key_exists('score', $answer)){
+            return false;
+        }
+        if(!array_key_exists('answer', $answer)&&$answer['score']!=''){
+            return true;
+        }
+        if(array_key_exists('answer', $answer)){
+            if($answer['answer']==''&&!array_key_exists('score', $answer)){
+                return false;
+            }
+            if($answer['answer']==''&&$answer['score']==''){
+                return false;
             }
         }
         return true;
