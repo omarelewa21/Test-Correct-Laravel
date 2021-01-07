@@ -11,14 +11,16 @@ use tcCore\Subject;
 use tcCore\Http\Requests\CreateSubjectRequest;
 use tcCore\Http\Requests\UpdateSubjectRequest;
 
-class SubjectsController extends Controller {
+class SubjectsController extends Controller
+{
 
     /**
      * Display a listing of the subjects.
      *
      * @return Response
      */
-    public function index(Request $request) {
+    public function index(Request $request)
+    {
 
         $subjects = Subject::filtered($request->get('filter', []), $request->get('order', ['name' => 'asc']))->with('baseSubject');
 
@@ -42,7 +44,8 @@ class SubjectsController extends Controller {
      * @param CreateSubjectRequest $request
      * @return Response
      */
-    public function store(CreateSubjectRequest $request) {
+    public function store(CreateSubjectRequest $request)
+    {
 
         $subject = new Subject($request->all());
 
@@ -56,10 +59,11 @@ class SubjectsController extends Controller {
     /**
      * Display the specified subject.
      *
-     * @param  Subject  $subject
+     * @param Subject $subject
      * @return Response
      */
-    public function show(Subject $subject) {
+    public function show(Subject $subject)
+    {
         $subject->load('baseSubject');
         return Response::make($subject, 200);
     }
@@ -67,11 +71,12 @@ class SubjectsController extends Controller {
     /**
      * Update the specified subject in storage.
      *
-     * @param  Subject $subject
+     * @param Subject $subject
      * @param UpdateSubjectRequest $request
      * @return Response
      */
-    public function update(Subject $subject, UpdateSubjectRequest $request) {
+    public function update(Subject $subject, UpdateSubjectRequest $request)
+    {
         if ($subject->update($request->all())) {
             return Response::make($subject, 200);
         } else {
@@ -82,10 +87,11 @@ class SubjectsController extends Controller {
     /**
      * Remove the specified subject from storage.
      *
-     * @param  Subject  $subject
+     * @param Subject $subject
      * @return Response
      */
-    public function destroy(Subject $subject) {
+    public function destroy(Subject $subject)
+    {
         //
         if ($subject->delete()) {
             return Response::make($subject, 200);
