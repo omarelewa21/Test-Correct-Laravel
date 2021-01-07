@@ -75,7 +75,6 @@ class UpdateSchoolClassRequest extends Request
     public function rules()
     {
         $this->filterInput();
-        $schoolClass = request('school_class');
         return [
             'subject_id'           => '',
             'education_level_id'   => '',
@@ -86,7 +85,9 @@ class UpdateSchoolClassRequest extends Request
                 function ($attribute, $value, $fail) {
                     $schoolClass = SchoolClass::where('school_location_id', $this->school_location_id)
                         ->where('school_year_id', $this->school_year_id)
-                        ->where('name', $this->name)->first();
+                        ->where('name', $this->name)
+                        ->where('id','!=',$this->schoolClass->getKey())
+                        ->first();
                     if ($schoolClass) {
                         $fail('Deze klasnaam bestaat al in dit schooljaar');
                     }
