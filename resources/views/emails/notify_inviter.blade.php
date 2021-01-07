@@ -236,7 +236,8 @@
 </head>
 
 <body class="pt-40" leftMargin="0" topMargin="0" Marginwidth="0" Marginheight="0"
-      style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;Margin:0 auto; background-color:#F9FAFF">
+      style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;Margin:0 auto; background-color:#e1e4e9">
+<div>
 <table id="wrapper" border="0" width="720px" cellpadding="0" cellspacing="0"
        style="width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto;">
     <thead id="header" style="background-color: #004df5; padding-top: 40px;padding-left: 40px;padding-right: 40px;padding-bottom:40px;">
@@ -249,14 +250,14 @@
             <div>
                 <table style="width: 100%; color: #ffffff">
                     <tr style="Margin-right: 0;Margin-left: 0;Margin:0 auto">
-                        <th colspan="999" class="pt-20 pb-20 head-border" style="Margin-right: 0;Margin-left: 0;Margin:0 auto">
+                        <th colspan="999" class="pt-20 pb-20 head-border" style="Margin-right: 0;Margin-left: 0;Margin:0 auto;padding-left:40px;padding-right:40px">
                             <img width="164" height="30" id="logo" style="Margin-right: 0;Margin-left: 0;Margin:0 auto"
                                  src="{{config('app.base_url')}}img/Logo-Test-Correct-wit.png"
                                  alt="Test-Correct"/>
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding-left: 40px;padding-right: 40px;padding-bottom: 40px">
+                        <td style="width:500px;padding-left: 40px;padding-right: 40px;padding-bottom: 40px">
                             <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">Je
                                 collega {{$invitee->getNameFullAttribute()}} heeft een Test-Correct account aangemaakt</h5>
                             <table>
@@ -272,7 +273,7 @@
                                                          src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
                                                          alt=""/>
                                                 </td>
-                                                <td style="width: 280px; color: #ffffff">
+                                                <td style="color: #ffffff">
                                                     <span style="margin-bottom: 8px">Overleggen over de voortgang van jouw studenten en ervaringen
                                                     delen.</span>
                                                 </td>
@@ -298,7 +299,7 @@
     </tr>
     </thead>
 </table>
-<table border="0" width="720px" cellpadding="0" cellspacing="0" style="width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto;">
+<table border="0" width="720px" cellpadding="0" cellspacing="0" style="width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto;padding-bottom:40px">
     <tbody id="content" class="body2" style="width:720px">
     <tr style="border-collapse:collapse; border-radius:4px;border-color: white; border-style: solid; border-width: 1px; background-color:#ffffff;">
         <td colspan="999" class="p-40 border-l-r" style="color: #041F74; border: 1px solid var(--blue-grey);

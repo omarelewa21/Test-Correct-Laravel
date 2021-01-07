@@ -5,6 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <style type="text/css">
+        /* ----- Client Fixes ----- */
+        /* Force Outlook to provide a “view in browser” message */
+        #outlook a {
+            padding: 0;
+        }
+
+        /* Force Hotmail to display emails at full width */
+        .ReadMsgBody {
+            width: 100%;
+        }
+
+        .ExternalClass {
+            width: 100%;
+        }
+
+        /* Force Hotmail to display normal line spacing */
+        .ExternalClass,
+        .ExternalClass p,
+        .ExternalClass span,
+        .ExternalClass font,
+        .ExternalClass td,
+        .ExternalClass div {
+            line-height: 100%;
+        }
+
+        /* Prevent WebKit and Windows mobile changing default text sizes */
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        /* Remove spacing between tables in Outlook 2007 and up */
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        /* Allow smoother rendering of resized image in Internet Explorer */
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
 
         :root {
             --system-base: #041F74;
@@ -13,6 +54,7 @@
             --cta-primary: #3DBB56;
             --cta-primary-mid-dark: #27973D;
             --cta-primary-dark: #006314;
+            --bg: #e1e4e9;
         }
 
         table {
@@ -40,76 +82,21 @@
             Margin: 0;
         }
 
-        .base {
-            color: var(--system-base);
-        }
-
-        .footer {
-            background-color: var(--off-white);
-            border-top: 1px solid var(--blue-grey);
-            border-bottom-right-radius: 10px;
-            border-bottom-left-radius: 10px;
-        }
-
-        .block {
-            display: block;
-        }
-
-        .button {
-            border-radius: 10px;
-            font-size: 18px;
-            font-family: 'Nunito', sans-serif;
-            font-weight: 700;
-            background-color: #42b947;
-            padding: 15px 30px;
-            display: inline-block;
-        }
-
         .button,
         .button * {
             color: #ffffff;
             text-decoration: none;
         }
 
-        .button.stretched {
-            display: block;
-        }
-
-        .cta-button {
-            background: var(--cta-primary);
-            color: white;
-        }
-
         .p-40 {
             padding: 40px;
-        }
-
-        .pl-40 {
-            padding-left: 40px;
-        }
-
-        .pr-40 {
-            padding-right: 40px;
         }
 
         .pt-40 {
             padding-top: 40px;
         }
-
         .pb-40 {
             padding-bottom: 40px;
-        }
-
-        .p-20 {
-            padding: 20px;
-        }
-
-        .pl-20 {
-            padding-left: 20px;
-        }
-
-        .pr-20 {
-            padding-right: 20px;
         }
 
         .pt-20 {
@@ -118,62 +105,6 @@
 
         .pb-20 {
             padding-bottom: 20px;
-        }
-
-        .p-4 {
-            padding: 1rem;
-        }
-
-        .pl-4 {
-            padding-left: 1rem;
-        }
-
-        .pr-4 {
-            padding-right: 1rem;
-        }
-
-        .pt-4 {
-            padding-top: 1rem;
-        }
-
-        .pb-4 {
-            padding-bottom: 1rem;
-        }
-
-        .m-4 {
-            Margin: 1rem;
-        }
-
-        .mt-4 {
-            Margin-top: 1rem;
-        }
-
-        .mb-4 {
-            Margin-bottom: 1rem;
-        }
-
-        .ml-4 {
-            Margin-left: 1rem
-        }
-
-        .mr-4 {
-            Margin-right: 1rem;
-        }
-
-        .mt-40 {
-            Margin-top: 40px;
-        }
-
-        .mb-40 {
-            Margin-bottom: 40px;
-        }
-
-        .ml-40 {
-            Margin-left: 40px;
-        }
-
-        .mr-40 {
-            Margin-right: 40px;
         }
 
         root,
@@ -193,8 +124,6 @@
         }
 
         body {
-            padding-left: 20px;
-            padding-right: 20px;
             box-sizing: border-box;
             font-weight: 400;
         }
@@ -203,127 +132,106 @@
             font-size: 24px;
             Margin-bottom: 30px;
         }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-regular {
-            font-weight: 400;
-        }
-
-        .text-bold {
-            font-weight: 700;
-        }
-
-        .padding-top {
-            padding-top: 30px !important;
-        }
-
-        .padding-right {
-            padding-right: 30px !important;
-        }
-
-        .padding-bottom {
-            padding-bottom: 30px !important;;
-        }
-
-        .padding-left {
-            padding-left: 30px !important;
-        }
-
     </style>
 </head>
-
-<body class="pt-40" leftMargin="0" topMargin="0" Marginwidth="0" Marginheight="0"
-      style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;Margin:0 auto; background-color:#F9FAFF">
-<table id="wrapper" border="0" width="720px" cellpadding="0" cellspacing="0"
-       style="width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto;border-top-left-radius: 5px;border-top-right-radius: 5px;">
-    <thead id="header" style="background-color: #004df5; padding-top: 40px;padding-left: 40px;padding-right: 40px;padding-bottom:40px;">
-    <tr>
-        <td style="border: 1px solid var(--blue-grey);
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            border-bottom: 0px;"
-            width="720" border="0" cellspacing="0" cellpadding="0" valign="top">
-            <div>
-                <table style="width: 100%; color: #ffffff">
-                    <tr style="Margin-right: 0;Margin-left: 0;Margin:0 auto">
-                        <th colspan="999" class="pt-20 pb-20 head-border" style="Margin-right: 0;Margin-left: 0;Margin:0 auto">
-                            <img width="164" height="30" id="logo" style="Margin-right: 0;Margin-left: 0;Margin:0 auto"
-                                 src="{{config('app.base_url')}}img/Logo-Test-Correct-wit.png"
-                                 alt="Test-Correct"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding-left: 40px;padding-right: 40px;padding-bottom: 40px">
-                            <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">Je
-                                collega {{$inviter}} nodigt je uit voor Test-Correct</h5>
-                            <table>
-                                <tr>
-                                    <td style="width: 100%; color: #ffffff">Samen met je collega's kun je:</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <table>
-                                            <tr style="margin-bottom: 8px">
-                                                <td style="width: 21px">
-                                                    <img width="16"
-                                                         src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
-                                                         alt=""/>
-                                                </td>
-                                                <td style="width: 280px; color: #ffffff">
+<body>
+<div class="pt-40" leftMargin="0" topMargin="0" Marginwidth="0" Marginheight="0" bgcolor="#e1e4e9"
+     style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;Margin:0 auto; background-color:#e1e4e9">
+    <div>
+        <table id="wrapper" border="0" width="720px" cellpadding="0" cellspacing="0" bgcolor="#e1e4e9"
+               style="width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto;border-top-left-radius: 5px;border-top-right-radius: 5px;">
+            <thead id="header"
+                   style="background-color: #004df5;padding-top: 40px;padding-left: 40px;padding-right: 40px;padding-bottom:40px;">
+            <tr>
+                <td style="border: 1px solid var(--blue-grey);border-top-left-radius: 10px;border-top-right-radius: 10px;border-bottom: 0px;"
+                    width="720" border="0" cellspacing="0" cellpadding="0" valign="top">
+                    <div>
+                        <table style="width: 100%; color: #ffffff">
+                            <tr style="Margin-right: 0;Margin-left: 0;Margin:0 auto">
+                                <th colspan="999" class="pt-20 pb-20 head-border"
+                                    style="Margin-right: 0;Margin-left: 0;Margin:0 auto;padding-left:40px;padding-right:40px">
+                                    <img width="164" height="30" id="logo"
+                                         style="Margin-right: 0;Margin-left: 0;Margin:0 auto"
+                                         src="{{config('app.base_url')}}img/Logo-Test-Correct-wit.png"
+                                         alt="Test-Correct"/>
+                                </td>
+                            </tr>
+                            <tr width="100%">
+                                <td width="600px" style="width:600px;padding-left: 40px;padding-right: 40px;padding-bottom: 40px">
+                                    <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">Je
+                                        collega {{$inviter}} nodigt je uit voor Test-Correct</h5>
+                                    <table width="600px">
+                                        <tr>
+                                            <td style="width: 100%; color: #ffffff">Samen met je collega's kun je:</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <table>
+                                                    <tr style="margin-bottom: 8px">
+                                                        <td style="width: 21px">
+                                                            <img width="16"
+                                                                 src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
+                                                                 alt=""/>
+                                                        </td>
+                                                        <td style="color: #ffffff">
                                                     <span style="margin-bottom: 8px">Overleggen over de voortgang van jouw studenten en ervaringen
                                                     delen.</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <img width="16"
-                                                         src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
-                                                         alt=""/>
-                                                </td>
-                                                <td style="color: #ffffff"><span>Gebruikmaken van elkaars toetsen en toetsvragen.</span>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </td>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <img width="16"
+                                                                 src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
+                                                                 alt=""/>
+                                                        </td>
+                                                        <td style="color: #ffffff"><span>Gebruikmaken van elkaars toetsen en toetsvragen.</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            </thead>
+        </table>
+    <table border="0" width="720px" cellpadding="0" cellspacing="0" bgcolor="#e1e4e9"
+           style="width: 720px;Margin-left: auto;Margin-right: auto;Margin: 0px auto;border-bottom-left-radius:5px;border-bottom-right-radius: 5px;background-color:#e1e4e9;padding-bottom:40px">
+        <tbody id="content" class="body2" bgcolor="#e1e4e9" style="width:720px;background-color:#e1e4e9">
+        <tr bgcolor="#e1e4e9"
+            style="border-collapse:collapse; border-radius:4px;border-color: white; border-style: solid; border-width: 1px;background-color:#e1e4e9">
+            <td bgcolor="#e1e4e9" colspan="999" class="p-40 border-l-r" style="color: #041F74;
+            border: 1px solid var(--blue-grey);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            border-top: 0px;
+            background-color: #ffffff;">
+                <p style="color: #041F74;font-size: 16px;Margin-bottom: 20px">{{ $inviteText }}</p>
+                <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td>
+                            <table border="0" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td bgcolor="#3DBB56" style="padding: 12px 18px 12px 18px; border-radius:5px"
+                                        align="center"><a
+                                                href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}"
+                                                target="_blank"
+                                                style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">Maak
+                                            jouw account aan</a></td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
                 </table>
-            </div>
-        </td>
-    </tr>
-    </thead>
-</table>
-<table border="0" width="720px" cellpadding="0" cellspacing="0" style="width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto; border-bottom-left-radius: 5px;border-bottom-right-radius: 5px;">
-    <tbody id="content" class="body2" style="width:720px">
-    <tr style="border-collapse:collapse; border-radius:4px;border-color: white; border-style: solid; border-width: 1px; background-color:#ffffff;">
-        <td colspan="999" class="p-40 border-l-r" style="color: #041F74;
-border: 1px solid var(--blue-grey);
-            border-bottom-left-radius: 10px;
-            border-bottom-right-radius: 10px;
-            border-top: 0px;">
-            <p style="color: #041F74;font-size: 16px;Margin-bottom: 20px">{{ $inviteText }}</p>
-            <div><!--[if mso]>
-                  <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}" style="height:40px;v-text-anchor:middle;width:200px;Margin-top: 10px;" arcsize="10%" stroke="f" fillcolor="#3DBB56">
-                    <w:anchorlock/>
-                    <center>
-                  <![endif]-->
-                <a href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}"
-                   style="background-color:#3DBB56;border-radius:4px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:13px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:200px;-webkit-text-size-adjust:none;Margin-top: 10px;">Maak
-                    jouw gratis account</a>
-                <!--[if mso]>
-                </center>
-                </v:roundrect>
-                <![endif]-->
-            </div>
-        </td>
-    </tr>
-    </tbody>
-</table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 </body>
 </html>
 
