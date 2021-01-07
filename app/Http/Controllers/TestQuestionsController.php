@@ -161,7 +161,13 @@ class TestQuestionsController extends Controller {
             $testQuestion->fill($request->all());
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+            if (    $question->isDirty() 
+                    || $questionInstance->isDirty() 
+                    || $questionInstance->isDirtyAttainments() 
+                    || $questionInstance->isDirtyTags()
+                    || $questionInstance->isDirtyAnswerOptions($request->all()) 
+                    || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
+            {
                 if ($question->isUsed($testQuestion)) {
                     $question = $question->duplicate($request->all());
                     if ($question === false) {
@@ -201,7 +207,6 @@ class TestQuestionsController extends Controller {
     {
         // Fill and check if question is modified
         $question = $testQuestion->question;
-
         DB::beginTransaction();
         try {
             $qHelper = new QuestionHelper();
