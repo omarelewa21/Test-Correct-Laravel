@@ -40,7 +40,7 @@ class TeachersImportRequest extends Request
 
         return [
 //		    'data.*' => 'distinct',
-             'data.*.username' => ['required', 'email:rfc,filter', function ($attribute, $value, $fail) {
+             'data.*.username' => ['required', 'email:rfc,filter,dns', function ($attribute, $value, $fail) {
 
                     if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
  
