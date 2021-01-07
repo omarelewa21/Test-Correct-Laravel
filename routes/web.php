@@ -25,6 +25,4 @@ if (App::environment('local')) {
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\UsersController@confirmEmail');
 Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortcodeController@registerClickAndRedirect');
-Route::get('/', function() {
-   return redirect(route('onboarding.welcome'));
-});
+Route::get('/', tcCore\Http\Livewire\Onboarding::class));
