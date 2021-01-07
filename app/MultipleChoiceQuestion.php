@@ -178,13 +178,13 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
             if (!$qAL->delete()) {
                 throw new QuestionException('Failed to delete multiple choice question answer link', 422);
             }
-            // if ($qAL->multipleChoiceQuestionAnswer->isUsed($qAL)) {
-            //     // all okay, this one should be kept
-            // } else {
-            //     if (!$qAL->multipleChoiceQuestionAnswer->delete()) {
-            //         throw new QuestionException('Failed to delete multiple choice question answer', 422);
-            //     }
-            // }
+            if ($qAL->multipleChoiceQuestionAnswer->isUsed($qAL)) {
+                // all okay, this one should be kept
+            } else {
+                if (!$qAL->multipleChoiceQuestionAnswer->delete()) {
+                    throw new QuestionException('Failed to delete multiple choice question answer', 422);
+                }
+            }
         });
         return true;
     }
