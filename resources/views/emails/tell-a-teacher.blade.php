@@ -54,6 +54,7 @@
             --cta-primary: #3DBB56;
             --cta-primary-mid-dark: #27973D;
             --cta-primary-dark: #006314;
+            --bg: #e1e4e9;
         }
 
         table {
@@ -134,10 +135,10 @@
     </style>
 </head>
 <body>
-<div class="pt-40" leftMargin="0" topMargin="0" Marginwidth="0" Marginheight="0" bgcolor="#F9FAFF"
-     style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;Margin:0 auto; background-color:#F9FAFF">
+<div class="pt-40" leftMargin="0" topMargin="0" Marginwidth="0" Marginheight="0" bgcolor="#e1e4e9"
+     style="word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space;Margin:0 auto; background-color:#e1e4e9">
     <div>
-        <table id="wrapper" border="0" width="720px" cellpadding="0" cellspacing="0" bgcolor="#F9FAFF"
+        <table id="wrapper" border="0" width="720px" cellpadding="0" cellspacing="0" bgcolor="#e1e4e9"
                style="width: 720px; Margin-left: auto; Margin-right: auto; Margin: 0px auto;border-top-left-radius: 5px;border-top-right-radius: 5px;">
             <thead id="header"
                    style="background-color: #004df5;padding-top: 40px;padding-left: 40px;padding-right: 40px;padding-bottom:40px;">
@@ -148,18 +149,18 @@
                         <table style="width: 100%; color: #ffffff">
                             <tr style="Margin-right: 0;Margin-left: 0;Margin:0 auto">
                                 <th colspan="999" class="pt-20 pb-20 head-border"
-                                    style="Margin-right: 0;Margin-left: 0;Margin:0 auto">
+                                    style="Margin-right: 0;Margin-left: 0;Margin:0 auto;padding-left:40px;padding-right:40px">
                                     <img width="164" height="30" id="logo"
                                          style="Margin-right: 0;Margin-left: 0;Margin:0 auto"
                                          src="{{config('app.base_url')}}img/Logo-Test-Correct-wit.png"
                                          alt="Test-Correct"/>
                                 </td>
                             </tr>
-                            <tr>
-                                <td style="padding-left: 40px;padding-right: 40px;padding-bottom: 40px">
+                            <tr width="100%">
+                                <td width="600px" style="width:600px;padding-left: 40px;padding-right: 40px;padding-bottom: 40px">
                                     <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">Je
                                         collega {{$inviter}} nodigt je uit voor Test-Correct</h5>
-                                    <table>
+                                    <table width="600px">
                                         <tr>
                                             <td style="width: 100%; color: #ffffff">Samen met je collega's kun je:</td>
                                         </tr>
@@ -172,7 +173,7 @@
                                                                  src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
                                                                  alt=""/>
                                                         </td>
-                                                        <td style="width: 280px; color: #ffffff">
+                                                        <td style="color: #ffffff">
                                                     <span style="margin-bottom: 8px">Overleggen over de voortgang van jouw studenten en ervaringen
                                                     delen.</span>
                                                         </td>
@@ -198,12 +199,12 @@
             </tr>
             </thead>
         </table>
-    <table border="0" width="720px" cellpadding="0" cellspacing="0" bgcolor="#F9FAFF"
-           style="width: 720px;Margin-left: auto;Margin-right: auto;Margin: 0px auto;border-bottom-left-radius:5px;border-bottom-right-radius: 5px;background-color:#F9FAFF;padding-bottom:40px">
-        <tbody id="content" class="body2" bgcolor="#F9FAFF" style="width:720px;background-color:#F9FAFF">
-        <tr bgcolor="#F9FAFF"
-            style="border-collapse:collapse; border-radius:4px;border-color: white; border-style: solid; border-width: 1px;background-color:#F9FAFF">
-            <td bgcolor="#F9FAFF" colspan="999" class="p-40 border-l-r" style="color: #041F74;
+    <table border="0" width="720px" cellpadding="0" cellspacing="0" bgcolor="#e1e4e9"
+           style="width: 720px;Margin-left: auto;Margin-right: auto;Margin: 0px auto;border-bottom-left-radius:5px;border-bottom-right-radius: 5px;background-color:#e1e4e9;padding-bottom:40px">
+        <tbody id="content" class="body2" bgcolor="#e1e4e9" style="width:720px;background-color:#e1e4e9">
+        <tr bgcolor="#e1e4e9"
+            style="border-collapse:collapse; border-radius:4px;border-color: white; border-style: solid; border-width: 1px;background-color:#e1e4e9">
+            <td bgcolor="#e1e4e9" colspan="999" class="p-40 border-l-r" style="color: #041F74;
             border: 1px solid var(--blue-grey);
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
@@ -220,7 +221,7 @@
                                                 href="{{ config('app.base_url')}}inv/{{$shortcode}}?email={{$receivingEmailAddress}}"
                                                 target="_blank"
                                                 style="font-size: 16px; font-family: Helvetica, Arial, sans-serif; font-weight: normal; color: #ffffff; text-decoration: none; display: inline-block;">Maak
-                                            jouw account aan &rarr;</a></td>
+                                            jouw account aan</a></td>
                                 </tr>
                             </table>
                         </td>

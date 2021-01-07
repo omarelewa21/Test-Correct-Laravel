@@ -101,7 +101,7 @@ class CreateTellATeacherRequest extends Request
                         }
                         return $emailAddress;
                     })->implode(';');
-                $pattern = 'De e-mailadressen %s zijn niet valide.';
+                $pattern = 'Uit de volgende e-mailadressen zijn de onderstreepte niet valide: %s .';
 
                 if (count($this->email_addresses) == 1) {
                     $pattern = 'Het e-mailadres %s is niet valide.';
