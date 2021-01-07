@@ -61,9 +61,8 @@ class SchoolClassesStudentImportRequest extends Request
             }],
             'data.*.name_first' => 'required',
             'data.*.name' => 'required',
-            'data.*.name_suffix' => 'sometimes',
-            'data.*.gender' => 'sometimes',
-            'data.*.school_class_name' => 'sometimes'      
+            'data.*.name_suffix' => '',
+            'data.*.gender' => '',
         ]);
 
         if ($extra_rule === []) {
