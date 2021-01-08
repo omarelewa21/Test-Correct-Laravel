@@ -26,22 +26,27 @@ use tcCore\Http\Requests\CreateTeacherRequest;
 use tcCore\Http\Requests\UpdateTeacherRequest;
 use tcCore\UmbrellaOrganization;
 
-class FileManagementController extends Controller {
+class FileManagementController extends Controller
+{
 
-    protected function getBasePath() {
+    protected function getBasePath()
+    {
         return storage_path('app/files');
     }
 
-    public function getStatuses() {
+    public function getStatuses()
+    {
         return Response(FileManagementStatus::all(), 200);
     }
 
-    protected function sendInvite(FileManagement $fileManagement) {
+    protected function sendInvite(FileManagement $fileManagement)
+    {
         Queue::push(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
 //        dispatch_now(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
     }
 
-    public function update(UpdateFileManagementRequest $request, FileManagement $fileManagement) {
+    public function update(UpdateFileManagementRequest $request, FileManagement $fileManagement)
+    {
         $fileManagement->fill($request->validated());
         $typeDetails = $fileManagement->typedetails;
         $originalEmail = property_exists($typeDetails, 'invite') ? $typeDetails->invite : '';
@@ -66,130 +71,40 @@ class FileManagementController extends Controller {
      * @param file
      * @return Response
      */
-    public function download(Requests\DownloadFileManagementRequest $request, FileManagement $fileManagement) {
+    public function download(Requests\DownloadFileManagementRequest $request, FileManagement $fileManagement)
+    {
         return Response::download(sprintf('%s/%s/%s', $this->getBasePath(), $fileManagement->schoolLocation->getKey(), $fileManagement->name));
     }
 
-    public function storeTestUpload(CreateTestUploadRequest $request, SchoolLocation $schoolLocation) {
+    public function storeTestUpload(CreateTestUploadRequest $request, SchoolLocation $schoolLocation)
+    {
 
         $form_id = $request['form_id'];
 
-        logger($request->isForm());
+        DB::beginTransaction();
+        try {
+            if ($request->isForm()) {
 
-        if ($request->isForm()) {
+                $result = $this->handleFormSubmission($schoolLocation, $request, $form_id);
 
-            DB::beginTransaction();
+            } else {
 
-            $data = [
-                'id' => Str::uuid(),
-                'origname' => '',
-                'name' => '',
-                'user_id' => Auth::user()->getKey(),
-                'school_location_id' => $schoolLocation->getKey(),
-                'type' => 'testupload',
-                'typedetails' => [// request data?
-                    'test_kind_id' => $request->get('test_kind_id'),
-                    'education_level_year' => $request->get('education_level_year'),
-                    'education_level_id' => $request->get('education_level_id'),
-                    'subject' => $request->get('subject'),
-                    'name' => $request->get('name'),
-                    'correctiemodel' => $request->get('correctiemodel'),
-                    'multiple' => $request->get('multiple'),
-                    'form_id' => $request->get('form_id')
-                ],
-            ];
+                $result = $this->handleFileUpload($request, $schoolLocation, $form_id);
 
-            try {
-
-                $main = new FileManagement();
-
-                $main->fill($data);
-
-                $main->save();
-
-                $parent_id = $main->getKey();
-
-                FileManagement::where('parent_id', $form_id)->update(['parent_id' => $parent_id, 'typedetails' => $data['typedetails']]);
-
-                $stored_files = FileManagement::where('parent_id', $parent_id)->get();
-
-                $storage_path = sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey());
-
-                // add subject to filename
-
-                foreach ($stored_files as $file) {
-
-                    $new_name = sprintf('%s-%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($request->get('name')), $request->get('subject'), pathinfo($file->origname, PATHINFO_EXTENSION));
-
-                    rename($storage_path . '/' . $file->name, $storage_path . '/' . $new_name);
-
-                    FileManagement::where('name', $file->name)->update(['name' => $new_name]);
-                }
-            } catch (\Exception $e) {
-
-                DB::rollback();
-                logger('===== error ' . $e->getMessage());
-                Response::make('Het is helaas niet gelukt om de formulier gegevens te verwerken, probeer het nogmaals.', 500);
             }
+        } catch (\Exception $e) {
 
-            DB::commit();
-            
-            Response::make($main, 200);
-            
-        } else {
+            DB::rollback();
+            $errorMsg = 'Het is helaas niet gelukt om de formulier gegevens te verwerken, probeer het nogmaals.';
+            Response::make($errorMsg, 500);
 
-
-            // there is only one file at a time
-            $file = $request->file('files')[0];
-
-            // file data is temporary placeholder
-
-            $data = [
-                'id' => Str::uuid(),
-                'origname' => '',
-                'name' => '',
-                'user_id' => Auth::user()->getKey(),
-                'school_location_id' => $schoolLocation->getKey(),
-                'type' => 'testupload',
-                'typedetails' => []
-            ];
-
-            DB::beginTransaction();
-
-            try {
-
-                $child = new FileManagement();
-
-                $data['id'] = Str::uuid();
-
-                $data['parent_id'] = $form_id;
-
-                $origfileName = $file->getClientOriginalName();
-
-                $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($request->get('name')), pathinfo($origfileName, PATHINFO_EXTENSION));
-
-                $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
-
-                $data['origname'] = $origfileName;
-                $data['name'] = $fileName;
-
-                $child->fill($data);
-
-                $child->save();
-                
-            } catch (\Exception $e) {
-
-                DB::rollback();
-                logger('===== error ' . $e->getMessage());
-                Response::make('Het is helaas niet gelukt om de upload te verwerken, probeer het nogmaals.', 500);
-            }
-
-            DB::commit();
-            Response::make($child, 200);
         }
+        DB::commit();
+        return Response::make($result, 200);
     }
 
-    public function storeClassUpload(CreateClassUploadRequest $request, SchoolLocation $schoolLocation) {
+    public function storeClassUpload(CreateClassUploadRequest $request, SchoolLocation $schoolLocation)
+    {
 
         $file = $request->file('file');
 
@@ -202,18 +117,18 @@ class FileManagementController extends Controller {
         $fileManagement = new FileManagement();
 
         $data = [
-            'id' => Str::uuid(),
-            'origname' => $origfileName,
-            'name' => $fileName,
-            'user_id' => Auth::user()->getKey(),
+            'id'                 => Str::uuid(),
+            'origname'           => $origfileName,
+            'name'               => $fileName,
+            'user_id'            => Auth::user()->getKey(),
             'school_location_id' => $schoolLocation->getKey(),
-            'type' => 'classupload',
-            'typedetails' => [
-                'class' => $request->get('class'),
+            'type'               => 'classupload',
+            'typedetails'        => [
+                'class'                => $request->get('class'),
                 'education_level_year' => $request->get('education_level_year'),
-                'education_level_id' => $request->get('education_level_id'),
+                'education_level_id'   => $request->get('education_level_id'),
                 'is_main_school_class' => $request->get('is_main_school_class'),
-                'subject' => $request->get('subject'),
+                'subject'              => $request->get('subject'),
             ],
         ];
 
@@ -231,18 +146,19 @@ class FileManagementController extends Controller {
      *
      * @return Response
      */
-    public function index(Requests\IndexFileManagementRequest $request) {
+    public function index(Requests\IndexFileManagementRequest $request)
+    {
 
         $files = FileManagement::whereNull('parent_id')
-                ->orderby('file_management_status_id')
-                ->with(['user', 'handler', 'status', 'status.parent']);
+            ->orderby('file_management_status_id')
+            ->with(['user', 'handler', 'status', 'status.parent']);
 
         $user = Auth::user();
 
         if ($user->hasRole('Teacher')) {
             $files->where(function ($query) use ($user) {
                 $query->where('user_id', $user->getKey())
-                        ->orWhere('handledby', $user->getKey());
+                    ->orWhere('handledby', $user->getKey());
             });
             if ($user->isToetsenbakker()) {
                 $files->where('archived', false);
@@ -253,7 +169,7 @@ class FileManagementController extends Controller {
             }
         } else if ($user->hasRole('Account manager')) {
             $files->whereIn('school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user))
-                    ->with(['schoolLocation']);
+                ->with(['schoolLocation']);
             // we want to order by filemanagementstatus displayorder, but as it has the same fieldnames as file_managements table
             // we can't use a join. Therefor we first get all the statusIds in the correct order and then order by them
             $statusIds = FileManagementStatus::orderBy('displayorder')->pluck('id')->toArray();
@@ -282,7 +198,8 @@ class FileManagementController extends Controller {
      * Display the specified file.
      * @return
      */
-    public function show(ShowFileManagementRequest $request, FileManagement $fileManagement) {
+    public function show(ShowFileManagementRequest $request, FileManagement $fileManagement)
+    {
         $fileManagement->load(['user', 'handler', 'status', 'children', 'schoolLocation']);
 
         $user = Auth::user();
@@ -296,6 +213,106 @@ class FileManagementController extends Controller {
 
 
         return Response::make($fileManagement, 200);
+    }
+
+    /**
+     * @param SchoolLocation $schoolLocation
+     * @param CreateTestUploadRequest $request
+     * @param $form_id
+     * @return FileManagement
+     */
+    private function handleFormSubmission(SchoolLocation $schoolLocation, CreateTestUploadRequest $request, $form_id): FileManagement
+    {
+        $data = [
+            'id'                 => Str::uuid(),
+            'origname'           => '',
+            'name'               => '',
+            'user_id'            => Auth::user()->getKey(),
+            'school_location_id' => $schoolLocation->getKey(),
+            'type'               => 'testupload',
+            'typedetails'        => [// request data?
+                'test_kind_id'         => $request->get('test_kind_id'),
+                'education_level_year' => $request->get('education_level_year'),
+                'education_level_id'   => $request->get('education_level_id'),
+                'subject'              => $request->get('subject'),
+                'name'                 => $request->get('name'),
+                'correctiemodel'       => $request->get('correctiemodel'),
+                'multiple'             => $request->get('multiple'),
+                'form_id'              => $request->get('form_id')
+            ],
+        ];
+
+        $main = new FileManagement();
+
+        $main->fill($data);
+
+        $main->save();
+
+        $parent_id = $main->getKey();
+
+        FileManagement::where('parent_id', $form_id)->update(['parent_id' => $parent_id, 'typedetails' => $data['typedetails']]);
+
+        $stored_files = FileManagement::where('parent_id', $parent_id)->get();
+
+        $storage_path = sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey());
+
+        // add subject to filename
+
+        foreach ($stored_files as $file) {
+
+            $new_name = sprintf('%s-%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($request->get('name')), $request->get('subject'), pathinfo($file->origname, PATHINFO_EXTENSION));
+
+            rename($storage_path . '/' . $file->name, $storage_path . '/' . $new_name);
+
+            FileManagement::where('name', $file->name)->update(['name' => $new_name]);
+        }
+        return $main;
+    }
+
+    /**
+     * @param CreateTestUploadRequest $request
+     * @param SchoolLocation $schoolLocation
+     * @param $form_id
+     * @return FileManagement
+     */
+    private function handleFileUpload(CreateTestUploadRequest $request, SchoolLocation $schoolLocation, $form_id): FileManagement
+    {
+        // there is only one file at a time
+        $file = $request->file('files')[0];
+
+        // file data is temporary placeholder
+
+        $data = [
+            'id'                 => Str::uuid(),
+            'origname'           => '',
+            'name'               => '',
+            'user_id'            => Auth::user()->getKey(),
+            'school_location_id' => $schoolLocation->getKey(),
+            'type'               => 'testupload',
+            'typedetails'        => []
+        ];
+
+
+        $child = new FileManagement();
+
+        $data['id'] = Str::uuid();
+
+        $data['parent_id'] = $form_id;
+
+        $origfileName = $file->getClientOriginalName();
+        $nameOnly = explode('.', $origfileName)[0];
+
+        $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5), $nameOnly, pathinfo($origfileName, PATHINFO_EXTENSION));
+
+        $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
+
+        $data['origname'] = $origfileName;
+        $data['name'] = $fileName;
+
+        $child->fill($data);
+
+        $child->save();
+        return $child;
     }
 
 }
