@@ -16,11 +16,6 @@ use tcCore\User;
 | contains the "web" middleware group. Now create something great!
 |
 */
-if (App::environment('local')) {
-    Route::get('/testmail', function () {
-        return (new \tcCore\Jobs\SendTellATeacherMail(User::where('id', 1486)->first(), 'Hallo allemaal', 'roan@sobit.nl', 1234))->render();
-    });
-}
 
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\UsersController@confirmEmail');
