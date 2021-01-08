@@ -241,7 +241,7 @@ class GroupQuestionQuestionsController extends Controller
                         || $questionInstance->isDirty() 
                         || $questionInstance->isDirtyAttainments() 
                         || $questionInstance->isDirtyTags()
-                        || $questionInstance->isDirtyAnswerOptions($totalData)
+                        || $questionInstance->isDirtyAnswerOptions($request->all())
                         || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) 
             {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
@@ -267,7 +267,7 @@ class GroupQuestionQuestionsController extends Controller
                     || $questionInstance->isDirty() 
                     || $questionInstance->isDirtyAttainments() 
                     || $questionInstance->isDirtyTags()
-                    || $questionInstance->isDirtyAnswerOptions($totalData)
+                    || $questionInstance->isDirtyAnswerOptions($request->all())
                     || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
             {
                 if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
