@@ -236,8 +236,14 @@ class GroupQuestionQuestionsController extends Controller
             // MF 10-8-2020 if ($groupQuestionQuestionManager->isUsed()) { zou voldoende moeten zijn volgens mij om de vraaggroep te dupliceren.
             // De rest van de statements is altijd false als je hier komt. ;
             if (
-                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) ||
-                ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
+                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) 
+                ||(     $question->isDirty() 
+                        || $questionInstance->isDirty() 
+                        || $questionInstance->isDirtyAttainments() 
+                        || $questionInstance->isDirtyTags()
+                        || $questionInstance->isDirtyAnswerOptions($request->all())
+                        || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) 
+            {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
                 $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
                 $groupQuestionQuestion = $groupQuestionQuestion->duplicate(
@@ -257,7 +263,13 @@ class GroupQuestionQuestionsController extends Controller
             }
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+            if (    $question->isDirty() 
+                    || $questionInstance->isDirty() 
+                    || $questionInstance->isDirtyAttainments() 
+                    || $questionInstance->isDirtyTags()
+                    || $questionInstance->isDirtyAnswerOptions($request->all())
+                    || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
+            {
                 if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
                     $question = $question->duplicate($request->all());
                     if ($question === false) {
@@ -334,11 +346,12 @@ class GroupQuestionQuestionsController extends Controller
                     || $question->isUsed($groupQuestionQuestion)
                 )
                 &&
-                ($completionAnswerDirty
+                (   $completionAnswerDirty
                     || $question->isDirty()
                     || $questionInstance->isDirty()
                     || $questionInstance->isDirtyAttainments()
                     || $questionInstance->isDirtyTags()
+                    || $questionInstance->isDirtyAnswerOptions($totalData)
                     || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
                 $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
@@ -360,19 +373,26 @@ class GroupQuestionQuestionsController extends Controller
             }
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if ($completionAnswerDirty || $question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
-                if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
-                    //$question = $question->duplicate($request->all());
-                    $question = $question->duplicate($totalData);
+            if (    $completionAnswerDirty 
+                    || $question->isDirty() 
+                    || $questionInstance->isDirty() 
+                    || $questionInstance->isDirtyAttainments() 
+                    || $questionInstance->isDirtyTags()
+                    || $questionInstance->isDirtyAnswerOptions($totalData)
+                    || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
+            {
+                        if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
+                                //$question = $question->duplicate($request->all());
+                                $question = $question->duplicate($totalData);
 
-                    if ($question === false) {
-                        throw new QuestionException('Failed to duplicate question', 422);
-                    }
+                                if ($question === false) {
+                                    throw new QuestionException('Failed to duplicate question', 422);
+                                }
 
-                    $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
-                } elseif (!$questionInstance->save() || !$question->save()) {
-                    throw new QuestionException('Failed to save question', 422);
-                }
+                            $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
+                        } elseif (!$questionInstance->save() || !$question->save()) {
+                            throw new QuestionException('Failed to save question', 422);
+                        }
             }
             // return Response::make(var_dump( $groupQuestionQuestionManager->getQuestionLink()->getAttribute('question_id') ), 500);
 
