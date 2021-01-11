@@ -24,19 +24,6 @@ class MulipleChoiceQuestionTest extends TestCase
     private $originalQuestionId;
     private $copyTestId;
 
-    public function setUp(): void
-    {
-    	//$this->clearDB();
-    	parent::setUp();
-    }
-
-    public function tearDown(): void
-    {
-    	//$this->clearDB();
-    	
-    	parent::tearDown();
-    }
-
      /** @test */
      public function can_create_test_and_mc_question(){
         $attributes = $this->getAttributesForTest7();
@@ -48,6 +35,20 @@ class MulipleChoiceQuestionTest extends TestCase
         $this->assertTrue(count($questions)==1);
         $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
      }
+
+     /** @test */
+     public function can_create_test_and_mc_question_with_answers(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForQuestion7($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
+        $this->assertEquals(3, count($questions->first()->question->multipleChoiceQuestionAnswers));
+     }
+
 
      /** @test */
      public function can_edit_answers_mc_question(){
@@ -85,6 +86,19 @@ class MulipleChoiceQuestionTest extends TestCase
         unset($attributes['school_classes']);
         $this->createTLCTest($attributes);
         $attributes = $this->getAttributesForARQQuestion($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
+        $this->assertEquals(5, count($questions->first()->question->multipleChoiceQuestionAnswers));
+     }
+
+     /** @test */
+     public function can_create_test_and_mc_arq_question_with_answers_containing_zero_value(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForARQQuestionWithZeroAnswer($this->originalTestId);
         $this->createMultipleChoiceQuestion($attributes);
         $questions = Test::find($this->originalTestId)->testQuestions;
         $this->assertTrue(count($questions)==1);
@@ -223,6 +237,47 @@ class MulipleChoiceQuestionTest extends TestCase
                                     ],
                                     [
                                     "score"=> "50"
+                                    ]
+                                ],
+                    "tags"=> [
+                    ],
+                    "rtti"=> "R",
+                    "bloom"=> "Onthouden",
+                    "miller"=> "Weten",
+                    "test_id"=> $testId,
+                ];
+    }
+
+    private function getAttributesForARQQuestionWithZeroAnswer($testId){
+        return [    
+                    "type"=> "MultipleChoiceQuestion",
+                    "score"=> "150",
+                    "question"=> "<p>GM7</p> ",
+                    "order"=> 0,
+                    "maintain_position"=> "0",
+                    "discuss"=> "1",
+                    "subtype"=> "ARQ",
+                    "decimal_score"=> "0",
+                    "add_to_database"=> 1,
+                    "attainments"=> [
+                    ],
+                    "note_type"=> "NONE",
+                    "is_open_source_content"=> 1,
+                    "answers"=> [
+                                    [
+                                    "score"=> "10"
+                                    ],
+                                    [
+                                    "score"=> "20"
+                                    ],
+                                    [
+                                    "score"=> "30"
+                                    ],
+                                    [
+                                    "score"=> "40"
+                                    ],
+                                    [
+                                    "score"=> "0"
                                     ]
                                 ],
                     "tags"=> [

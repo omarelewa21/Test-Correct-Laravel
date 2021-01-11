@@ -40,6 +40,7 @@ trait MultipleChoiceQuestionTrait
             $return[] = [
                             "order"=> $i,
                             "answer"=> "",
+                            "score"=> "0",
                         ];
         }
         return $return;

@@ -233,6 +233,11 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
                 return false;
             }
         }
+        if(array_key_exists('answer', $answer)&&$this->subtype!='ARQ'){
+            if($answer['answer']==''&&$answer['score']=='0'){
+                return false;
+            }
+        }
         return true;
     }
 
