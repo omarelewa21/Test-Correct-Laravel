@@ -30,7 +30,7 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         //'auth' => 'tcCore\Http\Middleware\Authenticate',
         //'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
-        //'guest' => 'tcCore\Http\Middleware\RedirectIfAuthenticated',
+        'guest' => 'tcCore\Http\Middleware\RedirectIfAuthenticated',
         //'csrf' => 'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken',
         'bindings'       => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'api'            => 'tcCore\Http\Middleware\ApiKey',

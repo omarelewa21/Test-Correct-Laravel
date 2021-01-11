@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use tcCore\Http\Livewire\Auth\Login;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\User;
 
@@ -22,4 +23,11 @@ Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\U
 Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortcodeController@registerClickAndRedirect');
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
-Route::get('/login', Login::class)->name('auth.login');
+
+
+/**
+ * Authentication
+ */
+//Route::middleware('guest')->group(function () {
+//    Route::get('/login', Login::class)->name('auth.login');
+//});
