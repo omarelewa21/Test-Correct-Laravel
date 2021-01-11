@@ -1,0 +1,29 @@
+.header {
+    background: white;
+    padding-left: 120px;
+    padding-right: 120px;
+    height: 70px;
+}
+
+.menu .menu-item {
+    font-family: Nunito Bold;
+    font-size: 18px;
+}
+
+.menu .text-button.active {
+    border-bottom: 3px solid var(--system-base);
+}
+.menu .text-button.active:hover {
+    border-color: var(--primary);
+}
+.user .question {
+    background: var(--system-base);
+}
+.user .question:hover {
+    background: var(--primary);
+}
+
+.sub-menu {
+    height: 55px;
+    border-bottom: solid 1px var(--system-secondary);
+}
