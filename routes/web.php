@@ -23,11 +23,13 @@ Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\U
 Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortcodeController@registerClickAndRedirect');
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
-
+Route::middleware('auth')->group(function () {
+    Route::get('/index', tcCore\Http\Livewire\Dashboard::class)->name('dashboard');
+});
 
 /**
  * Authentication
  */
-//Route::middleware('guest')->group(function () {
-//    Route::get('/login', Login::class)->name('auth.login');
-//});
+Route::middleware('guest')->group(function () {
+    Route::get('/login', Login::class)->name('auth.login');
+});

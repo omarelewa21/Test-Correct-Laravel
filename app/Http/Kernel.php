@@ -28,7 +28,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        //'auth' => 'tcCore\Http\Middleware\Authenticate',
+        'auth' => 'tcCore\Http\Middleware\Authenticate',
         //'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
         'guest' => 'tcCore\Http\Middleware\RedirectIfAuthenticated',
         //'csrf' => 'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken',
