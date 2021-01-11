@@ -21,3 +21,5 @@ Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboard
 Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\UsersController@confirmEmail');
 Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortcodeController@registerClickAndRedirect');
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
+
+Route::get('/login', Login::class)->name('auth.login');
