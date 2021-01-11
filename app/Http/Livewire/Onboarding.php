@@ -142,7 +142,7 @@ class Onboarding extends Component
 
     public function render()
     {
-        return view('livewire.onboarding');
+        return view('livewire.onboarding')->layout('layouts.onboarding');
     }
 
     public function getMinCharRuleProperty()
