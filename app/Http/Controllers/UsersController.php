@@ -121,6 +121,8 @@ class UsersController extends Controller
                         'send_welcome_email' => 1,
                         'username'           => $user->username,
                         'abbreviation'       => $user->abbreviation,
+                        'invited_by'         => $user->invited_by,
+                        'account_verified'  => $user->account_verified,
                     ]
                 )
             );
