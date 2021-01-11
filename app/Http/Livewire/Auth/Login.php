@@ -19,7 +19,7 @@ class Login extends Component
         $credentials = $this->validate();
 
         return auth()->attempt($credentials)
-            ? redirect()->intended(route('dashboard'))
+            ? redirect()->intended(route('student.test-take'))
             : $this->addError('username', trans('auth.failed'));
     }
 

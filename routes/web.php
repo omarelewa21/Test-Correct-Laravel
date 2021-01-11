@@ -23,8 +23,8 @@ Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\U
 Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortcodeController@registerClickAndRedirect');
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
-Route::middleware('auth')->group(function () {
-    Route::get('/index', tcCore\Http\Livewire\Dashboard::class)->name('dashboard');
+Route::middleware('auth')->prefix('student')->name('student.')->group(function () {
+    Route::get('/test-take/{test_take}', tcCore\Http\Livewire\Student\TestTake::class)->name('test-take');
 });
 
 /**
