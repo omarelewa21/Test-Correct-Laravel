@@ -12,7 +12,7 @@
     @livewireStyles
     <link rel="stylesheet" href="/css/app.css">
 </head>
-<body class="antialiased font-sans bg-gray-200">
+<body class="flex flex-col min-h-screen">
 {{ $slot }}
 
 @livewireScripts

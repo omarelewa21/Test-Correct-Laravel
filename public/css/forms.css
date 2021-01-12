@@ -1,0 +1,17 @@
+.form-input {
+    padding: 0 10px 0 10px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--off-white);
+    border: 1px solid var(--blue-grey)
+}
+
+.form-input:hover {
+    border: 1px solid var(--primary);
+}
+
+.form-input:focus, .form-input:active {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    outline: none;
+}

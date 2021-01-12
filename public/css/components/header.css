@@ -3,6 +3,7 @@
     padding-left: 120px;
     padding-right: 120px;
     height: 70px;
+    box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
 }
 
 .menu .menu-item {
