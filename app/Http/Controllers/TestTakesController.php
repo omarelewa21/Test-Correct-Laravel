@@ -16,6 +16,7 @@ use tcCore\Http\Requests\NormalizeTestTakeRequest;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\SchoolClass;
+use tcCore\Shortcode;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\Http\Requests\CreateTestTakeRequest;
@@ -1259,6 +1260,16 @@ class TestTakesController extends Controller
     public function unArchive(TestTake $testTake)
     {
         return $testTake->unArchiveForUser(Auth::user());
+    }
+
+    public function withSortCode(TestTake $testTake) {
+        $response = new \stdClass;
+        $shortCode = Shortcode::create(['user_id' => Auth()->user()->id]);
+
+        $response->url = sprintf('%s/start-test-take-with-short-code/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->code);
+
+
+        return  response()->json($response);
     }
 
 

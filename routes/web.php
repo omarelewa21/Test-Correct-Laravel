@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use tcCore\Http\Controllers\ShortCodeController;
 use tcCore\Http\Livewire\Auth\Login;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\User;
@@ -31,5 +32,6 @@ Route::middleware('auth')->prefix('student')->name('student.')->group(function (
  * Authentication
  */
 Route::middleware('guest')->group(function () {
+    Route::get('/start-test-take-with-short-code/{test_take}/{short_code}', [ShortCodeController::class, 'loginAndRedirect'])->name('auth.login');
     Route::get('/login', Login::class)->name('auth.login');
 });

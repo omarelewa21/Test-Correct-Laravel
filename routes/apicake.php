@@ -125,6 +125,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('test_take/{test_take}/archive','TestTakesController@archive')->name('test_take.archive');
 	Route::put('test_take/{test_take}/un-archive','TestTakesController@unarchive')->name('test_take.un_archive');
 
+
+	Route::post('test_take/{test_take}/with_short_code', 'TestTakesController@withSortCode')->name('test_take.with_short_code');
+
 	// Test take children
 	Route::post('test_take/{test_take_id}/test_participant/{test_participant}/heartbeat', ['as' => 'test_take.test_participant.heartbeat', 'uses' => 'TestTakes\TestParticipantsController@heartbeat']);
 	Route::resource('test_take.test_participant', 'TestTakes\TestParticipantsController', ['except' => ['create', 'edit']]);
