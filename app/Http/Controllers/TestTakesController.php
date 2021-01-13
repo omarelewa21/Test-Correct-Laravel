@@ -1264,9 +1264,9 @@ class TestTakesController extends Controller
 
     public function withSortCode(TestTake $testTake) {
         $response = new \stdClass;
-        $shortCode = Shortcode::create(['user_id' => Auth()->user()->id]);
+        $shortCode = Shortcode::createForUser(Auth()->user());
 
-        $response->url = sprintf('%s/start-test-take-with-short-code/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->code);
+        $response->url = sprintf('%sstart-test-take-with-short-code/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->code);
 
 
         return  response()->json($response);

@@ -16,8 +16,9 @@ class ShortCodeController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function loginAndRedirect( TestTake $testTake, Shortcode $shortCode)
+	public function loginAndRedirect( TestTake $testTake, $shortcode)
 	{
+	    dd($shortcode);
 	    Auth::login($shortCode->user);
 	    Redirect(route('student.test-take', $testTake->uuid));
 		//
