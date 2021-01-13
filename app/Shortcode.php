@@ -51,13 +51,13 @@ class Shortcode extends BaseModel
         return sprintf('%s%s', config('shortcode.link'), $this->code);
     }
 
-    public static function isValid(User $user, $code)
+    public static function isValid($code)
     {
         $result = false;
-        $shortcode = self::whereUserIdAndCode($user->getKey(), $code)->first();
+        $shortcode = self::whereCode($code)->first();
 
         if ($shortcode && Carbon::now()->diffInSeconds($shortcode->created_at) < Shortcode::MAX_VALID_IN_SECONDS) {
-            $result = true;
+            $result = $shortcode->user;
         }
 
         return $result;

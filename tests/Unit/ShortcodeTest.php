@@ -74,7 +74,7 @@ class ShortcodeTest extends TestCase
     {
         $startCount = Shortcode::count();
         $codeOne = Shortcode::createForUser($user = User::first())->code;
-        $this->assertTrue(Shortcode::isValid($user, $codeOne));
+        $this->assertEquals($user, Shortcode::isValid($codeOne));
 
         $this->assertDatabaseMissing('shortcodes', [
             'code' => $codeOne
@@ -92,6 +92,6 @@ class ShortcodeTest extends TestCase
 
         Carbon::setTestNow(Carbon::now()->addSeconds($secondsInFuture));
 
-        $this->assertFalse(Shortcode::isValid($user, $codeOne));
+        $this->assertFalse(Shortcode::isValid($codeOne));
     }
 }

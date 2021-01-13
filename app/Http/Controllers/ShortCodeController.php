@@ -16,11 +16,18 @@ class ShortCodeController extends Controller {
 	 *
 	 * @return Response
 	 */
-	public function loginAndRedirect( TestTake $testTake, $shortcode)
+	public function loginAndRedirect(TestTake $testTake, $shortcode)
 	{
-	    dd($shortcode);
-	    Auth::login($shortCode->user);
-	    Redirect(route('student.test-take', $testTake->uuid));
+	    if ($user = ShortCode::isValid($shortcode)) {
+            Auth::login($user);
+            // check is a participant of the testTake?
+
+//            logger(route('student.test-take', $testTake->uuid) = route('student.test-take', $testTake->uuid));
+            return redirect(
+                route('student.test-take', $testTake->uuid)
+            );
+        }
+	    dd('not logged in');
 		//
 	}
 

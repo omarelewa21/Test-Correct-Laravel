@@ -1262,7 +1262,7 @@ class TestTakesController extends Controller
         return $testTake->unArchiveForUser(Auth::user());
     }
 
-    public function withSortCode(TestTake $testTake) {
+    public function withShortCode(TestTake $testTake) {
         $response = new \stdClass;
         $shortCode = Shortcode::createForUser(Auth()->user());
 

@@ -5,7 +5,7 @@
 <div class="question-indicator w-full">
     <div class="flex flex-wrap">
         @foreach($questions as $question)
-            <div class="question-number rounded-full text-center complete">
+            <div class="question-number rounded-full text-center complete" wire:click.prevent="setMainQuestion({{ $question->order }})">
                 <span class="align-middle">{{$question->order}}</span>
             </div>
         @endforeach
