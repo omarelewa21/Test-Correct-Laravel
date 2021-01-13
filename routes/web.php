@@ -26,6 +26,7 @@ Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
 Route::middleware('auth')->prefix('student')->name('student.')->group(function () {
     Route::get('/test-take/{test_take}', tcCore\Http\Livewire\Student\TestTake::class)->name('test-take');
+    Route::get('/test-take-stub/{test_take}', tcCore\Http\Livewire\Student\TestTake::class)->name('test-take-stub');
 });
 
 /**

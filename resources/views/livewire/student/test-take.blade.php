@@ -34,8 +34,10 @@ $mainQuestion = $this->content->getQuestionInstance();
     </div>
 
     <div class="bg-white rounded-10 p-8 sm:p-10 content-section">
-        <div class="question-title border-bottom mb-6">
-
+        <div class="question-title question-indicator border-bottom mb-6">
+            <div class="inline question-number rounded-full text-center complete">
+                <span class="align-middle">5</span>
+            </div>
             <h1 class="inline-block mr-6">{{ strip_tags($mainQuestion->question) }}</h1>
             <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
         </div>

@@ -36,7 +36,7 @@ class TestTake extends Component
 
     public function render()
     {
-        return view('livewire.student.test-take')->layout('layouts.app');
+        return view('livewire.student.test-take_stub')->layout('layouts.app');
     }
     public function showQuestionAndAnswer(TestParticipant $testParticipant, Answer $question_but_it_is_answer_uuid)
     {
