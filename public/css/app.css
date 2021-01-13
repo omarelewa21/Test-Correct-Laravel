@@ -6,227 +6,233 @@
 
 
 :root {
-  --cta-primary: #3DBB56;
-  --cta-primary-mid-dark: #27973D;
-  --cta-primary-dark: #006314;
-  --cta-secondary: #004DF5;
-  --primary: #004df5;
-  --secondary: #ECD900;
-  --highlight-primary: #ECD900;
-  --system-base: #041F74;
-  --system-secondary: #CEDAF3;
-  --mid-grey: #929DAF;
-  --light-grey: #F0F2F5;
-  --blue-grey: #C3D0ED;
-  --shadow-blue: #4D578F;
-  --off-white: #F9FAFF;
+    --cta-primary: #3DBB56;
+    --cta-primary-mid-dark: #27973D;
+    --cta-primary-dark: #006314;
+    --cta-secondary: #004DF5;
+    --primary: #004df5;
+    --secondary: #ECD900;
+    --highlight-primary: #ECD900;
+    --system-base: #041F74;
+    --system-secondary: #CEDAF3;
+    --mid-grey: #929DAF;
+    --light-grey: #F0F2F5;
+    --blue-grey: #C3D0ED;
+    --shadow-blue: #4D578F;
+    --off-white: #F9FAFF;
 }
 
 @font-face {
-  font-family: Nunito Bold;
-  src: url("../fonts/Nunito/Nunito-Bold.ttf");
+    font-family: Nunito Bold;
+    src: url("../fonts/Nunito/Nunito-Bold.ttf");
 }
 
 @font-face {
-  font-family: Nunito Regular;
-  src: url("../fonts/Nunito/Nunito-Regular.ttf");
+    font-family: Nunito Regular;
+    src: url("../fonts/Nunito/Nunito-Regular.ttf");
 }
 
 @font-face {
-  font-family: Zilla Slab Regular;
-  src: url("../fonts/Zilla_Slab/ZillaSlab-Regular.ttf");
+    font-family: Zilla Slab Regular;
+    src: url("../fonts/Zilla_Slab/ZillaSlab-Regular.ttf");
 }
 
 body {
-  font-family: Nunito Regular, sans-serif!important;
-  background: var(--light-grey)!important;
+    font-family: Nunito Regular, sans-serif !important;
+    background: var(--light-grey) !important;
+    color: var(--system-base);
 }
+
 svg {
-  display: inline-block;
+    display: inline-block;
 }
 
 .cta-primary {
-  color: var(--cta-primary);
+    color: var(--cta-primary);
 }
 
 .cta-primary-mid-dark {
-  color: var(--cta-primary-mid-dark);
+    color: var(--cta-primary-mid-dark);
 }
 
 .cta-primary-dark {
-  color: var(--cta-primary-dark);
+    color: var(--cta-primary-dark);
 }
 
 .cta-secondary {
-  color: var(--cta-secondary);
+    color: var(--cta-secondary);
 }
 
 .primary {
-  color: var(--primary);
+    color: var(--primary);
 }
 
 .secondary {
-  color: var(--secondary);
+    color: var(--secondary);
 }
 
 .highlight-primary {
-  color: var(--highlight-primary);
+    color: var(--highlight-primary);
 }
 
 .base {
-  color: var(--system-base);
+    color: var(--system-base);
 }
 
 .system-secondary {
-  color: var(--system-secondary);
+    color: var(--system-secondary);
 }
 
 .mid-grey {
-  color: var(--mid-grey);
+    color: var(--mid-grey);
 }
 
 .light-grey {
-  color: var(--light-grey);
+    color: var(--light-grey);
 }
 
 .blue-grey {
-  color: var(--blue-grey);
+    color: var(--blue-grey);
 }
 
 .shadow-blue {
-  color: var(--shadow-blue);
+    color: var(--shadow-blue);
 }
 
 .off-white {
-  color: var(--off-white);
+    color: var(--off-white);
 }
 
 .bg-cta-primary {
-  background: var(--cta-primary);
+    background: var(--cta-primary);
 }
 
 .bg-cta-secondary {
-  background: var(--cta-secondary);
+    background: var(--cta-secondary);
 }
 
 .bg-primary {
-  background: var(--primary);
+    background: var(--primary);
 }
 
 .bg-secondary {
-  background: var(--secondary);
+    background: var(--secondary);
 }
 
 .bg-highlight-primary {
-  background: var(--highlight-primary);
+    background: var(--highlight-primary);
 }
 
 .bg-system-base {
-  background: var(--system-base);
+    background: var(--system-base);
 }
 
 .bg-system-secondary {
-  background: var(--system-secondary);
+    background: var(--system-secondary);
 }
 
 .bg-mid-grey {
-  background: var(--mid-grey);
+    background: var(--mid-grey);
 }
 
 .bg-light-grey {
-  background: var(--light-grey);
+    background: var(--light-grey);
 }
 
 .bg-blue-grey {
-  background: var(--blue-grey);
+    background: var(--blue-grey);
 }
 
 .bg-shadow-blue {
-  background: var(--shadow-blue);
+    background: var(--shadow-blue);
 }
 
 .bg-off-white {
-  background: var(--off-white);
+    background: var(--off-white);
 }
 
 .rounded-10 {
-  border-radius: 10px;
+    border-radius: 10px;
 }
 
 h1 {
-  font-size: 2rem;
-  font-family: Nunito Bold;
-  line-height: 2rem;
-  color: var(--system-base);
+    font-size: 2rem;
+    font-family: Nunito Bold;
+    line-height: 2rem;
+    color: var(--system-base);
 }
 
 h2 {
-  font-size: 1.75rem;
-  font-family: Nunito Bold;
-  line-height: 1.75rem;
-  color: var(--system-base);
+    font-size: 1.75rem;
+    font-family: Nunito Bold;
+    line-height: 1.75rem;
+    color: var(--system-base);
 }
 
 h3 {
-  font-size: 1.5rem;
-  font-family: Zilla Slab Regular;
-  line-height: 1.5rem;
+    font-size: 1.5rem;
+    font-family: Zilla Slab Regular;
+    line-height: 1.5rem;
     color: var(--system-base);
 }
 
 h4 {
-  font-size: 1.5rem;
-  font-family: Nunito Bold;
-  line-height: 1.5rem;
+    font-size: 1.5rem;
+    font-family: Nunito Bold;
+    line-height: 1.5rem;
     color: var(--system-base);
 }
 
 h5 {
-  font-size: 1.25rem;
-  font-family: Nunito Bold;
-  line-height: 1.25rem;
+    font-size: 1.25rem;
+    font-family: Nunito Bold;
+    line-height: 1.25rem;
     color: var(--system-base);
 }
 
 h6 {
-  font-size: 1.125rem;
-  font-family: Nunito Bold;
-  line-height: 1.125rem;
+    font-size: 1.125rem;
+    font-family: Nunito Bold;
+    line-height: 1.125rem;
     color: var(--system-base);
 }
 
 .body1 {
-  font-size: 1.125rem;
-  line-height: 1.5rem;
-  font-family: Nunito Regular;
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+    font-family: Nunito Regular;
 }
 
 .body2 {
-  font-size: 1rem;
-  line-height: 1.5rem;
-  font-family: Nunito Regular;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-family: Nunito Regular;
 }
 
 .bold {
-  font-family: Nunito Bold;
-}
-.regular {
-  font-family: Nunito Regular;
+    font-family: Nunito Bold;
 }
 
-.font-size-16{
-  font-size: 1rem;
+.regular {
+    font-family: Nunito Regular;
 }
-.font-size-18{
-  font-size: 1.125rem;
+
+.font-size-16 {
+    font-size: 1rem;
 }
-.font-size-20{
-  font-size: 1.25rem;
+
+.font-size-18 {
+    font-size: 1.125rem;
+}
+
+.font-size-20 {
+    font-size: 1.25rem;
 }
 
 .rotate-svg-90 > svg {
-  transform: rotate(90deg);
+    transform: rotate(90deg);
 }
+
 .rotate-svg-180 > svg {
-  transform: rotate(180deg);
+    transform: rotate(180deg);
 }

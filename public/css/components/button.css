@@ -4,6 +4,7 @@
     font-family: Nunito Bold;
     padding: 0 20px 0 20px;
     align-items: center;
+    display: flex;
 }
 
 .button:focus {
@@ -24,7 +25,7 @@
 
 .text-button {
     color: var(--system-base);
-    font-weight: bold;
+    font-family: Nunito Bold;
 }
 
 .text-button:hover {

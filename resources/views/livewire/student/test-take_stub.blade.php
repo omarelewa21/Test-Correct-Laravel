@@ -3,64 +3,46 @@ $mainQuestion = $this->content->getQuestionInstance();
 ?>
 <div class="w-full">
     <div class="flex mb-12">
-        <div class="question-indicator w-full">
-            <div class="flex flex-wrap">
-                <div class="question-number rounded-full text-center complete">
-                    <span class="align-middle">1</span>
-                </div>
-                <div class="question-number rounded-full text-center complete">
-                    <span class="align-middle">2</span>
-                </div>
-                <div class="question-number rounded-full text-center active">
-                    <span class="align-middle">3</span>
-                </div>
-                <div class="question-number rounded-full text-center pending">
-                    <span class="align-middle">4</span>
-                </div>
-                <div class="question-number rounded-full text-center complete">
-                    <span class="align-middle">5</span>
-                </div>
+        <x-partials.question-indicator :questions="$testQuestions"></x-partials.question-indicator>
 
-                <section class="flex space-x-6 ml-auto min-w-max justify-end">
-                    <a href="#" class="text-button">
-                        <x-icon.audio/>
-                        <span class="ml-1.5">Lees voor</span></a>
-                    <a href="#" class="text-button">
-                        <x-icon.preview/>
-                        <span class="ml-1.5">Bekijk antwoorden</span></a>
-                </section>
-            </div>
-        </div>
     </div>
 
     <div class="bg-white rounded-10 p-8 sm:p-10 content-section">
-        <div class="question-title question-indicator border-bottom mb-6">
-            <div class="inline question-number rounded-full text-center complete">
+        <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
+            <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
                 <span class="align-middle">5</span>
             </div>
-            <h1 class="inline-block mr-6">{{ strip_tags($mainQuestion->question) }}</h1>
-            <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
+            <h1 class="inline-block ml-2 mr-6">{{ strip_tags($mainQuestion->question) }}</h1>
+            <h4 class="inline-blocke">{{$mainQuestion->score}}pt</h4>
         </div>
-        <div>
-            <div class="space-y-3">
-                <label for="cars">Choose a car:</label>
+        <div class="flex flex-wrap">
+            <x-input.group label="Input form" for="input">
+                <x-input.text type="text" id="input" name="input"></x-input.text>
+            </x-input.group>
 
-                <select class="form-input" name="cars" id="cars">
-                    <option value="volvo">Volvo</option>
-                    <option value="saab">Saab</option>
-                    <option value="mercedes">Mercedes</option>
-                    <option value="audi">Audi</option>
-                </select>
-            </div>
+            <x-input.group label="TextArea2" class="w-full" for="textarea2">
+                <x-input.textarea name="textarea" id="textarea2"></x-input.textarea>
+            </x-input.group>
+
+            <x-input.group label="" for="select">
+                <x-input.select name="select" placeholder="Selecteer">
+                    @foreach($this->content->multipleChoiceQuestionAnswers as $answers)
+                        <option value="answer-{{$answers->id}}">{{$answers->answer}}</option>
+                    @endforeach
+                </x-input.select>
+            </x-input.group>
+
+            <x-input.group label="MultipleChoice antwoorden" class="w-full" for="multiple">
+                @foreach($this->content->multipleChoiceQuestionAnswers as $answers)
+                    <div>
+                        <input type="checkbox" value="{{ $answers->id }}" wire:model="selected"
+                               wire:key="checkbox-{{ $answers->id}}">
+                        <span class="ml-3 text-sm body1 base">{{$answers->answer}}</span>
+                    </div>
+                @endforeach
+            </x-input.group>
         </div>
-        {{--            @foreach($this->content->multipleChoiceQuestionAnswers as $answers)--}}
-        {{--                <div>--}}
-        {{--                    <label class="inline-flex items-center">--}}
-        {{--                        <input type="checkbox" value="{{ $answers->id }}" class="checked:bg-red">--}}
-        {{--                        <span class="ml-3 text-sm body1 base">{{$answers->answer}}</span>--}}
-        {{--                    </label>--}}
-        {{--                </div>--}}
-        {{--            @endforeach--}}
+
     </div>
 </div>
 </div>

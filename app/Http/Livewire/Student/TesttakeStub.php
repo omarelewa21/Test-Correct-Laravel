@@ -13,25 +13,32 @@ use tcCore\Lib\Question\QuestionInterface;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\MultipleChoiceQuestionAnswer;
 use tcCore\TestParticipant;
+use tcCore\TestQuestion;
 use tcCore\TestTake as Test;
 
 
-class TestTake extends Component
+class TesttakeStub extends Component
 {
     public $testTake;
     public $question = 1;
     protected $queryString = ['question'];
     public $content;
+    public $selected = [];
+    public $testQuestions;
 
-    public function mount(Test $testTake)
+    public function mount(\tcCore\TestTake $testTake)
     {
         $this->testTake = $testTake;
+        $test = \tcCore\Test::find(79);
+
+        $testQuestions = TestQuestion::whereTestId($test->getKey())->get();
+        $this->testQuestions = $testQuestions;
 
         $content = $this->showQuestionAndAnswer(TestParticipant::where('user_id', Auth::id())->first(), Answer::where('id', 141)->first())->getOriginalContent();
 
+
         $this->content = collect($content);
         $this->content = $this->content['question'];
-//        dd($this->content['question']);
     }
 
     public function render()
