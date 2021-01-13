@@ -58,6 +58,7 @@ trait TestTrait
                 ['status'=>0]
             )
         );
+        dump($response->decodeResponseJson()['id']);
         $response->assertStatus(200);
         $testId = $response->decodeResponseJson()['id'];
         $this->copyTestId = $testId;
@@ -82,5 +83,36 @@ trait TestTrait
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
         $result = array_diff($originalQuestionArray, $copyQuestionArray);
         $this->assertTrue(count($result)==0);
+    }
+
+    private function originalAndCopyShareGroupQuestion($var = false){
+        if($var){
+            dump($var);
+        }
+        $testQuestions = Test::find($this->originalTestId)->testQuestions;
+        $originalQuestionArray = $this->extractQuestionIdsFromGroupQuestion($testQuestions);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $this->extractQuestionIdsFromGroupQuestion($copyQuestions);
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }
+
+    private function extractQuestionIdsFromGroupQuestion($testQuestions){
+        if(is_null($testQuestions)){
+            return [];
+        }
+        $groupTestQuestions = $testQuestions->filter(function ($testQuestion, $key) {
+                                                    return $testQuestion->question->type == 'GroupQuestion';
+                                                });
+        $groupQuestions = $groupTestQuestions->map(function ($groupTestQuestion, $key) {
+                                                return $groupTestQuestion->question;
+                                            });
+        $questionArray = [];
+        foreach ($groupQuestions as $key => $groupQuestion) {
+            foreach ($groupQuestion->groupQuestionQuestions as $key => $groupQuestionQuestion) {
+                $questionArray[] = $groupQuestionQuestion->question_id;
+            }
+        }
+        return $questionArray;
     }
 }

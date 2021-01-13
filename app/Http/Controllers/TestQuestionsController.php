@@ -248,15 +248,6 @@ class TestQuestionsController extends Controller {
                 || $questionInstance->isDirtyAnswerOptions($totalData) 
                 || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
             {
-                // dump('question isDirty:'.$question->isDirty());
-                // dump('questionInstance isDirty:'.$questionInstance->isDirty());
-                // dump('questionInstance isDirtyAttainments:'.$questionInstance->isDirtyAttainments());
-                // dump('questionInstance isDirtyTags:'.$questionInstance->isDirtyTags());
-                // dump('questionInstance isDirtyAnswerOptions:'.$questionInstance->isDirtyAnswerOptions($totalData));
-                // dump('question instanceof:'.$question instanceof DrawingQuestion);
-                // dump('question isDirtyFile:'.$question->isDirtyFile());
-                // dump('question getDirty:'.$question->getDirty());
-                dump($questionInstance->getDirty());
                 if ($question->isUsed($testQuestion)) {
                     
                     $question = $question->duplicate(array_merge($request->all(),$questionData));

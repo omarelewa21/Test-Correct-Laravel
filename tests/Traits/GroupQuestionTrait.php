@@ -11,6 +11,7 @@ namespace Tests\Traits;
 
 use Tests\Feature\CreateQuestionGroupWithinTestTest;
 
+
 trait GroupQuestionTrait
 {
 
@@ -38,5 +39,46 @@ trait GroupQuestionTrait
         $response->assertStatus(200);
 
         return $response->decodeResponseJson()['id'];
+    }
+
+    private function createGroupQuestion($attributes){
+        $response = $this->post(
+            'api-c/test_question',
+            static::getTeacherOneAuthRequestData(
+                $attributes
+            )
+        );
+        $response->assertStatus(200);
+        $testQuestionId = $response->decodeResponseJson()['id'];
+        $this->originalQuestionId = $testQuestionId;
+        $this->originalGroupQuestionId = $testQuestionId;
+        return $testQuestionId;
+    }
+
+    private function editGroupQuestion($uuid,$attributes){
+        $response = $this->put(
+            'api-c/test_question/'.$uuid,
+            static::getTeacherOneAuthRequestData(
+                $attributes
+            )
+        );
+        $response->assertStatus(200);
+    }
+
+
+    private function getAttributesForGroupQuestion($testId){
+        return [
+                    "name"=> "vraag groep van GM",
+                    "question"=> "",
+                    "order"=> 0,
+                    "shuffle"=> "0",
+                    "maintain_position"=> "0",
+                    "discuss"=> 0,
+                    "add_to_database"=> 1,
+                    "test_id"=> $testId,
+                    "type"=> "GroupQuestion",
+                    "attainments"=> [
+                    ]
+                ];
     }
 }
