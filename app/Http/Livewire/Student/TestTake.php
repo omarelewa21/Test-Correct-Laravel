@@ -23,15 +23,18 @@ class TestTake extends Component
     protected $queryString = ['question'];
     public $content;
 
-    public function mount(Test $testTake)
+    public function mount(Test $test_take)
     {
-        $this->testTake = $testTake;
+        $this->testTake = $test_take;
+        dd($this->testTake->test->testQuestions->question);
 
-        $content = $this->showQuestionAndAnswer(TestParticipant::where('user_id', Auth::id())->first(), Answer::where('id', 141)->first())->getOriginalContent();
-
-        $this->content = collect($content);
-        $this->content = $this->content['question'];
-//        dd($this->content['question']);
+//        $content = $this->showQuestionAndAnswer(
+//            TestParticipant::where('user_id', Auth::id())->first(), Answer::where('id', 141)->first()
+//        )->getOriginalContent();
+//
+//        $this->content = collect($content);
+//        $this->content = $this->content['question'];
+////        dd($this->content['question']);
     }
 
     public function render()

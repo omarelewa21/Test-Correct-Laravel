@@ -1,6 +1,4 @@
-<?php
-$mainQuestion = $this->content->getQuestionInstance();
-?>
+
 <div class="w-full">
     <div class="flex mb-12">
         <div class="question-indicator w-full">
