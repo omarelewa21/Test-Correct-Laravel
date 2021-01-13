@@ -10,7 +10,7 @@
             </div>
         @endforeach
 
-        <section class="flex space-x-6 ml-auto min-w-max justify-end">
+        <section class="flex space-x-6 ml-auto min-w-max justify-end items-center">
             <x-button.text-button href="#">
                 <x-icon.audio/>
                 <span>Lees voor</span>

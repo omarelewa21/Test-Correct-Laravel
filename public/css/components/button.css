@@ -35,6 +35,10 @@
 .text-button:focus {
     outline: none;
 }
+.text-button > span {
+    vertical-align: middle;
+}
+
 .cta-button {
     background: var(--cta-primary);
     background: linear-gradient(90deg, var(--cta-primary) 0%, var(--cta-primary) 100%);
