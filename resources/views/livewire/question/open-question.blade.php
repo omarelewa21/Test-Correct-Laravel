@@ -1,4 +1,5 @@
 <div>
+    Open
     {{ $question }}
 
 </div>

@@ -1,6 +1,6 @@
 <div class="w-full">
     <div class="flex mb-12">
-        <x-partials.question-indicator :questions="$testTake->test->testQuestions"></x-partials.question-indicator>
+        <x-partials.question-indicator :questions="$testQuestions"></x-partials.question-indicator>
     </div>
 
     <div class="bg-white rounded-10 p-8 sm:p-10 content-section">
@@ -12,7 +12,7 @@
             <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
         </div>
         <div>
-            <livewire:$component :question="$mainQuestion->question" :key="$mainQuestion->uuid"/>
+            @livewire($component, ['question'=>$mainQuestion->question], key($mainQuestion->uuid))
         </div>
     </div>
 </div>
