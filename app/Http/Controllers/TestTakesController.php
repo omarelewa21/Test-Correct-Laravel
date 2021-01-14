@@ -1160,7 +1160,7 @@ class TestTakesController extends Controller {
 
             $request['test_take_status_id'] = 6;
 
-            $this->update(TestTake $testTake, UpdateTestTakeRequest $request);
+            $this->update($testTake,$request);
             
         } else {
 
