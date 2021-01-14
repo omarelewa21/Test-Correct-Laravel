@@ -1,48 +1,43 @@
-<?php
-$mainQuestion = $this->content->getQuestionInstance();
-?>
 <div class="w-full">
-    <div class="flex mb-12">
-        <x-partials.question-indicator :questions="$testQuestions"></x-partials.question-indicator>
+    <div class="flex flex-col mb-12">
+        <x-partials.question-indicator :questions="$testTake->test->testQuestions"></x-partials.question-indicator>
 
+
+        <x-question-container :mainQuestion="$mainQuestion->question">
+
+            {{--            <livewire:question.open-question :question="$mainQuestion->question" :key="$mainQuestion->uuid"/>--}}
+
+        </x-question-container>
+        <div class="ml-auto mt-5 inline-flex">
+            <x-button.cta>Antwoord bewerken</x-button.cta>
+        </div>
     </div>
 
-    <div class="bg-white rounded-10 p-8 sm:p-10 content-section">
-        <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
-            <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-                <span class="align-middle">5</span>
-            </div>
-            <h1 class="inline-block ml-2 mr-6">{{ strip_tags($mainQuestion->question) }}</h1>
-            <h4 class="inline-blocke">{{$mainQuestion->score}}pt</h4>
-        </div>
-        <div class="flex flex-wrap">
-            <x-input.group label="Input form" for="input">
-                <x-input.text type="text" id="input" name="input"></x-input.text>
-            </x-input.group>
+    {{--    <x-modal.dialog wire:model="showModal" maxWidth="lg" id="modal">--}}
+    {{--        <x-slot name="title">--}}
+    {{--            <div class="title px-10 pt-6 pb-2.5">--}}
+    {{--                <h2>Let op! Vraaggroep sluit</h2>--}}
+    {{--            </div>--}}
 
-            <x-input.group label="TextArea2" class="w-full" for="textarea2">
-                <x-input.textarea name="textarea" id="textarea2"></x-input.textarea>
-            </x-input.group>
-
-            <x-input.group label="" for="select">
-                <x-input.select name="select" placeholder="Selecteer">
-                    @foreach($this->content->multipleChoiceQuestionAnswers as $answers)
-                        <option value="answer-{{$answers->id}}">{{$answers->answer}}</option>
-                    @endforeach
-                </x-input.select>
-            </x-input.group>
-
-            <x-input.group label="MultipleChoice antwoorden" class="w-full" for="multiple">
-                @foreach($this->content->multipleChoiceQuestionAnswers as $answers)
-                    <div>
-                        <input type="checkbox" value="{{ $answers->id }}" wire:model="selected"
-                               wire:key="checkbox-{{ $answers->id}}">
-                        <span class="ml-3 text-sm body1 base">{{$answers->answer}}</span>
-                    </div>
-                @endforeach
-            </x-input.group>
-        </div>
-
-    </div>
+    {{--            <div class="divider mx-7"></div>--}}
+    {{--        </x-slot>--}}
+    {{--        <x-slot name="content">--}}
+    {{--            <p class="body1">Door naar deze vraag te gaan, sluit je de groep vragen af waar je nu mee bezig bent. Je kan--}}
+    {{--                hierna niet meer terugkeren.</p>--}}
+    {{--        </x-slot>--}}
+    {{--        <x-slot name="footer">--}}
+    {{--            <div class="px-10 py-5 flex flex-wrap">--}}
+    {{--                <div class="inline-flex pt-6 items-center space-x-6 ml-auto">--}}
+    {{--                    <x-button.text-button rotateIcon="180">--}}
+    {{--                        <x-icon.chevron/>--}}
+    {{--                        <span>Terug</span>--}}
+    {{--                    </x-button.text-button>--}}
+    {{--                    <x-button.primary size="md"><span>Doorgaan</span>--}}
+    {{--                        <x-icon.arrow/>--}}
+    {{--                    </x-button.primary>--}}
+    {{--                </div>--}}
+    {{--            </div>--}}
+    {{--        </x-slot>--}}
+    {{--    </x-modal.dialog>--}}
 </div>
 </div>

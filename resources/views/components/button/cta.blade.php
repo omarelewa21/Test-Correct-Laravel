@@ -1,13 +1,14 @@
 @props([
+    'size' => 'sm',
     'rotateIcon' => false,
 ])
 <?php
-$rotateClass = '';
+    $rotateClass = '';
     if ($rotateIcon) {
         $rotateClass = 'rotate-svg-' . $rotateIcon;
     }
 ?>
 
-<x-button class="text-button {{$rotateClass}}">
+<x-button class="cta-button button-{{$size}} {{$rotateClass}}">
     {{ $slot }}
 </x-button>

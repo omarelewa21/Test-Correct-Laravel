@@ -4,11 +4,8 @@
              alt="Test-Correct">
     </a>
     <div class="user flex flex-wrap items-center ml-auto">
-        <a href="#" class="question rounded-full flex items-center justify-center" style="width:30px;height:30px">
-            <x-icon.questionmark color="white"></x-icon.questionmark>
-        </a>
-        <a href="#" class="text-button ml-4 font-size-18 rotate-svg-90">{{ Auth::user()->name }}
-            <x-icon.chevron></x-icon.chevron>
-        </a>
+        <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
+            <x-dropdown.item>Inleveren</x-dropdown.item>
+        </x-dropdown>
     </div>
 </header>

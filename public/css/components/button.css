@@ -4,7 +4,8 @@
     font-family: Nunito Bold;
     padding: 0 20px 0 20px;
     align-items: center;
-    display: flex;
+    display: inline-flex;
+    min-height: 40px;
 }
 
 .button:focus {
@@ -26,6 +27,7 @@
 .text-button {
     color: var(--system-base);
     font-family: Nunito Bold;
+    padding: 0;
 }
 
 .text-button:hover {
@@ -112,12 +114,12 @@
 .secondary-button:hover {
     /*background: red;*/
     background: linear-gradient(90deg, rgba(233, 239, 250, 1) 0%, rgba(206, 218, 243, 1) 100%);
-    box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
+    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
 }
 
 .secondary-button:active {
     background: linear-gradient(90deg, rgba(239, 244, 254, 1) 0%, rgba(233, 239, 250, 1) 100%);
-    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.5);
+    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
 }
 
 .secondary-button:focus {
@@ -152,4 +154,12 @@
     border: 2px solid var(--primary);
     background-color: var(--off-white);
     padding: 15px;
+}
+
+.dropdown-button:hover {
+    color: var(--primary);
+}
+
+.dropdown-item:hover {
+    background: var(--cta-primary);
 }

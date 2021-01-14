@@ -217,6 +217,10 @@ h6 {
     font-family: Nunito Regular;
 }
 
+.note {
+    font-size: .875rem;
+}
+
 .font-size-16 {
     font-size: 1rem;
 }
@@ -229,10 +233,41 @@ h6 {
     font-size: 1.25rem;
 }
 
+
+/*NOG VERWERKEN IN CSS FILES*/
+
 .rotate-svg-90 > svg {
     transform: rotate(90deg);
 }
 
 .rotate-svg-180 > svg {
     transform: rotate(180deg);
+}
+.rotate-svg-270 > svg {
+    transform: rotate(270deg);
+}
+
+.dropdown-items-container {
+    border: solid 1px var(--light-grey);
+    border-radius: .375rem;
+}
+.dropdown-items-container .dropdown-item:first-child {
+    border-top-left-radius: .375rem;
+    border-top-right-radius: .375rem;
+}
+.dropdown-items-container .dropdown-item:last-child {
+    border-bottom-left-radius: .375rem;
+    border-bottom-right-radius: .375rem;
+}
+
+.content-section {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 18px 0 rgba(77, 87, 143, 0.1);
+}
+
+.divider {
+    width: 100%;
+    height: 3px;
+    background: var(--system-base);
 }

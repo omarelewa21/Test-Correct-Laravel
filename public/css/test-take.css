@@ -8,7 +8,7 @@
 }
 
 .question-indicator .question-number {
-    color: white;
+    position: relative;
     width: 30px;
     height: 30px;
     font-size: 14px;
@@ -16,14 +16,13 @@
     border: solid 3px;
     margin-right: 12px;
     margin-bottom: 12px;
+    background: var(--light-grey);
+    border-color: var(--system-base);
+    color: var(--system-base);
 }
 .question-title .question-number {
     margin-bottom: 0;
     margin-right: 0;
-}
-
-.question-indicator .question-number {
-    position: relative;
 }
 
 .question-indicator .question-number::before {
@@ -51,11 +50,13 @@
 .question-indicator .question-number.active {
     border-color: var(--system-base);
     background: var(--system-base);
+    color: white;
 }
 
 .question-indicator .question-number.complete {
     border-color: var(--cta-primary);
     background: var(--cta-primary);
+    color: white;
 }
 .question-indicator .question-number.complete::before {
     background: var(--cta-primary);
