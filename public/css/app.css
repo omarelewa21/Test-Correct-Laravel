@@ -6,7 +6,7 @@
 
 
 :root {
-    --cta-primary: #3DBB56;
+    --cta-primary: #3ab753;
     --cta-primary-mid-dark: #27973D;
     --cta-primary-dark: #006314;
     --cta-secondary: #004DF5;
@@ -17,9 +17,11 @@
     --system-secondary: #CEDAF3;
     --mid-grey: #929DAF;
     --light-grey: #F0F2F5;
-    --blue-grey: #C3D0ED;
+    --blue-grey: #c3d0ed;
     --shadow-blue: #4D578F;
     --off-white: #F9FAFF;
+    --all-red: #cf1b04;
+    --red-light: #ffedeb;
 }
 
 @font-face {
@@ -151,6 +153,26 @@ svg {
     background: var(--off-white);
 }
 
+.all-red {
+    color: var(--all-red);
+}
+.bg-all-red {
+    background: var(--all-red);
+}
+.border-all-red {
+    border-color: var(--all-red);
+}
+
+.red-light {
+    color: var(--red-light);
+}
+.bg-red-light {
+    background: var(--red-light);
+}
+.border-red-light {
+    border-color: var(--red-light);
+}
+
 .rounded-10 {
     border-radius: 10px;
 }
@@ -267,7 +289,11 @@ h6 {
 }
 
 .divider {
-    width: 100%;
     height: 3px;
     background: var(--system-base);
+}
+
+.m-foot-head {
+    margin-top: 70px;
+    margin-bottom: 70px;
 }

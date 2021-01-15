@@ -17,13 +17,6 @@
 .menu .text-button.active:hover {
     border-color: var(--primary);
 }
-.user .question {
-    background: var(--system-base);
-}
-.user .question:hover {
-    background: var(--primary);
-}
-
 .sub-menu {
     height: 55px;
     border-bottom: solid 1px var(--system-secondary);

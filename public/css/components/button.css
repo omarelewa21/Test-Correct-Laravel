@@ -42,15 +42,20 @@
 }
 
 .cta-button {
-    background: var(--cta-primary);
-    background: linear-gradient(90deg, var(--cta-primary) 0%, var(--cta-primary) 100%);
     color: white;
+    background-color: rgba(58,183,83,1);
+    background-image: radial-gradient(ellipse farthest-side at 10% 10%,rgba(58,183,83,.5) 0,rgba(58,183,83,0) 100%);
+    background-size: 0px 0px;
+    background-repeat: no-repeat;
+    box-shadow: 0 1px 2px 1px rgba(0,0,0,.15);
+    transition: color 0.3s cubic-bezier(.215,.61,.355,1);
 }
 
 .cta-button:hover {
-    background: linear-gradient(90deg, rgba(39, 151, 61, 1) 0%, rgba(61, 187, 86, 1) 100%);
-    box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.5);
-    transition: ease-in-out  150ms;
+    background-color: rgb(60, 202, 86);
+    background-size: 100% 100%;
+    box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(.215,.61,.355,1);
 }
 
 .cta-button:active {
@@ -107,14 +112,20 @@
 }
 
 .secondary-button {
-    background: var(--blue-grey);
     color: var(--system-base);
+    background-color: var(--blue-grey);
+    background-image: radial-gradient(ellipse farthest-side at 10% 10%,rgba(195,208,237,.5) 0,rgba(195,208,237,0) 100%);
+    background-size: 0px 0px;
+    background-repeat: no-repeat;
+    box-shadow: 0 1px 2px 1px rgba(0,0,0,.15);
+    transition: color 0.3s cubic-bezier(.215,.61,.355,1);
 }
 
 .secondary-button:hover {
-    /*background: red;*/
-    background: linear-gradient(90deg, rgba(233, 239, 250, 1) 0%, rgba(206, 218, 243, 1) 100%);
+    background-color: rgb(203, 219, 253);
+    background-size: 100% 100%;
     box-shadow: 0 4px 10px 0 rgba(0,0,0,0.1);
+    transition: all 0.3s cubic-bezier(.215,.61,.355,1);
 }
 
 .secondary-button:active {

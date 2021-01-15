@@ -1,4 +1,4 @@
-<x-input.group label="{{ $label }}" for="{{ $name }}" :error="$errors->first('username')">
+<div>
     <input {{ $attributes->merge(['class' => 'form-input']) }}/>
 
     @error($name)
@@ -6,4 +6,4 @@
         <span class="title">{{ $message }}</span>
     </div>
     @enderror
-</x-input.group>
+</div>
