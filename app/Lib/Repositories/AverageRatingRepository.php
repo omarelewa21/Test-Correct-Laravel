@@ -165,6 +165,7 @@ class AverageRatingRepository {
      * @param bool $scorePercentage
      */
     public static function getAverageOverTimeOfStudent(User $student, $baseSubjectOrSubject = null, $scorePercentage = false) {
+        
         // Get subjects with base subject -> subjects repository
         $studentSubjects = SubjectRepository::getSubjectsOfStudent($student);
 
@@ -236,6 +237,7 @@ class AverageRatingRepository {
 
         // Get ratings with subjects within period ids OR (within dates but then only from the student)
         $schoolClassIds = Rating::whereIn('period_id', $periodIds)->whereIn('subject_id', $subjectIds)->where('user_id', $student->getKey())->distinct()->pluck('school_class_id');
+        
         $ratings = Rating::whereIn('ratings.school_class_id', $schoolClassIds)
             ->whereIn('subject_id', $subjectIds)
             ->join('test_participants', 'test_participants.id', '=', 'ratings.test_participant_id')
@@ -243,7 +245,9 @@ class AverageRatingRepository {
             ->join('periods', 'periods.id', '=', 'ratings.period_id')
             ->orderBy('test_takes.time_start', 'asc')
             ->get(['ratings.*', 'test_takes.time_start', 'periods.school_year_id']);
-
+        
+        //logger(json_decode($ratings,true));
+        /*
         $student->load(['ratings' => function($query) use ($subjectIds, $schoolClassIds) {
             $query->whereIn('subject_id', $subjectIds)
                 ->whereIn('ratings.school_class_id', $schoolClassIds)
@@ -252,12 +256,17 @@ class AverageRatingRepository {
                 ->orderBy('test_takes.time_start', 'asc')
                 ->get(['ratings.*', 'test_takes.time_start']);
         }]);
+        */
+        
+        $student['ratings'] = $ratings;
 
         // Generate a rolling average per school year for student and others in his school class
         $schoolYearAverages = [];
         foreach($ratings as $rating) {
+            
             $schoolYearId = $rating->getAttribute('school_year_id');
             $date = $rating->getAttribute('time_start');
+            
             if ($scorePercentage === true) {
                 if ($rating->getAttribute('max_score') > 0) {
                     $result = $rating->getAttribute('score') / $rating->getAttribute('max_score');
