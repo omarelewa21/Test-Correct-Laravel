@@ -1,4 +1,5 @@
 <div>
-    {{ $question->question }}
+    {{ get_class($question) }}
+    {{ $question->getQuestionHtml() }}
     {{-- The whole world belongs to you --}}
 </div>

@@ -42,6 +42,12 @@ class OpenQuestion extends Question implements QuestionInterface {
      */
     protected $hidden = [];
 
+    public function question() {
+
+        return $this->belongsTo('tcCore\Question', $this->getKeyName());
+    }
+
+
 
     public function loadRelated()
     {

@@ -1,4 +1,4 @@
 <div>
     {{ get_class($question) }}
-    {!!   $question->getQuestionHtml() !!}
+    {!! $question->getQuestionHtml() !!}
 </div>

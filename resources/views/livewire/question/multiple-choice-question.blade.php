@@ -1,3 +1,4 @@
 <div>
-   {{ $question }}
+    {{ get_class($question) }}
+   {!! $question->getQuestionHtml()  !!}
 </div>

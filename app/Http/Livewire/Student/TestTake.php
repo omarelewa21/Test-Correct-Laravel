@@ -30,8 +30,8 @@ class TestTake extends Component
     public function mount(Test $test_take)
     {
         $this->testQuestions = self::getData($test_take);
-        dd($this->testQuestions);
-        session()->put('data', serialize($this->testQuestions));
+
+        session()->put('data', serialize($this->testQuestions)  );
         $this->setMainQuestion($this->question);
     }
 
@@ -53,9 +53,7 @@ class TestTake extends Component
            return $index === $question;
         });
 
-
         $this->component = 'question.'. Str::kebab($this->mainQuestion->type);
-        logger($this->component);
     }
 
     public static function getData(Test $testTake) {

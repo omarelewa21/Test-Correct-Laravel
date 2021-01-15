@@ -15,9 +15,15 @@ class TestTest extends TestCase
     /** @test */
     public function it_can_fetch_the_test_take()
     {
-        $testTake = TestTake::whereUuid('afd05e38-3fdd-432a-8ecd-cb09550f0200')->first();
+        $testTake = TestTake::whereUuid('25b9e935-1080-476b-a825-fb9b4f828fb6')->first();
         $data = \tcCore\Http\Livewire\Student\TestTake::getData($testTake);
         $this->assertCount(6, $data);
-        $this->assertNull($data->first()->answer);
+//        $this->assertNull($data->first()->answer);
+
+        dd($data->filter(function($item, $key){
+            if ($key==4|| $key == 0) {
+                return $item;
+            }
+        }));
     }
 }
