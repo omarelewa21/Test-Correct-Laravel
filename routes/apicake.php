@@ -197,6 +197,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Users
     Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
     Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
+    Route::get('user/is_account_verified', ['as' => 'user.is_account_verified', 'uses' => 'UsersController@isAccountVerified']);
+
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
     Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
     Route::post('/tell_a_teacher', 'TellATeacherController@store')->name('tell_a_teacher.store');
