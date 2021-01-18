@@ -16,19 +16,19 @@
             @endif
             <table>
                 <tr>
-                    <td>school_location</td>
+                    <td>School Locatie</td>
                     <td>{{ $demo->school_location }}</td>
                 </tr>
                 <tr>
-                    <td>website_url</td>
+                    <td>Website Url</td>
                     <td>{{ $demo->website_url }}</td>
                 </tr>
                 <tr>
-                    <td>adres</td>
+                    <td>Adres</td>
                     <td>{{ $demo->address }}</td>
                 </tr>
                 <tr>
-                    <td>postcode</td>
+                    <td>Postcode</td>
                     <td>{{ $demo->postcode }}</td>
                 </tr>
                 <tr>
@@ -46,7 +46,7 @@
                     @endif
                 </tr>
                 <tr>
-                    <td>name</td>
+                    <td>Naam</td>
                     <td>{{ $demo->name_first }} {{ $demo->name_suffix }} {{ $demo->name }}</td>
                 </tr>
                 <tr>
