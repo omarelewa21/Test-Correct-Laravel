@@ -22,7 +22,7 @@ class TestTakeTest extends TestCase
 //        $this->assertNull($data->first()->answer);
 
         dd($data->filter(function($item, $key){
-            if ($key==4|| $key == 0) {
+            if ($key==3|| $key == 0) {
                 return $item;
             }
         }));

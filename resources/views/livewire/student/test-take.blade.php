@@ -6,17 +6,19 @@
     <div class="bg-white rounded-10 p-8 sm:p-10 content-section">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
             <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-                <span class="align-middle">{{ ($question + 1) }}</span>
+                <span class="align-middle"></span>
             </div>
             <h1 class="inline-block ml-2 mr-6">{{ $mainQuestion->type }} | {{ $component }} {{ get_class($mainQuestion) }}</h1>
-            <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
+            <h4 class="inline-block">{{$mainQuestion->score}}pt |  {{ date('His') }}</h4>
         </div>
 
         <div class="flex flex-wrap">
+{{--            @livewire($component, ['question'=>$mainQuestion], key('$mainQuestion->uuid'))--}}
+
             @if($mainQuestion->type === 'MultipleChoiceQuestion')
-                <livewire:question.multiple-choice-question :question="$mainQuestion->question" wire:key="2"></livewire:question.multiple-choice-question>
+                <livewire:question.multiple-choice-question :question="$mainQuestion->question" wire:key="'abc-'.$mainQuestion->id.time()"></livewire:question.multiple-choice-question>
             @elseif($mainQuestion->type === 'OpenQuestion')
-                <livewire:question.multiple-choice-question :question="$mainQuestion->question" wire:key="1"></livewire:question.multiple-choice-question>
+                <livewire:question.open-question :question="$mainQuestion->question" wire:key="'abc-'.$mainQuestion->id"></livewire:question.multiple-choice-question>
 
             @endif
         </div>

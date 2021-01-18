@@ -13,6 +13,7 @@ use tcCore\Answer;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\MultipleChoiceQuestionAnswer;
+use tcCore\Question;
 use tcCore\TestParticipant;
 use tcCore\TestTake as Test;
 
@@ -21,7 +22,7 @@ class TestTake extends Component
 {
 
     public $testQuestions;
-    public $question = 0;
+    public $question;
     protected $queryString = ['question'];
     public $content;
     public $mainQuestion;
@@ -29,8 +30,12 @@ class TestTake extends Component
 
     public function mount(Test $test_take)
     {
+
+
         $this->testQuestions = self::getData($test_take);
         session()->put('data', serialize($this->testQuestions));
+        $this->question = $this->testQuestions->get(3)->uuid;
+
         $this->setMainQuestion($this->question);
     }
 
@@ -38,7 +43,9 @@ class TestTake extends Component
     {
         dump('hydrate');
 
-//        dump(unserialize(session()->get('data')));
+        $q = unserialize(session()->get('data'))->get(3);
+        dump($q->multipleChoiceQuestionAnswers);
+
         $this->testQuestions = unserialize(session()->get('data'));
     }
 
@@ -52,20 +59,24 @@ class TestTake extends Component
     {
         $this->question++;
         $this->setMainQuestion($this->question);
+
     }
 
 
     public function render()
     {
+        dump('render test-take');
         return view('livewire.student.test-take')->layout('layouts.app');
     }
 
-    public function setMainQuestion(int $question)
+    public function setMainQuestion($questionUuid)
     {
-        $this->question = $question;
-        $this->mainQuestion = $this->testQuestions->first(function ($item, $index) use ($question) {
-            return $index === $question;
-        });
+        $this->question = $questionUuid;
+//        $this->mainQuestion = $this->testQuestions->first(function ($item, $index) use ($questionUuid) {
+//            return $item->uuid === $questionUuid;
+//        });
+        $this->mainQuestion = Question::whereUuid($questionUuid)->first();
+        $this->mainQuestion = MultipleChoiceQuestion::whereUuid($questionUuid)->first();
 
         $this->component = 'question.'.Str::kebab($this->mainQuestion->type);
     }
@@ -79,33 +90,33 @@ class TestTake extends Component
             if ($testQuestion->question->type === 'GroupQuestion') {
                 return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($visibleAttributes) {
                     $item->question->makeVisible($visibleAttributes);
-                    self::loadRelations($item->question);
+//                        $item->question->loadRelated();
 
                     return $item->question;
                 });
             }
             $testQuestion->question->makeVisible($visibleAttributes);
-            self::loadRelations($testQuestion->question);
+//            $testQuestion->question->loadRelated();
             return collect([$testQuestion->question]);
         });
     }
 
-    public static function loadRelations($question)
-    {
-        switch (get_class($question)) {
-            case 'tcCore\OpenQuestion':
-                break;
-            case 'tcCore\MultipleChoiceQuestion':
-                $question->load('multipleChoiceQuestionAnswers');
-                break;
-            case 'tcCore\CompletionQuestion' :
-                break;
-            case 'tcCore\MatchingQuestion' :
-                break;
-            default:
-
-
-        }
-
-    }
+//    public static function loadRelations($question)
+//    {
+//        switch (get_class($question)) {
+//            case 'tcCore\OpenQuestion':
+//                break;
+//            case 'tcCore\MultipleChoiceQuestion':
+//                $question->load('multipleChoiceQuestionAnswers');
+//                break;
+//            case 'tcCore\CompletionQuestion' :
+//                break;
+//            case 'tcCore\MatchingQuestion' :
+//                break;
+//            default:
+//
+//
+//        }
+//
+//    }
 }

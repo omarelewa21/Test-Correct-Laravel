@@ -5,7 +5,7 @@
 <div class="question-indicator w-full">
     <div class="flex flex-wrap">
         @foreach($questions as $key => $question)
-            <div class="question-number rounded-full text-center complete" wire:click.prevent="setMainQuestion({{ $key }})">
+            <div class="question-number rounded-full text-center complete" wire:click.prevent="setMainQuestion('{{ $question->uuid }}')">
                 <span class="align-middle">{{ ++$key}}</span>
             </div>
         @endforeach
