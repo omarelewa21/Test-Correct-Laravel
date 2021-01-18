@@ -60,4 +60,32 @@ class UpdateTestQuestionRequest extends UpdateQuestionRequest {
         return $this->all();
     }
 
+    public function prepareForValidation()
+    {
+            $data = ($this->all());
+            
+            $this->handleEmptyArrayVar($data,'tags');
+            $this->handleEmptyArrayVar($data,'attainments'); 
+            $this->handleEmptyStringVar($data,'rtti');
+            $this->handleEmptyStringVar($data,'bloom');
+            $this->handleEmptyStringVar($data,'miller');
+            $this->merge($data);
+    }
+
+    private function handleEmptyArrayVar(&$data,$var){
+        if (isset($data[$var])) {
+            if (empty($data[$var])) {
+                $data[$var] = [];
+            }
+        }
+    }
+
+    private function handleEmptyStringVar(&$data,$var){
+        if (isset($data[$var])) {
+            if (empty($data[$var])) {
+                $data[$var] = null;
+            }
+        }
+    }
+
 }

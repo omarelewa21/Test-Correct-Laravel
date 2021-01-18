@@ -74,4 +74,13 @@ trait TestTrait
         $testId = $response->decodeResponseJson()['id'];
         $this->originalTestId = $testId;
     }
+
+    private function originalAndCopyShareQuestion(){
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $originalQuestionArray = $questions->pluck('question_id')->toArray();
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }
 }
