@@ -1,5 +1,5 @@
 <div>
-    <div wire:key="'type'.date('His') "> {{ get_class($question) }}  {{ date('His') }}</div>
+    <div wire:key="'type'.date('His') ">  {{ date('His') }}</div>
     {!! $question->getQuestionHtml()  !!} |  multiple-choice-question.blade | {{ date('His') }}
 
     <div class="mt-4 space-y-4">

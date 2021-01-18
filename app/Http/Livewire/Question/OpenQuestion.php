@@ -3,14 +3,18 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
+use tcCore\Question;
 
 class OpenQuestion extends Component
 {
-    public $question;
+    public $uuid;
     protected $listeners = ['questionUpdated' => '$refresh'];
+
+    private $question;
 
     public function render()
     {
-        return view('livewire.question.open-question');
+        $question = Question::whereUuid($this->uuid)->first();
+        return view('livewire.question.open-question', compact('question'));
     }
 }

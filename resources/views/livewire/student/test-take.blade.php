@@ -13,12 +13,12 @@
         </div>
 
         <div class="flex flex-wrap">
-{{--            @livewire($component, ['question'=>$mainQuestion], key('$mainQuestion->uuid'))--}}
+{{--            @livewire($component, ['uuid'=>$mainQuestion->uuid], key('$mainQuestion->uuid'))--}}
 
             @if($mainQuestion->type === 'MultipleChoiceQuestion')
-                <livewire:question.multiple-choice-question :question="$mainQuestion->question" wire:key="'abc-'.$mainQuestion->id.time()"></livewire:question.multiple-choice-question>
+                <livewire:question.multiple-choice-question :uuid="$mainQuestion->uuid" wire:key="'abc-'.$mainQuestion->id.time()"></livewire:question.multiple-choice-question>
             @elseif($mainQuestion->type === 'OpenQuestion')
-                <livewire:question.open-question :question="$mainQuestion->question" wire:key="'abc-'.$mainQuestion->id"></livewire:question.multiple-choice-question>
+                <livewire:question.open-question :uuid="$mainQuestion->uuid" wire:key="'abc-'.$mainQuestion->id"></livewire:question.multiple-choice-question>
 
             @endif
         </div>

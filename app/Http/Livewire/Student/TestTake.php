@@ -59,26 +59,20 @@ class TestTake extends Component
     {
         $this->question++;
         $this->setMainQuestion($this->question);
-
     }
 
 
     public function render()
     {
-        dump('render test-take');
         return view('livewire.student.test-take')->layout('layouts.app');
     }
 
     public function setMainQuestion($questionUuid)
     {
         $this->question = $questionUuid;
-//        $this->mainQuestion = $this->testQuestions->first(function ($item, $index) use ($questionUuid) {
-//            return $item->uuid === $questionUuid;
-//        });
         $this->mainQuestion = Question::whereUuid($questionUuid)->first();
-        $this->mainQuestion = MultipleChoiceQuestion::whereUuid($questionUuid)->first();
 
-        $this->component = 'question.'.Str::kebab($this->mainQuestion->type);
+        $this->emit('questionUpdated');
     }
 
     public static function getData(Test $testTake)
@@ -90,33 +84,13 @@ class TestTake extends Component
             if ($testQuestion->question->type === 'GroupQuestion') {
                 return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($visibleAttributes) {
                     $item->question->makeVisible($visibleAttributes);
-//                        $item->question->loadRelated();
 
                     return $item->question;
                 });
             }
             $testQuestion->question->makeVisible($visibleAttributes);
-//            $testQuestion->question->loadRelated();
+
             return collect([$testQuestion->question]);
         });
     }
-
-//    public static function loadRelations($question)
-//    {
-//        switch (get_class($question)) {
-//            case 'tcCore\OpenQuestion':
-//                break;
-//            case 'tcCore\MultipleChoiceQuestion':
-//                $question->load('multipleChoiceQuestionAnswers');
-//                break;
-//            case 'tcCore\CompletionQuestion' :
-//                break;
-//            case 'tcCore\MatchingQuestion' :
-//                break;
-//            default:
-//
-//
-//        }
-//
-//    }
 }

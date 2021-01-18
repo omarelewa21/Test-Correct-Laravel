@@ -3,21 +3,19 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
+use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
 {
-    public $question;
+    public $uuid;
+
+    private $question;
 
     protected $listeners = ['questionUpdated' => '$refresh'];
 
     public function render()
     {
-        dump('before');
-        dump(get_class($this->question) === 'tcCore\Question');
-        if (get_class($this->question) === 'tcCore\Question'){
-            dump('render');
-            $this->question = \tcCore\MultipleChoiceQuestion::find($this->question->getKey());
-        }
-        return view('livewire.question.multiple-choice-question');
+        $question = Question::whereUuid($this->uuid)->first();
+        return view('livewire.question.multiple-choice-question', compact('question'));
     }
 }
