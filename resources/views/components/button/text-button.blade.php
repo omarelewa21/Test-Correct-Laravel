@@ -8,6 +8,6 @@ $rotateClass = '';
     }
 ?>
 
-<x-button class="text-button {{$rotateClass}}">
+<button {{ $attributes }} class="text-button {{ $rotateClass }}" >
     {{ $slot }}
-</x-button>
+</button>

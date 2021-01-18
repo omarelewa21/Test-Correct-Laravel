@@ -1,4 +1,5 @@
-<div>
+<div class="w-full">
     {{ get_class($question) }}
     {!!   $question->getQuestionHtml() !!}
+    <x-input.group  for="me" label="" class="w-full"><x-input.textarea name="name"></x-input.textarea></x-input.group>
 </div>
