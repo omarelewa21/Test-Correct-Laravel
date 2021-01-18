@@ -97,6 +97,18 @@ trait TestTrait
         $this->assertTrue(count($result)==0);
     }
 
+    private function originalAndCopyShareGroup($var = false){
+        if($var){
+            dump($var);
+        }
+        $testQuestions = Test::find($this->originalTestId)->testQuestions;
+        $originalQuestionArray = $testQuestions->pluck('question_id')->toArray();
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }
+
     private function extractQuestionIdsFromGroupQuestion($testQuestions){
         if(is_null($testQuestions)){
             return [];

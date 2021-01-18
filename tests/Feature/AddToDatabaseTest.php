@@ -67,6 +67,18 @@ class AddToDatabaseTest extends TestCase
         
     }
 
+    /** @test */
+    public function it_should_not_copy_questions_when_add_to_database_is_changed_in_group()
+    {
+        $this->setupScenario1();
+        $this->originalAndCopyShareGroup();
+        $attributes = $this->getAttributesForEditQuestion2($this->copyTestId);
+        $copyGroupTestQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first()->question->groupQuestionQuestions->first();
+        $this->editGroupQuestion($copyGroupTestQuestion->uuid,$attributes);
+        $this->originalAndCopyShareGroup();
+    }
+
     private function originalAndCopyShareQuestion(){
     	$questions = Test::find($this->originalTestId)->testQuestions;
     	$originalQuestionArray = $questions->pluck('question_id')->toArray();
@@ -120,6 +132,10 @@ class AddToDatabaseTest extends TestCase
 
     private function getAttributesForEditQuestion1($testId){
     	return array_merge($this->getAttributesForMultipleChoiceQuestion($testId),['add_to_database'=>0]);
+    }
+
+    private function getAttributesForEditQuestion2($testId){
+        return array_merge($this->getAttributesForGroupQuestion($testId),['add_to_database'=>0]);
     }
 
 
