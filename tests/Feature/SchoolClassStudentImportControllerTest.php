@@ -18,7 +18,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
 
 
     /** @test */
-    public function it_can_import_a_user_rejects_international_characters()
+    public function it_can_import_a_user_rejects_international_characters_response()
     {
 
         $response = $this->post(
@@ -46,6 +46,169 @@ class SchoolClassStudentImportControllerTest extends TestCase
         $this->assertEquals('The email address contains international characters.', $decodedResponse['errors']['data.0.username'][1]);
 
     }
+    
+        /** @test */
+    public function it_can_import_a_user_rejects_international_characters_various() {
+        
+        $this->assertCount(0, User::whereUsername("carloschoep+K999jjanssen@hotmail.com")->get());
+
+        $countStudentsBefore = \tcCore\Student::count();
+
+        $response = $this->post(
+                route(
+                        'school_classes.import', [
+            'schoolLocation' => SchoolLocation::find(3)->uuid,
+            'schoolClass' => SchoolClass::find(3)->uuid
+                ])
+                , static::getSchoolBeheerderAuthRequestData([
+                    'data' => [[
+                    'external_id' => "123451",
+                    'name_first' => "Jan1",
+                    'name_suffix' => "",
+                    'name' => "Janssen1",
+                    'username' => "140965ä@test-correct.nl"
+                        ]]
+        ]));
+        
+        $this->assertEquals(422, $response->getStatusCode());
+
+        $response = $this->post(
+                route(
+                        'school_classes.import', [
+            'schoolLocation' => SchoolLocation::find(3)->uuid,
+            'schoolClass' => SchoolClass::find(3)->uuid
+                ])
+                , static::getSchoolBeheerderAuthRequestData([
+                    'data' => [[
+                    'external_id' => "123452",
+                    'name_first' => "Jan2",
+                    'name_suffix' => "",
+                    'name' => "Janssen2",
+                    'username' => "140907ö@test-correct.nl"
+        ]]]));
+        
+        $this->assertEquals(422, $response->getStatusCode());
+        
+        $response = $this->post(
+                route(
+                        'school_classes.import', [
+            'schoolLocation' => SchoolLocation::find(3)->uuid,
+            'schoolClass' => SchoolClass::find(3)->uuid
+                ])
+                , static::getSchoolBeheerderAuthRequestData([
+                    'data' => [[
+                    'external_id' => "123453",
+                    'name_first' => "Jan3",
+                    'name_suffix' => "",
+                    'name' => "Janssen3",
+                    'username' => "140990û@test-correct.nl"
+        ]]]));
+        
+        $this->assertEquals(422, $response->getStatusCode());
+        
+        $response = $this->post(
+                route(
+                        'school_classes.import', [
+            'schoolLocation' => SchoolLocation::find(3)->uuid,
+            'schoolClass' => SchoolClass::find(3)->uuid
+                ])
+                , static::getSchoolBeheerderAuthRequestData([
+                    'data' => [[
+                    'external_id' => "123454",
+                    'name_first' => "Jan4",
+                    'name_suffix' => "",
+                    'name' => "Janssen4",
+                    'username' => "140922é@test-correct.nl",
+        ]]]));
+        
+        $this->assertEquals(422, $response->getStatusCode());
+        
+        $response = $this->post(
+                route(
+                        'school_classes.import', [
+            'schoolLocation' => SchoolLocation::find(3)->uuid,
+            'schoolClass' => SchoolClass::find(3)->uuid
+                ])
+                , static::getSchoolBeheerderAuthRequestData([
+                    'data' => [[
+                    'external_id' => "123455",
+                    'name_first' => "Jan5",
+                    'name_suffix' => "",
+                    'name' => "Janssen5",
+                    'username' => "140991è@test-correct.nl",
+        ]]]));
+        
+        $this->assertEquals(422, $response->getStatusCode());
+        
+        $response = $this->post(
+                route(
+                        'school_classes.import', [
+            'schoolLocation' => SchoolLocation::find(3)->uuid,
+            'schoolClass' => SchoolClass::find(3)->uuid
+                ])
+                , static::getSchoolBeheerderAuthRequestData([
+                    'data' => [[
+                    'external_id' => "123456",
+                    'name_first' => "Jan6",
+                    'name_suffix' => "",
+                    'name' => "Janssen6",
+                    'username' => "140878á@test-correct.nl",
+        ]]]));
+        
+        $this->assertEquals(422, $response->getStatusCode());
+        
+        $response = $this->post(
+                route(
+                        'school_classes.import', [
+            'schoolLocation' => SchoolLocation::find(3)->uuid,
+            'schoolClass' => SchoolClass::find(3)->uuid
+                ])
+                , static::getSchoolBeheerderAuthRequestData([
+                    'data' => [[
+                    'external_id' => "123457",
+                    'name_first' => "Jan7",
+                    'name_suffix' => "",
+                    'name' => "Janssen7",
+                    'username' => "141507ë@test-correct.nl",
+        ]]]));
+        
+        $this->assertEquals(422, $response->getStatusCode());
+   
+        $response = $this->post(
+        route(
+        'school_classes.import', [
+        'schoolLocation' => SchoolLocation::find(3)->uuid,
+        'schoolClass' => SchoolClass::find(3)->uuid
+        ])
+        , static::getSchoolBeheerderAuthRequestData([
+        'data' => [[
+        'external_id' => "123459",
+        'name_first' => "Jan9",
+        'name_suffix' => "",
+        'name' => "Janssen9",
+        'username' => "1405&#x26;52@test-correct.nl",
+        ]]]));
+
+        $this->assertEquals(422, $response->getStatusCode());
+        
+        $response = $this->post(
+                route(
+                        'school_classes.import', [
+            'schoolLocation' => SchoolLocation::find(3)->uuid,
+            'schoolClass' => SchoolClass::find(3)->uuid
+                ])
+                , static::getSchoolBeheerderAuthRequestData([
+                    'data' => [[
+                    'external_id' => "123458",
+                    'name_first' => "Jan8",
+                    'name_suffix' => "",
+                    'name' => "Janssen8",
+                    'usern&amp;ame' => "140841@test-correct.nl",
+        ]]]));
+        
+        $this->assertEquals(422, $response->getStatusCode());
+    }
+
     
     /** @test */
     public function it_can_import_a_user()
