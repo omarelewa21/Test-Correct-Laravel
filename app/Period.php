@@ -72,6 +72,13 @@ class Period extends BaseModel implements AccessCheckable {
         return $this->hasMany('tcCore\Rating');
     }
 
+    public function isActual(){
+        if ($this->start_date <= Carbon::today() && $this->end_date >= Carbon::today()){
+            return true;
+        }
+        return false;
+    }
+
     public static function boot()
     {
         parent::boot();

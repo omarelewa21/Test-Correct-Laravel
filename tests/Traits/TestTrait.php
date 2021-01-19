@@ -8,6 +8,7 @@
 
 namespace Tests\Traits;
 
+use tcCore\Test;
 
 trait TestTrait
 {
@@ -40,5 +41,37 @@ trait TestTrait
         $response->assertStatus(200);
 
         return $response->decodeResponseJson()['id'];
+    }
+
+    private function getTestQuestionsByGet($attributes){
+        $response = $this->get(static::authTeacherOneGetRequest('/api-c/test_question', $attributes));
+        $response->assertStatus(200);
+
+        return $response->decodeResponseJson();
+    }
+
+    private function duplicateTest($testId){
+        $test = Test::find($testId);
+        $response = $this->post(
+            '/api-c/test/'.$test->uuid.'/duplicate',
+            static::getTeacherOneAuthRequestData(
+                ['status'=>0]
+            )
+        );
+        $response->assertStatus(200);
+        $testId = $response->decodeResponseJson()['id'];
+        $this->copyTestId = $testId;
+    }
+
+    private function createTLCTest($attributes){
+        $response = $this->post(
+            'api-c/test',
+            static::getTeacherOneAuthRequestData(
+                $attributes
+            )
+        );
+        $response->assertStatus(200);
+        $testId = $response->decodeResponseJson()['id'];
+        $this->originalTestId = $testId;
     }
 }

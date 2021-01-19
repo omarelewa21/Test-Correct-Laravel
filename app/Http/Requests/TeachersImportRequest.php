@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SchoolClass;
 use tcCore\Subject;
 
@@ -36,7 +37,8 @@ class TeachersImportRequest extends Request {
         $this->filterInput();
 
         return [
-            'data.*.username' => ['required', 'email:rfc,filter,dns,spoof', function ($attribute, $value, $fail) {
+
+             'data.*.username' => ['required', 'email:rfc,filter,dns', function ($attribute, $value, $fail) {
 
                     if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
 
@@ -78,9 +80,11 @@ class TeachersImportRequest extends Request {
                         $validator->errors()->add(
                                 sprintf('data.%d.school_class', $index), 'de opgegeven klas dient in de database aanwezig te zijn voor deze schoollocatie'
                         );
-                    } else if ($schoolClass->schoolYear->year != date('Y')) {
+                    } else if(!$this->schoolClassYearIsActual($schoolClass)){
                         $validator->errors()->add(
-                                sprintf('data.%d.school_class', $index), 'de opgegeven klas is niet aanwezig voor dit schooljaar (' . date('Y') . ')'
+                            sprintf('data.%d.school_class', $index),
+                            'de opgegeven klas is niet aanwezig voor dit schooljaar ('.$schoolClass->schoolYear->year.')'
+
                         );
                     } else {
 
@@ -125,6 +129,11 @@ class TeachersImportRequest extends Request {
         return Subject::filtered()->get()->first(function ($subject) use ($subject_name) {
                     return strtolower($subject_name) === strtolower($subject->name);
                 });
+    }
+
+    private function schoolClassYearIsActual($schoolClass){
+        $currentYear = SchoolYearRepository::getCurrentSchoolYear();
+        return (null !== $currentYear && $currentYear->getKey() === $schoolClass->schoolYear->getKey());
     }
 
 }

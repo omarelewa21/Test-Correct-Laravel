@@ -17,22 +17,22 @@ use tcCore\User;
 
 class SchoolClassesStudentImportController extends Controller {
 
-	/**
-	 * Import students.
-	 * @param SchoolClassesStudentImportRequest $request
-	 * @return
-	 */
-	public function store(SchoolClassesStudentImportRequest $request, SchoolLocation $schoolLocation, SchoolClass $schoolClass)
-	{
-	    $defaultData =[
-	        'user_roles' => [3],
+    /**
+     * Import students.
+     * @param SchoolClassesStudentImportRequest $request
+     * @return
+     */
+    public function store(SchoolClassesStudentImportRequest $request, SchoolLocation $schoolLocation, SchoolClass $schoolClass)
+    {
+        $defaultData =[
+            'user_roles' => [3],
             'school_location_id' => $schoolLocation->getKey(),
             'student_school_classes' => [$schoolClass->getKey()],
         ];
 
-	    $data = $request->validated();
+        $data = $request->validated();
         DB::beginTransaction();
-	    try{
+        try{
             collect($data['data'])->each(function($u) use ($defaultData,  $schoolClass){
                 $merged = array_merge($u, $defaultData);
 
@@ -47,7 +47,7 @@ class SchoolClassesStudentImportController extends Controller {
                         }
                         else{
                             $user->students()->create([
-                               'class_id' => $schoolClass->getKey()
+                                'class_id' => $schoolClass->getKey()
                             ]);
                         }
                     }
@@ -75,6 +75,6 @@ class SchoolClassesStudentImportController extends Controller {
 //		} else {
 //			return Response::make('Failed to create school class', 500);
 //		}
-	}
+    }
 
 }

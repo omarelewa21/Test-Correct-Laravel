@@ -11,10 +11,11 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use tcCore\EducationLevel;
-use tcCore\Http\Helpers\QtiImporter\v2dot2dot0\QtiResource;
+use tcCore\Http\Helpers\QtiImporter\VersionTwoDotTwoDotZero\QtiResource;
 use tcCore\Http\Middleware\RedirectIfAuthenticated;
 use tcCore\Http\Requests\QtiImportCitoDataRequest;
 use tcCore\Jobs\SendExceptionMail;
+use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Period;
 use tcCore\QtiModels\QtiManifest;
 use tcCore\QtiModels\QtiResource as Resource;
@@ -63,12 +64,14 @@ class QtiImportCitoController extends Controller
                 return ($t->user && $t->user->id > 0);
             })
             ->map(function ($t) {
-                return (object)[
-                    'id' => $t->user->id,
-                    'uuid' => $t->user->uuid,
-                    'name' => str_replace('  ', ' ', trim(sprintf('%s %s %s (%s)', $t->user->name_first, $t->user->name_suffix, $t->user->name, $t->user->abbreviation))),
+                return (object) [
+                    'id'                 => $t->user->id,
+                    'uuid'               => $t->user->uuid,
+                    'name'               => str_replace('  ', ' ',
+                        trim(sprintf('%s %s %s (%s)', $t->user->name_first, $t->user->name_suffix, $t->user->name,
+                            $t->user->abbreviation))),
                     'school_location_id' => $t->user->schoolLocation->uuid,
-                    'subject_ids' => $t->user->subjects()->get()->map(function ($s) {
+                    'subject_ids'        => $t->user->subjects()->get()->map(function ($s) {
                         return $s->uuid;
                     })->toArray(),
                 ];
@@ -76,11 +79,11 @@ class QtiImportCitoController extends Controller
 
         return response()->json([
             'schoolLocations' => SchoolLocation::orderBy('name')->get(),
-            'subjects' => Subject::orderBy('name')->get(),
+            'subjects'        => Subject::orderBy('name')->get(),
             'educationLevels' => EducationLevel::orderBy('name')->get(),
-            'testKinds' => TestKind::orderBy('name')->get(),
-            'periods' => Period::with('schoolYear')->orderBy('name')->get(),
-            'teachers' => $teachers,
+            'testKinds'       => TestKind::orderBy('name')->get(),
+            'periods'         => Period::with('schoolYear')->orderBy('name')->get(),
+            'teachers'        => $teachers,
         ]);
 
     }
@@ -98,98 +101,36 @@ class QtiImportCitoController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(QtiImportCitoDataRequest $request)
     {
         set_time_limit(3 * 60);
         $return = "";
 
-        $errors = [];
         try {
-            $this->validate($request, [
-                'zip_file' => 'required',
-            ]);
+            list($fileName, $startDir) = $this->prepareForImport($request);
 
-            //UUID update
-            //convert UUIDs to IDs
-            $data = $request->all();
-            $data['school_location_id'] = SchoolLocation::whereUuid($data['school_location_id'])->first()->getKey();
-            $data['author_id'] = User::whereUuid($data['author_id'])->first()->getKey();
-            $data['education_level_id'] = EducationLevel::whereUuid($data['education_level_id'])->first()->getKey();
-            $data['subject_id'] = Subject::whereUuid($data['subject_id'])->first()->getKey();
+            $this->checkZipFile(
+                sprintf('%s/%s/%s', $this->basePath, $startDir, $fileName),
+                $startDir,
+                true
+            );
 
-            $schoolLocationId = $data['school_location_id'];
-            $schoolLocation = SchoolLocation::find($schoolLocationId);
-            $schoolYears = $schoolLocation->schoolLocationSchoolYears->map(function ($l) {
-                return $l->school_year_id;
-            });
-            $periods = Period::where('start_date', '<=', Carbon::today())->where('end_date', '>=', Carbon::today())->whereIn('school_year_id', $schoolYears->toArray())->get();
-            if ($periods->count() != 1) {
-                Log::error(sprintf('no valid period found for school location %s met id %d', $schoolLocation->name, $schoolLocation->id));
-                return response()->json(['error' => sprintf('no valid period found for school location %s', $schoolLocation->name)]);
-            }
-            $period = $periods->first();
-            $request->request->add(['period_id' => $period->id]);
-            $data['period_id'] = $period->id;
-
-
-            $file = $request->file('zip_file');
-            $fileName = $file->getClientOriginalName();
-            $this->basePath = storage_path('app/qti_import');
-
-            $this->requestData = $data;
-            $request->merge($data);
-
-            $startDir = $this->dateStamp = date('YmdHis');
-            $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
-            $file->move($this->packageDir, $fileName);
-
-            /**
-             * txt file content should look like {"startDir":"chemie","fileName":"scheikunde-havo-vwo.zip"}
-             * chemie being the directory which is created in the app/qti_import dir and fileName the zip file to look for
-             * make sure to take an earlier created dir as the dir needs to be of the www_data user
-             */
-            if(pathinfo($fileName,PATHINFO_EXTENSION) === 'txt') {
-                $fileData = json_decode(file_get_contents(sprintf('%s/%s',$this->packageDir,$fileName)));
-                if(!$fileData){
-                    throw new \Exception(sprintf('no json in %s',$fileName));
-                }
-                $startDir = $fileData->startDir;
-                $fileName = $fileData->fileName;
-//            $startDir = 'chemie';
-//            $fileName = 'scheikunde-havo-vwo.zip';
-                $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
-            }
-
-            //        $storageDir = $dir = sprintf('%s/%s/uploads', $this->basePath, $this->dateStamp);
-
-            $this->checkZipFile(sprintf('%s/%s/%s', $this->basePath, $startDir, $fileName), $startDir, true);
             $return .= implode('', $this->responseAr);
         } catch (\Exception $e) {
-            $logEnd = sprintf('----END %s END----', $this->logRef);
-            $this->addToLog($logEnd);
-            $this->logAr[] = $logEnd;
-
-            $return .= $e->getMessage();
-            $return = sprintf('We hebben helaas een aantal fouten geconstateerd waardoor we de import niet goed konden afronden<br />Je kunt hiervoor contact opnemen met de Teach & Learn Company en daarbij als referentie \'%s\' mee geven<br /><br />%s',
-                $this->logRef,
-                $return
-            );
-            dispatch(new SendExceptionMail(implode('\n', $this->logAr), __FILE__, 0, []));
-            return response()->json(['error' => $return], 500);
+            return response()->json([
+                'error' => $this->transformExceptionToReturnStatement($e, $return)
+            ], 500);
             exit;
         }
-        $werkbladenString = '';
-        if (count($this->werkbladen) > 0) {
-            $werkbladenString = sprintf('<span style="color:red"><strong>Let op:</strong> We hebben de volgende werkbladen gevonden die we niet automatisch konden verwerken:<br />%s</span>', implode('<br />', $this->werkbladen->toArray()));
-        }
-        $return = sprintf('<h2>De import is succesvol verlopen! <small style="color:red">Vergeet niet om alle toetsen zelf nog eens te controleren!</small></h2>%s%s', $werkbladenString, $return);
-        return response()->json(['data' => $return], 200);
+        return response()->json([
+            'data' => $this->buildPositiveResult($return)
+        ], 200);
     }
 
-    protected function addToLog($data)
+    public function addToLog($data)
     {
         if (!$this->logRef) {
             $this->logRef = sprintf('%s::%s', $this->dateStamp, Str::random(5));
@@ -218,35 +159,34 @@ class QtiImportCitoController extends Controller
     {
         $zipDir = sprintf('%s/zipdir', $startDir);
         $dir = sprintf('%s/%s', $this->basePath, $zipDir);
-        $this->currentTest = (object)[
-            'startDir' => $startDir,
-            'file' => $file,
-            'zipDir' => $zipDir,
-            'fullDir' => $dir,
+        $this->currentTest = (object) [
+            'startDir'    => $startDir,
+            'file'        => $file,
+            'zipDir'      => $zipDir,
+            'fullDir'     => $dir,
             'requestData' => request()->all(),
-            'questions' => [],
-            'errorCount' => 0,
+            'questions'   => [],
+            'errorCount'  => 0,
         ];
 
-//        \Zipper::make($file)->extractTo($dir);
         Zip::open($file)->extract($dir);
 
         $dirs = collect(scandir($dir))->filter(function ($file) {
-            return $file != '.' && $file !== '..';
+            return $file != '.' && $file !== '..' && $file !== '__MACOSX';
         });
 
         if ($dirs->count() == 1) {
             $newDir = $dirs->first();
-            $dir .= '/' . $newDir;
+            $dir .= '/'.$newDir;
             $this->currentTest->startDir = $dir;
-            $this->currentTest->zipDir = $this->currentTest->zipDir . '/' . $newDir;
+            $this->currentTest->zipDir = $this->currentTest->zipDir.'/'.$newDir;
             $this->currentTest->fullDir = $dir;
-            $zipDir .= '/' . $newDir;
+            $zipDir .= '/'.$newDir;
         }
 
         if ($first) {
             $werkBladDir = collect(scandir($dir))->first(function ($file) {
-                return (bool)substr_count(strtolower($file), strtolower('werkbladen voor Wintoets en Quayn'));
+                return (bool) substr_count(strtolower($file), strtolower('werkbladen voor Wintoets en Quayn'));
             });
 
 
@@ -283,6 +223,7 @@ class QtiImportCitoController extends Controller
                 return strtolower(basename($file)) == 'imsmanifest.xml';
             });
 
+
             if ($testXmlFile) {
                 // found a toets file
                 $this->checkTest($testXmlFile);
@@ -316,13 +257,14 @@ class QtiImportCitoController extends Controller
                 if ($test->errorCount > 0) {
                     foreach ($test->questions as $question) {
                         if (count($question->errors)) {
-                            $questionBody = (string)$question->question->question_content->question_body;
+                            $questionBody = (string) $question->question->question_content->question_body;
                             $errorText .= sprintf('Fout(en) in toets: %s<br />Vraag: %s<br />',
                                 $test->name,
                                 $questionBody);
                             $errorText .= implode('<br />', $question->errors);
                             $errorText .= '<br /><Br />';
-                            $this->addToLog(sprintf('file: %s\ntest:%s\nquestion:%s\nerrors:\n%s', $test->file, $test->name, $questionBody, implode('\n', $question->errors)));
+                            $this->addToLog(sprintf('file: %s\ntest:%s\nquestion:%s\nerrors:\n%s', $test->file,
+                                $test->name, $questionBody, implode('\n', $question->errors)));
                         }
                     }
                 }
@@ -331,14 +273,12 @@ class QtiImportCitoController extends Controller
         } else {
             Auth::loginUsingId($this->requestData['author_id']);
         }
-
-
     }
 
     protected function getAbbr($nr)
     {
         if ($nr < 10) {
-            $nr = sprintf('0%d', (int)$nr);
+            $nr = sprintf('0%d', (int) $nr);
         }
         return sprintf('%s%s', $this->getRequestData('abbr'), $nr);
     }
@@ -377,7 +317,8 @@ class QtiImportCitoController extends Controller
 //                echo 'Question added ' . PHP_EOL;
             } else {
                 $this->addToLog(sprintf('A helper for %s does not exist', $question['type']));
-                throw new \Exception(sprintf('Op dit moment wordt het vraagtype %s nog niet ondersteund, neem contact op met de Teach & Learn Company', $question['type']) . PHP_EOL);
+                throw new \Exception(sprintf('Op dit moment wordt het vraagtype %s nog niet ondersteund, neem contact op met de Teach & Learn Company',
+                        $question['type']).PHP_EOL);
             }
 
         }
@@ -389,29 +330,28 @@ class QtiImportCitoController extends Controller
         $xml_file = sprintf('%s/%s/%s', $this->basePath, $this->currentTest->zipDir, $this->currentTest->xmlFile);
         $this->currentTest->fullXmlFilePath = $xml_file;
         $xml = simplexml_load_file($xml_file, 'SimpleXMLElement', LIBXML_NOCDATA);
-        $this->manifest = (new QtiManifest())->setOriginalXml($xml);
+        $this->manifest = (new QtiManifest($xml_file))->setOriginalXml($xml);
 
         // add the test
-        $test = $this->addTest($xml, ['scope' => 'cito']);
+        $test = $this->addTest($xml, ['scope' => $this->manifest->getScope()]);
         $this->currentTest->name = $test->name;
 
         // we need to set the auth user to the user we want to import the
         // test for as the rest of the system is depending on this
         Auth::loginUsingId($this->requestData['author_id']);
 
-        $questions = $xml->question;
-        $errors = [];
-        // first test all
-        foreach ($this->manifest->getResources() as $resourceInfo) {
 
+        foreach ($this->manifest->getResources() as $key => $resourceInfo) {
             $resource = new Resource(
                 $resourceInfo->identifier,
                 'imsqti_item_xmlv2p2',
                 sprintf('%s/%s/%s', $this->packageDir, 'zipdir', $resourceInfo->href),
                 '1',
                 $resourceInfo->guid,
-                $test
+                $test,
+                $this->manifest->getManufacturer()
             );
+
             $this->instance = (new QtiResource($resource))->handle();
         }
     }
@@ -442,21 +382,19 @@ class QtiImportCitoController extends Controller
     protected function addTest($xml, $overrides = [])
     {
         $fillableData = $this->getRequestData((new Test())->getFillable());
-
         $shuffle = 0;
-
 
         try {
 
             $test = new Test(array_merge(
                     $fillableData,
                     [
-                        'name' => ($xml !== false) ? $this->manifest->getName() : '',
+                        'name'                   => ($xml !== false) ? $this->manifest->getName() : '',
                         'is_open_source_content' => 0,
-                        'shuffle' => $shuffle,
-                        'introduction' => '',
+                        'shuffle'                => $shuffle,
+                        'introduction'           => '',
                         // todo needs change when manifest harbors multiple tests;
-                        'external_id' => $this->manifest->getId(),
+                        'external_id'            => $this->manifest->getId(),
                     ],
                     $overrides
                 )
@@ -467,7 +405,7 @@ class QtiImportCitoController extends Controller
                 return $test;
             } else {
                 // error
-                throw new \Exception('Fout bij het importeren van toets ' . $this->manifest->getName());
+                throw new \Exception('Fout bij het importeren van toets '.$this->manifest->getName());
 //                dd('could not add test to the system');
             }
         } catch (\Exception $e) {
@@ -480,7 +418,7 @@ class QtiImportCitoController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -491,7 +429,7 @@ class QtiImportCitoController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -502,8 +440,8 @@ class QtiImportCitoController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -514,11 +452,112 @@ class QtiImportCitoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * @param  Request  $request
+     * @param  array  $data
+     * @return array
+     * @throws \Exception
+     */
+    protected function preparePackageForImport(Request $request, array $data): array
+    {
+        $file = $request->file('zip_file');
+        $fileName = $file->getClientOriginalName();
+        $this->basePath = storage_path('app/qti_import');
+
+        $this->requestData = $data;
+        $request->merge($data);
+
+        $startDir = $this->dateStamp = date('YmdHis');
+        $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
+        $file->move($this->packageDir, $fileName);
+
+
+        /**
+         * txt file content should look like {"startDir":"chemie","fileName":"scheikunde-havo-vwo.zip"}
+         * chemie being the directory which is created in the app/qti_import dir and fileName the zip file to look for
+         * make sure to take an earlier created dir as the dir needs to be of the www_data user
+         */
+        if (pathinfo($fileName, PATHINFO_EXTENSION) === 'txt') {
+            $fileData = json_decode(file_get_contents(sprintf('%s/%s', $this->packageDir, $fileName)));
+            if (!$fileData) {
+                throw new \Exception(sprintf('no json in %s', $fileName));
+            }
+            $startDir = $fileData->startDir;
+            $fileName = $fileData->fileName;
+            $this->packageDir = sprintf('%s/%s', $this->basePath, $startDir);
+        }
+        return array($fileName, $startDir);
+    }
+
+    /**
+     * @param  \Exception  $e
+     * @param  string  $return
+     * @return string
+     */
+    protected function transformExceptionToReturnStatement(\Exception $e, string $return): string
+    {
+        $logEnd = sprintf('----END %s END----', $this->logRef);
+        $this->addToLog($logEnd);
+        $this->logAr[] = $logEnd;
+
+        $return .= $e->getMessage();
+        $return = sprintf('We hebben helaas een aantal fouten geconstateerd waardoor we de import niet goed konden afronden<br />Je kunt hiervoor contact opnemen met de Teach & Learn Company en daarbij als referentie \'%s\' mee geven<br /><br />%s',
+            $this->logRef,
+            $return
+        );
+        dispatch(new SendExceptionMail(implode('\n', $this->logAr), __FILE__, 0, []));
+        return $return;
+    }
+
+    /**
+     * @param  string  $return
+     * @return string
+     */
+    protected function buildPositiveResult(string $return): string
+    {
+        $werkbladenString = '';
+        if (count($this->werkbladen) > 0) {
+            $werkbladenString = sprintf('<span style="color:red"><strong>Let op:</strong> We hebben de volgende werkbladen gevonden die we niet automatisch konden verwerken:<br />%s</span>',
+                implode('<br />', $this->werkbladen->toArray()));
+        }
+        $return = sprintf('<h2>De import is succesvol verlopen! <small style="color:red">Vergeet niet om alle toetsen zelf nog eens te controleren!</small></h2>%s%s',
+            $werkbladenString, $return);
+        return $return;
+    }
+
+    /**
+     * @param  Request  $request
+     * @return array
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function prepareForImport(Request $request): array
+    {
+        $this->validate($request, [
+            'zip_file' => 'required',
+        ]);
+
+        //UUID update
+        //convert UUIDs to IDs
+        $data = $request->all();
+        $data['school_location_id'] = SchoolLocation::whereUuid($data['school_location_id'])->first()->getKey();
+        $data['author_id'] = User::whereUuid($data['author_id'])->first()->getKey();
+        $data['education_level_id'] = EducationLevel::whereUuid($data['education_level_id'])->first()->getKey();
+        $data['subject_id'] = Subject::whereUuid($data['subject_id'])->first()->getKey();
+        $schoolLocation = SchoolLocation::find($data['school_location_id']);
+        $period = PeriodRepository::getCurrentPeriodForSchoolLocation($schoolLocation, $this);
+
+        $request->request->add(['period_id' => $period->id]);
+        $data['period_id'] = $period->id;
+
+        list($fileName, $startDir) = $this->preparePackageForImport($request, $data);
+        return array($fileName, $startDir);
     }
 }

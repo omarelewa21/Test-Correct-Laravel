@@ -35,7 +35,7 @@ class SwitchSchoolAccountTableSeeder extends Seeder
         $locationA = \tcCore\SchoolLocation::create([
             "name"                                   => "MS A",
             "customer_code"                          => "MSA",
-            "user_id"                                => 520,
+            "user_id"                                => 755,
             "school_id"                              => $comprehensiveSchool->getKey(),
             "grading_scale_id"                       => "1",
             "activated"                              => "1",
@@ -63,7 +63,7 @@ class SwitchSchoolAccountTableSeeder extends Seeder
         $locationB = \tcCore\SchoolLocation::create([
             "name"                                   => "MSB",
             "customer_code"                          => "MSB",
-            "user_id"                                => 520,
+            "user_id"                                => 755,
             "school_id"                              => $comprehensiveSchool->getKey(),
             "grading_scale_id"                       => "1",
             "activated"                              => "1",

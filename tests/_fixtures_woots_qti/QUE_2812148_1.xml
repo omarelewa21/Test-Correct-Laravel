@@ -1,0 +1,42 @@
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_v2p2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p2 http://www.imsglobal.org/xsd/qti/qtiv2p2/imsqti_v2p2p2.xsd"
+                identifier="QUE_2812148_1" title="De Bambino Sphinx" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE" cardinality="single" basetype="identifier">
+        <correctResponse>
+            <value>choice3</value>
+        </correctResponse>
+    </responseDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" basetype="float">
+        <defaultValue>
+            <value>0</value>
+        </defaultValue>
+    </outcomeDeclaration>
+    <itemBody>
+        <p>&lt;div class="redactor-content" data-js-katex="" data-js-redactor-content=""&gt;&lt;div&gt;&lt;p&gt;Het
+            fokken op extreme uiterlijke kenmerken van dieren, zoals bij de Bambino Sphinx-kat, kan leiden tot ernstige
+            gezondheids- en welzijnsproblemen. Carola Schouten, minister van Landbouw, Natuur en Voedselkwaliteit, wil
+            daarom met meer voorlichting voorkomen dat mensen zo’n haarloze kat met te korte poten aanschaffen.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+        </p>
+        <p>&lt;div class="redactor-content" data-js-katex="" data-js-redactor-content=""&gt;&lt;/div&gt;</p>
+        <p>&lt;div class="redactor-content" data-js-katex="" data-js-redactor-content=""&gt;&lt;p&gt;Kortpotigheid
+            (allel M) erft autosomaal dominant over. Embryo’s met een homozygoot dominant genotype sterven in een vroeg
+            embryonaal stadium. Haarloosheid (allel h) erft autosomaal recessief over. De genen voor pootlengte en
+            haargroei zijn niet gekoppeld.&lt;/p&gt;&lt;/div&gt;
+        </p>
+        <p>&lt;div class="redactor-content" data-js-katex="" data-js-redactor-content=""&gt;&lt;p&gt;Een fokker wil toch
+            Bambino Sphinx-katten verkrijgen. Hij voert hiervoor een tweetraps-kruising uit. Eerst kruist hij een
+            kortpotige, behaarde Munchkin-kat met genotype MmHH, met een haarloze, normaal-potige Sphinx-kat met
+            genotype mmhh.&lt;/p&gt;&lt;p&gt;Onder de nakomelingen bevinden zich kortpotige katten. Na onderling kruisen
+            van deze kortpotige nakomelingen wordt een nestje kittens geboren.&lt;/p&gt;&lt;/div&gt;
+        </p>
+        <choiceInteraction responseIdentifier="RESPONSE" shuffle="false" maxChoices="1">
+            <prompt>&lt;div&gt;Hoe groot is de kans dat de eerste kitten uit dit nestje een Bambino Sphinx is? &lt;/div&gt;</prompt>
+            <simpleChoice identifier="choice1">&lt;div&gt;3/16&lt;/div&gt;</simpleChoice>
+            <simpleChoice identifier="choice2">&lt;div&gt;1/8&lt;/div&gt;</simpleChoice>
+            <simpleChoice identifier="choice3">&lt;div&gt;1/6&lt;/div&gt;</simpleChoice>
+            <simpleChoice identifier="choice4">&lt;div&gt;2/3&lt;/div&gt;</simpleChoice>
+            <simpleChoice identifier="choice5">&lt;div&gt;3/4&lt;/div&gt;</simpleChoice>
+        </choiceInteraction>
+    </itemBody>
+    <responseProcessing template="http://www.imsglobal.org/question/qti_v2p1/rptemplates/match_correct"/>
+</assessmentItem><to_str/><to_str/>

@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
+use tcCore\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,10 +16,8 @@ use tcCore\Jobs\SendOnboardingWelcomeMail;
 | contains the "web" middleware group. Now create something great!
 |
 */
-if (App::environment('local')) {
-    Route::get('/testmail', function () {
-        return (new SendOnboardingWelcomeMail(1546))->render();
-    });
-}
-Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class);
+
+Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\UsersController@confirmEmail');
+Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortcodeController@registerClickAndRedirect');
+Route::get('/', tcCore\Http\Livewire\Onboarding::class);

@@ -11,6 +11,9 @@
                 <h3>“Let op! De docent heeft een e-mailadres opgegeven dat al bestaat in de database!"</h3>
                 Er is daarom ook geen nieuw account voor deze docent aangemaakt.<br/>
             @endif
+            @if($invitedByColleagueWithSameDomain)
+                <h3>Uitgenodigd door een collega van hetzelfde domein.</h3>
+            @endif
             <table>
                 <tr>
                     <td>school_location</td>

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\Jobs\SendNotifyInviterMail;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Lib\User\Factory;
 use tcCore\Mail\TeacherRegistered;
@@ -31,9 +32,6 @@ class DemoTeacherRegistration extends Model
             }
         });
     }
-
-
-    //
 
     public static function registerIfApplicable(User $user)
     {
@@ -95,7 +93,7 @@ class DemoTeacherRegistration extends Model
         }
     }
 
-    public function addUserToRegistration($password = null)
+    public function addUserToRegistration($password = null, $invited_by = null, $ref = null)
     {
         try {
             $newRegistration = false;
@@ -104,10 +102,6 @@ class DemoTeacherRegistration extends Model
                 $user = User::where('username', $this->username)->first();
             }
             if (!$user) {
-//                    if ($user->isA('teacher')) {
-//                        }else{logger('klas '.$schoolClass->getKey.' bestaat al voor '.$user->getKey());}
-//                    }
-                ;
 
                 $tempTeachersSchoolLocation = SchoolHelper::getTempTeachersSchoolLocation();
                 $data = array_merge(
@@ -115,6 +109,7 @@ class DemoTeacherRegistration extends Model
                     $this->toArray(), [
                         'school_location_id' => $tempTeachersSchoolLocation->getKey(),
                         'user_roles'         => 1, // Teacher;
+                        'invited_by'         => $invited_by,
                     ]
                 );
 
@@ -125,6 +120,25 @@ class DemoTeacherRegistration extends Model
 
                 $userFactory = new Factory(new User());
                 $user = $userFactory->generate($data);
+                $this->setAttribute('user_id',$user->getKey());
+                $this->save();
+
+
+                if ($ref != null) {
+                    //Update shortcodeclick with new userId
+                    $shortcodeClick = ShortcodeClick::whereUuid($ref)->first();
+                    $shortcodeClick->setAttribute('user_id', $user->getKey());
+                    $shortcodeClick->save();
+
+                    //Send mail to inviter that there is a new registration from their invite
+                    $inviter = User::find($invited_by);
+                    try {
+                        Mail::to($inviter->getEmailForPasswordReset())->send(new SendNotifyInviterMail($inviter,$user));
+                    } catch (\Throwable $e) {
+                        Bugsnag::notifyException($e);
+                    }
+                }
+
 
                 $demoHelper = (new DemoHelper())->setSchoolLocation($tempTeachersSchoolLocation);
 

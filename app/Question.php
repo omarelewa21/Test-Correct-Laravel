@@ -11,6 +11,7 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
+use \Exception;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
@@ -406,6 +407,40 @@ class Question extends MtiBaseModel {
             return true;
         } else {
             return false;
+        }
+    }
+
+    public function isDirtyAnswerOptions($totalData){
+        switch($this->type){
+            case 'MatchingQuestion':
+                $requestAnswers = $this->convertMatchingAnswers($totalData['answers']);
+                try{
+                    $question = MatchingQuestion::findOrFail($this->id);
+                    $answers = $this->convertMatchingAnswersFromQuestion($question);
+                    if($requestAnswers==$answers){
+                        return false;
+                    }
+                }catch(Exception $e){
+                    return true;
+                }
+                return true;
+            break;
+            case 'RankingQuestion':
+                $requestAnswers = $totalData['answers'];
+                try{
+                    $question = RankingQuestion::findOrFail($this->id);
+                    $answers = $question->answers;
+                    if($requestAnswers==$answers){
+                        return false;
+                    }
+                }catch(Exception $e){
+                    return true;
+                }
+                return true;
+            break;
+            default:
+                return false;
+            break;
         }
     }
 
@@ -928,4 +963,31 @@ class Question extends MtiBaseModel {
      * @throws \Exception
      */
     public function addAnswers($mainQuestion, $answers){}
+
+    private function convertMatchingAnswers($answers){
+        $returnArray = [];
+        foreach ($answers as $key => $answer) {
+            if($answer['left']==''){
+                continue;
+            }
+            $returnArray[] = [ 'answer' => $answer['left'],
+                                'type' => 'LEFT',
+                            ];
+            $returnArray[] = [ 'answer' => $answer['right'],
+                                'type' => 'RIGHT',
+                            ];
+        }
+        return $returnArray;
+    }
+
+    private function convertMatchingAnswersFromQuestion($question){
+        $returnArray = [];
+        $answers = $question->matchingQuestionAnswers->toArray();
+        foreach ($answers as $key => $answer) {
+            $returnArray[] = [ 'answer' => $answer['answer'],
+                                'type' => $answer['type'],
+                            ];
+        }
+        return $returnArray;
+    }
 }
