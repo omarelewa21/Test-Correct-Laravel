@@ -10,8 +10,6 @@ class OpenQuestion extends Component
     public $uuid;
     protected $listeners = ['questionUpdated' => '$refresh'];
 
-    private $question;
-
     public function render()
     {
         $question = Question::whereUuid($this->uuid)->first();

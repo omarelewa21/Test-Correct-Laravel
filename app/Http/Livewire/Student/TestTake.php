@@ -30,22 +30,13 @@ class TestTake extends Component
 
     public function mount(Test $test_take)
     {
-
-
         $this->testQuestions = self::getData($test_take);
         session()->put('data', serialize($this->testQuestions));
-        $this->question = $this->testQuestions->get(3)->uuid;
-
-        $this->setMainQuestion($this->question);
+        $this->setMainQuestion($this->testQuestions->first()->uuid);
     }
 
     public function hydrate()
     {
-        dump('hydrate');
-
-        $q = unserialize(session()->get('data'))->get(3);
-        dump($q->multipleChoiceQuestionAnswers);
-
         $this->testQuestions = unserialize(session()->get('data'));
     }
 
@@ -83,12 +74,15 @@ class TestTake extends Component
         return $testTake->test->testQuestions->flatMap(function ($testQuestion) use ($visibleAttributes) {
             if ($testQuestion->question->type === 'GroupQuestion') {
                 return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($visibleAttributes) {
-                    $item->question->makeVisible($visibleAttributes);
+                    $hideAttributes = array_keys($item->question->getAttributes());
+
+                    $item->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
 
                     return $item->question;
                 });
             }
-            $testQuestion->question->makeVisible($visibleAttributes);
+            $hideAttributes = array_keys($testQuestion->question->getAttributes());
+            $testQuestion->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
 
             return collect([$testQuestion->question]);
         });

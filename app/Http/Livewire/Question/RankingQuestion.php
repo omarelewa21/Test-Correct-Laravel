@@ -3,12 +3,18 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
+use tcCore\Question;
 
 class RankingQuestion extends Component
 {
-    public $question;
+    protected $listeners = ['questionUpdated' => '$refresh'];
+
+    public $uuid;
+
     public function render()
     {
-        return view('livewire.question.ranking-question');
+        $question = Question::whereUuid($this->uuid)->first();
+
+        return view('livewire.question.ranking-question', compact('question'));
     }
 }
