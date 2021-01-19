@@ -19,12 +19,12 @@ class TestTakeTest extends TestCase
         $testTake = TestTake::whereUuid('25b9e935-1080-476b-a825-fb9b4f828fb6')->first();
         $data = \tcCore\Http\Livewire\Student\TestTake::getData($testTake);
         $this->assertCount(6, $data);
-//        $this->assertNull($data->first()->answer);
+        $this->assertEquals(collect([]), $data);
 
-        dd($data->filter(function($item, $key){
-            if ($key==3|| $key == 0) {
-                return $item;
-            }
-        }));
+
+//        dd($data->filter(function($item, $key){
+//            return ($key==1 || $key == 0);
+//
+//        }));
     }
 }

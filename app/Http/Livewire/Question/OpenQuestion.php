@@ -9,6 +9,7 @@ class OpenQuestion extends Component
 {
     public $uuid;
     protected $listeners = ['questionUpdated' => '$refresh'];
+    public $answer;
 
     public function render()
     {

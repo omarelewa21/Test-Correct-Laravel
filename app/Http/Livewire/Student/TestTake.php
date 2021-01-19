@@ -27,6 +27,7 @@ class TestTake extends Component
     public $content;
     public $mainQuestion;
     public $component;
+    public $number = 1;
 
     public function mount(Test $test_take)
     {
@@ -42,16 +43,15 @@ class TestTake extends Component
 
     public function previousQuestion()
     {
-        $this->question--;
+        $this->question = $this->testQuestions->get($this->number - 2)->uuid;
         $this->setMainQuestion($this->question);
     }
 
     public function nextQuestion()
     {
-        $this->question++;
+        $this->question = $this->testQuestions->get($this->number)->uuid;
         $this->setMainQuestion($this->question);
     }
-
 
     public function render()
     {
@@ -62,6 +62,10 @@ class TestTake extends Component
     {
         $this->question = $questionUuid;
         $this->mainQuestion = Question::whereUuid($questionUuid)->first();
+        $key = $this->testQuestions->search(function ($value, $key) use ($questionUuid) {
+            return $value->uuid === $questionUuid;
+        });
+        $this->number = $key+1;
 
         $this->emit('questionUpdated');
     }

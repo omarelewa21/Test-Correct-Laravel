@@ -5,7 +5,7 @@
     <div class="bg-white rounded-10 p-8 sm:p-10 content-section">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
             <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-                <span class="align-middle"></span>
+                <span class="align-middle">{{ $number }}</span>
             </div>
             <h1 class="inline-block ml-2 mr-6">{{ $mainQuestion->type }}</h1>
             <h4 class="inline-block">{{$mainQuestion->score}}pt |  {{ date('His') }}</h4>
@@ -15,7 +15,7 @@
             @if($mainQuestion->type === 'MultipleChoiceQuestion')
                 <livewire:question.multiple-choice-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
             @elseif($mainQuestion->type === 'OpenQuestion')
-                <livewire:question.open-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
+                <livewire:question.open-question :answer="'abc'" :uuid="$question" wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
             @elseif($mainQuestion->type === 'MatchingQuestion')
                 <livewire:question.matching-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
             @elseif($mainQuestion->type === 'CompletionQuestion')
