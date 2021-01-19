@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Student;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
@@ -33,7 +34,7 @@ class TestTake extends Component
     {
         $this->testQuestions = self::getData($test_take);
         session()->put('data', serialize($this->testQuestions));
-        $this->setMainQuestion($this->testQuestions->first()->uuid);
+        $this->setMainQuestion($this->question ?: $this->testQuestions->first()->uuid);
     }
 
     public function hydrate()
@@ -65,7 +66,7 @@ class TestTake extends Component
         $key = $this->testQuestions->search(function ($value, $key) use ($questionUuid) {
             return $value->uuid === $questionUuid;
         });
-        $this->number = $key+1;
+        $this->number = $key + 1;
 
         $this->emit('questionUpdated');
     }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace tcCore;
 
@@ -170,6 +170,16 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
 
         return $score;
+    }
+
+    public function getCaptionAttribute()
+    {
+        if ($this->subtype === 'TrueFalse') {
+            return __('test_take.multiple_choice_question_true_false');
+        }
+
+        return parent::getCaptionAttribute();
+
     }
 
 

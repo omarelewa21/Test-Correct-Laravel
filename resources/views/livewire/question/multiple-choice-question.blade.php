@@ -1,6 +1,6 @@
 <div>
-    <div wire:key="'type'.date('His') ">  {{ date('His') }}</div>
-    {!! $question->getQuestionHtml()  !!} |  multiple-choice-question.blade | {{ date('His') }}
+
+    {!! $question->getQuestionHtml()  !!}
 
     <div class="mt-4 space-y-4">
         @foreach( $question->multipleChoiceQuestionAnswers as $link)

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Test-Correct</title>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
 
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
 
