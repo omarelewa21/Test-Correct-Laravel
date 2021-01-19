@@ -1,14 +1,12 @@
 @props([
-    'size' => 'sm',
-    'rotateIcon' => false,
+'size' => 'sm',
+'rotateIcon' => false,
 ])
 <?php
-    $rotateClass = '';
-    if ($rotateIcon) {
-        $rotateClass = 'rotate-svg-' . $rotateIcon;
-    }
+$rotateClass = $rotateIcon ? ('rotate-svg-' . $rotateIcon) : '';
+$size = 'button-' . $size;
 ?>
 
-<x-button class="secondary-button button-{{$size}} {{$rotateClass}}">
+<button {{ $attributes->merge(['class' => 'button secondary-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}>
     {{ $slot }}
-</x-button>
+</button>

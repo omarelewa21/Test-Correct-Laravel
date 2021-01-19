@@ -1,192 +1,367 @@
-<div class="w-full">
+<div class="w-full" test-take-player>
     <div class="flex flex-col py-4 space-y-10">
-        <button wire:click="$set('onOverviewPage', {{ !$onOverviewPage }})" type="button"
-                class="button secondary-button max-w-min">
-            overview
-        </button>
-    <button wire:click="notification()" type="button"
-                class="button primary-button max-w-min">
-            send notification
-        </button>
 
-        <x-partials.question-indicator :questions="$testQuestions"></x-partials.question-indicator>
-        <div class="question-container">
-            <div class="p-8 sm:p-10 content-section">
-                <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
-                    <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-                        <span class="align-middle">{{ $mainQuestion->id }}</span>
-                    </div>
-                    <h1 class="inline-block ml-2 mr-6">{{ $mainQuestion->type }}</h1>
-                    <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
-                    {{--        @if($mainQuestion->status = 'complete')--}}
-                    {{--            <div class="ml-auto cta-primary">--}}
-                    {{--                <x-icon.checkmark-small/>--}}
-                    {{--                <span class="ml-auto note bold align-middle">BEANTWOORD</span>--}}
-                    {{--            </div>--}}
-                    {{--        @elseif($mainQuestion->status = 'pending')--}}
-                    {{--            <div class="ml-auto text-gray-400">--}}
-                    {{--                <x-icon.close/>--}}
-                    {{--                <span class="ml-auto note bold align-middle">NIET BEANTWOORD </span>--}}
-                    {{--            </div>--}}
-                    {{--        @endif--}}
-                </div>
-                <div class="flex flex-wrap">
-                    <x-input.group for="hallos" label="hallos">
-                        <x-input.text name="hallos"></x-input.text>
-                    </x-input.group>
-                </div>
-            </div>
-            @if($onOverviewPage)
-                <button class="button cta-button float-right mt-3">Antwoord inleveren</button>
-            @endif
-        </div>
-
-        @if($onOverviewPage)
-            <div class="question-container">
-                <div class="p-8 sm:p-10 content-section">
-                    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
-                        <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-                            <span class="align-middle">{{ $mainQuestion->id }}</span>
-                        </div>
-                        <h1 class="inline-block ml-2 mr-6">{{ $mainQuestion->type }}</h1>
-                        <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
-                        {{--        @if($mainQuestion->status = 'complete')--}}
-                        {{--            <div class="ml-auto cta-primary">--}}
-                        {{--                <x-icon.checkmark-small/>--}}
-                        {{--                <span class="ml-auto note bold align-middle">BEANTWOORD</span>--}}
-                        {{--            </div>--}}
-                        {{--        @elseif($mainQuestion->status = 'pending')--}}
-                        {{--            <div class="ml-auto text-gray-400">--}}
-                        {{--                <x-icon.close/>--}}
-                        {{--                <span class="ml-auto note bold align-middle">NIET BEANTWOORD </span>--}}
-                        {{--            </div>--}}
-                        {{--        @endif--}}
-                    </div>
-                    <div class="flex flex-wrap">
-                        <x-input.group for="hallos" label="hallos">
-                            <x-input.text name="hallos"></x-input.text>
-                        </x-input.group>
-                    </div>
-                </div>
-
-                <button class="button cta-button float-right mt-3">Antwoord inleveren</button>
-            </div>
-            <div class="question-container">
-                <div class="p-8 sm:p-10 content-section">
-                    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
-                        <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-                            <span class="align-middle">{{ $mainQuestion->id }}</span>
-                        </div>
-                        <h1 class="inline-block ml-2 mr-6">{{ $mainQuestion->type }}</h1>
-                        <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
-                        {{--        @if($mainQuestion->status = 'complete')--}}
-                        {{--            <div class="ml-auto cta-primary">--}}
-                        {{--                <x-icon.checkmark-small/>--}}
-                        {{--                <span class="ml-auto note bold align-middle">BEANTWOORD</span>--}}
-                        {{--            </div>--}}
-                        {{--        @elseif($mainQuestion->status = 'pending')--}}
-                        {{--            <div class="ml-auto text-gray-400">--}}
-                        {{--                <x-icon.close/>--}}
-                        {{--                <span class="ml-auto note bold align-middle">NIET BEANTWOORD </span>--}}
-                        {{--            </div>--}}
-                        {{--        @endif--}}
-                    </div>
-                    <div class="flex flex-wrap">
-                        <x-input.group for="hallos" label="hallos">
-                            <x-input.text name="hallos"></x-input.text>
-                        </x-input.group>
-                    </div>
-                </div>
-
-                <button class="button cta-button float-right mt-3">Antwoord inleveren</button>
-            </div>
-            <div class="question-container">
-                <div class="p-8 sm:p-10 content-section">
-                    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
-                        <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-                            <span class="align-middle">{{ $mainQuestion->id }}</span>
-                        </div>
-                        <h1 class="inline-block ml-2 mr-6">{{ $mainQuestion->type }}</h1>
-                        <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
-                        {{--        @if($mainQuestion->status = 'complete')--}}
-                        {{--            <div class="ml-auto cta-primary">--}}
-                        {{--                <x-icon.checkmark-small/>--}}
-                        {{--                <span class="ml-auto note bold align-middle">BEANTWOORD</span>--}}
-                        {{--            </div>--}}
-                        {{--        @elseif($mainQuestion->status = 'pending')--}}
-                        {{--            <div class="ml-auto text-gray-400">--}}
-                        {{--                <x-icon.close/>--}}
-                        {{--                <span class="ml-auto note bold align-middle">NIET BEANTWOORD </span>--}}
-                        {{--            </div>--}}
-                        {{--        @endif--}}
-                    </div>
-                    <div class="flex flex-wrap">
-                        <x-input.group for="hallos" label="hallos">
-                            <x-input.text name="hallos"></x-input.text>
-                        </x-input.group>
-                    </div>
-                </div>
-
-                <button class="button cta-button float-right mt-3">Antwoord inleveren</button>
-            </div>
-            <div class="question-container">
-                <div class="p-8 sm:p-10 content-section">
-                    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
-                        <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-                            <span class="align-middle">{{ $mainQuestion->id }}</span>
-                        </div>
-                        <h1 class="inline-block ml-2 mr-6">{{ $mainQuestion->type }}</h1>
-                        <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
-                        {{--        @if($mainQuestion->status = 'complete')--}}
-                        {{--            <div class="ml-auto cta-primary">--}}
-                        {{--                <x-icon.checkmark-small/>--}}
-                        {{--                <span class="ml-auto note bold align-middle">BEANTWOORD</span>--}}
-                        {{--            </div>--}}
-                        {{--        @elseif($mainQuestion->status = 'pending')--}}
-                        {{--            <div class="ml-auto text-gray-400">--}}
-                        {{--                <x-icon.close/>--}}
-                        {{--                <span class="ml-auto note bold align-middle">NIET BEANTWOORD </span>--}}
-                        {{--            </div>--}}
-                        {{--        @endif--}}
-                    </div>
-                    <div class="flex flex-wrap">
-                        <x-input.group for="hallos" label="hallos">
-                            <x-input.text name="hallos"></x-input.text>
-                        </x-input.group>
-                    </div>
-                </div>
-
-                <button class="button cta-button float-right mt-3">Antwoord inleveren</button>
-            </div>
-
-        @endif
-
-
+        <x-partials.question-indicator :questions="$testQuestions"
+                                       :showOverview="$showOverview"></x-partials.question-indicator>
     </div>
+    @if(!$showOverview)
+        <div>
+            <div class="question-container">
+                <div class="p-8 sm:p-10 content-section">
+                    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
+                        <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
+                            <span class="align-middle">{{ $mainQuestion->id }}</span>
+                        </div>
 
-    {{--        <x-modal maxWidth="600" id="testModal">--}}
-    {{--            <div>--}}
-    {{--                <div class="title px-10 pt-6 pb-2.5">--}}
-    {{--                    <h2>Let op! Vraaggroep sluit</h2>--}}
-    {{--                </div>--}}
-    {{--                <div class="divider mx-7"></div>--}}
+                        <h1 class="inline-block ml-2 mr-6">{{ get_class($mainQuestion) }}
+                            | {{   strip_tags($mainQuestion->getQuestionHtml()) }}</h1>
+                        <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
+                    </div>
 
-    {{--                <div class="px-10 py-5 flex flex-wrap">--}}
-    {{--                    <p class="body1">Door naar deze vraag te gaan, sluit je de groep vragen af waar je nu mee bezig bent. Je--}}
-    {{--                        kan--}}
-    {{--                        hierna niet meer terugkeren.</p>--}}
-    {{--                    <div class="inline-flex pt-6 items-center space-x-6 ml-auto">--}}
-    {{--                        <div @click="open = false">--}}
-    {{--                            <x-button.text-button @click="open = false" rotateIcon="180">--}}
-    {{--                                <x-icon.chevron/>--}}
-    {{--                                <span>Terug</span>--}}
-    {{--                            </x-button.text-button>--}}
-    {{--                        </div>--}}
-    {{--                        <x-button.primary size="md"><span>Doorgaan</span>--}}
-    {{--                            <x-icon.arrow/>--}}
-    {{--                        </x-button.primary>--}}
-    {{--                    </div>--}}
-    {{--                </div>--}}
-    {{--            </div>--}}
-    {{--        </x-modal>--}}
+                    {{--                Question types ifjes--}}
+                    <div>
+                        @if($mainQuestion->type === 'OpenQuestion')
+                            @if($mainQuestion->subtype === 'short')
+                                <x-input.group class="w-full" label="{{$mainQuestion->subtype}}"
+                                               for="vraag-{{$mainQuestion->id}}">
+                                    <x-input.text name="vraag-{{$mainQuestion->id}}"></x-input.text>
+                                </x-input.group>
+                            @else
+                                @livewire('question.open-question', ['question' => $mainQuestion])
+
+                            @endif
+                        @endif
+
+                        @if($mainQuestion->type === 'MatchingQuestion')
+                            subtype: {{ $mainQuestion->subtype }}
+
+                        @endif
+
+                        @if($mainQuestion->type === 'RankingQuestion')
+                            subtype: {{ $mainQuestion->subtype }}
+
+                        @endif
+
+                        @if($mainQuestion->type === 'CompletionQuestion')
+                            @livewire('question.completion-question', ['question' => $mainQuestion])
+                        @endif
+
+                        <?php $selectable = 1 ?>
+                        @if($mainQuestion->type === 'MultipleChoiceQuestion')
+                            subtype: {{ $mainQuestion->subtype }}
+
+                            @if($selectable == 1)
+                                <div class="flex">
+                                    <fieldset>
+                                        <legend class="sr-only">
+                                            Keuzes
+                                        </legend>
+
+                                        <ul class="relative bg-white rounded-md">
+
+                                            {{--                                        @foreach($answers as $key => $answer)--}}
+                                            {{--                                            <li>--}}
+                                            {{--                                                <div :class="{ 'border-gray-200': !(active === 0), ' border-indigo-200 z-10': active === 0 }"--}}
+                                            {{--                                                     class="relative rounded-tl-md rounded-tr-md p-4 flex flex-col md:pl-4 md:pr-6 border-gray-200">--}}
+                                            {{--                                                    <label class="flex items-center text-sm cursor-pointer">--}}
+                                            {{--                                                        <input name="pricing_plan" type="radio"--}}
+                                            {{--                                                               @click="select({{ $key}})"--}}
+                                            {{--                                                               @keydown.space="select({{ $key }})"--}}
+                                            {{--                                                               @keydown.arrow-up="onArrowUp({{ $key }})"--}}
+                                            {{--                                                               @keydown.arrow-down="onArrowDown({{ $key }})"--}}
+                                            {{--                                                               class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 cursor-pointer border-gray-300"--}}
+                                            {{--                                                               aria-describedby="plan-option-pricing-0 plan-option-limit-0">--}}
+                                            {{--                                                        <span class="ml-3 font-medium text-gray-900">{{ $answer }}</span>--}}
+                                            {{--                                                    </label>--}}
+                                            {{--                                                </div>--}}
+                                            {{--                                            </li>--}}
+                                            {{--                                        @endforeach--}}
+
+                                            <li>
+                                                <div class="relative rounded-tl-md rounded-tr-md p-4 flex flex-col md:pl-4 md:pr-6 border-gray-200">
+                                                    <label class="flex items-center text-sm cursor-pointer">
+                                                        <input name="pricing_plan" type="radio" @click="select(0)"
+                                                               @keydown.space="select(0)"
+                                                               @keydown.arrow-up="onArrowUp(0)"
+                                                               @keydown.arrow-down="onArrowDown(0)"
+                                                               class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 cursor-pointer border-gray-300"
+                                                               aria-describedby="plan-option-pricing-0 plan-option-limit-0">
+                                                        <span class="ml-3 font-medium text-gray-900">Startup</span>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <div class="relative p-4 flex flex-col md:pl-4 md:pr-6 border-gray-200">
+                                                    <label class="flex items-center text-sm cursor-pointer">
+                                                        <input name="pricing_plan" type="radio" @click="select(1)"
+                                                               @keydown.space="select(1)"
+                                                               @keydown.arrow-up="onArrowUp(1)"
+                                                               @keydown.arrow-down="onArrowDown(1)"
+                                                               class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 cursor-pointer border-gray-300"
+                                                               aria-describedby="plan-option-pricing-1 plan-option-limit-1"
+                                                               checked="">
+                                                        <span class="ml-3 font-medium text-gray-900">Business</span>
+                                                    </label>
+                                                </div>
+                                            </li>
+
+
+                                            <li>
+                                                <div class="relative rounded-bl-md rounded-br-md p-4 flex flex-col md:pl-4 md:pr-6 border-indigo-200 z-10">
+                                                    <label class="flex items-center text-sm cursor-pointer">
+                                                        <input name="pricing_plan" type="radio" @click="select(2)"
+                                                               @keydown.space="select(2)"
+                                                               @keydown.arrow-up="onArrowUp(2)"
+                                                               @keydown.arrow-down="onArrowDown(2)"
+                                                               class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 cursor-pointer border-gray-300"
+                                                               aria-describedby="plan-option-pricing-2 plan-option-limit-2">
+                                                        <span class="ml-3 font-medium text-gray-900">Enterprise</span>
+                                                    </label>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </fieldset>
+                                </div>
+                            @endif
+                            @if($selectable > 1)
+                                <div class="checkbox-group space-y-3">
+                                    {{--                                @foreach($answers as $key => $answer)--}}
+                                    {{--                                    <div class="flex items-center">--}}
+                                    {{--                                        <input type="checkbox" name="{{ $answer }}" id="{{ $answer }}"--}}
+                                    {{--                                               class="form-checkbox h-5 w-5 text-blue-600">--}}
+                                    {{--                                        <label for="{{ $answer }}">{{ $answer }}</label>--}}
+                                    {{--                                    </div>--}}
+                                    {{--                                @endforeach--}}
+
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" checked>
+                                        <label> Checkbox</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                                        <label> Checkbox</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                                        <label> Checkbox</label>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                                        <label> Checkbox</label>
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    @endif
+    @if($showOverview)
+        <div class="space-y-8 mb-10">
+            @foreach($testQuestions as $key => $question)
+                <div class="flex flex-col">
+                    <div class="question-container">
+                        <div class="p-8 sm:p-10 content-section">
+                            <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
+                                <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
+                                    <span class="align-middle">{{ ++$key }}</span>
+                                </div>
+
+                                <h1 class="inline-block ml-2 mr-6">{{ get_class($question) }}
+                                    | {{   strip_tags($question->getQuestionHtml()) }}</h1>
+                                <h4 class="inline-block">{{$question->score}}pt</h4>
+                            </div>
+
+                            <div>
+                                @if($question->type === 'OpenQuestion')
+                                    @if($mainQuestion->subtype === 'short')
+                                        <x-input.group class="w-full" label="{{$mainQuestion->subtype}}"
+                                                       for="vraag-{{$mainQuestion->id}}">
+                                            <x-input.text disabled name="vraag-{{$mainQuestion->id}}"></x-input.text>
+                                        </x-input.group>
+                                    @else
+                                        <x-input.group class="w-full" label="{{$mainQuestion->subtype}}"
+                                                       for="vraag-{{$mainQuestion->id}}">
+                                            <x-input.textarea disabled
+                                                              name="vraag-{{$mainQuestion->id}}"></x-input.textarea>
+                                        </x-input.group>
+                                    @endif
+                                @endif
+
+                                @if($question->type === 'MatchingQuestion')
+                                    subtype: {{ $mainQuestion->subtype }}
+
+                                @endif
+
+                                @if($question->type === 'RankingQuestion')
+                                    subtype: {{ $mainQuestion->subtype }}
+
+                                @endif
+
+                                @if($question->type === 'CompletionQuestion')
+                                    @livewire('question.completion-question', ['question' => $mainQuestion])
+                                @endif
+
+                                <?php $selectable = 1 ?>
+                                @if($question->type === 'MultipleChoiceQuestion')
+                                    subtype: {{ $mainQuestion->subtype }}
+
+                                    @if($selectable == 1)
+                                        <div class="flex">
+                                            <fieldset disabled>
+                                                <legend class="sr-only">
+                                                    Keuzes
+                                                </legend>
+
+                                                <ul class="relative bg-white rounded-md">
+
+                                                    {{--                                            @foreach($answers as $key => $answer)--}}
+                                                    {{--                                                <li>--}}
+                                                    {{--                                                    <div :class="{ 'border-gray-200': !(active === 0), ' border-indigo-200 z-10': active === 0 }"--}}
+                                                    {{--                                                         class="relative rounded-tl-md rounded-tr-md p-4 flex flex-col md:pl-4 md:pr-6 border-gray-200">--}}
+                                                    {{--                                                        <label class="flex items-center text-sm cursor-pointer">--}}
+                                                    {{--                                                            <input name="pricing_plan" type="radio"--}}
+                                                    {{--                                                                   @click="select({{ $key}})"--}}
+                                                    {{--                                                                   @keydown.space="select({{ $key }})"--}}
+                                                    {{--                                                                   @keydown.arrow-up="onArrowUp({{ $key }})"--}}
+                                                    {{--                                                                   @keydown.arrow-down="onArrowDown({{ $key }})"--}}
+                                                    {{--                                                                   class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 cursor-pointer border-gray-300"--}}
+                                                    {{--                                                                   aria-describedby="plan-option-pricing-0 plan-option-limit-0">--}}
+                                                    {{--                                                            <span class="ml-3 font-medium text-gray-900">{{ $answer }}</span>--}}
+                                                    {{--                                                        </label>--}}
+                                                    {{--                                                    </div>--}}
+                                                    {{--                                                </li>--}}
+                                                    {{--                                            @endforeach--}}
+
+                                                    <li>
+                                                        <div class="relative rounded-tl-md rounded-tr-md p-4 flex flex-col md:pl-4 md:pr-6 border-gray-200">
+                                                            <label class="flex items-center text-sm cursor-pointer">
+                                                                <input name="pricing_plan" type="radio"
+                                                                       @click="select(0)"
+                                                                       @keydown.space="select(0)"
+                                                                       @keydown.arrow-up="onArrowUp(0)"
+                                                                       @keydown.arrow-down="onArrowDown(0)"
+                                                                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 cursor-pointer border-gray-300"
+                                                                       aria-describedby="plan-option-pricing-0 plan-option-limit-0">
+                                                                <span class="ml-3 font-medium text-gray-900">Startup</span>
+                                                            </label>
+                                                        </div>
+                                                    </li>
+                                                    <li>
+                                                        <div class="relative p-4 flex flex-col md:pl-4 md:pr-6 border-gray-200">
+                                                            <label class="flex items-center text-sm cursor-pointer">
+                                                                <input name="pricing_plan" type="radio"
+                                                                       @click="select(1)"
+                                                                       @keydown.space="select(1)"
+                                                                       @keydown.arrow-up="onArrowUp(1)"
+                                                                       @keydown.arrow-down="onArrowDown(1)"
+                                                                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 cursor-pointer border-gray-300"
+                                                                       aria-describedby="plan-option-pricing-1 plan-option-limit-1"
+                                                                       checked="">
+                                                                <span class="ml-3 font-medium text-gray-900">Business</span>
+                                                            </label>
+                                                        </div>
+                                                    </li>
+
+
+                                                    <li>
+                                                        <div class="relative rounded-bl-md rounded-br-md p-4 flex flex-col md:pl-4 md:pr-6 border-indigo-200 z-10">
+                                                            <label class="flex items-center text-sm cursor-pointer">
+                                                                <input name="pricing_plan" type="radio"
+                                                                       @click="select(2)"
+                                                                       @keydown.space="select(2)"
+                                                                       @keydown.arrow-up="onArrowUp(2)"
+                                                                       @keydown.arrow-down="onArrowDown(2)"
+                                                                       class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 cursor-pointer border-gray-300"
+                                                                       aria-describedby="plan-option-pricing-2 plan-option-limit-2">
+                                                                <span class="ml-3 font-medium text-gray-900">Enterprise</span>
+                                                            </label>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </fieldset>
+                                        </div>
+                                    @endif
+                                    @if($selectable > 1)
+                                        <div class="checkbox-group space-y-3">
+                                            {{--                                    @foreach($answers as $key => $answer)--}}
+                                            {{--                                        <div class="flex items-center">--}}
+                                            {{--                                            <input type="checkbox" name="{{ $answer }}" id="{{ $answer }}"--}}
+                                            {{--                                                   class="form-checkbox h-5 w-5 text-blue-600">--}}
+                                            {{--                                            <label for="{{ $answer }}">{{ $answer }}</label>--}}
+                                            {{--                                        </div>--}}
+                                            {{--                                    @endforeach--}}
+
+                                            <div class="flex items-center">
+                                                <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600"
+                                                       checked>
+                                                <label> Checkbox</label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                                                <label> Checkbox</label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                                                <label> Checkbox</label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600">
+                                                <label> Checkbox</label>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <x-button.primary class="ml-auto mt-4" wire:click.prevent="setMainQuestion('{{ $key }}')">Antwoord aanpassen</x-button.primary>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+    <x-slot name="footerbuttons">
+        <x-button.text-button
+                onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
+                href="#" rotateIcon="180">
+            <x-icon.chevron/>
+            <span>Vorige vraag</span>
+        </x-button.text-button>
+
+        <x-button.cta
+                onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
+                size="sm"><span>Inleveren</span>
+            <x-icon.arrow/>
+        </x-button.cta>
+
+        <x-button.primary
+                onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('nextQuestion')"
+                size="sm"><span>Volgende vraag</span>
+            <x-icon.chevron/>
+        </x-button.primary>
+    </x-slot>
+
+    @if($showSubmitWarning)
+        <x-modal id="modal">
+            <x-slot name="title">
+                <h1>Weet je zeker dat je wilt inleveren?</h1>
+            </x-slot>
+
+            <x-slot name="body">
+                <p>Zodra de toets is ingeleverd kun je niet meer terug.</p>
+            </x-slot>
+
+            <x-slot name="footer">
+                <x-button.text-button><x-icon.chevron/><span>Terug</span></x-button.text-button>
+                <x-button.primary><span>Doorgaan</span><x-icon.arrow/></x-button.primary>
+            </x-slot>
+
+        </x-modal>
+
+    @endif
+
 </div>

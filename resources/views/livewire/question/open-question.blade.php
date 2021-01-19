@@ -5,4 +5,3 @@
     </x-input.group>
     <span x-html="count"></span>  / <span x-html="$refs.countme.maxLength"></span>
 </div>
-

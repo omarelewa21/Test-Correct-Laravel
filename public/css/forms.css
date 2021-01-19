@@ -21,7 +21,7 @@
 }
 
 .input-group {
-    display: flex;
+    display: inline-flex;
     flex-direction: column-reverse;
     justify-content: flex-end;
     transition: ease-in-out 150ms;
@@ -39,7 +39,7 @@ input {
     transition: ease-in-out 150ms;
 }
 
-input:focus + label,textarea:focus + label,select:focus + label {
+input:focus + label, textarea:focus + label, select:focus + label {
     font-family: Nunito Bold;
     color: var(--primary);
     transition: 150ms ease-in-out;
@@ -50,8 +50,12 @@ input:focus + label,textarea:focus + label,select:focus + label {
 }
 
 textarea {
-    padding: 10px!important;
+    padding: 10px !important;
     font-size: 1rem;
     min-height: 120px;
     width: 100%;
+}
+
+.form-checkbox {
+    margin-right: 5px;
 }

@@ -2,12 +2,9 @@
     'rotateIcon' => false,
 ])
 <?php
-$rotateClass = '';
-    if ($rotateIcon) {
-        $rotateClass = 'rotate-svg-' . $rotateIcon;
-    }
+$rotateClass = $rotateIcon ? ('rotate-svg-' . $rotateIcon) : '';
 ?>
 
-<button {{ $attributes }} class="text-button {{ $rotateClass }}" >
+<button {{ $attributes->merge(['class' => 'button text-button space-x-2.5 focus:outline-none '.$rotateClass]) }}>
     {{ $slot }}
 </button>

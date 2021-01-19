@@ -3,8 +3,8 @@
     'id'
 ])
 
-<div x-data="{ open: false }"
-     x-show.transition.duration.500ms="open" x-init="() => { setTimeout(() => { open = false }, 1); }"
+<div x-data="{ open: true }"
+     x-show.transition.duration.500ms="open" x-init=""
      id="{{ $id }}"
      class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center px-4 md:px-0"
 >
@@ -12,6 +12,18 @@
          @click.away="open = false"
          style="width: {{$maxWidth}}px;"
     >
-        {{ $slot }}
+        <div class="px-10 pt-10">
+            {{ $title }}
+        </div>
+
+        <div class="divider mx-8 my-3"></div>
+
+        <div class="px-10 body1">
+            {{ $body }}
+        </div>
+
+        <div class="py-5 px-10 flex justify-end space-x-6">
+            {{ $footer }}
+        </div>
     </div>
 </div>

@@ -17,7 +17,7 @@ use tcCore\TestParticipant;
 use tcCore\TestTake as Test;
 
 
-class TestTakeStub extends Component
+class TesttakeStub extends Component
 {
 
     public $testQuestions;
@@ -27,12 +27,14 @@ class TestTakeStub extends Component
     public $mainQuestion;
     public $component;
 
-    public $onOverviewPage = false;
+    public $showOverview = false;
+    public $showSubmitWarning = false;
 
     public function mount(Test $test_take)
     {
         $this->testQuestions = self::getData($test_take);
-        session()->put('data', serialize($this->testQuestions));
+
+        session()->put('data', serialize($this->testQuestions)  );
         $this->setMainQuestion($this->question);
     }
 
@@ -44,19 +46,17 @@ class TestTakeStub extends Component
 
     public function render()
     {
-        return view('livewire.student.test-take_stub')->layout('layouts.app', ['onOverviewPage' => $this->onOverviewPage]);
+        return view('livewire.student.test-take_stub')->layout('layouts.app');
     }
 
     public function setMainQuestion(int $question)
     {
+        $this->showOverview = false;
         $this->question = $question;
         $this->mainQuestion = $this->testQuestions->first(function($item, $index) use ($question){
-            return $index === $question;
+            return ++$index === $question;
         });
-
-
         $this->component = 'question.'. Str::kebab($this->mainQuestion->type);
-        logger($this->component);
     }
 
     public static function getData(Test $testTake) {
@@ -74,8 +74,30 @@ class TestTakeStub extends Component
         });
     }
 
-    public function notification()
+    public function sendNotification()
     {
-        $this->dispatchBrowserEvent('notify', 'Test notify');
+        $this->dispatchBrowserEvent('notify', 'Notificatie!');
+    }
+
+    public function overview()
+    {
+       $this->showOverview = true;
+    }
+
+    public function previousQuestion()
+    {
+        $this->question--;
+        $this->setMainQuestion($this->question);
+    }
+
+    public function nextQuestion()
+    {
+        $this->question++;
+        $this->setMainQuestion($this->question);
+    }
+
+    public function showSubmitWarning()
+    {
+        $this->showSubmitWarning = true;
     }
 }

@@ -4,7 +4,7 @@
              alt="Test-Correct">
     </a>
     <div class="user flex flex-wrap items-center ml-auto space-x-6">
-        <x-fraud-detected/>
+{{--        <x-fraud-detected/>--}}
 
         <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
             <x-dropdown.item>Inleveren</x-dropdown.item>
