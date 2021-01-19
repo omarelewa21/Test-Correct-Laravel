@@ -32,7 +32,7 @@ trait TestTrait
     private function addTestAndReturnTestId(array $overrides = []): int
     {
         $response = $this->post(
-            '/test',
+            'api-c/test',
             static::getTeacherOneAuthRequestData(
                 $this->getTestAttributes()
             )

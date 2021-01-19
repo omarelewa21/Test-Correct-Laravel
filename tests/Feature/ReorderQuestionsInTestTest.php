@@ -32,7 +32,7 @@ class ReorderQuestionsInTestTest extends TestCase
         $this->assertEquals(2, $q2->order);
 
         $reorderResponse = $this->put(
-            sprintf('test_question/%d/reorder', $questionIdTwo),
+            sprintf('api-c/test_question/%s/reorder', $q2->uuid),
             static::getTeacherOneAuthRequestData([
                 "order"=> "1",
             ])
