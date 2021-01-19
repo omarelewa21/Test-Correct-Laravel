@@ -28,28 +28,50 @@ class CopyTrueFalseQuestionTest extends TestCase
     /** @test */
     public function it_should_copy_questionsForJuistOnjuist()
     {
-        // stopped halfway
-        // $this->setupScenario1();
-        // $tests = Test::where('name','TToets van GM7')->get();
-        // $this->assertTrue(count($tests)==1);
-        // $questions = Test::find($this->originalTestId)->testQuestions;
-        // $this->assertTrue(count($questions)==1);
-        // $originalQuestionArray = $questions->pluck('question_id')->toArray();
-        // $tests = Test::where('name','Kopie #1 TToets van GM7')->get();
-        // $this->assertTrue(count($tests)==1);
-        // $copyQuestions = Test::find($this->copyTestId)->testQuestions;
-        // $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        // $result = array_diff($originalQuestionArray, $copyQuestionArray);
-        // $this->assertTrue(count($result)==0);
-        // $attributes = $this->getAttributesForEditQuestion7($this->originalTestId);
-        // $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
-        // $this->editRankingQuestion($copyQuestion->uuid,$attributes);
-        // $copyQuestions = Test::find($this->copyTestId)->testQuestions;
-        // $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        // $result = array_diff($originalQuestionArray, $copyQuestionArray);
-        // $this->assertTrue(count($result)>0);
+        $this->setupScenario1();
+        $tests = Test::where('name','TToets van GM1')->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $originalQuestionArray = $questions->pluck('question_id')->toArray();
+        $tests = Test::where('name','Kopie #1 TToets van GM1')->get();
+        $this->assertTrue(count($tests)==1);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+        $attributes = $this->getAttributesForEditQuestion1($this->copyTestId);
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        $this->editMultipleChoiceQuestion($copyQuestion->uuid,$attributes);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)>0);
     }
 
+    /** @test */
+    public function it_should_not_copy_questions_for_juist_onjuist_when_answers_are_the_same()
+    {
+        $this->setupScenario1();
+        $tests = Test::where('name','TToets van GM1')->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $originalQuestionArray = $questions->pluck('question_id')->toArray();
+        $tests = Test::where('name','Kopie #1 TToets van GM1')->get();
+        $this->assertTrue(count($tests)==1);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+        $attributes = $this->getAttributesForQuestion1($this->copyTestId);
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        $this->editMultipleChoiceQuestion($copyQuestion->uuid,$attributes);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }
     
 
     private function setupScenario1(){
@@ -57,11 +79,12 @@ class CopyTrueFalseQuestionTest extends TestCase
         unset($attributes['school_classes']);
         $this->createTLCTest($attributes);
         $attributes = $this->getAttributesForQuestion1($this->originalTestId);
-        $this->createRankingQuestion($attributes);
+        $this->createMultipleChoiceQuestion($attributes);
         $this->duplicateTest($this->originalTestId);
     }
 
-    private function getAttributesForTest7(){
+
+    private function getAttributesForTest1(){
 
         return $this->getTestAttributes([
             'name'                   => 'TToets van GM1',
@@ -71,71 +94,55 @@ class CopyTrueFalseQuestionTest extends TestCase
         ]);
     
     }
-
-    
         
-    private function getGetAttributes($testId){
-    	return [
-			"filter"=> [
-						"test_id"=> $testId
-						],
-			"mode"=> "all",
-			"order"=> [
-						"order"=> "asc"
-						]
-		];
-    }
+    
 
 
-    private function getAttributesForEditQuestion7($testId){
-        $attributes = array_merge($this->getAttributesForQuestion7($testId),[   "answers"=> array_merge([
-                                                                                                            [
-                                                                                                            "order"=> "1",
-                                                                                                            "answer"=> "aa"
-                                                                                                            ],
-                                                                                                            [
-                                                                                                            "order"=> "2",
-                                                                                                            "answer"=> "bb"
-                                                                                                            ],
-                                                                                                            [
-                                                                                                            "order"=> "3",
-                                                                                                            "answer"=> "cc"
-                                                                                                            ]
-                                                                                                        ],$this->getRestOfAnswerArray(3,10)),
+    private function getAttributesForEditQuestion1($testId){
+        $attributes = array_merge($this->getAttributesForQuestion1($testId),[   "answers"=> [
+                                                                                                [
+                                                                                                "answer"=> "Juist",
+                                                                                                "score"=> 0,
+                                                                                                "order"=> 0
+                                                                                                ],
+                                                                                                [
+                                                                                                "answer"=> "Onjuist",
+                                                                                                "score"=> "5",
+                                                                                                "order"=> 0
+                                                                                                ]
+                                                                                            ],
                                                                             ]);
         unset($attributes["test_id"]);
         return $attributes;
     }
 
-    private function getAttributesForQuestion7($testId){
+    private function getAttributesForQuestion1($testId){
         return [    
-                    "type"=> "RankingQuestion",
+                    "type"=> "MultipleChoiceQuestion",
                     "score"=> "5",
-                    "question"=> "<p>GM7</p> ",
+                    "question"=> "<p>GM1</p> ",
                     "order"=> 0,
                     "maintain_position"=> "0",
                     "discuss"=> "1",
-                    "subtype"=> "Classify",
+                    "subtype"=> "TrueFalse",
                     "decimal_score"=> "0",
                     "add_to_database"=> 1,
                     "attainments"=> [
                     ],
                     "note_type"=> "NONE",
                     "is_open_source_content"=> 1,
-                    "answers"=> array_merge([
-                                [
-                                    "order"=> "1",
-                                    "answer"=> "a"
+                    "answers"=> [
+                                    [
+                                    "answer"=> "Juist",
+                                    "score"=> "5",
+                                    "order"=> 0
                                     ],
                                     [
-                                    "order"=> "2",
-                                    "answer"=> "b"
-                                    ],
-                                    [
-                                    "order"=> "3",
-                                    "answer"=> "c"
+                                    "answer"=> "Onjuist",
+                                    "score"=> 0,
+                                    "order"=> 0
                                     ]
-                                ],$this->getRestOfAnswerArray(3,10)),
+                                ],
                     "tags"=> [
                     ],
                     "rtti"=> "R",
@@ -145,9 +152,7 @@ class CopyTrueFalseQuestionTest extends TestCase
                 ];
     }
 
-    private function getScenario7GetAttributes(){
-        return $this->getGetAttributes($this->originalTestId);
-    }
+
     
 
     private function checkCopyQuestionsAfterEdit($copyTestId,$originalQuestionArray){

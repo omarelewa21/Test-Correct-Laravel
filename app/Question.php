@@ -426,10 +426,10 @@ class Question extends MtiBaseModel {
                 return true;
             break;
             case 'RankingQuestion':
-                $requestAnswers = $totalData['answers'];
+                $requestAnswers = $this->trimAnswerOptions($totalData['answers']);
                 try{
                     $question = RankingQuestion::findOrFail($this->id);
-                    $answers = $question->answers;
+                    $answers = $this->convertRankingAnswersFromQuestion($question);
                     if($requestAnswers==$answers){
                         return false;
                     }
@@ -439,10 +439,12 @@ class Question extends MtiBaseModel {
                 return true;
             break;
             case 'MultipleChoiceQuestion':
-                $requestAnswers = $totalData['answers'];
+                $requestAnswers = $this->trimAnswerOptions($totalData['answers']);
+                dump($requestAnswers);
                 try{
                     $question = MultipleChoiceQuestion::findOrFail($this->id);
-                    $answers = $question->answers;
+                    $answers = $this->convertMultipleChoiceAnswersFromQuestion($question);
+                    dump($answers);
                     if($requestAnswers==$answers){
                         return false;
                     }
@@ -1001,6 +1003,56 @@ class Question extends MtiBaseModel {
             $returnArray[] = [ 'answer' => $answer['answer'],
                                 'type' => $answer['type'],
                             ];
+        }
+        return $returnArray;
+    }
+
+    private function trimAnswerOptions($answers){
+        $returnArray = [];
+        foreach ($answers as $key => $answer) {
+            if($answer['answer']==''){
+                continue;
+            }
+            $returnArray[] = $answer;
+        }
+        return $returnArray;
+    }
+        
+
+    private function convertRankingAnswersFromQuestion($question){
+        $answers = $question->rankingQuestionAnswers->toArray();
+        return $this->convertAnswersFromQuestion($answers,['order','answer']);
+    }
+
+    private function convertMultipleChoiceAnswersFromQuestion($question){
+        $answers = $question->multipleChoiceQuestionAnswers->toArray();
+        $ignoreOrder = false;
+        if($question->subtype=='TrueFalse'){
+            $ignoreOrder = true;
+        }
+        return $this->convertAnswersFromQuestion($answers,['order','answer','score'],$ignoreOrder);
+    }
+
+    private function convertAnswersFromQuestion($answers,$params,$ignoreOrder = false){
+        $returnArray = [];
+        foreach ($answers as $key => $answer) {
+            $item = [];
+            foreach ($params as $param) {
+                if($param=='order'&&$ignoreOrder){
+                    $item['order'] = 0;
+                    continue;
+                }
+                if($param=='order'){
+                    $item['order'] = ($key+1);
+                    continue;
+                }
+                if(!array_key_exists($param, $answer)){
+                    throw new Exception('unknown answer key');
+                    continue;
+                }
+                $item[$param] = $answer[$param];
+            }
+            $returnArray[] = $item;
         }
         return $returnArray;
     }
