@@ -106,6 +106,29 @@ class MulipleChoiceQuestionTest extends TestCase
         $this->assertEquals(5, count($questions->first()->question->multipleChoiceQuestionAnswers));
      }
    
+    /** @test */
+    public function it_should_not_copy_questions_for_mc_if_nothing_is_changed()
+    {
+        $this->setupScenario7();
+        $tests = Test::where('name','TToets van GM7')->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $originalQuestionArray = $questions->pluck('question_id')->toArray();
+        $tests = Test::where('name','Kopie #1 TToets van GM7')->get();
+        $this->assertTrue(count($tests)==1);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+        $attributes = $this->getAttributesForQuestion7($this->copyTestId);
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        $this->editMultipleChoiceQuestion($copyQuestion->uuid,$attributes);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }   
     
 
     private function setupScenario7(){

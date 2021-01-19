@@ -63,6 +63,33 @@ class CopyRankingQuestionTest extends TestCase
     }
 
     /** @test */
+    public function it_should_not_copy_questions_for_rangschik_if_nothing_is_changed()
+    {
+        $this->setupScenario7();
+        $tests = Test::where('name','TToets van GM7')->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $originalQuestionArray = $questions->pluck('question_id')->toArray();
+        $tests = Test::where('name','Kopie #1 TToets van GM7')->get();
+        $this->assertTrue(count($tests)==1);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+        $attributes = $this->getAttributesForQuestion7($this->copyTestId);
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        dump(Test::find($this->copyTestId)->testQuestions);
+        $this->editRankingQuestion($copyQuestion->uuid,$attributes);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        dump(Test::find($this->copyTestId)->testQuestions);
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }
+
+
+    /** @test */
     public function it_should_copy_questionsForRangschikAndKeepTheOriginalOriginal()
     {
         $this->setupScenario7();

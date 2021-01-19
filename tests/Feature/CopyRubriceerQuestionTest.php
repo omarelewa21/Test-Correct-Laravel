@@ -136,7 +136,7 @@ class CopyRubriceerQuestionTest extends TestCase
         $result = array_diff($originalQuestionArray, $copyQuestionArray);
         $this->assertTrue(count($result)==0);
 
-        $attributes = $this->getAttributesForQuestion4($this->originalTestId);
+        $attributes = $this->getAttributesForQuestion4($this->copyTestId);
         unset($attributes["test_id"]);
         $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
         

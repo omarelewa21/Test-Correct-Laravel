@@ -58,7 +58,6 @@ trait TestTrait
                 ['status'=>0]
             )
         );
-        dump($response->decodeResponseJson()['id']);
         $response->assertStatus(200);
         $testId = $response->decodeResponseJson()['id'];
         $this->copyTestId = $testId;
