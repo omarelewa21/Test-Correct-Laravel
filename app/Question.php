@@ -468,6 +468,7 @@ class Question extends MtiBaseModel {
 
     public function isUsed($ignoreRelationTo) {
 
+
         //$uses = Question::withTrashed()->where('derived_question_id', $this->getKey())->count();
 
         $uses = (new Question)->withTrashed()->where('derived_question_id', $this->getKey())->count();

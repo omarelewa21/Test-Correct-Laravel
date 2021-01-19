@@ -263,7 +263,21 @@ class GroupQuestionQuestionsController extends Controller
             }
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if (    $question->isDirty() 
+            // this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
+            if (!$completionAnswerDirty
+                && !$question->isDirty()
+                && $questionInstance->isDirty()
+                && !$questionInstance->isDirtyAttainments()
+                && !$questionInstance->isDirtyTags()
+                && ! ($question instanceof DrawingQuestion && $question->isDirtyFile())
+                && (array_key_exists('add_to_database', $questionInstance->getDirty()) && count($questionInstance->getDirty()) === 1)
+            ) {
+                if (!$questionInstance->save()) {
+                    throw new QuestionException('Failed to save question');
+                }
+
+                // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
+            } elseif (    $question->isDirty() 
                     || $questionInstance->isDirty() 
                     || $questionInstance->isDirtyAttainments() 
                     || $questionInstance->isDirtyTags()
@@ -371,9 +385,23 @@ class GroupQuestionQuestionsController extends Controller
 
                 // return Response::make(json_encode($testQuestion->getAttribute('question_id')), 500);
             }
+            
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if (    $completionAnswerDirty 
+            // this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
+            if (!$completionAnswerDirty
+                && !$question->isDirty()
+                && $questionInstance->isDirty()
+                && !$questionInstance->isDirtyAttainments()
+                && !$questionInstance->isDirtyTags()
+                && ! ($question instanceof DrawingQuestion && $question->isDirtyFile())
+                && (array_key_exists('add_to_database', $questionInstance->getDirty()) && count($questionInstance->getDirty()) === 1)
+            ) {
+                if (!$questionInstance->save()) {
+                    throw new QuestionException('Failed to save question');
+                }
+                // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
+            } elseif (    $completionAnswerDirty 
                     || $question->isDirty() 
                     || $questionInstance->isDirty() 
                     || $questionInstance->isDirtyAttainments() 

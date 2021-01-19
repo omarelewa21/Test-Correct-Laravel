@@ -23,8 +23,9 @@ trait DrawingQuestionTrait
             )
         );
         $response->assertStatus(200);
-        $questionId = $response->decodeResponseJson()['id'];
-        $this->originalQuestionId = $questionId;
+        $testQuestionId = $response->decodeResponseJson()['id'];
+        $this->originalQuestionId = $testQuestionId;
+        return $testQuestionId;
     }
 
     private function editDrawingQuestion($uuid,$attributes){
@@ -37,7 +38,6 @@ trait DrawingQuestionTrait
                 $attributes
             )
         );
-        dd($response->getContent());
         // $this->assertEquals($testCountInit, Test::count());
         // $this->assertEquals($testQuestionCountInit, TestQuestion::count());
         // $this->assertEquals(++$questionCountInit, Question::count());
