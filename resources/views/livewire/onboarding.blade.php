@@ -1,5 +1,5 @@
 <div>
-    \<div class="py-5 bg-white onboarding-header">
+    <div class="py-5 bg-white onboarding-header">
         <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">
             <div class="col-span-3">
                 <a class="mx-auto tc-logo block" href="https://test-correct.nl">

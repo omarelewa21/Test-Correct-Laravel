@@ -17,8 +17,5 @@
 {{ $slot }}
 
 @livewireScripts
-<script>
-
-</script>
 </body>
 </html>
