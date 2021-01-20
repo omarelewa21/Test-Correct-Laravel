@@ -3,7 +3,7 @@
     'id'
 ])
 
-<div x-data="{ open: true }"
+<div x-data="{ open: false }"
      x-show.transition.duration.500ms="open" x-init=""
      id="{{ $id }}"
      class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center px-4 md:px-0"

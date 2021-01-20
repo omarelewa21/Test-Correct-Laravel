@@ -13,6 +13,7 @@ use tcCore\Answer;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\MultipleChoiceQuestionAnswer;
+use tcCore\Question;
 use tcCore\TestParticipant;
 use tcCore\TestTake as Test;
 
@@ -21,21 +22,18 @@ class TesttakeStub extends Component
 {
 
     public $testQuestions;
-    public $question = 1;
+    public $question;
     protected $queryString = ['question'];
     public $content;
     public $mainQuestion;
     public $component;
-
-    public $showOverview = false;
-    public $showSubmitWarning = false;
+    public $number = 1;
 
     public function mount(Test $test_take)
     {
         $this->testQuestions = self::getData($test_take);
-
-        session()->put('data', serialize($this->testQuestions)  );
-        $this->setMainQuestion($this->question);
+        session()->put('data', serialize($this->testQuestions));
+        $this->setMainQuestion($this->testQuestions->first()->uuid);
     }
 
     public function hydrate()
@@ -43,61 +41,54 @@ class TesttakeStub extends Component
         $this->testQuestions = unserialize(session()->get('data'));
     }
 
+    public function previousQuestion()
+    {
+        $this->question = $this->testQuestions->get($this->number - 2)->uuid;
+        $this->setMainQuestion($this->question);
+    }
+
+    public function nextQuestion()
+    {
+        $this->question = $this->testQuestions->get($this->number)->uuid;
+        $this->setMainQuestion($this->question);
+    }
 
     public function render()
     {
         return view('livewire.student.test-take_stub')->layout('layouts.app');
     }
 
-    public function setMainQuestion(int $question)
+    public function setMainQuestion($questionUuid)
     {
-        $this->showOverview = false;
-        $this->question = $question;
-        $this->mainQuestion = $this->testQuestions->first(function($item, $index) use ($question){
-            return ++$index === $question;
+        $this->question = $questionUuid;
+        $this->mainQuestion = Question::whereUuid($questionUuid)->first();
+        $key = $this->testQuestions->search(function ($value, $key) use ($questionUuid) {
+            return $value->uuid === $questionUuid;
         });
-        $this->component = 'question.'. Str::kebab($this->mainQuestion->type);
+        $this->number = $key+1;
+
+        $this->emit('questionUpdated');
     }
 
-    public static function getData(Test $testTake) {
-        $visibleAttributes = ['id','uuid','score','type','question', 'styling'];
+    public static function getData(Test $testTake)
+    {
+        $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
         $testTake->load(['test', 'test.testQuestions', 'test.testQuestions.question'])->get();
-        return $testTake->test->testQuestions->flatMap(function($testQuestion) use ($visibleAttributes){
+
+        return $testTake->test->testQuestions->flatMap(function ($testQuestion) use ($visibleAttributes) {
             if ($testQuestion->question->type === 'GroupQuestion') {
-                return $testQuestion->question->groupQuestionQuestions->map(function($item) use ($visibleAttributes){
-                    $item->question->makeVisible($visibleAttributes);
+                return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($visibleAttributes) {
+                    $hideAttributes = array_keys($item->question->getAttributes());
+
+                    $item->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
+
                     return $item->question;
                 });
             }
-            $testQuestion->question->makeVisible($visibleAttributes);
+            $hideAttributes = array_keys($testQuestion->question->getAttributes());
+            $testQuestion->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
+
             return collect([$testQuestion->question]);
         });
-    }
-
-    public function sendNotification()
-    {
-        $this->dispatchBrowserEvent('notify', 'Notificatie!');
-    }
-
-    public function overview()
-    {
-       $this->showOverview = true;
-    }
-
-    public function previousQuestion()
-    {
-        $this->question--;
-        $this->setMainQuestion($this->question);
-    }
-
-    public function nextQuestion()
-    {
-        $this->question++;
-        $this->setMainQuestion($this->question);
-    }
-
-    public function showSubmitWarning()
-    {
-        $this->showSubmitWarning = true;
     }
 }
