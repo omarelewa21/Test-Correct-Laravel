@@ -456,6 +456,6 @@ class UsersController extends Controller
         if ($user->account_verified) {
             return Response::make(true, 200);
         }
-        return Response::make(null, 200);
+        return Response::make(null, 204);
     }
 }
