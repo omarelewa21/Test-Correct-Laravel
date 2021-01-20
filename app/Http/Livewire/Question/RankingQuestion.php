@@ -11,6 +11,12 @@ class RankingQuestion extends Component
 
     public $uuid;
 
+    public $answer = 'Tekst in de editor asdf';
+
+    public function dehydrate() {
+        $this->emit('initializeCkEditor');
+    }
+
     public function render()
     {
         $question = Question::whereUuid($this->uuid)->first();

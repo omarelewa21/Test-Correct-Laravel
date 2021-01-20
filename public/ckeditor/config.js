@@ -84,3 +84,16 @@ CKEDITOR.editorConfig = function( config ) {
         { name: 'Square Bulleted List', element: 'ul', styles: { 'list-style-type': 'square' } }
     ];
 };
+
+
+CKEDITOR.studentEditorConfig = {
+    removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
+    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris',
+    toolbar: [
+        { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
+        { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
+        { name: 'insert', items: [ 'Table' ] },
+        { name: 'styles', items: ['Font', 'FontSize' ] },
+        { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
+    ]
+}
