@@ -12,7 +12,7 @@
             </x-dropdown>
         </div>
     </header>
-    <main class="flex-1 mx-28 m-foot-head">
+    <main class="flex flex-1 items-stretch mx-28 m-foot-head">
         {{ $slot }}
     </main>
     <footer class="footer flex content-center fixed w-full bottom-0 z-10">
