@@ -43,7 +43,7 @@ class SchoolClassStudentImportControllerTest extends TestCase
          
         $this->assertArrayHasKey('data.0.username', $decodedResponse['errors']);
         $this->assertEquals('The data.0.username must be a valid email address.', $decodedResponse['errors']['data.0.username'][0]);
-        $this->assertEquals('The email address contains international characters.', $decodedResponse['errors']['data.0.username'][1]);
+        $this->assertStringContainsString('The email address contains invalid or international characters', $decodedResponse['errors']['data.0.username'][1]);
 
     }
     
