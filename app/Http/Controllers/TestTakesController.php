@@ -20,6 +20,7 @@ use tcCore\Question;
 use tcCore\SchoolClass;
 use tcCore\Test;
 use tcCore\TestTake;
+use tcCore\TestParticipant;
 use tcCore\Http\Requests\CreateTestTakeRequest;
 use tcCore\Http\Requests\UpdateTestTakeRequest;
 use tcCore\TestTakeStatus;
@@ -1147,7 +1148,7 @@ class TestTakesController extends Controller {
         // set all the non-time dispensation students to 'taken away' 
         //
         $closed_students = TestParticipant::join('users', 'test_participants.user_id', '=', 'users.id')->where('users.time_dispensation', 0)->where('test_participants.test_take_id', $testTake->id)->update(['test_participants.test_take_status_id' => 5]);
-        
+
         //
         //   check if there are any students left doing the test, if not close test
         //         
@@ -1179,6 +1180,7 @@ class TestTakesController extends Controller {
         if (isset($request['time_dispensation']) && $request['time_dispensation'] == true) {
 
             $this->closeNonTimeDispensation($testTake, $request);
+            
         } else {
 
             $testTake->fill($request->all());
