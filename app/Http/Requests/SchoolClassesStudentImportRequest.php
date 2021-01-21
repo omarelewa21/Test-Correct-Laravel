@@ -48,7 +48,13 @@ class SchoolClassesStudentImportRequest extends Request
 
         $rules = collect([
             //'data' => 'array',
-            'data.*.username' => ['required', 'email', function ($attribute, $value, $fail) {
+            'data.*.username' => ['required', 'email:rfc,filter,dns', function ($attribute, $value, $fail) {
+            
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+
+                        return $fail(sprintf('The email address contains invalid or international characters  (%s).', $value));
+                }
+            
                 $student = User::whereUsername($value)->first();
                 if ($student) {
                     if ($this->alreadyInDatabaseAndInThisClass($student)) {
