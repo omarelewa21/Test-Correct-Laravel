@@ -1,9 +1,7 @@
 <div class="w-full">
-    @if($question->subtype == 'short')
         <div
                 x-data="{count:0}"
-                x-init="count = $refs.countme.value.length"
-                x-on:livewire-refresh.window="count = $refs.countme.value.length;"
+                x-init="count = $refs.countme.value.length;"
                 class="relative"
         >
             {!!   $question->getQuestionHtml() !!}
@@ -21,14 +19,6 @@
                       class="transition bg-blue-300 bottom-0 absolute h-6 rounded-lg"></span>
             </div>
         </div>
-    @else
-        <div class="w-full">
-            <x-input.group for="me" label="" class="w-full">
-                <x-input.textarea wire:model="answer" name="name"></x-input.textarea>
-            </x-input.group>
-
-        </div>
-    @endif
 
     <script>
         function calculateProgress(count, total) {

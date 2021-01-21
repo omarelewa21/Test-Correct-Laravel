@@ -26,6 +26,10 @@ class OpenQuestion extends Component
     public function render()
     {
         $question = Question::whereUuid($this->uuid)->first();
-        return view('livewire.question.open-question', compact('question'));
+        if($question->subtype==='short') {
+            return view('livewire.question.open-question', compact('question'));
+        }
+
+        return view('livewire.question.open-medium-question', compact('question'));
     }
 }
