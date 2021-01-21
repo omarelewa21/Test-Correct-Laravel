@@ -8,12 +8,15 @@
                 <span class="align-middle">{{ $number }}</span>
             </div>
             <h1 class="inline-block ml-2 mr-6">{{ $mainQuestion->caption }}</h1>
-            <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
+            <h4 class="inline-block">{!!  $mainQuestion->score ? $mainQuestion->score.' pt' :'' !!}</h4>
+
         </div>
 
-        <div class="flex flex-col flex-1">
-            @if($mainQuestion->type === 'MultipleChoiceQuestion')
-                <livewire:question.multiple-choice-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
+        <div class="flex flex-wrap">
+            @if($mainQuestion->type === 'MultipleChoiceQuestion' && $mainQuestion->selectable_answers > 1)
+                <livewire:question.multiple-select-question :uuid="$question"  wire:key="'q-'.$question"></livewire:question.multiple-select-question>
+            @elseif($mainQuestion->type === 'MultipleChoiceQuestion')
+                <livewire:question.multiple-choice-question :uuid="$question"  wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
             @elseif($mainQuestion->type === 'OpenQuestion')
                 <livewire:question.open-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
             @elseif($mainQuestion->type === 'MatchingQuestion')
@@ -22,6 +25,8 @@
                 <livewire:question.completion-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
             @elseif($mainQuestion->type === 'RankingQuestion')
                 <livewire:question.ranking-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
+            @elseif($mainQuestion->type === 'InfoscreenQuestion')
+                <livewire:question.info-screen-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
             @endif
         </div>
     </div>

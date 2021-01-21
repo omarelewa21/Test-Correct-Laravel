@@ -7,9 +7,22 @@ use tcCore\Question;
 
 class RankingQuestion extends Component
 {
-    protected $listeners = ['questionUpdated' => '$refresh'];
+    protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
     public $uuid;
+    public $answer;
+
+    public function questionUpdated($uuid, $answer)
+    {
+        $this->uuid = $uuid;
+        $this->answer = $answer;
+
+    }
+
+    public function updatedAnswer($value)
+    {
+        $this->emitUp('updateAnswer', $this->uuid, $value);
+    }
 
     public $answer = 'Tekst in de editor asdf';
 

@@ -1003,5 +1003,4 @@ class Question extends MtiBaseModel {
         return __('test_take.'.Str::snake($this->type));;
     }
 
-
 }

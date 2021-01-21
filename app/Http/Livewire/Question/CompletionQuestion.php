@@ -7,17 +7,30 @@ use tcCore\Question;
 
 class CompletionQuestion extends Component
 {
-    protected $listeners = ['questionUpdated' => '$refresh'];
+    protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
     public $uuid;
 
     public $question;
 
-    public $answers = [];
+    public $answer = [];
 
-    private function helper()
+    public function questionUpdated($uuid, $answer)
     {
-        $question = Question::whereUuid($this->uuid)->first();
+        $this->uuid = $uuid;
+        $this->answer = $answer;
+    }
+
+    public function updated($field, $value)
+    {
+        $index = last(explode('.', $field));
+        $this->answer[$index] = $value;
+
+        $this->emitUp('updateAnswer', $this->uuid, $this->answer);
+    }
+
+    private function completionHelper($question)
+    {
         $this->question = $question->getQuestionHtml();
 
         $question_text = $question->getQuestionHTML();
@@ -27,7 +40,7 @@ class CompletionQuestion extends Component
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input wire:model.lazy="answers.%d" class="form-input" type="text" id="%s" />',
+                '<input wire:model="answer.%d" class="form-input" type="text" id="%s" />',
                 $tag_id,
                 'answer_'.$tag_id
             );
@@ -36,9 +49,67 @@ class CompletionQuestion extends Component
         $this->question = preg_replace_callback($searchPattern, $replacementFunction, $question_text);
     }
 
+    private function multiHelper($question)
+    {
+        if(empty($answerJson)) {
+            $answerJson = [];
+        }
+
+        $question_text = $question->getQuestionHtml();
+
+
+        $tags = [];
+
+        foreach($question->completionQuestionAnswers as $option) {
+            $tags[$option->tag][$option->answer] = $option->answer;
+        }
+        $isCitoQuestion = $question->isCitoQuestion();
+
+        $question_text = preg_replace_callback(
+            '/\[([0-9]+)\]/i',
+            function ($matches) use ($tags,  $isCitoQuestion) {
+
+                $answers = $tags[$matches[1]];
+                $keys = array_keys($answers);
+                if(!$isCitoQuestion) {
+                    shuffle($keys);
+                }
+                $random = array(
+                    '' => 'Selecteer'
+                );
+                foreach ($keys as $key) {
+                    $random[$key] = $answers[$key];
+                }
+
+                $answers = $random;
+
+                return sprintf('<select wire:model="answer.%s">%s</select>',$matches[1], $this->getOptions($answers) );
+
+//                return $this->Form->input('Answer.'.$tag_id ,['id' => 'answer_' . $tag_id, 'class' => 'multi_selection_answer', 'onchange' => 'Answer.answerChanged = true', 'value' => $value, 'options' => $answers, 'label' => false, 'div' => false, 'style' => 'display:inline-block; width:150px']);
+            },
+            $question_text
+        );
+
+        $this->question = $question_text;
+    }
+
+    private function getOptions($answers) {
+        return collect($answers)->map(function($option, $key) {
+            return sprintf('<option value="%s">%s</option>',$key, $option);
+        })->join('');
+    }
+
     public function render()
     {
-        $this->helper();
+        $question = Question::whereUuid($this->uuid)->first();
+
+        if ($question->subtype == 'completion') {
+            $this->completionHelper($question);
+        } elseif ($question->subtype == 'multi') {
+            $this->multiHelper($question);
+        } else {
+            throw new \Exception ('unknown type');
+        }
 
         return view('livewire.question.completion-question', ['question' => $this->question]);
     }

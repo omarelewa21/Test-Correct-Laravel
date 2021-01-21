@@ -29,12 +29,26 @@ class TestTake extends Component
     public $mainQuestion;
     public $component;
     public $number = 1;
+    public $caption;
+
+    public $answers = [];
+
+    protected $listeners = ['updateAnswer' => 'updateAnswer'];
 
     public function mount(Test $test_take)
     {
         $this->testQuestions = self::getData($test_take);
         session()->put('data', serialize($this->testQuestions));
         $this->setMainQuestion($this->question ?: $this->testQuestions->first()->uuid);
+    }
+
+    private function getCurrentAnswer($questionUuid)
+    {
+       if(array_key_exists($questionUuid, $this->answers)){
+            return json_decode($this->answers[$questionUuid]);
+        }
+
+        return '';
     }
 
     public function hydrate()
@@ -46,6 +60,11 @@ class TestTake extends Component
     {
         $this->question = $this->testQuestions->get($this->number - 2)->uuid;
         $this->setMainQuestion($this->question);
+    }
+
+    public function updateAnswer($questionId, $answer)
+    {
+        $this->answers[$questionId] = json_encode($answer);
     }
 
     public function nextQuestion()
@@ -61,6 +80,7 @@ class TestTake extends Component
 
     public function setMainQuestion($questionUuid)
     {
+        $this->emit('questionUpdated', $questionUuid, $this->getCurrentAnswer($questionUuid));
         $this->question = $questionUuid;
         $this->mainQuestion = Question::whereUuid($questionUuid)->first();
         $key = $this->testQuestions->search(function ($value, $key) use ($questionUuid) {
@@ -68,7 +88,6 @@ class TestTake extends Component
         });
         $this->number = $key + 1;
 
-        $this->emit('questionUpdated');
     }
 
     public static function getData(Test $testTake)

@@ -5,13 +5,13 @@ namespace tcCore\Http\Livewire\Question;
 use Livewire\Component;
 use tcCore\Question;
 
-class MultipleChoiceQuestion extends Component
+class MultipleSelectQuestion extends Component
 {
     public $uuid;
 
     private $question;
 
-    public $answer = '';
+    public $answer = [];
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
@@ -29,6 +29,6 @@ class MultipleChoiceQuestion extends Component
     public function render()
     {
         $question = Question::whereUuid($this->uuid)->first();
-        return view('livewire.question.multiple-choice-question', compact('question'));
+        return view('livewire.question.multiple-select-question', compact('question'));
     }
 }
