@@ -165,7 +165,6 @@ class TestQuestionsController extends Controller {
                     || $questionInstance->isDirty() 
                     || $questionInstance->isDirtyAttainments() 
                     || $questionInstance->isDirtyTags()
-                    || $questionInstance->isDirtyAnswerOptions($request->all()) 
                     || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
             {
                 if ($question->isUsed($testQuestion)) {
@@ -226,7 +225,6 @@ class TestQuestionsController extends Controller {
             $questionInstance = $question->getQuestionInstance();
             $testQuestion->fill($request->all());
             
-            dump($questionInstance->isDirtyAnswerOptions($totalData));
 // this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
             if (!$completionAnswerDirty
                 && !$question->isDirty()
