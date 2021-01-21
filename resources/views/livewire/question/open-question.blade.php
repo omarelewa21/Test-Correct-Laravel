@@ -3,7 +3,7 @@
         <div
             x-data="{count:0}"
             x-init="count = $refs.countme.value.length"
-            x-on:livewire-refresh.window="alert('me');count = $refs.countme.value.length"
+            x-on:livewire-refresh.window="count = $refs.countme.value.length"
         >
             {!!   $question->getQuestionHtml() !!}
 
