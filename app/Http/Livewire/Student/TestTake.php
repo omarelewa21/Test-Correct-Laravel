@@ -40,12 +40,35 @@ class TestTake extends Component
         $this->testQuestions = self::getData($test_take);
         session()->put('data', serialize($this->testQuestions));
         $this->setMainQuestion($this->question ?: $this->testQuestions->first()->uuid);
+
+        TestParticipant::where('test_take_id', $test_take->getKey())
+            ->where('user_id', Auth::user()->getKey())
+            ->first()
+            ->answers
+            ->each(function ($answer) {
+                $question = $this->testQuestions->first(function ($question) use ($answer) {
+                    return $question->getKey() === $answer->question_id;
+                });
+                $this->answers[$question->uuid] = ['id' => $answer->getKey(), 'answer' => $answer->json];
+            });
     }
+
+    public function complete($uuid)
+    {
+        if (array_key_exists($uuid, $this->answers)) {
+            if (!empty($this->answers[$uuid]['answer'])) {
+                return 'complete';
+            }
+        }
+
+        return '';
+    }
+
 
     private function getCurrentAnswer($questionUuid)
     {
-       if(array_key_exists($questionUuid, $this->answers)){
-            return json_decode($this->answers[$questionUuid]);
+        if (array_key_exists($questionUuid, $this->answers)) {
+            return json_decode($this->answers[$questionUuid]['answer']);
         }
 
         return '';
@@ -64,7 +87,10 @@ class TestTake extends Component
 
     public function updateAnswer($questionId, $answer)
     {
-        $this->answers[$questionId] = json_encode($answer);
+        $this->answers[$questionId]['answer'] = json_encode($answer);
+
+        Answer::where('id', $this->answers[$questionId]['id'])
+            ->update(['json' => json_encode($answer)]);
     }
 
     public function nextQuestion()
@@ -80,7 +106,6 @@ class TestTake extends Component
 
     public function setMainQuestion($questionUuid)
     {
-        $this->emit('questionUpdated', $questionUuid, $this->getCurrentAnswer($questionUuid));
         $this->question = $questionUuid;
         $this->mainQuestion = Question::whereUuid($questionUuid)->first();
         $key = $this->testQuestions->search(function ($value, $key) use ($questionUuid) {
@@ -88,6 +113,7 @@ class TestTake extends Component
         });
         $this->number = $key + 1;
 
+        $this->emit('questionUpdated', $questionUuid, $this->getCurrentAnswer($questionUuid));
     }
 
     public static function getData(Test $testTake)

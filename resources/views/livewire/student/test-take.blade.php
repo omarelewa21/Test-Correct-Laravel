@@ -9,24 +9,23 @@
             </div>
             <h1 class="inline-block ml-2 mr-6">{{ $mainQuestion->caption }}</h1>
             <h4 class="inline-block">{!!  $mainQuestion->score ? $mainQuestion->score.' pt' :'' !!}</h4>
-
         </div>
 
         <div class="flex flex-1">
             @if($mainQuestion->type === 'MultipleChoiceQuestion' && $mainQuestion->selectable_answers > 1)
-                <livewire:question.multiple-select-question :uuid="$question"  wire:key="'q-'.$question"></livewire:question.multiple-select-question>
+                <livewire:question.multiple-select-question :uuid="$question"  wire:key="'q-'.$question"/>
             @elseif($mainQuestion->type === 'MultipleChoiceQuestion')
-                <livewire:question.multiple-choice-question :uuid="$question"  wire:key="'q-'.$question"></livewire:question.multiple-choice-question>
+                <livewire:question.multiple-choice-question :uuid="$question"  wire:key="'q-'.$question"/>
             @elseif($mainQuestion->type === 'OpenQuestion')
-                <livewire:question.open-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.open-question>
+                <livewire:question.open-question :uuid="$question" wire:key="'q-'.$question" />
             @elseif($mainQuestion->type === 'MatchingQuestion')
-                <livewire:question.matching-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.matching-question>
+                <livewire:question.matching-question :uuid="$question" wire:key="'q-'.$question" />
             @elseif($mainQuestion->type === 'CompletionQuestion')
-                <livewire:question.completion-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.completion-question>
+                <livewire:question.completion-question :uuid="$question" wire:key="'q-'.$question" />
             @elseif($mainQuestion->type === 'RankingQuestion')
-                <livewire:question.ranking-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.ranking-question>
+                <livewire:question.ranking-question :uuid="$question" wire:key="'q-'.$question"/>
             @elseif($mainQuestion->type === 'InfoscreenQuestion')
-                <livewire:question.info-screen-question :uuid="$question" wire:key="'q-'.$question"></livewire:question.info-screen-question>
+                <livewire:question.info-screen-question :uuid="$question" wire:key="'q-'.$question"/>
             @endif
         </div>
     </div>
