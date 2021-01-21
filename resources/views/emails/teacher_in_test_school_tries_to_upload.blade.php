@@ -17,7 +17,7 @@
                 </tr>
                 <tr>
                     <td>adres</td>
-                    <td>{{ $demo->address }}</td>
+                    <td>{{ $demo->address }} {{ $demo->house_number }}</td>
                 </tr>
                 <tr>
                     <td>postcode</td>

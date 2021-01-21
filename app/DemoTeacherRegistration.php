@@ -35,6 +35,7 @@ class DemoTeacherRegistration extends Model
 
     public static function registerIfApplicable(User $user)
     {
+        
         if (request('shouldRegisterUser') == true) {
 
             if ($user->schoolLocation->is(SchoolHelper::getTempTeachersSchoolLocation())) {
@@ -42,10 +43,11 @@ class DemoTeacherRegistration extends Model
                 if (request('school_location') && request('website_url')) {
                     $parameterBag = [
                         'school_location'                     => request('school_location'),
-                        'website_url'                         => request('website_url'),
-                        'address'                             => request('address'),
-                        'postcode'                            => request('postcode'),
-                        'city'                                => request('city'),
+                        'website_url'                           => request('website_url'),
+                        'address'                                => request('address'),
+                        'house_number'                     => request('house_number'),
+                        'postcode'                              => request('postcode'),
+                        'city'                                      => request('city'),
                         'gender'                              => request('gender'),
                         'gender_different'                    => request('gender_different'),
                         'name_first'                          => request('name_first'),
@@ -64,8 +66,8 @@ class DemoTeacherRegistration extends Model
                     $inviter = User::find($user->invited_by);
                     $parameterBag = [
                         'name_first'                          => $user->name_first,
-                        'name_suffix'                         => $user->name_suffix,
-                        'name'                                => $user->name,
+                        'name_suffix'                        => $user->name_suffix,
+                        'name'                                  => $user->name,
                         'abbreviation'                        => $user->abbreviation,
                         'username'                            => $user->username,
                         'how_did_you_hear_about_test_correct' => sprintf('uitgenodigd door:%s', $inviter->username),
