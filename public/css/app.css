@@ -11,6 +11,7 @@
     --cta-primary-dark: #006314;
     --cta-secondary: #004DF5;
     --primary: #004df5;
+    --primary-light: #e6edfa;
     --secondary: #ECD900;
     --highlight-primary: #ECD900;
     --system-base: #041F74;
@@ -69,6 +70,10 @@ svg {
     color: var(--primary);
 }
 
+.primary-light {
+    color: var(--primary-light);
+}
+
 .secondary {
     color: var(--secondary);
 }
@@ -117,6 +122,10 @@ svg {
     background: var(--primary);
 }
 
+.bg-primary-light {
+    background: var(--primary-light);
+}
+
 .bg-secondary {
     background: var(--secondary);
 }
@@ -151,6 +160,58 @@ svg {
 
 .bg-off-white {
     background: var(--off-white);
+}
+
+.border-cta-primary {
+    border-color: var(--cta-primary);
+}
+
+.border-cta-secondary {
+    border-color: var(--cta-secondary);
+}
+
+.border-primary {
+    border-color: var(--primary);
+}
+
+.border-primary-light {
+    border-color: var(--primary-light);
+}
+
+.border-secondary {
+    border-color: var(--secondary);
+}
+
+.border-highlight-primary {
+    border-color: var(--highlight-primary);
+}
+
+.border-system-base {
+    border-color: var(--system-base);
+}
+
+.border-system-secondary {
+    border-color: var(--system-secondary);
+}
+
+.border-mid-grey {
+    border-color: var(--mid-grey);
+}
+
+.border-light-grey {
+    border-color: var(--light-grey);
+}
+
+.border-blue-grey {
+    border-color: var(--blue-grey);
+}
+
+.border-shadow-blue {
+    border-color: var(--shadow-blue);
+}
+
+.border-off-white {
+    border-color: var(--off-white);
 }
 
 .all-red {

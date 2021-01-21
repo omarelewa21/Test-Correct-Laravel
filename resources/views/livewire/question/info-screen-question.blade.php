@@ -1,8 +1,8 @@
-<div>
+<div class="flex flex-col place-content-between">
     {{-- The Master doesn't talk, he acts. --}}
 
     {!! $question->getQuestionHtml() !!}
 
 
-    <div style="font-style: italic">{!! __('test_take.info_screen_question_bottom_text') !!}</div>
+    <div class="italic">{!! __('test_take.info_screen_question_bottom_text') !!}</div>
 </div>

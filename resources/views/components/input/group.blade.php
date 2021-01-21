@@ -9,16 +9,17 @@
 --}}
 
 @props([
-    'label',
-    'for',
+    'label' => false,
+    'for' => false,
     'error' => false,
     'helpText' => false,
 ])
 
 <div {{ $attributes->merge(['class' => 'input-group']) }}>
     {{ $slot }}
-    <label for="{{ $for }}" class="transition ease-in-out duration-150">{{ $label }}</label>
-
+    @if($label)
+        <label for="{{ $for }}" class="transition ease-in-out duration-150">{{ $label }}</label>
+    @endif
     @if ($error)
         <div class="mt-1 text-red-500 text-sm">{{ $error }}</div>
     @endif

@@ -1,13 +1,11 @@
-<div>
+<div class="w-full">
     {{ get_class($question) }}
-{!! $question->getQuestionHtml() !!}
-</div>
-
-<x-input.group wire:ignore for="ckeditor" label="" class="w-full">
-    <x-input.textarea autofocus="true" id="ckeditor" name="ckeditor"
-                      wire:model="answer"
-                      x-data=""
-                      x-init="
+    {!! $question->getQuestionHtml() !!}
+    <x-input.group wire:ignore class="w-full">
+        <x-input.textarea autofocus="true" id="ckeditor" name="ckeditor"
+                          wire:model="answer"
+                          x-data=""
+                          x-init="
                       (function() {
                             var editor = CKEDITOR.instances['ckeditor']
                             if (editor) {
@@ -30,7 +28,9 @@
                             })
                       })()
                       "
-    >
-        {{ $answer }}
-    </x-input.textarea>
-</x-input.group>
+        >
+            {{ $answer }}
+        </x-input.textarea>
+    </x-input.group>
+</div>
+

@@ -1,1 +1,1 @@
-    <textarea class="form-input" {{ $attributes }}></textarea>
+<textarea {{ $attributes->merge(['class' => 'form-input resize-none']) }}></textarea>
