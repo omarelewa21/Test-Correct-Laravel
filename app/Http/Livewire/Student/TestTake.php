@@ -91,6 +91,14 @@ class TestTake extends Component
 
     public function updateAnswer($questionId, $answer)
     {
+//        if($this->mainQuestion instanceof MultipleChoiceQuestion) {
+//            $answers = [];
+//            $this->mainQuestion->multipleChoiceQuestionAnswers->pluck('id')->each(function ($i ,$key) use (&$answers, $answer) {
+//                $answers[$i] =  $key == $answer ? 1 : 0;
+//            });
+//            $answer = $answers;
+//        }
+
         $this->answers[$questionId]['answer'] = json_encode($answer);
 
         Answer::where('id', $this->answers[$questionId]['id'])

@@ -13,6 +13,8 @@ class MultipleChoiceQuestion extends Component
 
     public $answer = '';
 
+    public $answerStruct;
+
     public $arqStructure = [
         ['test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
         ['test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],
@@ -26,21 +28,41 @@ class MultipleChoiceQuestion extends Component
     public function questionUpdated($uuid, $answer)
     {
         $this->uuid = $uuid;
-        $this->answer = $answer;
+        $selectedAnswer = collect($this->answer)->filter(function($item) {
+            return $item == 1;
+        })->toArray();
+        $this->answer = key($selectedAnswer);
+    }
+
+    public function mount()
+    {
+        $this->answerStruct =
+            array_fill_keys(
+                array_keys(
+                    array_flip(Question::whereUuid($this->uuid)
+                        ->first()
+                        ->multipleChoiceQuestionAnswers->pluck('id')
+                        ->toArray()
+                    )
+                ), 0
+            );
     }
 
     public function updatedAnswer($value)
     {
-        $this->emitUp('updateAnswer', $this->uuid, $value);
+        $this->answerStruct = array_fill_keys(array_keys($this->answerStruct),0);
+        $this->answerStruct[$value] = 1;
+
+        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
     }
 
     public function render()
     {
-        $question = Question::whereUuid($this->uuid)->first();
-        if ($question->subtype=='ARQ') {
-            return view('livewire.question.arq-question', compact('question'));
+        $this->question = Question::whereUuid($this->uuid)->first();
+        if ($this->question->subtype == 'ARQ') {
+            return view('livewire.question.arq-question', ['question' => $this->question]);
         }
 
-        return view('livewire.question.multiple-choice-question', compact('question'));
+        return view('livewire.question.multiple-choice-question', ['question' => $this->question]);
     }
 }

@@ -11,7 +11,7 @@
                     name="Question_{{ $question->id }}"
                     type="radio"
                     class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                    value="{{ $link->answer }}"
+                    value="{{ $link->id }}"
                 >
                 <label
                     for="link{{ $link->id }}"
