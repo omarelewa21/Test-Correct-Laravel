@@ -40,7 +40,6 @@ class TestTake extends Component
         $this->testQuestions = self::getData($test_take);
         session()->put('data', serialize($this->testQuestions));
         $this->setMainQuestion($this->question ?: $this->testQuestions->first()->uuid);
-
         TestParticipant::where('test_take_id', $test_take->getKey())
             ->where('user_id', Auth::user()->getKey())
             ->first()

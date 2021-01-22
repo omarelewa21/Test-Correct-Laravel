@@ -1,3 +1,8 @@
+<style>
+    input[type="radio"]:checked {
+        color:red;
+    }
+</style>
 
 <div class="w-full space-y-3">
     <div>
@@ -7,33 +12,39 @@
         <div class="flex flex-1 flex-col space-y-6">
             {!! $question->getQuestionHtml() !!}
         </div>
-        <div class="flex flex-1">
-            <table>
-                <thead>
-                    <th>Optie</th>
-                    <th>Stelling 1</th>
-                    <th>Stelling 2</th>
-                    <th>Reden</th>
-                </thead>
-                <tbody>
+        <div class="flex flex-1 flex-col">
+            <div>
+                <div class="px-5 space-x-4 text-base bold flex flex-row">
+                    <span class="w-16">Optie</span>
+                    <span class="w-20">Stelling 1</span>
+                    <span class="w-20">Stelling 2</span>
+                    <span class="w-10">Reden</span>
+                </div>
+            </div>
+            <div class="divider my-2"></div>
+            <div class="space-y-2">
                 @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
-                    <tr>
-
-                        <td><input
+                    <label class="flex p-5 border border-blue-grey rounded-10 base arq-question transition ease-in-out duration-150 focus:outline-none"
+                           for="link{{ $link->id }}">
+                        <input
                                 wire:model="answer"
                                 id="link{{ $link->id }}"
                                 name="Question_{{ $question->id }}"
                                 type="radio"
-                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 hidden"
                                 value="{{ $loopCount }}"
-                            >A</td>
-                        <td>{{ __($this->arqStructure[$loopCount][0]) }}</td>
-                        <td>{{ __($this->arqStructure[$loopCount][1]) }}</td>
-                        <td>{{ __($this->arqStructure[$loopCount][2]) }}</td>
-                    </tr>
+                        />
+                        <span class="w-16 mr-4">{{ __($this->arqStructure[$loopCount][0]) }}</span>
+                        <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][1]) }}</span>
+                        <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][2]) }}</span>
+                        <span class="">{{ __($this->arqStructure[$loopCount][3]) }}</span>
+                        <div class="hidden ml-auto">
+                            <x-icon.checkmark/>
+                        </div>
+                    </label>
+
                 @endforeach
-                </tbody>
-            </table>
+            </div>
         </div>
     </div>
 </div>

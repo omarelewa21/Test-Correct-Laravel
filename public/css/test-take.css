@@ -71,3 +71,24 @@
     transform: translateY(-50%);
     z-index: -1;
 }
+
+.arq-question:hover {
+    box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.4);
+    border-color: var(--off-white);
+    font-weight: bold;
+    color: var(--primary);
+    background: var(--off-white);
+}
+
+.arq-question:focus {
+    border-color: var(--primary);
+}
+
+.arq-question:active {
+    box-sizing: border-box;
+    border-color: var(--primary);
+    border-width: 2px;
+    background: var(--off-white);
+    font-weight: bold;
+    color: var(--primary);
+}

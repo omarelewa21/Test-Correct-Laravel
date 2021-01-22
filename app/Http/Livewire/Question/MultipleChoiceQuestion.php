@@ -16,11 +16,11 @@ class MultipleChoiceQuestion extends Component
     public $answerStruct;
 
     public $arqStructure = [
-        ['test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
-        ['test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],
-        ['test_take.correct', 'test_take.incorrect', 'test_take.not_applicable'],
-        ['test_take.incorrect', 'test_take.correct', 'test_take.not_applicable'],
-        ['test_take.incorrect', 'test_take.incorrect', 'test_take.not_applicable'],
+        ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
+        ['B', 'test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],
+        ['C', 'test_take.correct', 'test_take.incorrect', 'test_take.not_applicable'],
+        ['D', 'test_take.incorrect', 'test_take.correct', 'test_take.not_applicable'],
+        ['E', 'test_take.incorrect', 'test_take.incorrect', 'test_take.not_applicable'],
     ];
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
