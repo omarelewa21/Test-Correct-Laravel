@@ -9,7 +9,7 @@
 
 .question-indicator .question-number {
     position: relative;
-    width: 30px;
+    min-width: 30px;
     height: 30px;
     font-size: 14px;
     font-weight: bold;
@@ -72,7 +72,7 @@
     z-index: -1;
 }
 
-.arq-question:hover {
+.multiple-choice-question:hover {
     box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.4);
     border-color: var(--off-white);
     font-weight: bold;
@@ -80,11 +80,21 @@
     background: var(--off-white);
 }
 
-.arq-question:focus {
+.multiple-choice-question:focus {
     border-color: var(--primary);
 }
 
-.arq-question:active {
+.multiple-choice-question:active {
+    box-sizing: border-box;
+    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.4);
+    border-color: var(--primary);
+    border-width: 2px;
+    background: var(--off-white);
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.multiple-choice-question.active {
     box-sizing: border-box;
     border-color: var(--primary);
     border-width: 2px;

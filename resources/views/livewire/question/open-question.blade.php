@@ -7,16 +7,16 @@
             {!!   $question->getQuestionHtml() !!}
 
             <x-input.group for="me" label="" class="w-full">
-                <x-input.textarea wire:model="answer" name="name" maxlength="280" x-ref="countme"
+                <x-input.textarea class="rounded-b-none" name="name" maxlength="280" x-ref="countme"
                                   x-on:keyup="count = $refs.countme.value.length"></x-input.textarea>
             </x-input.group>
-            <div class="relative z-20 ml-4 mt-3">
-                <span x-html="count"></span> / <span x-html="$refs.countme.maxLength"></span>
-            </div>
-            <div class="absolute w-full border border-blue-grey rounded-lg left-0 Z-10 overflow-hidden "
-                 style="height: 26px; bottom: -1px;">
+            <div class="relative w-full border border-t-0 rounded-t-none border-blue-grey rounded-lg Z-10 overflow-hidden "
+                 style="height: 25px;">
                 <span :style="calculateProgress(count, $refs.countme.maxLength)"
-                      class="transition bg-blue-300 bottom-0 absolute h-6 rounded-lg"></span>
+                      class="transition bg-primary absolute h-6 rounded-t-none rounded-br-none rounded-lg"></span>
+            </div>
+            <div class="mt-1">
+                <span x-html="count"></span> / <span x-html="$refs.countme.maxLength"></span>
             </div>
         </div>
 

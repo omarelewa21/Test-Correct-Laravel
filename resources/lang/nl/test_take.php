@@ -36,5 +36,7 @@ return [
     'turn_in'                             => 'Inleveren',
     'speak'                               => 'Lees voor',
     'overview'                            => 'Bekijk antwoorden',
-
+    'answered'                            => 'Beantwoord',
+    'not_answered'                        => 'Niet beantwoord',
+    'partly_answered'                     => 'Deels beantwoord',
 ];

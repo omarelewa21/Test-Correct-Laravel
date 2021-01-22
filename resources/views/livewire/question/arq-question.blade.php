@@ -24,7 +24,7 @@
             <div class="divider my-2"></div>
             <div class="space-y-2">
                 @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
-                    <label class="flex p-5 border border-blue-grey rounded-10 base arq-question transition ease-in-out duration-150 focus:outline-none"
+                    <label class="flex p-5 border border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none @if($link->answer == 1) active @endif"
                            for="link{{ $link->id }}">
                         <input
                                 wire:model="answer"
@@ -38,11 +38,10 @@
                         <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][1]) }}</span>
                         <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][2]) }}</span>
                         <span class="">{{ __($this->arqStructure[$loopCount][3]) }}</span>
-                        <div class="hidden ml-auto">
+                        <div class="@if($link->answer != 1) hidden @endif ml-auto">
                             <x-icon.checkmark/>
                         </div>
                     </label>
-
                 @endforeach
             </div>
         </div>

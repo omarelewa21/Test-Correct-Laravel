@@ -5,7 +5,7 @@
                  alt="Test-Correct">
         </a>
         <div class="user flex flex-wrap items-center ml-auto space-x-6">
-            <x-fraud-detected/>
+
 
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <x-dropdown.item>Inleveren</x-dropdown.item>
@@ -16,6 +16,10 @@
         {{ $slot }}
     </main>
     <footer class="footer flex content-center fixed w-full bottom-0 z-10">
+        <div class="flex items-center">
+            <x-fraud-detected/>
+        </div>
+
         <div class="flex items-center ml-auto space-x-6">
             {{ $footerbuttons }}
 
