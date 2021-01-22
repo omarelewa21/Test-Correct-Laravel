@@ -1146,13 +1146,22 @@ class TestTakesController extends Controller {
 
         //  
         // set all the non-time dispensation students to 'taken away' 
+        // unless the student has not started the test yet
         //
-        $closed_students = TestParticipant::join('users', 'test_participants.user_id', '=', 'users.id')->where('users.time_dispensation', 0)->where('test_participants.test_take_id', $testTake->id)->update(['test_participants.test_take_status_id' => 5]);
+        $closed_students = TestParticipant::join('users', 'test_participants.user_id', '=', 'users.id')
+                ->where('users.time_dispensation', 0)
+                ->where('test_participants.test_take_id', $testTake->id)
+                ->where('test_participants.test_take_status_id','=',3)
+                ->update(['test_participants.test_take_status_id' => 5]);
 
         //
         //   check if there are any students left doing the test, if not close test
+        //   Status 2 Test not taken status 3 Taking test
         //         
-        $students_still_in_test = TestParticipant::where('test_participants.test_take_id', $testTake->id)->whereNotIn('test_participants.test_take_status_id', [4, 5, 6])->count();
+        
+        $students_still_in_test = TestParticipant::where('test_participants.test_take_id', $testTake->id)
+                ->whereIn('test_participants.test_take_status_id', [2,3])
+                ->count();
         
         if ($students_still_in_test == 0) {
 
@@ -1165,7 +1174,9 @@ class TestTakesController extends Controller {
         } else {
 
             return Response::make($testTake, 200);
+            
         }
+        
     }
 
     /**
