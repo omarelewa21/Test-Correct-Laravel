@@ -1,17 +1,11 @@
+
 <div class="w-full space-y-3">
     <div>
         <span>Lees de stellingen en selecteer de juiste antwoordoptie in de lijst</span>
     </div>
     <div class="flex flex-row space-x-10">
         <div class="flex flex-1 flex-col space-y-6">
-            <div>
-                <h6>Stelling 1</h6>
-                <p>Omschrijving van stelling 1. Dit kan dus een wat langere tekst zijn die men moet lezen als onderdeel van de rangschrikvraag. Er is gekozen voor een opmaak in kollommen, met een marge van 2.5rem(40px) ertussen, om optimaal gebruik te maken van de vertikale ruimte in deze sectie voor deze vraag. Dit scheelt veel scrollen op de pagina.</p>
-            </div>
-            <div>
-                <h6>Stelling 2</h6>
-                <p>Omschrijving van stelling 2. Dit kan dus een wat langere tekst zijn die men moet lezen als onderdeel van de rangschrikvraag. Er is gekozen voor een opmaak in kollommen, met een marge van 2.5rem(40px) ertussen, om optimaal gebruik te maken van de vertikale ruimte in deze sectie voor deze vraag. Dit scheelt veel scrollen op de pagina.</p>
-            </div>
+            {!! $question->getQuestionHtml() !!}
         </div>
         <div class="flex flex-1">
             <table>
@@ -22,18 +16,22 @@
                     <th>Reden</th>
                 </thead>
                 <tbody>
+                @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
                     <tr>
-                        <td>A</td>
-                        <td>Juist</td>
-                        <td>Juist</td>
-                        <td>Correcte reden</td>
+
+                        <td><input
+                                wire:model="answer"
+                                id="link{{ $link->id }}"
+                                name="Question_{{ $question->id }}"
+                                type="radio"
+                                class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+                                value="{{ $loopCount }}"
+                            >A</td>
+                        <td>{{ __($this->arqStructure[$loopCount][0]) }}</td>
+                        <td>{{ __($this->arqStructure[$loopCount][1]) }}</td>
+                        <td>{{ __($this->arqStructure[$loopCount][2]) }}</td>
                     </tr>
-                    <tr>
-                        <td>A</td>
-                        <td>Juist</td>
-                        <td>Juist</td>
-                        <td>Incorrecte reden</td>
-                    </tr>
+                @endforeach
                 </tbody>
             </table>
         </div>

@@ -53,8 +53,12 @@ class TestTake extends Component
             });
     }
 
-    public function complete($uuid)
+    public function getState($uuid)
     {
+        if($uuid === $this->question) {
+            return 'active';
+        }
+
         if (array_key_exists($uuid, $this->answers)) {
             if (!empty($this->answers[$uuid]['answer'])) {
                 return 'complete';
