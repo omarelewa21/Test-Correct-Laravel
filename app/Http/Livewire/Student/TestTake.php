@@ -30,6 +30,7 @@ class TestTake extends Component
     public $component;
     public $number = 1;
     public $caption;
+    public $answer;
 
     public $answers = [];
 
@@ -40,6 +41,9 @@ class TestTake extends Component
         $this->testQuestions = self::getData($test_take);
         session()->put('data', serialize($this->testQuestions));
         $this->setMainQuestion($this->question ?: $this->testQuestions->first()->uuid);
+
+
+
         TestParticipant::where('test_take_id', $test_take->getKey())
             ->where('user_id', Auth::user()->getKey())
             ->first()
@@ -97,7 +101,6 @@ class TestTake extends Component
 //            });
 //            $answer = $answers;
 //        }
-
         $this->answers[$questionId]['answer'] = json_encode($answer);
 
         Answer::where('id', $this->answers[$questionId]['id'])

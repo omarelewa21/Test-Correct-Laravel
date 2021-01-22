@@ -11,6 +11,8 @@ class ArqQuestion extends Component
 
     public $uuid;
 
+    public $question;
+
     public function questionUpdated($uuid)
     {
         $this->uuid = $uuid;
@@ -19,6 +21,6 @@ class ArqQuestion extends Component
     public function render()
     {
         $question = Question::whereUuid($this->uuid)->first();
-        return view('livewire.question.arq-question', compact('question'));
+        return view('livewire.question.arq-question');
     }
 }

@@ -7,13 +7,13 @@ use tcCore\Question;
 
 class OpenQuestion extends Component
 {
-    public $uuid;
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
     public $answer = '';
+    public $question;
+    public $number;
 
     public function questionUpdated($uuid, $answer)
     {
-        $this->uuid = $uuid;
         $this->answer = $answer;
         $this->dispatchBrowserEvent('livewire-refresh');
     }
@@ -25,8 +25,7 @@ class OpenQuestion extends Component
 
     public function render()
     {
-        $question = Question::whereUuid($this->uuid)->first();
-        if($question->subtype==='short') {
+        if($this->question->subtype==='short') {
             return view('livewire.question.open-question', compact('question'));
         }
 

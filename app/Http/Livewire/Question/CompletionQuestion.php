@@ -9,15 +9,14 @@ class CompletionQuestion extends Component
 {
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
-    public $uuid;
-
     public $question;
 
     public $answer = [];
 
+    public $number;
+
     public function questionUpdated($uuid, $answer)
     {
-        $this->uuid = $uuid;
         $this->answer = $answer;
     }
 
@@ -26,12 +25,12 @@ class CompletionQuestion extends Component
         $index = last(explode('.', $field));
         $this->answer[$index] = $value;
 
-        $this->emitUp('updateAnswer', $this->uuid, $this->answer);
+//        $this->emitUp('updateAnswer', $this->uuid, $this->answer);
     }
 
     private function completionHelper($question)
     {
-        $this->question = $question->getQuestionHtml();
+        $question->getQuestionHtml();
 
         $question_text = $question->getQuestionHTML();
 
@@ -46,12 +45,12 @@ class CompletionQuestion extends Component
             );
         };
 
-        $this->question = preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
     }
 
     private function multiHelper($question)
     {
-        if(empty($answerJson)) {
+        if (empty($answerJson)) {
             $answerJson = [];
         }
 
@@ -60,18 +59,18 @@ class CompletionQuestion extends Component
 
         $tags = [];
 
-        foreach($question->completionQuestionAnswers as $option) {
+        foreach ($question->completionQuestionAnswers as $option) {
             $tags[$option->tag][$option->answer] = $option->answer;
         }
         $isCitoQuestion = $question->isCitoQuestion();
 
         $question_text = preg_replace_callback(
             '/\[([0-9]+)\]/i',
-            function ($matches) use ($tags,  $isCitoQuestion) {
+            function ($matches) use ($tags, $isCitoQuestion) {
 
                 $answers = $tags[$matches[1]];
                 $keys = array_keys($answers);
-                if(!$isCitoQuestion) {
+                if (!$isCitoQuestion) {
                     shuffle($keys);
                 }
                 $random = array(
@@ -83,34 +82,34 @@ class CompletionQuestion extends Component
 
                 $answers = $random;
 
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base">%s</select>',$matches[1], $this->getOptions($answers) );
+                return sprintf('<select wire:model="answer.%s" class="form-input text-base">%s</select>', $matches[1],
+                    $this->getOptions($answers));
 
 //                return $this->Form->input('Answer.'.$tag_id ,['id' => 'answer_' . $tag_id, 'class' => 'multi_selection_answer', 'onchange' => 'Answer.answerChanged = true', 'value' => $value, 'options' => $answers, 'label' => false, 'div' => false, 'style' => 'display:inline-block; width:150px']);
             },
             $question_text
         );
 
-        $this->question = $question_text;
+        return $question_text;
     }
 
-    private function getOptions($answers) {
-        return collect($answers)->map(function($option, $key) {
-            return sprintf('<option value="%s">%s</option>',$key, $option);
+    private function getOptions($answers)
+    {
+        return collect($answers)->map(function ($option, $key) {
+            return sprintf('<option value="%s">%s</option>', $key, $option);
         })->join('');
     }
 
     public function render()
     {
-        $question = Question::whereUuid($this->uuid)->first();
-
-        if ($question->subtype == 'completion') {
-            $this->completionHelper($question);
-        } elseif ($question->subtype == 'multi') {
-            $this->multiHelper($question);
+        if ($this->question->subtype == 'completion') {
+            $html = $this->completionHelper($this->question);
+        } elseif ($this->question->subtype == 'multi') {
+            $html = $this->multiHelper($this->question);
         } else {
             throw new \Exception ('unknown type');
         }
 
-        return view('livewire.question.completion-question', ['question' => $this->question]);
+        return view('livewire.question.completion-question', ['html' => $html]);
     }
 }

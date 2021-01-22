@@ -1,8 +1,16 @@
-<div class="w-full">
+<div class="flex flex-col p-8 sm:p-10 content-section" x-show="'{{ $question->uuid }}' == current">
+    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
+        <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
+            <span class="align-middle">{{ $number }}</span>
+        </div>
+        <h1 class="inline-block ml-2 mr-6">{!!  __($question->caption) !!}</h1>
+        <h4 class="inline-block">{{ $question->score }} pt</h4>
+    </div>
+    <div class="w-full">
         <div
-                x-data="{count:0}"
-                x-init="count = $refs.countme.value.length;"
-                class="relative"
+            x-data="{count:0}"
+            x-init="count = $refs.countme.value.length;"
+            class="relative"
         >
             {!!   $question->getQuestionHtml() !!}
 
@@ -20,11 +28,11 @@
             </div>
         </div>
 
-    <script>
-        function calculateProgress(count, total) {
-            return 'width:' + count / total * 100 + '%';
-        }
-    </script>
+        <script>
+            function calculateProgress(count, total) {
+                return 'width:' + count / total * 100 + '%';
+            }
+        </script>
+    </div>
 </div>
-
 

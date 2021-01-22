@@ -7,13 +7,13 @@ use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
 {
-    public $uuid;
 
-    private $question;
+    public $question;
 
     public $answer = '';
 
     public $answerStruct;
+    public $number;
 
     public $arqStructure = [
         ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
@@ -27,7 +27,7 @@ class MultipleChoiceQuestion extends Component
 
     public function questionUpdated($uuid, $answer)
     {
-        $this->uuid = $uuid;
+
         $selectedAnswer = collect($this->answer)->filter(function($item) {
             return $item == 1;
         })->toArray();
@@ -39,7 +39,7 @@ class MultipleChoiceQuestion extends Component
         $this->answerStruct =
             array_fill_keys(
                 array_keys(
-                    array_flip(Question::whereUuid($this->uuid)
+                    array_flip(Question::whereUuid($this->question->uuid)
                         ->first()
                         ->multipleChoiceQuestionAnswers->pluck('id')
                         ->toArray()
@@ -52,13 +52,13 @@ class MultipleChoiceQuestion extends Component
     {
         $this->answerStruct = array_fill_keys(array_keys($this->answerStruct),0);
         $this->answerStruct[$value] = 1;
+        dd($this->answerStruct);
 
-        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
+//        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
     }
 
     public function render()
     {
-        $this->question = Question::whereUuid($this->uuid)->first();
         if ($this->question->subtype == 'ARQ') {
             return view('livewire.question.arq-question', ['question' => $this->question]);
         }

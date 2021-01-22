@@ -5,7 +5,7 @@ namespace tcCore\Http\Livewire\Question;
 use Livewire\Component;
 use tcCore\Question;
 
-class InfoScreenQuestion extends Component
+class DrawingQuestion extends Component
 {
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
@@ -20,6 +20,6 @@ class InfoScreenQuestion extends Component
 
     public function render()
     {
-        return view('livewire.question.info-screen-question');
+        return view('livewire.question.drawing-question');
     }
 }

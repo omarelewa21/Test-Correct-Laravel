@@ -11,6 +11,8 @@ class RankingQuestion extends Component
 
     public $uuid;
     public $answer;
+    public $question;
+    public $number;
 
     public function questionUpdated($uuid, $answer)
     {
@@ -30,8 +32,6 @@ class RankingQuestion extends Component
 
     public function render()
     {
-        $question = Question::whereUuid($this->uuid)->first();
-
-        return view('livewire.question.ranking-question', compact('question'));
+        return view('livewire.question.ranking-question');
     }
 }
