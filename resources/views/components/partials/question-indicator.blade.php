@@ -5,8 +5,11 @@
 
 <div class="question-indicator w-full">
     <div class="flex flex-wrap">
-        @foreach($questions as $key => $question)
-            <div class="question-number rounded-full text-center" x-on:click="current = '{{ $question->uuid }}'">
+        @foreach($questions as $key => $q)
+            <div
+                class="question-number rounded-full text-center {!! $key === ($this->question-1) ? 'active' : ''!!}"
+                 wire:click="$set('question',{{ 1+$key}})"
+            >
                 <span class="align-middle">{{ ++$key }}</span>
             </div>
         @endforeach

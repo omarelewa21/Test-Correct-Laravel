@@ -3,16 +3,38 @@
 namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTake as Test;
 
 class TestTakeLaravelController extends Controller
 {
-    public function show(TestTake $testTake)
+    public function show(TestTake $testTake, Request $request)
     {
+        $current = $request->get('question')?: '1';
+
         $data = self::getData($testTake);
-        $current = $data->first()->uuid;
-        return view('test-take', compact(['data', 'current']));
+        $answers = $this->getAnswers($testTake, $data);
+
+// todo add check or failure when $current out of bounds $data;
+
+        return view('test-take', compact(['data', 'current', 'answers']));
+    }
+
+    public function getAnswers($testTake, $testQuestions) {
+        $result = [];
+         TestParticipant::where('test_take_id', $testTake->getKey())
+            ->where('user_id', Auth::user()->getKey())
+            ->first()
+            ->answers
+            ->each(function ($answer) use (&$result, $testQuestions) {
+                $question = $testQuestions->first(function ($question) use ($answer) {
+                    return $question->getKey() === $answer->question_id;
+                });
+                $result[$question->uuid] = ['id' => $answer->getKey(), 'answer' => $answer->json];
+            });
+         return $result;
     }
 
 

@@ -12,6 +12,8 @@ class MultipleChoiceQuestion extends Component
 
     public $answer = '';
 
+    public $answers;
+
     public $answerStruct;
     public $number;
 
@@ -36,6 +38,8 @@ class MultipleChoiceQuestion extends Component
 
     public function mount()
     {
+//        $this->answer =dd( json_decode($this->answers[$this->question->uuid]['answer']));
+//
         $this->answerStruct =
             array_fill_keys(
                 array_keys(
@@ -52,7 +56,8 @@ class MultipleChoiceQuestion extends Component
     {
         $this->answerStruct = array_fill_keys(array_keys($this->answerStruct),0);
         $this->answerStruct[$value] = 1;
-        dd($this->answerStruct);
+
+
 
 //        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
     }

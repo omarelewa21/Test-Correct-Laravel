@@ -1,55 +1,62 @@
 <x-layouts.app>
-    <div class="w-full flex flex-col mb-5" test-take-player x-data="{current : '{{ $current }}'}">
-        <div class="flex flex-col pt-4 pb-8 space-y-10">
-            <x-partials.question-indicator :questions="$data"></x-partials.question-indicator>
-        </div>
+    <div class="w-full flex flex-col mb-5" test-take-player x-data="{current : '{{ $current }}'}" x-on:current-updated.window="current=$event.detail.current">
+        <livewire:question.navigation :questions="$data"></livewire:question.navigation>
+
         @foreach($data as  $key => $testQuestion)
             @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1)
                 <livewire:question.multiple-select-question
                     :question="$testQuestion"
                     :number="++$key"
+                    :answers="$answers"
                     wire:key="'q-'.$testQuestion->uuid'"
                 />
             @elseif($testQuestion->type === 'MultipleChoiceQuestion')
                 <livewire:question.multiple-choice-question
                     :question="$testQuestion"
                     :number="++$key"
+                    :answers="$answers"
                     wire:key="'q-'.$testQuestion->uuid'"
                 />
             @elseif($testQuestion->type === 'OpenQuestion')
                 <livewire:question.open-question
                     :question="$testQuestion"
                     :number="++$key"
+                    :answers="$answers"
                     wire:key="'q-'.$testQuestion->uuid'q-'"
                 />
             @elseif($testQuestion->type === 'MatchingQuestion')
                 <livewire:question.matching-question
                     :question="$testQuestion"
                     :number="++$key"
+                    :answers="$answers"
                     wire:key="'q-'.$testQuestion->uuid'"
                 />
             @elseif($testQuestion->type === 'CompletionQuestion')
                 <livewire:question.completion-question
                     :question="$testQuestion"
                     :number="++$key"
+                    :answers="$answers"
                     wire:key="'q-'.$testQuestion->uuid'"
                 />
             @elseif($testQuestion->type === 'RankingQuestion')
                 <livewire:question.ranking-question
                     :question="$testQuestion"
                     :number="++$key"
+                    :answers="$answers"
                     wire:key="'q-'.$testQuestion->uuid'"
                 />
             @elseif($testQuestion->type === 'InfoscreenQuestion')
                 <livewire:question.info-screen-question
                     :question="$testQuestion"
                     :number="++$key"
+                    :answers="$answers"
                     wire:key="'q-'.$testQuestion->uuid"
                 />
             @elseif($testQuestion->type === 'DrawingQuestion')
                 <livewire:question.drawing-question
                     :question="$testQuestion"
                     :number="++$key"
+                    :answers="$answers"
                     wire:key="'q-'.$testQuestion->uuid"
                 />
             @endif
