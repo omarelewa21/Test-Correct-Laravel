@@ -263,8 +263,7 @@ class GroupQuestionQuestionsController extends Controller
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
             // this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
-            if (!$completionAnswerDirty
-                && !$question->isDirty()
+            if (!$question->isDirty()
                 && $questionInstance->isDirty()
                 && !$questionInstance->isDirtyAttainments()
                 && !$questionInstance->isDirtyTags()

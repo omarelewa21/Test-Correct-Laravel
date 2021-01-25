@@ -32,7 +32,7 @@ trait GroupQuestionTrait
         ], $overrides);
 
         $response = $this->post(
-            'test_question',
+            'api-c/test_question',
             static::getTeacherOneAuthRequestData($attributes)
         );
 
