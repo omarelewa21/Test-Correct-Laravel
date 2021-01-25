@@ -39,4 +39,7 @@ return [
     'answered'                            => 'Beantwoord',
     'not_answered'                        => 'Niet beantwoord',
     'partly_answered'                     => 'Deels beantwoord',
+    'option'                              => 'Optie',
+    'thesis'                              => 'Stelling',
+    'reason'                              => 'Reden',
 ];

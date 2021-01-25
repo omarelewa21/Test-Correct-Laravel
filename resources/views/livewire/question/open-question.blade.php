@@ -14,16 +14,16 @@
         >
             {!!   $question->getQuestionHtml() !!}
 
-            <x-input.group for="me" label="" class="w-full">
-                <x-input.textarea class="rounded-b-none" name="name" maxlength="280" x-ref="countme"
+            <x-input.group for="me" label="" class="w-full m-0">
+                <x-input.textarea class="rounded-b-none h-full" name="name" maxlength="280" x-ref="countme"
                                   x-on:keyup="count = $refs.countme.value.length"></x-input.textarea>
             </x-input.group>
-            <div class="relative w-full border border-t-0 rounded-t-none border-blue-grey rounded-lg Z-10 overflow-hidden "
+            <div class="m-0 block relative w-full border border-t-0 rounded-t-none border-blue-grey rounded-lg Z-10 overflow-hidden "
                  style="height: 25px;">
                 <span :style="calculateProgress(count, $refs.countme.maxLength)"
                       class="transition bg-primary absolute h-6 rounded-t-none rounded-br-none rounded-lg"></span>
             </div>
-            <div class="mt-1">
+            <div class="m-0">
                 <span x-html="count"></span> / <span x-html="$refs.countme.maxLength"></span>
             </div>
         </div>

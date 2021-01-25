@@ -18,24 +18,24 @@
             <div>
                 <span>Lees de stellingen en selecteer de juiste antwoordoptie in de lijst</span>
             </div>
-            <div class="flex flex-row space-x-10">
+            <div class="flex flex-row space-x-5">
                 <div class="flex flex-1 flex-col space-y-6">
                     {!! $question->getQuestionHtml() !!}
                 </div>
                 <div class="flex flex-1 flex-col">
                     <div>
                         <div class="px-5 space-x-4 text-base bold flex flex-row">
-                            <span class="w-16">Optie</span>
-                            <span class="w-20">Stelling 1</span>
-                            <span class="w-20">Stelling 2</span>
-                            <span class="w-10">Reden</span>
+                            <span class="w-16">{{__('test_take.option')}}</span>
+                            <span class="w-20">{{__('test_take.thesis')}} 1</span>
+                            <span class="w-20">{{__('test_take.thesis')}} 2</span>
+                            <span class="w-10">{{__('test_take.reason')}}</span>
                         </div>
                     </div>
                     <div class="divider my-2"></div>
                     <div class="space-y-2">
                         @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
                             <label
-                                class="flex p-5 border border-blue-grey rounded-10 base arq-question transition ease-in-out duration-150 focus:outline-none"
+                                class="flex p-5 border border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none"
                                 for="link{{ $link->id }}">
                                 <input
                                     wire:model="answer"

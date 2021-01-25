@@ -10,22 +10,20 @@
 
         {!! $question->getQuestionHtml()  !!}
 
-        <div class="mt-4 space-y-4">
+        <div class="mt-4 space-y-2 w-1/2">
             @foreach( $question->multipleChoiceQuestionAnswers as $link)
-                <div class="flex items-center">
+                <div class="flex items-center mc-radio">
+                    <label
+                        for="link{{ $link->id }}"
+                        class="relative w-full flex hover:font-bold">
                     <input
                         wire:model="answer"
                         id="link{{ $link->id }}"
                         name="Question_{{ $question->id }}"
                         type="radio"
-                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                        value="{{ $link->id }}"
-                    >
-                    <label
-                        for="link{{ $link->id }}"
-                        class="ml-3 block text-sm font-medium text-gray-700"
-                    >
-                        {!! $link->answer !!}
+                        class="focus:ring-indigo-500 h-0 w-0 text-indigo-600 border-gray-300"
+                        value="{{ $link->id }}">
+                        <span class="w-full p-5 border border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none">{!! $link->answer !!}</span>
                     </label>
                 </div>
             @endforeach

@@ -39,5 +39,8 @@ return [
     'answered'                            => 'Answered',
     'not_answered'                        => 'Not answered',
     'partly_answered'                     => 'Partly answered',
+    'option'                              => 'Option',
+    'thesis'                              => 'Thesis',
+    'reason'                              => 'Reason',
 
 ];

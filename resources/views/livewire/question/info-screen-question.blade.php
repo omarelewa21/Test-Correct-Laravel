@@ -8,7 +8,7 @@
     </div>
 
     <div class="flex flex-1">
-        <div class="w-full space-y-3">
+        <div class="w-full flex space-y-3">
             <div class="flex flex-col place-content-between">
                 {{-- The Master doesn't talk, he acts. --}}
 
