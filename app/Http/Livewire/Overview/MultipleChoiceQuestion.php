@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Question;
+namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Answer;
@@ -68,9 +68,9 @@ class MultipleChoiceQuestion extends Component
     public function render()
     {
         if ($this->question->subtype == 'ARQ') {
-            return view('livewire.question.arq-question');
+            return view('livewire.overview.arq-question');
         }
 
-        return view('livewire.question.multiple-choice-question');
+        return view('livewire.overview.multiple-choice-question');
     }
 }

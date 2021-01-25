@@ -10,6 +10,21 @@ use tcCore\TestTake as Test;
 
 class TestTakeLaravelController extends Controller
 {
+    public function overview(TestTake $testTake, Request $request)
+    {
+        $current = $request->get('question')?: '1';
+
+        $data = self::getData($testTake);
+        $answers = $this->getAnswers($testTake, $data);
+
+// todo add check or failure when $current out of bounds $data;
+
+        return view('test-take-overview', compact(['data', 'current', 'answers']));
+    }
+
+
+
+
     public function show(TestTake $testTake, Request $request)
     {
         $current = $request->get('question')?: '1';

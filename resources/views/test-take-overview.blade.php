@@ -1,66 +1,68 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5">
-        <livewire:question.navigation :questions="$data"></livewire:question.navigation>
-        <div>
+        <livewire:overview.navigation :questions="$data"></livewire:overview.navigation>
+        <h1 class="mb-7">Kijk alle antwoorden nog eens goed na.</h1>
+        <div class="w-full space-y-8">
             @foreach($data as  $key => $testQuestion)
                 <div>
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1)
-                        <livewire:question.multiple-select-question
+                        <livewire:overview.multiple-select-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'MultipleChoiceQuestion')
-                        <livewire:question.multiple-choice-question
+                        <livewire:overview.multiple-choice-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'OpenQuestion')
-                        <livewire:question.open-question
+                        <livewire:overview.open-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'q-'"
                         />
                     @elseif($testQuestion->type === 'MatchingQuestion')
-                        <livewire:question.matching-question
+                        <livewire:overview.matching-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'CompletionQuestion')
-                        <livewire:question.completion-question
+                        <livewire:overview.completion-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'RankingQuestion')
-                        <livewire:question.ranking-question
+                        <livewire:overview.ranking-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid'"
                         />
                     @elseif($testQuestion->type === 'InfoscreenQuestion')
-                        <livewire:question.info-screen-question
+                        <livewire:overview.info-screen-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid"
                         />
                     @elseif($testQuestion->type === 'DrawingQuestion')
-                        <livewire:question.drawing-question
+                        <livewire:overview.drawing-question
                             :question="$testQuestion"
                             :number="++$key"
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid"
                         />
                     @endif
+                    <x-button.primary class="mt-4 justify-self-end">{!!__('test_take.adjust_answer') !!}</x-button.primary>
                 </div>
             @endforeach
         </div>
@@ -71,15 +73,10 @@
                 onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
                 href="#" rotateIcon="180">
                 <x-icon.chevron/>
-                <span>{{ __('test_take.previous_question') }}</span></x-button.text-button>
+                <span>{{ __('test_take.back_to_questions') }}</span></x-button.text-button>
             <x-button.cta size="sm"><span>{{ __('test_take.turn_in') }}</span>
                 <x-icon.arrow/>
             </x-button.cta>
-            <x-button.primary
-                onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('nextQuestion')"
-                size="sm"><span>{{ __('test_take.next_question') }}</span>
-                <x-icon.chevron/>
-            </x-button.primary>
         </x-slot>
     </div>
 </x-layouts.app>

@@ -1,4 +1,4 @@
-<div class="flex flex-col p-8 sm:p-10 content-section"  x-data="{ showMe: false }" x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)"  x-show="showMe"  >
+<div class="flex flex-col p-8 sm:p-10 content-section" >
     <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
         <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
             <span class="align-middle">{{ $number }}</span>
@@ -11,9 +11,11 @@
         <div class="w-full space-y-3">
             <div class="flex flex-col place-content-between">
                 {{-- The Master doesn't talk, he acts. --}}
-<button>Drawing Question</button>
+
+                {!! $question->getQuestionHtml() !!}
 
 
+                <div class="italic">{!! __('test_take.info_screen_question_bottom_text') !!}</div>
             </div>
         </div>
     </div>

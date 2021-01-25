@@ -7,8 +7,13 @@
     <div class="flex flex-wrap">
         @foreach($questions as $key => $q)
             <div
+                wire:key="nav_{{$key}}"
+
                 class="question-number rounded-full text-center {!! $key === ($this->question-1) ? 'active' : ''!!}"
                  wire:click="$set('question',{{ 1+$key}})"
+                test-take-player
+                x-on:click="$dispatch('current-updated', {'current': {{ 1+$key }} })"
+
             >
                 <span class="align-middle">{{ ++$key }}</span>
             </div>

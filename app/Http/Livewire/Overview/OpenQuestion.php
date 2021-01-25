@@ -1,6 +1,6 @@
 <?php
 
-namespace tcCore\Http\Livewire\Question;
+namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Answer;
@@ -38,9 +38,9 @@ class OpenQuestion extends Component
     public function render()
     {
         if ($this->question->subtype === 'short') {
-            return view('livewire.question.open-question', compact('question'));
+            return view('livewire.overview.open-question', compact('question'));
         }
 
-        return view('livewire.question.open-medium-question', compact('question'));
+        return view('livewire.overview.open-medium-question', compact('question'));
     }
 }

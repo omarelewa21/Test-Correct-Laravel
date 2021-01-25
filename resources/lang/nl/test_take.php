@@ -42,4 +42,6 @@ return [
     'option'                              => 'Optie',
     'thesis'                              => 'Stelling',
     'reason'                              => 'Reden',
+    'back_to_questions'                   => 'Terug naar vragen invullen',
+    'adjust_answer'                       => 'Antwoord aanpassen',
 ];

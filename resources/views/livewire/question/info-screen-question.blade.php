@@ -1,4 +1,4 @@
-<div class="flex flex-col p-8 sm:p-10 content-section" x-show="{{ $number }} == current">
+<div class="flex flex-col p-8 sm:p-10 content-section"  x-data="{ showMe: false }" x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)"  x-show="showMe"  >
     <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
         <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
             <span class="align-middle">{{ $number }}</span>
