@@ -2,7 +2,7 @@
 
 use tcCore\Http\Helpers\ActingAsHelper;
 
-class CreateGetConfigRequest extends Request {
+class ShowGetConfigRequest extends Request {
 
 	/**
 	 * Determine if the user is authorized to make this request.
