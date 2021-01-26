@@ -1,4 +1,5 @@
-<div class="flex flex-col p-8 sm:p-10 content-section" x-data="{ showMe: false }" x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)"  x-show="showMe"  >
+<div class="flex flex-col p-8 sm:p-10 content-section" x-data="{ showMe: false }"
+     x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)" x-show="showMe">
     <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
         <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
             <span class="align-middle">{{ $number }}</span>
@@ -9,38 +10,12 @@
 
     <div class="flex flex-1">
         <div class="w-full space-y-3">
-            {!! $question->getQuestionHtml() !!}
-            <x-input.group wire:ignore class="w-full">
-                <x-input.textarea autofocus="true" id="ckeditor" name="ckeditor"
-                                  wire:model="answer"
-                                  x-data=""
-                                  x-init="
-                      (function() {
-                            var editor = CKEDITOR.instances['ckeditor']
-                            if (editor) {
-                                editor.destroy(true)
-                            }
-                            CKEDITOR.replace( 'ckeditor', {
-                                removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                                extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris',
-                                toolbar: [
-                                    { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
-                                    { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
-                                    { name: 'insert', items: [ 'Table' ] },
-                                    { name: 'styles', items: ['Font', 'FontSize' ] },
-                                    { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
-                                ]
-                            })
-                            CKEDITOR.instances['ckeditor']
-                            .on('change',function(e){
-                                $dispatch('input', e.editor.getData())
-                            })
-                      })()
-                      "
-                >
-                    {{ $answer }}
-                </x-input.textarea>
-            </x-input.group>
+            <div>{!! $question->getQuestionHtml() !!}</div>
+            <div class="flex flex-col max-w-max" wire:sortable="updateOrder">
+                @foreach($question->rankingQuestionAnswers as $option)
+                    <x-drag-item sortId="{{ $option->id }}" wireKey="option-{{ $option->id }}" >{{ $option->answer }}</x-drag-item>
+                @endforeach
+            </div>
         </div>
     </div>
 </div>

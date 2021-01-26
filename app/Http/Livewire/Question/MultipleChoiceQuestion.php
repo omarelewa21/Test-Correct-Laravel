@@ -16,6 +16,7 @@ class MultipleChoiceQuestion extends Component
     public $answers;
 
     public $answerStruct;
+
     public $number;
 
     public $arqStructure = [

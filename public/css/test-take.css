@@ -20,6 +20,7 @@
     border-color: var(--system-base);
     color: var(--system-base);
 }
+
 .question-title .question-number {
     margin-bottom: 0;
     margin-right: 0;
@@ -58,6 +59,7 @@
     background: var(--cta-primary);
     color: white;
 }
+
 .question-indicator .question-number.complete::before {
     background: var(--cta-primary);
 }
@@ -107,4 +109,36 @@
     background: var(--off-white);
     font-weight: bold;
     color: var(--primary);
+}
+
+.drag-item.draggable-source--is-dragging {
+    background-color: white;
+    border: 2px dashed var(--blue-grey);
+    color: white;
+}
+.drag-item.draggable--over {
+    background-color: white;
+    border: 2px dashed var(--primary);
+    color: white;
+}
+
+.draggable-container--over .drag-item.draggable-mirror {
+    background-color: var(--primary-light);
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
+}
+.draggable-container--placed .drag-item.draggable-mirror {
+    background-color: var(--primary);
+    border: 2px solid var(--primary);
+    color: white;
+    box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
+}
+
+
+.drag-item.draggable-mirror {
+    background-color: var(--primary-light);
+    border: 2px solid var(--primary-light);
+    color: var(--primary);
+    box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
 }

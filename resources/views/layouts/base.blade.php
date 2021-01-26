@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>Test-Correct</title>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.8.0/dist/alpine.min.js" defer></script>
 
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
@@ -17,5 +16,6 @@
 {{ $slot }}
 
 @livewireScripts
+<script src="https://cdn.jsdelivr.net/gh/livewire/sortable@v0.x.x/dist/livewire-sortable.js"></script>
 </body>
 </html>

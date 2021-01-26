@@ -8,10 +8,7 @@
         <h4 class="inline-block">{{ $question->score }} pt</h4>
     </div>
     <div>
-
         {!! $question->getQuestionHtml()  !!}
-
-
         <div class="mt-4 space-y-2 w-1/2">
             @foreach( $question->multipleChoiceQuestionAnswers as $link)
                 <div class="flex items-center mc-radio">
@@ -20,19 +17,19 @@
                         class="
                          relative
                          w-full
-                          flex
-                          hover:font-bold
-                           p-5 border
-                           border-blue-grey
-                           rounded-10
-                            base
-                            multiple-choice-question
-                            transition
-                            ease-in-out duration-150
-                            focus:outline-none
-                            justify-between
-                            {!! ($this->answer == $link->id) ? 'active' :'' !!}
-                            "
+                        flex
+                        hover:font-bold
+                        p-5 border
+                        border-blue-grey
+                        rounded-10
+                        base
+                        multiple-choice-question
+                        transition
+                        ease-in-out duration-150
+                        focus:outline-none
+                        justify-between
+                        {!! ($this->answer == $link->id) ? 'active' :'' !!}
+                        "
                     >
                         <input
                             wire:model="answer"

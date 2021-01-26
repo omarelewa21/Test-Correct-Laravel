@@ -7,8 +7,6 @@ use tcCore\Question;
 
 class RankingQuestion extends Component
 {
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
-
     public $uuid;
     public $answer;
     public $question;
@@ -21,14 +19,16 @@ class RankingQuestion extends Component
 
     }
 
-    public function updatedAnswer($value)
-    {
-        $this->emitUp('updateAnswer', $this->uuid, $value);
+    public function mount(){
+        $this->question->loadRelated();
     }
 
-    public function dehydrate() {
-        $this->emit('initializeCkEditor');
+    public function updateOrder($value)
+    {
+//        dd($value);
+//        $this->emitUp('updateAnswer', $this->uuid, $value);
     }
+
 
     public function render()
     {
