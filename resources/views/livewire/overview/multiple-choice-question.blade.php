@@ -56,7 +56,7 @@
             </div>
         @endif
         @if($question->subtype === 'TrueFalse')
-            <div class="mt-4 flex divide-x divide-green-500">
+            <div class="mt-4 flex divide-x">
                 @foreach( $question->multipleChoiceQuestionAnswers as $link)
                     <div class="flex bg-off-white">
                         <label for="link{{ $link->id }}"
