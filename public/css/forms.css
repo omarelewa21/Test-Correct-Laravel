@@ -95,7 +95,20 @@ textarea {
 .trueFalse {
     padding: 9px 16px;
 }
-.trueFalse:hover {
+.true:hover {
     padding: 8px 14px 8px 15px;
     border: 2px solid var(--primary);
+}
+.true:active {
+    padding: 8px 14px 8px 15px;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.false:hover {
+    padding: 8px 15px 8px 14px;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    font-weight: bold;
 }

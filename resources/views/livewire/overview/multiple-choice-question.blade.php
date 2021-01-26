@@ -64,8 +64,8 @@
                             bg-off-white
                             border border-blue-grey rounded-lg
                             trueFalse
-                            @if($loop->iteration == 1) rounded-r-none border-r-0 @else rounded-l-none border-l-0 @endif">
-
+                            @if($loop->iteration == 1) rounded-r-none border-r-0 true @else rounded-l-none border-l-0 false @endif"
+                        >
                             <input
                                     wire:model="answer"
                                     id="link{{ $link->id }}"
