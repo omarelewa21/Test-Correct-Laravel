@@ -36,11 +36,14 @@ class SchoolClassesStudentImportRequest extends Request
      */
     public function rules()
     {
-        $this->filterInput();
 
+        $this->filterInput(); // doesn't work here
+       
         $extra_rule = [];
+      
         // unique constraint needs to be added on external_id can only exist within a school if it is the same user (that is username is the currect username)
         foreach ($this->data as $key => $value) {
+
             if (array_key_exists('username', $value)) {
                 $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'], $this->schoolLocation->getKey());
             }
@@ -49,13 +52,20 @@ class SchoolClassesStudentImportRequest extends Request
         $rules = collect([
             //'data' => 'array',
             'data.*.username' => ['required', 'email:rfc,filter,dns', function ($attribute, $value, $fail) {
+
+                if(strpos($value,'&') > NULL) 
+                {
+                     return $fail(sprintf('The email address contains an & symbol  (%s).', $value));
+                }
             
-                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) 
+                {
 
                         return $fail(sprintf('The email address contains invalid or international characters  (%s).', $value));
                 }
             
                 $student = User::whereUsername($value)->first();
+                
                 if ($student) {
                     if ($this->alreadyInDatabaseAndInThisClass($student)) {
                         return $fail(sprintf('The %s has already been taken.', $attribute));
