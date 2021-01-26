@@ -14,31 +14,34 @@
         >
             {!!   $question->getQuestionHtml() !!}
 
-            <x-input.group for="me" label="" class="w-full">
+
+            <x-input.group for="me" label="{!! __('test_take.instruction_open_question') !!}" class="w-full mt-3 relative primary">
                 <x-input.textarea
                     wire:key="textarea_{{ $question->id }}"
-                    class="rounded-b-none"
+                    class=""
+                    style="min-height:80px "
                     name="name"
-                    maxlength="280"
+                    maxlength="140"
                     x-ref="countme"
                     wire:model="answer"
                     x-on:keyup="count = $refs.countme.value.length"
                 ></x-input.textarea>
-            </x-input.group>
-            <div
-                class="relative w-full border border-t-0 rounded-t-none border-blue-grey rounded-lg Z-10 overflow-hidden "
-                style="height: 25px;">
+                <div
+                    class="absolute bottom-0 w-full bg-blue-grey rounded-lg Z-10 overflow-hidden "
+                    style="height: 10px;">
                 <span :style="calculateProgress(count, $refs.countme.maxLength)"
-                      class="transition bg-primary absolute h-6 rounded-t-none rounded-br-none rounded-lg"></span>
-            </div>
-            <div class="mt-1">
-                <span x-html="count"></span> / <span x-html="$refs.countme.maxLength"></span>
+                      class="transition bg-primary absolute h-2 border border-primary rounded-lg"></span>
+                </div>
+            </x-input.group>
+
+            <div class="mt-1 primary text-sm bold">
+                <span x-html="count"></span> / <span x-html="$refs.countme.maxLength"></span> <span>{!! __('test_take.characters') !!}</span>
             </div>
         </div>
 
         <script>
             function calculateProgress(count, total) {
-                return 'width:' + count / total * 100 + '%';
+                return 'height: 10px; width:' + count / total * 100 + '%';
             }
         </script>
     </div>

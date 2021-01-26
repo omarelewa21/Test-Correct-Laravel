@@ -13,9 +13,12 @@ class OpenQuestion extends Component
     public $question;
     public $number;
     public $answers;
+    public $editorId;
 
     public function mount()
     {
+        $this->editorId = 'editor_'.$this->question->id;
+
         $temp = (array) json_decode($this->answers[$this->question->uuid]['answer']);
         if (key_exists('value', $temp)) {
             $this->answer = $temp['value'];
