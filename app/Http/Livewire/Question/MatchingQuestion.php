@@ -13,6 +13,11 @@ class MatchingQuestion extends Component
     public $question;
     public $number;
 
+    public function mount()
+    {
+        $this->question->loadRelated();
+    }
+
     public function questionUpdated($uuid, $answer)
     {
         $this->uuid = $uuid;
@@ -22,6 +27,11 @@ class MatchingQuestion extends Component
     public function updatedAnswer($value)
     {
 //        $this->emitUp('updateAnswer', $this->uuid, $value);
+    }
+
+    public function updateOrder($value)
+    {
+        dd($value);
     }
 
 

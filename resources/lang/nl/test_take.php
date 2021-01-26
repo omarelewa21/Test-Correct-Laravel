@@ -30,6 +30,7 @@ return [
     'correct_reason'                      => 'Correct reden',
     'incorrect_reason'                    => 'Incorrect reden',
     'instruction_open_question'           => 'Type jouw antwoord',
+    'instruction_matching_question'       => 'Grijp en sleep de items in het juiste vak.',
     'characters'                          => 'tekens',
     'not_applicable'                      => 'nvt',
     'read_out_loud'                       => 'Lees voor',

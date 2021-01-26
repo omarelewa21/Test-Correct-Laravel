@@ -6,6 +6,6 @@
         <h6> {{ $title }}</h6>
     @endif
 
-    <div class="border-blue-grey bg-white w-full h-40 border-dashed border-2 rounded-10">Idle</div>
-    <div class="border-primary bg-off-white w-full h-40 border-dashed border-2 rounded-10">ondragover</div>
+    <div {{ $attributes }} class="border-blue-grey bg-white w-full h-40 border-dashed border-2 rounded-10">{{ $slot }}</div>
+{{--    <div class="border-primary bg-off-white w-full h-40 border-dashed border-2 rounded-10">ondragover</div>--}}
 </div>
