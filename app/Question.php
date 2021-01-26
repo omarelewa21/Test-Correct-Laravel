@@ -440,11 +440,9 @@ class Question extends MtiBaseModel {
             break;
             case 'MultipleChoiceQuestion':
                 $requestAnswers = $this->trimAnswerOptions($totalData['answers']);
-                dump($requestAnswers);
                 try{
                     $question = MultipleChoiceQuestion::findOrFail($this->id);
                     $answers = $this->convertMultipleChoiceAnswersFromQuestion($question);
-                    dump($answers);
                     if($requestAnswers==$answers){
                         return false;
                     }
@@ -986,12 +984,8 @@ class Question extends MtiBaseModel {
             if($answer['left']==''){
                 continue;
             }
-            $returnArray[] = [ 'answer' => $answer['left'],
-                                'type' => 'LEFT',
-                            ];
-            $returnArray[] = [ 'answer' => $answer['right'],
-                                'type' => 'RIGHT',
-                            ];
+            $this->addReturnArrayItemMatching($answer['left'],'LEFT',$returnArray);
+            $this->addReturnArrayItemMatching($answer['right'],'RIGHT',$returnArray);
         }
         return $returnArray;
     }
@@ -1055,5 +1049,16 @@ class Question extends MtiBaseModel {
             $returnArray[] = $item;
         }
         return $returnArray;
+    }
+
+    private function addReturnArrayItemMatching($answer,$type,&$returnArray):void
+    {
+        $answers = explode("\n", str_replace(["\r\n","\n\r","\r"],"\n",$answer) );
+        foreach ($answers as $answerPart) {
+            $returnArray[] = [ 'answer' => $answerPart,
+                                'type' => $type,
+                            ];
+        }
+
     }
 }
