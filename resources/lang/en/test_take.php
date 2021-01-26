@@ -23,7 +23,7 @@ return [
     'completion_question_multi'           => '$$',
     'completion_question'                 => ')(',
     'infoscreen_question'                 => 'Info screen',
-    'info_screen_question_bottom_text'    => '* Dit is een informatiescherm, een antwoord is niet nodig.',
+    'info_screen_question_bottom_text'    => 'Dit is een informatiescherm, een antwoord is niet nodig.',
     'open_question'                       => 'Open question',
     'correct'                             => 'Correct',
     'incorrect'                           => 'Incorrect',

@@ -82,18 +82,20 @@ textarea {
     background-size: .75em auto, 100%;
 }
 
-
-.mc-radio input[type="radio"]:checked::before {
-    content: url("/svg/icons/checkmark.svg");
-    position: absolute;
-    right: 1.5rem;
-    height: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
+.input-group select.disabled {
+    border: 1px solid var(--light-grey);
+    color: var(--mid-grey);
+    background-color: white;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAJBAMAAAAbVLtZAAAABGdBTUEAALGPC/xhBQAAACBjSFJN%20AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAKlBMVEXGy9WXobLBx9H///+V%20oLKSna++xdDBx9L+/v68w879/f6hq7q7ws3W2uGuSyLDAAAAAWJLR0QDEQxM8gAAAAlwSFlzAAAA%20YAAAAGAA8GtCzwAAAAd0SU1FB+UBGgg3CW9R9/IAAABKSURBVAjXY2BUNjY2VmRgcA0zNjYLdWAo%20Dc2wSA0tYOgMjVwZGtnAYDE1dGvoDAMG457Q0JhmIG1xNPSEMZA27oxsBtMWN4yNDQC7vxSjN5C1%20LQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMS0wMS0yNlQwODo1NTowOSswMDowMBMeivEAAAAldEVY%20dGRhdGU6bW9kaWZ5ADIwMjEtMDEtMjZUMDg6NTU6MDkrMDA6MDBiQzJNAAAAAElFTkSuQmCC), linear-gradient(to bottom, white 0%, white 100%);
+    background-repeat: no-repeat, repeat;
+    background-position: right 1.5rem top 50%, 0 0;
+    background-size: .75em auto, 100%;
 }
-.mc-radio input[type='radio']:checked ~ span {
+
+.trueFalse {
+    padding: 9px 16px;
+}
+.trueFalse:hover {
+    padding: 8px 14px 8px 15px;
     border: 2px solid var(--primary);
-    background: var(--off-white);
-    font-family: Nunito Bold;
-    color: var(--primary);
 }

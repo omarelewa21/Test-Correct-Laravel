@@ -4,7 +4,7 @@
         <h1 class="mb-7">Kijk alle antwoorden nog eens goed na.</h1>
         <div class="w-full space-y-8">
             @foreach($data as  $key => $testQuestion)
-                <div>
+                <div class="flex flex-col space-y-4">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1)
                         <livewire:overview.multiple-select-question
                             :question="$testQuestion"
@@ -62,7 +62,9 @@
                             wire:key="'q-'.$testQuestion->uuid"
                         />
                     @endif
-                    <x-button.primary class="mt-4 justify-self-end">{!!__('test_take.adjust_answer') !!}</x-button.primary>
+                    <div class="flex">
+                        <x-button.primary class="ml-auto">{!!__('test_take.adjust_answer') !!}</x-button.primary>
+                    </div>
                 </div>
             @endforeach
         </div>

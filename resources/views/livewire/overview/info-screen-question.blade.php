@@ -9,13 +9,11 @@
 
     <div class="flex flex-1">
         <div class="w-full space-y-3">
-            <div class="flex flex-col place-content-between">
-                {{-- The Master doesn't talk, he acts. --}}
-
-                {!! $question->getQuestionHtml() !!}
-
-
-                <div class="italic">{!! __('test_take.info_screen_question_bottom_text') !!}</div>
+            <div class="flex flex-col body1">
+                <span>{!! __('test_take.info_screen_question_bottom_text') !!}</span>
+                <div    >
+                    {!! $question->getQuestionHtml() !!}
+                </div>
             </div>
         </div>
     </div>

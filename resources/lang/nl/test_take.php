@@ -23,7 +23,7 @@ return [
     'completion_question'                 => 'Gatentekst',
     'drawing_question'                    => 'Tekenvraag',
     'infoscreen_question'                 => 'InfoScherm',
-    'info_screen_question_bottom_text'    => '* Dit is een informatiescherm, een antwoord is niet nodig.',
+    'info_screen_question_bottom_text'    => 'Dit is een informatiescherm, een antwoord is niet nodig.',
     'open_question'                       => 'Open vraag',
     'correct'                             => 'Juist',
     'incorrect'                           => 'Onjuist',

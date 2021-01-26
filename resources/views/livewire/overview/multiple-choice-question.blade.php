@@ -13,28 +13,72 @@
         @endif
     </div>
     <div>
-
         {!! $question->getQuestionHtml()  !!}
 
-        <div class="mt-4 space-y-4">
-            @foreach( $question->multipleChoiceQuestionAnswers as $link)
-                <div class="flex items-center">
-                    <input
-                        wire:model="answer"
-                        id="link{{ $link->id }}"
-                        name="Question_{{ $question->id }}"
-                        type="radio"
-                        class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
-                        value="{{ $link->id }}"
-                    >
-                    <label
-                        for="link{{ $link->id }}"
-                        class="ml-3 block text-sm font-medium text-gray-700"
-                    >
-                        {!! $link->answer !!}
-                    </label>
-                </div>
-            @endforeach
-        </div>
+        @if($question->subtype === 'MultipleChoice')
+            <div class="mt-4 space-y-2 w-1/2">
+                @foreach( $question->multipleChoiceQuestionAnswers as $link)
+                    <div class="flex items-center flex-col">
+                        <label
+                                for="link{{ $link->id }}"
+                                class="
+                         relative
+                         w-full
+                          flex
+                          hover:font-bold
+                           p-5 border
+                           border-blue-grey
+                           rounded-10
+                            base
+                            multiple-choice-question
+                            transition
+                            ease-in-out duration-150
+                            focus:outline-none
+                            justify-between
+                            {!! ($this->answer == $link->id) ? 'active' :'' !!}
+                                        "
+                        >
+                            <input
+                                    wire:model="answer"
+                                    id="link{{ $link->id }}"
+                                    name="Question_{{ $question->id }}"
+                                    type="radio"
+                                    class="hidden"
+                                    value="{{ $link->id }}"
+                            >
+                            <div>{!! $link->answer !!}</div>
+                            <div class="{!! ($this->answer == $link->id) ? '' :'hidden' !!}">
+                                <x-icon.checkmark></x-icon.checkmark>
+                            </div>
+                        </label>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+        @if($question->subtype === 'TrueFalse')
+            <div class="mt-4 flex divide-x divide-green-500">
+                @foreach( $question->multipleChoiceQuestionAnswers as $link)
+                    <div class="flex bg-off-white">
+                        <label for="link{{ $link->id }}"
+                               class="
+                            bg-off-white
+                            border border-blue-grey rounded-lg
+                            trueFalse
+                            @if($loop->iteration == 1) rounded-r-none border-r-0 @else rounded-l-none border-l-0 @endif">
+
+                            <input
+                                    wire:model="answer"
+                                    id="link{{ $link->id }}"
+                                    name="Question_{{ $question->id }}"
+                                    type="radio"
+                                    class="hidden"
+                                    value="{{ $link->id }}">
+
+                            <span>{!! $link->answer !!}</span>
+                        </label>
+                    </div>
+                @endforeach
+            </div>
+        @endif
     </div>
 </div>

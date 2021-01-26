@@ -12,13 +12,11 @@
         @endif
     </div>
 
-    <div class="flex flex-1">
-        <div class="w-full space-y-3">
-            <div class="flex flex-col place-content-between">
-                {{-- The Master doesn't talk, he acts. --}}
-<button>Drawing Question</button>
-
-
+    <div class="">
+        <div class="">
+            <div class="flex flex-col space-y-2">
+                <span>Maak een tekening vraag. Bekijk ook de bijlagen bij deze vraag. Open het notitieblok om aantekeningen te noteren.</span>
+                <x-button.secondary class="max-w-max"><x-icon.edit/><span>Antwoord tekenen</span></x-button.secondary>
             </div>
         </div>
     </div>
