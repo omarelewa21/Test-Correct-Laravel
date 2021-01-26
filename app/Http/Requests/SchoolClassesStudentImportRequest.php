@@ -55,7 +55,7 @@ class SchoolClassesStudentImportRequest extends Request
 
                 if(strpos($value,'&') > NULL) 
                 {
-                     return $fail(sprintf('The email address contains an & symbol  (%s).', $value));
+                     return $fail(sprintf('The email address contains an amparsand symbol  (%s).', $value));
                 }
             
                 if (!filter_var($value, FILTER_VALIDATE_EMAIL)) 
