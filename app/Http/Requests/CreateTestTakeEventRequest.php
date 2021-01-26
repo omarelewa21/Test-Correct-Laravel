@@ -38,7 +38,7 @@ class CreateTestTakeEventRequest extends Request {
         if (!isset($data['reason'])) {
             return;
         }
-        $key = TestTakeEventType::where("reason", "=", $data['reason'])->first()->getKey();
+        $key = optional(TestTakeEventType::where("reason", "=", $data['reason'])->first())->getKey();
 
         if ($key != null) {
             $data['test_take_event_type_id'] = $key;
