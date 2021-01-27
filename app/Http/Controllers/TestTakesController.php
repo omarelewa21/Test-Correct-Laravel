@@ -1139,13 +1139,13 @@ class TestTakesController extends Controller {
      * @return Response
      */
     public function closeNonTimeDispensation(TestTake $testTake, UpdateTestTakeRequest $request) {
-        
+
         if (!isset($request['time_dispensation'])) {
             return update($testTake, $request);
         }
 
-        //  
-        // set all the non-time dispensation students to 'taken away' 
+        //
+        // set all the non-time dispensation students to 'taken away'
         // unless the student has not started the test yet
         //
         $closed_students = TestParticipant::join('users', 'test_participants.user_id', '=', 'users.id')
@@ -1157,12 +1157,12 @@ class TestTakesController extends Controller {
         //
         //   check if there are any students left doing the test, if not close test
         //   Status 2 Test not taken status 3 Taking test
-        //         
-        
+        //
+
         $students_still_in_test = TestParticipant::where('test_participants.test_take_id', $testTake->id)
-                ->whereIn('test_participants.test_take_status_id', [2,3])
+                ->whereIn('test_participants.test_take_status_id', [3])
                 ->count();
-        
+
         if ($students_still_in_test == 0) {
 
             unset($request['time_dispensation']);
@@ -1170,13 +1170,13 @@ class TestTakesController extends Controller {
             $request['test_take_status_id'] = 6;
 
             $this->update($testTake,$request);
-            
+
         } else {
 
             return Response::make($testTake, 200);
-            
+
         }
-        
+
     }
 
     /**
@@ -1191,7 +1191,7 @@ class TestTakesController extends Controller {
         if (isset($request['time_dispensation']) && $request['time_dispensation'] == true) {
 
             $this->closeNonTimeDispensation($testTake, $request);
-            
+
         } else {
 
             $testTake->fill($request->all());
