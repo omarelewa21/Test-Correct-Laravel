@@ -21,8 +21,11 @@
                                 ]
                             })
                             CKEDITOR.instances['{{ $editorId }}']
-                            .on('change',function(e){
-                                $dispatch('input', e.editor.getData())
+                            .on('blur',function(e){
+                                var textarea = document.getElementById('{{ $editorId }}')
+                                textarea.value =  e.editor.getData()
+                                textarea.dispatchEvent(new Event('input'));
+
                             })
                       })()
                       "
