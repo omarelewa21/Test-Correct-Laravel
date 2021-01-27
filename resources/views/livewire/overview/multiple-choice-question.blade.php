@@ -21,25 +21,10 @@
                     <div class="flex items-center flex-col">
                         <label
                                 for="link{{ $link->id }}"
-                                class="
-                         relative
-                         w-full
-                          flex
-                          hover:font-bold
-                           p-5 border
-                           border-blue-grey
-                           rounded-10
-                            base
-                            multiple-choice-question
-                            transition
-                            ease-in-out duration-150
-                            focus:outline-none
-                            justify-between
-                            {!! ($this->answer == $link->id) ? 'active' :'' !!}
-                                        "
+                                class="relative w-full flex hover:font-bold p-5 border border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none justify-between
+                                        {!! ($this->answer == $link->id) ? 'active' : 'disabled' !!}"
                         >
                             <input
-                                    wire:model="answer"
                                     id="link{{ $link->id }}"
                                     name="Question_{{ $question->id }}"
                                     type="radio"
@@ -56,7 +41,7 @@
             </div>
         @endif
         @if($question->subtype === 'TrueFalse')
-            <div class="mt-4 flex divide-x">
+            <div class="mt-4 flex">
                 @foreach( $question->multipleChoiceQuestionAnswers as $link)
                     <div class="flex bg-off-white">
                         <label for="link{{ $link->id }}"
@@ -64,10 +49,13 @@
                             bg-off-white
                             border border-blue-grey rounded-lg
                             trueFalse
-                            @if($loop->iteration == 1) rounded-r-none border-r-0 true @else rounded-l-none border-l-0 false @endif"
+                            disabled
+                            @if($loop->iteration == 1) rounded-r-none border-r-0 true @else rounded-l-none border-l-0 false @endif
+                            {!! ($this->answer == $link->id) ? 'active' :'' !!}"
+
                         >
                             <input
-                                    wire:model="answer"
+
                                     id="link{{ $link->id }}"
                                     name="Question_{{ $question->id }}"
                                     type="radio"

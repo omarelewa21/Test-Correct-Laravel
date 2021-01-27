@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <div class="w-full flex flex-col mb-5">
+    <div class="w-full flex flex-col mb-5 overview">
         <livewire:overview.navigation :questions="$data"></livewire:overview.navigation>
         <h1 class="mb-7">Kijk alle antwoorden nog eens goed na.</h1>
         <div class="w-full space-y-8">

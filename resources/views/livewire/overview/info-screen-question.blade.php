@@ -8,8 +8,8 @@
     </div>
 
     <div class="flex flex-1">
-        <div class="w-full space-y-3">
-            <div class="flex flex-col body1">
+        <div class="w-full">
+            <div class="flex flex-col body1 space-y-3">
                 <span>{!! __('test_take.info_screen_question_bottom_text') !!}</span>
                 <div    >
                     {!! $question->getQuestionHtml() !!}
