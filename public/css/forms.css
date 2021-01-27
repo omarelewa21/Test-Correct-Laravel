@@ -95,20 +95,21 @@ textarea {
 .trueFalse {
     padding: 9px 16px;
 }
-.true:hover {
-    padding: 8px 14px 8px 15px;
+
+.trueFalse:hover {
     border: 2px solid var(--primary);
 }
-.true:active {
-    padding: 8px 14px 8px 15px;
+
+.trueFalse:focus, .trueFalse:active {
     border: 2px solid var(--primary);
     color: var(--primary);
     font-weight: bold;
 }
 
-.false:hover {
+.true:hover, .true:focus, .true:active {
+    padding: 8px 14px 8px 15px;
+}
+
+.false:hover, false:focus, .false:active {
     padding: 8px 15px 8px 14px;
-    border: 2px solid var(--primary);
-    color: var(--primary);
-    font-weight: bold;
 }
