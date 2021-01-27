@@ -18,6 +18,9 @@ class MultipleSelectQuestion extends Component
 
     public $number;
 
+    public $queryString = ['q'];
+
+    public $q;
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 

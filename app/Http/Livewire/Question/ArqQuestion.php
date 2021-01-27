@@ -13,6 +13,10 @@ class ArqQuestion extends Component
 
     public $question;
 
+    public $queryString = ['q'];
+
+    public $q;
+
     public function questionUpdated($uuid)
     {
         $this->uuid = $uuid;

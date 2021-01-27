@@ -15,6 +15,10 @@ class OpenQuestion extends Component
     public $answers;
     public $editorId;
 
+    public $queryString = ['q'];
+
+    public $q;
+
     public function mount()
     {
         $this->editorId = 'editor_'.$this->question->id;

@@ -1,7 +1,6 @@
 <div
     class="flex flex-col p-8 sm:p-10 content-section"
-    x-data="{ showMe: false }"
-    x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)"
+    x-data="{ showMe: {!! $number === $q ? 'true' : 'false'  !!} }" x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)"
     x-show="showMe"
     x-init="
                       (function() {

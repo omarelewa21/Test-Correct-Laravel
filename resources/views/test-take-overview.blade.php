@@ -1,6 +1,31 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5 overview">
-        <livewire:overview.navigation :questions="$data"></livewire:overview.navigation>
+        <div class="flex flex-col pt-4 pb-8 space-y-10" test-take-player wire:key="navigation">
+            <div class="question-indicator w-full">
+                <div class="flex flex-wrap">
+                    @foreach($data as $key => $q)
+                        <div class="question-number rounded-full text-center ">
+                            <span class="align-middle">{{ ++$key }}</span>
+                        </div>
+                    @endforeach
+
+                    <section class="flex space-x-6 ml-auto min-w-max justify-end items-center">
+                        <x-button.text-button href="#" wire:click="sendNotification">
+                            <x-icon.audio/>
+                            <span>{{ __('test_take.speak') }}</span>
+                        </x-button.text-button>
+
+                        <x-button.text-button wire:click="overview" href="#">
+                            <x-icon.preview/>
+                            <span>{{ __('test_take.overview') }}</span>
+                        </x-button.text-button>
+
+                    </section>
+                </div>
+            </div>
+
+
+        </div>
         <h1 class="mb-7">Kijk alle antwoorden nog eens goed na.</h1>
         <div class="w-full space-y-8">
             @foreach($data as  $key => $testQuestion)
@@ -72,8 +97,9 @@
 
         <x-slot name="footerbuttons">
             <x-button.text-button
-                onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
-                href="#" rotateIcon="180">
+                href="{{ $playerUrl }}"
+                rotateIcon="180"
+            >
                 <x-icon.chevron/>
                 <span>{{ __('test_take.back_to_questions') }}</span></x-button.text-button>
             <x-button.cta size="sm"><span>{{ __('test_take.turn_in') }}</span>

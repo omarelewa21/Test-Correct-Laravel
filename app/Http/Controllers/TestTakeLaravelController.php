@@ -17,9 +17,11 @@ class TestTakeLaravelController extends Controller
         $data = self::getData($testTake);
         $answers = $this->getAnswers($testTake, $data);
 
+        $playerUrl = route('student.test-take-laravel',['test_take' => $testTake->uuid]);
+
 // todo add check or failure when $current out of bounds $data;
 
-        return view('test-take-overview', compact(['data', 'current', 'answers']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl']));
     }
 
 

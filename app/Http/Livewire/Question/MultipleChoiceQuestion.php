@@ -19,6 +19,10 @@ class MultipleChoiceQuestion extends Component
 
     public $number;
 
+    public $queryString = ['q'];
+
+    public $q;
+
     public $arqStructure = [
         ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],
         ['B', 'test_take.correct', 'test_take.correct', 'test_take.incorrect_reason'],

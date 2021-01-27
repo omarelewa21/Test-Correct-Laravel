@@ -1,13 +1,6 @@
-<div class="flex flex-col p-8 sm:p-10 content-section" x-data="{ showMe: false }"
-     x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)" x-show="showMe">
-    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
-        <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">
-            <span class="align-middle">{{ $number }}</span>
-        </div>
-        <h1 class="inline-block ml-2 mr-6">{!! __($question->caption) !!} </h1>
-        <h4 class="inline-block">{{ $question->score }} pt</h4>
-    </div>
-    <div>
+<x-partials.question-container :number="$number" :q="$q" :question="$question">
+
+    <div class="w-full">
         {!! $question->getQuestionHtml()  !!}
         <div class="mt-4 space-y-2 w-1/2">
             @foreach( $question->multipleChoiceQuestionAnswers as $link)
@@ -48,4 +41,4 @@
             @endforeach
         </div>
     </div>
-</div>
+</x-partials.question-container>

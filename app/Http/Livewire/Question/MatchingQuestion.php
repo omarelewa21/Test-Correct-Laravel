@@ -13,6 +13,10 @@ class MatchingQuestion extends Component
     public $question;
     public $number;
 
+    public $queryString = ['q'];
+
+    public $q;
+
     public function mount()
     {
         $this->question->loadRelated();

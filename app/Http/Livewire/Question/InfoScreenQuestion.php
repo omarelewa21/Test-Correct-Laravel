@@ -13,6 +13,10 @@ class InfoScreenQuestion extends Component
 
     public $number;
 
+    public $queryString = ['q'];
+
+    public $q;
+
     public function questionUpdated($uuid)
     {
         $this->uuid = $uuid;
