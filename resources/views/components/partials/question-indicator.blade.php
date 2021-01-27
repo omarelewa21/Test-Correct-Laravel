@@ -4,14 +4,14 @@
 ])
 
 <div class="question-indicator w-full">
-    <div class="flex flex-wrap">
+    <div class="flex flex-wrap" x-data="">
         @foreach($questions as $key => $q)
             <div
                 wire:key="nav_{{$key}}"
 
-                class="question-number rounded-full text-center {!! $key === ($this->question-1) ? 'active' : ''!!}"
-                 wire:click="$set('question',{{ 1+$key}})"
-                test-take-player
+                class="question-number rounded-full text-center {!! $key === ($this->q - 1) ? 'active' : ''!!}"
+                 wire:click="$set('q',{{ 1+$key}})"
+
                 x-on:click="$dispatch('current-updated', {'current': {{ 1+$key }} })"
 
             >

@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
+use tcCore\Answer;
 use tcCore\Question;
 
 class CompletionQuestion extends Component
@@ -11,19 +12,31 @@ class CompletionQuestion extends Component
 
     public $question;
 
-    public $answer = [];
+    public $queryString = ['q'];
+
+    public $q;
+
+    public $answer;
+    public $answers;
 
     public $number;
 
-    public function questionUpdated($uuid, $answer)
+    public function mount()
     {
-        $this->answer = $answer;
+        $this->answer = (array) json_decode($this->answers[$this->question->uuid]['answer']);
     }
 
     public function updated($field, $value)
     {
         $index = last(explode('.', $field));
         $this->answer[$index] = $value;
+
+        $json = json_encode((object)$this->answer);
+
+        Answer::where([
+            ['id', $this->answers[$this->question->uuid]['id']],
+            ['question_id', $this->question->id],
+        ])->update(['json' => $json]);
 
 //        $this->emitUp('updateAnswer', $this->uuid, $this->answer);
     }
@@ -39,7 +52,7 @@ class CompletionQuestion extends Component
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input wire:model="answer.%d" class="form-input mb-2" type="text" id="%s" style="width: 120px" />',
+                '<input wire:model.lazy="answer.%d" class="form-input mb-2" type="text" id="%s" style="width: 120px" />',
                 $tag_id,
                 'answer_'.$tag_id
             );

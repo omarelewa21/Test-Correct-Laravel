@@ -12,20 +12,13 @@ class CompletionQuestion extends Component
     public $question;
 
     public $answer = [];
+    public $answers;
 
     public $number;
 
-    public function questionUpdated($uuid, $answer)
+    public function mount()
     {
-        $this->answer = $answer;
-    }
-
-    public function updated($field, $value)
-    {
-        $index = last(explode('.', $field));
-        $this->answer[$index] = $value;
-
-//        $this->emitUp('updateAnswer', $this->uuid, $this->answer);
+        $this->answer = (array) json_decode($this->answers[$this->question->uuid]['answer']);
     }
 
     private function completionHelper($question)
