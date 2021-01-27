@@ -11,7 +11,7 @@
     <div class="flex flex-1">
         <div class="w-full space-y-3">
             <div>{!! $question->getQuestionHtml() !!}</div>
-            <div class="flex flex-col max-w-max" wire:sortable="updateOrder">
+            <div class="flex flex-col " wire:sortable="updateOrder">
                 @foreach($question->rankingQuestionAnswers as $option)
                     <x-drag-item sortId="{{ $option->id }}" wireKey="option-{{ $option->id }}" >{{ $option->answer }}</x-drag-item>
                 @endforeach

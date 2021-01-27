@@ -5,7 +5,7 @@
 
 
 <div id="drag-item"
-     class="bg-system-secondary base border-system-secondary drag-item inline-flex mb-3 mr-2 rounded-10 border-2 bold font-size-18 flex justify-between items-center px-4 p-1 select-none cursor-pointer"
+     class="max-w-max bg-system-secondary base border-system-secondary drag-item inline-flex mb-3 mr-2 rounded-10 border-2 bold font-size-18 flex justify-between items-center px-4 p-1 select-none cursor-pointer"
      @if($sortId)
      wire:sortable.item="{{ $sortId }}"
      @endif
