@@ -1152,7 +1152,7 @@ class TestTakesController extends Controller {
                 ->where('users.time_dispensation', 0)
                 ->where('test_participants.test_take_id', $testTake->id)
                 ->where('test_participants.test_take_status_id','=',3)
-                ->update(['test_participants.test_take_status_id' => 5]);
+                ->update(['test_participants.test_take_status_id' => 6]);
 
         //
         //   check if there are any students left doing the test, if not close test
