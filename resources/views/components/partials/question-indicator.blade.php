@@ -25,7 +25,7 @@
                 <span>{{ __('test_take.speak') }}</span>
             </x-button.text-button>
 
-            <x-button.text-button wire:click="overview" href="{!!  route('student.test-take-overview') !!}">
+            <x-button.text-button wire:click="overview" href="#">
                 <x-icon.preview/>
                 <span>{{ __('test_take.overview') }}</span>
             </x-button.text-button>

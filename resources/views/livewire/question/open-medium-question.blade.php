@@ -39,12 +39,7 @@
     <div class="w-full">
         <div>
             <x-input.group wire:ignore class="w-full">
-                <x-input.textarea autofocus="true" id="{{ $editorId }}" name="{{ $editorId }}"
-                                  wire:model="answer"
-
-
-                >
-
+                <x-input.textarea autofocus="true" id="{{ $editorId }}" name="{{ $editorId }}" wire:model="answer">
                 </x-input.textarea>
             </x-input.group>
         </div>
