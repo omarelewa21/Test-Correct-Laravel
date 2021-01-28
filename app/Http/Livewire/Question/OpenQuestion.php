@@ -14,6 +14,7 @@ class OpenQuestion extends Component
     public $number;
     public $answers;
     public $editorId;
+    public $attachments;
 
     public $queryString = ['q'];
 
@@ -27,6 +28,8 @@ class OpenQuestion extends Component
         if (key_exists('value', $temp)) {
             $this->answer = $temp['value'];
         }
+
+        $this->attachments = $this->question->attachments;
     }
 
 
