@@ -1141,7 +1141,7 @@ class TestTakesController extends Controller {
     public function closeNonTimeDispensation(TestTake $testTake, UpdateTestTakeRequest $request) {
 
         if (!isset($request['time_dispensation'])) {
-            return update($testTake, $request);
+            return $this->update($testTake, $request);
         }
 
         //
