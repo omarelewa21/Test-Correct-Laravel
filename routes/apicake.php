@@ -19,7 +19,7 @@ use tcCore\Http\Controllers\Testing\TestingController;
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
-Route::get('config', 'ConfigController@show')->name('config.show');
+//Route::get('config', 'ConfigController@show')->name('config.show');
 
 Route::get('/', 'HomeController@index');
 
