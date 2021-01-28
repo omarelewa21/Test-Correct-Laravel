@@ -6,6 +6,7 @@
     align-items: center;
     display: inline-flex;
     min-height: 40px;
+    border: solid 1px transparent;
 }
 
 .button:focus {
@@ -65,7 +66,7 @@
 
 .cta-button:focus {
     background: var(--cta-primary);
-    border: 2px solid var(--cta-primary-dark);
+    border: 1px solid var(--cta-primary-dark);
 }
 
 .cta-button:disabled {
@@ -135,7 +136,7 @@
 
 .secondary-button:focus {
     background: var(--system-secondary);
-    border: 2px solid #99AACE;
+    border: 1px solid #99AACE;
 }
 
 .secondary-button:disabled {

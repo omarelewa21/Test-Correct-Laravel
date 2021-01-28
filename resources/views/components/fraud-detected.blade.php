@@ -4,6 +4,6 @@
         <img src="{{ asset('/svg/icons/exclamation-white.svg') }}" alt="" width="6" height="30">
     </div>
     <div>
-        <h6 class="all-red">Attentie vereist</h6>
+        <h6 class="all-red">{{__('test_take.attention_required')}}</h6>
     </div>
 </div>
