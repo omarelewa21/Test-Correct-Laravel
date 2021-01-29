@@ -3,10 +3,13 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
+use tcCore\Http\Traits\WithAttachments;
 use tcCore\Question;
 
 class RankingQuestion extends Component
 {
+    use WithAttachments;
+
     public $uuid;
     public $answer;
     public $question;

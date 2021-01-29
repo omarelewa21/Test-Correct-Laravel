@@ -193,7 +193,7 @@ textarea {
     box-sizing: border-box;
     box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.4);
     border-color: var(--primary);
-    border-width: 2px;
+    border-width: 1px;
     background: var(--off-white);
     font-weight: bold;
     color: var(--primary);
@@ -202,7 +202,7 @@ textarea {
 .multiple-choice-question.active {
     box-sizing: border-box;
     border-color: var(--primary);
-    border-width: 2px;
+    border-width: 1px;
     background: var(--off-white);
     font-weight: bold;
     color: var(--primary);

@@ -1,4 +1,5 @@
 <div x-data="{ showMe: {!! $number === $q ? 'true' : 'false'  !!} }"
+     x-cloak
      x-show="showMe"
      x-init="
                       (function() {
@@ -28,19 +29,8 @@
                       "
 >
     <div class="flex justify-end space-x-4">
-        @if(!$attachments->isEmpty())
-            @foreach($attachments as $attachment)
-                <x-button.text-button class="mb-4" wire:click="console.log('{{ $attachment->id}}')">
-                    <x-icon.attachment/>
-                    <span>Bijlage {{$loop->iteration}}</span>
-                </x-button.text-button>
-            @endforeach
-        @endif
-        @if($question->note_type == 'TEXT')
-            <x-button.secondary size="sm" class="mb-4" wire:click="console.log('Notitieblok openen')">
-                <span>Open notitiblok</span>
-            </x-button.secondary>
-        @endif
+        <x-question.attachments :question="$question"></x-question.attachments>
+        <x-question.note :question="$question"></x-question.note>
     </div>
     <div class="flex flex-col p-8 sm:p-10 content-section"
           x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)"
@@ -61,4 +51,5 @@
             </div>
         </div>
     </div>
+
 </div>

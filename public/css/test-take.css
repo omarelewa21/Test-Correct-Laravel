@@ -128,3 +128,7 @@
     color: var(--system-base);
     opacity: 50%;
 }
+
+[x-cloak] {
+    display: none;
+}

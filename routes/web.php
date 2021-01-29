@@ -29,6 +29,8 @@ Route::middleware('auth')->prefix('student')->name('student.')->group(function (
     Route::get('/test-take-stub/{test_take}', tcCore\Http\Livewire\Student\TesttakeStub::class)->name('test-take-stub');
     Route::get('/test-take-overview/{test_take}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'overview'])->name('test-take-overview');
     Route::get('/test-take-laravel/{test_take}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');
+    Route::get('/attachment/{attachment}', [\tcCore\Http\Controllers\AttachmentsLaravelController::class, 'show'])->name('question-attachment-show');
+
 });
 
 /**

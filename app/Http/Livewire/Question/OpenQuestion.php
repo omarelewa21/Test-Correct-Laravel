@@ -4,17 +4,19 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithAttachments;
 use tcCore\Question;
 
 class OpenQuestion extends Component
 {
+    use WithAttachments;
+
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
     public $answer = '';
     public $question;
     public $number;
     public $answers;
     public $editorId;
-    public $attachments;
 
     public $queryString = ['q'];
 

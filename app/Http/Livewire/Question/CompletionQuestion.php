@@ -4,21 +4,19 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Answer;
-use tcCore\Question;
+use tcCore\Attachment;
+use tcCore\Http\Traits\WithAttachments;
 
 class CompletionQuestion extends Component
 {
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
+    use WithAttachments;
 
     public $question;
-
     public $queryString = ['q'];
-
     public $q;
 
     public $answer;
     public $answers;
-
     public $number;
 
     public function mount()

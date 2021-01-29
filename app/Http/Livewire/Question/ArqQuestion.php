@@ -3,10 +3,13 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
+use tcCore\Http\Traits\WithAttachments;
 use tcCore\Question;
 
 class ArqQuestion extends Component
 {
+    use WithAttachments;
+
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
     public $uuid;

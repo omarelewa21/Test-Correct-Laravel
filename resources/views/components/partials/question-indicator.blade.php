@@ -20,12 +20,12 @@
         @endforeach
 
         <section class="flex space-x-6 ml-auto min-w-max justify-end items-center">
-            <x-button.text-button href="#" wire:click="sendNotification">
+            <x-button.text-button href="#" wire:click="">
                 <x-icon.audio/>
                 <span>{{ __('test_take.speak') }}</span>
             </x-button.text-button>
 
-            <x-button.text-button wire:click="overview" href="#">
+            <x-button.text-button wire:click="" href="#">
                 <x-icon.preview/>
                 <span>{{ __('test_take.overview') }}</span>
             </x-button.text-button>

@@ -4,10 +4,13 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithAttachments;
 use tcCore\Question;
 
 class MultipleSelectQuestion extends Component
 {
+    use WithAttachments;
+
     public $question;
 
     public $answer = '';
