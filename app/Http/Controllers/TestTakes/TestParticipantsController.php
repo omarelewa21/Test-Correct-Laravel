@@ -389,4 +389,8 @@ class TestParticipantsController extends Controller
         }
     }
 
+    public function is_allowed_inbrowser_testing() {
+        return false;
+    }
+
 }
