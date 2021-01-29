@@ -389,8 +389,31 @@ class TestParticipantsController extends Controller
         }
     }
 
-    public function is_allowed_inbrowser_testing() {
+    public function is_allowed_inbrowser_testing(TestTake $testTake)
+    {
+        $me = $testTake->testParticipants()->where('user_id', Auth::id())->first();
+        logger($me);
+        if ($me) {
+            return $me->allow_inbrowser_testing;
+        }
         return false;
+    }
+
+    public function toggle_inbrowser_testing(TestTake $testTake, TestParticipant $testParticipant)
+    {
+        if (auth()->user()->schoolLocation->allow_inbrowser_testing) {
+            logger('allowed for school_location');
+            if ($testTake->id === $testParticipant->test_take_id) {
+                logger('allowed for test_take_is vs participant');
+                if ($testTake->isAllowedToView(auth()->user())) {
+                    logger('allowed to view');
+
+                    $testParticipant->update(['allow_inbrowser_testing' => ! $testParticipant->allow_inbrowser_testing]);
+                }
+            }
+        }
+
+
     }
 
 }

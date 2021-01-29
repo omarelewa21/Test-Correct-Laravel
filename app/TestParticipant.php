@@ -21,6 +21,7 @@ class TestParticipant extends BaseModel
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'allow_inbrowser_testing' =>'boolean',
     ];
 
     /**
@@ -42,7 +43,7 @@ class TestParticipant extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating'];
+    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing'];
 
     /**
      * The attributes excluded from the model's JSON form.
