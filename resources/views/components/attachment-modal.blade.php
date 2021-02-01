@@ -9,7 +9,11 @@
                 <x-icon.close/>
             </x-button.cta>
         </div>
-        <iframe class="bg-off-white" width="600" height="400" src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"></iframe>
+        @if($attachment->type == 'video')
+            <iframe class="bg-off-white" width="600" height="400" src="{{ $attachment->getVideoLink($attachment->link) }}"></iframe>
+        @else
+            <iframe class="bg-off-white" width="600" height="400" src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"></iframe>
+        @endif
     </div>
 </div>
 

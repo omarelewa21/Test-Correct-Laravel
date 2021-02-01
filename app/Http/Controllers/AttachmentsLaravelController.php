@@ -15,11 +15,6 @@ class AttachmentsLaravelController extends Controller {
      */
     public function show(Attachment $attachment)
     {
-        if ($attachment->type == 'video')
-        {
-            return $attachment->link;
-        }
-
         return Response::file($attachment->getCurrentPath());
     }
 }

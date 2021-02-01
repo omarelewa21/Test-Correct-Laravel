@@ -11,6 +11,10 @@ class MultipleChoiceQuestion extends Component
 
     public $question;
 
+    public $queryString = ['q'];
+
+    public $q;
+
     public $answer = '';
 
     public $answers;
@@ -69,6 +73,9 @@ class MultipleChoiceQuestion extends Component
     {
         if ($this->question->subtype == 'ARQ') {
             return view('livewire.overview.arq-question');
+        } elseif ($this->question->subtype == 'TrueFalse') {
+            return view('livewire.overview.true-false-question');
+
         }
 
         return view('livewire.overview.multiple-choice-question');

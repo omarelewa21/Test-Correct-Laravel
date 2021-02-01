@@ -9,6 +9,7 @@
 
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <x-dropdown.item>Inleveren</x-dropdown.item>
+                <x-dropdown.item>Uitloggen</x-dropdown.item>
             </x-dropdown>
         </div>
     </header>

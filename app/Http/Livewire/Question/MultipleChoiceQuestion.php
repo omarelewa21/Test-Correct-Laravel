@@ -77,6 +77,8 @@ class MultipleChoiceQuestion extends Component
     {
         if ($this->question->subtype == 'ARQ') {
             return view('livewire.question.arq-question');
+        } elseif ($this->question->subtype == 'TrueFalse') {
+            return view('livewire.question.true-false-question');
         }
 
         return view('livewire.question.multiple-choice-question');

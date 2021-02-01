@@ -18,6 +18,7 @@
                                     { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
                                 ]
                             })
+                            CKEDITOR.config.readOnly = true
                             CKEDITOR.instances['{{ $editorId }}']
                             .on('change',function(e){
                                 $dispatch('input', e.editor.getData())

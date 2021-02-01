@@ -36,7 +36,7 @@
                             <label
                                     class="flex
                                         p-5
-                                        border
+                                        border-2
                                         border-blue-grey
                                         rounded-10
                                         base
