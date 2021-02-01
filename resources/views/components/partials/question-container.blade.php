@@ -5,7 +5,7 @@
 ])
 <div x-cloak x-data="{ showMe: {!! $number === $q ? 'true' : 'false'  !!} }"
      x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)" x-show="showMe">
-    <div class="flex justify-end space-x-4">
+    <div class="flex justify-end space-x-4 mt-6">
         <x-question.attachments :question="$question"></x-question.attachments>
         <x-question.note :question="$question"></x-question.note>
     </div>

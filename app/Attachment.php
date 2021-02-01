@@ -173,14 +173,14 @@ class Attachment extends BaseModel {
         return $query;
     }
 
-    public function getVideoLink($link)
+    public function getVideoLink()
     {
         $youtubeRegex = "/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user)\/))(?<video_id>[^\?&\"'>]+)/";
         $vimeoRegex = "/(https?:\/\/)?(www\.)?(player\.)?vimeo\.com\/([a-z]*\/)*(?<video_id>[0-9]{6,11})[?]?.*/";
 
-        preg_match($youtubeRegex, $link, $matches);
+        preg_match($youtubeRegex, $this->link, $matches);
         if(!empty($matches['video_id'])){
-            $parts = parse_url($link);
+            $parts = parse_url($this->link);
             parse_str($parts['query'],$query);
             $t = 0;
             switch(true) {
@@ -194,7 +194,7 @@ class Attachment extends BaseModel {
             return sprintf('https://www.youtube.com/embed/%s?rel=0&start=%d',$matches['video_id'],$t);
         }
 
-        preg_match($vimeoRegex, $link, $matches);
+        preg_match($vimeoRegex, $this->link, $matches);
         if(!empty($matches['video_id'])){
             return 'https://player.vimeo.com/video/'.$matches['video_id'];
         }

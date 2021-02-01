@@ -48,5 +48,6 @@ return [
     'reason'                              => 'Reden',
     'back_to_questions'                   => 'Terug naar vragen invullen',
     'adjust_answer'                       => 'Antwoord aanpassen',
-    'attention_required'                  => 'Attentie vereist'
+    'attention_required'                  => 'Attentie vereist',
+    'open_notepad'                        => 'Open Notitieblok'
 ];

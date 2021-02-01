@@ -1,11 +1,13 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5 overview">
-        <div class="flex flex-col pt-4 pb-8 space-y-10" test-take-player wire:key="navigation">
+        <div class="fixed left-0 w-full px-8 lg:px-28 flex-col pt-4 z-10 bg-light-grey"  test-take-player wire:key="navigation">
+            <div>
+                <livewire:question.navigation :questions="$data"></livewire:question.navigation>
+            </div>
 
-            <livewire:question.navigation :questions="$data"></livewire:question.navigation>
-
+            <div class="nav-overflow left-0 fixed w-full h-12"></div>
         </div>
-        <div class="w-full space-y-8">
+        <div class="w-full space-y-8 mt-40">
             <h1 class="mb-7">Kijk alle antwoorden nog eens goed na.</h1>
             @foreach($data as  $key => $testQuestion)
                 <div class="flex flex-col space-y-4">

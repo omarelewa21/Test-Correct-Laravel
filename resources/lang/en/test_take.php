@@ -42,6 +42,7 @@ return [
     'option'                              => 'Option',
     'thesis'                              => 'Thesis',
     'reason'                              => 'Reason',
-    'attention_required'                  => 'Attention required'
+    'attention_required'                  => 'Attention required',
+    'open_notepad'                        => 'Open notepad'
 
 ];

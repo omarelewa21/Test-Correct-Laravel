@@ -3,14 +3,14 @@
     <div class="flex-col">
         <div class="flex justify-end">
             <x-button.secondary id="attachmentdrag">
-                <x-icon.shuffle/>
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
             </x-button.secondary>
             <x-button.cta wire:click="closeAttachmentModal" class="border-0">
                 <x-icon.close/>
             </x-button.cta>
         </div>
         @if($attachment->type == 'video')
-            <iframe class="bg-off-white" width="600" height="400" src="{{ $attachment->getVideoLink($attachment->link) }}"></iframe>
+            <iframe class="bg-off-white" width="600" height="400" src="{{ $attachment->getVideoLink() }}"></iframe>
         @else
             <iframe class="bg-off-white" width="600" height="400" src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"></iframe>
         @endif

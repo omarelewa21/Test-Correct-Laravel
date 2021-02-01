@@ -132,3 +132,7 @@
 [x-cloak] {
     display: none;
 }
+
+.overview .nav-overflow {
+    background: linear-gradient(to bottom, var(--light-grey) 0%, transparent 100%);
+}

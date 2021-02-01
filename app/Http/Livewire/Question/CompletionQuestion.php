@@ -6,10 +6,11 @@ use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Attachment;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithNotepad;
 
 class CompletionQuestion extends Component
 {
-    use WithAttachments;
+    use WithAttachments, WithNotepad;
 
     public $question;
     public $queryString = ['q'];

@@ -157,11 +157,6 @@ textarea {
     margin: -1px -1px -1px;
 }
 
-.truefalse-container:hover .active {
-    opacity: .6;
-}
-
-
 .overview .truefalse-container:hover .active {
     opacity: 1;
 }

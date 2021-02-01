@@ -4,11 +4,12 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
 
 class RankingQuestion extends Component
 {
-    use WithAttachments;
+    use WithAttachments, WithNotepad;
 
     public $uuid;
     public $answer;
