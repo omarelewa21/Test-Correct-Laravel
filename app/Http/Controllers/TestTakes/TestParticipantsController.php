@@ -321,7 +321,6 @@ class TestParticipantsController extends Controller
             } else {
                 $testParticipant->load('user', 'testTakeStatus', 'schoolClass', 'answers', 'testTakeEvents');
             }
-
             return Response::make($testParticipant, 200);
         }
     }
@@ -336,7 +335,6 @@ class TestParticipantsController extends Controller
     public function update(TestTake $testTake, TestParticipant $testParticipant, UpdateTestParticipantRequest $request)
     {
         $testParticipant->fill($request->all());
-
         if ($testTake->testParticipants()->save($testParticipant) !== false) {
             return Response::make($testParticipant, 200);
         } else {

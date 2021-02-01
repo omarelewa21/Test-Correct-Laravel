@@ -35,6 +35,20 @@ class GroupQuestionTest extends TestCase
         $this->assertTrue(count($questions)==1);
      }
 
+     /** @test */
+     public function can_create_test_and_group_carousel_question(){
+        $attributes = $this->getTestAttributes();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForCarouselGroupQuestion($this->originalTestId);
+        $this->createGroupQuestion($attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $testQuestion = $questions->first();
+        $question = $testQuestion->question;
+        $this->assertEquals('carousel', $question->groupquestion_type);
+        $this->assertEquals(3,$question->number_of_subquestions);
+     }
        
 
 }

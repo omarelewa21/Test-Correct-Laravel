@@ -65,6 +65,10 @@ trait GroupQuestionTrait
         $response->assertStatus(200);
     }
 
+    private function getAttributesForCarouselGroupQuestion($testId){
+        $attributes = array_merge($this->getAttributesForGroupQuestion($testId), ['groupquestion_type'=>'carousel','number_of_subquestions'=>3]);
+        return $attributes;
+    }
 
     private function getAttributesForGroupQuestion($testId){
         return [
