@@ -1,4 +1,6 @@
-<?php namespace tcCore\Http\Controllers\TestParticipants;
+<?php 
+
+namespace tcCore\Http\Controllers\TestParticipants;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -128,7 +130,6 @@ class Answers2019Controller extends Controller
         }
 
         $answer->fill($request->all());
-
         if ($testParticipant->answers()->save($answer) !== false) {
             $response = $answer;
             if ($request->has('take_id') && $request->has('take_question_index') && $request->has('take_id')) {

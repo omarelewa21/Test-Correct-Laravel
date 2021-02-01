@@ -94,7 +94,7 @@ trait MultipleChoiceQuestionTrait
                                 [
                                     "order"=> "1",
                                     "answer"=> "a",
-                                    "score"=> "10"
+                                    "score"=> "5"
                                     ],
                                     [
                                     "order"=> "2",

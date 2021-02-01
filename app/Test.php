@@ -738,8 +738,8 @@ class Test extends BaseModel
     public function performMetadata()
     {
         QuestionGatherer::invalidateTestCache($this);
-        $questions = QuestionGatherer::getQuestionsOfTest($this->getKey(), true);
-        $this->setAttribute('question_count', count($questions));
+        $questionsCount = QuestionGatherer::getQuestionsCountOfTest($this->getKey());
+        $this->setAttribute('question_count', $questionsCount);
         $this->save();
     }
 
