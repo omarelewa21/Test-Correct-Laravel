@@ -366,7 +366,7 @@ class TestParticipantsController extends Controller
 
     public function heartbeat($testTakeId, TestParticipant $testParticipant, HeartbeatTestParticipantRequest $request)
     {
-         $testTake = (int)TestTake::whereUUid($testTakeId)->first()->getKey();
+         $testTake = (int)TestTake::whereUUid($testTakeId)->first();
 
          if ($testTake === null) {
              return Response::make('Failed to process heartbeat of test participant, test take has been deleted.', 500);
