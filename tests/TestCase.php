@@ -231,7 +231,7 @@ abstract class TestCase extends BaseTestCase
     private function updateTestTakeStatus($testTakeId, $status) {
         $response = $this->put(
             sprintf(
-                'test_take/%d',
+                'api-c/test_take/%s',
                 $testTakeId
             ),
             static::getTeacherOneAuthRequestData(
