@@ -17,7 +17,7 @@
 }
 
 .form-input.border-red {
-    border-color: red;
+    border-color: red!important;
 }
 
 .form-input.rounded-b-none {

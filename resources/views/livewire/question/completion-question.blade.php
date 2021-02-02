@@ -6,7 +6,6 @@
             </x-input.group>
         </div>
     </div>
-
     <x-attachment-modal :attachment="$attachment" />
     <x-notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>

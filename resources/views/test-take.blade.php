@@ -72,12 +72,16 @@
                 href="#" rotateIcon="180">
                 <x-icon.chevron/>
                 <span>{{ __('test_take.previous_question') }}</span></x-button.text-button>
-            <x-button.cta size="sm"><span>{{ __('test_take.turn_in') }}</span>
+            <x-button.cta size="sm"
+                          onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview')"
+            >
+                <span>{{ __('test_take.turn_in') }}</span>
                 <x-icon.arrow/>
             </x-button.cta>
             <x-button.primary
                 onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('nextQuestion')"
-                size="sm"><span>{{ __('test_take.next_question') }}</span>
+                size="sm">
+                <span>{{ __('test_take.next_question') }}</span>
                 <x-icon.chevron/>
             </x-button.primary>
         </x-slot>

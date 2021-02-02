@@ -29,7 +29,7 @@
          x-transition:enter-end="transform opacity-100 scale-100" x-transition:leave="transition ease-in duration-75"
          x-transition:leave-start="transform opacity-100 scale-100"
          x-transition:leave-end="transform opacity-0 scale-95"
-         class="origin-top-right top-0 absolute right-0 w-56 rounded-md border border-blue-grey shadow-lg">
+         class="origin-top-right top-0 absolute z-40 right-0 w-56 rounded-md border border-blue-grey shadow-lg">
         <div class="rounded-md bg-white shadow-xs">
             <div class="dropdown-items-container" role="menu" aria-orientation="vertical"
                  aria-labelledby="options-menu">

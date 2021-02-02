@@ -17,7 +17,9 @@
                         >
                         <span>{!! $link->answer !!}</span>
                     </label>
-
+                    @if($loop->first)
+                        <div class="bg-blue-grey" style="width: 1px; height: 30px; margin-top: 3px"></div>
+                    @endif
                 @endforeach
             </div>
             {!! $question->getQuestionHtml()  !!}

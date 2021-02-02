@@ -109,7 +109,7 @@
     outline: none;
 }
 .primary-button:active {
-    border: none;
+    outline: none;
 }
 
 .secondary-button {

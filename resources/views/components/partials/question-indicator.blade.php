@@ -6,14 +6,10 @@
 <div class="question-indicator w-full">
     <div class="flex flex-wrap" x-data="">
         @foreach($questions as $key => $q)
-            <div
-                wire:key="nav_{{$key}}"
-
-                class="question-number rounded-full text-center {!! $key === ($this->q - 1) ? 'active' : ''!!}"
+            <div wire:key="nav_{{$key}}"
+                 class="question-number rounded-full text-center {!! $key === ($this->q - 1) ? 'active' : ''!!}"
                  wire:click="$set('q',{{ 1+$key}})"
-
-                x-on:click="$dispatch('current-updated', {'current': {{ 1+$key }} })"
-
+                 x-on:click="$dispatch('current-updated', {'current': {{ 1+$key }} })"
             >
                 <span class="align-middle">{{ ++$key }}</span>
             </div>

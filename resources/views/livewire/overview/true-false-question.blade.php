@@ -1,7 +1,20 @@
-<x-partials.question-container :number="$number" :q="$q" :question="$question">
+<div class="flex flex-col p-8 sm:p-10 content-section w-full">
+    <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
+        <div class="inline-flex question-number rounded-full text-center justify-center items-center {!! $answer? 'complete': 'incomplete' !!}">
+            <span class="align-middle">{{ $number }}</span>
+        </div>
+        <h1 class="inline-block ml-2 mr-6">{!! __($question->caption) !!} </h1>
+        <h4 class="inline-block">{{ $question->score }} pt</h4>
+
+        @if ($this->answer)
+            <x-answered></x-answered>
+        @else
+            <x-not-answered></x-not-answered>
+        @endif
+    </div>
     <div class="w-full overview">
         <div class="flex space-x-4 items-center">
-            <div class="inline-flex bg-off-white border border-blue-grey rounded-lg overview truefalse-container">
+            <div class="inline-flex bg-off-white border @if(!$this->answer) border-all-red @else border-blue-grey @endif rounded-lg overview truefalse-container">
                 @foreach( $question->multipleChoiceQuestionAnswers as $link)
 
                         <label for="link{{ $link->id }}"
@@ -17,10 +30,12 @@
                             >
                             <span>{!! $link->answer !!}</span>
                         </label>
-
+                        @if($loop->first)
+                            <div class="@if(!$this->answer) bg-all-red @else bg-blue-grey @endif" style="width: 1px; height: 30px; margin-top: 3px"></div>
+                        @endif
                 @endforeach
             </div>
             {!! $question->getQuestionHtml()  !!}
         </div>
     </div>
-</x-partials.question-container>
+</div>
