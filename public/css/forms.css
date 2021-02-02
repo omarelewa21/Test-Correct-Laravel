@@ -223,3 +223,13 @@ textarea {
     box-shadow: none;
     font-weight: normal;
 }
+
+.multiple-choice-question.active .close {
+    display: none;
+}
+.multiple-choice-question.active:hover .checkmark {
+    display: none;
+}
+.multiple-choice-question.active:hover .close {
+    display: inline-block;
+}
