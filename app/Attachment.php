@@ -5,7 +5,8 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
 
-class Attachment extends BaseModel {
+class Attachment extends BaseModel
+{
 
     use SoftDeletes;
 
@@ -39,10 +40,9 @@ class Attachment extends BaseModel {
     {
         parent::boot();
 
-        static::saved(function(Attachment $attachment)
-        {
+        static::saved(function (Attachment $attachment) {
             if ($attachment->file instanceof UploadedFile) {
-                $attachment->file->move(storage_path('attachments'), $attachment->getKey().' - '.$attachment->getAttribute('file_name'));
+                $attachment->file->move(storage_path('attachments'), $attachment->getKey() . ' - ' . $attachment->getAttribute('file_name'));
 
                 $original = $attachment->getOriginalPath();
                 if (File::exists($original)) {
@@ -51,8 +51,7 @@ class Attachment extends BaseModel {
             }
         });
 
-        static::deleted(function(Attachment $attachment)
-        {
+        static::deleted(function (Attachment $attachment) {
             if ($attachment->forceDeleting) {
                 $original = $attachment->getOriginalPath();
                 if (File::exists($original)) {
@@ -62,26 +61,30 @@ class Attachment extends BaseModel {
         });
     }
 
-    public function getOriginalPath() {
+    public function getOriginalPath()
+    {
         return ((substr(storage_path('attachments'), -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments') . DIRECTORY_SEPARATOR) . $this->getOriginal($this->getKeyName()) . ' - ' . $this->getOriginal('file_name');
     }
 
-    public function getCurrentPath() {
+    public function getCurrentPath()
+    {
         return ((substr(storage_path('attachments'), -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments') . DIRECTORY_SEPARATOR) . $this->getKey() . ' - ' . $this->getAttribute('file_name');
     }
 
-    public function questionAttachments() {
+    public function questionAttachments()
+    {
         return $this->hasMany('tcCore\QuestionAttachment', 'attachment_id');
     }
 
-    public function questions() {
+    public function questions()
+    {
         return $this->belongsToMany('tcCore\Question', 'question_attachments', 'attachment_id', 'question_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     /**
      * Fill the model with an array of attributes.
      *
-     * @param  array  $attributes
+     * @param array $attributes
      * @return $this
      *
      * @throws \Illuminate\Database\Eloquent\MassAssignmentException
@@ -108,7 +111,8 @@ class Attachment extends BaseModel {
         }
     }
 
-    public function isDirtyFile() {
+    public function isDirtyFile()
+    {
         if ($this->file instanceof UploadedFile) {
             return $this->fileDiff($this->file->getPath(), $this->getOriginalPath());
         } else {
@@ -116,9 +120,10 @@ class Attachment extends BaseModel {
         }
     }
 
-    protected function fileDiff($a, $b) {
+    protected function fileDiff($a, $b)
+    {
         // Check if filesize is different
-        if(filesize($a) !== filesize($b))
+        if (filesize($a) !== filesize($b))
             return false;
 
         // Check if content is different
@@ -126,10 +131,8 @@ class Attachment extends BaseModel {
         $bh = fopen($b, 'rb');
 
         $result = true;
-        while(!feof($ah))
-        {
-            if(fread($ah, 8192) != fread($bh, 8192))
-            {
+        while (!feof($ah)) {
+            if (fread($ah, 8192) != fread($bh, 8192)) {
                 $result = false;
                 break;
             }
@@ -141,7 +144,8 @@ class Attachment extends BaseModel {
         return $result;
     }
 
-    public function duplicate($parent, array $attributes) {
+    public function duplicate($parent, array $attributes)
+    {
         $attachment = $this->replicate();
         $attachment->fill($attributes);
 
@@ -154,7 +158,8 @@ class Attachment extends BaseModel {
         return $attachment;
     }
 
-    public function isUsed($ignoreRelationTo) {
+    public function isUsed($ignoreRelationTo)
+    {
         $uses = $this->questionAttachments()->withTrashed();
 
         if ($ignoreRelationTo instanceof Question) {
@@ -179,11 +184,11 @@ class Attachment extends BaseModel {
         $vimeoRegex = "/(https?:\/\/)?(www\.)?(player\.)?vimeo\.com\/([a-z]*\/)*(?<video_id>[0-9]{6,11})[?]?.*/";
 
         preg_match($youtubeRegex, $this->link, $matches);
-        if(!empty($matches['video_id'])){
+        if (!empty($matches['video_id'])) {
             $parts = parse_url($this->link);
-            parse_str($parts['query'],$query);
+            parse_str($parts['query'], $query);
             $t = 0;
-            switch(true) {
+            switch (true) {
                 case isset($query['t']):
                     $t = $query['t'];
                     break;
@@ -191,14 +196,36 @@ class Attachment extends BaseModel {
                     $t = $query['start'];
                     break;
             }
-            return sprintf('https://www.youtube.com/embed/%s?rel=0&start=%d',$matches['video_id'],$t);
+            return sprintf('https://www.youtube.com/embed/%s?rel=0&start=%d', $matches['video_id'], $t);
         }
 
         preg_match($vimeoRegex, $this->link, $matches);
-        if(!empty($matches['video_id'])){
-            return 'https://player.vimeo.com/video/'.$matches['video_id'];
+        if (!empty($matches['video_id'])) {
+            return 'https://player.vimeo.com/video/' . $matches['video_id'];
         }
 
+        return false;
+    }
+
+    public function canBeAccessedByUser(User $user)
+    {
+        $testParticipant = TestParticipant::whereUserId($user->getKey())
+                                            ->where('test_take_status_id', 3)
+                                            ->orWhere('test_take_status_id', 7)
+                                            ->first();
+
+        if ($testParticipant) {
+            $testParticipant->testTake->test->testQuestions->map(function ($tq, $key) use (&$questions) {
+                $questions[$key] = $tq->question->getKey();
+            });
+            $question_id = $this->questionAttachments->where('attachment_id', $this->getKey())->first()->question_id;
+
+            foreach ($questions as $question) {
+                if ($question == $question_id) {
+                    return true;
+                }
+            } return false;
+        }
         return false;
     }
 }
