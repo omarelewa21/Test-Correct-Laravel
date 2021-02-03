@@ -56,14 +56,19 @@
                 <div class="flex flex-col space-y-3">
                     @foreach ($question->matchingQuestionAnswers as $group)
                         @if(  $group->correct_answer_id === null )
-                            <div class="flex">
-                                <span>{{ $group->answer }}</span>
-                                <x-dropzone type="matching" wire:key="group-{{ $group->id }}"
-                                            wire:sortable.item="{{ $group->id }}">
-                                    <div class="flex" wire:sortable-group.item-group="{{ $group->id }}">
-
-                                    </div>
-                                </x-dropzone>
+                            <div class="flex space-x-2">
+                                <div class="w-1/3">
+                                    <span class="flex w-full py-2 px-4 border-2 border-blue-grey rounded-10
+                                                 bg-primary-light font-size-18 bold base leading-5">
+                                                {{ $group->answer }}
+                                    </span>
+                                </div>
+                                <div class="flex-1">
+                                    <x-dropzone type="matching" wire:key="group-{{ $group->id }}"
+                                                wire:sortable.item="{{ $group->id }}">
+                                        <div class="flex" wire:sortable-group.item-group="{{ $group->id }}"></div>
+                                    </x-dropzone>
+                                </div>
                             </div>
                         @endif
                     @endforeach
@@ -71,4 +76,6 @@
             </div>
         @endif
     </div>
+    <x-attachment.attachment-modal :attachment="$attachment" />
+    <x-notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>

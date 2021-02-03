@@ -39,7 +39,7 @@ class MatchingQuestion extends Component
 
     public function updateOrder($value)
     {
-        dd($value);
+//        dd($value);
     }
 
 

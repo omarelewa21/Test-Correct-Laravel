@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+<svg {{ $attributes }} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
     <g fill="none" fill-rule="evenodd" stroke-linecap="round">
-        <g class="stroke-current" stroke-width="2">
+        <g class="stroke-current opacity-30" stroke-width="2">
             <g>
                 <g>
                     <g>

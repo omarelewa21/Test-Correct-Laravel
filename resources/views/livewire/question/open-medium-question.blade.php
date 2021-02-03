@@ -29,7 +29,6 @@
                       "
 >
     <div class="flex justify-end space-x-4">
-        <x-question.attachments :question="$question"></x-question.attachments>
         <x-question.note :question="$question"></x-question.note>
     </div>
     <div class="flex flex-col p-8 sm:p-10 content-section"
@@ -51,5 +50,4 @@
             </div>
         </div>
     </div>
-
 </div>

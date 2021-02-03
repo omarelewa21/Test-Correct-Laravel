@@ -16,10 +16,10 @@
             <div class="w-full bg-black" style="height: 600px">
                 @if($attachment->type == 'video')
                     <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
+                @elseif($attachment->file_mime_type == 'application/pdf')
+                    <iframe class="w-full h-full" src="{{ route('student.question-pdf-attachment-show', $attachment->getKey()) }}"></iframe>
                 @else
-                    <iframe class="w-full h-full" src="{{ route('student.question-attachment-show', $attachment->getKey()) }}">
-
-                    </iframe>
+                    <iframe class="w-full h-full" src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"></iframe>
                 @endif
             </div>
         </div>

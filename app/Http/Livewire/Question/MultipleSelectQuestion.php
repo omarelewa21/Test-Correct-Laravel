@@ -31,9 +31,7 @@ class MultipleSelectQuestion extends Component
 
     public function mount()
     {
-        $this->answer = collect((array) json_decode($this->answers[$this->question->uuid]['answer']))->search(function (
-            $item
-        ) {
+        $this->answer = collect((array) json_decode($this->answers[$this->question->uuid]['answer']))->search(function ($item) {
             return $item == 1;
         });
 
