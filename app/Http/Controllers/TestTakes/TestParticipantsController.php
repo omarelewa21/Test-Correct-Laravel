@@ -364,8 +364,15 @@ class TestParticipantsController extends Controller
 
     public function heartbeat($testTakeId, TestParticipant $testParticipant, HeartbeatTestParticipantRequest $request)
     {
-        $answer_id = (int)TestTake::whereUUid($testTakeId)->first()->getKey();
-        if ($testParticipant->test_take_id !== $answer_id) {//$testTake->getKey()) {
+         $testTake = TestTake::whereUUid($testTakeId)->first();
+
+         if ($testTake === null) {
+             return Response::make('Failed to process heartbeat of test participant, test take has been deleted.', 500);
+         }
+
+        $answer_id = (int) $testTake->getKey();
+
+         if ($testParticipant->test_take_id !== $answer_id) {//$testTake->getKey()) {
             return Response::make('Test participant not found', 404);
         }
 //        $testParticipant->load('testTake', 'testTake.discussingParentQuestions', 'testTake.testTakeStatus', 'testTakeStatus', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
