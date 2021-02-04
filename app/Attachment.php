@@ -228,4 +228,13 @@ class Attachment extends BaseModel
         }
         return false;
     }
+
+    public function audioIsPausable()
+    {
+        return json_decode($this->json)->pausable;
+    }
+    public function audioOnlyPlayOnce()
+    {
+        return json_decode($this->json)->play_once;
+    }
 }

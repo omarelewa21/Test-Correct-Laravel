@@ -49,5 +49,10 @@ return [
     'back_to_questions'                   => 'Terug naar vragen invullen',
     'adjust_answer'                       => 'Antwoord aanpassen',
     'attention_required'                  => 'Attentie vereist',
-    'open_notepad'                        => 'Open Notitieblok'
+    'open_notepad'                        => 'Open Notitieblok',
+    'sound_clip'                          => 'Geluidsfragment',
+    'cannot_pause_sound_clip'             => 'Dit geluidsfragment is niet te pauzeren',
+    'play'                                => 'Afspelen',
+    'pause'                               => 'Pauzeren',
+    'only_playable_once'                  => 'Dit geluidsfragment is niet te pauzeren en slechts eenmaal te beluisteren.',
 ];

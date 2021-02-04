@@ -112,6 +112,12 @@
     outline: none;
 }
 
+.primary-button:disabled {
+    background: var(--light-grey);
+    color: var(--mid-grey);
+    box-shadow: none;
+}
+
 .secondary-button {
     color: var(--system-base);
     background-color: var(--blue-grey);

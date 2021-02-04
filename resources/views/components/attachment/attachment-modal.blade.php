@@ -1,7 +1,7 @@
 @if($attachment)
-    <div id="attachment" class="absolute top-28 left-20 z-30 w-4/6 h-2/3">
-        <div class="flex-col">
-            <div class="flex justify-end space-x-2">
+    <div id="attachment" class="absolute top-28 left-20 z-30 w-4/6 h-2/3 shadow-lg border border-blue-grey rounded-10 bg-black">
+        <div class="flex-col relative h-full rounded-10">
+            <div class="flex absolute top-0 right-0 justify-end space-x-2">
                 <x-button.secondary id="attachmentdrag" class="rotate-svg-45">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
@@ -13,11 +13,13 @@
                     <x-icon.close class="text-white"/>
                 </x-button.primary>
             </div>
-            <div class="w-full bg-black" style="height: 600px">
+            <div class="flex w-full h-full rounded-10">
                 @if($attachment->type == 'video')
                     <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
                 @elseif($attachment->file_mime_type == 'application/pdf')
                     <iframe class="w-full h-full" src="{{ route('student.question-pdf-attachment-show', $attachment->getKey()) }}"></iframe>
+                @elseif($attachment->file_mime_type == 'audio/mpeg')
+                    <x-attachment.audio :attachment="$attachment"/>
                 @else
                     <iframe class="w-full h-full" src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"></iframe>
                 @endif
