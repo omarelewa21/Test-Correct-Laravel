@@ -1,6 +1,12 @@
-<div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10" x-data>
+<div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10"
+     x-data="{attachment: null}"
+     x-init="attachment = {{ $attachment->getKey() }}">
     <div class="text-center">
-        @if($attachment->audioOnlyPlayOnce())
+        @if(!$attachment->audioCanBePlayedAgain())
+            <h5>{{__('test_take.sound_clip_played')}}</h5>
+        @elseif($attachment->audioOnlyPlayOnce() && !$attachment->audioIsPausable())
+            <h5>{{__('test_take.only_playable_once_not_pausable')}}</h5>
+        @elseif($attachment->audioOnlyPlayOnce())
             <h5>{{__('test_take.only_playable_once')}}</h5>
         @elseif(!$attachment->audioIsPausable())
             <h5>{{__('test_take.cannot_pause_sound_clip')}}</h5>
@@ -9,11 +15,25 @@
         @endif
     </div>
     <div>
-        <audio src="{{ route('student.question-attachment-show', $attachment->getKey()) }}" x-ref="player"></audio>
+        <audio id="player" src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"
+               x-ref="player"
+               x-on:ended="Livewire.emit('audioIsPlayedOnce', attachment)"
+        ></audio>
         <div class="flex justify-center">
-            <button class="button primary-button" x-on:click.prevent="$refs.player.play()"> {{__('test_take.play')}}</button>
-            @if($attachment->audioIsPausable() && !$attachment->audioOnlyPlayOnce())
-                <button class="button secondary-button ml-2" x-on:click.prevent="$refs.player.pause()">{{__('test_take.pause')}}</button>
+            <button class="button primary-button
+                    @if(!$attachment->audioCanBePlayedAgain()) cursor-default disabled @endif "
+                    @if(!$attachment->audioCanBePlayedAgain()) disabled @endif
+                    x-on:click.prevent="$refs.player.play()"
+            >
+                {{__('test_take.play')}}
+            </button>
+            @if($attachment->audioIsPausable())
+                <button class="button secondary-button ml-2"
+                        x-on:click.prevent="$refs.player.pause()"
+                        @if(!$attachment->audioCanBePlayedAgain()) disabled @endif
+                >
+                    {{__('test_take.pause')}}
+                </button>
             @endif
         </div>
     </div>

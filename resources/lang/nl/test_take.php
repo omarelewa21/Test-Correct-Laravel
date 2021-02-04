@@ -54,5 +54,7 @@ return [
     'cannot_pause_sound_clip'             => 'Dit geluidsfragment is niet te pauzeren',
     'play'                                => 'Afspelen',
     'pause'                               => 'Pauzeren',
-    'only_playable_once'                  => 'Dit geluidsfragment is niet te pauzeren en slechts eenmaal te beluisteren.',
+    'only_playable_once'                  => 'Dit geluidsfragment is slechts eenmaal te beluisteren.',
+    'only_playable_once_not_pausable'     => 'Dit geluidsfragment is niet te pauzeren en slechts eenmaal te beluisteren.',
+    'sound_clip_played'                   => 'Dit geluidsfragment was eenmalig afspeelbaar en is al beluisterd.',
 ];

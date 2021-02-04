@@ -210,9 +210,9 @@ class Attachment extends BaseModel
     public function canBeAccessedByUser(User $user)
     {
         $testParticipant = TestParticipant::whereUserId($user->getKey())
-                                            ->where('test_take_status_id', 3)
-                                            ->orWhere('test_take_status_id', 7)
-                                            ->first();
+            ->where('test_take_status_id', 3)
+            ->orWhere('test_take_status_id', 7)
+            ->first();
 
         if ($testParticipant) {
             $testParticipant->testTake->test->testQuestions->map(function ($tq, $key) use (&$questions) {
@@ -224,7 +224,8 @@ class Attachment extends BaseModel
                 if ($question == $question_id) {
                     return true;
                 }
-            } return false;
+            }
+            return false;
         }
         return false;
     }
@@ -233,8 +234,22 @@ class Attachment extends BaseModel
     {
         return json_decode($this->json)->pausable;
     }
+
     public function audioOnlyPlayOnce()
     {
         return json_decode($this->json)->play_once;
+    }
+
+    public function audioIsPlayedOnce()
+    {
+        session()->put('attachment_'.$this->getKey(), 1);
+    }
+
+    public function audioCanBePlayedAgain()
+    {
+        if(session()->get('attachment_'.$this->getKey())) {
+            return false;
+        }
+        return true;
     }
 }

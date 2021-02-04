@@ -18,7 +18,7 @@ class AttachmentsLaravelController extends Controller {
         if ($attachment->canBeAccessedByUser(Auth::user())) {
             return Response::file($attachment->getCurrentPath());
         }
-
-        return Response::noContent();;
+        return Response::noContent();
+//        return Response::make('Not allowed to access this attachment',403);
     }
 }
