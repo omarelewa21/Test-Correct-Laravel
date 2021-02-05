@@ -1,4 +1,4 @@
-<x-partials.question-container :number="$number" :q="$q" :question="$question">
+<x-partials.question-container :number="$number" :question="$question">
     <div class="w-full space-y-3">
         <div>
             <x-input.group class="body1" for="">

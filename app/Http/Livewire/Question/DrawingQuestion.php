@@ -11,14 +11,9 @@ class DrawingQuestion extends Component
 {
     use WithAttachments, WithNotepad;
 
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
-
     public $question;
 
     public $number;
-    public $queryString = ['q'];
-
-    public $q;
 
     public function questionUpdated($uuid)
     {

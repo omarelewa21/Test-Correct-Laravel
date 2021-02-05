@@ -4,7 +4,7 @@
 ])
 
 <div class="question-indicator w-full">
-    <div class="flex flex-wrap" x-data="">
+    <div class="flex flex-wrap" x-data="" x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q}} })}, 1)">
         @foreach($questions as $key => $q)
             <div wire:key="nav_{{$key}}"
                  class="question-number rounded-full text-center {!! $key === ($this->q - 1) ? 'active' : ''!!}"

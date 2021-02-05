@@ -11,15 +11,9 @@ class ArqQuestion extends Component
 {
     use WithAttachments, WithNotepad;
 
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
-
     public $uuid;
 
     public $question;
-
-    public $queryString = ['q'];
-
-    public $q;
 
     public function questionUpdated($uuid)
     {

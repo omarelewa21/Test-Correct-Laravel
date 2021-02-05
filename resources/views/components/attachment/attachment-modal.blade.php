@@ -1,5 +1,6 @@
 @if($attachment)
-    <div id="attachment" class="absolute top-28 left-20 z-30 w-4/6 h-2/3 shadow-lg border border-blue-grey rounded-10 bg-black">
+    <div id="attachment"
+         class="absolute top-28 left-20 z-30 w-4/6 h-2/3 shadow-lg border border-blue-grey rounded-10 bg-black">
         <div class="flex-col relative h-full rounded-10">
             <div class="flex absolute top-0 right-0 justify-end space-x-2">
                 <x-button.secondary id="attachmentdrag" class="rotate-svg-45">
@@ -17,14 +18,26 @@
                 @if($attachment->type == 'video')
                     <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
                 @elseif($attachment->file_mime_type == 'application/pdf')
-                    <iframe class="w-full h-full" src="{{ route('student.question-pdf-attachment-show', $attachment->getKey()) }}"></iframe>
+                    <iframe class="w-full h-full"
+                            src="{{ route('student.question-pdf-attachment-show', $attachment->getKey()) }}"></iframe>
                 @elseif($attachment->file_mime_type == 'audio/mpeg')
                     <x-attachment.audio :attachment="$attachment"/>
                 @else
-                    <iframe class="w-full h-full" src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"></iframe>
+                    <iframe class="w-full h-full"
+                            src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"></iframe>
                 @endif
             </div>
         </div>
+        @if($this->audioCloseWarning)
+            <div class="absolute top-5 left-5">
+                <div class="notification error">
+                    <div class="title space-x-2 items-center"><x-icon.warning class="h-5"/><span>Let op</span></div>
+                    <div class="body">
+                        Als je de bijlage sluit is het geluidsfragment niet meer te beluisteren.
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 
 

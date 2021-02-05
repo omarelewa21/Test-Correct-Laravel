@@ -13,9 +13,6 @@ class CompletionQuestion extends Component
     use WithAttachments, WithNotepad;
 
     public $question;
-    public $queryString = ['q'];
-    public $q;
-
     public $answer;
     public $answers;
     public $number;

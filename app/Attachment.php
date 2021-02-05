@@ -252,4 +252,13 @@ class Attachment extends BaseModel
         }
         return true;
     }
+
+    public function audioHasCurrentTime()
+    {
+        $sessionValue = 'attachment_'.$this->getKey().'_currentTime';
+        if(session()->get($sessionValue)) {
+            return session()->get($sessionValue);
+        }
+        return 0;
+    }
 }

@@ -33,10 +33,11 @@ class TestTakeLaravelController extends Controller
 
         $data = self::getData($testTake);
         $answers = $this->getAnswers($testTake, $data);
+        $q = 7;
 
 // todo add check or failure when $current out of bounds $data;
 
-        return view('test-take', compact(['data', 'current', 'answers']));
+        return view('test-take', compact(['data', 'current', 'answers', 'q']));
     }
 
     public function getAnswers($testTake, $testQuestions) {

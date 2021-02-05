@@ -10,14 +10,14 @@ trait WithNotepad
 
     public function openNotepad()
     {
-        $this->notepadText = session('note_text_'.$this->q, '');
+        $this->notepadText = session('note_text_'.$this->number, '');
 //        dd(session()->all());
         $this->showNotepad = true;
     }
 
     public function closeNotepad()
     {
-        session()->put('note_text_'.$this->q, $this->notepadText);
+        session()->put('note_text_'.$this->number, $this->notepadText);
         $this->showNotepad = false;
     }
 }

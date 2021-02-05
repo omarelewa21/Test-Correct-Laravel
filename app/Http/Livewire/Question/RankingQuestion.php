@@ -16,10 +16,6 @@ class RankingQuestion extends Component
     public $question;
     public $number;
 
-    public $queryString = ['q'];
-
-    public $q;
-
     public function questionUpdated($uuid, $answer)
     {
         $this->uuid = $uuid;

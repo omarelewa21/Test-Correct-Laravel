@@ -1,4 +1,4 @@
-<x-partials.question-container :number="$number" :q="$q" :question="$question">
+<x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
         <div
                 x-data="{count:0}"

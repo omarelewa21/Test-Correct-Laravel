@@ -12,9 +12,8 @@
     <!-- Alpine -->
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-156194835-1"></script>
     @livewireStyles
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
-    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@1.2.3/dist/trix.css">
     <link rel="stylesheet" href="/css/onboarding.css">
 
 </head>

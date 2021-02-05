@@ -12,16 +12,11 @@ class OpenQuestion extends Component
 {
     use WithAttachments, WithNotepad;
 
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
     public $answer = '';
     public $question;
     public $number;
     public $answers;
     public $editorId;
-
-    public $queryString = ['q'];
-
-    public $q;
 
     public function mount()
     {

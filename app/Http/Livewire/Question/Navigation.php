@@ -13,7 +13,7 @@ class Navigation extends Component
 
     public function mount()
     {
-//        $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
+        $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
     }
 
     public function render()

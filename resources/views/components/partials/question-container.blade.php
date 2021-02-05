@@ -1,9 +1,8 @@
 @props([
 'question',
-'q',
 'number',
 ])
-<div x-cloak x-data="{ showMe: {!! $number === $q ? 'true' : 'false'  !!} }"
+<div x-cloak x-data="{ showMe: false }"
      x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)" x-show="showMe">
     <div class="flex justify-end space-x-4 mt-6">
         <x-attachment.attachments-button :question="$question"></x-attachment.attachments-button>

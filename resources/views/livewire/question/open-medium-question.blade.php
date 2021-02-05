@@ -1,5 +1,6 @@
-<div x-data="{ showMe: {!! $number === $q ? 'true' : 'false'  !!} }"
+<div x-data="{ showMe: false}"
      x-cloak
+     x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)"
      x-show="showMe"
      x-init="
                       (function() {

@@ -12,7 +12,6 @@ class MultipleChoiceQuestion extends Component
 {
     use WithAttachments, WithNotepad;
 
-
     public $question;
 
     public $answer = '';
@@ -22,10 +21,6 @@ class MultipleChoiceQuestion extends Component
     public $answerStruct;
 
     public $number;
-
-    public $queryString = ['q'];
-
-    public $q;
 
     public $arqStructure = [
         ['A', 'test_take.correct', 'test_take.correct', 'test_take.correct_reason'],

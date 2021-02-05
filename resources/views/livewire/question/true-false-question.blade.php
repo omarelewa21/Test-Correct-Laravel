@@ -1,4 +1,4 @@
-<x-partials.question-container :number="$number" :q="$q" :question="$question">
+<x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
         <div class="flex space-x-4 items-center">
             <div class="inline-flex bg-off-white border border-blue-grey rounded-lg truefalse-container transition duration-150">
