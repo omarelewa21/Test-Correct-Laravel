@@ -12,12 +12,12 @@ class TestTakeLaravelController extends Controller
 {
     public function overview(TestTake $testTake, Request $request)
     {
-        $current = $request->get('question')?: '1';
+        $current = $request->get('question') ?: '1';
 
         $data = self::getData($testTake);
         $answers = $this->getAnswers($testTake, $data);
 
-        $playerUrl = route('student.test-take-laravel',['test_take' => $testTake->uuid]);
+        $playerUrl = route('student.test-take-laravel', ['test_take' => $testTake->uuid]);
 
 // todo add check or failure when $current out of bounds $data;
 
@@ -25,24 +25,35 @@ class TestTakeLaravelController extends Controller
     }
 
 
-
-
     public function show(TestTake $testTake, Request $request)
     {
-        $current = $request->get('question')?: '1';
+        $current = $request->get('question') ?: '1';
 
         $data = self::getData($testTake);
         $answers = $this->getAnswers($testTake, $data);
-        $q = 7;
+
+
+        $nav = $data->map(function ($question) use ($answers) {
+            $answer = collect($answers)->first(function ($answer, $questionUuid) use ($question) {
+                return $question->uuid == $questionUuid;
+            });
+
+            return [
+                'uuid'     => $question->uuid,
+                'id'       => $question->id,
+                'answered' => $answer['answered'],
+            ];
+        });
 
 // todo add check or failure when $current out of bounds $data;
 
-        return view('test-take', compact(['data', 'current', 'answers', 'q']));
+        return view('test-take', compact(['data', 'current', 'answers', 'nav']));
     }
 
-    public function getAnswers($testTake, $testQuestions) {
+    public function getAnswers($testTake, $testQuestions)
+    {
         $result = [];
-         TestParticipant::where('test_take_id', $testTake->getKey())
+        TestParticipant::where('test_take_id', $testTake->getKey())
             ->where('user_id', Auth::user()->getKey())
             ->first()
             ->answers
@@ -50,9 +61,13 @@ class TestTakeLaravelController extends Controller
                 $question = $testQuestions->first(function ($question) use ($answer) {
                     return $question->getKey() === $answer->question_id;
                 });
-                $result[$question->uuid] = ['id' => $answer->getKey(), 'answer' => $answer->json];
+                $result[$question->uuid] = [
+                    'id'       => $answer->getKey(),
+                    'answer'   => $answer->json,
+                    'answered' => $answer->is_answered
+                ];
             });
-         return $result;
+        return $result;
     }
 
 

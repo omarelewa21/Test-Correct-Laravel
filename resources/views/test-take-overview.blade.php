@@ -2,7 +2,7 @@
     <div class="w-full flex flex-col mb-5 overview">
         <div class="fixed left-0 w-full px-8 lg:px-28 flex-col pt-4 z-10 bg-light-grey"  test-take-player wire:key="navigation">
             <div>
-                <livewire:question.navigation :questions="$data"></livewire:question.navigation>
+                <livewire:question.navigation :questions="$data" :nav="$nav"></livewire:question.navigation>
             </div>
 
             <div class="nav-overflow left-0 fixed w-full h-12"></div>

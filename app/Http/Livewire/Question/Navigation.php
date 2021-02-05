@@ -3,11 +3,12 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Illuminate\Routing\Route;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 
 class Navigation extends Component
 {
-    public $questions;
+    public $nav;
     public $q;
     public $queryString = ['q'];
 
@@ -15,6 +16,7 @@ class Navigation extends Component
     {
         $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
     }
+
 
     public function render()
     {
@@ -28,8 +30,8 @@ class Navigation extends Component
 
     public function previousQuestion()
     {
-        if ($this->q >= 2) {
-            $this->q --;
+        if ($this->q > 1) {
+            $this->q--;
             $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
         }
 
@@ -37,8 +39,8 @@ class Navigation extends Component
 
     public function nextQuestion()
     {
-        if ($this->q < $this->questions->count()) {
-            $this->q ++;
+        if ($this->q < $this->nav->count()) {
+            $this->q++;
             $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
         }
     }

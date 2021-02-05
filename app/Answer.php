@@ -140,7 +140,7 @@ class Answer extends BaseModel {
                 case 'question_id':
                     if (UUid::isValid($value)) {
                         $value = Question::findByUuid($value)->getKey();
-                    }  
+                    }
                     if (is_array($value)) {
                         $query->whereIn('question_id', $value);
                     } else {
@@ -150,7 +150,7 @@ class Answer extends BaseModel {
                 case 'test_participant_id':
                     if (Uuid::isValid($value)) {
                         $value = TestParticipant::whereUuid($value)->first()->getKey();
-                    }                    
+                    }
                     if (is_array($value)) {
                         $query->whereIn('test_participant_id', $value);
                     } else {
@@ -198,6 +198,11 @@ class Answer extends BaseModel {
         }
 
         parent::fill($attributes);
+    }
+
+    public function getIsAnsweredAttribute()
+    {
+        return  $this->created_at->ne($this->updated_at);
     }
 
 

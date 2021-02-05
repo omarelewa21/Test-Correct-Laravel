@@ -1,13 +1,11 @@
-@props([
-    'questions',
-    'showOverview'
-])
-
 <div class="question-indicator w-full">
     <div class="flex flex-wrap" x-data="" x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q}} })}, 1)">
-        @foreach($questions as $key => $q)
+        @foreach($nav as $key => $q)
             <div wire:key="nav_{{$key}}"
-                 class="question-number rounded-full text-center {!! $key === ($this->q - 1) ? 'active' : ''!!}"
+                 class="question-number rounded-full text-center
+                        {!! $key === ($this->q - 1) ? 'active' : ''!!}
+                 {!! $q['answered'] ? 'complete' : ''!!}
+                     "
                  wire:click="$set('q',{{ 1+$key}})"
                  x-on:click="$dispatch('current-updated', {'current': {{ 1+$key }} })"
             >
