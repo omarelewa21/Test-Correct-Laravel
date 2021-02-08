@@ -49,4 +49,5 @@ return [
     'play'                                => 'Play',
     'pause'                               => 'Pause',
     'only_playable_once'                  => 'This sound clip cannot be paused and only be played once',
+    'ready'                               => 'Ready',
 ];

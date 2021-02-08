@@ -4,8 +4,8 @@
             <div wire:key="nav_{{$key}}"
                  class="question-number rounded-full text-center
                         {!! $key === ($this->q - 1) ? 'active' : ''!!}
-                 {!! $q['answered'] ? 'complete' : ''!!}
-                     "
+                        {!! $q['answered'] ? 'complete' : ''!!}
+                        "
                  wire:click="$set('q',{{ 1+$key}})"
                  x-on:click="$dispatch('current-updated', {'current': {{ 1+$key }} })"
             >

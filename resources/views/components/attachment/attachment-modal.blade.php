@@ -1,6 +1,6 @@
 @if($attachment)
     <div id="attachment"
-         class="absolute top-28 left-20 z-30 w-4/6 h-2/3 shadow-lg border border-blue-grey rounded-10 bg-black">
+         class="absolute -top-28 left-20 z-30 w-4/6 shadow-lg border border-blue-grey rounded-10 bg-black" style="height: 600px">
         <div class="flex-col relative h-full rounded-10">
             <div class="flex absolute top-0 right-0 justify-end space-x-2">
                 <x-button.secondary id="attachmentdrag" class="rotate-svg-45">

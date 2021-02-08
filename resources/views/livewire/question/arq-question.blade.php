@@ -59,6 +59,6 @@
         </div>
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" />
-    <x-notepad :showNotepad="$showNotepad" />
+    <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>
 

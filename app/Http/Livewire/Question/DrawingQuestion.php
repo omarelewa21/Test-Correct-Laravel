@@ -15,6 +15,8 @@ class DrawingQuestion extends Component
 
     public $number;
 
+    public $drawingModalOpened = false;
+
     public function questionUpdated($uuid)
     {
         $this->uuid = $uuid;

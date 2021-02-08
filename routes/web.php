@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use tcCore\Http\Controllers\DrawingQuestionLaravelController;
 use tcCore\Http\Controllers\ShortCodeController;
 use tcCore\Http\Livewire\Auth\Login;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
@@ -31,6 +32,7 @@ Route::middleware('auth')->prefix('student')->name('student.')->group(function (
     Route::get('/test-take-laravel/{test_take}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');
     Route::get('/attachment/{attachment}', [\tcCore\Http\Controllers\AttachmentsLaravelController::class, 'show'])->name('question-attachment-show');
     Route::get('/attachment/pdf/{attachment}', [\tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'show'])->name('question-pdf-attachment-show');
+    Route::get('/drawing/{question}', [DrawingQuestionLaravelController::class, 'show'])->name('show-drawing-canvas');
 
 });
 
