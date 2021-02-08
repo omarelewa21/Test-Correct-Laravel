@@ -10,13 +10,8 @@
             </div>
 
             <div class="absolute flex-col left-0 -top-1/3 z-10 p-4 bg-white border border-blue-grey rounded-10 " x-show.transition="opened" style="width: 1250px;">
-                <div class="flex justify-end">
-                    <x-button.text-button @click="opened = false;">
-                        <x-icon.close/>
-                    </x-button.text-button>
-                </div>
-                <div class="w-full ">
-                    <iframe width="100%" height="580" src="{{ route('student.show-drawing-canvas', $question->uuid) }}" frameborder="0"></iframe>
+                <div class="w-full " height="580">
+                     @include('components.question.drawing-modal', ['drawing' => $question->answer])
                 </div>
             </div>
         </div>

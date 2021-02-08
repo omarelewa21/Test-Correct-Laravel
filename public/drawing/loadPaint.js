@@ -404,11 +404,14 @@ var App = function () {
         );
     }
 
+    this.getActiveImageBase64Encoded = function() {
+        return canvas.getCanvas().toDataURL();
+    }
+
     document.getElementById('btn-export').onclick =
         document.getElementById('btn-export').ontouchdown = function () {
             parent.skip = true;
             var element = canvas.getCanvas();
-
 
             $.post(window.parent.drawingSaveUrl,
                 {
@@ -483,4 +486,4 @@ var App = function () {
     };
 };
 
-new App();
+var eppi = new App();

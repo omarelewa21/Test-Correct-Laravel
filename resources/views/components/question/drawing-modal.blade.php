@@ -15,7 +15,7 @@
 
     <title>HTML5 viewport</title>
 </head>
-<body style="background: white!important;">
+<body>
 
 <header>
     <div>
@@ -39,10 +39,14 @@
             <span class="fa fa-square-o"></span>
         </a>
 
-        <a id="btn-export" class="btn highlight small ml5 pull-right" style="cursor: pointer;">
+
+        <a x-on:click="
+        (function() {
+            $wire.set('answer', eppi.getActiveImageBase64Encoded());
+        })()" class="btn highlight small ml5 pull-right" style="cursor: pointer;">
             <span class="fa fa-check"></span> Opslaan
         </a>
-        <a class="btn grey small ml5 pull-right" style="cursor:pointer;" onclick="closebtu();">
+        <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;">
             <span class="fa fa-remove"></span> Sluiten
         </a>
 
