@@ -24,7 +24,9 @@ class MultipleSelectQuestion extends Component
 
     public function mount()
     {
-        $this->answerStruct = collect((array) json_decode($this->answers[$this->question->uuid]['answer']));
+        if ($this->answers[$this->question->uuid]['answer']) {
+            $this->answerStruct = collect((array) json_decode($this->answers[$this->question->uuid]['answer']));
+        }
     }
 
     public function updatedAnswer($value)

@@ -31,7 +31,9 @@ class DrawingQuestion extends Component
         $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
                                 ->where('question_id', $this->question->id)
                                 ->first();
-        $this->answer = json_decode($answer->json)->answer;
+        if ($answer->json) {
+            $this->answer = json_decode($answer->json)->answer;
+        }
     }
 
     public function questionUpdated($uuid)
