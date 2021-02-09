@@ -205,5 +205,10 @@ class Answer extends BaseModel {
         return  $this->created_at->ne($this->updated_at);
     }
 
+    public function getDrawingStoragePath()
+    {
+        return 'drawing_question_answers/'.$this->uuid;
+    }
+
 
 }

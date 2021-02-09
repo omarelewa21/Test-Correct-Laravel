@@ -2,6 +2,8 @@
 
 namespace tcCore\Http\Livewire\Question;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
@@ -30,19 +32,23 @@ class DrawingQuestion extends Component
     }
 
     public function updated($name, $value) {
+
         if ($name == 'answer') {
             $this->answer = $this->saveImageAndReturnUrl($value);
+
+            $json = json_encode([
+                'answer' => $this->answer,
+                'additional_text' => $this->additionalText,
+            ]);
+
+            Answer::where([
+                ['id', $this->answers[$this->question->uuid]['id']],
+                ['question_id', $this->question->id],
+            ])->update(['json' => $json]);
+
+            $this->drawingModalOpened = false;
+
         }
-
-        $json = json_encode([
-            'answer' => $this->answer,
-            'additional_text' => $this->additionalText,
-        ]);
-
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
     }
 
     public function render()
@@ -50,8 +56,14 @@ class DrawingQuestion extends Component
         return view('livewire.question.drawing-question');
     }
 
-    private function saveImageAndReturnUrl($answer)
+    private function saveImageAndReturnUrl($image)
     {
-        return 'http://testportal.test-correct.test/custom/imageload.php?filename=1612793932.png&amp;type=drawing';
+        $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
+                        ->where('question_id', $this->question->id)
+                        ->first();
+
+        Storage::put($answer->getDrawingStoragePath(), $image);
+
+        return route('student.drawing-question-answer', $answer->uuid);
     }
 }

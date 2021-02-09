@@ -32,7 +32,7 @@ Route::middleware('auth')->prefix('student')->name('student.')->group(function (
     Route::get('/test-take-laravel/{test_take}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');
     Route::get('/attachment/{attachment}', [\tcCore\Http\Controllers\AttachmentsLaravelController::class, 'show'])->name('question-attachment-show');
     Route::get('/attachment/pdf/{attachment}', [\tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'show'])->name('question-pdf-attachment-show');
-    Route::get('/drawing/{question}', [DrawingQuestionLaravelController::class, 'show'])->name('show-drawing-canvas');
+    Route::get('/drawing_question_answers/{answer}', [DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
 
 });
 

@@ -39,11 +39,12 @@
             <span class="fa fa-square-o"></span>
         </a>
 
-
-        <a x-on:click="
-        (function() {
-            $wire.set('answer', eppi.getActiveImageBase64Encoded());
-        })()" class="btn highlight small ml5 pull-right" style="cursor: pointer;">
+        <span id="btn-export"></span>
+        <a  x-on:click="
+                (function() {
+                    $wire.set('answer', eppi.getActiveImageBase64Encoded());
+                })()"
+            class="btn highlight small ml5 pull-right" style="cursor: pointer;">
             <span class="fa fa-check"></span> Opslaan
         </a>
         <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;">
@@ -84,7 +85,7 @@
 
 </div>
 
-<textarea id="additional_text"
+<textarea id="additional_text" wire:model="additionalText"
           style="width: 1152px; margin-top: 10px; height: 50px; font-family: Arial; font-size: 14px; padding: 15px; background: #f1f1f1;"
           placeholder="Begeleidende tekst"></textarea>
 
