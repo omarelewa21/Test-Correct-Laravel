@@ -14,6 +14,7 @@ class DrawingQuestionLaravelController extends Controller
     public function show(Answer $answer)
     {
         $file = Storage::get($answer->getDrawingStoragePath());
+
         return file_get_contents($file);
     }
 }

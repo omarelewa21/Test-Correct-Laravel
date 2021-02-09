@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use phpseclib\Crypt\Random;
 use tcCore\Lib\Models\BaseModel;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;

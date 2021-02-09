@@ -1,12 +1,12 @@
 .btn.highlight {
-    background:         #3D9D36;
+    background:         var(--primary);
     color:              white;
 }
 
 .btn.highlight:hover,
 .btn.highlight.active{
-    background:         #76b827;
-    color:              white;
+    background:         var(--primary-light);
+    color:              var(--primary);
 }
 
 .btn {

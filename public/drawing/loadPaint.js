@@ -456,28 +456,7 @@ var App = function () {
 
     canvas.add(background);
 
-    if (document.getElementById('select-grid') != undefined) {
-        document.getElementById('select-grid').onchange = function () {
 
-            var grid = document.getElementById('select-grid').value;
-
-            grid = parseInt(grid);
-            canvas.showGrid(new Paint.Point(grid, grid), 'rgba(0, 0, 0, 0.1)');
-
-            $.get('/questions/add_drawing_grid/' + grid);
-        };
-    } else {
-        $.get('/answers/drawing_grid/' + window.question_id,
-            function (grid) {
-
-                grid = parseInt(grid);
-
-                if (grid != 0) {
-                    canvas.showGrid(new Paint.Point(grid, grid), 'rgba(0, 0, 0, 0.1)');
-                }
-            }
-        );
-    }
 
     holder.appendChild(canvas.getCanvas());
 

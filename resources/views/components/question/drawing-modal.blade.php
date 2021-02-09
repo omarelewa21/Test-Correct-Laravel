@@ -51,43 +51,45 @@
             <span class="fa fa-remove"></span> Sluiten
         </a>
 
-        <a id="btn-color-blue" class="btn small mr2 pull-right colorBtn"
-           style="background: blue; width:7px; height:16px; opacity: .3;"></a>
-        <a id="btn-color-red" class="btn small mr2 pull-right colorBtn"
-           style="background: red; width:7px; height:16px; opacity: .3;"></a>
-        <a id="btn-color-green" class="btn small mr2 pull-right colorBtn"
-           style="background: green; width:7px; height:16px; opacity: .3;"></a>
-        <a id="btn-color-black" class="btn small mr2 ml10 pull-right colorBtn"
-           style="background: black; width:7px; height:16px;"></a>
+        <a id="btn-color-blue" class="btn small p-0 w-7 h-7 mr2 pull-right colorBtn"
+           style="background: blue; opacity: .3;"></a>
+        <a id="btn-color-red" class="btn small p-0 w-7 h-7 mr2 pull-right colorBtn"
+           style="background: red; opacity: .3;"></a>
+        <a id="btn-color-green" class="btn small p-0 w-7 h-7 mr2 pull-right colorBtn"
+           style="background: green; opacity: .3;"></a>
+        <a id="btn-color-black" class="btn p-0 w-7 h-7 small mr2 ml10 pull-right colorBtn"
+           style="background: black;"></a>
 
-        <a id="btn-thick-1" class="btn small mr2  pull-right thickBtn highlight" style="padding: 7px 12px 2px 12px;"
+        <a id="btn-thick-1" class="btn small mr2  pull-right thickBtn highlight"
            title="lijndikte 1">
             <img src="/img/ico/line1.png"/>
         </a>
-        <a id="btn-thick-2" class="btn small mr2  pull-right thickBtn highlight" style="padding: 7px 12px 2px 12px;"
+        <a id="btn-thick-2" class="btn small mr2  pull-right thickBtn highlight"
            title="lijndikte 2">
             <img src="/img/ico/line2.png"/>
         </a>
-        <a id="btn-thick-3" class="btn small mr2 ml10 pull-right thickBtn highlight" style="padding: 7px 12px 2px 12px;"
+        <a id="btn-thick-3" class="btn small mr2 ml10 pull-right thickBtn highlight"
            title="lijndikte 3">
             <img src="/img/ico/line3.png"/>
         </a>
     </div>
 </header>
 
-<div id="canvas-holder" class="v-center__wrapper"
+<div id="canvas-holder" class="v-center__wrapper rounded-10"
      style="border:1px solid gray; width: 970px; float:left; margin-top: 10px;">
 
 </div>
 
-<div id="layers-holder"
+<div id="layers-holder" class="rounded-10"
      style="border: 1px solid gray; width: 200px; float:left; margin-left: 10px; height: 481px; overflow: auto; margin-top: 10px;">
 
 </div>
+<div class="input-group w-full mt-4">
 
 <textarea id="additional_text" wire:model="additionalText"
-          style="width: 1152px; margin-top: 10px; height: 50px; font-family: Arial; font-size: 14px; padding: 15px; background: #f1f1f1;"
+          class="form-input"
           placeholder="Begeleidende tekst"></textarea>
+</div>
 
 <script type="text/javascript">
 </script>

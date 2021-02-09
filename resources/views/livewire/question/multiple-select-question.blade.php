@@ -9,7 +9,7 @@
                             for="link{{ $link->id }}"
                             class="relative w-full flex hover:font-bold p-5 border-2 border-blue-grey rounded-10 base
                             multiple-choice-question transition ease-in-out duration-150 focus:outline-none
-                            justify-between {!! ($this->answer == $link->id) ? 'active' :'' !!}"
+                            justify-between cursor-pointer {!! ($this->answerStruct[(int)$link->id] == 1) ? 'active' :'' !!}"
                     >
                         <input
                                 wire:model="answer"
@@ -20,7 +20,7 @@
                                 value="{{ $link->id }}"
                         >
                         <div>{!! $link->answer !!}</div>
-                        <div class="{!! ($this->answer == $link->id) ? '' :'hidden' !!}">
+                        <div class="{!! ($this->answerStruct[(int)$link->id] == 1) ? '' :'hidden' !!}">
                             <x-icon.checkmark class="checkmark transition"></x-icon.checkmark>
                             <x-icon.close class="w-4 h-4 close transition"/>
                         </div>

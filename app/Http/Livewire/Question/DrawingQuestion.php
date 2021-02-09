@@ -26,6 +26,14 @@ class DrawingQuestion extends Component
 
     public $additionalText;
 
+    public function mount()
+    {
+        $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
+                                ->where('question_id', $this->question->id)
+                                ->first();
+        $this->answer = json_decode($answer->json)->answer;
+    }
+
     public function questionUpdated($uuid)
     {
         $this->uuid = $uuid;

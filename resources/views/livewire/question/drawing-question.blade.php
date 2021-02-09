@@ -8,9 +8,14 @@
                     <span>Antwoord tekenen</span>
                 </x-button.secondary>
             </div>
-            <img class="border border-blue-grey rounded-10" width="300" src="{{ $answer }}" alt="">
-            <div wire:ignore class="fixed flex-col top-0 left-0 z-50 p-4 bg-white border border-blue-grey rounded-10 " x-show.transition="opened" style="width: 1250px;">
-                     @include('components.question.drawing-modal', ['drawing' => $question->answer])
+            @if($answer != '')
+                <div class="mt-3">
+                    <img id="drawnImage" class="border border-blue-grey rounded-10" width="400" src="{{ $answer }}?{!! date('Ymdsi') !!}" alt="">
+                </div>
+            @endif
+            <div wire:ignore class="fixed flex-col top-0 left-0 z-50 p-4 bg-white border border-blue-grey rounded-10 "
+                 x-show.transition="opened" style="width: 1250px;">
+                @include('components.question.drawing-modal', ['drawing' => $question->answer])
             </div>
         </div>
     </div>
