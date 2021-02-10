@@ -28,28 +28,51 @@ class RankingQuestion extends Component
 
     public function mount()
     {
-        $this->answerStruct = (array) json_decode($this->answers[$this->question->uuid]['answer']);
 
-        $result = [];
+        $sortOrder = [4,2,1];
 
-        collect($this->answerStruct)->each(function($value, $key) use (&$result) {
-            $result[] =  (object) ['order' => $value+1, 'value' => $key];
-        })->toArray();
+        $return = [];
 
-        $this->answerStruct = ($result);
+        foreach ([
+                     ['id' => 1, 'value'=>'a'],
+                     ['id' => 2, 'value'=>'b'],
+                     ['id' => 3, 'value'=>'c'],
+                 ] as $key => $value) {
+            $return[array_search($value['id'], $sortOrder)] = $value;
+        }
+
+        ksort($return);
+
+        dd($return);
+
+//        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+//
+//        $result = [];
+//
+//        collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
+//            $result[] = (object)['order' => $value + 1, 'value' => $key];
+//        })->toArray();
+//
+//        $this->answerStruct = ($result);
     }
 
     public function updateOrder($value)
     {
-        $result = (object) [];
+        $this->answerStruct = $value;
 
-        collect($value)->each(function($object, $key) use (&$result) {
-            $result->{$object['order']} = $object['value'];
+        $result = (object)[];
+
+        collect($value)->each(function ($object, $key) use (&$result) {
+            $result->{$object['value']} = $object['order']-1;
         });
+
+
+
+
+
 
         $json = json_encode($result);
 
-        dd($json);
         Answer::where([
             ['id', $this->answers[$this->question->uuid]['id']],
             ['question_id', $this->question->id],

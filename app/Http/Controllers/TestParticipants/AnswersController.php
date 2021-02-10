@@ -131,4 +131,11 @@ class AnswersController extends Controller {
 		}
 	}
 
+    public function getDrawingAnswerUrl(Answer $answer)
+    {
+        $url['url'] = config('app.url_login').'test_takes/'.$answer->getDrawingStoragePath();
+
+        return Response::make($url, 200);
+	}
+
 }

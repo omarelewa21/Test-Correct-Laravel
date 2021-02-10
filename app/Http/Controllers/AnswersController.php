@@ -1,6 +1,7 @@
 <?php namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
@@ -42,6 +43,11 @@ class AnswersController extends Controller {
     {
         $answer->load('answerParentQuestions');
         return Response::make($answer, 200);
+    }
+
+    public function showDrawing(Answer $answer)
+    {
+        return Response::download(storage_path('app/'.$answer->getDrawingStoragePath()), 'Afbeelding', ['content-type' => 'image/png']);
     }
 
 }
