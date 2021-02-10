@@ -41,7 +41,8 @@ class UpdateAnswerRequest extends Request {
 		return [
 			'test_participant_id' => '',
 			'question_id' => '',
-			'json' => ''
+			'json' => '',
+            'closed' => '',
 		];
 	}
 
@@ -61,7 +62,7 @@ class UpdateAnswerRequest extends Request {
 		if (!is_array($answerJson)) {
 			return;
 		}
-		
+
         foreach ($answerJson as $key => $value) {
             $answerJson[$key] = clean($value);
         }
