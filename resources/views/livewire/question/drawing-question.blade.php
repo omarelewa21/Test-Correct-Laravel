@@ -10,7 +10,7 @@
             </div>
             @if($answer != '')
                 <div class="mt-3">
-                    <img id="drawnImage" class="border border-blue-grey rounded-10" width="400" src="{{ $answer }}?{!! date('Ymdsi') !!}" alt="">
+                    <img id="drawnImage" class="border border-blue-grey rounded-10" width="400" src="{{ route('student.drawing-question-answer',$answer) }}?{!! date('Ymdsi') !!}" alt="">
                 </div>
             @endif
             <div wire:ignore class="fixed flex-col top-0 left-0 z-50 p-4 bg-white border border-blue-grey rounded-10 "

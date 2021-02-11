@@ -48,19 +48,11 @@ class AnswersController extends Controller {
 
     public function showDrawing(Answer $answer)
     {
-
-        $path = storage_path('app/'.$answer->getDrawingStoragePath());
-        if(file_exists($path)){
-            echo base64_encode(file_get_contents($path));
-            exit;
+        $file = Storage::get($answer->getDrawingStoragePath());
+        if ($file) {
+            return file_get_contents($file);
         }
-        else{
-            abort(404);
-        }
-
-        return Response::stream(function () use ($answer) {
-            echo Storage::get($answer->getDrawingStoragePath());
-        });
+        abort(404);
     }
 
 }

@@ -74,6 +74,6 @@ class DrawingQuestion extends Component
 
         Storage::put($answer->getDrawingStoragePath(), $image);
 
-        return route('student.drawing-question-answer', $answer->uuid);
+        return $answer->uuid;
     }
 }

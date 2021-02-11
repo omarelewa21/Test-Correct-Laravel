@@ -34,25 +34,25 @@ class RankingQuestion extends Component
         $return = [];
 
         foreach ([
-                     ['id' => 1, 'value'=>'a'],
-                     ['id' => 2, 'value'=>'b'],
-                     ['id' => 3, 'value'=>'c'],
+                     ['order' => 1, 'value'=>'a'],
+                     ['order' => 2, 'value'=>'b'],
+                     ['order' => 3, 'value'=>'c'],
                  ] as $key => $value) {
-            $return[array_search($value['id'], $sortOrder)] = $value;
+            $return[array_search($value['order'], $sortOrder)] = $value;
         }
 
         ksort($return);
 
+        $this->answerStruct = $return;
+        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
 
-//        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
-//
-//        $result = [];
-//
-//        collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
-//            $result[] = (object)['order' => $value + 1, 'value' => $key];
-//        })->toArray();
-//
-//        $this->answerStruct = ($result);
+        $result = [];
+
+        collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
+            $result[] = (object)['order' => $value + 1, 'value' => $key];
+        })->toArray();
+
+        $this->answerStruct = ($result);
     }
 
     public function updateOrder($value)
