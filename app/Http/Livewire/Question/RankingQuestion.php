@@ -42,8 +42,7 @@ class RankingQuestion extends Component
         }
 
         ksort($return);
-
-        dd($return);
+        echo json_encode($return);
 
 //        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
 //

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Answer;
@@ -47,7 +48,19 @@ class AnswersController extends Controller {
 
     public function showDrawing(Answer $answer)
     {
-        return Response::download(storage_path('app/'.$answer->getDrawingStoragePath()), 'Afbeelding', ['content-type' => 'image/png']);
+
+        $path = storage_path('app/'.$answer->getDrawingStoragePath());
+        if(file_exists($path)){
+            echo base64_encode(file_get_contents($path));
+            exit;
+        }
+        else{
+            abort(404);
+        }
+
+        return Response::stream(function () use ($answer) {
+            echo Storage::get($answer->getDrawingStoragePath());
+        });
     }
 
 }
