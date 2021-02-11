@@ -3,13 +3,18 @@
         <div>{!! $question->getQuestionHtml() !!}</div>
         <span wire:model="answerStruct">{!! json_encode($answerStruct) !!}</span>
         <div class="flex flex-col " wire:sortable="updateOrder">
-
-            @foreach($question->rankingQuestionAnswers as $option)
-                <x-drag-item sortId="{{ $option->id }}"
-                             wireKey="option-{{ $option->id }}">
-                    {{ $option->answer }} </x-drag-item>
+            @foreach($answerStruct as $answer)
+                <x-drag-item sortId="{{ $answer->value }}"
+                             wireKey="option-{{ $answer->value }}">
+                    value:{{ $answer->value }} order:{{$answer->order}}</x-drag-item>
             @endforeach
+
         </div>
+        @foreach($question->rankingQuestionAnswers as $option)
+            <x-drag-item sortId="{{ $option->id }}"
+                         wireKey="option-{{ $option->id }}">
+                {{ $option->answer }} {{ $option->id }}</x-drag-item>
+        @endforeach
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" />
     <x-question.notepad :showNotepad="$showNotepad" />

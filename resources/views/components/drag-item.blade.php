@@ -16,5 +16,5 @@
 >
     <span class="mr-3">{{ $slot }}</span>
 
-    <x-icon.grab wire:sortable.handle></x-icon.grab>
+    <x-icon.grab></x-icon.grab>
 </div>

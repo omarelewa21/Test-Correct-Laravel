@@ -43,16 +43,11 @@ class RankingQuestion extends Component
 
         ksort($return);
 
+        $this->createAnswerStruct();
+        dd();
         $this->answerStruct = $return;
-        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
 
-        $result = [];
 
-        collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
-            $result[] = (object)['order' => $value + 1, 'value' => $key];
-        })->toArray();
-
-        $this->answerStruct = ($result);
     }
 
     public function updateOrder($value)
@@ -65,11 +60,6 @@ class RankingQuestion extends Component
             $result->{$object['value']} = $object['order']-1;
         });
 
-
-
-
-
-
         $json = json_encode($result);
 
         Answer::where([
@@ -77,11 +67,25 @@ class RankingQuestion extends Component
             ['question_id', $this->question->id],
         ])->update(['json' => $json]);
 
+        $this->createAnswerStruct();
     }
 
 
     public function render()
     {
         return view('livewire.question.ranking-question');
+    }
+
+    public function createAnswerStruct()
+    {
+        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+
+        $result = [];
+
+        collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
+            $result[] = (object)['order' => $value + 1, 'value' => $key];
+        })->toArray();
+
+        $this->answerStruct = ($result);
     }
 }
