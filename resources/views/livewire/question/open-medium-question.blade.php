@@ -30,9 +30,9 @@
                       "
 >
     <div class="flex justify-end space-x-4">
-        <x-question.note :question="$question"></x-question.note>
+        <x-question.notepad-button :question="$question"></x-question.notepad-button>
     </div>
-    <div class="flex flex-col p-8 sm:p-10 content-section"
+    <div class="flex flex-col p-8 sm:p-10 content-section relative"
           x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)"
     >
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
@@ -50,5 +50,7 @@
                 </x-input.group>
             </div>
         </div>
+        <x-attachment.attachment-modal :attachment="$attachment" />
+        <x-question.notepad :showNotepad="$showNotepad" />
     </div>
 </div>
