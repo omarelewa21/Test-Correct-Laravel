@@ -18,10 +18,20 @@ class TestTakeLaravelController extends Controller
         $answers = $this->getAnswers($testTake, $data);
 
         $playerUrl = route('student.test-take-laravel', ['test_take' => $testTake->uuid]);
+        $nav = $data->map(function ($question) use ($answers) {
+            $answer = collect($answers)->first(function ($answer, $questionUuid) use ($question) {
+                return $question->uuid == $questionUuid;
+            });
 
+            return [
+                'uuid'     => $question->uuid,
+                'id'       => $question->id,
+                'answered' => $answer['answered'],
+            ];
+        });
 // todo add check or failure when $current out of bounds $data;
 
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav']));
     }
 
 
@@ -92,5 +102,5 @@ class TestTakeLaravelController extends Controller
             return collect([$testQuestion->question]);
         });
     }
-    //
+
 }

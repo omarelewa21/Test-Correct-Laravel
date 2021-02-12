@@ -3,30 +3,33 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
+use tcCore\Answer;
+use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
 
 class MatchingQuestion extends Component
 {
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
+    use WithAttachments, WithNotepad;
 
     public $answer;
     public $question;
     public $number;
 
-    public function questionUpdated($uuid, $answer)
-    {
-        $this->uuid = $uuid;
-        $this->answer = $answer;
-    }
+    public $answers;
+    public $answerStruct;
 
-    public function updatedAnswer($value)
+    public function mount()
     {
-//        $this->emitUp('updateAnswer', $this->uuid, $value);
-    }
+        $this->question->loadRelated();
 
+        $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
+
+    }
 
     public function render()
     {
         return view('livewire.overview.matching-question');
     }
+
 }

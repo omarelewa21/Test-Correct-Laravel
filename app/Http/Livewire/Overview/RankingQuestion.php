@@ -3,35 +3,42 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
-use tcCore\Question;
+use tcCore\Answer;
+use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithNotepad;
 
 class RankingQuestion extends Component
 {
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
+    use WithAttachments, WithNotepad;
 
     public $uuid;
     public $answer;
     public $question;
     public $number;
+    public $answers;
+    public $answerStruct;
+    public $answerText = [];
 
-    public function questionUpdated($uuid, $answer)
+    public function mount()
     {
-        $this->uuid = $uuid;
-        $this->answer = $answer;
+        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
 
-    }
+        $result = [];
 
-    public function updatedAnswer($value)
-    {
-        $this->emitUp('updateAnswer', $this->uuid, $value);
-    }
+        collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
+            $result[] = (object)['order' => $value + 1, 'value' => $key];
+        })->toArray();
 
-    public function dehydrate() {
-        $this->emit('initializeCkEditor');
+        $this->answerStruct = ($result);
+
+        collect($this->question->rankingQuestionAnswers->each(function($answers) use (&$map) {
+            $this->answerText[$answers->id] = $answers->answer;
+        }));
     }
 
     public function render()
     {
         return view('livewire.overview.ranking-question');
     }
+
 }

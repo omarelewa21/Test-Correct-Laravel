@@ -12,10 +12,15 @@
         @endif
     </div>
 
-    <div class="flex flex-1">
-        <div class="w-full space-y-3">
-            {!! $question->getQuestionHtml() !!}
-
+    <div class="flex flex-1 flex-col space-y-2">
+        <div>{!! $question->getQuestionHtml() !!}</div>
+        <div class="flex flex-col max-w-min space-y-2">
+            @foreach($answerStruct as $answer)
+                <x-drag-item-disabled sortId="{{ $answer->value }}"
+                             wireKey="option-{{ $answer->value }}">
+                    {{ $answerText[$answer->value] }}
+                </x-drag-item-disabled>
+            @endforeach
         </div>
     </div>
 </div>
