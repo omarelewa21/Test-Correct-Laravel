@@ -58,7 +58,9 @@ class Answers2019Controller extends Controller
      */
     public function getAnswersStatusAndTestTake(TestParticipant $testParticipant, TestTake $testTake, Request $request)
     {
-        $answers = Answer::where('test_participant_id', $testParticipant->getKey())->orderBy('order')->get();
+        $answers = Answer::where('test_participant_id', $testParticipant->getKey())->orderBy('order')
+            ->with('answerParentQuestions', 'answerParentQuestions.groupQuestion')
+            ->get();
         return Response::make([
             'answers' => $answers,
             'test_take' => $testTake,

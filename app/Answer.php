@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
-class Answer extends BaseModel {
+class Answer extends BaseModel
+{
 
     use SoftDeletes;
     use UuidTrait;
@@ -52,61 +53,68 @@ class Answer extends BaseModel {
     {
         parent::boot();
 
-        static::created(function(Answer $answer)
-        {
+        static::created(function (Answer $answer) {
             if ($answer->parentGroupQuestions) {
                 $level = 1;
 
                 foreach ($answer->parentGroupQuestions as $parent) {
-                    AnswerParentQuestion::create(['answer_id' => $answer->getKey(), 'group_question_id' => $parent, 'level' => $level]);
+                    AnswerParentQuestion::create([
+                        'answer_id' => $answer->getKey(), 'group_question_id' => $parent, 'level' => $level
+                    ]);
                     $level++;
                 }
             }
         });
 
         // Progress additional answers
-        static::updating(function(Answer $answer)
-        {
+        static::updating(function (Answer $answer) {
             if (($testParticipant = $answer->testParticipant) !== null && ($user = $testParticipant->user) !== null && $user->getAttribute('id') == Auth::id() && $answer->getAttribute('json') !== null) {
                 $answer->setAttribute('done', true);
             }
         });
     }
 
-    public function setParentGroupQuestions($parentGroupQuestions) {
+    public function setParentGroupQuestions($parentGroupQuestions)
+    {
         $this->parentGroupQuestions = $parentGroupQuestions;
     }
 
-    public function testParticipant() {
+    public function testParticipant()
+    {
         return $this->belongsTo('tcCore\TestParticipant');
     }
 
-    public function answerParentQuestions() {
+    public function answerParentQuestions()
+    {
         return $this->hasMany('tcCore\AnswerParentQuestion', 'answer_id');
     }
 
-    public function question() {
+    public function question()
+    {
         return $this->belongsTo('tcCore\Question');
     }
 
-    public function answerRatings() {
+    public function answerRatings()
+    {
         return $this->hasMany('tcCore\AnswerRating');
     }
 
-    public function pValue() {
+    public function pValue()
+    {
         return $this->hasMany('tcCore\PValue');
     }
 
-    public function calculateFinalRating() {
+    public function calculateFinalRating()
+    {
         $scores = [];
-        foreach($this->answerRatings as $answerRating) {
+        foreach ($this->answerRatings as $answerRating) {
             if ($answerRating->getAttribute('rating') === null) {
                 continue;
             }
 
             if ($answerRating->getAttribute('type') == 'STUDENT' && $answerRating->getAttribute('rating') !== null) {
                 $scores[$answerRating->getAttribute('type')][] = $answerRating->getAttribute('rating');
-            } elseif($answerRating->getAttribute('type') != 'STUDENT') {
+            } elseif ($answerRating->getAttribute('type') != 'STUDENT') {
                 $scores[$answerRating->getAttribute('type')] = $answerRating->getAttribute('rating');
             }
         }
@@ -127,9 +135,10 @@ class Answer extends BaseModel {
         }
     }
 
-    public function scopeFiltered($query, $filters = [], $sorting = []) {
-        foreach($filters as $key => $value) {
-            switch($key) {
+    public function scopeFiltered($query, $filters = [], $sorting = [])
+    {
+        foreach ($filters as $key => $value) {
+            switch ($key) {
                 case 'id':
                     if (is_array($value)) {
                         $query->whereIn('id', $value);
@@ -160,7 +169,7 @@ class Answer extends BaseModel {
             }
         }
 
-        foreach($sorting as $key => $value) {
+        foreach ($sorting as $key => $value) {
             switch (strtolower($value)) {
                 case 'id':
                 case 'order':
@@ -182,7 +191,8 @@ class Answer extends BaseModel {
         }
     }
 
-    public function fill(array $attributes) {
+    public function fill(array $attributes)
+    {
         if (array_key_exists('add_time', $attributes)) {
             if (array_key_exists('time', $attributes)) {
                 $attributes['time'] += $attributes['add_time'];
@@ -199,6 +209,17 @@ class Answer extends BaseModel {
 
         parent::fill($attributes);
     }
+
+//    public function getCloseableGroupAttribute()
+//    {
+//        return !!(optional(
+//            optional(
+//                optional(
+//                    $this->parentGroupQuestions
+//                )->first()
+//            )->groupQuestion
+//        )->closeable == 1);
+//    }
 
 
 }
