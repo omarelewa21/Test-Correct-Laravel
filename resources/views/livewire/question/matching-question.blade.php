@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
 
-    <div class="w-full space-y-3">
+    <div class="w-full space-y-3 matching-question">
         <div>
             <span>{!! __('test_take.instruction_matching_question') !!}</span>
         </div>
@@ -8,28 +8,39 @@
             {!!   $question->getQuestionHtml() !!}
         </div>
         @if($question->subtype == 'Classify')
-            <div class="flex flex-col" wire:sortable="updateGroupOrder" wire:sortable-group="updateOrder">
+            <div class="flex flex-col" wire:sortable-group="updateOrder">
                 <div class="flex">
                     <x-dropzone wire:key="group-start" startGroup="true">
-                        <div wire:sortable-group.item-group="startGroep">
+                        <div class="h-full space-x-1 focus:outline-none" wire:sortable-group.item-group="startGroep">
                             @foreach($question->matchingQuestionAnswers as $option)
                                 @if(  $option->correct_answer_id !== null )
-                                    <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
-                                                 wire:sortable-group.item="{{ $option->id }}">
-                                        {{ $option->answer }}
-                                    </x-drag-item>
+                                    @if($answerStruct[$option->id] === '')
+                                        <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
+                                                     wire:sortable-group.item="{{ $option->id }}">
+                                            {{ $option->answer }}
+                                        </x-drag-item>
+                                    @endif
                                 @endif
                             @endforeach
                         </div>
                     </x-dropzone>
                 </div>
-                <div class="flex space-x-5">
+                <div class="flex space-x-5 classify">
                     @foreach ($question->matchingQuestionAnswers as $group)
                         @if(  $group->correct_answer_id === null )
                             <x-dropzone type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"
                                         wire:sortable.item="{{ $group->id }}">
-                                <div class="min-h-full flex flex-col" wire:sortable-group.item-group="{{ $group->id }}">
-
+                                <div class="flex-col w-full h-full" wire:sortable-group.item-group="{{ $group->id }}">
+                                    @foreach($question->matchingQuestionAnswers as $option)
+                                        @if(  $option->correct_answer_id !== null )
+                                            @if($answerStruct[$option->id] == $group->id)
+                                                <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
+                                                             wire:sortable-group.item="{{ $option->id }}">
+                                                    {{ $option->answer }}
+                                                </x-drag-item>
+                                            @endif
+                                        @endif
+                                    @endforeach
                                 </div>
                             </x-dropzone>
                         @endif
@@ -38,16 +49,18 @@
             </div>
         @endif
         @if($question->subtype == 'Matching')
-            <div class="flex flex-col" wire:sortable="updateGroupOrder" wire:sortable-group="updateOrder">
+            <div class="flex flex-col space-y-1" wire:sortable-group="updateOrder">
                 <div class="flex">
                     <x-dropzone wire:key="group-start" startGroup="true">
-                        <div wire:sortable-group.item-group="startGroep">
+                        <div class="h-full space-x-1 focus:outline-none" wire:sortable-group.item-group="startGroep">
                             @foreach($question->matchingQuestionAnswers as $option)
                                 @if(  $option->correct_answer_id !== null )
-                                    <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
-                                                 wire:sortable-group.item="{{ $option->id }}">
-                                        {{ $option->answer }}
-                                    </x-drag-item>
+                                    @if($answerStruct[$option->id] === '')
+                                        <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
+                                                     wire:sortable-group.item="{{ $option->id }}">
+                                            {{ $option->answer }}
+                                        </x-drag-item>
+                                    @endif
                                 @endif
                             @endforeach
                         </div>
@@ -66,7 +79,18 @@
                                 <div class="flex-1">
                                     <x-dropzone type="matching" wire:key="group-{{ $group->id }}"
                                                 wire:sortable.item="{{ $group->id }}">
-                                        <div class="flex" wire:sortable-group.item-group="{{ $group->id }}"></div>
+                                        <div class="flex w-full h-full" wire:sortable-group.item-group="{{ $group->id }}">
+                                            @foreach($question->matchingQuestionAnswers as $option)
+                                                @if(  $option->correct_answer_id !== null )
+                                                    @if($answerStruct[$option->id] == $group->id)
+                                                        <x-drag-item wire:key="option-{{ $option->id }}" sortableHandle="false"
+                                                                     wire:sortable-group.item="{{ $option->id }}">
+                                                            {{ $option->answer }}
+                                                        </x-drag-item>
+                                                    @endif
+                                                @endif
+                                            @endforeach
+                                        </div>
                                     </x-dropzone>
                                 </div>
                             </div>

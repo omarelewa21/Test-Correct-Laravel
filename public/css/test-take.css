@@ -142,3 +142,15 @@
 .overview .nav-overflow {
     background: linear-gradient(to bottom, var(--light-grey) 0%, transparent 100%);
 }
+
+.matching-question #drag-item {
+    max-width: 100%;
+}
+
+.matching-question .startGroup #drag-item {
+    margin-bottom: 4px;
+}
+.matching-question .classify #drag-item {
+    margin-bottom: 4px;
+    margin-right: 4px;
+}

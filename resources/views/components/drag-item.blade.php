@@ -5,16 +5,17 @@
 
 
 <div id="drag-item"
-     class="max-w-max bg-system-secondary base border-system-secondary drag-item inline-flex mb-3 mr-2 rounded-10 border-2 bold font-size-18 flex justify-between items-center px-4 p-1 select-none cursor-pointer"
+     class="bg-system-secondary base border-system-secondary border-2
+     rounded-10 inline-flex px-4 py-1.5 items-center justify-between drag-item bold font-size-18"
      @if($sortId)
-     wire:sortable.item="{{ $sortId }}"
+        wire:sortable.item="{{ $sortId }}"
      @endif
      @if($wireKey)
-     wire:key="{{ $wireKey }}"
-    @endif
+         wire:key="{{ $wireKey }}"
+     @endif
     {{ $attributes }}
 >
-    <span class="mr-3">{{ $slot }}</span>
+    <span class="mr-3 h-6 flex items-center">{{ $slot }}</span>
 
     <x-icon.grab></x-icon.grab>
 </div>

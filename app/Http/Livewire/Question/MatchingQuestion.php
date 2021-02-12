@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
+use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
@@ -15,9 +16,15 @@ class MatchingQuestion extends Component
     public $question;
     public $number;
 
+    public $answers;
+    public $answerStruct;
+
     public function mount()
     {
         $this->question->loadRelated();
+
+        $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
+
     }
 
     public function questionUpdated($uuid, $answer)
@@ -34,6 +41,23 @@ class MatchingQuestion extends Component
     public function updateOrder($value)
     {
 //        dd($value);
+        $dbstring = [];
+        foreach ($value as $key => $value) {
+            if ($value['value'] == 'startGroep') {
+                $value['value'] = '';
+            }
+            foreach ($value['items'] as $items) {
+                $dbstring[$items['value']] = $value['value'];
+            }
+        }
+
+        $json = json_encode($dbstring);
+        Answer::where([
+            ['id', $this->answers[$this->question->uuid]['id']],
+            ['question_id', $this->question->id],
+        ])->update(['json' => $json]);
+
+        $this->answerStruct = $dbstring;
     }
 
 
@@ -41,4 +65,5 @@ class MatchingQuestion extends Component
     {
         return view('livewire.question.matching-question');
     }
+
 }

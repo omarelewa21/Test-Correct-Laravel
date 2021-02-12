@@ -6,7 +6,6 @@ use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Question;
 
 class RankingQuestion extends Component
 {
@@ -18,6 +17,7 @@ class RankingQuestion extends Component
     public $number;
     public $answers;
     public $answerStruct;
+    public $answerText = [];
 
     public function questionUpdated($uuid, $answer)
     {
@@ -28,26 +28,19 @@ class RankingQuestion extends Component
 
     public function mount()
     {
+        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
 
-        $sortOrder = [4,2,1];
+        $result = [];
 
-        $return = [];
+        collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
+            $result[] = (object)['order' => $value + 1, 'value' => $key];
+        })->toArray();
 
-        foreach ([
-                     ['order' => 1, 'value'=>'a'],
-                     ['order' => 2, 'value'=>'b'],
-                     ['order' => 3, 'value'=>'c'],
-                 ] as $key => $value) {
-            $return[array_search($value['order'], $sortOrder)] = $value;
-        }
+        $this->answerStruct = ($result);
 
-        ksort($return);
-
-        $this->createAnswerStruct();
-        dd();
-        $this->answerStruct = $return;
-
-
+        collect($this->question->rankingQuestionAnswers->each(function($answers) use (&$map) {
+             $this->answerText[$answers->id] = $answers->answer;
+        }));
     }
 
     public function updateOrder($value)
@@ -67,6 +60,7 @@ class RankingQuestion extends Component
             ['question_id', $this->question->id],
         ])->update(['json' => $json]);
 
+
         $this->createAnswerStruct();
     }
 
@@ -78,12 +72,10 @@ class RankingQuestion extends Component
 
     public function createAnswerStruct()
     {
-        $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
-
         $result = [];
 
         collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
-            $result[] = (object)['order' => $value + 1, 'value' => $key];
+            $result[] = (object)['order' => $key + 1, 'value' => $value['value']];
         })->toArray();
 
         $this->answerStruct = ($result);
