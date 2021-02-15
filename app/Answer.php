@@ -38,7 +38,7 @@ class Answer extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_participant_id', 'question_id', 'json', 'time', 'note', 'closed'];
+    protected $fillable = ['test_participant_id', 'question_id', 'json', 'time', 'note', 'closed', 'closed_group'];
 
     /**
      * The attributes excluded from the model's JSON form.

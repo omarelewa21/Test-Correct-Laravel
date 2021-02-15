@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
@@ -128,7 +129,6 @@ class Answers2019Controller extends Controller
         if ($question instanceof QuestionInterface) {
             $question->loadRelated();
         }
-
         $answer->fill($request->all());
 
         if ($testParticipant->answers()->save($answer) !== false) {
@@ -160,9 +160,27 @@ class Answers2019Controller extends Controller
                     ]);
                 }
             }
+
+            $this->checkIfAnswerPartOfACloseableGroupAndCloseAllAnswers($request, $question, $testParticipant);
+
             return Response::make($response, 200);
         } else {
             return Response::make('Failed to update answer', 500);
+        }
+    }
+
+    private function checkIfAnswerPartOfACloseableGroupAndCloseAllAnswers($request, $question, TestParticipant $testParticipant)
+    {
+         if ($request->input('closed_group') == true) {
+            Answer::whereIn('question_id',
+                GroupQuestionQuestion::where('question_id', $question->getKey())
+                    ->first()
+                    ->groupQuestion
+                    ->questions()
+                    ->pluck('question_id')
+            )
+                ->where('test_participant_id', $testParticipant->getKey())
+                ->update(['closed_group' => true]);
         }
     }
 }

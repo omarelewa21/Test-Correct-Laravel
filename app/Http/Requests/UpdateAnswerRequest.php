@@ -38,13 +38,31 @@ class UpdateAnswerRequest extends Request {
 	{
 		$this->sanitize();
 
+		$this->handleClosedAttribute();
+
 		return [
 			'test_participant_id' => '',
 			'question_id' => '',
 			'json' => '',
             'closed' => '',
+            'closed_group' => '',
 		];
 	}
+
+	private function handleClosedAttribute()
+    {
+        $input = $this->all();
+
+        if ($input['close_action'] == 'close_group') {
+            $input['closed_group'] = true;
+        }
+
+        if($input['close_action'] == 'close_question') {
+            $input['closed'] = true;
+        }
+
+        return $this->replace($input);
+    }
 
 	/**
 	 * Get the sanitized input for the request.
@@ -68,6 +86,10 @@ class UpdateAnswerRequest extends Request {
         }
 
         $input['json'] = json_encode($answerJson, JSON_FORCE_OBJECT);
+
+
+
+
 
 		return $this->replace($input);
 	}
