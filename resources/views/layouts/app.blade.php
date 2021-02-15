@@ -1,12 +1,16 @@
 <x-layouts.base>
     <header class="header px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20">
-        <a class="mr-4" href="#">
+        <a class="mr-4 flex" href="#">
             <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                  alt="Test-Correct">
         </a>
+        <div class="flex items-center">
+            <x-button.text-button class="rotate-svg-180">
+                <x-icon.arrow/>
+                <span>Terugknop (?)</span>
+            </x-button.text-button>
+        </div>
         <div class="user flex flex-wrap items-center ml-auto space-x-6">
-
-
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <x-dropdown.item>Inleveren</x-dropdown.item>
                 <x-dropdown.item>Uitloggen</x-dropdown.item>
@@ -23,9 +27,6 @@
 
         <div class="flex items-center ml-auto space-x-6">
             {{ $footerbuttons }}
-
         </div>
     </footer>
-
-    {{--    <x-notification></x-notification>--}}
 </x-layouts.base>

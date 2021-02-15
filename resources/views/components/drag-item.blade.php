@@ -17,5 +17,5 @@
 >
     <span class="mr-3 h-6 flex items-center">{{ $slot }}</span>
 
-    <x-icon.grab></x-icon.grab>
+    <x-icon.grab class="cursor-pointer"></x-icon.grab>
 </div>

@@ -1,13 +1,22 @@
 @props([
 'size' => 'sm',
 'rotateIcon' => false,
+'type'
 ])
 <?php
 $rotateClass = $rotateIcon ? ('rotate-svg-' . $rotateIcon) : '';
 $size = 'button-' . $size;
 ?>
 
-<button {{ $attributes->merge(['class' => 'button primary-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}>
+@if(isset($type) && $type == 'link')
+    <a {{ $attributes->merge(['class' => 'button primary-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}>
 
-    {{ $slot }}
-</button>
+        {{ $slot }}
+    </a>
+@else
+    <button {{ $attributes->merge(['class' => 'button primary-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}>
+
+        {{ $slot }}
+    </button>
+@endif
+

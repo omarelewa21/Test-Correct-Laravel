@@ -69,7 +69,7 @@
                         />
                     @endif
                     <div class="flex">
-                        <x-button.primary class="ml-auto">{!!__('test_take.adjust_answer') !!}</x-button.primary>
+                        <x-button.primary type="link" href="{{ $playerUrl }}?q={{ $key }}" wire:click="Floepie" class="ml-auto">{!!__('test_take.adjust_answer') !!}</x-button.primary>
                     </div>
                 </div>
             @endforeach
@@ -77,8 +77,8 @@
 
 
         <x-slot name="footerbuttons">
-            <x-button.text-button
-                href="{{ $playerUrl }}"
+            <x-button.text-button type="link"
+                href="{{ $playerUrl }}?q=1"
                 rotateIcon="180"
             >
                 <x-icon.chevron/>

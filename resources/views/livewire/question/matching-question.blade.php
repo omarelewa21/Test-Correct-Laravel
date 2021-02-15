@@ -30,7 +30,7 @@
                         @if(  $group->correct_answer_id === null )
                             <x-dropzone type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"
                                         wire:sortable.item="{{ $group->id }}">
-                                <div class="flex-col w-full h-full" wire:sortable-group.item-group="{{ $group->id }}">
+                                <div class="flex flex-col w-full h-full" wire:sortable-group.item-group="{{ $group->id }}">
                                     @foreach($question->matchingQuestionAnswers as $option)
                                         @if(  $option->correct_answer_id !== null )
                                             @if($answerStruct[$option->id] == $group->id)

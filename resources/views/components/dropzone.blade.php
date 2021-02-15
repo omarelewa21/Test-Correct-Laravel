@@ -11,9 +11,9 @@
     <div {{ $attributes }}
          class="
         @if(!$startGroup) h-10 border-blue-grey bg-white w-full border-dashed border-2 rounded-10 @else startGroup @endif
-        @if(isset($type) && $type == 'classify') p-2 h-40 @endif
+        @if(isset($type) && $type == 'classify') p-2 @endif
             "
-        @if($startGroup) style="min-height: 44px;" @endif
+        @if($startGroup) style="min-height: 44px;" @elseif(isset($type) && $type == 'classify') style="min-height: 308px" @endif
     >{{ $slot }}</div>
 {{--    <div class="border-primary bg-off-white w-full h-40 border-dashed border-2 rounded-10">ondragover</div>--}}
 </div>

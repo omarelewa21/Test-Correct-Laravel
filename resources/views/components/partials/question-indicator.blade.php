@@ -1,8 +1,9 @@
 <div class="question-indicator w-full">
-    <div class="flex flex-wrap" x-data="" x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q}} })}, 1)">
+    <div class="flex flex-wrap" x-data=""
+         x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q }} })}, 1)">
         @foreach($nav as $key => $q)
             <div wire:key="nav_{{$key}}"
-                 class="question-number rounded-full text-center
+                 class="question-number rounded-full text-center cursor-pointer
                         {!! $key === ($this->q - 1) ? 'active' : ''!!}
                         {!! $q['answered'] ? 'complete' : ''!!}
                         "
@@ -19,7 +20,7 @@
                 <span>{{ __('test_take.speak') }}</span>
             </x-button.text-button>
 
-            <x-button.text-button wire:click="" href="#">
+            <x-button.text-button wire:click="toOverview">
                 <x-icon.preview/>
                 <span>{{ __('test_take.overview') }}</span>
             </x-button.text-button>

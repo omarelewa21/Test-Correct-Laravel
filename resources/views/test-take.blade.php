@@ -1,6 +1,6 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5">
-        <livewire:question.navigation  :nav="$nav"></livewire:question.navigation>
+        <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"></livewire:question.navigation>
         <div>
             @foreach($data as  $key => $testQuestion)
                 <div>
@@ -64,27 +64,52 @@
                 </div>
             @endforeach
         </div>
-
-
         <x-slot name="footerbuttons">
-            <x-button.text-button
-                onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
-                href="#" rotateIcon="180">
-                <x-icon.chevron/>
-                <span>{{ __('test_take.previous_question') }}</span></x-button.text-button>
-            <x-button.cta size="sm"
-                          onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview')"
-            >
-                <span>{{ __('test_take.turn_in') }}</span>
-                <x-icon.arrow/>
-            </x-button.cta>
-            <x-button.primary
-                onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('nextQuestion')"
-                size="sm">
-                <span>{{ __('test_take.next_question') }}</span>
-                <x-icon.chevron/>
-            </x-button.primary>
+            <div x-cloak x-data="{display :footerButtonData({{ $current}}, {{$nav->count()}})}" @update-footer-navigation.window="display= $event.detail.data" class="space-x-3">
+                <x-button.text-button x-show="display.prev"
+                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
+                        href="#" rotateIcon="180">
+                    <x-icon.chevron/>
+                    <span>{{ __('test_take.previous_question') }}</span>
+                </x-button.text-button>
+                <x-button.cta x-show="display.turnin"
+                        size="sm"
+                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('turnInModal')">
+                    <span>{{ __('test_take.turn_in') }}</span>
+                </x-button.cta>
+                <x-button.primary x-show="display.next"
+                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('nextQuestion')"
+                        size="sm">
+                    <span>{{ __('test_take.next_question') }}</span>
+                    <x-icon.chevron/>
+                </x-button.primary>
+            </div>
         </x-slot>
     </div>
+
+    <script>
+        function footerButtonData(q, last) {
+            if (q === 1) {
+                data = {
+                    prev: false,
+                    next: true,
+                    turnin: false
+                }
+            } else if(q === last) {
+                data = {
+                    prev: true,
+                    next: false,
+                    turnin: true
+                }
+            } else {
+                data = {
+                    prev: true,
+                    next: true,
+                    turnin: false
+                }
+            }
+            return data;
+        }
+    </script>
 </x-layouts.app>
 

@@ -3,7 +3,11 @@
 'number',
 ])
 <div x-cloak x-data="{ showMe: false }"
-     x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)" x-show="showMe">
+     x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)" x-show="showMe"
+     x-transition:enter="transition duration-200"
+     x-transition:enter-start="opacity-0 delay-200"
+     x-transition:enter-end="opacity-100"
+>
     <div class="flex justify-end space-x-4 mt-6">
         <x-attachment.attachments-button :question="$question"></x-attachment.attachments-button>
         <x-question.notepad-button :question="$question"></x-question.notepad-button>
