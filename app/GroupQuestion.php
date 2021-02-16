@@ -35,7 +35,7 @@ class GroupQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['name', 'shuffle','groupquestion_type','number_of_subquestions'];
+    protected $fillable = ['name', 'shuffle'];
 
     /**
      * The attributes excluded from the model's JSON form.
