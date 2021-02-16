@@ -184,10 +184,6 @@ class GroupQuestion extends Question implements QuestionInterface {
             $questions[] = $question;
         }
 
-        if($this->isCarouselQuestion()){
-            $questions = $this->filterQuestionsForCarousel($questions);
-        }
-
         if ($questions === null) {
             return;
         }
@@ -305,30 +301,5 @@ class GroupQuestion extends Question implements QuestionInterface {
         return false;
     }
 
-    public function isCarouselQuestion()
-    {
-        if($this->groupquestion_type=='carousel'){
-            return true;
-        }
-        return false;
-    }
-
-    public function filterQuestionsForCarousel($questions){
-        if(!$this->isCarouselQuestion()){
-            return $questions;
-        }
-        if(is_null($this->number_of_subquestions)||$this->number_of_subquestions==0){
-            return $questions;
-        }
-        if($this->number_of_subquestions>=count($questions)){
-            return $questions;
-        }
-        $returnArray = [];
-        $randomKeys = array_rand($questions,$this->number_of_subquestions);
-        foreach ($randomKeys as $randomKey) {
-            $returnArray[] = $questions[$randomKey];
-        }
-        return $returnArray;
-    }
 
 }
