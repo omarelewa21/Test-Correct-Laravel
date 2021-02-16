@@ -34,6 +34,10 @@ class RankingQuestion extends Component
         collect($this->question->rankingQuestionAnswers->each(function($answers) use (&$map) {
             $this->answerText[$answers->id] = $answers->answer;
         }));
+
+        if ($this->answers[$this->question->uuid]['answer']) {
+            $this->answer = true;
+        }
     }
 
     public function render()

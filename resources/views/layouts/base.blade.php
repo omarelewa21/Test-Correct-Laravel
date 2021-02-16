@@ -9,7 +9,6 @@
 
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
-    <script src="{{ asset('drawing/test_take.js') }}"></script>
 
     @livewireStyles
     <link rel="stylesheet" href="/css/app.css">

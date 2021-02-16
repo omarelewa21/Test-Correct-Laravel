@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <div class="w-full flex flex-col mb-5">
+    <div class="w-full flex flex-col mb-5" >
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"></livewire:question.navigation>
         <div>
             @foreach($data as  $key => $testQuestion)

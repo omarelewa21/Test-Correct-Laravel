@@ -25,6 +25,9 @@ class MatchingQuestion extends Component
 
         $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
 
+        if ($this->answers[$this->question->uuid]['answer']) {
+            $this->answer = true;
+        }
     }
 
     public function render()
