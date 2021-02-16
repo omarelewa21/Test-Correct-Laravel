@@ -26,6 +26,17 @@ class MultipleSelectQuestion extends Component
     {
         if ($this->answers[$this->question->uuid]['answer']) {
             $this->answerStruct = collect((array) json_decode($this->answers[$this->question->uuid]['answer']));
+        } else {
+            $this->answerStruct =
+                array_fill_keys(
+                    array_keys(
+                        array_flip(Question::whereUuid($this->question->uuid)
+                            ->first()
+                            ->multipleChoiceQuestionAnswers->pluck('id')
+                            ->toArray()
+                        )
+                    ), 0
+                );
         }
     }
 

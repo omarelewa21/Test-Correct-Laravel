@@ -5,15 +5,14 @@
                  alt="Test-Correct">
         </a>
         <div class="flex items-center">
-            <x-button.text-button class="rotate-svg-180">
+            <x-button.text-button type="link" href="{{ config('app.url_login') }}" class="rotate-svg-180">
                 <x-icon.arrow/>
-                <span>Terugknop (?)</span>
+                <span>Terugknop (Naar portal, opnieuw inloggen?)</span>
             </x-button.text-button>
         </div>
         <div class="user flex flex-wrap items-center ml-auto space-x-6">
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
-                <x-dropdown.item>Inleveren</x-dropdown.item>
-                <x-dropdown.item>Uitloggen</x-dropdown.item>
+                <x-dropdown.item onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('turnInModal')">Inleveren</x-dropdown.item>
             </x-dropdown>
         </div>
     </header>

@@ -7,6 +7,7 @@
      x-transition:enter="transition duration-200"
      x-transition:enter-start="opacity-0 delay-200"
      x-transition:enter-end="opacity-100"
+     x-on:change="$dispatch('current-question-answered')"
 >
     <div class="flex justify-end space-x-4 mt-6">
         <x-attachment.attachments-button :question="$question"></x-attachment.attachments-button>

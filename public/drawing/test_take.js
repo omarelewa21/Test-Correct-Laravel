@@ -868,8 +868,8 @@ function checkPageFocus(){
 
 
 // set the initial state (but only if browser supports the Page Visibility API)
-$(document).ready(function(){
-    if( document[hidden] !== undefined ) {
-        onchange({type: document[hidden] ? "blur" : "focus"});
-    }
-});
+// $(document).ready(function(){
+//     if( document[hidden] !== undefined ) {
+//         onchange({type: document[hidden] ? "blur" : "focus"});
+//     }
+// });

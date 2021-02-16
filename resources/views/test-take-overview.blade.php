@@ -1,6 +1,6 @@
 <x-layouts.app>
-    <div class="w-full flex flex-col mb-5 overview">
-        <div class="fixed left-0 w-full px-8 lg:px-28 flex-col pt-4 z-10 bg-light-grey"  test-take-player wire:key="navigation">
+    <div class="w-full flex flex-col mb-5 overview" x-data="" x-init="window.scrollTo(0,document.body.scrollHeight);">
+        <div class="fixed left-0 w-full px-8 xl:px-28 flex-col pt-4 z-10 bg-light-grey"  test-take-player wire:key="navigation">
             <div>
                 <livewire:question.navigation :nav="$nav"></livewire:question.navigation>
             </div>

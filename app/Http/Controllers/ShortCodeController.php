@@ -24,7 +24,7 @@ class ShortCodeController extends Controller {
 
 //            logger(route('student.test-take', $testTake->uuid) = route('student.test-take', $testTake->uuid));
             return redirect(
-                route('student.test-take', $testTake->uuid)
+                route('student.test-take-laravel', $testTake->uuid)
             );
         }
 	    dd('not logged in');

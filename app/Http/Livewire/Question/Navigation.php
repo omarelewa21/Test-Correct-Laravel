@@ -12,11 +12,13 @@ class Navigation extends Component
     public $testTakeUuid;
     public $q;
     public $queryString = ['q'];
-
     public $showTurnInModal = false;
 
     public function mount()
     {
+        if (!$this->q) {
+            $this->q = 1;
+        }
         $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
     }
 
@@ -26,28 +28,45 @@ class Navigation extends Component
         return view('livewire.question.navigation');
     }
 
+    private function getDetailsFirstQuestion() {
+        return ['data' => ['prev' => false, 'next' => true, 'turnin' => false]];
+    }
+
+    private function getDetailsLastQuestion() {
+        return ['data' => ['prev' => true, 'next' => false, 'turnin' => true]];
+    }
+
+    private function getDetailsQuestion() {
+        return ['data' => ['prev' => true, 'next' => true, 'turnin' => false]];
+    }
+
     public function updatedQ($value)
     {
+        $details = $this->getDetailsQuestion();
+
         if ($this->q == 1) {
-            $this->dispatchBrowserEvent('update-footer-navigation', ['data' => ['prev' => false, 'next' => true, 'turnin' => false]]);
-        } elseif($this->q == $this->nav->count()) {
-            $this->dispatchBrowserEvent('update-footer-navigation', ['data' => ['prev' => true, 'next' => false, 'turnin' => true]]);
-        } else {
-            $this->dispatchBrowserEvent('update-footer-navigation', ['data' => ['prev' => true, 'next' => true, 'turnin' => false]]);
+            $details = $this->getDetailsFirstQuestion();
         }
+
+        if($this->q == $this->nav->count()) {
+            $details = $this->getDetailsLastQuestion();
+        }
+
+        $this->dispatchBrowserEvent('update-footer-navigation', $details);
     }
 
     public function previousQuestion()
     {
-
         if ($this->q > 1) {
             $this->q--;
             $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
-            $this->dispatchBrowserEvent('update-footer-navigation', ['data' => ['prev' => true, 'next' => true, 'turnin' => false]]);
         }
+
+        $details = $this->getDetailsQuestion();
         if ($this->q == 1) {
-            $this->dispatchBrowserEvent('update-footer-navigation', ['data' => ['prev' => false, 'next' => true, 'turnin' => false]]);
+            $details = $this->getDetailsFirstQuestion();
         }
+        $this->dispatchBrowserEvent('update-footer-navigation', $details);
 
     }
 
@@ -56,12 +75,13 @@ class Navigation extends Component
         if ($this->q < $this->nav->count()) {
             $this->q++;
             $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
-            $this->dispatchBrowserEvent('update-footer-navigation', ['data' => ['prev' => true, 'next' => true, 'turnin' => false]]);
         }
-        if ($this->q == $this->nav->count()) {
-            $this->dispatchBrowserEvent('update-footer-navigation', ['data' => ['prev' => true, 'next' => false, 'turnin' => true]]);
 
+        $details = $this->getDetailsQuestion();
+        if ($this->q == $this->nav->count()) {
+            $details = $this->getDetailsLastQuestion();
         }
+        $this->dispatchBrowserEvent('update-footer-navigation', $details);
     }
 
     public function toOverview()
@@ -72,5 +92,18 @@ class Navigation extends Component
     public function turnInModal()
     {
         $this->showTurnInModal = true;
+    }
+
+    public function updateQuestionIndicatorColor()
+    {
+        $newNav = $this->nav->map(function (&$item, $key) {
+            $q = $this->q;
+            if ($key == --$q) {
+                $item['answered'] = true;
+                return $item;
+            }
+            return $item;
+        });
+        $this->nav = $newNav;
     }
 }
