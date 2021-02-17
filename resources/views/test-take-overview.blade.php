@@ -1,5 +1,10 @@
 <x-layouts.app>
-    <div class="w-full flex flex-col mb-5 overview">
+    <div class="w-full flex flex-col mb-5 overview"
+         x-data=""
+         x-init="window.onbeforeunload = function () {
+                      window.scrollTo(0, 0);
+                }"
+    >
         <div class="fixed left-0 w-full px-8 xl:px-28 flex-col pt-4 z-10 bg-light-grey">
             <div>
                 <livewire:question.navigation :nav="$nav"></livewire:question.navigation>
@@ -83,9 +88,12 @@
             >
                 <x-icon.chevron/>
                 <span>{{ __('test_take.back_to_questions') }}</span></x-button.text-button>
-            <x-button.cta size="sm"><span>{{ __('test_take.turn_in') }}</span>
-                <x-icon.arrow/>
+            <x-button.cta size="sm" onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
+                <span>{{ __('test_take.turn_in') }}</span>
             </x-button.cta>
+        </x-slot>
+        <x-slot name="testTakeManager">
+            <livewire:student.test-take :testTakeUuid="$uuid"/>
         </x-slot>
     </div>
 </x-layouts.app>

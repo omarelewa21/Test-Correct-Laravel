@@ -29,19 +29,25 @@ class TestTakeLaravelController extends Controller
                 'answered' => $answer['answered'],
             ];
         });
+        $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
 
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid']));
     }
 
 
     public function show(TestTake $testTake, Request $request)
     {
+        $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
+
+        if (!$testParticipant->startTestTake()) {
+
+        }
+
         $current = $request->get('q') ?: '1';
 
         $data = self::getData($testTake);
         $answers = $this->getAnswers($testTake, $data);
-
 
         $nav = $data->map(function ($question) use ($answers) {
             $answer = collect($answers)->first(function ($answer, $questionUuid) use ($question) {

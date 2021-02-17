@@ -12,7 +12,6 @@ class Navigation extends Component
     public $testTakeUuid;
     public $q;
     public $queryString = ['q'];
-    public $showTurnInModal = false;
 
     public function mount()
     {
@@ -87,11 +86,6 @@ class Navigation extends Component
     public function toOverview()
     {
         return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
-    }
-
-    public function turnInModal()
-    {
-        $this->showTurnInModal = true;
     }
 
     public function updateQuestionIndicatorColor()

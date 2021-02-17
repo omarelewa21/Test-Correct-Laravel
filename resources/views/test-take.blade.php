@@ -74,7 +74,7 @@
                 </x-button.text-button>
                 <x-button.cta x-show="display.turnin"
                         size="sm"
-                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('turnInModal')">
+                        onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
                     <span>{{ __('test_take.turn_in') }}</span>
                 </x-button.cta>
                 <x-button.primary x-show="display.next"
@@ -84,6 +84,9 @@
                     <x-icon.chevron/>
                 </x-button.primary>
             </div>
+        </x-slot>
+        <x-slot name="testTakeManager">
+            <livewire:student.test-take :testTakeUuid="$uuid"/>
         </x-slot>
     </div>
 

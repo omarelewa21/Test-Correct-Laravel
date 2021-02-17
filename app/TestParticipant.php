@@ -300,4 +300,18 @@ class TestParticipant extends BaseModel
         return Uuid::fromBytes($value)->toString();
     }
 
+    public function startTestTake()
+    {
+        //Remaining startTestTake actions handled in TestParticipant boot method
+        $this->setAttribute('test_take_status_id', 3)->save();
+        return true;
+
+    }
+
+    public function handInTestTake()
+    {
+        //Remaining handInTestTake actions handled in TestParticipant boot method
+        $this->setAttribute('test_take_status_id', 4)->save();
+        return true;
+    }
 }

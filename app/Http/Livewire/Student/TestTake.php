@@ -2,153 +2,49 @@
 
 namespace tcCore\Http\Livewire\Student;
 
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Redirect;
 use Livewire\Component;
-use tcCore\Answer;
-use tcCore\Lib\Question\QuestionInterface;
-use tcCore\MultipleChoiceQuestion;
-use tcCore\MultipleChoiceQuestionAnswer;
-use tcCore\Question;
+use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
-use tcCore\TestTake as Test;
+use tcCore\User;
 
 
 class TestTake extends Component
 {
-
-    public $testQuestions;
-    public $question;
-    protected $queryString = ['question'];
-    public $content;
-    public $mainQuestion;
-    public $component;
-    public $number = 1;
-    public $caption;
-    public $answer;
-
-    public $answers = [];
-
-    protected $listeners = ['updateAnswer' => 'updateAnswer'];
-
-    public function mount(Test $test_take)
-    {
-        $this->testQuestions = self::getData($test_take);
-        session()->put('data', serialize($this->testQuestions));
-        $this->setMainQuestion($this->question ?: $this->testQuestions->first()->uuid);
-
-
-
-        TestParticipant::where('test_take_id', $test_take->getKey())
-            ->where('user_id', Auth::user()->getKey())
-            ->first()
-            ->answers
-            ->each(function ($answer) {
-                $question = $this->testQuestions->first(function ($question) use ($answer) {
-                    return $question->getKey() === $answer->question_id;
-                });
-                $this->answers[$question->uuid] = ['id' => $answer->getKey(), 'answer' => $answer->json];
-            });
-    }
-
-    public function getState($uuid)
-    {
-        if($uuid === $this->question) {
-            return 'active';
-        }
-
-        if (array_key_exists($uuid, $this->answers)) {
-            if (!empty($this->answers[$uuid]['answer'])) {
-                return 'complete';
-            }
-        }
-
-        return '';
-    }
-
-
-    private function getCurrentAnswer($questionUuid)
-    {
-        if (array_key_exists($questionUuid, $this->answers)) {
-            return json_decode($this->answers[$questionUuid]['answer']);
-        }
-
-        return '';
-    }
-
-    public function hydrate()
-    {
-        $this->testQuestions = unserialize(session()->get('data'));
-    }
-
-    public function previousQuestion()
-    {
-        $this->question = $this->testQuestions->get($this->number - 2)->uuid;
-        $this->setMainQuestion($this->question);
-    }
-
-    public function updateAnswer($questionId, $answer)
-    {
-//        if($this->mainQuestion instanceof MultipleChoiceQuestion) {
-//            $answers = [];
-//            $this->mainQuestion->multipleChoiceQuestionAnswers->pluck('id')->each(function ($i ,$key) use (&$answers, $answer) {
-//                $answers[$i] =  $key == $answer ? 1 : 0;
-//            });
-//            $answer = $answers;
-//        }
-        $this->answers[$questionId]['answer'] = json_encode($answer);
-
-        Answer::where('id', $this->answers[$questionId]['id'])
-            ->update(['json' => json_encode($answer)]);
-    }
-
-    public function nextQuestion()
-    {
-        $this->question = $this->testQuestions->get($this->number)->uuid;
-        $this->setMainQuestion($this->question);
-    }
+    public $testTakeUuid;
+    public $showTurnInModal = false;
 
     public function render()
     {
-        return view('livewire.student.test-take')->layout('layouts.app');
+        return view('livewire.student.test-take');
     }
 
-    public function setMainQuestion($questionUuid)
+    public function turnInModal()
     {
-        $this->question = $questionUuid;
-        $this->mainQuestion = Question::whereUuid($questionUuid)->first();
-        $key = $this->testQuestions->search(function ($value, $key) use ($questionUuid) {
-            return $value->uuid === $questionUuid;
-        });
-        $this->number = $key + 1;
-
-        $this->emit('questionUpdated', $questionUuid, $this->getCurrentAnswer($questionUuid));
+        $this->showTurnInModal = true;
     }
 
-    public static function getData(Test $testTake)
+    public function toOverview()
     {
-        $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
-        $testTake->load(['test', 'test.testQuestions', 'test.testQuestions.question'])->get();
-
-        return $testTake->test->testQuestions->flatMap(function ($testQuestion) use ($visibleAttributes) {
-            if ($testQuestion->question->type === 'GroupQuestion') {
-                return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($visibleAttributes) {
-                    $hideAttributes = array_keys($item->question->getAttributes());
-
-                    $item->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
-
-                    return $item->question;
-                });
-            }
-            $hideAttributes = array_keys($testQuestion->question->getAttributes());
-            $testQuestion->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
-
-            return collect([$testQuestion->question]);
-        });
+        return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
     }
+
+    public function TurnInTestTake()
+    {
+        $testTake = \tcCore\TestTake::whereUuid($this->testTakeUuid)->first();
+        $testParticipant = TestParticipant::where('test_take_id', $testTake->id)->where('user_id', Auth::id())->first();
+
+        if (!$testParticipant->handInTestTake()) {
+            dd('gefaald');
+        }
+
+        $temporaryLogin = TemporaryLogin::create(
+            ['user_id' => $testParticipant->user_id]
+        );
+        $redirectUrl = $temporaryLogin->createCakeUrl();
+
+        return redirect()->to($redirectUrl);
+    }
+
 }
