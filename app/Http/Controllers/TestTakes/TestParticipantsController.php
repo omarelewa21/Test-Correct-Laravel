@@ -321,7 +321,6 @@ class TestParticipantsController extends Controller
             } else {
                 $testParticipant->load('user', 'testTakeStatus', 'schoolClass', 'answers', 'testTakeEvents');
             }
-
             return Response::make($testParticipant, 200);
         }
     }
@@ -336,7 +335,6 @@ class TestParticipantsController extends Controller
     public function update(TestTake $testTake, TestParticipant $testParticipant, UpdateTestParticipantRequest $request)
     {
         $testParticipant->fill($request->all());
-
         if ($testTake->testParticipants()->save($testParticipant) !== false) {
             return Response::make($testParticipant, 200);
         } else {
@@ -366,8 +364,15 @@ class TestParticipantsController extends Controller
 
     public function heartbeat($testTakeId, TestParticipant $testParticipant, HeartbeatTestParticipantRequest $request)
     {
-        $answer_id = (int)TestTake::whereUUid($testTakeId)->first()->getKey();
-        if ($testParticipant->test_take_id !== $answer_id) {//$testTake->getKey()) {
+         $testTake = TestTake::whereUUid($testTakeId)->first();
+
+         if ($testTake === null) {
+             return Response::make('Failed to process heartbeat of test participant, test take has been deleted.', 500);
+         }
+
+        $answer_id = (int) $testTake->getKey();
+
+         if ($testParticipant->test_take_id !== $answer_id) {//$testTake->getKey()) {
             return Response::make('Test participant not found', 404);
         }
 //        $testParticipant->load('testTake', 'testTake.discussingParentQuestions', 'testTake.testTakeStatus', 'testTakeStatus', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
@@ -387,6 +392,33 @@ class TestParticipantsController extends Controller
         } else {
             return Response::make('Failed to process heartbeat of test participant', 500);
         }
+    }
+
+    public function is_allowed_inbrowser_testing(TestTake $testTake)
+    {
+        $me = $testTake->testParticipants()->where('user_id', Auth::id())->first();
+        logger($me);
+        if ($me) {
+            return $me->allow_inbrowser_testing;
+        }
+        return false;
+    }
+
+    public function toggle_inbrowser_testing(TestTake $testTake, TestParticipant $testParticipant)
+    {
+        if (auth()->user()->schoolLocation->allow_inbrowser_testing) {
+            logger('allowed for school_location');
+            if ($testTake->id === $testParticipant->test_take_id) {
+                logger('allowed for test_take_is vs participant');
+                if ($testTake->isAllowedToView(auth()->user())) {
+                    logger('allowed to view');
+
+                    $testParticipant->update(['allow_inbrowser_testing' => ! $testParticipant->allow_inbrowser_testing]);
+                }
+            }
+        }
+
+
     }
 
 }

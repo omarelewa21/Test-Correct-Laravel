@@ -67,7 +67,7 @@ class Question extends MtiBaseModel {
 
     public static function usesDeleteAndAddAnswersMethods($questionType)
     {
-        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion'])->contains(strtolower($questionType));
+        return collect(['completionquestion', 'matchingquestion', 'rankingquestion','matrixquestion','multiplechoicequestion'])->contains(strtolower($questionType));
     }
 
     public function fill(array $attributes)
@@ -237,7 +237,7 @@ class Question extends MtiBaseModel {
     }
 
     public function testQuestions() {
-        return $this->hasMany('tcCore\TestQuestion', 'question_id');
+            return $this->hasMany('tcCore\TestQuestion', 'question_id');
     }
 
     public function derivedQuestion() {
@@ -425,12 +425,12 @@ class Question extends MtiBaseModel {
                     return true;
                 }
                 return true;
-                break;
+            break;
             case 'RankingQuestion':
-                $requestAnswers = $totalData['answers'];
+                $requestAnswers = $this->trimAnswerOptions($totalData['answers']);
                 try{
                     $question = RankingQuestion::findOrFail($this->id);
-                    $answers = $question->answers;
+                    $answers = $this->convertRankingAnswersFromQuestion($question);
                     if($requestAnswers==$answers){
                         return false;
                     }
@@ -438,10 +438,23 @@ class Question extends MtiBaseModel {
                     return true;
                 }
                 return true;
-                break;
+            break;
+            case 'MultipleChoiceQuestion':
+                $requestAnswers = $this->trimAnswerOptions($totalData['answers']);
+                try{
+                    $question = MultipleChoiceQuestion::findOrFail($this->id);
+                    $answers = $this->convertMultipleChoiceAnswersFromQuestion($question);
+                    if($requestAnswers==$answers){
+                        return false;
+                    }
+                }catch(Exception $e){
+                    return true;
+                }
+                return true;
+            break;
             default:
                 return false;
-                break;
+            break;
         }
     }
 
@@ -455,6 +468,7 @@ class Question extends MtiBaseModel {
     }
 
     public function isUsed($ignoreRelationTo) {
+
 
         //$uses = Question::withTrashed()->where('derived_question_id', $this->getKey())->count();
 
@@ -510,7 +524,7 @@ class Question extends MtiBaseModel {
             $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
             $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
 
-            //    $query->whereIn('subject_id',$subjectIds);
+         //    $query->whereIn('subject_id',$subjectIds);
 
 
             if(!isset($filters['is_open_source_content']) || $filters['is_open_source_content'] == 0) {
@@ -971,12 +985,8 @@ class Question extends MtiBaseModel {
             if($answer['left']==''){
                 continue;
             }
-            $returnArray[] = [ 'answer' => $answer['left'],
-                               'type' => 'LEFT',
-            ];
-            $returnArray[] = [ 'answer' => $answer['right'],
-                               'type' => 'RIGHT',
-            ];
+            $this->addReturnArrayItemMatching($answer['left'],'LEFT',$returnArray);
+            $this->addReturnArrayItemMatching($answer['right'],'RIGHT',$returnArray);
         }
         return $returnArray;
     }
@@ -986,10 +996,71 @@ class Question extends MtiBaseModel {
         $answers = $question->matchingQuestionAnswers->toArray();
         foreach ($answers as $key => $answer) {
             $returnArray[] = [ 'answer' => $answer['answer'],
-                               'type' => $answer['type'],
-            ];
+                                'type' => $answer['type'],
+                            ];
         }
         return $returnArray;
+    }
+
+    private function trimAnswerOptions($answers){
+        $returnArray = [];
+        foreach ($answers as $key => $answer) {
+            if($answer['answer']==''){
+                continue;
+            }
+            $returnArray[] = $answer;
+        }
+        return $returnArray;
+    }
+
+
+    private function convertRankingAnswersFromQuestion($question){
+        $answers = $question->rankingQuestionAnswers->toArray();
+        return $this->convertAnswersFromQuestion($answers,['order','answer']);
+    }
+
+    private function convertMultipleChoiceAnswersFromQuestion($question){
+        $answers = $question->multipleChoiceQuestionAnswers->toArray();
+        $ignoreOrder = false;
+        if($question->subtype=='TrueFalse'){
+            $ignoreOrder = true;
+        }
+        return $this->convertAnswersFromQuestion($answers,['order','answer','score'],$ignoreOrder);
+    }
+
+    private function convertAnswersFromQuestion($answers,$params,$ignoreOrder = false){
+        $returnArray = [];
+        foreach ($answers as $key => $answer) {
+            $item = [];
+            foreach ($params as $param) {
+                if($param=='order'&&$ignoreOrder){
+                    $item['order'] = 0;
+                    continue;
+                }
+                if($param=='order'){
+                    $item['order'] = ($key+1);
+                    continue;
+                }
+                if(!array_key_exists($param, $answer)){
+                    throw new Exception('unknown answer key');
+                    continue;
+                }
+                $item[$param] = $answer[$param];
+            }
+            $returnArray[] = $item;
+        }
+        return $returnArray;
+    }
+
+    private function addReturnArrayItemMatching($answer,$type,&$returnArray):void
+    {
+        $answers = explode("\n", str_replace(["\r\n","\n\r","\r"],"\n",$answer) );
+        foreach ($answers as $answerPart) {
+            $returnArray[] = [ 'answer' => $answerPart,
+                                'type' => $type,
+                            ];
+        }
+
     }
 
 

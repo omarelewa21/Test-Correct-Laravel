@@ -1,4 +1,6 @@
-<?php namespace tcCore\Http\Controllers;
+<?php 
+
+namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -69,7 +71,6 @@ class TestQuestionsController extends Controller {
      */
     public function store(CreateTestQuestionRequest $request)
     {
-
         DB::beginTransaction();
         try{
             if ($request->get('question_id') === null) {
@@ -160,7 +161,12 @@ class TestQuestionsController extends Controller {
             $testQuestion->fill($request->all());
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if ($question->isDirty() || $questionInstance->isDirty() || $questionInstance->isDirtyAttainments() || $questionInstance->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
+            if (    $question->isDirty() 
+                    || $questionInstance->isDirty() 
+                    || $questionInstance->isDirtyAttainments() 
+                    || $questionInstance->isDirtyTags()
+                    || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
+            {
                 if ($question->isUsed($testQuestion)) {
                     $question = $question->duplicate($request->all());
                     if ($question === false) {
@@ -200,7 +206,6 @@ class TestQuestionsController extends Controller {
     {
         // Fill and check if question is modified
         $question = $testQuestion->question;
-
         DB::beginTransaction();
         try {
             $qHelper = new QuestionHelper();
@@ -219,9 +224,7 @@ class TestQuestionsController extends Controller {
 
             $questionInstance = $question->getQuestionInstance();
             $testQuestion->fill($request->all());
-
-
-
+            
 // this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
             if (!$completionAnswerDirty
                 && !$question->isDirty()
@@ -244,6 +247,7 @@ class TestQuestionsController extends Controller {
                 || $questionInstance->isDirtyAnswerOptions($totalData) 
                 || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
             {
+
                 if ($question->isUsed($testQuestion)) {
                     
                     $question = $question->duplicate(array_merge($request->all(),$questionData));

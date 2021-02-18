@@ -113,7 +113,6 @@ class TestQuestion extends BaseModel {
 
         $totalData = array_merge($questionAttributes, $questionData);
         $question->fill($totalData);
-
         $questionInstance = $question->getQuestionInstance();
         if ($questionInstance->getAttribute('subject_id') === null) {
             $questionInstance->setAttribute('subject_id', $test->subject->getKey());
@@ -126,7 +125,7 @@ class TestQuestion extends BaseModel {
         if ($questionInstance->getAttribute('education_level_year') === null) {
             $questionInstance->setAttribute('education_level_year', $test->getAttribute('education_level_year'));
         }
-
+        
         if ($question->save()) {
             $testQuestion->setAttribute('question_id', $question->getKey());
 

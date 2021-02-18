@@ -1,5 +1,7 @@
 <?php namespace tcCore\Http\Requests;
 
+use tcCore\TestTakeEventType;
+
 class CreateTestTakeEventRequest extends Request {
 
     /**
@@ -24,8 +26,29 @@ class CreateTestTakeEventRequest extends Request {
         return [
             'test_participant_id' => '',
             'test_take_event_type_id' => '',
-            'confirmed' => ''
+            'confirmed' => '',
+            'reason' => ''
         ];
+    }
+
+    public function prepareForValidation()
+    {
+        $data = $this->all();
+
+        if (!isset($data['reason'])) {
+            return;
+        }
+        $key = optional(TestTakeEventType::where("reason", "=", $data['reason'])->first())->getKey();
+
+        if ($key != null) {
+            $data['test_take_event_type_id'] = $key;
+            unset($data['reason']);
+        } else {
+            $data['test_take_event_type_id'] = 10;
+            unset($data['reason']);
+        }
+        
+        $this->merge($data);
     }
 
     /**

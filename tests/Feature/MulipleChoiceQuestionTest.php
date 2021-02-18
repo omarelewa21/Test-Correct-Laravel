@@ -6,64 +6,108 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\User;
 use tcCore\Test;
 use tcCore\Question;
-use tcCore\RankingQuestion;
+use tcCore\MulipleChoiceQuestion;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\TestTrait;
-use Tests\Traits\RankingQuestionTrait;
+use Tests\Traits\MultipleChoiceQuestionTrait;
 use Illuminate\Support\Facades\DB;
 
-class CopyRankingQuestionTest extends TestCase
+class MulipleChoiceQuestionTest extends TestCase
 {
     use DatabaseTransactions;
     use TestTrait;
-    use RankingQuestionTrait;
+    use MultipleChoiceQuestionTrait;
 
     private $originalTestId;
     private $originalQuestionId;
     private $copyTestId;
 
-    public function setUp(): void
-    {
-    	//$this->clearDB();
-    	parent::setUp();
-    }
-
-    public function tearDown(): void
-    {
-    	//$this->clearDB();
-    	
-    	parent::tearDown();
-    }
-
-   
-    /** @test */
-    public function it_should_copy_questionsForRangschik1()
-    {
-        $this->setupScenario7();
-        $tests = Test::where('name','TToets van GM7')->get();
-        $this->assertTrue(count($tests)==1);
+     /** @test */
+     public function can_create_test_and_mc_question(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForQuestion7($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
         $questions = Test::find($this->originalTestId)->testQuestions;
         $this->assertTrue(count($questions)==1);
-        $originalQuestionArray = $questions->pluck('question_id')->toArray();
-        $tests = Test::where('name','Kopie #1 TToets van GM7')->get();
-        $this->assertTrue(count($tests)==1);
-        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
-        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        $result = array_diff($originalQuestionArray, $copyQuestionArray);
-        $this->assertTrue(count($result)==0);
-        $attributes = $this->getAttributesForEditQuestion7($this->originalTestId);
-        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
-        $this->editRankingQuestion($copyQuestion->uuid,$attributes);
-        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
-        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        $result = array_diff($originalQuestionArray, $copyQuestionArray);
-        $this->assertTrue(count($result)>0);
-    }
+        $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
+     }
 
+     /** @test */
+     public function can_create_test_and_mc_question_with_answers(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForQuestion7($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
+        $this->assertEquals(3, count($questions->first()->question->multipleChoiceQuestionAnswers));
+     }
+
+
+     /** @test */
+     public function can_edit_answers_mc_question(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForQuestion7($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $question = Test::find($this->originalTestId)->testQuestions->first();
+        $attributes = $this->getAttributesForEditQuestion7($this->originalTestId);
+        $this->editMultipleChoiceQuestion($question->uuid,$attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $number = count($questions->first()->question->multipleChoiceQuestionAnswers);
+        $this->assertEquals(3,$number);
+        $answer = $questions->first()->question->multipleChoiceQuestionAnswers->first();
+        $this->assertEquals('aa', $answer->answer);
+     }
+
+     /** @test */
+     public function can_create_test_and_mc_arq_question(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForARQQuestion($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
+     }
+
+     /** @test */
+     public function can_create_test_and_mc_arq_question_with_answers(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForARQQuestion($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
+        $this->assertEquals(5, count($questions->first()->question->multipleChoiceQuestionAnswers));
+     }
+
+     /** @test */
+     public function can_create_test_and_mc_arq_question_with_answers_containing_zero_value(){
+        $attributes = $this->getAttributesForTest7();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForARQQuestionWithZeroAnswer($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $this->assertTrue(!is_null($questions->first()->question->multipleChoiceQuestionAnswers));
+        $this->assertEquals(5, count($questions->first()->question->multipleChoiceQuestionAnswers));
+     }
+   
     /** @test */
-    public function it_should_not_copy_questions_for_rangschik_if_nothing_is_changed()
+    public function it_should_not_copy_questions_for_mc_if_nothing_is_changed()
     {
         $this->setupScenario7();
         $tests = Test::where('name','TToets van GM7')->get();
@@ -79,84 +123,20 @@ class CopyRankingQuestionTest extends TestCase
         $this->assertTrue(count($result)==0);
         $attributes = $this->getAttributesForQuestion7($this->copyTestId);
         $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
-        dump(Test::find($this->copyTestId)->testQuestions);
-        $this->editRankingQuestion($copyQuestion->uuid,$attributes);
-        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
-        dump(Test::find($this->copyTestId)->testQuestions);
-        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        $result = array_diff($originalQuestionArray, $copyQuestionArray);
-        $this->assertTrue(count($result)==0);
-    }
-
-
-    /** @test */
-    public function it_should_copy_questionsForRangschikAndKeepTheOriginalOriginal()
-    {
-        $this->setupScenario7();
-        $tests = Test::where('name','TToets van GM7')->get();
-        $this->assertTrue(count($tests)==1);
-
-        $questions = Test::find($this->originalTestId)->testQuestions;
-        $this->assertTrue(count($questions)==1);
-        $this->assertTrue(!is_null($questions->first()->question->rankingQuestionAnswers));
-
-        $originalQuestionArray = $questions->pluck('question_id')->toArray();
-        $tests = Test::where('name','Kopie #1 TToets van GM7')->get();
-        $this->assertTrue(count($tests)==1);
-
+        $this->editMultipleChoiceQuestion($copyQuestion->uuid,$attributes);
         $copyQuestions = Test::find($this->copyTestId)->testQuestions;
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
         $result = array_diff($originalQuestionArray, $copyQuestionArray);
         $this->assertTrue(count($result)==0);
-
-        $attributes = $this->getAttributesForEditQuestion7($this->originalTestId);
-        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
-        $this->editRankingQuestion($copyQuestion->uuid,$attributes);
-        $this->checkCopyQuestionsAfterEdit($this->copyTestId,$originalQuestionArray);
-
-        $originalQuestions = Test::find($this->originalTestId)->testQuestions;
-        $this->assertTrue(count($originalQuestions)==1);
-
-        $testQuestion = $originalQuestions->first();
-        $answers = $testQuestion->question->rankingQuestionAnswers;
-        foreach ($answers as $key => $answerObj) {
-            switch ($key) {
-                case '0':
-                    $this->assertEquals('a', $answerObj->answer);
-                    break;
-                case '1':
-                    $this->assertEquals('b', $answerObj->answer);
-                    break;
-                case '2':
-                    $this->assertEquals('c', $answerObj->answer);
-                    break;
-            }
-        }
-
-        // $attributes = $this->getScenario7GetAttributes();
-        // $response = $this->getTestQuestionsByGet($attributes);
-        // $answers = $response[0]['question']['ranking_question_answers'];
-        // foreach ($answers as $key => $answerArray) {
-        //     switch ($key) {
-        //         case '0':
-        //             $this->assertEquals('aa', $answerArray['answer']);
-        //             break;
-        //         case '1':
-        //             $this->assertEquals('bb', $answerArray['answer']);
-        //             break;
-        //         case '2':
-        //             $this->assertEquals('cc', $answerArray['answer']);
-        //             break;
-        //     }
-        // }
-    }
+    }   
+    
 
     private function setupScenario7(){
         $attributes = $this->getAttributesForTest7();
         unset($attributes['school_classes']);
         $this->createTLCTest($attributes);
         $attributes = $this->getAttributesForQuestion7($this->originalTestId);
-        $this->createRankingQuestion($attributes);
+        $this->createMultipleChoiceQuestion($attributes);
         $this->duplicateTest($this->originalTestId);
     }
 
@@ -190,15 +170,18 @@ class CopyRankingQuestionTest extends TestCase
         $attributes = array_merge($this->getAttributesForQuestion7($testId),[   "answers"=> array_merge([
                                                                                                             [
                                                                                                             "order"=> "1",
-                                                                                                            "answer"=> "aa"
+                                                                                                            "answer"=> "aa",
+                                                                                                            "score"=> "10"
                                                                                                             ],
                                                                                                             [
                                                                                                             "order"=> "2",
-                                                                                                            "answer"=> "bb"
+                                                                                                            "answer"=> "bb",
+                                                                                                            "score"=> "0"
                                                                                                             ],
                                                                                                             [
                                                                                                             "order"=> "3",
-                                                                                                            "answer"=> "cc"
+                                                                                                            "answer"=> "cc",
+                                                                                                            "score"=> "0"
                                                                                                             ]
                                                                                                         ],$this->getRestOfAnswerArray(3,10)),
                                                                             ]);
@@ -208,7 +191,7 @@ class CopyRankingQuestionTest extends TestCase
 
     private function getAttributesForQuestion7($testId){
         return [    
-                    "type"=> "RankingQuestion",
+                    "type"=> "MultipleChoiceQuestion",
                     "score"=> "5",
                     "question"=> "<p>GM7</p> ",
                     "order"=> 0,
@@ -224,15 +207,18 @@ class CopyRankingQuestionTest extends TestCase
                     "answers"=> array_merge([
                                 [
                                     "order"=> "1",
-                                    "answer"=> "a"
+                                    "answer"=> "a",
+                                    "score"=> "10"
                                     ],
                                     [
                                     "order"=> "2",
-                                    "answer"=> "b"
+                                    "answer"=> "b",
+                                    "score"=> "0"
                                     ],
                                     [
                                     "order"=> "3",
-                                    "answer"=> "c"
+                                    "answer"=> "c",
+                                    "score"=> "0"
                                     ]
                                 ],$this->getRestOfAnswerArray(3,10)),
                     "tags"=> [
@@ -244,7 +230,89 @@ class CopyRankingQuestionTest extends TestCase
                 ];
     }
 
-    private function getScenario7GetAttributes(){
+    private function getAttributesForARQQuestion($testId){
+        return [    
+                    "type"=> "MultipleChoiceQuestion",
+                    "score"=> "150",
+                    "question"=> "<p>GM7</p> ",
+                    "order"=> 0,
+                    "maintain_position"=> "0",
+                    "discuss"=> "1",
+                    "subtype"=> "ARQ",
+                    "decimal_score"=> "0",
+                    "add_to_database"=> 1,
+                    "attainments"=> [
+                    ],
+                    "note_type"=> "NONE",
+                    "is_open_source_content"=> 1,
+                    "answers"=> [
+                                    [
+                                    "score"=> "10"
+                                    ],
+                                    [
+                                    "score"=> "20"
+                                    ],
+                                    [
+                                    "score"=> "30"
+                                    ],
+                                    [
+                                    "score"=> "40"
+                                    ],
+                                    [
+                                    "score"=> "50"
+                                    ]
+                                ],
+                    "tags"=> [
+                    ],
+                    "rtti"=> "R",
+                    "bloom"=> "Onthouden",
+                    "miller"=> "Weten",
+                    "test_id"=> $testId,
+                ];
+    }
+
+    private function getAttributesForARQQuestionWithZeroAnswer($testId){
+        return [    
+                    "type"=> "MultipleChoiceQuestion",
+                    "score"=> "150",
+                    "question"=> "<p>GM7</p> ",
+                    "order"=> 0,
+                    "maintain_position"=> "0",
+                    "discuss"=> "1",
+                    "subtype"=> "ARQ",
+                    "decimal_score"=> "0",
+                    "add_to_database"=> 1,
+                    "attainments"=> [
+                    ],
+                    "note_type"=> "NONE",
+                    "is_open_source_content"=> 1,
+                    "answers"=> [
+                                    [
+                                    "score"=> "10"
+                                    ],
+                                    [
+                                    "score"=> "20"
+                                    ],
+                                    [
+                                    "score"=> "30"
+                                    ],
+                                    [
+                                    "score"=> "40"
+                                    ],
+                                    [
+                                    "score"=> "0"
+                                    ]
+                                ],
+                    "tags"=> [
+                    ],
+                    "rtti"=> "R",
+                    "bloom"=> "Onthouden",
+                    "miller"=> "Weten",
+                    "test_id"=> $testId,
+                ];
+    }
+
+    private function getScenario5GetAttributes(){
         return $this->getGetAttributes($this->originalTestId);
     }
     
@@ -257,7 +325,7 @@ class CopyRankingQuestionTest extends TestCase
         $this->assertTrue(count($result)>0);
 
         $copyQuestion = Test::find($copyTestId)->testQuestions->first();
-        $answers = $copyQuestion->question->rankingQuestionAnswers;
+        $answers = $copyQuestion->question->multipleChoiceQuestionAnswers;
         foreach ($answers as $key => $answerObj) {
         	switch ($key) {
         		case '0':

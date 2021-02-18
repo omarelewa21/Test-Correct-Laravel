@@ -20,8 +20,9 @@ trait MatchingQuestionTrait
             )
         );
         $response->assertStatus(200);
-        $questionId = $response->decodeResponseJson()['id'];
-        $this->originalQuestionId = $questionId;
+        $testQuestionId = $response->decodeResponseJson()['id'];
+        $this->originalQuestionId = $testQuestionId;
+        return $testQuestionId;
     }
 
     private function editMatchingQuestion($uuid,$attributes){

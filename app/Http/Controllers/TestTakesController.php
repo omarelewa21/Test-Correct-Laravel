@@ -1,4 +1,6 @@
-<?php namespace tcCore\Http\Controllers;
+<?php
+
+namespace tcCore\Http\Controllers;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -19,21 +21,20 @@ use tcCore\SchoolClass;
 use tcCore\Shortcode;
 use tcCore\Test;
 use tcCore\TestTake;
+use tcCore\TestParticipant;
 use tcCore\Http\Requests\CreateTestTakeRequest;
 use tcCore\Http\Requests\UpdateTestTakeRequest;
 use tcCore\TestTakeStatus;
 use tcCore\Exports\TestTakesExport;
 
-class TestTakesController extends Controller
-{
+class TestTakesController extends Controller {
 
     /**
      * Display a listing of the test takes.
      *
      * @return Response
      */
-    public function index(Request $request)
-    {
+    public function index(Request $request) {
         $testTakes = TestTake::filtered($request->get('filter', []), $request->get('order', []))->with('test', 'test.subject', 'test.author', 'retakeTestTake', 'user', 'testTakeStatus', 'invigilatorUsers');
 
         $testTakes->filterByArchived(request('filter'));
@@ -87,8 +88,8 @@ class TestTakesController extends Controller
                     $testTakeNotTaken = [];
                 } elseif (is_array($request->get('with')) && in_array('ownTestParticipant', $request->get('with'))) {
                     $testTakes->with(['testParticipants' => function ($query) use ($userId) {
-                        $query->where('user_id', $userId);
-                    }, 'testParticipants.testTakeStatus']);
+                            $query->where('user_id', $userId);
+                        }, 'testParticipants.testTakeStatus']);
                 }
 
                 $testTakes = $this->filterIfNeededForDemo($testTakes->paginate(15), true);
@@ -102,9 +103,9 @@ class TestTakesController extends Controller
                         $testTakeNotTaken[$i] = 0;
                         foreach ($testTake->testParticipants as $testParticipant) {
                             if (in_array($testParticipant->testTakeStatus->getAttribute('name'), ['Handed in', 'Taken away', 'Taken', 'Discussing', 'Discussed'])) {
-                                $testTakeTaken[$i]++;
+                                $testTakeTaken[$i] ++;
                             } else {
-                                $testTakeNotTaken[$i]++;
+                                $testTakeNotTaken[$i] ++;
                             }
                         }
                     } elseif (is_array($request->get('with')) && in_array('ownTestParticipant', $request->get('with'))) {
@@ -145,8 +146,7 @@ class TestTakesController extends Controller
      * @param CreateTestTakeRequest $request
      * @return Response
      */
-    public function store(CreateTestTakeRequest $request)
-    {
+    public function store(CreateTestTakeRequest $request) {
         $testTake = new TestTake();
 
         $testTake->fill($request->all());
@@ -164,8 +164,7 @@ class TestTakesController extends Controller
      * @param TestTake $testTake
      * @return Response
      */
-    public function show(TestTake $testTake, Request $request)
-    {
+    public function show(TestTake $testTake, Request $request) {
         $testTake->load('test', 'test.subject', 'test.author', 'retakeTestTake', 'user', 'testTakeStatus', 'invigilatorUsers', 'testParticipants');
 
         $isInvigilator = false;
@@ -297,15 +296,14 @@ class TestTakesController extends Controller
                 $testTake['school_classes'] = array_values($schoolClasses);
 
                 return Response::make($testTake, 200);
-
             } elseif ($testTake->testTakeStatus->name == 'Discussing') {
                 $testTake->load(['discussingParentQuestions' => function ($query) {
-                    $query->orderBy('level');
-                }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-                    $query->orderBy('level');
-                }, 'testParticipants.answers.answerRatings' => function ($query) use ($testTake) {
-                    $query->where('test_take_id', $testTake->getKey());
-                }]);
+                        $query->orderBy('level');
+                    }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
+                        $query->orderBy('level');
+                    }, 'testParticipants.answers.answerRatings' => function ($query) use ($testTake) {
+                        $query->where('test_take_id', $testTake->getKey());
+                    }]);
 
                 $questionId = $testTake->getAttribute('discussing_question_id');
                 if ($questionId != null) {
@@ -367,9 +365,9 @@ class TestTakesController extends Controller
                                         $ratedAnswerRatingsPerTestParticipant[$testParticipantId] = 0;
                                     }
 
-                                    $activeAnswerRatingsPerTestParticipant[$testParticipantId]++;
+                                    $activeAnswerRatingsPerTestParticipant[$testParticipantId] ++;
                                     if ($answerRating->getAttribute('rating') != null) {
-                                        $ratedAnswerRatingsPerTestParticipant[$testParticipantId]++;
+                                        $ratedAnswerRatingsPerTestParticipant[$testParticipantId] ++;
                                     }
                                 }
                             } elseif ($answerRating->getAttribute('type') === 'STUDENT' && $answerRating->getAttribute('rating') != null) {
@@ -391,7 +389,7 @@ class TestTakesController extends Controller
                                         if (!array_key_exists($testParticipantId, $testParticipantAbnormalities)) {
                                             $testParticipantAbnormalities[$testParticipantId] = 0;
                                         }
-                                        $testParticipantAbnormalities[$testParticipantId]++;
+                                        $testParticipantAbnormalities[$testParticipantId] ++;
                                     }
                                 }
                             }
@@ -403,7 +401,7 @@ class TestTakesController extends Controller
                                         if (!array_key_exists($testParticipantId, $testParticipantAbnormalities)) {
                                             $testParticipantAbnormalities[$testParticipantId] = 0;
                                         }
-                                        $testParticipantAbnormalities[$testParticipantId]++;
+                                        $testParticipantAbnormalities[$testParticipantId] ++;
                                     }
                                 }
                             }
@@ -456,14 +454,14 @@ class TestTakesController extends Controller
             $testTakeStatusesRetake = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->pluck('id');
 
             $testTake->load(['testParticipants' => function ($query) use ($testTakeStatusesRetake) {
-                $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'user_id', 'rating', 'retake_rating']);
-            }]);
+                    $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'user_id', 'rating', 'retake_rating']);
+                }]);
 
             return Response::make($testTake, 200);
         } elseif ($isInvigilator && is_array($request->get('with')) && in_array('averages', $request->get('with'))) {
             $testTake->load(['testParticipants.answers', 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-                $query->orderBy('level');
-            }]);
+                    $query->orderBy('level');
+                }]);
             $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 
             foreach ($questions as $answerQuestionId => $question) {
@@ -517,8 +515,8 @@ class TestTakesController extends Controller
             return Response::make($testTake, 200);
         } elseif ($isInvigilator && $testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions' => function ($query) {
-                $query->orderBy('level');
-            }]);
+                    $query->orderBy('level');
+                }]);
             if ($testTake->getAttribute('discussing_question_id') != null) {
                 $testTake->setAttribute('discussing_question_uuid', Question::find($testTake->getAttribute('discussing_question_id'))->uuid);
             }
@@ -534,18 +532,16 @@ class TestTakesController extends Controller
         unset($testTake['test_participants']);
 
         $testTake['school_classes'] = $schoolClasses;
-
         return Response::make($testTake, 200);
     }
 
-    public function nextQuestion(TestTake $testTake)
-    {
+    public function nextQuestion(TestTake $testTake) {
         if ($testTake->testTakeStatus->name == 'Discussing') {
             $testTake->load(['discussingParentQuestions' => function ($query) {
-                $query->orderBy('level');
-            }, 'testParticipants', 'testParticipants.answers', 'testParticipants.answers.answerRatings' => function ($query) {
-                $query->where('type', 'STUDENT');
-            }]);
+                    $query->orderBy('level');
+                }, 'testParticipants', 'testParticipants.answers', 'testParticipants.answers.answerRatings' => function ($query) {
+                    $query->where('type', 'STUDENT');
+                }]);
 
             // Set next question
             $questionId = null;
@@ -683,8 +679,8 @@ class TestTakesController extends Controller
     public function normalize(TestTake $testTake, NormalizeTestTakeRequest $request)
     {
         $testTake->load(['testParticipants', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-            $query->orderBy('level');
-        }]);
+                $query->orderBy('level');
+            }]);
         $ignoreQuestions = $request->get('ignore_questions');
 
         if ($request->filled('ppp') || $request->filled('epp') || $request->filled('wanted_average') || $request->filled('n_term')) {
@@ -965,10 +961,10 @@ class TestTakesController extends Controller
         $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 
         $testTake->load(['testParticipants', 'testParticipants.user', 'testParticipants.answers' => function ($query) {
-            $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'test_participant_id', 'question_id', 'order', 'time', 'done', 'final_rating', 'ignore_for_rating']);
-        }, 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-            $query->orderBy('level');
-        }]);
+                $query->select(['id', 'created_at', 'updated_at', 'deleted_at', 'test_participant_id', 'question_id', 'order', 'time', 'done', 'final_rating', 'ignore_for_rating']);
+            }, 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
+                $query->orderBy('level');
+            }]);
 
         $sheet = [];
 
@@ -1096,8 +1092,8 @@ class TestTakesController extends Controller
             if ($rScoreMax === 0) {
                 $rScore = '-';
             } else {
-                $rScore = (float)$rScore;
-                $rScore /= (float)$rScoreMax;
+                $rScore = (float) $rScore;
+                $rScore /= (float) $rScoreMax;
                 $rScore *= 100;
                 $rScore = round($rScore);
             }
@@ -1105,8 +1101,8 @@ class TestTakesController extends Controller
             if ($t1ScoreMax === 0) {
                 $t1Score = '-';
             } else {
-                $t1Score = (float)$t1Score;
-                $t1Score /= (float)$t1ScoreMax;
+                $t1Score = (float) $t1Score;
+                $t1Score /= (float) $t1ScoreMax;
                 $t1Score *= 100;
                 $t1Score = round($t1Score);
             }
@@ -1114,8 +1110,8 @@ class TestTakesController extends Controller
             if ($t2ScoreMax === 0) {
                 $t2Score = '-';
             } else {
-                $t2Score = (float)$t2Score;
-                $t2Score /= (float)$t2ScoreMax;
+                $t2Score = (float) $t2Score;
+                $t2Score /= (float) $t2ScoreMax;
                 $t2Score *= 100;
                 $t2Score = round($t2Score);
             }
@@ -1123,8 +1119,8 @@ class TestTakesController extends Controller
             if ($iScoreMax === 0) {
                 $iScore = '-';
             } else {
-                $iScore = (float)$iScore;
-                $iScore /= (float)$iScoreMax;
+                $iScore = (float) $iScore;
+                $iScore /= (float) $iScoreMax;
                 $iScore *= 100;
                 $iScore = round($iScore);
             }
@@ -1132,8 +1128,8 @@ class TestTakesController extends Controller
             if ($nScoreMax === 0) {
                 $nScore = '-';
             } else {
-                $nScore = (float)$nScore;
-                $nScore /= (float)$nScoreMax;
+                $nScore = (float) $nScore;
+                $nScore /= (float) $nScoreMax;
                 $nScore *= 100;
                 $nScore = round($nScore);
             }
@@ -1158,6 +1154,53 @@ class TestTakesController extends Controller
         $export = new TestTakesExport($sheet);
 
         return Excel::download($export, 'export.csv');
+    }
+
+    /**
+     * Close for students with no time dispensaition.
+     *
+     * @param TestTake $testTake
+     * @param UpdateTestTakeRequest $request
+     * @return Response
+     */
+    public function closeNonTimeDispensation(TestTake $testTake, UpdateTestTakeRequest $request) {
+
+        if (!isset($request['time_dispensation'])) {
+            return $this->update($testTake, $request);
+        }
+
+        //
+        // set all the non-time dispensation students to 'taken away'
+        // unless the student has not started the test yet
+        //
+        $closed_students = TestParticipant::join('users', 'test_participants.user_id', '=', 'users.id')
+                ->where('users.time_dispensation', 0)
+                ->where('test_participants.test_take_id', $testTake->id)
+                ->where('test_participants.test_take_status_id','=',3)
+                ->update(['test_participants.test_take_status_id' => 6]);
+
+        //
+        //   check if there are any students left doing the test, if not close test
+        //   Status 2 Test not taken status 3 Taking test
+        //
+
+        $students_still_in_test = TestParticipant::where('test_participants.test_take_id', $testTake->id)
+                ->whereIn('test_participants.test_take_status_id', [3])
+                ->count();
+
+        if ($students_still_in_test == 0) {
+
+            unset($request['time_dispensation']);
+
+            $request['test_take_status_id'] = 6;
+
+            $this->update($testTake,$request);
+
+        } else {
+
+            return Response::make($testTake, 200);
+
+        }
 
     }
 
@@ -1170,15 +1213,23 @@ class TestTakesController extends Controller
      */
     public function update(TestTake $testTake, UpdateTestTakeRequest $request)
     {
-        $testTake->fill($request->all());
 
-        if ($testTake->save() !== false) {
-            $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
+        if (isset($request['time_dispensation']) && $request['time_dispensation'] == true) {
 
+            $this->closeNonTimeDispensation($testTake, $request);
 
-            return Response::make($testTake, 200);
         } else {
-            return Response::make('Failed to update test take', 500);
+
+            $testTake->fill($request->all());
+
+            if ($testTake->save() !== false) {
+                $this->hydrateTestTakeWithHasNextQuestionAttribute($testTake);
+
+
+                return Response::make($testTake, 200);
+            } else {
+                return Response::make('Failed to update test take', 500);
+            }
         }
     }
 
@@ -1200,12 +1251,12 @@ class TestTakesController extends Controller
     private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake)
     {
         $testTake->load(['discussingParentQuestions' => function ($query) {
-            $query->orderBy('level');
-        }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
-            $query->orderBy('level');
-        }, 'testParticipants.answers.answerRatings' => function ($query) use ($testTake) {
-            $query->where('test_take_id', $testTake->getKey());
-        }]);
+                $query->orderBy('level');
+            }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
+                $query->orderBy('level');
+            }, 'testParticipants.answers.answerRatings' => function ($query) use ($testTake) {
+                $query->where('test_take_id', $testTake->getKey());
+            }]);
 
         $questionId = $testTake->getAttribute('discussing_question_id');
         $parents = null;

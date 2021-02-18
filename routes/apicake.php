@@ -19,6 +19,7 @@ use tcCore\Http\Controllers\Testing\TestingController;
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
+//Route::get('config', 'ConfigController@show')->name('config.show');
 
 Route::get('/', 'HomeController@index');
 
@@ -204,6 +205,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Users
     Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
     Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
+    Route::get('user/is_account_verified', ['as' => 'user.is_account_verified', 'uses' => 'UsersController@isAccountVerified']);
+
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
     Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
     Route::post('/tell_a_teacher', 'TellATeacherController@store')->name('tell_a_teacher.store');
@@ -293,7 +296,11 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('shortcode/{shortcode}','ShortcodeController@show')->name('shortcode.show');
     Route::get('shortcode','Api\ShortcodeController@store')->name('shortcode.store');
     Route::get('inv/{shortcode}', 'Api\ShortcodeController@registerClickAndRedirect')->name('shortcode.registerclickandredirect');
-    Route::put('shortcodeclick/{shortcodeClick}','Api\ShortcodeClickController@update')->name('shortcodeClick.update');
+    Route::put('shortcodeclick/{shortcodeClick}','ShortcodeClickController@update')->name('shortcodeClick.update');
+
+    Route::get('config/{variable_name}','ConfigController@show')->name('config.show');
     // goes to the web part
     // Route::get('tlc/{shortcode}','ShortcodeController@registerClickAndRedirect')->name('shortcode.registerAndRedirect');
+    Route::get('test_participant/{test_take}/is_allowed_inbrowser_testing','TestTakes\TestParticipantsController@is_allowed_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.show');
+    Route::put('test_take/{test_take}/test_participant/{test_participant}/toggle_inbrowser_testing','TestTakes\TestParticipantsController@toggle_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.update');
 });

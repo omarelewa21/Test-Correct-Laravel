@@ -6,90 +6,164 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\User;
 use tcCore\Test;
 use tcCore\Question;
-use tcCore\MatchingQuestion;
+use tcCore\RankingQuestion;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\TestTrait;
-use Tests\Traits\MatchingQuestionTrait;
+use Tests\Traits\MultipleChoiceQuestionTrait;
 use Illuminate\Support\Facades\DB;
 
-class CopyTestTest extends TestCase
+class CopyTrueFalseQuestionTest extends TestCase
 {
     use DatabaseTransactions;
     use TestTrait;
-    use MatchingQuestionTrait;
+    use MultipleChoiceQuestionTrait;
 
     private $originalTestId;
     private $originalQuestionId;
     private $copyTestId;
 
-    public function setUp(): void
-    {
-    	//$this->clearDB();
-    	parent::setUp();
-    }
-
-    public function tearDown(): void
-    {
-    	//$this->clearDB();
-    	
-    	parent::tearDown();
-    }
-
+   
     /** @test */
-    public function it_should_copy_questionsForRubriceer()
+    public function it_should_copy_questionsForJuistOnjuist()
     {
-        $this->setupScenario4();
-        $tests = Test::where('name','TToets van GM4')->get();
+        $this->setupScenario1();
+        $tests = Test::where('name','TToets van GM1')->get();
         $this->assertTrue(count($tests)==1);
         $questions = Test::find($this->originalTestId)->testQuestions;
         $this->assertTrue(count($questions)==1);
         $originalQuestionArray = $questions->pluck('question_id')->toArray();
-        $tests = Test::where('name','Kopie #1 TToets van GM4')->get();
+        $tests = Test::where('name','Kopie #1 TToets van GM1')->get();
         $this->assertTrue(count($tests)==1);
         $copyQuestions = Test::find($this->copyTestId)->testQuestions;
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
         $result = array_diff($originalQuestionArray, $copyQuestionArray);
         $this->assertTrue(count($result)==0);
-        $attributes = $this->getAttributesForEditQuestion4($this->originalTestId);
+        $attributes = $this->getAttributesForEditQuestion1($this->copyTestId);
         $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
-        $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
+        $this->editMultipleChoiceQuestion($copyQuestion->uuid,$attributes);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        $this->assertTrue(count($result)>=0);
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)>0);
     }
 
     /** @test */
-    public function it_should_copy_questionsForRubriceerAndKeepTheOriginalOriginal()
+    public function it_should_not_copy_questions_for_juist_onjuist_when_answers_are_the_same()
     {
-        $this->setupScenario4();
-        $tests = Test::where('name','TToets van GM4')->get();
+        $this->setupScenario1();
+        $tests = Test::where('name','TToets van GM1')->get();
         $this->assertTrue(count($tests)==1);
-
         $questions = Test::find($this->originalTestId)->testQuestions;
         $this->assertTrue(count($questions)==1);
-        $this->assertTrue(!is_null($questions->first()->question->matchingQuestionAnswers));
-
         $originalQuestionArray = $questions->pluck('question_id')->toArray();
-        $tests = Test::where('name','Kopie #1 TToets van GM4')->get();
+        $tests = Test::where('name','Kopie #1 TToets van GM1')->get();
         $this->assertTrue(count($tests)==1);
-
         $copyQuestions = Test::find($this->copyTestId)->testQuestions;
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
         $result = array_diff($originalQuestionArray, $copyQuestionArray);
         $this->assertTrue(count($result)==0);
-
-        $attributes = $this->getAttributesForEditQuestion4($this->originalTestId);
+        $attributes = $this->getAttributesForQuestion1($this->copyTestId);
         $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        $this->editMultipleChoiceQuestion($copyQuestion->uuid,$attributes);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }
+    
+
+    private function setupScenario1(){
+        $attributes = $this->getAttributesForTest1();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForQuestion1($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
+        $this->duplicateTest($this->originalTestId);
+    }
+
+
+    private function getAttributesForTest1(){
+
+        return $this->getTestAttributes([
+            'name'                   => 'TToets van GM1',
+            'abbreviation'           => 'TTGM1',
+            'subject_id'             => '6',
+            'introduction'           => 'intro',
+        ]);
+    
+    }
         
-        $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
-        $this->checkCopyQuestionsAfterEdit($this->copyTestId,$originalQuestionArray);
+    
 
-        $originalQuestions = Test::find($this->originalTestId)->testQuestions;
-        $this->assertTrue(count($originalQuestions)==1);
 
-        $testQuestion = $originalQuestions->first();
-        $answers = $testQuestion->question->matchingQuestionAnswers;
+    private function getAttributesForEditQuestion1($testId){
+        $attributes = array_merge($this->getAttributesForQuestion1($testId),[   "answers"=> [
+                                                                                                [
+                                                                                                "answer"=> "Juist",
+                                                                                                "score"=> 0,
+                                                                                                "order"=> 0
+                                                                                                ],
+                                                                                                [
+                                                                                                "answer"=> "Onjuist",
+                                                                                                "score"=> "5",
+                                                                                                "order"=> 0
+                                                                                                ]
+                                                                                            ],
+                                                                            ]);
+        unset($attributes["test_id"]);
+        return $attributes;
+    }
+
+    private function getAttributesForQuestion1($testId){
+        return [    
+                    "type"=> "MultipleChoiceQuestion",
+                    "score"=> "5",
+                    "question"=> "<p>GM1</p> ",
+                    "order"=> 0,
+                    "maintain_position"=> "0",
+                    "discuss"=> "1",
+                    "subtype"=> "TrueFalse",
+                    "decimal_score"=> "0",
+                    "add_to_database"=> 1,
+                    "attainments"=> [
+                    ],
+                    "note_type"=> "NONE",
+                    "is_open_source_content"=> 1,
+                    "answers"=> [
+                                    [
+                                    "answer"=> "Juist",
+                                    "score"=> "5",
+                                    "order"=> 0
+                                    ],
+                                    [
+                                    "answer"=> "Onjuist",
+                                    "score"=> 0,
+                                    "order"=> 0
+                                    ]
+                                ],
+                    "tags"=> [
+                    ],
+                    "rtti"=> "R",
+                    "bloom"=> "Onthouden",
+                    "miller"=> "Weten",
+                    "test_id"=> $testId,
+                ];
+    }
+
+
+    
+
+    private function checkCopyQuestionsAfterEdit($copyTestId,$originalQuestionArray){
+		$copyQuestions = Test::find($copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+
+        $this->assertTrue(count($result)>0);
+
+        $copyQuestion = Test::find($copyTestId)->testQuestions->first();
+        $answers = $copyQuestion->question->rankingQuestionAnswers;
         foreach ($answers as $key => $answerObj) {
         	switch ($key) {
         		case '0':
@@ -100,208 +174,6 @@ class CopyTestTest extends TestCase
         			break;
         		case '2':
         			$this->assertEquals('cc', $answerObj->answer);
-        			break;
-        		case '3':
-        			$this->assertEquals('dd', $answerObj->answer);
-        			break;
-        		case '4':
-        			$this->assertEquals('ee', $answerObj->answer);
-        			break;
-        		case '5':
-        			$this->assertEquals('ff', $answerObj->answer);
-        			break;
-        	}
-        }
-    }
-
-    /** @test */
-    public function it_should_not_copy_questionsForRubriceerWhenAntwoordOptiesAreTheSame()
-    {
-        $this->setupScenario4();
-        $tests = Test::where('name','TToets van GM4')->get();
-        $this->assertTrue(count($tests)==1);
-
-        $questions = Test::find($this->originalTestId)->testQuestions;
-        $this->assertTrue(count($questions)==1);
-        $this->assertTrue(!is_null($questions->first()->question->matchingQuestionAnswers));
-
-        $originalQuestionArray = $questions->pluck('question_id')->toArray();
-
-        $tests = Test::where('name','Kopie #1 TToets van GM4')->get();
-        $this->assertTrue(count($tests)==1);
-
-        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
-        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        
-        $result = array_diff($originalQuestionArray, $copyQuestionArray);
-        $this->assertTrue(count($result)==0);
-
-        $attributes = $this->getAttributesForQuestion4($this->originalTestId);
-        unset($attributes["test_id"]);
-        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
-        
-        $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
-        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
-        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-
-        $result = array_diff($originalQuestionArray, $copyQuestionArray);
-
-        $this->assertTrue(count($result)==0);
-
-        
-    }
-
-
-
-   
-
-    private function setupScenario4(){
-    	$attributes = $this->getAttributesForTest4();
-    	unset($attributes['school_classes']);
-    	$this->createTLCTest($attributes);
-    	$attributes = $this->getAttributesForQuestion4($this->originalTestId);
-        $this->createMatchingQuestion($attributes);
-        $this->duplicateTest($this->originalTestId);
-    }
-
-
-    private function getAttributesForTest4(){
-
-        return $this->getTestAttributes([
-            'name'                   => 'TToets van GM4',
-            'abbreviation'           => 'TTGM4',
-            'subject_id'             => '6',
-            'introduction'           => 'intro',
-        ]);
-    
-    }
-
-    
-
-    private function getAttributesForEditQuestion4($testId){
-    	$attributes = array_merge($this->getAttributesForQuestion4($testId),[	
-    																		"answers"=> array_merge([
-																										[
-																											"order"=> "0",
-																											"left"=> "aa2",
-																											"right"=> "bb2"
-																										],
-																										[
-																											"order"=> "1",
-																											"left"=> "",
-																											"right"=> ""
-																										],
-																										[
-																											"order"=> "2",
-																											"left"=> "cc2",
-																											"right"=> "dd2"
-																										],
-																										[
-																											"order"=> "3",
-																											"left"=> "",
-																											"right"=> ""	
-																										],
-																										[
-																											"order"=> "4",
-																											"left"=> "ee2",
-																											"right"=> "ff2"
-																										]
-    																								],$this->getRestOfAnswerArray(4,49))
-
-																				
-																			,
-
-    																	]);
-		unset($attributes["test_id"]);
-		return $attributes;
-    }
-
-    private function getAttributesForQuestion4($testId){
-    	return [	
-    				"type"=> "MatchingQuestion",
-					"score"=> "5",
-					"question"=> "<p>GM4</p> ",
-					"order"=> 0,
-					"maintain_position"=> "0",
-					"discuss"=> "1",
-					"subtype"=> "Classify",
-					"decimal_score"=> "0",
-					"add_to_database"=> 1,
-					"attainments"=> [
-					],
-					"note_type"=> "NONE",
-					"is_open_source_content"=> 1,
-					"answers"=> array_merge([
-												[
-													"order"=> "1",
-													"left"=> "aa",
-													"right"=> "bb"
-												],
-												[
-													"order"=> "2",
-													"left"=> "cc",
-													"right"=> "dd"
-												],
-												[
-													"order"=> "3",
-													"left"=> "ee",
-													"right"=> "ff"
-												],
-											],$this->getRestOfAnswerArray(4,49))
-					,
-					"tags"=> [
-					],
-					"rtti"=> "R",
-					"bloom"=> "Onthouden",
-					"miller"=> "Weten",
-					"test_id"=> $testId,
-				];
-    }
-
-    private function getScenario4GetAttributes(){
-    	return $this->getGetAttributes($this->originalTestId);
-    }
-    
-    private function getGetAttributes($testId){
-    	return [
-			"filter"=> [
-						"test_id"=> $testId
-						],
-			"mode"=> "all",
-			"order"=> [
-						"order"=> "asc"
-						]
-		];
-    }
-
-    private function checkCopyQuestionsAfterEdit($copyTestId,$originalQuestionArray){
-		$copyQuestions = Test::find($copyTestId)->testQuestions;
-        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        $result = array_diff($originalQuestionArray, $copyQuestionArray);
-
-        $this->assertTrue(count($result)>0);
-
-        $copyQuestion = Test::find($copyTestId)->testQuestions->first();
-        $answers = $copyQuestion->question->matchingQuestionAnswers;
-        foreach ($answers as $key => $answerObj) {
-        	switch ($key) {
-        		case '0':
-        			$this->assertEquals('aa2', $answerObj->answer);
-        			break;
-        		case '1':
-        			$this->assertEquals('bb2', $answerObj->answer);
-        			break;
-        		case '2':
-        			$this->assertEquals('cc2', $answerObj->answer);
-        			break;
-        		case '3':
-        			$this->assertEquals('dd2', $answerObj->answer);
-        			break;
-        		case '4':
-        			$this->assertEquals('ee2', $answerObj->answer);
-        			break;
-        		case '5':
-        			$this->assertEquals('ff2', $answerObj->answer);
         			break;
         	}
         }

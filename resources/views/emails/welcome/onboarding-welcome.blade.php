@@ -15,9 +15,10 @@
             Padding: 15px 30px;
             display: block;
             background: var(--cta-primary);
-            color: white;
+            color: var(--system-base);
+            text-decoration: underline;
             text-align: center;
-            stroke: white;
+            stroke: var(--system-base);
             Margin-top: 40px;
             "
                class="mt-40 button cta-button stretched text-center svg-stroke-white">Verifieer je e-mailadres

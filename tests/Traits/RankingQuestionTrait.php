@@ -20,8 +20,9 @@ trait RankingQuestionTrait
             )
         );
         $response->assertStatus(200);
-        $questionId = $response->decodeResponseJson()['id'];
-        $this->originalQuestionId = $questionId;
+        $testQuestionId = $response->decodeResponseJson()['id'];
+        $this->originalQuestionId = $testQuestionId;
+        return $testQuestionId;
     }
 
     private function editRankingQuestion($uuid,$attributes){

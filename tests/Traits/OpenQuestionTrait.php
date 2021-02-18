@@ -14,7 +14,7 @@ trait OpenQuestionTrait
     private function addOpenQuestionAndReturnQuestionId(int $testId): int
     {
         $response = $this->post(
-            '/test_question',
+            'api-c/test_question',
             static::getTeacherOneAuthRequestData(
                 $this->getOpenQuestionAttributes(['test_id' => $testId])
             )

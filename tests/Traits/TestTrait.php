@@ -32,7 +32,7 @@ trait TestTrait
     private function addTestAndReturnTestId(array $overrides = []): int
     {
         $response = $this->post(
-            '/test',
+            'api-c/test',
             static::getTeacherOneAuthRequestData(
                 $this->getTestAttributes()
             )
@@ -73,5 +73,57 @@ trait TestTrait
         $response->assertStatus(200);
         $testId = $response->decodeResponseJson()['id'];
         $this->originalTestId = $testId;
+    }
+
+    private function originalAndCopyShareQuestion(){
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $originalQuestionArray = $questions->pluck('question_id')->toArray();
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }
+
+    private function originalAndCopyShareGroupQuestion($var = false){
+        if($var){
+            dump($var);
+        }
+        $testQuestions = Test::find($this->originalTestId)->testQuestions;
+        $originalQuestionArray = $this->extractQuestionIdsFromGroupQuestion($testQuestions);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $this->extractQuestionIdsFromGroupQuestion($copyQuestions);
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }
+
+    private function originalAndCopyShareGroup($var = false){
+        if($var){
+            dump($var);
+        }
+        $testQuestions = Test::find($this->originalTestId)->testQuestions;
+        $originalQuestionArray = $testQuestions->pluck('question_id')->toArray();
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+    }
+
+    private function extractQuestionIdsFromGroupQuestion($testQuestions){
+        if(is_null($testQuestions)){
+            return [];
+        }
+        $groupTestQuestions = $testQuestions->filter(function ($testQuestion, $key) {
+                                                    return $testQuestion->question->type == 'GroupQuestion';
+                                                });
+        $groupQuestions = $groupTestQuestions->map(function ($groupTestQuestion, $key) {
+                                                return $groupTestQuestion->question;
+                                            });
+        $questionArray = [];
+        foreach ($groupQuestions as $key => $groupQuestion) {
+            foreach ($groupQuestion->groupQuestionQuestions as $key => $groupQuestionQuestion) {
+                $questionArray[] = $groupQuestionQuestion->question_id;
+            }
+        }
+        return $questionArray;
     }
 }

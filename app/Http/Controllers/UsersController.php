@@ -30,6 +30,7 @@ use tcCore\Lib\Repositories\TeacherRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\LoginLog;
 use tcCore\OnboardingWizardUserStep;
+use tcCore\QtiModels\ResourceImport;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
 use tcCore\User;
@@ -121,6 +122,8 @@ class UsersController extends Controller
                         'send_welcome_email' => 1,
                         'username'           => $user->username,
                         'abbreviation'       => $user->abbreviation,
+                        'invited_by'         => $user->invited_by,
+                        'account_verified'  => $user->account_verified,
                     ]
                 )
             );
@@ -130,7 +133,7 @@ class UsersController extends Controller
             $newUser->save();
 
             // we can always get the old user by checking the creation date of the new user and use that to see the vervallenDATETIME of the old user
-            $user->username = sprintf('vervallen%d%s', date('YmdHis'), explode('@', $user->username)[1]);
+            $user->username = sprintf('vervallen-%d-%s-%s', $newUser->created_at->format('YmdHis'),$newUser->getKey(), explode('@', $user->username)[1]);
             $user->save();
             $user->delete();
 
@@ -445,5 +448,14 @@ class UsersController extends Controller
 
         return new JsonResponse($clone);
 
+    }
+
+    public function isAccountVerified(Request $request)
+    {
+        $user = User::where('id', $request->user_id)->first();
+        if ($user->account_verified) {
+            return Response::make(true, 200);
+        }
+        return Response::make(null, 204);
     }
 }
