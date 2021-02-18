@@ -397,7 +397,7 @@ class TestParticipantsController extends Controller
     public function is_allowed_inbrowser_testing(TestTake $testTake)
     {
         $me = $testTake->testParticipants()->where('user_id', Auth::id())->first();
-        logger($me);
+
         if ($me) {
             return $me->allow_inbrowser_testing;
         }
