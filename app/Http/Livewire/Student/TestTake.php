@@ -14,6 +14,7 @@ class TestTake extends Component
 {
     public $testTakeUuid;
     public $showTurnInModal = false;
+    public $questions;
 
     public function render()
     {

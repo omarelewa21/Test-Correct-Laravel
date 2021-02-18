@@ -25,6 +25,13 @@ class MatchingQuestion extends Component
 
         $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
 
+        if(!$this->answerStruct) {
+            foreach($this->question->matchingQuestionAnswers as $key => $value) {
+                if ($value->correct_answer_id !== null) {
+                    $this->answerStruct[$value->id] = "";
+                }
+            }
+        }
     }
 
     public function questionUpdated($uuid, $answer)

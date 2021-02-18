@@ -86,7 +86,7 @@
             </div>
         </x-slot>
         <x-slot name="testTakeManager">
-            <livewire:student.test-take :testTakeUuid="$uuid"/>
+            <livewire:student.test-take :testTakeUuid="$uuid" :questions="$data"/>
         </x-slot>
     </div>
 
