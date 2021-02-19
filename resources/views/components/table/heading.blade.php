@@ -12,15 +12,17 @@
 'sortable' => null,
 'direction' => null,
 'multiColumn' => null,
+'width' => null,
 ])
 
 <th
-        {{ $attributes->merge(['class' => 'text-left px-3 py-1 bg-cool-gray-50'])->only('class') }}
+        {{ $attributes->merge(['class' => 'text-left px-3 bg-cool-gray-50'])->only('class') }}
+        @isset($width) style="max-width:{{$width}}%" @endisset
 >
     @unless ($sortable)
         <span class="text-left body2 bold">{{ $slot }}</span>
     @else
-        <button {{ $attributes->except('class') }} class="flex space-x-1 text-left  body2 bold group focus:outline-none focus:underline">
+        <x-button.text-button class="flex space-x-1 text-left  body2 bold group focus:outline-none">
             <span>{{ $slot }}</span>
 
             <span class="relative flex items-center">
@@ -70,6 +72,6 @@
                     @endif
                 @endif
             </span>
-        </button>
+        </x-button.text-button>
     @endif
 </th>

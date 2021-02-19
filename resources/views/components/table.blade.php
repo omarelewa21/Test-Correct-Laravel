@@ -8,7 +8,7 @@
 -- Purchase here: https://tailwindui.com/
 --}}
 
-<div class="align-middle min-w-full overflow-x-auto  overflow-hidden sm:rounded-lg">
+<div class="align-middle min-w-full sm:rounded-lg">
     <table class="min-w-full">
         <thead class="border-b-2 border-system-base">
             <tr>
@@ -16,7 +16,7 @@
             </tr>
         </thead>
 
-        <tbody class="bg-white divide-y divide-indigo-300">
+        <tbody class="bg-white overflow-auto">
             {{ $body }}
         </tbody>
     </table>
