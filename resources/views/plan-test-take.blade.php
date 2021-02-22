@@ -12,9 +12,7 @@
 
     <header class="header fixed w-full content-center"
             x-data="menuItemStates();"
-            x-on:click.away="
-            menuItemStates()
-            "
+            x-on:click.away="menuItemStates()"
     >
         <div class="mx-4 lg:mx-28 flex h-full items-center">
             <div>
@@ -25,7 +23,7 @@
             </div>
 
             <div id="menu" class="menu hidden flex-wrap content-center md:flex md:ml-4">
-                <div class="menu-item px-2">
+                <div class="menu-item px-2 py-1">
                     <button @click="" class="text-button">Dashboard</button>
                 </div>
 

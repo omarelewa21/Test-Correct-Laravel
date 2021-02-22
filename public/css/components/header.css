@@ -9,6 +9,9 @@
     font-size: 18px;
 }
 
+.menu .text-button {
+    border-bottom: 3px solid transparent;
+}
 .menu .text-button.active {
     border-bottom: 3px solid var(--system-base);
 }
