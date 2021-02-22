@@ -15,17 +15,17 @@
   border-left:  @caret-width-base solid transparent;
 }
 
-// The dropdown.blade.php wrapper (div)
+// The dropdown wrapper (div)
 .dropdown {
   position: relative;
 }
 
-// Prevent the focus on the dropdown.blade.php toggle when closing dropdowns
+// Prevent the focus on the dropdown toggle when closing dropdowns
 .dropdown-toggle:focus {
   outline: 0;
 }
 
-// The dropdown.blade.php menu (ul)
+// The dropdown menu (ul)
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -46,20 +46,20 @@
   .box-shadow(0 6px 12px rgba(0,0,0,.175));
   background-clip: padding-box;
 
-  // Aligns the dropdown.blade.php menu to right
+  // Aligns the dropdown menu to right
   //
-  // Deprecated as of 3.1.0 in favor of `.dropdown.blade.php-menu-[dir]`
+  // Deprecated as of 3.1.0 in favor of `.dropdown-menu-[dir]`
   &.pull-right {
     right: 0;
     left: auto;
   }
 
-  // Dividers (basically an hr) within the dropdown.blade.php
+  // Dividers (basically an hr) within the dropdown
   .divider {
     .nav-divider(@dropdown-divider-bg);
   }
 
-  // Links within the dropdown.blade.php menu
+  // Links within the dropdown menu
   > li > a {
     display: block;
     padding: 3px 20px;
@@ -115,7 +115,7 @@
   }
 }
 
-// Open state for the dropdown.blade.php
+// Open state for the dropdown
 .open {
   // Show the menu
   > .dropdown-menu {
@@ -130,17 +130,17 @@
 
 // Menu positioning
 //
-// Add extra class to `.dropdown.blade.php-menu` to flip the alignment of the dropdown.blade.php
+// Add extra class to `.dropdown-menu` to flip the alignment of the dropdown
 // menu with the parent.
 .dropdown-menu-right {
-  left: auto; // Reset the default from `.dropdown.blade.php-menu`
+  left: auto; // Reset the default from `.dropdown-menu`
   right: 0;
 }
-// With v3, we enabled auto-flipping if you have a dropdown.blade.php within a right
+// With v3, we enabled auto-flipping if you have a dropdown within a right
 // aligned nav component. To enable the undoing of that, we provide an override
-// to restore the default dropdown.blade.php menu alignment.
+// to restore the default dropdown menu alignment.
 //
-// This is only for left-aligning a dropdown.blade.php menu within a `.navbar-right` or
+// This is only for left-aligning a dropdown menu within a `.navbar-right` or
 // `.pull-right` nav component.
 .dropdown-menu-left {
   left: 0;
@@ -175,7 +175,7 @@
 
 // Allow for dropdowns to go bottom up (aka, dropup-menu)
 //
-// Just add .dropup after the standard .dropdown.blade.php class and you're set, bro.
+// Just add .dropup after the standard .dropdown class and you're set, bro.
 // TODO: abstract this so that the navbar fixed styles are not placed here?
 
 .dropup,
