@@ -321,6 +321,7 @@ class TestParticipantsController extends Controller
             } else {
                 $testParticipant->load('user', 'testTakeStatus', 'schoolClass', 'answers', 'testTakeEvents');
             }
+
             return Response::make($testParticipant, 200);
         }
     }
@@ -335,6 +336,7 @@ class TestParticipantsController extends Controller
     public function update(TestTake $testTake, TestParticipant $testParticipant, UpdateTestParticipantRequest $request)
     {
         $testParticipant->fill($request->all());
+
         if ($testTake->testParticipants()->save($testParticipant) !== false) {
             return Response::make($testParticipant, 200);
         } else {
@@ -367,7 +369,7 @@ class TestParticipantsController extends Controller
          $testTake = TestTake::whereUUid($testTakeId)->first();
 
          if ($testTake === null) {
-             return Response::make('Failed to process heartbeat of test participant, test take has been deleted.', 500);
+             return Response::make('Failed to process heartbeat of test participant, test take has been deleted.', 404);
          }
 
         $answer_id = (int) $testTake->getKey();

@@ -532,6 +532,7 @@ class TestTakesController extends Controller {
         unset($testTake['test_participants']);
 
         $testTake['school_classes'] = $schoolClasses;
+
         return Response::make($testTake, 200);
     }
 

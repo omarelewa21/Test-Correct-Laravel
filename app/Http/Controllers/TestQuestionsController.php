@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace tcCore\Http\Controllers;
 
@@ -161,11 +161,11 @@ class TestQuestionsController extends Controller {
             $testQuestion->fill($request->all());
 
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            if (    $question->isDirty() 
-                    || $questionInstance->isDirty() 
-                    || $questionInstance->isDirtyAttainments() 
+            if (    $question->isDirty()
+                    || $questionInstance->isDirty()
+                    || $questionInstance->isDirtyAttainments()
                     || $questionInstance->isDirtyTags()
-                    || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
+                    || ($question instanceof DrawingQuestion && $question->isDirtyFile()))
             {
                 if ($question->isUsed($testQuestion)) {
                     $question = $question->duplicate($request->all());
@@ -224,7 +224,7 @@ class TestQuestionsController extends Controller {
 
             $questionInstance = $question->getQuestionInstance();
             $testQuestion->fill($request->all());
-            
+
 // this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
             if (!$completionAnswerDirty
                 && !$question->isDirty()
@@ -240,16 +240,16 @@ class TestQuestionsController extends Controller {
 
                 // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
             } elseif ($completionAnswerDirty
-                || $question->isDirty() 
-                || $questionInstance->isDirty() 
-                || $questionInstance->isDirtyAttainments() 
+                || $question->isDirty()
+                || $questionInstance->isDirty()
+                || $questionInstance->isDirtyAttainments()
                 || $questionInstance->isDirtyTags()
-                || $questionInstance->isDirtyAnswerOptions($totalData) 
-                || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
+                || $questionInstance->isDirtyAnswerOptions($totalData)
+                || ($question instanceof DrawingQuestion && $question->isDirtyFile()))
             {
 
                 if ($question->isUsed($testQuestion)) {
-                    
+
                     $question = $question->duplicate(array_merge($request->all(),$questionData));
                     //$question = $question->duplicate($request->all());
                     if ($question === false) {
