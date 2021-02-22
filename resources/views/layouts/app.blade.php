@@ -24,7 +24,7 @@
     <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">
 
         <div class="flex items-center">
-            <livewire:student.fraud-detection/>
+            {{ $fraudDetection }}
         </div>
 
         <div class="flex items-center ml-auto space-x-6">

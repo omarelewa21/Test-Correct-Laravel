@@ -12,6 +12,8 @@ class TestTakeLaravelController extends Controller
 {
     public function overview(TestTake $testTake, Request $request)
     {
+        $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
+
         $current = $request->get('q') ?: '1';
 
         $data = self::getData($testTake);
@@ -32,7 +34,7 @@ class TestTakeLaravelController extends Controller
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
 
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant']));
     }
 
 
@@ -61,7 +63,7 @@ class TestTakeLaravelController extends Controller
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
 
-        return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid']));
+        return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant']));
     }
 
     public function getAnswers($testTake, $testQuestions)

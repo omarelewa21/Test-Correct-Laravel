@@ -22,7 +22,7 @@
                 {!!   $question->getQuestionHtml() !!}
             </div>
             @if($question->subtype == 'Classify')
-                <div class="flex flex-col" >
+                <div class="flex flex-col classify">
                     <div class="flex">
                         <x-dropzone wire:key="group-start" startGroup="true">
                             <div class="h-full space-x-1 focus:outline-none">
@@ -39,7 +39,7 @@
                             </div>
                         </x-dropzone>
                     </div>
-                    <div class="flex space-x-5 classify">
+                    <div class="flex space-x-5 classified">
                         @foreach ($question->matchingQuestionAnswers as $group)
                             @if(  $group->correct_answer_id === null )
                                 <x-dropzone type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"
@@ -85,12 +85,12 @@
                             @if(  $group->correct_answer_id === null )
                                 <div class="flex space-x-2">
                                     <div class="w-1/3">
-                                    <span class="flex w-full py-2 px-4 border-2 border-blue-grey rounded-10
-                                                 bg-primary-light font-size-18 bold base leading-5">
-                                                {{ $group->answer }}
-                                    </span>
+                                        <span class="flex w-full py-2 px-4 border-2 border-blue-grey rounded-10
+                                                     bg-primary-light font-size-18 bold base leading-5">
+                                                    {{ $group->answer }}
+                                        </span>
                                     </div>
-                                    <div class="flex-1">
+                                    <div class="flex-1 matching-dropzone">
                                         <x-dropzone type="matching" wire:key="group-{{ $group->id }}"
                                                     wire:sortable.item="{{ $group->id }}">
                                             <div class="flex w-full h-full" >
