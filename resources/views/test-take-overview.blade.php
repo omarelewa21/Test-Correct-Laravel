@@ -1,7 +1,7 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5 overview"
          x-data=""
-         x-init="window.onbeforeunload = function () {
+         x-init="window.onunload = function () {
                       window.scrollTo(0, 0);
                 }"
     >

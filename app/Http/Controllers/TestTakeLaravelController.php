@@ -89,7 +89,7 @@ class TestTakeLaravelController extends Controller
 
     public static function getData(Test $testTake)
     {
-        $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
+        $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling', 'closable'];
         $testTake->load(['test', 'test.testQuestions', 'test.testQuestions.question'])->get();
 
         return $testTake->test->testQuestions->flatMap(function ($testQuestion) use ($visibleAttributes) {

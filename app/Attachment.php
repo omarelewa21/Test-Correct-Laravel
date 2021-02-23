@@ -240,6 +240,15 @@ class Attachment extends BaseModel
         return json_decode($this->json)->play_once;
     }
 
+    public function audioTimeoutTime()
+    {
+        $timeout = null;
+        if (json_decode($this->json)->timeout) {
+            $timeout = json_decode($this->json)->timeout;
+        }
+        return $timeout;
+    }
+
     public function audioIsPlayedOnce()
     {
         session()->put('attachment_'.$this->getKey(), 1);

@@ -67,6 +67,7 @@ class RankingQuestion extends Component
 
 
         $this->createAnswerStruct();
+        $this->dispatchBrowserEvent('current-question-answered');
     }
 
 

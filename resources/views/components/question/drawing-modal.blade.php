@@ -86,7 +86,7 @@
 </div>
 <div class="input-group w-full mt-4">
 
-<textarea id="additional_text" wire:model="additionalText"
+<textarea id="additional_text" wire:model.defer="additionalText"
           class="form-input"
           placeholder="Begeleidende tekst"></textarea>
 </div>

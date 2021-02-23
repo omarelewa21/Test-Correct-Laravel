@@ -14,7 +14,7 @@
 
     <div class="flex flex-1 flex-col space-y-2">
         <div>{!! $question->getQuestionHtml() !!}</div>
-        <div class="flex flex-col max-w-min space-y-2">
+        <div class="flex flex-col max-w-max space-y-2">
             @foreach($answerStruct as $answer)
                 <x-drag-item-disabled sortId="{{ $answer->value }}"
                              wireKey="option-{{ $answer->value }}">

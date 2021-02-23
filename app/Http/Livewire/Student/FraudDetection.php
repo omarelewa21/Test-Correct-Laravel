@@ -29,11 +29,11 @@ class FraudDetection extends Component
         return view('components.fraud-detected');
     }
 
-    public function createTestTakeEvent($reason)
+    public function createTestTakeEvent($event)
     {
         $testTakeEvent = new TestTakeEvent([
             'test_participant_id' => $this->testParticipant->id,
-            'test_take_event_type_id' => $this->getTestTakeEventTypeId($reason)
+            'test_take_event_type_id' => $this->getEventTypeId($event)
         ]);
 
         $this->testTake->testTakeEvents()->save($testTakeEvent);
@@ -41,8 +41,8 @@ class FraudDetection extends Component
         $this->fraudDetected = true;
     }
 
-    private function getTestTakeEventTypeId($reason)
+    private function getEventTypeId($event)
     {
-        return TestTakeEventType::whereReason($reason)->first()->id;
+        return TestTakeEventType::whereReason($event)->first()->id;
     }
 }

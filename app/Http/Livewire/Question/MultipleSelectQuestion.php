@@ -24,8 +24,10 @@ class MultipleSelectQuestion extends Component
 
     public function mount()
     {
+        $this->selectable_answers = $this->question->selectable_answers;
+
         if ($this->answers[$this->question->uuid]['answer']) {
-            $this->answerStruct = collect((array) json_decode($this->answers[$this->question->uuid]['answer']));
+            $this->answerStruct = collect((array)json_decode($this->answers[$this->question->uuid]['answer']));
         } else {
             $this->answerStruct =
                 array_fill_keys(
@@ -42,7 +44,14 @@ class MultipleSelectQuestion extends Component
 
     public function updatedAnswer($value)
     {
-        $this->answerStruct[$value] === 1 ? $this->answerStruct[$value] = 0 : $this->answerStruct[$value] = 1;
+        if ($this->answerStruct[$value] === 1) {
+            $this->answerStruct[$value] = 0;
+        } else {
+            $selected = count(array_keys($this->answerStruct->toArray(), 1));
+            if ($selected != $this->question->selectable_answers) {
+                $this->answerStruct[$value] = 1;
+            }
+        }
 
         $json = json_encode($this->answerStruct);
 

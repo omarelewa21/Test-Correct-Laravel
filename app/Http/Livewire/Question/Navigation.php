@@ -5,6 +5,8 @@ namespace tcCore\Http\Livewire\Question;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
 use Livewire\Component;
+use tcCore\Answer;
+use tcCore\Question;
 
 class Navigation extends Component
 {
@@ -41,6 +43,8 @@ class Navigation extends Component
 
     public function updatedQ($value)
     {
+        $this->CheckIfCurrentQuestionIsInfoscreen($value);
+
         $details = $this->getDetailsQuestion();
 
         if ($this->q == 1) {
@@ -56,6 +60,8 @@ class Navigation extends Component
 
     public function previousQuestion()
     {
+        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
+
         if ($this->q > 1) {
             $this->q--;
             $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
@@ -71,6 +77,8 @@ class Navigation extends Component
 
     public function nextQuestion()
     {
+        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
+
         if ($this->q < $this->nav->count()) {
             $this->q++;
             $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
@@ -99,5 +107,15 @@ class Navigation extends Component
             return $item;
         });
         $this->nav = $newNav;
+    }
+
+    public function CheckIfCurrentQuestionIsInfoscreen($question)
+    {
+        $questionUuid = $this->nav[--$question]['uuid'];
+
+        if(Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
+            $this->emit('changeAnswerUpdatedAt', $questionUuid);
+            $this->updateQuestionIndicatorColor();
+        }
     }
 }

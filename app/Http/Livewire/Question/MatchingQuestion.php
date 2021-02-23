@@ -40,14 +40,8 @@ class MatchingQuestion extends Component
         $this->answer = $answer;
     }
 
-    public function updatedAnswer($value)
-    {
-//        $this->emitUp('updateAnswer', $this->uuid, $value);
-    }
-
     public function updateOrder($value)
     {
-//        dd($value);
         $dbstring = [];
         foreach ($value as $key => $value) {
             if ($value['value'] == 'startGroep') {
@@ -65,6 +59,8 @@ class MatchingQuestion extends Component
         ])->update(['json' => $json]);
 
         $this->answerStruct = $dbstring;
+
+        $this->dispatchBrowserEvent('current-question-answered');
     }
 
 

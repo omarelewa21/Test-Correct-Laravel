@@ -24,7 +24,7 @@
                                 var textarea = document.getElementById('{{ $editorId }}')
                                 textarea.value =  e.editor.getData()
                                 textarea.dispatchEvent(new Event('input'));
-
+                                $dispatch('current-question-answered')
                             })
                       })()
                       "
@@ -43,6 +43,9 @@
             <h4 class="inline-block">{{ $question->score }} pt</h4>
         </div>
         <div class="w-full">
+            <div class="mb-4">
+                {!! $question->getQuestionHtml()  !!}
+            </div>
             <div>
                 <x-input.group wire:ignore class="w-full">
                     <x-input.textarea autofocus="true" id="{{ $editorId }}" name="{{ $editorId }}" wire:model="answer">
