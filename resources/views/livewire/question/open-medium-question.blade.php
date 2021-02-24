@@ -1,5 +1,8 @@
 <div x-data="{ showMe: false}"
      x-cloak
+     x-transition:enter="transition duration-200"
+     x-transition:enter-start="opacity-0 delay-200"
+     x-transition:enter-end="opacity-100"
      x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)"
      x-show="showMe"
      x-init="

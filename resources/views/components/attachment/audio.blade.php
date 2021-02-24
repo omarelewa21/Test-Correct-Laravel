@@ -16,6 +16,9 @@
         @else
             <h5>{{__('test_take.sound_clip')}}</h5>
         @endif
+        @if($this->timeout)
+            <h5>Je hebt {{ $this->timeout }} seconden om de vraag te beantwoorden na het sluiten van de bijlage.</h5>
+        @endif
     </div>
     <div>
         <audio id="player" src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"

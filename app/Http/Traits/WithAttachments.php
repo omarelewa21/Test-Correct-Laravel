@@ -13,8 +13,19 @@ trait WithAttachments
     public $attachment;
     public $audioCloseWarning = false;
     public $pressedPlay = false;
-    public $locked = false;
     public $timeout;
+    public $closedByAttachment;
+
+    public function mountWithAttachments()
+    {
+        if (!$this->question->attachments->isEmpty()) {
+            foreach ($this->question->attachments as $attachment) {
+                if ($attachment->question_closed) {
+                    $this->closedByAttachment = true;
+                }
+            }
+        }
+    }
 
     public function showAttachment(Attachment $attachment)
     {
@@ -42,13 +53,12 @@ trait WithAttachments
                 $this->attachment->audioIsPlayedOnce();
                 $this->audioCloseWarning = false;
             }
-
-            if ($this->timeout != null) {
-                $this->dispatchBrowserEvent('start-timeout', $this->timeout);
-            }
-
         }
-        $this->dispatchBrowserEvent('start-timeout', $this->timeout);
+
+        if ($this->timeout != null) {
+            $data = ['timeout' => $this->timeout, 'attachment' => $this->attachment->getKey()];
+            $this->dispatchBrowserEvent('start-timeout', $data);
+        }
 
         $this->attachment = null;
     }
@@ -64,8 +74,9 @@ trait WithAttachments
         session()->put($sessionValue, $currentTime);
     }
 
-    public function lockQuestion()
+    public function closeQuestion(Attachment $attachment)
     {
-        $this->locked = true;
+        $attachment->setAttribute('question_closed', true)->save();
+        $this->closedByAttachment = true;
     }
 }

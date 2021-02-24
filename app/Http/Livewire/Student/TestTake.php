@@ -37,7 +37,7 @@ class TestTake extends Component
         $testParticipant = TestParticipant::where('test_take_id', $testTake->id)->where('user_id', Auth::id())->first();
 
         if (!$testParticipant->handInTestTake()) {
-            dd('gefaald');
+            //error handling
         }
 
         $temporaryLogin = TemporaryLogin::create(
@@ -45,6 +45,7 @@ class TestTake extends Component
         );
         $redirectUrl = $temporaryLogin->createCakeUrl();
 
+        session()->flush();
         return redirect()->to($redirectUrl);
     }
 

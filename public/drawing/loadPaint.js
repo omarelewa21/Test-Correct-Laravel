@@ -307,6 +307,7 @@ var App = function () {
     document.getElementById('btn-tool-shape-rectangle').onclick =
         document.getElementById('btn-tool-shape-rectangle').ontouchdown = function () {
             tool = 'rectangle';
+            console.log(tool)
         };
 
     /*document.getElementById('btn-undo').onclick =

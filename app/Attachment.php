@@ -22,7 +22,7 @@ class Attachment extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['type', 'title', 'description', 'text', 'link', 'json'];
+    protected $fillable = ['type', 'title', 'description', 'text', 'link', 'json', 'question_closed'];
 
     /**
      * The attributes excluded from the model's JSON form.

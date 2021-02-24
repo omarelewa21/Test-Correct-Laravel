@@ -28,6 +28,14 @@ class MatchingQuestion extends Component
         if ($this->answers[$this->question->uuid]['answer']) {
             $this->answer = true;
         }
+
+        if(!$this->answerStruct) {
+            foreach($this->question->matchingQuestionAnswers as $key => $value) {
+                if ($value->correct_answer_id !== null) {
+                    $this->answerStruct[$value->id] = "";
+                }
+            }
+        }
     }
 
     public function render()
