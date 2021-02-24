@@ -42,4 +42,6 @@ class AnswerParentQuestion extends BaseModel {
     public function groupQuestion() {
         return $this->belongsTo('tcCore\GroupQuestion');
     }
+
+
 }
