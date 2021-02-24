@@ -38,6 +38,8 @@ class TestParticipant extends BaseModel
      */
     protected $table = 'test_participants';
 
+    protected $appends = ['intense'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -299,6 +301,10 @@ class TestParticipant extends BaseModel
     public function getTestTakeUuidAttribute($value)
     {
         return Uuid::fromBytes($value)->toString();
+    }
+
+    public function getIntenseAttribute() {
+        return $this->user->intense && $this->user->schoolLocation->intense;
     }
 
 }
