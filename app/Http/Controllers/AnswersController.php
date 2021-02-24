@@ -17,6 +17,7 @@ class AnswersController extends Controller {
      */
     public function index(Request $request)
     {
+        
         $answers = Answer::filtered($request->get('filter', []), $request->get('order', []));
 
         if (is_array($request->get('with')) && in_array('answer_ratings', $request->get('with'))) {

@@ -26,6 +26,7 @@ use tcCore\Http\Requests\CreateTestTakeRequest;
 use tcCore\Http\Requests\UpdateTestTakeRequest;
 use tcCore\TestTakeStatus;
 use tcCore\Exports\TestTakesExport;
+use \stdClass;
 
 class TestTakesController extends Controller {
 
@@ -68,7 +69,6 @@ class TestTakesController extends Controller {
                                 if (!in_array($schoolClass->getKey(), $haveClasses)) {
                                     $haveClasses[] = $schoolClass->getKey();
                                     $response[$testTake->getKey()][] = ['schoolClass' => $schoolClass->getAttribute('name'), 'test' => $test, 'uuid' => $testTake->uuid];
-
                                 }
                             }
                         }
@@ -721,12 +721,13 @@ class TestTakesController extends Controller {
                 )
             )
         ) {
-            $totalScore = 0;
-            foreach ($questions as $questionId => $question) {
-                if ($ignoreQuestions === null || !in_array($questionId, $ignoreQuestions)) {
-                    $totalScore += $question->getAttribute('score');
-                }
-            }
+            // $totalScore = 0;
+            // foreach ($questions as $questionId => $question) {
+            //     if ($ignoreQuestions === null || !in_array($questionId, $ignoreQuestions)) {
+            //         $totalScore += $question->getAttribute('score');
+            //     }
+            // }
+            $totalScore = $this->maxScore($testTake,$ignoreQuestions);
         } else {
             $totalScore = null;
         }
@@ -804,6 +805,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -830,6 +832,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -859,6 +862,7 @@ class TestTakesController extends Controller {
                         if (!$request->filled('preview') || $request->get('preview') != true) {
                             $testParticipant->save();
                         }
+
                         $testParticipant->setAttribute('score', $score);
                     }
                 }
@@ -900,6 +904,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -949,6 +954,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -1135,7 +1141,8 @@ class TestTakesController extends Controller {
                 $nScore = round($nScore);
             }
 
-            array_unshift($row,
+            array_unshift(
+                $row,
                 $testParticipant->user->getAttribute('external_id'),
                 $testParticipant->user->getAttribute('name_first'),
                 $testParticipant->user->getAttribute('name_suffix'),
@@ -1249,8 +1256,25 @@ class TestTakesController extends Controller {
         }
     }
 
-    private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake)
+    public function maxScore(TestTake $testTake,$ignoreQuestions = []){
+        $test = $testTake->test;
+        return (new TestsController())->maxScore($test,$ignoreQuestions);
+    }
+
+    private function addToMaxScore(&$maxScore,$question,$ignoreQuestions):void
     {
+        if(in_array($question->getKey(), $ignoreQuestions)){
+            return;
+        }
+        $maxScore += $question->score;
+    }
+
+    public function maxScoreResponse(TestTake $testTake){
+        $maxScore = $this->maxScore($testTake);
+        return Response::make($maxScore, 200);
+    }
+
+    private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake) {
         $testTake->load(['discussingParentQuestions' => function ($query) {
                 $query->orderBy('level');
             }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
@@ -1320,9 +1344,6 @@ class TestTakesController extends Controller {
 
         $response->url = sprintf('%sstart-test-take-with-short-code/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->code);
 
-
         return  response()->json($response);
     }
-
-
 }

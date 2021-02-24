@@ -119,6 +119,16 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
+    public static function getStudentXAuthRequestData($overrides = [],$studentNumber)
+    {
+        $username = sprintf('s%d@test-correct.nl',$studentNumber);
+        dump($username);
+        return self::getUserAuthRequestData(
+            User::where('username', $username)->first(),
+            $overrides
+        );
+    }
+
     public static function getTeacherOneAuthRequestData($overrides = [])
     {
         return self::getUserAuthRequestData(
@@ -231,7 +241,7 @@ abstract class TestCase extends BaseTestCase
     private function updateTestTakeStatus($testTakeId, $status) {
         $response = $this->put(
             sprintf(
-                'test_take/%d',
+                'api-c/test_take/%s',
                 $testTakeId
             ),
             static::getTeacherOneAuthRequestData(
