@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Question;
+use function Symfony\Component\String\s;
 
 class Navigation extends Component
 {
@@ -14,6 +15,8 @@ class Navigation extends Component
     public $testTakeUuid;
     public $q;
     public $queryString = ['q'];
+
+    public $showCloseQuestionModal = false;
 
     public function mount()
     {
@@ -29,15 +32,18 @@ class Navigation extends Component
         return view('livewire.question.navigation');
     }
 
-    private function getDetailsFirstQuestion() {
+    private function getDetailsFirstQuestion()
+    {
         return ['data' => ['prev' => false, 'next' => true, 'turnin' => false]];
     }
 
-    private function getDetailsLastQuestion() {
+    private function getDetailsLastQuestion()
+    {
         return ['data' => ['prev' => true, 'next' => false, 'turnin' => true]];
     }
 
-    private function getDetailsQuestion() {
+    private function getDetailsQuestion()
+    {
         return ['data' => ['prev' => true, 'next' => true, 'turnin' => false]];
     }
 
@@ -51,7 +57,7 @@ class Navigation extends Component
             $details = $this->getDetailsFirstQuestion();
         }
 
-        if($this->q == $this->nav->count()) {
+        if ($this->q == $this->nav->count()) {
             $details = $this->getDetailsLastQuestion();
         }
 
@@ -60,7 +66,7 @@ class Navigation extends Component
 
     public function previousQuestion()
     {
-        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
+        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
 
         if ($this->q > 1) {
             $this->q--;
@@ -77,7 +83,7 @@ class Navigation extends Component
 
     public function nextQuestion()
     {
-        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
+        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
 
         if ($this->q < $this->nav->count()) {
             $this->q++;
@@ -109,13 +115,25 @@ class Navigation extends Component
         $this->nav = $newNav;
     }
 
-    public function CheckIfCurrentQuestionIsInfoscreen($question)
+    public function checkIfCurrentQuestionIsInfoscreen($question)
     {
         $questionUuid = $this->nav[--$question]['uuid'];
 
-        if(Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
+        if (Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
             $this->emit('changeAnswerUpdatedAt', $questionUuid);
             $this->updateQuestionIndicatorColor();
+        }
+    }
+
+    public function goToQuestion($question)
+    {
+        $currentQ = $this->nav[--$this->q];
+
+        if ($currentQ['closeable']) {
+            $this->emit('close-question', $currentQ['uuid']);
+        } else {
+            $this->q = $question;
+            $this->dispatchBrowserEvent('current-updated', ['current' => $question]);
         }
     }
 }

@@ -57,6 +57,7 @@ class TestTakeLaravelController extends Controller
                 'uuid'     => $question->uuid,
                 'id'       => $question->id,
                 'answered' => $answer['answered'],
+                'closeable' => $question->closeable
             ];
         });
 
@@ -80,7 +81,8 @@ class TestTakeLaravelController extends Controller
                 $result[$question->uuid] = [
                     'id'       => $answer->getKey(),
                     'answer'   => $answer->json,
-                    'answered' => $answer->is_answered
+                    'answered' => $answer->is_answered,
+                    'closed'   => $answer->closed
                 ];
             });
         return $result;

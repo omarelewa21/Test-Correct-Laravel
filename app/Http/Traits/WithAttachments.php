@@ -6,6 +6,7 @@ namespace tcCore\Http\Traits;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cookie;
+use tcCore\Answer;
 use tcCore\Attachment;
 
 trait WithAttachments
@@ -14,18 +15,6 @@ trait WithAttachments
     public $audioCloseWarning = false;
     public $pressedPlay = false;
     public $timeout;
-    public $closedByAttachment;
-
-    public function mountWithAttachments()
-    {
-        if (!$this->question->attachments->isEmpty()) {
-            foreach ($this->question->attachments as $attachment) {
-                if ($attachment->question_closed) {
-                    $this->closedByAttachment = true;
-                }
-            }
-        }
-    }
 
     public function showAttachment(Attachment $attachment)
     {
@@ -72,11 +61,5 @@ trait WithAttachments
     {
         $sessionValue = 'attachment_' . $attachment->getKey() . '_currentTime';
         session()->put($sessionValue, $currentTime);
-    }
-
-    public function closeQuestion(Attachment $attachment)
-    {
-        $attachment->setAttribute('question_closed', true)->save();
-        $this->closedByAttachment = true;
     }
 }
