@@ -30,49 +30,37 @@ class SomeTodayController extends Controller
      */
     public function index()
     {
-//        $client = new SoapClient(self::WSDL);
-//        var_dump($client->__getFunctions());
-//        var_dump($client->__getTypes());
-//        die;
-
         $this->soapWrapper->add('leerlinggegevensServiceV2', function ($service) {
             $service
                 ->wsdl(self::WSDL)
-                ->trace(true);
-            // Optional: Set some extra options
-//                ->options([
-//                    'login'    => 'username',
-//                    'password' => 'password'
-//                ]);
-//                ->classmap([
-//                    GetConversionAmount::class,
-//                    GetConversionAmountResponse::class,
-//                ]);
+                ->trace(true)
+                ->header('http://www.edustandaard.nl/leerresultaten/2/autorisatie', 'autorisatie', [
+                    'autorisatiesleutel' => 'Gs4h+skY7vf7OzZoDcwxKBVvW4kswCaJflWbjkSpwhhHw/Y2JV7XbwKnoAQPvVq5nD3u7djs0hWQcwW1LfvHuw==',
+                    'klantcode'          => 'OV',
+                    'klantnaam'          => 'Overig',
+                ]);
         });
 
         // Without classmap
         $response = $this->soapWrapper->call('leerlinggegevensServiceV2.HaalLeerlinggegevens', [
-            'schooljaar'              => '20-21',
-            // 'wat is een schooljaar in jullie context? 20-21 of 2020-2021 of iets anders?'
-            'brincode'                => '08SS',// 'BRINcode'
-            'dependancecode'          => '',// 'Dependancecode'
-            'schoolkey'               => 'pE4cetsilzf4LnNDccFparm7/FIwt/rQZGS66iIP5gr31bZnYQbuDGMZHKq+fJtyg86USjC3VeFEI0EckX57kw==',
-            //  'is dit de autorisatiesleutel?/ of de Klantcode'
-            'xsdversie'               => '2.2',// 'XSDversie'
-            'gegevenssetid'           => 'OV',// 'is dit de klantcode?'
-            'laatstontvangengegevens' => '01-01-1970',//
-
-
+            'leerlinggegevens_verzoek' => [
+                'schooljaar'     => '2019-2020',
+                'brincode'       => '06SS',
+                'dependancecode' => '00',
+                'xsdversie'      => '2.2',
+            ]
         ]);
 
-        var_dump($response);
+        $school = $response->leerlinggegevens->school;
+        $groepen = $response->leerlinggegevens->groepen->groep;
 
-//        // With classmap
-//        $response = $this->soapWrapper->call('Currency.GetConversionAmount', [
-//            new GetConversionAmount('USD', 'EUR', '2014-06-05', '1000')
-//        ]);
-//
-//        var_dump($response);
-        exit;
+
+        return view('sometoday')->with(compact(['school', 'groepen']));
+
+
+        ($response->leerlinggegevens->leerlingen);
+        var_dump($response->leerlinggegevens->leerkrachten);
+
+
     }
 }
