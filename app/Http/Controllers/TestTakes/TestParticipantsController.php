@@ -374,7 +374,10 @@ class TestParticipantsController extends Controller
          $testTake = TestTake::whereUUid($testTakeId)->first();
 
          if ($testTake === null) {
-             return Response::make('Failed to process heartbeat of test participant, test take has been deleted.', 404);
+             return Response::json([
+                 'message' => 'Failed to process heartbeat of test participant, test take has been deleted.',
+                 'error_status' => 'handled',
+             ], 500);
          }
 
         $answer_id = (int) $testTake->getKey();
