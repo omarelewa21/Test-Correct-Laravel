@@ -46,6 +46,7 @@ class UpdateTestQuestionRequest extends UpdateQuestionRequest {
         $rules['order'] = 'sometimes|required|integer|min:0';
         $rules['maintain_position'] = 'sometimes|required|in:0,1';
         $rules['discuss'] = 'sometimes|required|in:0,1';
+        $rules['closeable'] = 'required|in:0,1';
 
         return $rules;
     }
@@ -63,9 +64,9 @@ class UpdateTestQuestionRequest extends UpdateQuestionRequest {
     public function prepareForValidation()
     {
             $data = ($this->all());
-            
+
             $this->handleEmptyArrayVar($data,'tags');
-            $this->handleEmptyArrayVar($data,'attainments'); 
+            $this->handleEmptyArrayVar($data,'attainments');
             $this->handleEmptyStringVar($data,'rtti');
             $this->handleEmptyStringVar($data,'bloom');
             $this->handleEmptyStringVar($data,'miller');

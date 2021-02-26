@@ -33,6 +33,8 @@ class CreateTestQuestionRequest extends CreateQuestionRequest {
         $rules['order'] = 'required|integer|min:0';
         $rules['maintain_position'] = 'required|in:0,1';
         $rules['discuss'] = 'required|in:0,1';
+        $rules['closeable'] = 'required|in:0,1';
+
 
         $rules = $this->removeAttributesThatDontApplyWhenGroupQuestion($rules);
 
