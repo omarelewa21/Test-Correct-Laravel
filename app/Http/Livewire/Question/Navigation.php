@@ -6,6 +6,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Livewire\Student\TestTake;
 use tcCore\Question;
 use function Symfony\Component\String\s;
 
@@ -17,6 +18,11 @@ class Navigation extends Component
     public $queryString = ['q'];
 
     public $showCloseQuestionModal = false;
+
+    protected $listeners = [
+        'redirect-from-closing-a-question' => 'redirectFromClosedQuestion',
+        'update-nav-with-closed-question' => 'updateNavWithClosedQuestion'
+        ];
 
     public function mount()
     {
@@ -49,7 +55,7 @@ class Navigation extends Component
 
     public function updatedQ($value)
     {
-        $this->CheckIfCurrentQuestionIsInfoscreen($value);
+        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
 
         $details = $this->getDetailsQuestion();
 
@@ -127,13 +133,32 @@ class Navigation extends Component
 
     public function goToQuestion($question)
     {
-        $currentQ = $this->nav[--$this->q];
+        $currentQ = $this->q;
+        $isThisQuestion = $this->nav[--$currentQ];
 
-        if ($currentQ['closeable']) {
-            $this->emit('close-question', $currentQ['uuid']);
+        if ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
+            $this->dispatchBrowserEvent('close-this-question', $question);
         } else {
             $this->q = $question;
             $this->dispatchBrowserEvent('current-updated', ['current' => $question]);
         }
+    }
+
+    public function redirectFromClosedQuestion($navInfo)
+    {
+        $this->updateNavWithClosedQuestion($navInfo['closed_question']);
+        $this->goToQuestion($navInfo['next_question']);
+    }
+
+    public function updateNavWithClosedQuestion($question)
+    {
+        $newNav = $this->nav->map(function (&$item) use ($question) {
+            if ($item['id'] == $question) {
+                $item['closed'] = true;
+                return $item;
+            }
+            return $item;
+        });
+        $this->nav = $newNav;
     }
 }

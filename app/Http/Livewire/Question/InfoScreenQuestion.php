@@ -7,11 +7,12 @@ use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
 
 class InfoScreenQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable;
+    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer;
 
     public $question;
 

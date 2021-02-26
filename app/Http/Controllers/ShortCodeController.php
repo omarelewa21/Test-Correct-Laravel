@@ -18,6 +18,9 @@ class ShortCodeController extends Controller {
 	 */
 	public function loginAndRedirect(TestTake $testTake, $shortcode)
 	{
+
+	    //Dit doet helemaal niks? Geen idee of dit kan blijven --Roan
+
 	    if ($user = ShortCode::isValid($shortcode)) {
             Auth::login($user);
             // check is a participant of the testTake?

@@ -7,11 +7,12 @@ use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
 
 class MultipleSelectQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable;
+    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer;
 
     public $question;
 
@@ -28,7 +29,7 @@ class MultipleSelectQuestion extends Component
         $this->selectable_answers = $this->question->selectable_answers;
 
         if ($this->answers[$this->question->uuid]['answer']) {
-            $this->answerStruct = collect((array)json_decode($this->answers[$this->question->uuid]['answer']));
+            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
         } else {
             $this->answerStruct =
                 array_fill_keys(
@@ -56,10 +57,12 @@ class MultipleSelectQuestion extends Component
 
         $json = json_encode($this->answerStruct);
 
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
+        Answer::where('id', $this->answers[$this->question->uuid]['id'])
+                ->update(
+                    ['json' => $json],
+                    ['done', 1],
+                    ['time', $this->timeSpendOnQuestion]
+                );
 
         $this->answer = '';
     }

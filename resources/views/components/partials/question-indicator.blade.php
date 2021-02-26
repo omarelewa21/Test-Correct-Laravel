@@ -8,6 +8,10 @@
                         {!! $q['answered'] ? 'complete' : ''!!}
                         "
                  wire:click="goToQuestion({{ 1+$key}})"
+
+{{--                 wire:click="$set('q',{{ 1+$key}})"--}}
+{{--                 x-on:click="$dispatch('current-updated', {'current': {{ 1+$key }} })"--}}
+
                  x-on:current-question-answered.window="$wire.updateQuestionIndicatorColor()"
             >
                 <span class="align-middle">{{ ++$key }}</span>

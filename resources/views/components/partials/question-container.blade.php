@@ -3,12 +3,23 @@
 'number',
 ])
 <div x-cloak
-     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 0, progress: 0 }"
-     x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current)" x-show="showMe"
+     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 0, progress: 0, timeSpendOnQuestion: @entangle('timeSpendOnQuestion') }"
+     x-show="showMe"
+     x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current);"
      x-transition:enter="transition duration-200"
      x-transition:enter-start="opacity-0 delay-200"
      x-transition:enter-end="opacity-100"
      x-on:change="$dispatch('current-question-answered')"
+
+     x-on:close-this-question.window="
+        if(showMe) {
+            $wire.set('showCloseQuestionModal', true);
+            $wire.set('nextQuestion', $event.detail);
+        }
+
+    "
+
+
      x-on:start-timeout="
              progressBar = true;
              startTime = $event.detail.timeout;
@@ -17,7 +28,6 @@
              timer = setInterval(function () {
                 progress = startTime - endTime;
                 endTime += 1;
-                console.log(progress);
 
                 if(progress === 0) {
                     clearInterval(timer);
@@ -27,6 +37,7 @@
              }, 1000);
          "
 >
+    {{ 'closeable: '.$question->closeable }}
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed)
             <x-attachment.attachments-button :question="$question"></x-attachment.attachments-button>
@@ -65,8 +76,8 @@
         <x-slot name="title">Vraag sluiten</x-slot>
         <x-slot name="body">Als je door gaat naar de volgende vraag wordt de huidige vraag afgesloten. Gesloten vragen kun je niet meer bekijken of beantwoorden.</x-slot>
         <x-slot name="actionButton">
-            <x-button.primary size="sm" @click="alert({{$question->score}})">
-                <span>Naar volgende vraag</span>
+            <x-button.primary size="sm" wire:click="closeQuestion({{$this->nextQuestion}})" @click="show = false">
+                <span>Naar volgende vraag: {{ $this->nextQuestion }}</span>
                 <x-icon.arrow/>
             </x-button.primary>
         </x-slot>

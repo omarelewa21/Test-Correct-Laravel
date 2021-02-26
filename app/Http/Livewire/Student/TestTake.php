@@ -16,6 +16,8 @@ class TestTake extends Component
     public $showTurnInModal = false;
     public $questions;
 
+    protected $listeners = ['hallo'];
+
     public function render()
     {
         return view('livewire.student.test-take');
@@ -47,6 +49,10 @@ class TestTake extends Component
 
         session()->flush();
         return redirect()->to($redirectUrl);
+    }
+
+    public function hallo() {
+        dd('hanss');
     }
 
 }
