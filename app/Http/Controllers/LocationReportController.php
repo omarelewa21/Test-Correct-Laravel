@@ -5,9 +5,9 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
-use tcCore\Exports\OnboardingWizardExport;
+use tcCore\Exports\LcoationExport;
 
-class OnboardingWizardReportController extends Controller
+class LocationReportController extends Controller
 {
     protected $fileName = 'onboarding_wizard_report.xls';
 
@@ -15,7 +15,7 @@ class OnboardingWizardReportController extends Controller
     {
         // run realtime when not on production
         if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
-            \tcCore\OnboardingWizardReport::updateForAllTeachers();
+            \tcCore\LocationReport::updateAllLocations();
         }
 
         $file = storage_path($this->fileName);
@@ -23,24 +23,7 @@ class OnboardingWizardReportController extends Controller
             unlink($file);
         }
 
-        Excel::store(new OnboardingWizardExport(),$this->fileName);
-
-//        Excel::create('onboarding_wizard_report', function ($excel) {
-//
-//            // Set the title
-//            $excel->setTitle('Demo tour rapport');
-//
-//            // Chain the setters
-//            $excel->setCreator('TLC')
-//                ->setCompany('TLC');
-//
-//
-//            $excel->sheet('Rapport', function ($sheet) {
-//                $sheet->fromArray(
-//                    OnboardingWizardReport::all()->toArray()
-//                );
-//            });
-//        })->store('xls', storage_path());
+        Excel::store(new LocationExport(),$this->fileName);
 
         return Response::make(['status' => 'ok'], 200);
     }
@@ -51,5 +34,5 @@ class OnboardingWizardReportController extends Controller
         // first generate then download;
         return Response::download(storage_path('app/'.$this->fileName));//, 'index.xls');
     }
-    //
+    
 }

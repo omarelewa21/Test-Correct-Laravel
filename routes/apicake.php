@@ -270,7 +270,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     //Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
 
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
-    Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
+    Route::get('marketing_report', 'OnboardingWizardReportController@show');
+    Route::post('location_report', 'LocationReportController@@store')->name('location_report.store');
+    Route::get('location_report', 'LocationReportController@show');
 
     Route::post('search_filter','SearchFiltersController@store')->name('search_filter.store');
     Route::put('search_filter/{uuid}','SearchFiltersController@update')->name('search_filter.update');
