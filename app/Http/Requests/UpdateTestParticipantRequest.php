@@ -45,6 +45,7 @@ class UpdateTestParticipantRequest extends Request {
 	 */
 	public function rules()
 	{
+
 		$this->filterInput();
 		return [
 			'test_take_id' => 'sometimes',
@@ -57,7 +58,6 @@ class UpdateTestParticipantRequest extends Request {
 	public function getAllowedTestTakeStatusIds()
 	{
 		$roles = $this->getUserRoles();
-
 		$statusses = TestTakeStatus::pluck('id', 'name')->all();
 		$status = $this->testParticipant->testTakeStatus->name;
 		if (in_array('Student', $roles) && $this->testParticipant->getAttribute('user_id') == Auth::id()) {

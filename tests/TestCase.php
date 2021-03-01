@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Test;
 use tcCore\User;
 
@@ -122,9 +123,10 @@ abstract class TestCase extends BaseTestCase
     public static function getStudentXAuthRequestData($overrides = [],$studentNumber)
     {
         $username = sprintf('s%d@test-correct.nl',$studentNumber);
-        dump($username);
+        $user = User::where('username', $username)->first();
+        ActingAsHelper::getInstance()->setUser($user);
         return self::getUserAuthRequestData(
-            User::where('username', $username)->first(),
+            $user,
             $overrides
         );
     }
