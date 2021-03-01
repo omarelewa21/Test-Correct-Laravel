@@ -46,6 +46,9 @@
 
     <x-timeout-progress-bar/>
 
+    {{ 'is_subquestion: '.$question->is_subquestion }}
+
+
     <div class="flex flex-col p-8 sm:p-10 content-section relative">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
             <div class="inline-flex question-number rounded-full text-center justify-center items-center complete">

@@ -121,27 +121,17 @@ class TestTakeLaravelController extends Controller
 
     public function groups(TestTake $testTake, $questions)
     {
-//        $groups = [];
-//
-//        $testTake->test->testQuestions->flatMap(function ($testQuestion) use (&$groups){
-//           if ($testQuestion->question->type === 'GroupQuestion') {
-//               $groups = [$testQuestion->question->id => ['name' =>$testQuestion->question->name]];
-//           }
-//        });
-//
-//        $subquestions = [];
-//        foreach ($questions as $key => $question) {
-//            if ($question->is_subquestion) {
-//                $subquestions[] = $question->id;
-//            }
-//        }
-//
-//        foreach ($subquestions as $question) {
-//            $groupId = GroupQuestionQuestion::whereQuestionId($question->id)->first()->group_question_id;
-//            $groups[$groupId]['question_ids'] = $question->id;
-//        }
-//
-//
-//        dd($groups);
+        $groups = [];
+        $groupquestions = $testTake->test->testQuestions->filter(function ($testQuestion){
+            if($testQuestion->question->type === 'GroupQuestion') {
+                return $testQuestion;
+            }
+        });
+
+        $groupquestions->each(function ($question) use (&$groups) {
+            $groups[$question->question->getKey()] = $question->question->name;
+        });
+
+        return $groups;
     }
 }
