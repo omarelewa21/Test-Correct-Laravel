@@ -44,6 +44,7 @@ trait OpenQuestionTrait
             'tags'                   => [],
             'rtti'                   => null,
             'test_id'                => '9',
+            "closeable"=> 0,
         ], $overrides);
     }
 

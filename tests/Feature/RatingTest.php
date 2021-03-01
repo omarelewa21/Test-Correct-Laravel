@@ -46,7 +46,7 @@ class RatingTest extends TestCase
         $testTake = $this->setupToets1();
         $answerArray = $this->getCorrectAnswersScenario1();
         $this->initTestTakeForClass1WithSetAnswers($testTake->uuid,$answerArray);
-
+        
      }
 
 

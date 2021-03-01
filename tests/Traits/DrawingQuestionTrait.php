@@ -65,6 +65,7 @@ trait DrawingQuestionTrait
                     "bloom"=> null,
                     "miller"=> null,
                     "test_id"=> $testId,
+                    "closeable"=> 0,
                 ];
     }
 
