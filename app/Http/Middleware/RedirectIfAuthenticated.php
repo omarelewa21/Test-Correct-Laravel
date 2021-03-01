@@ -37,11 +37,13 @@ class RedirectIfAuthenticated {
 	 */
 	public function handle($request, Closure $next)
 	{
-	    $user = Shortcode::whereCode($request->short_code)->first()->user_id;
+	    if($request->short_code) {
+            $user = Shortcode::whereCode($request->short_code)->first()->user_id;
 
-	    if (Auth::loginUsingId($user)) {
-			return new RedirectResponse(url(route('student.test-take-laravel', $request->test_take->uuid)));
-        }
+            if (Auth::loginUsingId($user)) {
+                return new RedirectResponse(url(route('student.test-take-laravel', $request->test_take->uuid)));
+            }
+	    }
 
 		return $next($request);
 	}

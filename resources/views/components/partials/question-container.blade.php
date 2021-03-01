@@ -37,7 +37,6 @@
              }, 1000);
          "
 >
-    {{ 'closeable: '.$question->closeable }}
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed)
             <x-attachment.attachments-button :question="$question"></x-attachment.attachments-button>
@@ -53,7 +52,9 @@
                 <span class="align-middle">{{ $number }}</span>
             </div>
 
-            @if($this->closed)
+            @if($question->closeable && !$this->closed)
+                <x-icon.unlocked class="ml-2"/>
+            @elseif($this->closed)
                 <x-icon.locked class="ml-2"/>
             @endif
 
@@ -67,18 +68,18 @@
             @if(!$this->closed)
                 {{ $slot }}
             @else
-                <span>{{ __('test_take.question_closed') }}</span>
+                <span>{{ __('test_take.question_closed_text') }}</span>
             @endif
         </div>
     </div>
 
     <x-modal maxWidth="lg" wire:model="showCloseQuestionModal">
-        <x-slot name="title">Vraag sluiten</x-slot>
-        <x-slot name="body">Als je door gaat naar de volgende vraag wordt de huidige vraag afgesloten. Gesloten vragen kun je niet meer bekijken of beantwoorden.</x-slot>
+        <x-slot name="title">{{ __('test_take.close_question') }}</x-slot>
+        <x-slot name="body">{{ __('test_take.close_question_modal_text') }}</x-slot>
         <x-slot name="actionButton">
             <x-button.primary size="sm" wire:click="closeQuestion({{$this->nextQuestion}})" @click="show = false">
-                <span>Naar volgende vraag: {{ $this->nextQuestion }}</span>
-                <x-icon.arrow/>
+                <span>{{__('test_take.next_question')}}</span>
+                <x-icon.chevron/>
             </x-button.primary>
         </x-slot>
     </x-modal>

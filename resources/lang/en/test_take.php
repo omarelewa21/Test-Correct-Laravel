@@ -53,5 +53,11 @@ return [
     'instruction_open_question'           => 'Type your answer',
     'instruction_matching_question'       => 'Grab and drag the items to the right box',
     'instruction_ranking_question'        => 'Grab and drag the items in the correct order',
-    'question_closed'                     => 'The question is closed and cannot be opened again. This is why the question is not visible.',
+    'question_closed_text'                => 'This question is closed and cannot be opened again. This is why the question is not visible.',
+    'question_closed_text_short'          => 'This question is closed and cannot be opened again.',
+    'close_question'                      => 'Closing the question',
+    'close_question_modal_text'           => 'The current question will be closed if you continue to the next question. Closed questions cannot be looked at or answered.',
+    'overview_review_answers'             => 'Please double check all answers.',
+    'infoscreen_closed_text'              => 'This infoscreen is not available anymore.',
+
 ];

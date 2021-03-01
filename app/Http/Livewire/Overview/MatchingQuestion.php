@@ -5,12 +5,13 @@ namespace tcCore\Http\Livewire\Overview;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
 
 class MatchingQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, WithCloseable;
 
     public $answer;
     public $question;

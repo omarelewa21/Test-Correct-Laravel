@@ -15,7 +15,7 @@
     font-weight: bold;
     border: solid 3px;
     margin-right: 12px;
-    margin-bottom: 12px;
+    /*margin-bottom: 12px;*/
     background: var(--light-grey);
     border-color: var(--system-base);
     color: var(--system-base);
@@ -26,21 +26,15 @@
     margin-right: 0;
 }
 
-.question-indicator .question-number::before {
+.question-indicator .number-divider::before {
     content: "";
     position: absolute;
     width: 12px;
     height: 3px;
     background: var(--system-base);
-    top: 50%;
-    transform: translateY(-50%);
-    right: -15px;
+    top: 14px;
+    right: 0;
 }
-
-.question-indicator .question-number:last-of-type:before {
-    display: none;
-}
-
 
 .question-indicator .question-number.pending {
     background: var(--light-grey);
@@ -60,7 +54,7 @@
     color: white;
 }
 
-.question-indicator .question-number.complete::before {
+.question-indicator .number-divider.complete::before {
     background: var(--cta-primary);
 }
 

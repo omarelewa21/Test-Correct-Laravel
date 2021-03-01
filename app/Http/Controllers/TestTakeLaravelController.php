@@ -28,9 +28,11 @@ class TestTakeLaravelController extends Controller
             });
 
             return [
-                'uuid'     => $question->uuid,
-                'id'       => $question->id,
-                'answered' => $answer['answered'],
+                'uuid'      => $question->uuid,
+                'id'        => $question->id,
+                'answered'  => $answer['answered'],
+                'closeable' => $question->closeable,
+                'closed'    => $answer['closed']
             ];
         });
         $uuid = $testTake->uuid;
