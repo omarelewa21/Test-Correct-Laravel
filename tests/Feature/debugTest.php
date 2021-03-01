@@ -50,6 +50,14 @@ class debugTest extends TestCase
         $response->assertStatus(200);
      }
 
+     /** @test */
+     public function debugNumberOfQuestions(){
+        $testTake = TestTake::find(8307);
+        dump($testTake->test);
+        $this->assertTrue(true);
+
+     }
+
      
 
 }

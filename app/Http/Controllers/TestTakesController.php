@@ -133,7 +133,7 @@ class TestTakesController extends Controller {
                         unset($testTakes['data'][$i]['test_participants']);
                     }
                 }
-
+                dump($testTakes);
                 return Response::make($testTakes, 200);
                 break;
         }
