@@ -36,10 +36,4 @@ trait WithCloseable
             $this->emitTo('question.navigation', 'update-nav-with-closed-question', $this->question->getKey());
         }
     }
-
-//
-//    public function showCloseQuestionModal()
-//    {
-//        $this->showCloseQuestionModal = true;
-//    }
 }

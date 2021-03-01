@@ -62,7 +62,7 @@ return [
     'question_closed_text'                => 'Vraag kan niet meer geopend worden, omdat deze afgeschermd is. De vraag wordt daarom ook niet getoond.',
     'question_closed_text_short'          => 'Vraag kan niet meer geopend worden, omdat deze afgeschermd is.',
     'close_question'                      => 'Vraag sluiten',
-    'close_question_modal_text'           => 'Als je door gaat naar de volgende vraag wordt de huidige vraag gesloten. Gesloten vragen kun je niet meer bekijken of beantwoorden.',
+    'close_question_modal_text'           => 'Je verlaat nu deze vraag, hierdoor wordt deze gesloten. Gesloten vragen kun je niet meer bekijken of beantwoorden.',
     'overview_review_answers'             => 'Kijk de antwoorden nog eens goed na.',
     'infoscreen_closed_text'              => 'Dit informatiescherm is niet meer beschikbaar.',
 ];

@@ -31,8 +31,7 @@
                 <x-icon.audio/>
                 <span>{{ __('test_take.speak') }}</span>
             </x-button.text-button>
-
-            <x-button.text-button wire:click="toOverview">
+            <x-button.text-button wire:click="toOverview({{ $this->q }})">
                 <x-icon.preview/>
                 <span>{{ __('test_take.overview') }}</span>
             </x-button.text-button>

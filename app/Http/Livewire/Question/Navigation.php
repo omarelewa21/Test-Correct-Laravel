@@ -53,30 +53,12 @@ class Navigation extends Component
         return ['data' => ['prev' => true, 'next' => true, 'turnin' => false]];
     }
 
-    public function updatedQ($value)
-    {
-        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
-
-        $details = $this->getDetailsQuestion();
-
-        if ($this->q == 1) {
-            $details = $this->getDetailsFirstQuestion();
-        }
-
-        if ($this->q == $this->nav->count()) {
-            $details = $this->getDetailsLastQuestion();
-        }
-
-        $this->dispatchBrowserEvent('update-footer-navigation', $details);
-    }
-
     public function previousQuestion()
     {
         $this->checkIfCurrentQuestionIsInfoscreen($this->q);
 
         if ($this->q > 1) {
-            $this->q--;
-            $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
+            $this->goToQuestion($this->q-1);
         }
 
         $details = $this->getDetailsQuestion();
@@ -92,8 +74,7 @@ class Navigation extends Component
         $this->checkIfCurrentQuestionIsInfoscreen($this->q);
 
         if ($this->q < $this->nav->count()) {
-            $this->q++;
-            $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
+            $this->goToQuestion($this->q+1);
         }
 
         $details = $this->getDetailsQuestion();
@@ -103,9 +84,16 @@ class Navigation extends Component
         $this->dispatchBrowserEvent('update-footer-navigation', $details);
     }
 
-    public function toOverview()
+    public function toOverview($currentQuestion)
     {
-        return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
+        $this->checkIfCurrentQuestionIsInfoscreen($currentQuestion);
+
+        $isThisQuestion = $this->nav[$this->q-1];
+        if ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
+            $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
+        } else {
+            return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
+        }
     }
 
     public function updateQuestionIndicatorColor()
@@ -133,14 +121,27 @@ class Navigation extends Component
 
     public function goToQuestion($question)
     {
-        $currentQ = $this->q;
-        $isThisQuestion = $this->nav[--$currentQ];
+        $isThisQuestion = $this->nav[$this->q-1];
 
         if ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', $question);
         } else {
             $this->q = $question;
-            $this->dispatchBrowserEvent('current-updated', ['current' => $question]);
+
+            $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
+
+            $details = $this->getDetailsQuestion();
+            if ($this->q == 1) {
+                $details = $this->getDetailsFirstQuestion();
+            }
+
+            if ($this->q == $this->nav->count()) {
+                $details = $this->getDetailsLastQuestion();
+            }
+
+            $this->dispatchBrowserEvent('update-footer-navigation', $details);
+
+            $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
         }
     }
 
