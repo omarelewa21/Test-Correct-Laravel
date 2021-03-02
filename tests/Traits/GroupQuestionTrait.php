@@ -82,7 +82,8 @@ trait GroupQuestionTrait
                     "test_id"=> $testId,
                     "type"=> "GroupQuestion",
                     "attainments"=> [
-                    ]
+                    ],
+                    "closeable"=> 0,
                 ];
     }
 }

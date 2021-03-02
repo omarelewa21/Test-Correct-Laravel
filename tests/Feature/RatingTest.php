@@ -42,11 +42,11 @@ class RatingTest extends TestCase
      }
 
      /** @test */
-     public function can_start_test_scenario1_with_answers(){
+     public function can_start_test_scenariox1_with_answers(){
         $testTake = $this->setupToets1();
         $answerArray = $this->getCorrectAnswersScenario1();
         $this->initTestTakeForClass1WithSetAnswers($testTake->uuid,$answerArray);
-
+        
      }
 
 

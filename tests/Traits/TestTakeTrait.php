@@ -15,6 +15,7 @@ use tcCore\TestParticipant;
 use tcCore\GroupQuestionQuestion;
 use Carbon\Carbon;
 use \stdClass;
+use \Auth;
 
 trait TestTakeTrait
 {
@@ -60,7 +61,7 @@ trait TestTakeTrait
 
     public function initTestTakeForClass1($testTakeUuid){
         $testTake = TestTake::whereUuid($testTakeUuid)->firstOrFail();
-        $testParticipants = $testTake->testParticipants();
+        $testParticipants = $testTake->testParticipants;
         foreach ($testParticipants as $testParticipant) {
             $studentNumber = $this->getStudentNumber($testParticipant->user);
             $this->initTestTakeForStudentX($studentNumber,$testTakeUuid,$testParticipant->uuid);
@@ -102,6 +103,7 @@ trait TestTakeTrait
                 $id = $mcAnswer->id;
                 $obj->$id = $value;
             }
+            $json = json_encode($obj);
             $this->saveAnswer($studentNumber,$json,$question->id,$testTakeUuid,$testParticipant->uuid,$answer->uuid);
         }
     }
@@ -139,6 +141,7 @@ trait TestTakeTrait
                 $id = $mcAnswer->id;
                 $obj->$id = $value;
             }
+            $json = json_encode($obj);
             $this->saveAnswer($studentNumber,$json,$question->id,$testTakeUuid,$testParticipant->uuid,$answer->uuid);
         }
     }
@@ -164,10 +167,9 @@ trait TestTakeTrait
         $data = [
             'test_take_status_id' => 3,
         ];
-        dump(static::getStudentXAuthRequestData($data,$studentNumber));
-        $response = $this->put(
+        $response = $this->withExceptionHandling()->put(
             sprintf('api-c/test_take/%s/test_participant/%s',$testTakeUuid,$testParticipantUuid),
-            static::getStudentXAuthRequestData($data,$studentNumber)
+            static::getStudentXAuthRequestData($data,$studentNumber,$this)
         );
         $response->assertStatus(200);
     }
