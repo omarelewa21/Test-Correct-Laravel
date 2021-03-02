@@ -13,6 +13,7 @@ class CreateLocationReportsTable extends Migration
      */
     public function up()
     {
+
         Schema::create('location_reports', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('location_id')->nullable();
