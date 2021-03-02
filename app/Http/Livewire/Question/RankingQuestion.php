@@ -6,12 +6,13 @@ use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
 
 class RankingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer;
+    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
 
     public $uuid;
     public $answer;
@@ -32,9 +33,8 @@ class RankingQuestion extends Component
     {
         $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
 
-
         $result = [];
-        if(!$this->answerStruct) {
+        if(!empty($this->answerStruct)) {
             foreach($this->question->rankingQuestionAnswers as $key => $value) {
                 $result[] = (object)['order' => $key + 1, 'value' => $value->id];
             }

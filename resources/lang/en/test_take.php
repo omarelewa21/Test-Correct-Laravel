@@ -59,5 +59,7 @@ return [
     'close_question_modal_text'           => 'When you leave this question, it will be closed. Closed questions cannot be looked at or answered.',
     'overview_review_answers'             => 'Please double check all answers.',
     'infoscreen_closed_text'              => 'This infoscreen is not available anymore.',
-
+    'close_group'                         => 'Closing the question group',
+    'close_group_modal_text'              => 'When you leave this question, it will close the entire group. Closed question groups cannot be looked at or answered.',
+    'continue'                            => 'Continue',
 ];

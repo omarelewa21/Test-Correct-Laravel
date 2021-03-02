@@ -59,12 +59,25 @@ class TestTakeLaravelController extends Controller
                 return $question->uuid == $questionUuid;
             });
 
+            $groupId = 0;
+            $groupCloseable = 0;
+            if ($question->is_subquestion) {
+                $groupQuestion = GroupQuestionQuestion::whereQuestionId($question->getKey())->first()->groupQuestion;
+                $groupId = $groupQuestion->getKey();
+                $groupCloseable = $groupQuestion->closeable;
+            }
+
             return [
                 'uuid'      => $question->uuid,
                 'id'        => $question->id,
                 'answered'  => $answer['answered'],
                 'closeable' => $question->closeable,
-                'closed'    => $answer['closed']
+                'closed'    => $answer['closed'],
+                'group'     => [
+                    'id'        => $groupId,
+                    'closeable' => $groupCloseable,
+                    'closed'    => $answer['closed_group'],
+                ],
             ];
         });
 
@@ -85,11 +98,18 @@ class TestTakeLaravelController extends Controller
                 $question = $testQuestions->first(function ($question) use ($answer) {
                     return $question->getKey() === $answer->question_id;
                 });
+
+                $groupId = 0;
+                if ($question->is_subquestion) {
+                    $groupId = GroupQuestionQuestion::whereQuestionId($question->getKey())->first()->group_question_id;
+                }
                 $result[$question->uuid] = [
-                    'id'       => $answer->getKey(),
-                    'answer'   => $answer->json,
-                    'answered' => $answer->is_answered,
-                    'closed'   => $answer->closed
+                    'id'           => $answer->getKey(),
+                    'answer'       => $answer->json,
+                    'answered'     => $answer->is_answered,
+                    'closed'       => $answer->closed,
+                    'closed_group' => $answer->closed_group,
+                    'group_id'     => $groupId,
                 ];
             });
         return $result;
@@ -122,8 +142,8 @@ class TestTakeLaravelController extends Controller
     public function groups(TestTake $testTake, $questions)
     {
         $groups = [];
-        $groupquestions = $testTake->test->testQuestions->filter(function ($testQuestion){
-            if($testQuestion->question->type === 'GroupQuestion') {
+        $groupquestions = $testTake->test->testQuestions->filter(function ($testQuestion) {
+            if ($testQuestion->question->type === 'GroupQuestion') {
                 return $testQuestion;
             }
         });

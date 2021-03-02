@@ -14,7 +14,7 @@
     font-size: 14px;
     font-weight: bold;
     border: solid 3px;
-    margin-right: 12px;
+    margin-right: .5rem;
     /*margin-bottom: 12px;*/
     background: var(--light-grey);
     border-color: var(--system-base);

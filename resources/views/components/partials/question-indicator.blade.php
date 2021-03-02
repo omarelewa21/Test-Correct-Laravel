@@ -2,7 +2,13 @@
     <div class="flex flex-wrap" x-data=""
          x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q }} })}, 1)">
         @foreach($nav as $key => $q)
-            <div class="flex flex-col mb-3 relative @if(!$loop->last) number-divider @endif {!! $q['answered'] ? 'complete' : ''!!}">
+
+            <div class="flex flex-col mb-3 relative
+                    @if($q['group']['id'] != 0 && !$loop->last && $nav[$key+1]['group']['id'] != 0 && $nav[$key+1]['group']['id'] === $q['group']['id'])
+                        number-divider group
+                    @endif
+            {!! $q['answered'] ? 'complete' : ''!!}
+                    ">
                 <section wire:key="nav_{{$key}}"
                          class="question-number rounded-full text-center cursor-pointer
                         {!! $key === ($this->q - 1) ? 'active' : ''!!}
@@ -25,6 +31,16 @@
                     @endif
                 </div>
             </div>
+
+            @if($q['group']['closeable'] && $this->lastQuestionInGroup[$q['group']['id']] === $key)
+                <div class="mr-3">
+                        @if($q['group']['closed'])
+                            <x-icon.locked/>
+                        @else
+                            <x-icon.unlocked/>
+                        @endif
+                </div>
+            @endif
         @endforeach
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
             <x-button.text-button href="#" wire:click="">

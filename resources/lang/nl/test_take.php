@@ -65,4 +65,7 @@ return [
     'close_question_modal_text'           => 'Je verlaat nu deze vraag, hierdoor wordt deze gesloten. Gesloten vragen kun je niet meer bekijken of beantwoorden.',
     'overview_review_answers'             => 'Kijk de antwoorden nog eens goed na.',
     'infoscreen_closed_text'              => 'Dit informatiescherm is niet meer beschikbaar.',
+    'close_group'                         => 'Vraaggroep sluiten',
+    'close_group_modal_text'              => 'Door naar deze vraag te gaan, sluit je de groep vragen af waar je nu mee bezig bent. Je kan hierna niet meer terugkeren.',
+    'continue'                            => 'Doorgaan',
 ];

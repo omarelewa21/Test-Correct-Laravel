@@ -18,8 +18,12 @@
         }
 
     "
-
-
+    x-on:close-this-group.window="
+        if(showMe) {
+            $wire.set('showCloseGroupModal', true);
+            $wire.set('nextQuestion', $event.detail);
+        }
+    "
      x-on:start-timeout="
              progressBar = true;
              startTime = $event.detail.timeout;
@@ -45,9 +49,7 @@
     </div>
 
     <x-timeout-progress-bar/>
-
-    {{ 'is_subquestion: '.$question->is_subquestion }}
-
+    {{ 'Closed: '.$this->closed }}
 
     <div class="flex flex-col p-8 sm:p-10 content-section relative">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
@@ -67,7 +69,7 @@
                 <h4 class="inline-block">{{ $question->score }} pt</h4>
             @endif
         </div>
-        <div class="flex flex-1">
+        <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 {{ $slot }}
             @else
@@ -81,7 +83,18 @@
         <x-slot name="body">{{ __('test_take.close_question_modal_text') }}</x-slot>
         <x-slot name="actionButton">
             <x-button.primary size="sm" wire:click="closeQuestion({{$this->nextQuestion}})" @click="show = false">
-                <span>{{__('test_take.next_question')}}</span>
+                <span>{{__('test_take.continue')}}</span>
+                <x-icon.chevron/>
+            </x-button.primary>
+        </x-slot>
+    </x-modal>
+
+    <x-modal maxWidth="lg" wire:model="showCloseGroupModal">
+        <x-slot name="title">{{ __('test_take.close_group') }}</x-slot>
+        <x-slot name="body">{{ __('test_take.close_group_modal_text') }}</x-slot>
+        <x-slot name="actionButton">
+            <x-button.primary size="sm" wire:click="closeGroup({{$this->nextQuestion}})" @click="show = false">
+                <span>{{__('test_take.continue')}}</span>
                 <x-icon.chevron/>
             </x-button.primary>
         </x-slot>

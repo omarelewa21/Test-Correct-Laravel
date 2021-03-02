@@ -6,13 +6,14 @@ use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
 
 class InfoScreenQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer;
+    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
 
     public $question;
 

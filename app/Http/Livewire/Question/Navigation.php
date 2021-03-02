@@ -17,11 +17,13 @@ class Navigation extends Component
     public $q;
     public $queryString = ['q'];
 
-    public $showCloseQuestionModal = false;
+    public $lastQuestionInGroup = [];
 
     protected $listeners = [
         'redirect-from-closing-a-question' => 'redirectFromClosedQuestion',
-        'update-nav-with-closed-question' => 'updateNavWithClosedQuestion'
+        'redirect-from-closing-a-group' => 'redirectFromClosedGroup',
+        'update-nav-with-closed-question' => 'updateNavWithClosedQuestion',
+        'update-nav-with-closed-group' => 'updateNavWithClosedGroup',
         ];
 
     public function mount()
@@ -30,6 +32,12 @@ class Navigation extends Component
             $this->q = 1;
         }
         $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
+
+        foreach ($this->nav as $key => $q) {
+            if ($q['group']['closeable']) {
+                $this->lastQuestionInGroup[$q['group']['id']] = $key+1;
+            }
+        }
     }
 
 
@@ -123,7 +131,11 @@ class Navigation extends Component
     {
         $isThisQuestion = $this->nav[$this->q-1];
 
-        if ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
+
+
+        if ($this->nav[$question-1]['group']['id'] != $isThisQuestion['group']['id'] && $isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
+            $this->dispatchBrowserEvent('close-this-group', $question);
+        } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', $question);
         } else {
             $this->q = $question;
@@ -151,6 +163,12 @@ class Navigation extends Component
         $this->goToQuestion($navInfo['next_question']);
     }
 
+    public function redirectFromClosedGroup($navInfo)
+    {
+        $this->updateNavWithClosedGroup($navInfo['closed_group']);
+        $this->goToQuestion($navInfo['next_question']);
+    }
+
     public function updateNavWithClosedQuestion($question)
     {
         $newNav = $this->nav->map(function (&$item) use ($question) {
@@ -160,6 +178,19 @@ class Navigation extends Component
             }
             return $item;
         });
+        $this->nav = $newNav;
+    }
+
+    public function updateNavWithClosedGroup($groupId)
+    {
+        $newNav = $this->nav->map(function (&$item) use ($groupId) {
+            if ($item['group']['id'] == $groupId) {
+                $item['group']['closed'] = true;
+                return $item;
+            }
+            return $item;
+        });
+
         $this->nav = $newNav;
     }
 }
