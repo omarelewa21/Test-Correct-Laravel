@@ -5,20 +5,21 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
-use tcCore\Exports\LcoationExport;
+use tcCore\Exports\LocationExport;
 
 class LocationReportController extends Controller
 {
-    protected $fileName = 'onboarding_wizard_report.xls';
+    protected $fileName = 'location_report.xls';
 
     public function store()
     {
         // run realtime when not on production
         if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
-            \tcCore\LocationReport::updateAllLocations();
+            \tcCore\LocationReport::updateAllLocationStats();
         }
 
         $file = storage_path($this->fileName);
+        
         if (file_exists($file)) {
             unlink($file);
         }
