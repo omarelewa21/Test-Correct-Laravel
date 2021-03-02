@@ -28,11 +28,10 @@ class LocationReportController extends Controller
         return Response::make(['status' => 'ok'], 200);
     }
 
-    /** todo implement file download */
     public function show()
     {
         // first generate then download;
-        return Response::download(storage_path('app/'.$this->fileName));//, 'index.xls');
+        return Response::download(storage_path('app/'.$this->fileName));
     }
     
 }

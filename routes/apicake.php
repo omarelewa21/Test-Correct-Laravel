@@ -271,7 +271,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
     Route::get('marketing_report', 'OnboardingWizardReportController@show');
-    Route::post('location_report', 'LocationReportController@@store')->name('location_report.store');
+    Route::post('location_report', 'LocationReportController@store')->name('location_report.store');
     Route::get('location_report', 'LocationReportController@show');
 
     Route::post('search_filter','SearchFiltersController@store')->name('search_filter.store');
