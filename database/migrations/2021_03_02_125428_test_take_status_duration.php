@@ -14,13 +14,11 @@ class TestTakeStatusDuration extends Migration
     public function up()
     {
        
-            Schema::create('test_take_status_duration', function (Blueprint $table) {
+            Schema::create('test_take_status_durations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('location_id')->nullable();  
             $table->integer('test_take_id')->nullable();   
             $table->integer('test_take_status')->nullable();   
-            $table->integer('test_take_status_start')->nullable();   
-            $table->integer('test_take_status_end')->nullable();   
             $table->timestamps();
             });
         
@@ -33,6 +31,6 @@ class TestTakeStatusDuration extends Migration
      */
     public function down()
     {
-         Schema::dropIfExists('test_take_status_duration');
+         Schema::dropIfExists('test_take_status_durations');
     }
 }

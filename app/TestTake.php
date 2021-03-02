@@ -23,6 +23,7 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
+use tcCore\TestTakeStatusDuration;
 
 class TestTake extends BaseModel
 {
@@ -306,6 +307,29 @@ class TestTake extends BaseModel
                 Queue::push(new CountTeacherTestDiscussed($user));
                 Queue::push(new CountTeacherLastTestTaken($user));
             }
+        });
+    }
+    
+    /**
+     * The "booted" method of the model.
+     * 
+     * this closure logs the statuses of test
+     * takes for analysis
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::updated(function ($testtake) {
+            
+            $now_formatted = Carbon::now()->format('Y-m-d h:m:s');
+    
+            $create_array = ['test_take_id'=>$testtake->id,
+                'test_take_status'=>$testtake->test_take_status_id
+              ];
+            
+            TestTakeStatusDuration::create($create_array);
+ 
         });
     }
 
