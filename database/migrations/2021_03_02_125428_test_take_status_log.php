@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class TestTakeStatusDuration extends Migration
+class TestTakeStatusLog extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,7 @@ class TestTakeStatusDuration extends Migration
     public function up()
     {
        
-            Schema::create('test_take_status_durations', function (Blueprint $table) {
+            Schema::create('test_take_status_log', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('location_id')->nullable();  
             $table->integer('test_take_id')->nullable();   
@@ -31,6 +31,6 @@ class TestTakeStatusDuration extends Migration
      */
     public function down()
     {
-         Schema::dropIfExists('test_take_status_durations');
+         Schema::dropIfExists('test_take_status_log');
     }
 }

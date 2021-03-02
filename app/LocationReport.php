@@ -73,9 +73,6 @@ class LocationReport extends Model
 
     private static function nrLicenses($location_id)
     {
-
-        logger('nr of licenses for location ' . $location_id);
-
         return SchoolLocation::where('id', $location_id)->value('count_licenses');
     }
 
@@ -155,72 +152,58 @@ class LocationReport extends Model
 
     public static function nrTestsTaken($location_id, $days)
     {
-
-        if ($days != 0) {
-
-            $end_date = Carbon::now()->toDateTimeString();
-            $start_date = Carbon::now()->subDays($days);
-
-
-            return TestTake::where('test_takes.school_location_id', $location_id)
-                            ->where('test_takes.test_take_status_id', 6)
-                            ->whereBetween('test_takes.created_at', [$start_date, $end_date])->get()->count();
-        } else {
-
-            return TestTake::where('test_takes.school_location_id', $location_id)
-                            ->where('test_takes.test_take_status_id', 6)->count();
-        }
+        return self::nrTestTakeStatusForStatusLocationDays(6,$location_id, $days);
     }
 
     public static function nrTestsChecked($location_id, $days)
     {
 
-        if ($days != 0) {
-
-            $end_date = Carbon::now()->toDateTimeString();
-            $start_date = Carbon::now()->subDays($days);
-
-
-            return TestTake::where('test_takes.school_location_id', $location_id)
-                            ->where('test_takes.test_take_status_id', 8)
-                            ->whereBetween('test_takes.created_at', [$start_date, $end_date])->get()->count();
-        } else {
-
-            return TestTake::where('test_takes.school_location_id', $location_id)
-                            ->where('test_takes.test_take_status_id', 8)->count();
-        }
+        return self::nrTestTakeStatusForStatusLocationDays(8,$location_id, $days);
     }
 
     public static function nrTestsRated($location_id, $days)
     {
+        return self::nrTestTakeStatusForStatusLocationDays(9,$location_id, $days);
+    }
 
+    public static function nrColearningSessions($location_id, $days)
+    {
+        return self::nrTestTakeStatusForStatusLocationDays(7,$location_id, $days);
+    }   
+
+    public static function nrTestTakeStatusForStatusLocationDays($status,$location_id, $days)
+    {
 
         if ($days != 0) {
 
             $end_date = Carbon::now()->toDateTimeString();
             $start_date = Carbon::now()->subDays($days);
+        
+        $count = TestTake::leftJoin('users','users.id','=','test_takes.user_id')                      
+                ->leftJoin('test_take_status_log','test_takes.id','=','test_take_status_log.test_take_id')
+                ->where('users.school_location_id', $location_id)
+                ->where('test_take_status_log.test_take_status',$status)
+                ->whereBetween('test_takes.created_at', [$start_date, $end_date])
+                ->groupBy('test_take_id')
+                ->count();
+        
+        } else { 
 
-
-            return TestTake::where('test_takes.school_location_id', $location_id)
-                            ->where('test_takes.test_take_status_id', 9)
-                            ->whereBetween('test_takes.created_at', [$start_date, $end_date])->get()->count();
-        } else {
-
-            return TestTake::where('test_takes.school_location_id', $location_id)
-                             ->where('test_takes.test_take_status_id', 9)->count();
+        $count =  TestTake::leftJoin('users','users.id','=','test_takes.user_id')          
+                ->leftJoin('test_take_status_log','test_takes.id','=','test_take_status_log.test_take_id')
+                ->where('users.school_location_id', $location_id)
+                ->where('test_take_status_log.test_take_status',$status)
+                ->groupBy('test_take_id')
+                ->count();
+            
         }
-    }
-
-    public static function nrColearningSessions($location_id, $days)
-    {
-
-
-        return null;
+        
+        return $count;
+               
     }
 
     private static function inBrowserTestsAllowed($location_id)
     {
-
         return SchoolLocation::where('id', $location_id)->value('allow_inbrowser_testing');
     }
 
