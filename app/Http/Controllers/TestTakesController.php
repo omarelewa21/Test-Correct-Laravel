@@ -133,7 +133,6 @@ class TestTakesController extends Controller {
                         unset($testTakes['data'][$i]['test_participants']);
                     }
                 }
-                dump($testTakes);
                 return Response::make($testTakes, 200);
                 break;
         }
@@ -820,20 +819,16 @@ class TestTakesController extends Controller {
             }
         } elseif ($request->filled('wanted_average') || $testTake->getAttribute('wanted_average') !== null) {
             $average = ($request->filled('wanted_average')) ? $request->get('wanted_average') : $testTake->getAttribute('wanted_average');
-
             $testTake->setAttribute('wanted_average', $average);
             if (!$request->filled('preview') || $request->get('preview') != true) {
                 $testTake->save();
             }
-
             if ($scores) {
                 $ppp = ((array_sum($scores) / count($scores)) / ($average - 1));
-
                 foreach ($testTake->testParticipants as $testParticipant) {
                     if (array_key_exists($testParticipant->getKey(), $scores)) {
                         $score = $scores[$testParticipant->getKey()];
                         $rate = 1 + ($score / $ppp);
-
                         if ($rate < 1) {
                             $rate = 1;
                         } elseif ($rate > 10) {
@@ -852,7 +847,6 @@ class TestTakesController extends Controller {
         } elseif ($request->filled('n_term') && $request->filled('pass_mark') || ($testTake->getAttribute('n_term') !== null && $testTake->getAttribute('pass_mark') !== null)) {
             $nTerm = ($request->filled('n_term')) ? $request->get('n_term') : $testTake->getAttribute('n_term');
             $passMark = ($request->filled('pass_mark')) ? $request->get('pass_mark') : $testTake->getAttribute('pass_mark');
-
             $testTake->setAttribute('n_term', $nTerm);
             $testTake->setAttribute('pass_mark', $passMark);
             if (!$request->filled('preview') || $request->get('preview') != true) {
