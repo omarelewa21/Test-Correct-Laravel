@@ -13,6 +13,7 @@ class LocationReportController extends Controller
 
     public function store()
     {
+        
         // run realtime when not on production
         if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
             \tcCore\LocationReport::updateAllLocationStats();
@@ -31,6 +32,7 @@ class LocationReportController extends Controller
 
     public function show()
     {
+
         // first generate then download;
         return Response::download(storage_path('app/'.$this->fileName));
     }
