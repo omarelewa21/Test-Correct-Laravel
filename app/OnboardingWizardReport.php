@@ -59,7 +59,37 @@ class OnboardingWizardReport extends Model
             'invited_by'                                  => self::invitedBy($user),
             'invited_users_amount'                        => self::invitedUsersAmount($user),
             'invited_users'                               => self::invitedUsers($user),
-            'account_verified'                            => $user->account_verified
+            'account_verified'                            => $user->account_verified,
+            'nr_approved_test_files_7'                       => self::nrApprovedTestFiles($user, 7),
+            'nr_approved_test_files_30'                      => self::nrApprovedTestFiles($user, 30),
+            'nr_approved_test_files_60'                      => self::nrApprovedTestFiles($user, 60),
+            'nr_approved_test_files_90'                      => self::nrApprovedTestFiles($user, 90),
+            'nr_approved_test_files_total'                   => self::nrapprovedTestFiles($user, 0),
+            'nr_added_question_items_7'                   => self::nrAddedQuestionItems($user, 7),
+            'nr_added_question_items_30'                  => self::nrAddedQuestionItems($user, 30),
+            'nr_added_question_items_60'                  => self::nrAddedQuestionItems($user, 60),
+            'nr_added_question_items_90'                  => self::nrAddedQuestionItems($user, 90),
+            'nr_added_question_items_total'               => self::nrAddedQuestionItems($user, 0),
+            'nr_tests_taken_7'                            => self::nrTestsTaken($user, 7), // 3.a.1
+            'nr_tests_taken_30'                           => self::nrTestsTaken($user, 30), // 3.a.1
+            'nr_tests_taken_60'                           => self::nrTestsTaken($user, 60), // 3.a.1
+            'nr_tests_taken_90'                           => self::nrTestsTaken($user, 90), // 3.a.1
+            'nr_test_taken_total'                         => self::nrTestsTaken($user, 0), // 3.a.2
+            'nr_tests_checked_7'                          => self::nrTestsChecked($user, 7), // 3.a.1
+            'nr_tests_checked_30'                         => self::nrTestsChecked($user, 30), // 3.a.1
+            'nr_tests_checked_60'                         => self::nrTestsChecked($user, 60), // 3.a.1
+            'nr_tests_checked_90'                         => self::nrTestsChecked($user, 90), // 3.a.1
+            'nr_tests_checked_total'                      => self::nrTestsChecked($user, 0), // 3.a.2
+            'nr_tests_rated_7'                            => self::nrTestsRated($user, 7), // 3.a.1
+            'nr_tests_rated_30'                           => self::nrTestsRated($user, 30), // 3.a.1
+            'nr_tests_rated_60'                           => self::nrTestsRated($user, 60), // 3.a.1
+            'nr_tests_rated_90'                           => self::nrTestsRated($user, 90), // 3.a.1
+            'nr_tests_rated_total'                        => self::nrTestsRated($user, 0), // 3.a.2
+            'nr_colearning_sessions_7'                    => self::nrColearningSessions($user, 7), // 3.a.1
+            'nr_colearning_sessions_30'                   => self::nrColearningSessions($user, 30), // 3.a.1
+            'nr_colearning_sessions_60'                   => self::nrColearningSessions($user, 60), // 3.a.1
+            'nr_colearning_sessions_90'                   => self::nrColearningSessions($user, 90), // 3.a.1
+            'nr_colearning_sessions_total'                => self::nrColearningSessions($user, 0), // 3.a.2
         ]);
     }
 
@@ -221,6 +251,115 @@ ORDER BY t2.displayorder,
         ];
     }
     //
+    
+    ///
+    //
+    //
+    ///
+    //
+    //
+    ///
+    
+    public static function nrApprovedTestFiles($user, $days)
+    {
+
+        if ($days != 0) {
+
+            $end_date = Carbon::now()->toDateTimeString();
+            $start_date = Carbon::now()->subDays($days);
+
+
+            return Test::where('tests.author_id', $user->id)
+                            ->where('tests.published', 1)
+                            ->whereBetween('tests.created_at', [$start_date, $end_date])->get()->count();
+        } else {
+
+            return Test::where('tests.author_id', $user->id)
+                           ->where('tests.published', 1)->count();
+        }
+    }
+
+    public static function nrAddedQuestionItems($user, $days)
+    {
+
+        if ($days != 0) {
+
+            $end_date = Carbon::now()->toDateTimeString();
+            $start_date = Carbon::now()->subDays($days);
+
+
+            return QuestionAuthor::where('question_authors.user_id',$user->id)
+                            ->whereBetween('question_authors.created_at', [$start_date, $end_date])->get()->count();
+        } else {
+
+            return QuestionAuthor::where('question_authors.user_id',$user->id)
+                            ->count();
+        }
+    }
+
+    public static function nrTestsTaken($user, $days)
+    {
+        return self::nrTestTakeStatusForStatusLocationDays(6,$user, $days);
+    }
+
+    public static function nrTestsChecked($user, $days)
+    {
+
+        return self::nrTestTakeStatusForStatusLocationDays(8,$user, $days);
+    }
+
+    public static function nrTestsRated($user, $days)
+    {
+        return self::nrTestTakeStatusForStatusLocationDays(9,$user, $days);
+    }
+
+    public static function nrColearningSessions($user, $days)
+    {
+        return self::nrTestTakeStatusForStatusLocationDays(7,$user, $days);
+    }   
+
+    public static function nrTestTakeStatusForStatusLocationDays($status,$user, $days)
+    {
+
+        if ($days != 0) {
+
+            $end_date = Carbon::now()->toDateTimeString();
+            $start_date = Carbon::now()->subDays($days);
+        
+        $count = TestTake::leftJoin('users','users.id','=','test_takes.user_id')                      
+                ->leftJoin('test_take_status_log','test_takes.id','=','test_take_status_log.test_take_id')
+                ->where('users.id', $user->id)
+                ->where('test_take_status_log.test_take_status',$status)
+                ->whereBetween('test_takes.created_at', [$start_date, $end_date])
+                ->groupBy('test_take_id')
+                ->count();
+        
+        } else { 
+
+        $count =  TestTake::leftJoin('users','users.id','=','test_takes.user_id')          
+                ->leftJoin('test_take_status_log','test_takes.id','=','test_take_status_log.test_take_id')
+                ->where('users.id', $user->id)
+                ->where('test_take_status_log.test_take_status',$status)
+                ->groupBy('test_take_id')
+                ->count();
+            
+        }
+        
+        return $count;
+               
+    }
+    
+    
+    ///
+    
+    ///
+    
+    ///
+    
+    ///
+    
+    
+    ///
 
     /**
      * @param User $user
