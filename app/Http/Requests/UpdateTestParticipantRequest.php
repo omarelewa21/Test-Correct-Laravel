@@ -4,6 +4,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use tcCore\TestTakeStatus;
 
+
 class UpdateTestParticipantRequest extends Request {
 
 	/**
@@ -44,8 +45,8 @@ class UpdateTestParticipantRequest extends Request {
 	 */
 	public function rules()
 	{
-		$this->filterInput();
 
+		$this->filterInput();
 		return [
 			'test_take_id' => 'sometimes',
 			'user_id' => 'sometimes',

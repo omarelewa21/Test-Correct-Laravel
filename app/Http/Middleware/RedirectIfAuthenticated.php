@@ -3,6 +3,9 @@
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use tcCore\TestParticipant;
+use tcCore\TestTake;
 
 class RedirectIfAuthenticated {
 
@@ -35,7 +38,7 @@ class RedirectIfAuthenticated {
 	{
 		if ($this->auth->check())
 		{
-			return new RedirectResponse(url('/home'));
+			return new RedirectResponse(url(route('student.test-take-laravel', $request->test_take->uuid)));
 		}
 
 		return $next($request);

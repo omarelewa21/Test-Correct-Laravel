@@ -65,6 +65,10 @@ trait GroupQuestionTrait
         $response->assertStatus(200);
     }
 
+    private function getAttributesForCarouselGroupQuestion($testId, $numberOfSubquestions = 3){
+        $attributes = array_merge($this->getAttributesForGroupQuestion($testId), ['groupquestion_type'=>'carousel','number_of_subquestions'=>$numberOfSubquestions]);
+        return $attributes;
+    }
 
     private function getAttributesForGroupQuestion($testId){
         return [
@@ -78,7 +82,8 @@ trait GroupQuestionTrait
                     "test_id"=> $testId,
                     "type"=> "GroupQuestion",
                     "attainments"=> [
-                    ]
+                    ],
+                    "closeable"=> 0,
                 ];
     }
 }

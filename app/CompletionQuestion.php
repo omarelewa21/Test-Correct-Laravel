@@ -316,6 +316,15 @@ class CompletionQuestion extends Question implements QuestionInterface {
         return true;
     }
 
+    public function getCaptionAttribute()
+    {
+        if ($this->subtype === 'multi') {
+            return __('test_take.completion_question_multi');
+        }
+
+        return parent::getCaptionAttribute();
+    }
+
 //    /**
 //     * transform if needed for test, meaning that if there are no
 //     * answers available and it is a completion question, it means

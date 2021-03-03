@@ -1,11 +1,22 @@
-{{--
--- Important note:
---
--- This template is based on an example from Tailwind UI, and is used here with permission from Tailwind Labs
--- for educational purposes only. Please do not use this template in your own projects without purchasing a
--- Tailwind UI license, or they’ll have to tighten up the licensing and you’ll ruin the fun for everyone.
---
--- Purchase here: https://tailwindui.com/
---}}
+@props([
+'size' => 'sm',
+'rotateIcon' => false,
+'type'
+])
+<?php
+$rotateClass = $rotateIcon ? ('rotate-svg-' . $rotateIcon) : '';
+$size = 'button-' . $size;
+?>
 
-<x-button {{ $attributes->merge(['class' => 'text-white bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 border-indigo-600']) }}>{{ $slot }}</x-button>
+@if(isset($type) && $type == 'link')
+    <a {{ $attributes->merge(['class' => 'button primary-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}>
+
+        {{ $slot }}
+    </a>
+@else
+    <button {{ $attributes->merge(['class' => 'button primary-button space-x-2.5 focus:outline-none ' . $rotateClass . ' ' .$size]) }}>
+
+        {{ $slot }}
+    </button>
+@endif
+

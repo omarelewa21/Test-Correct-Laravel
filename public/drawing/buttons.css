@@ -1,0 +1,99 @@
+.btn.highlight {
+    background:         var(--primary);
+    color:              white;
+}
+
+.btn.highlight:hover,
+.btn.highlight.active{
+    background:         var(--primary-light);
+    color:              var(--primary);
+}
+
+.btn {
+    padding:            10px 15px 7px 15px;
+    text-decoration:    none;
+    display:            block;
+    transition:         background-color 200ms linear;
+}
+
+.btn.inline-block {
+    display:            inline-block;
+}
+
+.btn.small {
+    padding:            7px 12px 5px 12px;
+    font-size:          13px;
+}
+
+.btn.white {
+    background:         white;
+    color:              #191a17;
+}
+.btn.white:disabled {
+    color : #8a8a8a !important;
+    background-color:red;
+}
+
+.btn.grey {
+    background:         #eeeeee;
+    color:              #191a17;
+}
+
+.btn.grey:hover,
+.btn.grey.active{
+    background:         #cccccc;
+    color:              black;
+}
+
+.btn.red {
+    background:         darkred;
+    color:              white;
+}
+
+.btn.blue{
+    background:         #1585c5;
+    color:              white;
+}
+.btn.blue:hover,
+.btn.blue:active{
+    background:         #1d93d6;
+}
+
+/* TABS */
+.tabs {
+    background:         #eeeeee;
+    margin-bottom:      20px;
+}
+
+.tabs a {
+    float:              left;
+}
+
+.page {
+    display:            none;
+}
+
+.page.active {
+    display:            block !important;
+}
+
+.defaultMenuButton::before {
+    font-family: "FontAwesome";
+    font-weight: 900;
+    content: "\f00c";
+    float: left;
+}
+.defaultMenuButton.noIcon::before{
+    content: "";
+}
+
+.defaultMenuButton {
+    width: 200px;
+    height: 25px;
+    line-height: 25px;
+    text-align: center;
+    cursor: pointer;
+    margin-right:15px;
+    margin-bottom:10px;
+    margin-top: 5px;
+}

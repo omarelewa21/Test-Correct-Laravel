@@ -1,0 +1,156 @@
+.question-title {
+    padding-bottom: 1rem;
+    border-bottom: 3px solid var(--system-base);
+}
+
+.question-indicator {
+    position: relative;
+}
+
+.question-indicator .question-number {
+    position: relative;
+    min-width: 30px;
+    height: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    border: solid 3px;
+    margin-right: 12px;
+    margin-bottom: 12px;
+    background: var(--light-grey);
+    border-color: var(--system-base);
+    color: var(--system-base);
+}
+
+.question-title .question-number {
+    margin-bottom: 0;
+    margin-right: 0;
+}
+
+.question-indicator .question-number::before {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 3px;
+    background: var(--system-base);
+    top: 50%;
+    transform: translateY(-50%);
+    right: -15px;
+}
+
+.question-indicator .question-number:last-of-type:before {
+    display: none;
+}
+
+
+.question-indicator .question-number.pending {
+    background: var(--light-grey);
+    border-color: var(--system-base);
+    color: var(--system-base);
+}
+
+.question-indicator .question-number.active {
+    border-color: var(--system-base);
+    background: var(--system-base);
+    color: white;
+}
+
+.question-indicator .question-number.complete {
+    border-color: var(--cta-primary);
+    background: var(--cta-primary);
+    color: white;
+}
+
+.question-indicator .question-number.complete::before {
+    background: var(--cta-primary);
+}
+
+.question-indicator .question-number.active.complete {
+    border-color: var(--system-base);
+    background: var(--system-base);
+    color: white;
+}
+
+.question-indicator .question-number.incomplete {
+    border-color: var(--mid-grey);
+    background: white;
+    color: var(--mid-grey);
+}
+
+.stripe {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: var(--system-base);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: -1;
+}
+
+.drag-item.draggable-source--is-dragging {
+    background-color: white;
+    border: 2px dashed var(--blue-grey);
+    color: white;
+}
+.drag-item.draggable--over {
+    background-color: white;
+    border: 2px dashed var(--primary);
+    color: white;
+}
+
+.draggable-container--over .drag-item.draggable-mirror {
+    background-color: var(--primary-light);
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
+}
+.draggable-container--placed .drag-item.draggable-mirror {
+    background-color: var(--primary);
+    border: 2px solid var(--primary);
+    color: white;
+    box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
+}
+
+
+.drag-item.draggable-mirror {
+    background-color: var(--primary-light);
+    border: 2px solid var(--primary-light);
+    color: var(--primary);
+    box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
+}
+
+.cke_top, .cke_bottom {
+    background: var(--off-white)!important;
+    color: var(--system-base);
+}
+
+.cke_ltr {
+    background: var(--off-white);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.overview .cke_top, .overview .cke_bottom {
+    background: white!important;
+    color: var(--system-base);
+    opacity: 50%;
+}
+
+[x-cloak] {
+    display: none;
+}
+
+.overview .nav-overflow {
+    background: linear-gradient(to bottom, var(--light-grey) 0%, transparent 100%);
+}
+
+.matching-question #drag-item {
+    max-width: 100%;
+}
+
+.matching-question .startGroup #drag-item {
+    margin-bottom: 4px;
+}
+.matching-question .classify #drag-item {
+    margin-bottom: 4px;
+    margin-right: 4px;
+}

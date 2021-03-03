@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use phpseclib\Crypt\Random;
 use tcCore\Lib\Models\BaseModel;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -9,8 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
-class Answer extends BaseModel
-{
+class Answer extends BaseModel {
 
     use SoftDeletes;
     use UuidTrait;
@@ -149,7 +149,7 @@ class Answer extends BaseModel
                 case 'question_id':
                     if (UUid::isValid($value)) {
                         $value = Question::findByUuid($value)->getKey();
-                    }
+                    }  
                     if (is_array($value)) {
                         $query->whereIn('question_id', $value);
                     } else {
@@ -159,7 +159,7 @@ class Answer extends BaseModel
                 case 'test_participant_id':
                     if (Uuid::isValid($value)) {
                         $value = TestParticipant::whereUuid($value)->first()->getKey();
-                    }
+                    }                    
                     if (is_array($value)) {
                         $query->whereIn('test_participant_id', $value);
                     } else {
@@ -220,6 +220,16 @@ class Answer extends BaseModel
 //            )->groupQuestion
 //        )->closeable == 1);
 //    }
+
+    public function getIsAnsweredAttribute()
+    {
+        return  $this->created_at->ne($this->updated_at);
+    }
+
+    public function getDrawingStoragePath()
+    {
+        return 'drawing_question_answers/'.$this->uuid;
+    }
 
 
 }

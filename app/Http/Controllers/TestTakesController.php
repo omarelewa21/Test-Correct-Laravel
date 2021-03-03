@@ -18,6 +18,7 @@ use tcCore\Http\Requests\NormalizeTestTakeRequest;
 use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\SchoolClass;
+use tcCore\Shortcode;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TestParticipant;
@@ -25,6 +26,7 @@ use tcCore\Http\Requests\CreateTestTakeRequest;
 use tcCore\Http\Requests\UpdateTestTakeRequest;
 use tcCore\TestTakeStatus;
 use tcCore\Exports\TestTakesExport;
+use \stdClass;
 
 class TestTakesController extends Controller {
 
@@ -132,7 +134,6 @@ class TestTakesController extends Controller {
                         unset($testTakes['data'][$i]['test_participants']);
                     }
                 }
-
                 return Response::make($testTakes, 200);
                 break;
         }
@@ -675,7 +676,8 @@ class TestTakesController extends Controller {
         }
     }
 
-    public function normalize(TestTake $testTake, NormalizeTestTakeRequest $request) {
+    public function normalize(TestTake $testTake, NormalizeTestTakeRequest $request)
+    {
         $testTake->load(['testParticipants', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerRatings', 'testParticipants.answers.answerParentQuestions' => function ($query) {
                 $query->orderBy('level');
             }]);
@@ -691,28 +693,40 @@ class TestTakesController extends Controller {
 
         $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
         if (
+            (
                 (
+                    !$request->filled('ppp')
+                    && $testTake->getAttribute('ppp') === null
+                )
+                && (
+                    $request->filled('epp')
+                    || $testTake->getAttribute('epp')
+                )
+            )
+            || (
                 (
-                !$request->filled('ppp') && $testTake->getAttribute('ppp') === null
-                ) && (
-                $request->filled('epp') || $testTake->getAttribute('epp')
+                    !$request->filled('ppp')
+                    && $testTake->getAttribute('ppp') === null
+                    && !$request->filled('epp')
+                    && $testTake->getAttribute('epp') === null
+                    && !$request->filled('wanted_average')
+                    && $testTake->getAttribute('wanted_average') === null
                 )
-                ) || (
-                (
-                !$request->filled('ppp') && $testTake->getAttribute('ppp') === null && !$request->filled('epp') && $testTake->getAttribute('epp') === null && !$request->filled('wanted_average') && $testTake->getAttribute('wanted_average') === null
-                ) && (
-                $request->filled('n_term') || (
-                $testTake->getAttribute('n_term') !== null
+                && (
+                    $request->filled('n_term')
+                    || (
+                        $testTake->getAttribute('n_term') !== null
+                    )
                 )
-                )
-                )
+            )
         ) {
-            $totalScore = 0;
-            foreach ($questions as $questionId => $question) {
-                if ($ignoreQuestions === null || !in_array($questionId, $ignoreQuestions)) {
-                    $totalScore += $question->getAttribute('score');
-                }
-            }
+            // $totalScore = 0;
+            // foreach ($questions as $questionId => $question) {
+            //     if ($ignoreQuestions === null || !in_array($questionId, $ignoreQuestions)) {
+            //         $totalScore += $question->getAttribute('score');
+            //     }
+            // }
+            $totalScore = $this->maxScore($testTake,$ignoreQuestions);
         } else {
             $totalScore = null;
         }
@@ -790,6 +804,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -816,25 +831,22 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
         } elseif ($request->filled('wanted_average') || $testTake->getAttribute('wanted_average') !== null) {
             $average = ($request->filled('wanted_average')) ? $request->get('wanted_average') : $testTake->getAttribute('wanted_average');
-
             $testTake->setAttribute('wanted_average', $average);
             if (!$request->filled('preview') || $request->get('preview') != true) {
                 $testTake->save();
             }
-
             if ($scores) {
                 $ppp = ((array_sum($scores) / count($scores)) / ($average - 1));
-
                 foreach ($testTake->testParticipants as $testParticipant) {
                     if (array_key_exists($testParticipant->getKey(), $scores)) {
                         $score = $scores[$testParticipant->getKey()];
                         $rate = 1 + ($score / $ppp);
-
                         if ($rate < 1) {
                             $rate = 1;
                         } elseif ($rate > 10) {
@@ -845,6 +857,7 @@ class TestTakesController extends Controller {
                         if (!$request->filled('preview') || $request->get('preview') != true) {
                             $testParticipant->save();
                         }
+
                         $testParticipant->setAttribute('score', $score);
                     }
                 }
@@ -852,7 +865,6 @@ class TestTakesController extends Controller {
         } elseif ($request->filled('n_term') && $request->filled('pass_mark') || ($testTake->getAttribute('n_term') !== null && $testTake->getAttribute('pass_mark') !== null)) {
             $nTerm = ($request->filled('n_term')) ? $request->get('n_term') : $testTake->getAttribute('n_term');
             $passMark = ($request->filled('pass_mark')) ? $request->get('pass_mark') : $testTake->getAttribute('pass_mark');
-
             $testTake->setAttribute('n_term', $nTerm);
             $testTake->setAttribute('pass_mark', $passMark);
             if (!$request->filled('preview') || $request->get('preview') != true) {
@@ -886,6 +898,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -935,6 +948,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -943,7 +957,8 @@ class TestTakesController extends Controller {
         return Response::make($testTake, 200);
     }
 
-    public function export(TestTake $testTake) {
+    public function export(TestTake $testTake)
+    {
         $questions = QuestionGatherer::getQuestionsOfTest($testTake->getAttribute('test_id'), true);
 
         $testTake->load(['testParticipants', 'testParticipants.user', 'testParticipants.answers' => function ($query) {
@@ -1120,7 +1135,19 @@ class TestTakesController extends Controller {
                 $nScore = round($nScore);
             }
 
-            array_unshift($row, $testParticipant->user->getAttribute('external_id'), $testParticipant->user->getAttribute('name_first'), $testParticipant->user->getAttribute('name_suffix'), $testParticipant->user->getAttribute('name'), $testParticipant->user->getAttribute('rating'), $score, $rScore, $t1Score, $t2Score, $iScore, $nScore
+            array_unshift(
+                $row,
+                $testParticipant->user->getAttribute('external_id'),
+                $testParticipant->user->getAttribute('name_first'),
+                $testParticipant->user->getAttribute('name_suffix'),
+                $testParticipant->user->getAttribute('name'),
+                $testParticipant->user->getAttribute('rating'),
+                $score,
+                $rScore,
+                $t1Score,
+                $t2Score,
+                $iScore,
+                $nScore
             );
 
             $sheet[] = $row;
@@ -1186,7 +1213,8 @@ class TestTakesController extends Controller {
      * @param UpdateTestTakeRequest $request
      * @return Response
      */
-    public function update(TestTake $testTake, UpdateTestTakeRequest $request) {
+    public function update(TestTake $testTake, UpdateTestTakeRequest $request)
+    {
 
         if (isset($request['time_dispensation']) && $request['time_dispensation'] == true) {
 
@@ -1213,12 +1241,31 @@ class TestTakesController extends Controller {
      * @param TestTake $testTake
      * @return Response
      */
-    public function destroy(TestTake $testTake) {
+    public function destroy(TestTake $testTake)
+    {
         if ($testTake->delete()) {
             return Response::make($testTake, 200);
         } else {
             return Response::make('Failed to delete test take', 500);
         }
+    }
+
+    public function maxScore(TestTake $testTake,$ignoreQuestions = []){
+        $test = $testTake->test;
+        return (new TestsController())->maxScore($test,$ignoreQuestions);
+    }
+
+    private function addToMaxScore(&$maxScore,$question,$ignoreQuestions):void
+    {
+        if(in_array($question->getKey(), $ignoreQuestions)){
+            return;
+        }
+        $maxScore += $question->score;
+    }
+
+    public function maxScoreResponse(TestTake $testTake){
+        $maxScore = $this->maxScore($testTake);
+        return Response::make($maxScore, 200);
     }
 
     private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake) {
@@ -1249,7 +1296,8 @@ class TestTakesController extends Controller {
         $testTake->setAttribute('has_next_question', (QuestionGatherer::getNextQuestionId($testTake->getAttribute('test_id'), $newQuestionIdParents, in_array($testTake->getAttribute('discussion_type'), ['OPEN_ONLY'])) !== false));
     }
 
-    protected function filterIfNeededForDemo($data, $paginate = false) {
+    protected function filterIfNeededForDemo($data, $paginate = false)
+    {
         // @@ see TC-160
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
@@ -1274,12 +1322,22 @@ class TestTakesController extends Controller {
         return $data;
     }
 
-    public function archive(TestTake $testTake) {
-        return $testTake->archiveForUser(Auth::user());
+    public function archive(TestTake $testTake)
+    {
+        return  $testTake->archiveForUser(Auth::user());
     }
 
-    public function unArchive(TestTake $testTake) {
+    public function unArchive(TestTake $testTake)
+    {
         return $testTake->unArchiveForUser(Auth::user());
     }
 
+    public function withShortCode(TestTake $testTake) {
+        $response = new \stdClass;
+        $shortCode = Shortcode::createForUser(Auth()->user());
+
+        $response->url = sprintf('%sstart-test-take-with-short-code/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->code);
+
+        return  response()->json($response);
+    }
 }
