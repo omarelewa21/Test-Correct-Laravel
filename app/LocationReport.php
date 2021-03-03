@@ -3,10 +3,11 @@
 namespace tcCore;
 
 use Carbon\Carbon;
-use Carbon\CarbonInterval;
 use tcCore\SchoolLocation;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
+
+
+set_time_limit(300);
 
 class LocationReport extends Model
 {
