@@ -32,6 +32,5 @@ class HubspotQueryTest extends TestCase
         
         
     }
-
     
 }

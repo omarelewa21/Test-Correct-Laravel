@@ -7,6 +7,8 @@ use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+set_time_limit(300);
+
 class OnboardingWizardReport extends Model
 {
     protected $guarded = [];

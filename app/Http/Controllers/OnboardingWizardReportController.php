@@ -9,16 +9,17 @@ use tcCore\Exports\OnboardingWizardExport;
 
 class OnboardingWizardReportController extends Controller
 {
-    protected $fileName = 'onboarding_wizard_report.xls';
+    protected $fileName = 'marketing_report.xls';
 
     public function store()
     {
+        
         // run realtime when not on production
         if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
             \tcCore\OnboardingWizardReport::updateForAllTeachers();
         }
 
-        $file = storage_path($this->fileName);
+        $file = storage_path($this->fileName);        
         if (file_exists($file)) {
             unlink($file);
         }
@@ -48,6 +49,7 @@ class OnboardingWizardReportController extends Controller
     /** todo implement file download */
     public function show()
     {
+        
         // first generate then download;
         return Response::download(storage_path('app/'.$this->fileName));//, 'index.xls');
     }
