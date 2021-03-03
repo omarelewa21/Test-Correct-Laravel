@@ -76,7 +76,7 @@ class LocationReport extends Model
         return SchoolLocation::where('id', $location_id)->value('count_licenses');
     }
 
-    public static function nrActivatedLicenses($location_id)
+    private static function nrActivatedLicenses($location_id)
     {
 
         return SchoolLocation::where('id', $location_id)->value('count_active_licenses');
