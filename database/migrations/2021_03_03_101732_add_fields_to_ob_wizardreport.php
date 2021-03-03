@@ -8,11 +8,11 @@ class AddFieldsToObWizardreport extends Migration
 {
   
    private $field_names = [
-        'approved_test_files_7',
-        'approved_test_files_30',
-        'approved_test_files_60',
-        'approved_test_files_90',
-        'approved_test_files_total',
+        'nr_approved_test_files_7',
+        'nr_approved_test_files_30',
+        'nr_approved_test_files_60',
+        'nr_approved_test_files_90',
+        'nr_approved_test_files_total',
         'nr_added_question_items_7',
         'nr_added_question_items_30',
         'nr_added_question_items_60',
