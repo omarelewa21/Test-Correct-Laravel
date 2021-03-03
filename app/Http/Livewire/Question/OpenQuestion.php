@@ -38,10 +38,7 @@ class OpenQuestion extends Component
     {
         $json = json_encode((object) ['value' => $this->answer]);
 
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
 //        $this->emitUp('updateAnswer', $this->uuid, $value);
     }

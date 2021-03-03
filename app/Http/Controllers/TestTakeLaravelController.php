@@ -27,12 +27,25 @@ class TestTakeLaravelController extends Controller
                 return $question->uuid == $questionUuid;
             });
 
+            $groupId = 0;
+            $groupCloseable = 0;
+            if ($question->is_subquestion) {
+                $groupQuestion = GroupQuestionQuestion::whereQuestionId($question->getKey())->first()->groupQuestion;
+                $groupId = $groupQuestion->getKey();
+                $groupCloseable = $groupQuestion->closeable;
+            }
+
             return [
                 'uuid'      => $question->uuid,
                 'id'        => $question->id,
                 'answered'  => $answer['answered'],
                 'closeable' => $question->closeable,
-                'closed'    => $answer['closed']
+                'closed'    => $answer['closed'],
+                'group'     => [
+                    'id'        => $groupId,
+                    'closeable' => $groupCloseable,
+                    'closed'    => $answer['closed_group'],
+                ],
             ];
         });
         $uuid = $testTake->uuid;
@@ -51,8 +64,6 @@ class TestTakeLaravelController extends Controller
 
         $data = self::getData($testTake);
         $answers = $this->getAnswers($testTake, $data);
-
-        $groups = $this->groups($testTake, $data);
 
         $nav = $data->map(function ($question) use ($answers) {
             $answer = collect($answers)->first(function ($answer, $questionUuid) use ($question) {
@@ -136,22 +147,5 @@ class TestTakeLaravelController extends Controller
 
             return collect([$testQuestion->question]);
         });
-    }
-
-
-    public function groups(TestTake $testTake, $questions)
-    {
-        $groups = [];
-        $groupquestions = $testTake->test->testQuestions->filter(function ($testQuestion) {
-            if ($testQuestion->question->type === 'GroupQuestion') {
-                return $testQuestion;
-            }
-        });
-
-        $groupquestions->each(function ($question) use (&$groups) {
-            $groups[$question->question->getKey()] = $question->question->name;
-        });
-
-        return $groups;
     }
 }

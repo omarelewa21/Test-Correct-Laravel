@@ -9,7 +9,6 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
-use tcCore\Question;
 
 class InfoScreenQuestion extends Component
 {
@@ -21,11 +20,13 @@ class InfoScreenQuestion extends Component
 
     public $answers;
 
-    protected $listeners = ['changeAnswerUpdatedAt'];
+    public $answer = '';
 
-    public function questionUpdated($uuid)
+    public function mount()
     {
-        $this->uuid = $uuid;
+        if($this->answers[$this->question->uuid]['answered']) {
+            $this->answer = 'seen';
+        }
     }
 
     public function render()
@@ -33,11 +34,10 @@ class InfoScreenQuestion extends Component
         return view('livewire.question.info-screen-question');
     }
 
-    public function changeAnswerUpdatedAt($uuid)
+    public function markAsSeen($questionUuid)
     {
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']]
-        ])->update(['json' => null]);
+        $json = json_encode('seen');
+        Answer::updateJson($this->answers[$questionUuid]['id'], $json);
     }
 
 }

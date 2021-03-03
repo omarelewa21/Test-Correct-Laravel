@@ -7,7 +7,7 @@
 <div class="flex flex-col p-8 sm:p-10 content-section" >
     <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
         <div class="inline-flex question-number rounded-full text-center justify-center items-center {!! $answer ? 'complete': 'incomplete' !!}">
-            <span class="align-middle">{{ $number }}</span>
+            <span class="align-middle cursor-default">{{ $number }}</span>
         </div>
 
         @if($question->closeable && !$this->closed)

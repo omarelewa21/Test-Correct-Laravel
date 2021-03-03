@@ -16,7 +16,6 @@ trait WithGroups
     {
         if ($this->question->is_subquestion) {
             $this->group = GroupQuestionQuestion::whereQuestionId($this->question->getKey())->first()->groupQuestion;
-
         }
     }
 }

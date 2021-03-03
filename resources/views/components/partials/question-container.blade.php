@@ -10,6 +10,10 @@
      x-transition:enter-start="opacity-0 delay-200"
      x-transition:enter-end="opacity-100"
      x-on:change="$dispatch('current-question-answered')"
+     x-on:refresh-question.window="
+        if ($event.detail.indexOf({{ $number }}) !== -1) {
+                $wire.set('closed', true);
+        }"
 
      x-on:close-this-question.window="
         if(showMe) {
@@ -18,7 +22,7 @@
         }
 
     "
-    x-on:close-this-group.window="
+     x-on:close-this-group.window="
         if(showMe) {
             $wire.set('showCloseGroupModal', true);
             $wire.set('nextQuestion', $event.detail);
@@ -40,6 +44,7 @@
                 }
              }, 1000);
          "
+    x-on:mark-infoscreen-as-seen.window="if('{{ $this->question->uuid }}' == $event.detail && ){ $wire.markAsSeen($event.detail) }"
 >
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed)
@@ -49,7 +54,6 @@
     </div>
 
     <x-timeout-progress-bar/>
-    {{ 'Closed: '.$this->closed }}
 
     <div class="flex flex-col p-8 sm:p-10 content-section relative">
         <div class="question-title flex flex-wrap items-center question-indicator border-bottom mb-6">
@@ -67,6 +71,9 @@
 
             @if ($question->score > 0)
                 <h4 class="inline-block">{{ $question->score }} pt</h4>
+            @endif
+            @if($this->group)
+                <h6 class="inline-flex ml-auto">{{ $this->group->name }}</h6>
             @endif
         </div>
         <div class="flex flex-1 flex-col">

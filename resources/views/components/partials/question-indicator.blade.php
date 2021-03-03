@@ -7,12 +7,20 @@
                     @if($q['group']['id'] != 0 && !$loop->last && $nav[$key+1]['group']['id'] != 0 && $nav[$key+1]['group']['id'] === $q['group']['id'])
                         number-divider group
                     @endif
-            {!! $q['answered'] ? 'complete' : ''!!}
+                    @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
+                            incomplete
+                    @elseif($q['answered'])
+                                        complete
+                    @endif
                     ">
                 <section wire:key="nav_{{$key}}"
                          class="question-number rounded-full text-center cursor-pointer
-                        {!! $key === ($this->q - 1) ? 'active' : ''!!}
-                         {!! $q['answered'] ? 'complete' : ''!!}
+                                {!! $key === ($this->q - 1) ? 'active' : ''!!}
+                                @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
+                                    incomplete
+                                @elseif($q['answered'])
+                                    complete
+                                @endif
                                  "
                          wire:click="goToQuestion({{ 1+$key}})"
 

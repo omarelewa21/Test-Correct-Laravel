@@ -58,12 +58,7 @@ class MultipleSelectQuestion extends Component
 
         $json = json_encode($this->answerStruct);
 
-        Answer::where('id', $this->answers[$this->question->uuid]['id'])
-                ->update(
-                    ['json' => $json],
-                    ['done', 1],
-                    ['time', $this->timeSpendOnQuestion]
-                );
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->answer = '';
     }

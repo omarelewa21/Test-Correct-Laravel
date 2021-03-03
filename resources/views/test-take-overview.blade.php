@@ -74,7 +74,7 @@
 
                     @if($testQuestion->type != 'InfoscreenQuestion')
                         <div class="flex">
-                            @if(!$nav[$key-1]['closed'])
+                            @if(!$nav[$key-1]['closed'] && !$nav[$key-1]['group']['closed'])
                                 <x-button.primary type="link" href="{{ $playerUrl }}?q={{ $key }}" wire:click="Floepie"
                                                   class="ml-auto">{!!__('test_take.adjust_answer') !!}</x-button.primary>
                             @else

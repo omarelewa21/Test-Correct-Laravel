@@ -33,7 +33,7 @@ class CompletionQuestion extends Component
 
         $json = json_encode((object)$this->answer);
 
-        Answer::where('id', $this->answers[$this->question->uuid]['id'])->update(['json' => $json]);
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
     }
 

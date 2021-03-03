@@ -1,7 +1,11 @@
 <x-partials.question-container :number="$number" :question="$question">
-    <div class="w-full"
-         x-data=""
-         x-init="
+    <div class="w-full" wire:ignore>
+        <div class="mb-4">
+            {!! $question->getQuestionHtml()  !!}
+        </div>
+        <div
+                x-data=""
+                x-init="
               (function() {
                     var editor = CKEDITOR.instances['{{ $editorId }}']
                     if (editor) {
@@ -26,12 +30,7 @@
                         $dispatch('current-question-answered')
                     })
               })()
-              "
-    >
-        <div class="mb-4">
-            {!! $question->getQuestionHtml()  !!}
-        </div>
-        <div>
+              ">
             <x-input.group wire:ignore class="w-full">
                 <x-input.textarea autofocus="true" id="{{ $editorId }}" name="{{ $editorId }}" wire:model="answer">
                 </x-input.textarea>

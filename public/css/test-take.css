@@ -29,7 +29,7 @@
 .question-indicator .number-divider::before {
     content: "";
     position: absolute;
-    width: 12px;
+    width: 8px;
     height: 3px;
     background: var(--system-base);
     top: 14px;
@@ -58,7 +58,7 @@
     background: var(--cta-primary);
 }
 
-.question-indicator .question-number.active.complete {
+.question-indicator .question-number.active.complete, .question-indicator .question-number.active.incomplete{
     border-color: var(--system-base);
     background: var(--system-base);
     color: white;
@@ -66,8 +66,11 @@
 
 .question-indicator .question-number.incomplete {
     border-color: var(--mid-grey);
-    background: white;
+    background: transparent;
     color: var(--mid-grey);
+}
+.question-indicator .number-divider.incomplete::before {
+    background: var(--mid-grey);
 }
 
 .stripe {

@@ -18,7 +18,7 @@ trait WithCloseable
         return [
             'close-question' => 'closeQuestion',
             'close-group' => 'closeGroup',
-            'refreshClosed' => 'refreshClosed'
+            'refresh' => 'render'
         ];
     }
 
@@ -48,19 +48,22 @@ trait WithCloseable
     {
         $groupId = $this->group->id;
 
-        $newAnswers = collect($this->answers)->map(function (&$answer) use ($groupId) {
+        $listOfQToRefresh = [];
+        $q = 0;
+        $newAnswers = collect($this->answers)->map(function (&$answer) use ($groupId,&$listOfQToRefresh, &$q) {
+            $q++;
             if ($answer['group_id'] === $groupId) {
                 Answer::whereId($answer['id'])->update(['closed_group' => 1]);
                 $answer['closed_group'] = true;
-
+                array_push($listOfQToRefresh, $q);
                 return $answer;
             }
             return $answer;
         })->toArray();
 
-        $this->answers = $newAnswers;
+        $this->dispatchBrowserEvent('refresh-question', $listOfQToRefresh);
 
-        $this->emit('refreshClosed');
+        $this->answers = $newAnswers;
 
         if ($nextQuestion) {
             $navInfo = [
@@ -71,13 +74,6 @@ trait WithCloseable
             $this->emitTo('question.navigation', 'redirect-from-closing-a-group', $navInfo);
         } else {
             $this->emitTo('question.navigation', 'update-nav-with-closed-group', $this->group->id);
-        }
-    }
-
-    public function refreshClosed()
-    {
-        if ($this->answers[$this->question->uuid]['closed'] || $this->answers[$this->question->uuid]['closed_group']) {
-            $this->closed = true;
         }
     }
 }

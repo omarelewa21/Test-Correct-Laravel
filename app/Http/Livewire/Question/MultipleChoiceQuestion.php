@@ -38,8 +38,6 @@ class MultipleChoiceQuestion extends Component
 
     public function mount()
     {
-
-
         $this->answer = collect((array) json_decode($this->answers[$this->question->uuid]['answer']))->search(function (
             $item
         ) {
@@ -65,11 +63,7 @@ class MultipleChoiceQuestion extends Component
 
         $json = json_encode($this->answerStruct);
 
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
-
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
 //        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
     }

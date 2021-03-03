@@ -63,8 +63,6 @@ class Navigation extends Component
 
     public function previousQuestion()
     {
-        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
-
         if ($this->q > 1) {
             $this->goToQuestion($this->q-1);
         }
@@ -79,8 +77,6 @@ class Navigation extends Component
 
     public function nextQuestion()
     {
-        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
-
         if ($this->q < $this->nav->count()) {
             $this->goToQuestion($this->q+1);
         }
@@ -94,10 +90,11 @@ class Navigation extends Component
 
     public function toOverview($currentQuestion)
     {
-        $this->checkIfCurrentQuestionIsInfoscreen($currentQuestion);
-
         $isThisQuestion = $this->nav[$this->q-1];
-        if ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
+
+        if ($isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
+            $this->dispatchBrowserEvent('close-this-group', $currentQuestion);
+        } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
         } else {
             return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
@@ -119,19 +116,18 @@ class Navigation extends Component
 
     public function checkIfCurrentQuestionIsInfoscreen($question)
     {
-        $questionUuid = $this->nav[--$question]['uuid'];
-
+        $questionUuid = $this->nav[$question-1]['uuid'];
         if (Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
-            $this->emit('changeAnswerUpdatedAt', $questionUuid);
+            $this->dispatchBrowserEvent('mark-infoscreen-as-seen', $questionUuid);
             $this->updateQuestionIndicatorColor();
         }
     }
 
     public function goToQuestion($question)
     {
+        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
+
         $isThisQuestion = $this->nav[$this->q-1];
-
-
 
         if ($this->nav[$question-1]['group']['id'] != $isThisQuestion['group']['id'] && $isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
             $this->dispatchBrowserEvent('close-this-group', $question);
@@ -139,8 +135,6 @@ class Navigation extends Component
             $this->dispatchBrowserEvent('close-this-question', $question);
         } else {
             $this->q = $question;
-
-            $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
 
             $details = $this->getDetailsQuestion();
             if ($this->q == 1) {

@@ -34,7 +34,7 @@ class RankingQuestion extends Component
         $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
 
         $result = [];
-        if(!empty($this->answerStruct)) {
+        if(empty($this->answerStruct)) {
             foreach($this->question->rankingQuestionAnswers as $key => $value) {
                 $result[] = (object)['order' => $key + 1, 'value' => $value->id];
             }
@@ -62,11 +62,7 @@ class RankingQuestion extends Component
 
         $json = json_encode($result);
 
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
-
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->createAnswerStruct();
         $this->dispatchBrowserEvent('current-question-answered');
