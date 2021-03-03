@@ -23,4 +23,5 @@ Route::get('/inv/{shortcode}', 'tcCore\Http\Controllers\Api\ShortcodeController@
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
 
+Route::get('/magister', [\tcCore\Http\Controllers\MagisterController::class, 'index']);
 Route::get('/somtoday', [\tcCore\Http\Controllers\SomeTodayController::class, 'index']);

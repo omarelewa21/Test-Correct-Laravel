@@ -35,7 +35,7 @@ class SomeTodayController extends Controller
                 ->wsdl(self::WSDL)
                 ->trace(true)
                 ->header('http://www.edustandaard.nl/leerresultaten/2/autorisatie', 'autorisatie', [
-                    'autorisatiesleutel' => 'Gs4h+skY7vf7OzZoDcwxKBVvW4kswCaJflWbjkSpwhhHw/Y2JV7XbwKnoAQPvVq5nD3u7djs0hWQcwW1LfvHuw==',
+                    'autorisatiesleutel' => 'I/m9xDqU7mfwIpZYS7xQvaFzJ4rdQiYsgKxHP7fXMlgYnghl9C5xl3L0OZIN7q92UKuHnFsyqsco3kmQsASQ8Q==',
                     'klantcode'          => 'OV',
                     'klantnaam'          => 'Overig',
                 ]);
