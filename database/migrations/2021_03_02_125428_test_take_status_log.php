@@ -16,7 +16,6 @@ class TestTakeStatusLog extends Migration
        
             Schema::create('test_take_status_log', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('location_id')->nullable();  
             $table->integer('test_take_id')->nullable();   
             $table->integer('test_take_status')->nullable();   
             $table->timestamps();
