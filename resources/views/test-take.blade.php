@@ -65,7 +65,7 @@
             @endforeach
         </div>
         <x-slot name="footerbuttons">
-            <div x-cloak x-data="{display :footerButtonData({{ $current}}, {{$nav->count()}})}" @update-footer-navigation.window="display= $event.detail.data" class="space-x-3">
+            <div x-cloak x-data="{display :footerButtonData({{ $current }}, {{$nav->count()}})}" @update-footer-navigation.window="display= $event.detail.data" class="space-x-3">
                 <x-button.text-button x-show="display.prev"
                         onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
                         href="#" rotateIcon="180">
@@ -74,8 +74,8 @@
                 </x-button.text-button>
                 <x-button.cta x-show="display.turnin"
                         size="sm"
-                        onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
-                    <span>{{ __('test_take.turn_in') }}</span>
+                        onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('toOverview')">
+                    <span>{{ __('test_take.overview') }}</span>
                 </x-button.cta>
                 <x-button.primary x-show="display.next"
                         onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('nextQuestion')"
@@ -96,10 +96,18 @@
     <script>
         function footerButtonData(q, last) {
             if (q === 1) {
-                data = {
-                    prev: false,
-                    next: true,
-                    turnin: false
+                if (q === last) {
+                    data = {
+                        prev: false,
+                        next: false,
+                        turnin: true
+                    }
+                } else {
+                    data = {
+                        prev: false,
+                        next: true,
+                        turnin: false
+                    }
                 }
             } else if(q === last) {
                 data = {

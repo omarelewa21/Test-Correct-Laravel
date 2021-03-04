@@ -20,9 +20,9 @@ class TestParticipant extends BaseModel
     use UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
-        'allow_inbrowser_testing' =>'boolean',
-        'allow_new_player_access' =>'boolean',
+        'uuid'                    => EfficientUuid::class,
+        'allow_inbrowser_testing' => 'boolean',
+        'allow_new_player_access' => 'boolean',
     ];
 
     /**
@@ -302,13 +302,11 @@ class TestParticipant extends BaseModel
         return Uuid::fromBytes($value)->toString();
     }
 
-    public function
-    startTestTake()
+    public function startTestTake()
     {
         //Remaining startTestTake actions handled in TestParticipant boot method
         $this->setAttribute('test_take_status_id', 3)->setAttribute('allow_new_player_access', true)->save();
         return true;
-
     }
 
     public function handInTestTake()

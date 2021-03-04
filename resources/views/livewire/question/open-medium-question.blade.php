@@ -26,9 +26,10 @@
                     .on('blur',function(e){
                         var textarea = document.getElementById('{{ $editorId }}')
                         textarea.value =  e.editor.getData()
-                        textarea.dispatchEvent(new Event('input'));
+                        textarea.dispatchEvent(new Event('input'))
                         $dispatch('current-question-answered')
                     })
+
               })()
               ">
             <x-input.group wire:ignore class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
@@ -37,4 +38,6 @@
             </x-input.group>
         </div>
     </div>
+    <x-attachment.attachment-modal :attachment="$attachment" />
+    <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>
