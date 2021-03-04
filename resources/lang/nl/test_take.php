@@ -29,7 +29,7 @@ return [
     'incorrect'                           => 'Onjuist',
     'correct_reason'                      => 'Correct reden',
     'incorrect_reason'                    => 'Incorrect reden',
-    'instruction_open_question'           => 'Type jouw antwoord',
+    'instruction_open_question'           => 'Vul hieronder je antwoord in',
     'instruction_matching_question'       => 'Grijp en sleep de items in het juiste vak.',
     'characters'                          => 'tekens',
     'not_applicable'                      => 'nvt',

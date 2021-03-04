@@ -50,7 +50,7 @@ return [
     'pause'                               => 'Pause',
     'only_playable_once'                  => 'This sound clip cannot be paused and only be played once',
     'ready'                               => 'Ready',
-    'instruction_open_question'           => 'Type your answer',
+    'instruction_open_question'           => 'Type your answer below',
     'instruction_matching_question'       => 'Grab and drag the items to the right box',
     'instruction_ranking_question'        => 'Grab and drag the items in the correct order',
     'question_closed_text'                => 'This question is closed and cannot be opened again. This is why the question is not visible.',
