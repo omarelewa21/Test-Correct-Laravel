@@ -57,7 +57,7 @@ class Shortcode extends BaseModel
         $shortcode = self::whereCode($code)->first();
 
         if ($shortcode && Carbon::now()->diffInSeconds($shortcode->created_at) < Shortcode::MAX_VALID_IN_SECONDS) {
-            $result = $shortcode->user;
+            $result = $shortcode->user_id;
         }
 
         return $result;

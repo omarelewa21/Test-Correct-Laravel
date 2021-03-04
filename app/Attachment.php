@@ -22,7 +22,7 @@ class Attachment extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['type', 'title', 'description', 'text', 'link', 'json'];
+    protected $fillable = ['type', 'title', 'description', 'text', 'link', 'json', 'question_closed'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -238,6 +238,15 @@ class Attachment extends BaseModel
     public function audioOnlyPlayOnce()
     {
         return json_decode($this->json)->play_once;
+    }
+
+    public function audioTimeoutTime()
+    {
+        $timeout = null;
+        if (json_decode($this->json)->timeout) {
+            $timeout = json_decode($this->json)->timeout;
+        }
+        return $timeout;
     }
 
     public function audioIsPlayedOnce()

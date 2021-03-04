@@ -4,6 +4,8 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use tcCore\GroupQuestion;
+use tcCore\GroupQuestionQuestion;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTake as Test;
@@ -12,6 +14,8 @@ class TestTakeLaravelController extends Controller
 {
     public function overview(TestTake $testTake, Request $request)
     {
+        $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
+
         $current = $request->get('q') ?: '1';
 
         $data = self::getData($testTake);
@@ -23,16 +27,31 @@ class TestTakeLaravelController extends Controller
                 return $question->uuid == $questionUuid;
             });
 
+            $groupId = 0;
+            $groupCloseable = 0;
+            if ($question->is_subquestion) {
+                $groupQuestion = GroupQuestionQuestion::whereQuestionId($question->getKey())->first()->groupQuestion;
+                $groupId = $groupQuestion->getKey();
+                $groupCloseable = $groupQuestion->closeable;
+            }
+
             return [
-                'uuid'     => $question->uuid,
-                'id'       => $question->id,
-                'answered' => $answer['answered'],
+                'uuid'      => $question->uuid,
+                'id'        => $question->id,
+                'answered'  => $answer['answered'],
+                'closeable' => $question->closeable,
+                'closed'    => $answer['closed'],
+                'group'     => [
+                    'id'        => $groupId,
+                    'closeable' => $groupCloseable,
+                    'closed'    => $answer['closed_group'],
+                ],
             ];
         });
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
 
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid']));
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant']));
     }
 
 
@@ -51,17 +70,32 @@ class TestTakeLaravelController extends Controller
                 return $question->uuid == $questionUuid;
             });
 
+            $groupId = 0;
+            $groupCloseable = 0;
+            if ($question->is_subquestion) {
+                $groupQuestion = GroupQuestionQuestion::whereQuestionId($question->getKey())->first()->groupQuestion;
+                $groupId = $groupQuestion->getKey();
+                $groupCloseable = $groupQuestion->closeable;
+            }
+
             return [
-                'uuid'     => $question->uuid,
-                'id'       => $question->id,
-                'answered' => $answer['answered'],
+                'uuid'      => $question->uuid,
+                'id'        => $question->id,
+                'answered'  => $answer['answered'],
+                'closeable' => $question->closeable,
+                'closed'    => $answer['closed'],
+                'group'     => [
+                    'id'        => $groupId,
+                    'closeable' => $groupCloseable,
+                    'closed'    => $answer['closed_group'],
+                ],
             ];
         });
 
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
 
-        return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid']));
+        return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant']));
     }
 
     public function getAnswers($testTake, $testQuestions)
@@ -75,10 +109,18 @@ class TestTakeLaravelController extends Controller
                 $question = $testQuestions->first(function ($question) use ($answer) {
                     return $question->getKey() === $answer->question_id;
                 });
+
+                $groupId = 0;
+                if ($question->is_subquestion) {
+                    $groupId = GroupQuestionQuestion::whereQuestionId($question->getKey())->first()->group_question_id;
+                }
                 $result[$question->uuid] = [
-                    'id'       => $answer->getKey(),
-                    'answer'   => $answer->json,
-                    'answered' => $answer->is_answered
+                    'id'           => $answer->getKey(),
+                    'answer'       => $answer->json,
+                    'answered'     => $answer->is_answered,
+                    'closed'       => $answer->closed,
+                    'closed_group' => $answer->closed_group,
+                    'group_id'     => $groupId,
                 ];
             });
         return $result;
@@ -106,5 +148,4 @@ class TestTakeLaravelController extends Controller
             return collect([$testQuestion->question]);
         });
     }
-
 }

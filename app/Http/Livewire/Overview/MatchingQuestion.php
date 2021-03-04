@@ -5,12 +5,13 @@ namespace tcCore\Http\Livewire\Overview;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
 
 class MatchingQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, WithCloseable;
 
     public $answer;
     public $question;
@@ -27,6 +28,14 @@ class MatchingQuestion extends Component
 
         if ($this->answers[$this->question->uuid]['answer']) {
             $this->answer = true;
+        }
+
+        if(!$this->answerStruct) {
+            foreach($this->question->matchingQuestionAnswers as $key => $value) {
+                if ($value->correct_answer_id !== null) {
+                    $this->answerStruct[$value->id] = "";
+                }
+            }
         }
     }
 

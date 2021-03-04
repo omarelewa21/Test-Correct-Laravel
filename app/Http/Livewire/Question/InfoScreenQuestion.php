@@ -3,25 +3,41 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
+use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Question;
+use tcCore\Http\Traits\WithQuestionTimer;
 
 class InfoScreenQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
 
     public $question;
 
     public $number;
 
-    public function questionUpdated($uuid)
+    public $answers;
+
+    public $answer = '';
+
+    public function mount()
     {
-        $this->uuid = $uuid;
+        if($this->answers[$this->question->uuid]['answered']) {
+            $this->answer = 'seen';
+        }
     }
 
     public function render()
     {
         return view('livewire.question.info-screen-question');
     }
+
+    public function markAsSeen($questionUuid)
+    {
+        $json = json_encode('seen');
+        Answer::updateJson($this->answers[$questionUuid]['id'], $json);
+    }
+
 }

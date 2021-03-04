@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-    <link href="/drawing/buttons.css" rel="stylesheet" type="text/css" />
-    <link href="/drawing/spacing.css" rel="stylesheet" type="text/css" />
+    <link href="/drawing/buttons.css" rel="stylesheet" type="text/css"/>
+    <link href="/drawing/spacing.css" rel="stylesheet" type="text/css"/>
     <style>
         body {
             font-family: Myriad Pro, Arial;
@@ -40,11 +40,11 @@
         </a>
 
         <span id="btn-export"></span>
-        <a  x-on:click="
+        <a x-on:click="
                 (function() {
                     $wire.set('answer', eppi.getActiveImageBase64Encoded());
                 })()"
-            class="btn highlight small ml5 pull-right" style="cursor: pointer;">
+           class="btn highlight small ml5 pull-right" style="cursor: pointer;">
             <span class="fa fa-check"></span> Opslaan
         </a>
         <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;">
@@ -76,7 +76,7 @@
 </header>
 
 <div id="canvas-holder" class="v-center__wrapper rounded-10"
-     style="border:1px solid gray; width: 970px; float:left; margin-top: 10px;">
+     style="border:1px solid gray; width: 970px; height: 481px; float:left; margin-top: 10px;">
 
 </div>
 
@@ -86,7 +86,7 @@
 </div>
 <div class="input-group w-full mt-4">
 
-<textarea id="additional_text" wire:model="additionalText"
+<textarea id="additional_text" wire:model.defer="additionalText"
           class="form-input"
           placeholder="Begeleidende tekst"></textarea>
 </div>

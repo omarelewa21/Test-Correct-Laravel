@@ -15,7 +15,9 @@
      @endif
     {{ $attributes }}
 >
-    <span class="mr-3 h-6 flex items-center">{{ $slot }}</span>
+    <span class="mr-3 flex items-center" >{{ $slot }}</span>
+    <div class="w-4">
+        <x-icon.grab class="cursor-pointer"></x-icon.grab>
+    </div>
 
-    <x-icon.grab class="cursor-pointer"></x-icon.grab>
 </div>

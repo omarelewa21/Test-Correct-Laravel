@@ -24,6 +24,7 @@
     --off-white: #f9faff;
     --all-red: #cf1b04;
     --red-light: #ffedeb;
+    --note: #6b7789;
 }
 
 @font-face {
@@ -237,6 +238,17 @@ svg {
     border-color: var(--red-light);
 }
 
+.note {
+    color: var(--note);
+}
+.bg-note {
+    background: var(--note);
+}
+.border-note {
+    border-color: var(--note);
+}
+
+
 .rounded-10 {
     border-radius: 10px;
 }
@@ -303,7 +315,7 @@ h6 {
     font-family: Nunito Regular;
 }
 
-.note {
+.font-size-14 {
     font-size: .875rem;
 }
 

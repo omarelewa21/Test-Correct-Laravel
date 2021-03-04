@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full space-y-3">
-        <div>
+        <div wire:ignore>
             <x-input.group class="body1" for="">
                 {!! $html !!}
             </x-input.group>

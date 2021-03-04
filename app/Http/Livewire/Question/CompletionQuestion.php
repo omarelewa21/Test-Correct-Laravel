@@ -5,12 +5,17 @@ namespace tcCore\Http\Livewire\Question;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Attachment;
+use tcCore\GroupQuestion;
+use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithQuestionTimer;
 
 class CompletionQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
 
     public $question;
     public $answer;
@@ -19,22 +24,17 @@ class CompletionQuestion extends Component
 
     public function mount()
     {
-        $this->answer = (array) json_decode($this->answers[$this->question->uuid]['answer']);
+        $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
     }
 
-    public function updated($field, $value)
+    public function updatedAnswer($value, $field)
     {
-        $index = last(explode('.', $field));
-        $this->answer[$index] = $value;
+        $this->answer[$field] = $value;
 
         $json = json_encode((object)$this->answer);
 
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
-//        $this->emitUp('updateAnswer', $this->uuid, $this->answer);
     }
 
     private function completionHelper($question)
@@ -50,7 +50,7 @@ class CompletionQuestion extends Component
             return sprintf(
                 '<input wire:model.lazy="answer.%d" class="form-input mb-2" type="text" id="%s" style="width: 120px" />',
                 $tag_id,
-                'answer_'.$tag_id
+                'answer_' . $tag_id
             );
         };
 

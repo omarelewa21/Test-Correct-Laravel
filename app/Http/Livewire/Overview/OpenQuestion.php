@@ -4,10 +4,13 @@ namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithCloseable;
 use tcCore\Question;
 
 class OpenQuestion extends Component
 {
+    use WithCloseable;
+
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
     public $answer = '';
     public $question;

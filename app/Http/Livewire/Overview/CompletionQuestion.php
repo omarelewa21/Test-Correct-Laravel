@@ -3,10 +3,13 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
+use tcCore\Http\Traits\WithCloseable;
 use tcCore\Question;
 
 class CompletionQuestion extends Component
 {
+    use WithCloseable;
+
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
     public $question;

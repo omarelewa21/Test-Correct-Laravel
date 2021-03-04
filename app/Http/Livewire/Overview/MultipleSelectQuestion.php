@@ -4,10 +4,13 @@ namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithCloseable;
 use tcCore\Question;
 
 class MultipleSelectQuestion extends Component
 {
+    use WithCloseable;
+
     public $question;
 
     public $answer = '';
@@ -24,38 +27,21 @@ class MultipleSelectQuestion extends Component
 
     public function mount()
     {
-        $this->answer = collect((array) json_decode($this->answers[$this->question->uuid]['answer']))->search(function (
-            $item
-        ) {
-            return $item == 1;
-        });
-
-        $this->answerStruct =
-            array_fill_keys(
-                array_keys(
-                    array_flip(Question::whereUuid($this->question->uuid)
-                        ->first()
-                        ->multipleChoiceQuestionAnswers->pluck('id')
-                        ->toArray()
-                    )
-                ), 0
-            );
-    }
-
-    public function updatedAnswer($value)
-    {
-        $this->answerStruct = array_fill_keys(array_keys($this->answerStruct), 0);
-        $this->answerStruct[$value] = 1;
-
-        $json = json_encode($this->answerStruct);
-
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
-
-
-//        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
+        if ($this->answers[$this->question->uuid]['answer']) {
+            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
+            $this->answer = 'answered';
+        } else {
+            $this->answerStruct =
+                array_fill_keys(
+                    array_keys(
+                        array_flip(Question::whereUuid($this->question->uuid)
+                            ->first()
+                            ->multipleChoiceQuestionAnswers->pluck('id')
+                            ->toArray()
+                        )
+                    ), 0
+                );
+        }
     }
 
     public function render()

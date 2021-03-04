@@ -7,12 +7,15 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
 
 class DrawingQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
 
     public $question;
 
@@ -29,10 +32,11 @@ class DrawingQuestion extends Component
     public function mount()
     {
         $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
-                                ->where('question_id', $this->question->id)
-                                ->first();
+            ->where('question_id', $this->question->id)
+            ->first();
         if ($answer->json) {
             $this->answer = json_decode($answer->json)->answer;
+            $this->additionalText = json_decode($answer->json)->additional_text;
         }
     }
 
@@ -41,24 +45,21 @@ class DrawingQuestion extends Component
         $this->uuid = $uuid;
     }
 
-    public function updated($name, $value) {
+    public function updatedAnswer($value)
+    {
 
-        if ($name == 'answer') {
-            $this->answer = $this->saveImageAndReturnUrl($value);
+        $this->answer = $this->saveImageAndReturnUrl($value);
 
-            $json = json_encode([
-                'answer' => $this->answer,
-                'additional_text' => $this->additionalText,
-            ]);
+        $json = json_encode([
+            'answer'          => $this->answer,
+            'additional_text' => $this->additionalText,
+        ]);
 
-            Answer::where([
-                ['id', $this->answers[$this->question->uuid]['id']],
-                ['question_id', $this->question->id],
-            ])->update(['json' => $json]);
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
-            $this->drawingModalOpened = false;
+        $this->drawingModalOpened = false;
 
-        }
+
     }
 
     public function render()
@@ -69,8 +70,8 @@ class DrawingQuestion extends Component
     private function saveImageAndReturnUrl($image)
     {
         $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
-                        ->where('question_id', $this->question->id)
-                        ->first();
+            ->where('question_id', $this->question->id)
+            ->first();
 
         Storage::put($answer->getDrawingStoragePath(), $image);
 
