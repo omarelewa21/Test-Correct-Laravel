@@ -80,19 +80,14 @@ class SomeTodayHelper
             throw new \Exception('no result to store');
         }
 
-        $model = UwlrSoapResult::create($this->searchParams);
+        $this->resultSet = UwlrSoapResult::create($this->searchParams);
 
-        $this->resultIdentifier = $model->getKey();
-
-//        dd($this->result->leerlinggegevens);
-
+        $this->resultIdentifier = $this->resultSet->getKey();
 
         $this->storeInDBSchool($this->result->leerlinggegevens->school);
         $this->storeInDBGroep($this->result->leerlinggegevens->groepen);
         $this->storeInDBLeerlingen($this->result->leerlinggegevens->leerlingen);
         $this->storeInDBLeerkrachten($this->result->leerlinggegevens->leerkrachten);
-
-        dd($model->report());
 
         return $this;
     }
@@ -108,7 +103,10 @@ class SomeTodayHelper
     public function getResultIdentifier()
     {
         return $this->resultIdentifier;
+    }
 
+    public function getResultSet(){
+        return $this->resultSet;
     }
 
     private function storeInDBSchool($school)
@@ -126,7 +124,7 @@ class SomeTodayHelper
        collect(['groep', 'samengestelde_groep'])->each(function($prop) use ($groepen) {
            collect($groepen->$prop)->each(function($obj) use ($prop) {
                UwlrSoapEntry::create([
-                   'uwrl_soap_result_id' => $this->resultIdentifier,
+                   'uwlr_soap_result_id' => $this->resultIdentifier,
                    'key' => $prop,
                    'object' => serialize($obj),
                ]);
@@ -138,7 +136,7 @@ class SomeTodayHelper
     {
         collect($leerlingen->leerling)->each(function($obj) {
             UwlrSoapEntry::create([
-                'uwrl_soap_result_id' => $this->resultIdentifier,
+                'uwlr_soap_result_id' => $this->resultIdentifier,
                 'key' => 'leerling',
                 'object' => serialize($obj),
             ]);
@@ -150,7 +148,7 @@ class SomeTodayHelper
     {
         collect($leerkrachten->leerkracht)->each(function($obj) {
             UwlrSoapEntry::create([
-                'uwrl_soap_result_id' => $this->resultIdentifier,
+                'uwlr_soap_result_id' => $this->resultIdentifier,
                 'key' => 'leerkracht',
                 'object' => serialize($obj),
             ]);

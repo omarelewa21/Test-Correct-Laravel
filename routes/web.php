@@ -53,4 +53,5 @@ Route::middleware('guest')->group(function () {
 
 Route::get('/magister', [\tcCore\Http\Controllers\MagisterController::class, 'index']);
 Route::get('/somtoday', [\tcCore\Http\Controllers\SomeTodayController::class, 'index']);
-Route::get('/uwlr', tcCore\Http\Livewire\UwlrFetcher::class)->name('uwlr');
+Route::get('/uwlr/fetcher', tcCore\Http\Livewire\UwlrFetcher::class)->name('uwlr.fetcher');
+Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');

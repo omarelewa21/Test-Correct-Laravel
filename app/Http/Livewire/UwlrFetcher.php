@@ -21,7 +21,7 @@ class UwlrFetcher extends Component
 
     public $resultIdendifier = null;
 
-    private $result;
+    private $report;
 
     public function mount()
     {
@@ -38,11 +38,13 @@ class UwlrFetcher extends Component
             $this->dependanceCode
         )->storeInDB();
 
-        $this->result = $helper->getResult();
+        $this->report = $helper->getResultSet()->report();
         $this->resultIdendifier = $helper->getResultIdentifier();
+    }
 
-
-
+    public function showGrid()
+    {
+        return $this->redirect(route('uwlr.grid'));
 
     }
 
@@ -50,8 +52,6 @@ class UwlrFetcher extends Component
 
     public function render()
     {
-
-
-        return view('livewire.uwlr-fetcher')->with(['result' => $this->result]);
+        return view('livewire.uwlr-fetcher')->with(['report' => $this->report]);
     }
 }

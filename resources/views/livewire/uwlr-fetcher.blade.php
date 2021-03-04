@@ -1,7 +1,10 @@
 <div class="mt-10 flex-1 p-8">
-    <div class="content-section mt-10 flex-1 p-8">
+
+        <div class="content-section mt-10 flex-1 p-8">
         <div><h1>UWLR Fetcher</h1></div>
-        <div class="divider"></div>
+            <div class="divider"></div>
+            <x-button.primary class="mt-6" wire:click="showGrid">Overzicht</x-button.primaryc>
+
         <div class="flex space-x-4 mt-4">
             <x-input.group label="Klant code" class="w-1/2">
                 <x-input.text wire:model="clientCode"></x-input.text>
@@ -35,13 +38,14 @@
             </x-button.primary>
         </div>
     </div>
-    @if($result)
+    @if($report)
         <div class="content-section mt-10 flex-1 p-8">
-            <div><h1>Result</h1></div>
+            <div><h1>Report for Identifier {{ $this->resultIdendifier }}</h1></div>
             <div class="divider"></div>
-            <PRE>
-         {!!  var_dump($result) !!};
-     </PRE>
+            @foreach($report as $group => $count)
+                {{ $group }} {{ $count }}<br>
+
+            @endforeach
         </div>
     @endif
 

@@ -17,7 +17,7 @@ class CreateUwlrSoapEntriesTable extends Migration
             $table->id();
             $table->bigInteger('uwlr_soap_result_id');
             $table->string('key');
-            $table->string('object');
+            $table->longText('object');
             $table->timestamps();
         });
     }

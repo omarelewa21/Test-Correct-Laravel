@@ -22,7 +22,17 @@ class UwlrSoapResult extends Model
 
     public function report()
     {
-        dd($this->entries);
-        return $this->entries()->groupBy('key')->count();
+        return $this->entries->groupBy('key')->map(function ($group) {
+            return $group->count();
+        });
+    }
+
+    public function asData(){
+        return $this->entries->groupBy('key')->map(function ($group) {
+
+            return $group->map(function($item) {
+                return unserialize($item->object);
+            });
+        });
     }
 }
