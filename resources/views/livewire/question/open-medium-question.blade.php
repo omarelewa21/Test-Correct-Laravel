@@ -31,7 +31,7 @@
                     })
               })()
               ">
-            <x-input.group wire:ignore class="w-full">
+            <x-input.group wire:ignore class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
                 <x-input.textarea autofocus="true" id="{{ $editorId }}" name="{{ $editorId }}" wire:model="answer">
                 </x-input.textarea>
             </x-input.group>

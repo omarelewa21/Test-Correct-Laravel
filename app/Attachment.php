@@ -242,21 +242,26 @@ class Attachment extends BaseModel
 
     public function audioTimeoutTime()
     {
-        $timeout = null;
-        if (json_decode($this->json)->timeout) {
-            $timeout = json_decode($this->json)->timeout;
+        $json = null;
+        if ($this->json) {
+            $json = json_decode($this->json);
         }
-        return $timeout;
+
+        if ($json != null && property_exists($json, 'timeout')) {
+            return $json->timeout;
+        }
+
+        return null;
     }
 
     public function audioIsPlayedOnce()
     {
-        session()->put('attachment_'.$this->getKey(), 1);
+        session()->put('attachment_' . $this->getKey(), 1);
     }
 
     public function audioCanBePlayedAgain()
     {
-        if(session()->get('attachment_'.$this->getKey())) {
+        if (session()->get('attachment_' . $this->getKey())) {
             return false;
         }
         return true;
@@ -264,8 +269,8 @@ class Attachment extends BaseModel
 
     public function audioHasCurrentTime()
     {
-        $sessionValue = 'attachment_'.$this->getKey().'_currentTime';
-        if(session()->get($sessionValue)) {
+        $sessionValue = 'attachment_' . $this->getKey() . '_currentTime';
+        if (session()->get($sessionValue)) {
             return session()->get($sessionValue);
         }
         return 0;

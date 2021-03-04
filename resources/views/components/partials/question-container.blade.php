@@ -44,7 +44,7 @@
                 }
              }, 1000);
          "
-    x-on:mark-infoscreen-as-seen.window="if('{{ $this->question->uuid }}' == $event.detail && ){ $wire.markAsSeen($event.detail) }"
+    x-on:mark-infoscreen-as-seen.window="if('{{ $this->question->uuid }}' == $event.detail){ $wire.markAsSeen($event.detail) }"
 >
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed)
@@ -78,6 +78,9 @@
         </div>
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
+                @if($this->group)
+                    <div class="mb-5">{!! $this->group->question->getQuestionHtml() !!}</div>
+                @endif
                 {{ $slot }}
             @else
                 <span>{{ __('test_take.question_closed_text') }}</span>
