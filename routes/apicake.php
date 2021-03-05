@@ -234,34 +234,35 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('umbrella_organization', 'UmbrellaOrganizationsController', ['except' => ['create', 'edit']]);
 
 	Route::resource('school', 'SchoolsController', ['except' => ['create', 'edit']]);
-	// School children
-	Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
+    Route::get('school_location/is_allowed_new_player_access', 'SchoolLocationsController@isAllowedNewPlayerAccess')->name('school_location.is_allowed_new_player_access');
+    // School children
+    Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
 
-	// School location children
-	Route::resource('school_location.school_class', 'SchoolLocations\SchoolClassesController', ['except' => ['create', 'edit']]);
-	Route::resource('school_location.school_location_ip', 'SchoolLocations\SchoolLocationIpsController', ['except' => ['create', 'edit']]);
-	Route::resource('school_location.section', 'SchoolLocations\SectionsController', ['except' => ['create', 'edit']]);
-	Route::resource('school_location.license', 'SchoolLocations\LicensesController', ['except' => ['create', 'edit']]);
+    // School location children
+    Route::resource('school_location.school_class', 'SchoolLocations\SchoolClassesController', ['except' => ['create', 'edit']]);
+    Route::resource('school_location.school_location_ip', 'SchoolLocations\SchoolLocationIpsController', ['except' => ['create', 'edit']]);
+    Route::resource('school_location.section', 'SchoolLocations\SectionsController', ['except' => ['create', 'edit']]);
+    Route::resource('school_location.license', 'SchoolLocations\LicensesController', ['except' => ['create', 'edit']]);
 
-	Route::resource('school_year', 'SchoolYearsController', ['except' => ['create', 'edit']]);
-	Route::resource('school_year.period', 'SchoolYears\PeriodsController', ['except' => ['create', 'edit']]);
+    Route::resource('school_year', 'SchoolYearsController', ['except' => ['create', 'edit']]);
+    Route::resource('school_year.period', 'SchoolYears\PeriodsController', ['except' => ['create', 'edit']]);
 
-	Route::resource('section', 'SectionsController', ['except' => ['create', 'edit']]);
-	Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
+    Route::resource('section', 'SectionsController', ['except' => ['create', 'edit']]);
+    Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
 
-	Route::put('message/mark_read/{message}', 'MessageController@markRead')->name('message.mark_read');
-	Route::resource('message', 'MessageController', ['except' => ['create', 'edit']]);
+    Route::put('message/mark_read/{message}', 'MessageController@markRead')->name('message.mark_read');
+    Route::resource('message', 'MessageController', ['except' => ['create', 'edit']]);
 
-	Route::resource('address', 'AddressesController', ['except' => ['create', 'edit']]);
-	Route::resource('contact', 'ContactsController', ['except' => ['create', 'edit']]);
-	Route::resource('grading_scale', 'GradingScalesController', ['except' => ['create', 'edit']]);
+    Route::resource('address', 'AddressesController', ['except' => ['create', 'edit']]);
+    Route::resource('contact', 'ContactsController', ['except' => ['create', 'edit']]);
+    Route::resource('grading_scale', 'GradingScalesController', ['except' => ['create', 'edit']]);
 
-	Route::resource('base_subject', 'BaseSubjectsController', ['only' => ['index']]);
+    Route::resource('base_subject', 'BaseSubjectsController', ['only' => ['index']]);
     Route::resource('my_base_subject', 'MyBaseSubjectsController', ['only' => ['index']]);
 
-	Route::resource('tag', 'TagsController', ['only' => ['index', 'show']]);
+    Route::resource('tag', 'TagsController', ['only' => ['index', 'show']]);
 
-	Route::get('admin/teacher_stats','AdminTeacherStatsController@index')->name('admin_teacher_stats');
+    Route::get('admin/teacher_stats','AdminTeacherStatsController@index')->name('admin_teacher_stats');
     Route::get('qtiimport/data','QtiImportController@data')->name('qtiimport_data');
     Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
 
@@ -304,5 +305,4 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('test_participant/{test_take}/is_allowed_inbrowser_testing','TestTakes\TestParticipantsController@is_allowed_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.show');
     Route::put('test_take/{test_take}/test_participant/{test_participant}/toggle_inbrowser_testing','TestTakes\TestParticipantsController@toggle_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.update');
 
-    Route::get('school_location/{id}/is_allowed_new_player_access', 'SchoolLocationsController@isAllowedNewPlayerAccess')->name('school_location.is_allowed_new_player_access');
 });

@@ -12,7 +12,7 @@ Object.clone = function (obj) {
     return clone;
 };
 
-var App = function () {
+var App = function (prefix) {
     var mouseStart, layer, path,
         // Editor
         tool = 'line',
@@ -25,7 +25,7 @@ var App = function () {
 
         // DOM and shit
         background = new Paint.Layer(),
-        holder = document.getElementById('canvas-holder'),
+        holder = document.getElementById(prefix + 'canvas-holder'),
         canvas = new Paint.Canvas({
             height: 475,
             width: 970
@@ -35,15 +35,15 @@ var App = function () {
 
 
     this.AddLayer = function (type) {
-        var html = $('#layers-holder').html();
+        var html = $('#'+prefix + 'layers-holder').html();
 
         var index = canvas.getChildren().length;
 
-        html += "<div class='layer' style='border-bottom: 1px solid gray; padding: 5px 10px;' data-index='" + index + "'><span class='fa fa-eye' style='float:right;'></span> " + type + "</div>";
+        html += "<div class='"+prefix + "layer' style='border-bottom: 1px solid gray; padding: 5px 10px;' data-index='" + index + "'><span class='fa fa-eye' style='float:right;'></span> " + type + "</div>";
 
-        $('#layers-holder').html(html);
+        $('#' + prefix + 'layers-holder').html(html);
 
-        $('.layer').click(function () {
+        $('.'+prefix + 'layer').click(function () {
             var index = $(this).attr('data-index');
             canvas.toggleChild(index);
 
@@ -283,29 +283,29 @@ var App = function () {
      * INITIALISATION
      ****************************************************************/
 
-    document.getElementById('btn-tool-freeform').onclick =
-        document.getElementById('btn-tool-freeform').ontouchdown = function () {
+    document.getElementById(prefix + 'btn-tool-freeform').onclick =
+        document.getElementById(prefix + 'btn-tool-freeform').ontouchdown = function () {
             tool = 'freeform';
         };
 
 
-    document.getElementById('btn-tool-line').onclick =
-        document.getElementById('btn-tool-line').ontouchdown = function () {
+    document.getElementById(prefix + 'btn-tool-line').onclick =
+        document.getElementById(prefix + 'btn-tool-line').ontouchdown = function () {
             tool = 'line';
         };
 
-    document.getElementById('btn-tool-arrow').onclick =
-        document.getElementById('btn-tool-arrow').ontouchdown = function () {
+    document.getElementById(prefix + 'btn-tool-arrow').onclick =
+        document.getElementById(prefix + 'btn-tool-arrow').ontouchdown = function () {
             tool = 'arrow';
         };
 
-    document.getElementById('btn-tool-shape-circle').onclick =
-        document.getElementById('btn-tool-shape-circle').ontouchdown = function () {
+    document.getElementById(prefix + 'btn-tool-shape-circle').onclick =
+        document.getElementById(prefix + 'btn-tool-shape-circle').ontouchdown = function () {
             tool = 'circle';
         };
 
-    document.getElementById('btn-tool-shape-rectangle').onclick =
-        document.getElementById('btn-tool-shape-rectangle').ontouchdown = function () {
+    document.getElementById(prefix + 'btn-tool-shape-rectangle').onclick =
+        document.getElementById(prefix + 'btn-tool-shape-rectangle').ontouchdown = function () {
             tool = 'rectangle';
             console.log(tool)
         };
@@ -317,23 +317,23 @@ var App = function () {
     document.getElementById('btn-redo').ontouchdown = function() { canvas.redo(); };*/
 
 
-    $('#btn-thick-1').bind('click ontouchdown', function () {
+    $('#'+prefix + 'btn-thick-1').bind('click ontouchdown', function () {
         style = Object.create(style);
         style.line.width = 1;
     });
 
-    $('#btn-thick-2').bind('click ontouchdown', function () {
+    $('#'+prefix + 'btn-thick-2').bind('click ontouchdown', function () {
         style = Object.create(style);
         style.line.width = 2;
     });
 
-    $('#btn-thick-3').bind('click ontouchdown', function () {
+    $('#'+prefix + 'btn-thick-3').bind('click ontouchdown', function () {
         style = Object.create(style);
         style.line.width = 3;
     });
 
-    $('.colorBtn').bind('click ontouchdown', function () {
-        $('.colorBtn').css({
+    $('.'+prefix +'colorBtn').bind('click ontouchdown', function () {
+        $('.'+prefix + 'colorBtn').css({
             'opacity': 0.3
         });
         $(this).css({
@@ -347,9 +347,9 @@ var App = function () {
     style.line.width = 2;
 
 
-    if (document.getElementById('btn-image') != undefined) {
-        document.getElementById('btn-image').onchange = function (e) {
-            document.getElementById('FormBackground').submit();
+    if (document.getElementById(prefix + 'btn-image') != undefined) {
+        document.getElementById(prefix + 'btn-image').onchange = function (e) {
+            document.getElementById(prefix + 'FormBackground').submit();
 
             var file = this.files[0],
                 reader = new FileReader();
@@ -409,15 +409,15 @@ var App = function () {
         return canvas.getCanvas().toDataURL();
     }
 
-    document.getElementById('btn-export').onclick =
-        document.getElementById('btn-export').ontouchdown = function () {
+    document.getElementById(prefix + 'btn-export').onclick =
+        document.getElementById(prefix + 'btn-export').ontouchdown = function () {
             parent.skip = true;
             var element = canvas.getCanvas();
 
             $.post(window.parent.drawingSaveUrl,
                 {
                     drawing: element.toDataURL(),
-                    additional_text: $('#additional_text').val()
+                    additional_text: $('#'+prefix + 'additional_text').val()
                 },
                 function (response) {
                     if (response == 1) {
@@ -466,4 +466,3 @@ var App = function () {
     };
 };
 
-var eppi = new App();

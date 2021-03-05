@@ -33,6 +33,6 @@
 
         </div>
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment"/>
+    <x-attachment.attachment-modal :attachment="$attachment" :player-instance="$playerInstance"/>
     <x-question.notepad :showNotepad="$showNotepad"/>
 </x-partials.question-container>
