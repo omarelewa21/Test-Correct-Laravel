@@ -16,15 +16,16 @@ class Navigation extends Component
     public $testTakeUuid;
     public $q;
     public $queryString = ['q'];
+    public $startTime;
 
     public $lastQuestionInGroup = [];
 
     protected $listeners = [
         'redirect-from-closing-a-question' => 'redirectFromClosedQuestion',
-        'redirect-from-closing-a-group' => 'redirectFromClosedGroup',
-        'update-nav-with-closed-question' => 'updateNavWithClosedQuestion',
-        'update-nav-with-closed-group' => 'updateNavWithClosedGroup',
-        ];
+        'redirect-from-closing-a-group'    => 'redirectFromClosedGroup',
+        'update-nav-with-closed-question'  => 'updateNavWithClosedQuestion',
+        'update-nav-with-closed-group'     => 'updateNavWithClosedGroup',
+    ];
 
     public function mount()
     {
@@ -35,9 +36,10 @@ class Navigation extends Component
 
         foreach ($this->nav as $key => $q) {
             if ($q['group']['closeable']) {
-                $this->lastQuestionInGroup[$q['group']['id']] = $key+1;
+                $this->lastQuestionInGroup[$q['group']['id']] = $key + 1;
             }
         }
+        $this->startTime = time();
     }
 
 
@@ -64,7 +66,7 @@ class Navigation extends Component
     public function previousQuestion()
     {
         if ($this->q > 1) {
-            $this->goToQuestion($this->q-1);
+            $this->goToQuestion($this->q - 1);
         }
 
         $details = $this->getDetailsQuestion();
@@ -78,7 +80,7 @@ class Navigation extends Component
     public function nextQuestion()
     {
         if ($this->q < $this->nav->count()) {
-            $this->goToQuestion($this->q+1);
+            $this->goToQuestion($this->q + 1);
         }
 
         $details = $this->getDetailsQuestion();
@@ -90,7 +92,7 @@ class Navigation extends Component
 
     public function toOverview($currentQuestion)
     {
-        $isThisQuestion = $this->nav[$this->q-1];
+        $isThisQuestion = $this->nav[$this->q - 1];
 
         if ($isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
             $this->dispatchBrowserEvent('close-this-group', $currentQuestion);
@@ -116,7 +118,7 @@ class Navigation extends Component
 
     public function checkIfCurrentQuestionIsInfoscreen($question)
     {
-        $questionUuid = $this->nav[$question-1]['uuid'];
+        $questionUuid = $this->nav[$question - 1]['uuid'];
         if (Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
             $this->dispatchBrowserEvent('mark-infoscreen-as-seen', $questionUuid);
             $this->updateQuestionIndicatorColor();
@@ -127,9 +129,11 @@ class Navigation extends Component
     {
         $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
 
-        $isThisQuestion = $this->nav[$this->q-1];
+        $isThisQuestion = $this->nav[$this->q - 1];
 
-        if ($this->nav[$question-1]['group']['id'] != $isThisQuestion['group']['id'] && $isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
+        $this->registerTimeForQuestion($isThisQuestion);
+
+        if ($this->nav[$question - 1]['group']['id'] != $isThisQuestion['group']['id'] && $isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
             $this->dispatchBrowserEvent('close-this-group', $question);
         } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', $question);
@@ -186,5 +190,14 @@ class Navigation extends Component
         });
 
         $this->nav = $newNav;
+    }
+
+    private function registerTimeForQuestion($question)
+    {
+        Answer::registerTime(
+            $question['answer_id'],
+            time() - $this->startTime
+        );
+        $this->startTime = time();
     }
 }

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use phpseclib\Crypt\Random;
 use tcCore\Lib\Models\BaseModel;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -237,4 +238,8 @@ class Answer extends BaseModel
         Answer::whereId($answerId)->update(['json' => $json, 'done' => 1]);
     }
 
+    public static function registerTime(int $answerId,  int $timeToRegister)
+    {
+        DB::table('answers')->whereId($answerId)->increment('time', $timeToRegister);
+    }
 }

@@ -3,7 +3,7 @@
 'number',
 ])
 <div x-cloak
-     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 0, progress: 0, timeSpendOnQuestion: @entangle('timeSpendOnQuestion') }"
+     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 0, progress: 0, startQuestionTime: @entangle('startQuestionTime') }"
      x-show="showMe"
      x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current);"
      x-transition:enter="transition duration-200"
@@ -44,7 +44,7 @@
                 }
              }, 1000);
          "
-    x-on:mark-infoscreen-as-seen.window="if('{{ $this->question->uuid }}' == $event.detail){ $wire.markAsSeen($event.detail) }"
+     x-on:mark-infoscreen-as-seen.window="if('{{ $this->question->uuid }}' == $event.detail){ $wire.markAsSeen($event.detail) }"
 >
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed)

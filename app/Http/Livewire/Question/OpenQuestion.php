@@ -40,7 +40,7 @@ class OpenQuestion extends Component
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
-//        $this->emitUp('updateAnswer', $this->uuid, $value);
+        $this->dispatchBrowserEvent('current-question-answered');
     }
 
     public function render()
