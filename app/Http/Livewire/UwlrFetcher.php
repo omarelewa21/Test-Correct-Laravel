@@ -45,10 +45,14 @@ class UwlrFetcher extends Component
     public function showGrid()
     {
         return $this->redirect(route('uwlr.grid'));
-
     }
 
-
+    public function showGridWithModal()
+    {
+        return $this->redirect(
+            route('uwlr.grid', ['modal' => $this->resultIdendifier])
+        );
+    }
 
     public function render()
     {

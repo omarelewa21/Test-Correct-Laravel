@@ -1,10 +1,12 @@
 <div class="mt-10 flex-1 p-8">
-
-        <div class="content-section mt-10 flex-1 p-8">
+    <div class="flex flex-1 justify-between">
         <div><h1>UWLR Fetcher</h1></div>
-            <div class="divider"></div>
-            <x-button.primary class="mt-6" wire:click="showGrid">Overzicht</x-button.primaryc>
+        <div class="flex-shrink-0">
+            <x-button.primary class="mb-8" wire:click="showGrid">Overzicht</x-button.primary>
+        </div>
+    </div>
 
+    <div class="content-section p-8">
         <div class="flex space-x-4 mt-4">
             <x-input.group label="Klant code" class="w-1/2">
                 <x-input.text wire:model="clientCode"></x-input.text>
@@ -39,13 +41,27 @@
         </div>
     </div>
     @if($report)
-        <div class="content-section mt-10 flex-1 p-8">
+        <div class="flex flex-1 justify-between mt-8">
             <div><h1>Report for Identifier {{ $this->resultIdendifier }}</h1></div>
-            <div class="divider"></div>
-            @foreach($report as $group => $count)
-                {{ $group }} {{ $count }}<br>
-
-            @endforeach
+            <div class="flex-shrink-0">
+                <x-button.primary class="mb-8" wire:click="showGridWithModal">Details</x-button.primary>
+            </div>
+        </div>
+        <div class="content-section flex-1 p-8">
+            <x-table>
+                <x-slot name="head">
+                    <x-table.heading>Key</x-table.heading>
+                    <x-table.heading>Count</x-table.heading>
+                </x-slot>
+                <x-slot name="body">
+                    @foreach($report as $group => $count)
+                        <x-table.row>
+                            <x-table.heading>{{ $group }}</x-table.heading>
+                            <x-table.cell>{{ $count }}</x-table.cell>
+                        </x-table.row>
+                    @endforeach
+                </x-slot>
+            </x-table>
         </div>
     @endif
 

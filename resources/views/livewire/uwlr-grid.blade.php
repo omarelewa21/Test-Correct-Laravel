@@ -1,8 +1,10 @@
 <div class="mt-10 flex-1 p-8">
-    <div class="content-section mt-10 flex-1 p-8">
+    <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
-        <div class="divider"></div>
-        <x-button.primary class="mt-6" wire:click="newImport">import</x-button.primaryc>
+        <div class="flex-shrink-0"><x-button.primary class="" wire:click="newImport">Import</x-button.primary></div>
+    </div>
+    <div class="content-section mt-10 flex-1 p-8">
+
         <div class="flex space-x-4 mt-4">
             <x-table>
                 <x-slot name="head">
@@ -53,7 +55,7 @@
         <x-slot name="footerbuttons">&nbsp;</x-slot>
         <x-slot name="testTakeManager">&nbsp;</x-slot>
     </div>
-    <x-modal wire:model="showImportModal">
+    <x-modal wire:model="showImportModal" maxWidth="7xl">
         <x-slot name="title">Import</x-slot>
         <x-slot name="body">
             <div class="hidden sm:block">
