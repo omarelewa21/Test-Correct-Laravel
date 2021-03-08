@@ -9,4 +9,6 @@
             </x-button.cta>
         </x-slot>
     </x-modal>
+
+    <x-notification/>
 </div>

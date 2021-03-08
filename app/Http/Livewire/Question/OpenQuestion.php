@@ -13,7 +13,7 @@ use tcCore\Question;
 
 class OpenQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $answer = '';
     public $question;
@@ -40,7 +40,7 @@ class OpenQuestion extends Component
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
-//        $this->emitUp('updateAnswer', $this->uuid, $value);
+        $this->dispatchBrowserEvent('current-question-answered');
     }
 
     public function render()

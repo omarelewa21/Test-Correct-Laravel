@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
@@ -13,7 +14,7 @@ use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
 

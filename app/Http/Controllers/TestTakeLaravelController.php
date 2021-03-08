@@ -81,6 +81,7 @@ class TestTakeLaravelController extends Controller
             return [
                 'uuid'      => $question->uuid,
                 'id'        => $question->id,
+                'answer_id' => $answer['id'],
                 'answered'  => $answer['answered'],
                 'closeable' => $question->closeable,
                 'closed'    => $answer['closed'],

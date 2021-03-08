@@ -1,9 +1,5 @@
 <x-partials.overview-question-container :number="$number" :question="$question" :answer="$answer">
-
     <div class="w-full space-y-3 matching-question">
-        <div>
-            <span>{!! __('test_take.instruction_matching_question') !!}</span>
-        </div>
         <div>
             {!!   $question->getQuestionHtml() !!}
         </div>

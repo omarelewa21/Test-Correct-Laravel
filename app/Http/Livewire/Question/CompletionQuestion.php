@@ -7,6 +7,7 @@ use tcCore\Answer;
 use tcCore\Attachment;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
@@ -15,7 +16,7 @@ use tcCore\Http\Traits\WithQuestionTimer;
 
 class CompletionQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
     public $answer;

@@ -1,16 +1,17 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5 overview"
-         x-data=""
+         x-data="{marginTop: 0}"
          x-on:unload="(function () {window.scrollTo(0, 0);})"
+         x-cloak
     >
-        <div class="fixed left-0 w-full px-8 xl:px-28 flex-col pt-4 z-10 bg-light-grey">
+        <div class="fixed left-0 w-full px-8 xl:px-28 flex-col pt-4 z-10 bg-light-grey" id="overviewQuestionNav">
             <div>
-                <livewire:question.navigation :nav="$nav" :testTakeUuid="$uuid"></livewire:question.navigation>
+                <livewire:overview.navigation :nav="$nav" :testTakeUuid="$uuid" :playerUrl="$playerUrl"></livewire:overview.navigation>
             </div>
 
             <div class="nav-overflow left-0 fixed w-full h-12"></div>
         </div>
-        <div class="w-full space-y-8 mt-40">
+        <div class="w-full space-y-8 mt-40" :style="calculateMarginTop()">
             <h1 class="mb-7">{{ __('test_take.overview_review_answers') }}</h1>
             @foreach($data as  $key => $testQuestion)
                 <div class="flex flex-col space-y-4">
@@ -75,7 +76,7 @@
                     @if($testQuestion->type != 'InfoscreenQuestion')
                         <div class="flex">
                             @if(!$nav[$key-1]['closed'] && !$nav[$key-1]['group']['closed'])
-                                <x-button.primary type="link" href="{{ $playerUrl }}?q={{ $key }}" wire:click="Floepie"
+                                <x-button.primary type="link" href="{{ $playerUrl }}?q={{ $key }}"
                                                   class="ml-auto">{!!__('test_take.adjust_answer') !!}</x-button.primary>
                             @else
                                 <span class="text-sm note w-60 ml-auto text-right">{{ __('test_take.question_closed_text_short') }}</span>
@@ -106,5 +107,13 @@
             <livewire:student.fraud-detection :testTakeUuid="$uuid" :testParticipant="$testParticipant"/>
         </x-slot>
     </div>
+    <script>
+        function calculateMarginTop() {
+            var questionNav = document.getElementById('overviewQuestionNav').offsetHeight;
+            var shadow = 48;
+            var total = questionNav+shadow;
+            return 'margin-top:' + total +'px';
+        }
+    </script>
 </x-layouts.app>
 

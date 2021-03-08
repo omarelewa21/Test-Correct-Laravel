@@ -2,10 +2,10 @@
 
     <div class="w-full space-y-3 matching-question">
         <div>
-            <span>{!! __('test_take.instruction_matching_question') !!}</span>
+            {!!   $question->getQuestionHtml() !!}
         </div>
         <div>
-            {!!   $question->getQuestionHtml() !!}
+            <span>{!! __('test_take.instruction_matching_question') !!}</span>
         </div>
         @if($question->subtype == 'Classify')
             <div class="flex flex-col classify" wire:sortable-group="updateOrder">

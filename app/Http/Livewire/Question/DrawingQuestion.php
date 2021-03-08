@@ -15,7 +15,7 @@ use tcCore\Question;
 
 class DrawingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
 
@@ -29,8 +29,12 @@ class DrawingQuestion extends Component
 
     public $additionalText;
 
+    public $playerInstance;
+
     public function mount()
     {
+        $this->initPlayerInstance();
+
         $answer = Answer::where('id', $this->answers[$this->question->uuid]['id'])
             ->where('question_id', $this->question->id)
             ->first();
@@ -76,5 +80,10 @@ class DrawingQuestion extends Component
         Storage::put($answer->getDrawingStoragePath(), $image);
 
         return $answer->uuid;
+    }
+
+    private function initPlayerInstance()
+    {
+        $this->playerInstance = 'eppi_' . rand(1000, 9999999);
     }
 }
