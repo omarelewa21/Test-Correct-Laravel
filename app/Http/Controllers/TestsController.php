@@ -137,7 +137,7 @@ class TestsController extends Controller {
         }
         foreach ($carouselQuestionChilds as $groupquestionId => $childArray) {
             if(in_array($groupquestionId, $ignoreQuestions)){
-                return;
+                continue;
             }
             $questionScore = current($childArray)->score;
             $numberOfSubquestions = $carouselQuestions[$groupquestionId]->number_of_subquestions;

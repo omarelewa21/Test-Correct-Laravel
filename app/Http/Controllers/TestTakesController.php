@@ -730,7 +730,6 @@ class TestTakesController extends Controller {
         } else {
             $totalScore = null;
         }
-
         $scores = [];
         foreach ($testTake->testParticipants as $testParticipant) {
             $score = 0;
@@ -793,7 +792,6 @@ class TestTakesController extends Controller {
                 if (array_key_exists($testParticipant->getKey(), $scores)) {
                     $score = $scores[$testParticipant->getKey()];
                     $rate = ($score / $ppp);
-
                     if ($rate < 1) {
                         $rate = 1;
                     } elseif ($rate > 10) {
@@ -820,7 +818,6 @@ class TestTakesController extends Controller {
                 if (array_key_exists($testParticipant->getKey(), $scores)) {
                     $score = $scores[$testParticipant->getKey()];
                     $rate = 10 - (($totalScore - $score) / $epp);
-
                     if ($rate < 1) {
                         $rate = 1;
                     } elseif ($rate > 10) {
