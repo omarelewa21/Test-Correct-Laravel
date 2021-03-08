@@ -15,7 +15,7 @@ use tcCore\Question;
 
 class DrawingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
 

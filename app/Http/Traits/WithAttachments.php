@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cookie;
 use tcCore\Answer;
 use tcCore\Attachment;
+use tcCore\Http\Requests\Request;
 
 trait WithAttachments
 {
@@ -61,5 +62,10 @@ trait WithAttachments
     {
         $sessionValue = 'attachment_' . $attachment->getKey() . '_currentTime';
         session()->put($sessionValue, $currentTime);
+    }
+
+    public function updating(&$name, &$value)
+    {
+        Request::filter($value);
     }
 }

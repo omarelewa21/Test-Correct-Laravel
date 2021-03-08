@@ -12,7 +12,7 @@ use tcCore\Question;
 
 class ArqQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $uuid;
 

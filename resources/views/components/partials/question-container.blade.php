@@ -3,7 +3,7 @@
 'number',
 ])
 <div x-cloak
-     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 0, progress: 0, startQuestionTime: @entangle('startQuestionTime') }"
+     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 0, progress: 0 }"
      x-show="showMe"
      x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current);"
      x-transition:enter="transition duration-200"

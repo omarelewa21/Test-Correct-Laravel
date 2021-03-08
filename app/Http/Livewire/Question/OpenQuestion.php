@@ -13,7 +13,7 @@ use tcCore\Question;
 
 class OpenQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithQuestionTimer, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $answer = '';
     public $question;
