@@ -1298,7 +1298,9 @@ class TestTakesController extends Controller {
         // @@ see TC-160
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
-        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        try { // added for compatibility with mariadb
+            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        } catch (\Exception $e){}
 
         if (Auth::user()->isA('teacher')) {
             $demoSubject = (new DemoHelper())->getDemoSubjectForTeacher(Auth::user());
