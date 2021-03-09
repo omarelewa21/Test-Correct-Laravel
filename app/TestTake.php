@@ -723,8 +723,8 @@ class TestTake extends BaseModel
                     $query->where('weight', '=', $value);
                     break;
                 case 'subject_id':
-                    $query->whereIn( $this->getTable() . '.id', 
-                                    function ($query) use ($value) 
+                    $query->whereIn( $this->getTable() . '.id',
+                                    function ($query) use ($value)
                                     {
                                         $testTable = with(new Test())->getTable();
                                         $query
@@ -736,7 +736,7 @@ class TestTake extends BaseModel
                                                     function($query) use ($value, $testTable)
                                                     {
                                                         $query->where(
-                                                                        function($query) use ($testTable, $value) 
+                                                                        function($query) use ($testTable, $value)
                                                                         {
                                                                             $query->where($testTable . '.subject_id', $value);
                                                                         }
@@ -819,5 +819,12 @@ class TestTake extends BaseModel
         return $query->where(sprintf('%s.demo', $tableAlias), 0);
     }
 
+    public function hasCarousel()
+    {
+        $countCarouselGroupsInTestTake = GroupQuestion::whereIn('id',
+            $this->test->testQuestions->pluck('question_id')
+        )->where('groupquestion_type' ,'carousel')->count();
 
+        return $countCarouselGroupsInTestTake > 0;
+    }
 }
