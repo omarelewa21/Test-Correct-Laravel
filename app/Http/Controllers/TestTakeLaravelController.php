@@ -18,7 +18,7 @@ class TestTakeLaravelController extends Controller
 
         $current = $request->get('q') ?: '1';
 
-        $data = self::getData($testTake);
+        $data = self::getData($testTake, $testParticipant);
         $answers = $this->getAnswers($testTake, $data);
 
         $playerUrl = route('student.test-take-laravel', ['test_take' => $testTake->uuid]);
@@ -62,7 +62,7 @@ class TestTakeLaravelController extends Controller
 
         $current = $request->get('q') ?: '1';
 
-        $data = self::getData($testTake);
+        $data = self::getData($testTake, $testParticipant);
         $answers = $this->getAnswers($testTake, $data);
 
         $nav = $data->map(function ($question) use ($answers) {
@@ -128,25 +128,32 @@ class TestTakeLaravelController extends Controller
     }
 
 
-    public static function getData(Test $testTake)
+    public static function getData(Test $testTake, $testParticipant)
     {
         $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
-        $testTake->load(['test', 'test.testQuestions', 'test.testQuestions.question'])->get();
+//        $testTake->load(['test', 'test.testQuestions', 'test.testQuestions.question'])->get();
+//
+//        return $testTake->test->testQuestions->flatMap(function ($testQuestion) use ($visibleAttributes) {
+//            if ($testQuestion->question->type === 'GroupQuestion') {
+//                return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($visibleAttributes) {
+//                    $hideAttributes = array_keys($item->question->getAttributes());
+//
+//                    $item->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
+//
+//                    return $item->question;
+//                });
+//            }
+//            $hideAttributes = array_keys($testQuestion->question->getAttributes());
+//            $testQuestion->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
+//
+//            return collect([$testQuestion->question]);
+//        });
 
-        return $testTake->test->testQuestions->flatMap(function ($testQuestion) use ($visibleAttributes) {
-            if ($testQuestion->question->type === 'GroupQuestion') {
-                return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($visibleAttributes) {
-                    $hideAttributes = array_keys($item->question->getAttributes());
+        return $testParticipant->answers->flatMap(function ($answer) use($visibleAttributes) {
+            $hideAttributes = array_keys($answer->question->getAttributes());
+            $answer->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
 
-                    $item->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
-
-                    return $item->question;
-                });
-            }
-            $hideAttributes = array_keys($testQuestion->question->getAttributes());
-            $testQuestion->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
-
-            return collect([$testQuestion->question]);
+            return collect([$answer->question]);
         });
     }
 }

@@ -16,6 +16,11 @@ class TestTake extends Component
     public $showTurnInModal = false;
     public $questions;
 
+    /** @var int
+     *  time in milliseconds a notification is shown
+     */
+    public $notificationTimeout = 5000;
+
     protected $listeners = ['hallo'];
 
     public function render()

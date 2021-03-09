@@ -10,5 +10,5 @@
         </x-slot>
     </x-modal>
 
-    <x-notification/>
+    <x-notification :notificationTimeout="$notificationTimeout"/>
 </div>

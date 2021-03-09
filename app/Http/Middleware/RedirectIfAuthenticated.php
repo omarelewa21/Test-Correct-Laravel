@@ -41,6 +41,7 @@ class RedirectIfAuthenticated {
             $user = Shortcode::whereCode($request->short_code)->first()->user_id;
 
             if (Auth::loginUsingId($user)) {
+                session()->set('session_hash',Auth::user()->getAttribute('session_hash'));
                 return new RedirectResponse(url(route('student.test-take-laravel', $request->test_take->uuid)));
             }
 	    }

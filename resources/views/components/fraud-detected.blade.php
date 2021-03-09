@@ -1,7 +1,7 @@
 <div class="flex items-center space-x-3"
      x-data="{ fraud: @entangle('fraudDetected') }"
-     x-on:blur.window="@this.createTestTakeEvent('blur'); Notify.notify('Het is niet tegestaan de app te verlaten', 'error')"
-     x-on:resize.window="@this.createTestTakeEvent('resize'); Notify.notify('Het is niet tegestaan de app te verlaten', 'error')"
+     x-on:blur.window="@this.createTestTakeEvent('blur'); Notify.notify('Het is niet toegestaan de app te verlaten.', 'error')"
+     x-on:resize.window="@this.createTestTakeEvent('resize'); Notify.notify('Het is niet toegestaan de app te verlaten.', 'error')"
      x-on:unload.window="@this.createTestTakeEvent('application-closed')"
      x-show.transition.duration.200ms="fraud"
      x-cloak
