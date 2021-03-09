@@ -3,13 +3,14 @@
         <div class="mb-4">
             {!! $question->getQuestionHtml()  !!}
         </div>
-        <div>
-            <x-input.group class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
-                <div wire:ignore>
-                <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model="answer"
-                          x-data=""
-                          x-init="
-                          (function() {
+        <div  wire:ignore >
+
+
+        <div x-data=""
+             x-init=" console.log('init');
+                          (function(el) {
+                                el.i++;
+                                console.log(el.i)
                                 var editor = CKEDITOR.instances['{{ $editorId }}']
                                 if (editor) {
                                     editor.destroy(true)
@@ -26,19 +27,26 @@
                                     ]
                                 })
                                 CKEDITOR.instances['{{ $editorId }}']
-                                .on('blur',function(e){
-                                    var textarea = document.getElementById('{{ $editorId }}')
+                                .on('change',function(e){
+                                    var textarea = document.getElementById('ta_{{ $editorId }}')
                                     textarea.value =  e.editor.getData()
                                     textarea.dispatchEvent(new Event('input'))
                                 })
-                          })()
-              ">
+                          })(document)
 
-                </textarea>
+              ">
+            <x-input.group class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
+                <div>
+                    <div id="{{ $editorId }}">
+                        {!! $answer !!}
+                    </div>
                 </div>
             </x-input.group>
         </div>
+        </div>
+                    <textarea id="ta_{{$editorId}}" name="{{ $editorId }}" wire:model="answer"
+                              > {!! $answer !!}</textarea>
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" />
-    <x-question.notepad :showNotepad="$showNotepad" />
+    <x-attachment.attachment-modal :attachment="$attachment"/>
+    <x-question.notepad :showNotepad="$showNotepad"/>
 </x-partials.question-container>

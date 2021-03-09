@@ -19,9 +19,12 @@ class FraudDetection extends Component
 
         $testTakeEvents = TestTakeEvent::where('test_participant_id', $this->testParticipant->id)->get();
         if (!$testTakeEvents->isEmpty()) {
-            $this->fraudDetected = true;
+            foreach($testTakeEvents as $event){
+                if ($event->testTakeEventType->requires_confirming) {
+                    $this->fraudDetected = true;
+                }
+            }
         }
-
     }
 
     public function render()
