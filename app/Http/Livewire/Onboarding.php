@@ -174,7 +174,6 @@ class Onboarding extends Component
 
     public function step1()
     {
-        $this->dispatchTagManagerEvent();
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepOneConfirmed) {
             $this->warningStepOneConfirmed = true;
@@ -345,7 +344,4 @@ class Onboarding extends Component
         }
     }
 
-    private function dispatchTagManagerEvent(){
-        $this->dispatchBrowserEvent('onboarding-step-updated');
-    }
 }

@@ -21,6 +21,7 @@
                         <div class="inline-block rounded-full header-number mr-2">3</div>
                         <span class=" mt-1">Klaar!</span>
                     </div>
+                    <iframe id="frame-step1" src="https://www.test-correct.nl/bedankt-aanmelding-docent/" style="height: 1px; width:1px"></iframe>
                 @endif
                 @if($this->step === 2)
                     <div>
@@ -35,6 +36,7 @@
                         <div class="inline-block rounded-full header-number mr-2">3</div>
                         <span class=" mt-1">Klaar!</span>
                     </div>
+                    <iframe id="frame-step2" src="https://www.test-correct.nl/bedankt-aanmelding-docent/" style="height: 1px; width:1px"></iframe>
                 @endif
                 @if($this->step === 3)
                     <div>
@@ -49,6 +51,7 @@
                         <img class="inline-block header-check" src="/svg/icons/checkmark-circle.svg" alt="">
                         <span class="mt-1 active">Klaar!</span>
                     </div>
+                    <iframe id="frame-step3" src="https://www.test-correct.nl/bedankt-aanmelding-docent/" style="height: 1px; width:1px"></iframe>
                 @endif
             </div>
         </div>
@@ -195,7 +198,8 @@
                                                     wachtwoord</label>
                                             </div>
 
-                                            <div class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
+                                            <div
+                                                class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
                                                 <input id="password_confirm" wire:model="password_confirmation"
                                                        type="password"
                                                        class="form-input @error('password') border-red @enderror">
@@ -204,23 +208,24 @@
                                                     Herhaal wachtwoord</label>
                                             </div>
 
-                                            <div class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto">
+                                            <div
+                                                class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto">
                                                 <div
-                                                        class="text-{{$this->minCharRule}}">@if($this->minCharRule)
+                                                    class="text-{{$this->minCharRule}}">@if($this->minCharRule)
                                                         <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
                                                         <x-icon.close-small></x-icon.close-small> @else
                                                         <x-icon.dot></x-icon.dot> @endif Min. 8
                                                     tekens
                                                 </div>
                                                 <div
-                                                        class="text-{{$this->minDigitRule}}">@if($this->minDigitRule)
+                                                    class="text-{{$this->minDigitRule}}">@if($this->minDigitRule)
                                                         <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
                                                         <x-icon.close-small></x-icon.close-small> @else
                                                         <x-icon.dot></x-icon.dot> @endif Min. 1
                                                     cijfer
                                                 </div>
                                                 <div
-                                                        class="text-{{$this->specialCharRule}}">@if($this->specialCharRule)
+                                                    class="text-{{$this->specialCharRule}}">@if($this->specialCharRule)
                                                         <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
                                                         <x-icon.close-small></x-icon.close-small> @else
                                                         <x-icon.dot></x-icon.dot> @endif Min. 1
@@ -265,7 +270,7 @@
                                     <div class="mt-4 md:mt-0 md:absolute md:bottom-0 md:right-0">
                                         @if ($btnDisabled)
                                             <button
-                                                    class="button button-md primary-button btn-disabled" disabled>
+                                                class="button button-md primary-button btn-disabled" disabled>
                                                 <span class="mr-2">Ga naar jouw schoolgegevens</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
@@ -377,14 +382,14 @@
                                         </a>
                                         @if ($btnDisabled)
                                             <button
-                                                    class="md:float-right button button-md primary-button btn-disabled"
-                                                    disabled>
+                                                class="md:float-right button button-md primary-button btn-disabled"
+                                                disabled>
                                                 <span class="mr-2">Maak mijn Test-Correct account</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @else
                                             <button
-                                                    class="md:float-right button button-md primary-button md:float-right">
+                                                class="md:float-right button button-md primary-button md:float-right">
                                                 <span class="mr-2">Maak mijn Test-Correct account</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
@@ -407,12 +412,14 @@
                                         <div class="w-full sm:w-1/2 sm:pr-2 mb-4 relative">
                                             <img src="/svg/stickers/toetsen-maken-afnemen.svg" alt=""
                                                  class="mr-4 float-left">
-                                            <span class="klaar-text">Toetsen aanmaken en bestaande toetsen omzetten.</span>
+                                            <span
+                                                class="klaar-text">Toetsen aanmaken en bestaande toetsen omzetten.</span>
                                         </div>
                                         <div class="w-full sm:w-1/2 sm:pl-2 mb-4 relative">
                                             <img src="/svg/stickers/toetsen-beoordelen-bespreken.svg" alt=""
                                                  class="mr-4 float-left">
-                                            <span class="klaar-text">Toetsen beoordelen en samen de toets bespreken.</span>
+                                            <span
+                                                class="klaar-text">Toetsen beoordelen en samen de toets bespreken.</span>
                                         </div>
                                     </div>
                                     <div class="flex flex-wrap mb-4">
@@ -428,15 +435,18 @@
                                     </div>
                                     <div class="flex flex-wrap mb-4">
                                         <span class="w-full mb-3">Deel op social media dat je een Test-Correct docent account hebt aangemaakt.</span>
-                                        <a class="float-left mr-2 button button-sm secondary-button transition" target="_blank" href="https://www.linkedin.com/company/9225774">
+                                        <a class="float-left mr-2 button button-sm secondary-button transition"
+                                           target="_blank" href="https://www.linkedin.com/company/9225774">
                                             <img class="w-20 mt-2"
                                                  src="/svg/logos/Logo-LinkedIn.svg"
                                                  alt=""></a>
-                                        <a class="float-left mr-2 button button-sm secondary-button transition" target="_blank" href="https://twitter.com/testcorrect">
+                                        <a class="float-left mr-2 button button-sm secondary-button transition"
+                                           target="_blank" href="https://twitter.com/testcorrect">
                                             <img class="w-20 mt-3"
                                                  src="/svg/logos/Logo-Twitter.svg"
                                                  alt=""></a>
-                                        <a class="float-left mr-2 button button-sm secondary-button transition" target="_blank" href="https://www.facebook.com/TestCorrect/">
+                                        <a class="float-left mr-2 button button-sm secondary-button transition"
+                                           target="_blank" href="https://www.facebook.com/TestCorrect/">
                                             <img class="w-20 mt-3"
                                                  src="/svg/logos/Logo-Facebook.svg"
                                                  alt=""></a>
@@ -444,7 +454,8 @@
 
                                     @if($resendVerificationMail)
                                         <div class="notification warning mb-4">
-                                            <span class="title">De verificatie e-mail is opnieuw naar je verzonden.</span>
+                                            <span
+                                                class="title">De verificatie e-mail is opnieuw naar je verzonden.</span>
                                         </div>
                                     @endif
                                     <div class="notification warning stretched mb-4 md:mb-16">
@@ -472,7 +483,8 @@
                             <div class="flex-grow">
                                 <div class="body1 h-full relative">
                                     <div class="notification error stretched">
-                                        <span class="title">Neem contact op met de helpdesk voor <a href="https://support.test-correct.nl/knowledge" class="bold">ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span></span>
+                                        <span class="title">Neem contact op met de helpdesk voor <a
+                                                href="https://support.test-correct.nl/knowledge" class="bold">ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span></span>
                                     </div>
                                 </div>
                             </div>
