@@ -110,9 +110,9 @@ class Onboarding extends Component
         $this->registration->username = $this->email;
         $this->registration->gender = 'male';
 
-        if (!$this->step != 1 || $this->step = '4') {
-            $this->step = 1;
-        }
+//        if (!$this->step != 1 || $this->step >= '4') {
+//            $this->step = 1;
+//        }
         if (!$this->email) {
             $this->email = '';
         }

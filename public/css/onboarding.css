@@ -193,6 +193,10 @@ h6 {
     font-family: Nunito Regular;
 }
 
+.requirement-font-size {
+    font-size: .875rem;
+}
+
 .text-0 {
     color: var(--mid-grey);
 }

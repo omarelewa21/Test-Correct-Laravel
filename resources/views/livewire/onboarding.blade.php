@@ -204,7 +204,7 @@
                                                     Herhaal wachtwoord</label>
                                             </div>
 
-                                            <div class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto">
+                                            <div class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto requirement-font-size">
                                                 <div
                                                         class="text-{{$this->minCharRule}}">@if($this->minCharRule)
                                                         <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
@@ -265,13 +265,13 @@
                                     <div class="mt-4 md:mt-0 md:absolute md:bottom-0 md:right-0">
                                         @if ($btnDisabled)
                                             <button
-                                                    class="button button-md primary-button btn-disabled" disabled>
+                                                    class="flex items-center button button-md primary-button btn-disabled" disabled>
                                                 <span class="mr-2">Ga naar jouw schoolgegevens</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @else
                                             <button wire:click="step1"
-                                                    class="button button-md primary-button">
+                                                    class="flex items-center button button-md primary-button">
                                                 <span class="mr-2">Ga naar jouw schoolgegevens</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
@@ -369,22 +369,22 @@
                                         </div>
                                         @enderror
                                     </div>
-                                    <div class="mt-4 w-full  sm:absolute bottom-0">
-                                        <a wire:click="backToStepOne"
-                                           class="rotate-svg leading-50 text-button cursor-pointer">
+                                    <div class="flex justify-between mt-4 w-full sm:absolute bottom-0">
+                                        <button wire:click.prevent="backToStepOne"
+                                           class="button text-button flex items-center rotate-svg leading-50">
                                             <x-icon.chevron></x-icon.chevron>
                                             <span class="align-middle">Terug naar jouw docentprofiel</span>
-                                        </a>
+                                        </button>
                                         @if ($btnDisabled)
                                             <button
-                                                    class="md:float-right button button-md primary-button btn-disabled"
+                                                    class="flex items-center button button-md primary-button btn-disabled"
                                                     disabled>
                                                 <span class="mr-2">Maak mijn Test-Correct account</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @else
                                             <button
-                                                    class="md:float-right button button-md primary-button md:float-right">
+                                                    class="flex items-center button button-md primary-button md:float-right">
                                                 <span class="mr-2">Maak mijn Test-Correct account</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
@@ -443,7 +443,7 @@
                                     </div>
 
                                     @if($resendVerificationMail)
-                                        <div class="notification warning mb-4">
+                                        <div class="notification info mb-4">
                                             <span class="title">De verificatie e-mail is opnieuw naar je verzonden.</span>
                                         </div>
                                     @endif
@@ -451,7 +451,7 @@
                                         <span class="title">Verifieer je e-mailadres</span>
                                         <span class="body">Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?
                                             <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">Stuur de verificatiemail opnieuw <x-icon.arrow-small></x-icon.arrow-small></a> of
-                                            <a href="https://support.test-correct.nl/knowledge" class="bold">zoek ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span>
+                                            <a href="https://support.test-correct.nl/knowledge" class="bold" target="_blank">zoek ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span>
                                     </div>
                                     <div class="md:absolute bottom-0 sm:right-0">
                                         <button class=" button button-md cta-button" wire:click="loginUser">
@@ -491,7 +491,7 @@
                     </div>
                     <div class="w-full sm:w-auto sm:pl-2 mt-2 sm:mt-0">
                         <span class="regular">Ben je een student?</span>
-                        <a class="text-button" href="https://test-correct.nl/downloads">
+                        <a class="text-button" href="https://test-correct.nl/student">
                             <span class="bold">Kijk hier</span>
                             <x-icon.arrow></x-icon.arrow>
                         </a>
