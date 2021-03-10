@@ -174,7 +174,6 @@ class Onboarding extends Component
 
     public function step1()
     {
-        $this->dispatchTagManagerEvent();
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepOneConfirmed) {
             $this->warningStepOneConfirmed = true;
@@ -204,12 +203,10 @@ class Onboarding extends Component
         } catch (\Throwable $e) {
             $this->step = 'error';
         }
-        $this->dispatchTagManagerEvent();
     }
 
     public function loginUser()
     {
-        $this->dispatchTagManagerEvent();
         $redirectUrl = config('app.url_login');
         if ($this->newRegistration) {
             $user = User::where('username', $this->registration->username)->first();
@@ -345,7 +342,5 @@ class Onboarding extends Component
         }
     }
 
-    private function dispatchTagManagerEvent(){
-        $this->dispatchBrowserEvent('onboarding-step-updated');
-    }
+
 }
