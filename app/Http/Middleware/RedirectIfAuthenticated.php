@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Middleware;
 
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\RedirectResponse;
@@ -41,7 +42,8 @@ class RedirectIfAuthenticated {
             $user = Shortcode::whereCode($request->short_code)->first()->user_id;
 
             if (Auth::loginUsingId($user)) {
-                session()->set('session_hash',Auth::user()->getAttribute('session_hash'));
+                session()->put('new_debounce_time', Carbon::now());
+                session()->put('session_hash',$this->auth->user()->getAttribute('session_hash'));
                 return new RedirectResponse(url(route('student.test-take-laravel', $request->test_take->uuid)));
             }
 	    }

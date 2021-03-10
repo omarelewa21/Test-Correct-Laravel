@@ -4,7 +4,6 @@
         <div class="mt-4 space-y-2 w-1/2">
 
             @foreach( $this->shuffledKeys as $value)
-                {{ $value }}
                 <div class="flex items-center flex-col">
                     <label
                             for="link{{ $value }}"

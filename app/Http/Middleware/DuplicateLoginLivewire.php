@@ -27,7 +27,7 @@ class DuplicateLoginLivewire {
         $roles = Roles::getUserRoles();
 
         if($this->shouldCheckSessionHash() && count($roles) === 1 && in_array('Student', $roles) && $this->auth->user()->getAttribute('session_hash') !== session('session_hash')) {
-            session()->set('new_debounce_time', Carbon::now());
+            session()->put('new_debounce_time', Carbon::now());
             return \Response::make("Session expired.", 440);
         }
 
@@ -36,7 +36,7 @@ class DuplicateLoginLivewire {
 
     private function shouldCheckSessionHash()
     {
-        return Carbon::parse(session('new_debounce_time', Carbon::now()->subMinute()))->add(self::DEBOUNCE)->diff(Carbon::now()) > 0;
+        return Carbon::parse(session('new_debounce_time'), Carbon::now()->subMinute())->add(self::DEBOUNCE)->diffInSeconds(Carbon::now()) > 0;
     }
 }
 
