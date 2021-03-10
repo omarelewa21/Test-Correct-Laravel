@@ -8,48 +8,58 @@
                 </a>
             </div>
             <div class="col-span-3 step-indicator bold leading-30">
-                @if($this->step === 1)
-                    <div>
-                        <div class="inline-block rounded-full header-number mr-2 active">1</div>
-                        <span class="mr-6 mt-1 active">Jouw docentprofiel</span>
-                    </div>
-                    <div>
-                        <div class="inline-block rounded-full header-number mr-2">2</div>
-                        <span class="mr-6 mt-1">Jouw schoolgegevens</span>
-                    </div>
-                    <div>
-                        <div class="inline-block rounded-full header-number mr-2">3</div>
-                        <span class=" mt-1">Klaar!</span>
-                    </div>
-                @endif
-                @if($this->step === 2)
-                    <div>
-                        <img class="inline-block header-check" src="/svg/icons/checkmark-circle.svg" alt="">
-                        <span class="mr-6 mt-1 active">Jouw docentprofiel</span>
-                    </div>
-                    <div>
-                        <div class="inline-block rounded-full header-number mr-2 active">2</div>
-                        <span class="mr-6 mt-1 active">Jouw schoolgegevens</span>
-                    </div>
-                    <div>
-                        <div class="inline-block rounded-full header-number mr-2">3</div>
-                        <span class=" mt-1">Klaar!</span>
-                    </div>
-                @endif
-                @if($this->step === 3)
-                    <div>
-                        <img class="inline-block header-check" src="/svg/icons/checkmark-circle.svg" alt="">
-                        <span class="mr-6 mt-1 active ">Jouw docentprofiel</span>
-                    </div>
-                    <div>
-                        <img class="inline-block header-check" src="/svg/icons/checkmark-circle.svg" alt="">
-                        <span class="mr-6 mt-1 active">Jouw schoolgegevens</span>
-                    </div>
-                    <div>
-                        <img class="inline-block header-check" src="/svg/icons/checkmark-circle.svg" alt="">
-                        <span class="mt-1 active">Klaar!</span>
-                    </div>
-                @endif
+                <div class="flex space-x-6">
+                    @if($this->step === 1)
+                        <div>
+                            <div class="inline-block rounded-full header-number mr-2 active">1</div>
+                            <span class="mt-1 active">Jouw docentprofiel</span>
+                        </div>
+                        <div>
+                            <div class="inline-block rounded-full header-number mr-2">2</div>
+                            <span class="mt-1">Jouw schoolgegevens</span>
+                        </div>
+                        <div>
+                            <div class="inline-block rounded-full header-number mr-2">3</div>
+                            <span class="mt-1">Klaar!</span>
+                        </div>
+                    @endif
+                    @if($this->step === 2)
+                        <div class="flex items-center">
+                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
+                                <x-icon.checkmark/>
+                            </div>
+                            <span class="active">Jouw docentprofiel</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="inline-block rounded-full header-number mr-2 active">2</div>
+                            <span class="active">Jouw schoolgegevens</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="inline-block rounded-full header-number mr-2">3</div>
+                            <span>Klaar!</span>
+                        </div>
+                    @endif
+                    @if($this->step === 3)
+                        <div class="flex items-center">
+                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
+                                <x-icon.checkmark/>
+                            </div>
+                            <span class="active ">Jouw docentprofiel</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
+                                <x-icon.checkmark/>
+                            </div>
+                            <span class="active">Jouw schoolgegevens</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
+                                <x-icon.checkmark/>
+                            </div>
+                            <span class="active">Klaar!</span>
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -265,7 +275,8 @@
                                     <div class="mt-4 md:mt-0 md:absolute md:bottom-0 md:right-0">
                                         @if ($btnDisabled)
                                             <button
-                                                    class="flex items-center button button-md primary-button btn-disabled" disabled>
+                                                    class="flex items-center button button-md primary-button btn-disabled"
+                                                    disabled>
                                                 <span class="mr-2">Ga naar jouw schoolgegevens</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
@@ -369,9 +380,9 @@
                                         </div>
                                         @enderror
                                     </div>
-                                    <div class="flex justify-between mt-4 w-full sm:absolute bottom-0">
+                                    <div class="md:flex md:justify-between mt-4 w-full sm:absolute bottom-0">
                                         <button wire:click.prevent="backToStepOne"
-                                           class="button text-button flex items-center rotate-svg leading-50">
+                                                class="button text-button flex items-center rotate-svg leading-50 space-x-2">
                                             <x-icon.chevron></x-icon.chevron>
                                             <span class="align-middle">Terug naar jouw docentprofiel</span>
                                         </button>
@@ -428,15 +439,18 @@
                                     </div>
                                     <div class="flex flex-wrap mb-4">
                                         <span class="w-full mb-3">Deel op social media dat je een Test-Correct docent account hebt aangemaakt.</span>
-                                        <a class="float-left mr-2 button button-sm secondary-button transition" target="_blank" href="https://www.linkedin.com/company/9225774">
+                                        <a class="float-left mr-2 button button-sm secondary-button transition"
+                                           target="_blank" href="https://www.linkedin.com/company/9225774">
                                             <img class="w-20 mt-2"
                                                  src="/svg/logos/Logo-LinkedIn.svg"
                                                  alt=""></a>
-                                        <a class="float-left mr-2 button button-sm secondary-button transition" target="_blank" href="https://twitter.com/testcorrect">
+                                        <a class="float-left mr-2 button button-sm secondary-button transition"
+                                           target="_blank" href="https://twitter.com/testcorrect">
                                             <img class="w-20 mt-3"
                                                  src="/svg/logos/Logo-Twitter.svg"
                                                  alt=""></a>
-                                        <a class="float-left mr-2 button button-sm secondary-button transition" target="_blank" href="https://www.facebook.com/TestCorrect/">
+                                        <a class="float-left mr-2 button button-sm secondary-button transition"
+                                           target="_blank" href="https://www.facebook.com/TestCorrect/">
                                             <img class="w-20 mt-3"
                                                  src="/svg/logos/Logo-Facebook.svg"
                                                  alt=""></a>
@@ -451,7 +465,8 @@
                                         <span class="title">Verifieer je e-mailadres</span>
                                         <span class="body">Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?
                                             <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">Stuur de verificatiemail opnieuw <x-icon.arrow-small></x-icon.arrow-small></a> of
-                                            <a href="https://support.test-correct.nl/knowledge" class="bold" target="_blank">zoek ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span>
+                                            <a href="https://support.test-correct.nl/knowledge" class="bold"
+                                               target="_blank">zoek ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span>
                                     </div>
                                     <div class="md:absolute bottom-0 sm:right-0">
                                         <button class=" button button-md cta-button" wire:click="loginUser">
@@ -472,7 +487,8 @@
                             <div class="flex-grow">
                                 <div class="body1 h-full relative">
                                     <div class="notification error stretched">
-                                        <span class="title">Neem contact op met de helpdesk voor <a href="https://support.test-correct.nl/knowledge" class="bold">ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span></span>
+                                        <span class="title">Neem contact op met de helpdesk voor <a
+                                                    href="https://support.test-correct.nl/knowledge" class="bold">ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span></span>
                                     </div>
                                 </div>
                             </div>
