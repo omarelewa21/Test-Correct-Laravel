@@ -39,7 +39,7 @@
             }
         </script>
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" />
+    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>
 

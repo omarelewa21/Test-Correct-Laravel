@@ -3,11 +3,12 @@
         <div class="mb-4">
             {!! $question->getQuestionHtml()  !!}
         </div>
-        <div  wire:ignore >
-
-
-        <div x-data=""
-             x-init="
+        <div>
+            <x-input.group class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
+                <div wire:ignore>
+                <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model="answer"
+                          x-data=""
+                          x-init="
                           (function() {
                                 var editor = CKEDITOR.instances['{{ $editorId }}']
                                 if (editor) {
@@ -25,25 +26,18 @@
                                     ]
                                 })
                                 CKEDITOR.instances['{{ $editorId }}']
-                                .on('change',function(e){
-                                    var textarea = document.getElementById('ta_{{ $editorId }}')
+                                .on('blur',function(e){
+                                    var textarea = document.getElementById('{{ $editorId }}')
                                     textarea.value =  e.editor.getData()
                                     textarea.dispatchEvent(new Event('input'))
                                 })
                           })()
-
               ">
-            <x-input.group class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
-                <div>
-                    <div id="{{ $editorId }}">
-                        {!! $answer !!}
-                    </div>
+
+                </textarea>
                 </div>
             </x-input.group>
         </div>
-        </div>
-                    <textarea id="ta_{{$editorId}}" name="{{ $editorId }}" wire:model="answer"
-                              > {!! $answer !!}</textarea>
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad"/>

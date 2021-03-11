@@ -71,12 +71,12 @@
 </header>
 
 <div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10"
-     style="border:1px solid gray; width: 970px; height: 481px; float:left; margin-top: 10px;">
+     style="border:1px solid gray; width: 80%; height: 481px; float:left; margin-top: 10px;">
 
 </div>
 
 <div id="{{ $this->playerInstance }}layers-holder" class="rounded-10"
-     style="border: 1px solid gray; width: 200px; float:left; margin-left: 10px; height: 481px; overflow: auto; margin-top: 10px;">
+     style="border: 1px solid gray; width: 19%; float:left; margin-left: 10px; height: 481px; overflow: auto; margin-top: 10px;">
 
 </div>
 <div class="input-group w-full mt-4">
@@ -99,7 +99,20 @@
 {{--<script src="/drawing/test_take.js?20201014130801"></script>--}}
 
 <script>
-    var {{ $this->playerInstance }}= new App('{{ $this->playerInstance }}');
+    var body = document.body.offsetWidth;
+    var width;
+    //Tot de nieuwe tekentool er is maar op deze manier een responsive canvas maken? -RR
+    if (body < 1200) {
+        width = body/100*78;
+    }
+    if ( body > 1200 && body < 1536) {
+        width = body/100*71;
+    }
+    if (body > 1536) {
+        width = body/100*62;
+    }
+
+    var {{ $this->playerInstance }} = new App('{{ $this->playerInstance }}', width);
 </script>
 
 </body>
