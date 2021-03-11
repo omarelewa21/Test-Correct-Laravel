@@ -45,6 +45,6 @@
                     <textarea id="ta_{{$editorId}}" name="{{ $editorId }}" wire:model="answer"
                               > {!! $answer !!}</textarea>
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment"/>
+    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad"/>
 </x-partials.question-container>

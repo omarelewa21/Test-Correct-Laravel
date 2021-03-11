@@ -16,6 +16,12 @@ trait WithAttachments
     public $audioCloseWarning = false;
     public $pressedPlay = false;
     public $timeout;
+    public $answerId;
+
+    public function mountWithAttachments()
+    {
+        $this->answerId = Answer::whereId($this->answers[$this->question->uuid]['id'])->first()->uuid;
+    }
 
     public function showAttachment(Attachment $attachment)
     {

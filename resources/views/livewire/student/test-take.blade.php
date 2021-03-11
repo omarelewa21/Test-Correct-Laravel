@@ -13,6 +13,12 @@
     <x-notification :notificationTimeout="$notificationTimeout"/>
 
     <script>
+        parent.skip = false;
+        var notifsent = false;
+        var lastLostFocus = {notification: false, delay: 3 * 60, reported: {}};
+        var alert = false;
+        var checkFocusTimer = false;
+
         var Notify = {
             notify: function (message, type) {
                 var type = type ? type : 'info';
@@ -20,19 +26,14 @@
             }
         }
 
-        var alert = false;
-        var checkFocusTimer = false;
         function runCheckFocus() {
             if (!checkFocusTimer) {
                 checkFocusTimer = setInterval(checkPageFocus, 300);
             }
         }
+        runCheckFocus();
 
-        parent.skip = false;
-        var notifsent = false;
-        var lastLostFocus = { notification: false, delay: 3*60, reported: {} };
-
-    function checkPageFocus() {
+        function checkPageFocus() {
             if (!parent.skip) {
                 if (!document.hasFocus()) {
                     if (!notifsent) {  // checks for the notifcation if it is already sent to the teacher
@@ -57,7 +58,7 @@
             }
 
             if (shouldLostFocusBeReported(reason)) {
-                Livewire.emitTo('student.fraud-detection', 'create-test-take-event', reason)
+                livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
             }
             alert = true;
         }
@@ -68,16 +69,15 @@
                 reason == "undefined";
             }
 
-
             if (!(reason in lastLostFocus.reported) || !alert) {
-                lastLostFocus.reported[reason] = (new Date()).getTime()/1000;
+                lastLostFocus.reported[reason] = (new Date()).getTime() / 1000;
                 return true;
             }
 
-            var now = (new Date()).getTime()/1000;
+            var now = (new Date()).getTime() / 1000;
             var lastTime = lastLostFocus.reported[reason];
             if (lastTime <= now - lastLostFocus.delay) {
-                lastLostFocus.reported[reason] = (new Date()).getTime()/1000;
+                lastLostFocus.reported[reason] = (new Date()).getTime() / 1000;
                 return true;
             }
 

@@ -19,7 +19,7 @@
                 x-transition:leave-end="opacity-0"
                 class="max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto"
         >
-            <div class="rounded-lg shadow-xs overflow-hidden border border-red-light">
+            <div class="rounded-lg shadow-xs overflow-hidden border border-light-grey">
                 <div class="p-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
