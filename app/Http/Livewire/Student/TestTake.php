@@ -21,8 +21,6 @@ class TestTake extends Component
      */
     public $notificationTimeout = 5000;
 
-    protected $listeners = ['hallo'];
-
     public function render()
     {
         return view('livewire.student.test-take');

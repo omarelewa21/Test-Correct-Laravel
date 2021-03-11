@@ -127,6 +127,7 @@ class Navigation extends Component
 
     public function goToQuestion($question)
     {
+        $this->doesQuestionExist($question);
         $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
 
         $isThisQuestion = $this->nav[$this->q - 1];
@@ -199,5 +200,10 @@ class Navigation extends Component
             time() - $this->startTime
         );
         $this->startTime = time();
+    }
+
+    private function doesQuestionExist($question)
+    {
+//        return
     }
 }

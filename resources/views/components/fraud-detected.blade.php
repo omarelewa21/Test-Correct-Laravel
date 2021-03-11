@@ -1,8 +1,8 @@
-<div class="flex items-center space-x-3"
+<div class="flex items-center space-x-3" fraud-detection
      x-data="{ fraud: @entangle('fraudDetected') }"
-     x-on:blur.window="@this.createTestTakeEvent('blur'); Notify.notify('Het is niet toegestaan de app te verlaten.', 'error')"
-     x-on:resize.window="@this.createTestTakeEvent('resize'); Notify.notify('Het is niet toegestaan de app te verlaten.', 'error')"
-     x-on:unload.window="@this.createTestTakeEvent('application-closed')"
+{{--     x-on:blur.window="@this.createTestTakeEvent('blur'); Notify.notify('Het is niet toegestaan de app te verlaten.', 'error')"--}}
+{{--     x-on:resize.window="@this.createTestTakeEvent('resize');"--}}
+{{--     x-on:unload.window="@this.createTestTakeEvent('application-closed')"--}}
      x-show.transition.duration.200ms="fraud"
      x-cloak
 >
@@ -13,12 +13,4 @@
     <div>
         <h6 class="all-red">{{__('test_take.attention_required')}}</h6>
     </div>
-    <script>
-        var Notify = {
-            notify: function (message, type) {
-                var type = type ? type : 'info';
-                window.dispatchEvent(new CustomEvent('notify', {detail: {message, type}}))
-            }
-        }
-    </script>
 </div>

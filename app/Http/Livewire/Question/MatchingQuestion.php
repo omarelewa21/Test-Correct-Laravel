@@ -22,6 +22,8 @@ class MatchingQuestion extends Component
     public $answers;
     public $answerStruct;
 
+    public $shuffledAnswers;
+
     public function mount()
     {
         $this->question->loadRelated();
@@ -35,6 +37,8 @@ class MatchingQuestion extends Component
                 }
             }
         }
+
+        $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
     }
 
     public function questionUpdated($uuid, $answer)

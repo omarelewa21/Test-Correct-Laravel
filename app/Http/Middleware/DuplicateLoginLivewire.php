@@ -26,16 +26,10 @@ class DuplicateLoginLivewire {
     {
         $roles = Roles::getUserRoles();
 
-       // if($this->shouldCheckSessionHash() && count($roles) === 1 && in_array('Student', $roles) && $this->auth->user()->getAttribute('session_hash') !== session('session_hash')) {
+        if($this->shouldCheckSessionHash() && count($roles) === 1 && in_array('Student', $roles) && $this->auth->user()->getAttribute('session_hash') !== session('session_hash')) {
             session()->put('new_debounce_time', Carbon::now());
-            echo '<script>
-location.href="www.google.nl";
-</script>
 
-
-';exit;
-
-        //}
+        }
 
         return $next($request);
     }

@@ -38,6 +38,7 @@ class RankingQuestion extends Component
             foreach($this->question->rankingQuestionAnswers as $key => $value) {
                 $result[] = (object)['order' => $key + 1, 'value' => $value->id];
             }
+            shuffle($result);
         } else {
             collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
                 $result[] = (object)['order' => $value + 1, 'value' => $key];

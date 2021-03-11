@@ -7,11 +7,6 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link href="/drawing/buttons.css" rel="stylesheet" type="text/css"/>
     <link href="/drawing/spacing.css" rel="stylesheet" type="text/css"/>
-    <style>
-        body {
-            font-family: Myriad Pro, Arial;
-        }
-    </style>
 
     <title>HTML5 viewport</title>
 </head>

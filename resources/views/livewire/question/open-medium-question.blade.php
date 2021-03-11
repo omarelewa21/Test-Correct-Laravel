@@ -7,10 +7,8 @@
 
 
         <div x-data=""
-             x-init=" console.log('init');
-                          (function(el) {
-                                el.i++;
-                                console.log(el.i)
+             x-init="
+                          (function() {
                                 var editor = CKEDITOR.instances['{{ $editorId }}']
                                 if (editor) {
                                     editor.destroy(true)
@@ -32,7 +30,7 @@
                                     textarea.value =  e.editor.getData()
                                     textarea.dispatchEvent(new Event('input'))
                                 })
-                          })(document)
+                          })()
 
               ">
             <x-input.group class="w-full" label="{!! __('test_take.instruction_open_question') !!}">

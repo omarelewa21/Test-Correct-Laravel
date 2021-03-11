@@ -13,6 +13,8 @@ class FraudDetection extends Component
     public $testTakeUuid;
     public $testTake;
 
+    protected $listeners = ['create-test-take-event', 'createTestTakeEvent'];
+
     public function mount()
     {
         $this->testTake = \tcCore\TestTake::whereUuid($this->testTakeUuid)->first();
@@ -38,7 +40,6 @@ class FraudDetection extends Component
             'test_participant_id' => $this->testParticipant->id,
             'test_take_event_type_id' => $this->getEventTypeId($event)
         ]);
-
         $this->testTake->testTakeEvents()->save($testTakeEvent);
 
         $this->fraudDetected = true;

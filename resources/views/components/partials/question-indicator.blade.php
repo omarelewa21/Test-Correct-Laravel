@@ -51,10 +51,12 @@
             @endif
         @endforeach
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
-            <x-button.text-button href="#" wire:click="">
-                <x-icon.audio/>
-                <span>{{ __('test_take.speak') }}</span>
-            </x-button.text-button>
+            @if(Auth::user()->text2speech)
+                <x-button.text-button href="#" wire:click="">
+                    <x-icon.audio/>
+                    <span>{{ __('test_take.speak') }}</span>
+                </x-button.text-button>
+            @endif
             <x-button.text-button wire:click="toOverview({{ $this->q }})">
                 <x-icon.preview/>
                 <span>{{ __('test_take.overview') }}</span>

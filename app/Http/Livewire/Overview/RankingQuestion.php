@@ -29,21 +29,18 @@ class RankingQuestion extends Component
             foreach($this->question->rankingQuestionAnswers as $key => $value) {
                 $result[] = (object)['order' => $key + 1, 'value' => $value->id];
             }
+            shuffle($result);
         } else {
             collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
                 $result[] = (object)['order' => $value + 1, 'value' => $key];
             })->toArray();
+            $this->answer = true;
         }
         $this->answerStruct = ($result);
-
 
         collect($this->question->rankingQuestionAnswers->each(function($answers) use (&$map) {
             $this->answerText[$answers->id] = $answers->answer;
         }));
-
-        if ($this->answers[$this->question->uuid]['answer']) {
-            $this->answer = true;
-        }
     }
 
     public function render()
