@@ -1339,4 +1339,9 @@ class TestTakesController extends Controller {
 
         return  response()->json($response);
     }
+
+    public function hasCarouselQuestion(TestTake $testTake)
+    {
+        return response()->json(['has_carousel' =>  $testTake->hasCarousel()]);
+    }
 }
