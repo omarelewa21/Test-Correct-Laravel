@@ -17,6 +17,15 @@
 {{ $slot }}
 
 @livewireScripts
+<script>
+    window.livewire.onError(statusCode => {
+        if (statusCode === 440) {
+            location.href = '{{ config('app.url_login') }}';
+
+            return false
+        }
+    })
+</script>
 {{--@if(Auth::user()->text2speech)--}}
 {{--    <script type="text/javascript" src="https://www.browsealoud.com/plus/scripts/3.1.0/ba.js" crossorigin="anonymous" integrity="sha256-VCrJcQdV3IbbIVjmUyF7DnCqBbWD1BcZ/1sda2KWeFc= sha384-k2OQFn+wNFrKjU9HiaHAcHlEvLbfsVfvOnpmKBGWVBrpmGaIleDNHnnCJO4z2Y2H sha512-gxDfysgvGhVPSHDTieJ/8AlcIEjFbF3MdUgZZL2M5GXXDdIXCcX0CpH7Dh6jsHLOLOjRzTFdXASWZtxO+eMgyQ=="></script>--}}
 {{--@endif--}}

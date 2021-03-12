@@ -90,9 +90,9 @@
     <script>
         var body = document.body.offsetWidth;
         var width;
-        //Tot de nieuwe tekentool er is maar op deze manier een responsive canvas maken? -RR
+
         if (body < 1200) {
-            width = body / 100 * 78;
+            width = body / 100 * 76;
         }
         if (body > 1200 && body < 1536) {
             width = body / 100 * 71;
