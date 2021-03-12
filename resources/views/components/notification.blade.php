@@ -1,4 +1,4 @@
-@prop(['notificationTimeout' => 5000])
+@props(['notificationTimeout' => 5000])
 <div
         x-data="{
         messages: [],

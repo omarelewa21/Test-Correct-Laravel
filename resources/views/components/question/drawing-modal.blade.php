@@ -1,18 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-
+<div class="overflow-auto flex flex-col pb-4">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link href="/drawing/buttons.css" rel="stylesheet" type="text/css"/>
     <link href="/drawing/spacing.css" rel="stylesheet" type="text/css"/>
 
-    <title>HTML5 viewport</title>
-</head>
-<body>
 
-<header>
     <div>
 
 
@@ -27,10 +18,12 @@
         <a id="{{ $this->playerInstance }}btn-tool-arrow" title="Pijl" class="btn highlight small mr2 pull-left">
             <span class="fa fa-long-arrow-right"></span>
         </a>
-        <a id="{{ $this->playerInstance }}btn-tool-shape-circle" title="Cirkel" class="btn highlight small mr2 pull-left">
+        <a id="{{ $this->playerInstance }}btn-tool-shape-circle" title="Cirkel"
+           class="btn highlight small mr2 pull-left">
             <span class="fa fa-circle-thin"></span>
         </a>
-        <a id="{{ $this->playerInstance }}btn-tool-shape-rectangle" title="Vierkant" class="btn highlight small mr2 pull-left">
+        <a id="{{ $this->playerInstance }}btn-tool-shape-rectangle" title="Vierkant"
+           class="btn highlight small mr2 pull-left">
             <span class="fa fa-square-o"></span>
         </a>
 
@@ -68,52 +61,48 @@
             <img src="/img/ico/line3.png"/>
         </a>
     </div>
-</header>
+    <div class="flex">
+        <div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10"
+             style="border:1px solid gray; width: 80%; height: 481px; margin-top: 10px;">
 
-<div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10"
-     style="border:1px solid gray; width: 80%; height: 481px; float:left; margin-top: 10px;">
+        </div>
 
-</div>
+        <div id="{{ $this->playerInstance }}layers-holder" class="rounded-10"
+             style="border: 1px solid gray; width: 19%; margin-left: 10px; height: 481px; overflow: auto; margin-top: 10px;">
 
-<div id="{{ $this->playerInstance }}layers-holder" class="rounded-10"
-     style="border: 1px solid gray; width: 19%; float:left; margin-left: 10px; height: 481px; overflow: auto; margin-top: 10px;">
-
-</div>
-<div class="input-group w-full mt-4">
+        </div>
+    </div>
+    <div class="input-group w-full mt-4">
 
 <textarea id="{{ $this->playerInstance }}additional_text" wire:model="additionalText"
           class="form-input"
           placeholder="Begeleidende tekst"></textarea>
+    </div>
+    <!-- Vendors -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="/drawing/filesaver.min.js"></script>
+    <script src="/drawing/canvas-toblob.js"></script>
+
+    <script src="/drawing/paint.js"></script>
+    <script src="/drawing/loadPaint.js"></script>
+    {{--<script src="/drawing/test_take.js?20201014130801"></script>--}}
+
+    <script>
+        var body = document.body.offsetWidth;
+        var width;
+        //Tot de nieuwe tekentool er is maar op deze manier een responsive canvas maken? -RR
+        if (body < 1200) {
+            width = body / 100 * 78;
+        }
+        if (body > 1200 && body < 1536) {
+            width = body / 100 * 71;
+        }
+        if (body > 1536) {
+            width = body / 100 * 62;
+        }
+
+        var {{ $this->playerInstance }} =
+        new App('{{ $this->playerInstance }}', width);
+    </script>
+
 </div>
-
-<script type="text/javascript">
-</script>
-
-<!-- Vendors -->
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script src="/drawing/filesaver.min.js"></script>
-<script src="/drawing/canvas-toblob.js"></script>
-
-<script src="/drawing/paint.js"></script>
-<script src="/drawing/loadPaint.js"></script>
-{{--<script src="/drawing/test_take.js?20201014130801"></script>--}}
-
-<script>
-    var body = document.body.offsetWidth;
-    var width;
-    //Tot de nieuwe tekentool er is maar op deze manier een responsive canvas maken? -RR
-    if (body < 1200) {
-        width = body/100*78;
-    }
-    if ( body > 1200 && body < 1536) {
-        width = body/100*71;
-    }
-    if (body > 1536) {
-        width = body/100*62;
-    }
-
-    var {{ $this->playerInstance }} = new App('{{ $this->playerInstance }}', width);
-</script>
-
-</body>
-</html>
