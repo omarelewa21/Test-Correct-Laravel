@@ -35,10 +35,6 @@ Route::middleware('auth')->prefix('student')->name('student.')->group(function (
     Route::get('/drawing_question_answers/{answer}', [DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
 });
 
-Route::get('/plan', function() {
-    return  view('plan-test-take');
-});
-
 /**
  * Authentication
  */
