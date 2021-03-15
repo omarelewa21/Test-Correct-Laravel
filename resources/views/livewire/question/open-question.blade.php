@@ -16,7 +16,7 @@
                             name="name"
                             maxlength="140"
                             x-ref="countme"
-                            wire:model="answer"
+                            wire:model.lazy="answer"
                             x-on:keyup="count = $refs.countme.value.length"
                     ></x-input.textarea>
                 </x-input.group>

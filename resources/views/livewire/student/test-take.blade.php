@@ -31,7 +31,8 @@
                 checkFocusTimer = setInterval(checkPageFocus, 300);
             }
         }
-        // runCheckFocus();
+
+        runCheckFocus();
 
         function checkPageFocus() {
             if (!parent.skip) {
