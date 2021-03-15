@@ -26,6 +26,7 @@ use tcCore\Http\Requests\CreateTestTakeRequest;
 use tcCore\Http\Requests\UpdateTestTakeRequest;
 use tcCore\TestTakeStatus;
 use tcCore\Exports\TestTakesExport;
+use \stdClass;
 
 class TestTakesController extends Controller {
 
@@ -68,7 +69,6 @@ class TestTakesController extends Controller {
                                 if (!in_array($schoolClass->getKey(), $haveClasses)) {
                                     $haveClasses[] = $schoolClass->getKey();
                                     $response[$testTake->getKey()][] = ['schoolClass' => $schoolClass->getAttribute('name'), 'test' => $test, 'uuid' => $testTake->uuid];
-
                                 }
                             }
                         }
@@ -134,7 +134,6 @@ class TestTakesController extends Controller {
                         unset($testTakes['data'][$i]['test_participants']);
                     }
                 }
-
                 return Response::make($testTakes, 200);
                 break;
         }
@@ -721,16 +720,16 @@ class TestTakesController extends Controller {
                 )
             )
         ) {
-            $totalScore = 0;
-            foreach ($questions as $questionId => $question) {
-                if ($ignoreQuestions === null || !in_array($questionId, $ignoreQuestions)) {
-                    $totalScore += $question->getAttribute('score');
-                }
-            }
+            // $totalScore = 0;
+            // foreach ($questions as $questionId => $question) {
+            //     if ($ignoreQuestions === null || !in_array($questionId, $ignoreQuestions)) {
+            //         $totalScore += $question->getAttribute('score');
+            //     }
+            // }
+            $totalScore = $this->maxScore($testTake,$ignoreQuestions);
         } else {
             $totalScore = null;
         }
-
         $scores = [];
         foreach ($testTake->testParticipants as $testParticipant) {
             $score = 0;
@@ -793,7 +792,6 @@ class TestTakesController extends Controller {
                 if (array_key_exists($testParticipant->getKey(), $scores)) {
                     $score = $scores[$testParticipant->getKey()];
                     $rate = ($score / $ppp);
-
                     if ($rate < 1) {
                         $rate = 1;
                     } elseif ($rate > 10) {
@@ -804,6 +802,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -819,7 +818,6 @@ class TestTakesController extends Controller {
                 if (array_key_exists($testParticipant->getKey(), $scores)) {
                     $score = $scores[$testParticipant->getKey()];
                     $rate = 10 - (($totalScore - $score) / $epp);
-
                     if ($rate < 1) {
                         $rate = 1;
                     } elseif ($rate > 10) {
@@ -830,25 +828,22 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
         } elseif ($request->filled('wanted_average') || $testTake->getAttribute('wanted_average') !== null) {
             $average = ($request->filled('wanted_average')) ? $request->get('wanted_average') : $testTake->getAttribute('wanted_average');
-
             $testTake->setAttribute('wanted_average', $average);
             if (!$request->filled('preview') || $request->get('preview') != true) {
                 $testTake->save();
             }
-
             if ($scores) {
                 $ppp = ((array_sum($scores) / count($scores)) / ($average - 1));
-
                 foreach ($testTake->testParticipants as $testParticipant) {
                     if (array_key_exists($testParticipant->getKey(), $scores)) {
                         $score = $scores[$testParticipant->getKey()];
                         $rate = 1 + ($score / $ppp);
-
                         if ($rate < 1) {
                             $rate = 1;
                         } elseif ($rate > 10) {
@@ -859,6 +854,7 @@ class TestTakesController extends Controller {
                         if (!$request->filled('preview') || $request->get('preview') != true) {
                             $testParticipant->save();
                         }
+
                         $testParticipant->setAttribute('score', $score);
                     }
                 }
@@ -866,7 +862,6 @@ class TestTakesController extends Controller {
         } elseif ($request->filled('n_term') && $request->filled('pass_mark') || ($testTake->getAttribute('n_term') !== null && $testTake->getAttribute('pass_mark') !== null)) {
             $nTerm = ($request->filled('n_term')) ? $request->get('n_term') : $testTake->getAttribute('n_term');
             $passMark = ($request->filled('pass_mark')) ? $request->get('pass_mark') : $testTake->getAttribute('pass_mark');
-
             $testTake->setAttribute('n_term', $nTerm);
             $testTake->setAttribute('pass_mark', $passMark);
             if (!$request->filled('preview') || $request->get('preview') != true) {
@@ -900,6 +895,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -949,6 +945,7 @@ class TestTakesController extends Controller {
                     if (!$request->filled('preview') || $request->get('preview') != true) {
                         $testParticipant->save();
                     }
+
                     $testParticipant->setAttribute('score', $score);
                 }
             }
@@ -1135,7 +1132,8 @@ class TestTakesController extends Controller {
                 $nScore = round($nScore);
             }
 
-            array_unshift($row,
+            array_unshift(
+                $row,
                 $testParticipant->user->getAttribute('external_id'),
                 $testParticipant->user->getAttribute('name_first'),
                 $testParticipant->user->getAttribute('name_suffix'),
@@ -1249,8 +1247,25 @@ class TestTakesController extends Controller {
         }
     }
 
-    private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake)
+    public function maxScore(TestTake $testTake,$ignoreQuestions = []){
+        $test = $testTake->test;
+        return (new TestsController())->maxScore($test,$ignoreQuestions);
+    }
+
+    private function addToMaxScore(&$maxScore,$question,$ignoreQuestions):void
     {
+        if(in_array($question->getKey(), $ignoreQuestions)){
+            return;
+        }
+        $maxScore += $question->score;
+    }
+
+    public function maxScoreResponse(TestTake $testTake){
+        $maxScore = $this->maxScore($testTake);
+        return Response::make($maxScore, 200);
+    }
+
+    private function hydrateTestTakeWithHasNextQuestionAttribute(TestTake $testTake) {
         $testTake->load(['discussingParentQuestions' => function ($query) {
                 $query->orderBy('level');
             }, 'testParticipants', 'testParticipants.testTakeStatus', 'testParticipants.user', 'testParticipants.answers', 'testParticipants.answers.answerParentQuestions' => function ($query) {
@@ -1283,7 +1298,9 @@ class TestTakesController extends Controller {
         // @@ see TC-160
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
-        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        try { // added for compatibility with mariadb
+            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        } catch (\Exception $e){}
 
         if (Auth::user()->isA('teacher')) {
             $demoSubject = (new DemoHelper())->getDemoSubjectForTeacher(Auth::user());
@@ -1320,9 +1337,11 @@ class TestTakesController extends Controller {
 
         $response->url = sprintf('%sstart-test-take-with-short-code/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->code);
 
-
         return  response()->json($response);
     }
 
-
+    public function hasCarouselQuestion(TestTake $testTake)
+    {
+        return response()->json(['has_carousel' =>  $testTake->hasCarousel()]);
+    }
 }

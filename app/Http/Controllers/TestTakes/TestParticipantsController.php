@@ -15,6 +15,7 @@ use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Lib\TestParticipant\Factory;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\GroupQuestion;
 
 class TestParticipantsController extends Controller
 {
@@ -161,6 +162,9 @@ class TestParticipantsController extends Controller
 
                         $testParticipant->setAttribute('score', $score);
                         $testParticipant->setAttribute('max_score', $maxScore);
+                        if(!$this->validateForMaxScore($testParticipant)){
+                            $testParticipant->setAttribute('max_score', '');
+                        }
                         $testParticipant->setAttribute('questions', $questionsCount);
                         $testParticipant->setAttribute('total_time', $totalTime);
                         $testParticipant->setAttribute('answer_require_rating', $answerRequireRating);
@@ -310,6 +314,9 @@ class TestParticipantsController extends Controller
 
                     $testParticipant->setAttribute('score', $score);
                     $testParticipant->setAttribute('made_score', $madeScore);
+                    if(!$this->validateForMaxScore($testParticipant)){
+                        $testParticipant->setAttribute('max_score','');
+                    }
                     $testParticipant->setAttribute('max_score', $maxScore);
                     $testParticipant->setAttribute('questions', $questionsCount);
                     $testParticipant->setAttribute('total_time', $totalTime);
@@ -321,7 +328,6 @@ class TestParticipantsController extends Controller
             } else {
                 $testParticipant->load('user', 'testTakeStatus', 'schoolClass', 'answers', 'testTakeEvents');
             }
-
             return Response::make($testParticipant, 200);
         }
     }
@@ -336,7 +342,6 @@ class TestParticipantsController extends Controller
     public function update(TestTake $testTake, TestParticipant $testParticipant, UpdateTestParticipantRequest $request)
     {
         $testParticipant->fill($request->all());
-
         if ($testTake->testParticipants()->save($testParticipant) !== false) {
             return Response::make($testParticipant, 200);
         } else {
@@ -369,7 +374,10 @@ class TestParticipantsController extends Controller
          $testTake = TestTake::whereUUid($testTakeId)->first();
 
          if ($testTake === null) {
-             return Response::make('Failed to process heartbeat of test participant, test take has been deleted.', 404);
+             return Response::json([
+                 'message' => 'Failed to process heartbeat of test participant, test take has been deleted.',
+                 'error_status' => 'handled',
+             ], 500);
          }
 
         $answer_id = (int) $testTake->getKey();
@@ -421,6 +429,44 @@ class TestParticipantsController extends Controller
         }
 
 
+    }
+
+    private function validateForMaxScore($testParticipant)
+    {
+        $testQuestions = $testParticipant->testTake->Test->testQuestions;
+        foreach ($testQuestions as $testQuestion) {
+            if(!($testQuestion->question instanceof GroupQuestion)){
+                continue;
+            }
+            $answers = $testParticipant->answers();
+            if(!$this->groupCarouselQuestionIsValid($testQuestion->question,$answers)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private function groupCarouselQuestionIsValid($groupQuestion,$answers)
+    {
+        if($groupQuestion->groupquestion_type!='carousel'){
+            return true;
+        }
+        foreach ($answers as $answer) {
+            if($answer->question_id!=$groupQuestion->id){
+                continue;
+            }
+            if($answer->ignore_for_rating){
+                return true;
+            }
+        }
+        $collection = $groupQuestion->groupQuestionQuestions->map(function ($question, $key) {
+                                                return $question->question->score;
+                                            });
+        $arr = $collection->toArray();
+        if(count(array_unique($arr)) <= 1){
+            return true;
+        }
+        return false;
     }
 
 }

@@ -15,7 +15,6 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-156194835-1"></script>
     @livewireStyles
     <link rel="stylesheet" href="/css/onboarding.css">
-
 </head>
 <body class="antialiased font-sans bg-light-grey">
 {{ $slot }}
