@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
         'bindings'       => \Illuminate\Routing\Middleware\SubstituteBindings::class,
         'api'            => 'tcCore\Http\Middleware\ApiKey',
         'dl'             => 'tcCore\Http\Middleware\DuplicateLogin',
+        'dll'             => 'tcCore\Http\Middleware\DuplicateLoginLivewire',
         'authorize'      => 'tcCore\Http\Middleware\Authorize',
         'authorizeBinds' => 'tcCore\Http\Middleware\AuthorizeBinds',
         'cakeLaravelFilter' => 'tcCore\Http\Middleware\CakeLaravelFilter',

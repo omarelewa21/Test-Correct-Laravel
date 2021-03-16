@@ -24,6 +24,7 @@ class DrawingQuestion extends Component
     public $answers;
 
     public $answer;
+    public $answered;
 
     public $additionalText;
 
@@ -36,6 +37,8 @@ class DrawingQuestion extends Component
             $this->answer = json_decode($answer->json)->answer;
             $this->additionalText = json_decode($answer->json)->additional_text;
         }
+
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     public function render()

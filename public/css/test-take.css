@@ -126,6 +126,10 @@
     overflow: hidden;
 }
 
+.overview .unanswered .cke_ltr {
+    border: 1px solid var(--all-red);
+}
+
 .overview .cke_top, .overview .cke_bottom {
     background: white!important;
     color: var(--system-base);
@@ -137,7 +141,7 @@
 }
 
 .overview .nav-overflow {
-    background: linear-gradient(to bottom, var(--light-grey) 0%, transparent 100%);
+    background: linear-gradient(to bottom, var(--light-grey) 0%, rgba(255,255,255,0) 100%);
 }
 
 .matching-question #drag-item {

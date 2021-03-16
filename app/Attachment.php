@@ -207,14 +207,16 @@ class Attachment extends BaseModel
         return false;
     }
 
-    public function canBeAccessedByUser(User $user)
+    public function canBeAccessedByUser(User $user, $answerId)
     {
-        $testParticipant = TestParticipant::whereUserId($user->getKey())
+        $testParticipant = TestParticipant::whereIn('id', function ($query) use ($answerId) {
+            $query->select('test_participant_id')->from('answers')->where('id', $answerId);
+        })
             ->where('test_take_status_id', 3)
             ->orWhere('test_take_status_id', 7)
             ->first();
 
-        if ($testParticipant) {
+        if ($testParticipant && $testParticipant->user_id === $user->getKey()) {
             $testParticipant->testTake->test->testQuestions->map(function ($tq, $key) use (&$questions) {
                 $questions[$key] = $tq->question->getKey();
             });

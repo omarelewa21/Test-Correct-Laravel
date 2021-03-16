@@ -12,7 +12,7 @@ Object.clone = function (obj) {
     return clone;
 };
 
-var App = function (prefix) {
+var App = function (prefix, width) {
     var mouseStart, layer, path,
         // Editor
         tool = 'line',
@@ -27,10 +27,9 @@ var App = function (prefix) {
         background = new Paint.Layer(),
         holder = document.getElementById(prefix + 'canvas-holder'),
         canvas = new Paint.Canvas({
-            height: 475,
-            width: 970
+            height: 481,
+            width: width
         }),
-
         _this = this;
 
 
@@ -62,8 +61,8 @@ var App = function (prefix) {
     this.freeformStart = function (e) {
         path = new Paint.Path(Object.clone(style));
         path.add(new Paint.Point(
-            e.pageX - this.offsetLeft,
-            e.pageY - this.offsetTop
+            e.pageX - holder.getBoundingClientRect().left,
+            e.pageY - holder.getBoundingClientRect().top
         ));
 
         layer = new Paint.Layer();
@@ -76,8 +75,8 @@ var App = function (prefix) {
         if (!path || !layer) return;
 
         path.add(new Paint.Point(
-            e.pageX - this.offsetLeft,
-            e.pageY - this.offsetTop
+            e.pageX - holder.getBoundingClientRect().left,
+            e.pageY - holder.getBoundingClientRect().top
         ));
 
         canvas.render();
@@ -101,8 +100,8 @@ var App = function (prefix) {
     this.lineStart = function (e) {
         path = new Paint.Path(Object.clone(style));
         path.add(new Paint.Point(
-            e.pageX - this.offsetLeft,
-            e.pageY - this.offsetTop
+            e.pageX - holder.getBoundingClientRect().left,
+            e.pageY - holder.getBoundingClientRect().top
         ));
 
         layer = new Paint.Layer();
@@ -117,8 +116,8 @@ var App = function (prefix) {
         path.removeAt(1);
 
         path.add(new Paint.Point(
-            e.pageX - this.offsetLeft,
-            e.pageY - this.offsetTop
+            e.pageX - holder.getBoundingClientRect().left,
+            e.pageY - holder.getBoundingClientRect().top
         ));
 
         canvas.render();
@@ -146,8 +145,8 @@ var App = function (prefix) {
         _this.lineStart.call(this, e);
 
         mouseStart = new Paint.Point(
-            e.pageX - this.offsetLeft,
-            e.pageY - this.offsetTop
+            e.pageX - holder.getBoundingClientRect().left,
+            e.pageY - holder.getBoundingClientRect().top
         );
     };
 
@@ -159,8 +158,8 @@ var App = function (prefix) {
     this.arrowStop = function (e) {
         if (!path || !layer) return;
 
-        var x = e.pageX - this.offsetLeft,
-            y = e.pageY - this.offsetTop,
+        var x = e.pageX - holder.getBoundingClientRect().left,
+            y = e.pageY - holder.getBoundingClientRect().top,
 
             xd = mouseStart.x - x,
             yd = mouseStart.y - y,
@@ -188,8 +187,8 @@ var App = function (prefix) {
 
     this.circleStart = function (e) {
         mouseStart = new Paint.Point(
-            e.pageX - this.offsetLeft,
-            e.pageY - this.offsetTop
+            e.pageX - holder.getBoundingClientRect().left,
+            e.pageY - holder.getBoundingClientRect().top
         );
 
         layer = new Paint.Layer();
@@ -199,8 +198,8 @@ var App = function (prefix) {
     this.circleMove = function (e) {
         if (!layer) return;
 
-        var x = e.pageX - this.offsetLeft,
-            y = e.pageY - this.offsetTop,
+        var x = e.pageX - holder.getBoundingClientRect().left,
+            y = e.pageY - holder.getBoundingClientRect().top,
 
             xd = x - mouseStart.x,
             yd = y - mouseStart.y,
@@ -237,8 +236,8 @@ var App = function (prefix) {
 
     this.rectangleStart = function (e) {
         mouseStart = new Paint.Point(
-            e.pageX - this.offsetLeft,
-            e.pageY - this.offsetTop
+            e.pageX - holder.getBoundingClientRect().left,
+            e.pageY - holder.getBoundingClientRect().top
         );
 
         layer = new Paint.Layer();
@@ -248,8 +247,8 @@ var App = function (prefix) {
     this.rectangleMove = function (e) {
         if (!layer) return;
 
-        var x = e.pageX - this.offsetLeft,
-            y = e.pageY - this.offsetTop,
+        var x = e.pageX - holder.getBoundingClientRect().left,
+            y = e.pageY - holder.getBoundingClientRect().top,
 
             xd = x - mouseStart.x,
             yd = y - mouseStart.y,
@@ -307,7 +306,6 @@ var App = function (prefix) {
     document.getElementById(prefix + 'btn-tool-shape-rectangle').onclick =
         document.getElementById(prefix + 'btn-tool-shape-rectangle').ontouchdown = function () {
             tool = 'rectangle';
-            console.log(tool)
         };
 
     /*document.getElementById('btn-undo').onclick =

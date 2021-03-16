@@ -18,6 +18,7 @@
             </x-dropdown>
         </div>
     </header>
+{{--    <div id="__ba_panel"></div>--}}
     <main class="flex flex-1 items-stretch mx-8 xl:mx-28 m-foot-head">
         {{ $slot }}
     </main>

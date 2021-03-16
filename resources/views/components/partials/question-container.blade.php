@@ -39,7 +39,7 @@
 
                 if(progress === 0) {
                     clearInterval(timer);
-                    $wire.closeQuestion();
+                    $wire.closeQuestion({{ $number+1 }});
                     progressBar = false;
                 }
              }, 1000);

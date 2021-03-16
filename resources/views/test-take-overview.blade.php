@@ -101,7 +101,7 @@
             </x-button.cta>
         </x-slot>
         <x-slot name="testTakeManager">
-            <livewire:student.test-take :testTakeUuid="$uuid"/>
+            <livewire:student.test-take :testTakeUuid="$uuid" :questions="$data" :testParticipant="$testParticipant"/>
         </x-slot>
         <x-slot name="fraudDetection">
             <livewire:student.fraud-detection :testTakeUuid="$uuid" :testParticipant="$testParticipant"/>

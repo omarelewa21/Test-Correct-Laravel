@@ -16,7 +16,7 @@
                             name="name"
                             maxlength="140"
                             x-ref="countme"
-                            wire:model="answer"
+                            wire:model.lazy="answer"
                             x-on:keyup="count = $refs.countme.value.length"
                     ></x-input.textarea>
                 </x-input.group>
@@ -39,7 +39,7 @@
             }
         </script>
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" />
+    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>
 

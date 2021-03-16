@@ -17,6 +17,15 @@
 {{ $slot }}
 
 @livewireScripts
+<script>
+    window.livewire.onError(statusCode => {
+        if (statusCode === 440) {
+            location.href = '{{ config('app.url_login') }}';
+
+            return false
+        }
+    })
+</script>
 <script src="https://cdn.jsdelivr.net/gh/livewire/sortable@v0.x.x/dist/livewire-sortable.js"></script>
 </body>
 </html>
