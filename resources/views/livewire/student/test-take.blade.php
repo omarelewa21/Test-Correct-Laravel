@@ -32,7 +32,7 @@
             }
         }
 
-        runCheckFocus();
+        // runCheckFocus();
 
         function checkPageFocus() {
             if (!parent.skip) {

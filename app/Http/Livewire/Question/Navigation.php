@@ -2,13 +2,9 @@
 
 namespace tcCore\Http\Livewire\Question;
 
-use Illuminate\Routing\Route;
-use Illuminate\Support\Collection;
 use Livewire\Component;
 use tcCore\Answer;
-use tcCore\Http\Livewire\Student\TestTake;
 use tcCore\Question;
-use function Symfony\Component\String\s;
 
 class Navigation extends Component
 {
@@ -27,6 +23,9 @@ class Navigation extends Component
         'update-nav-with-closed-group'     => 'updateNavWithClosedGroup',
     ];
 
+    public $useSlider;
+    private $questionsForSlider = 30;
+
     public function mount()
     {
         if (!$this->q) {
@@ -40,6 +39,8 @@ class Navigation extends Component
             }
         }
         $this->startTime = time();
+
+        $this->useSlider = $this->nav->count() > $this->questionsForSlider;
     }
 
 
