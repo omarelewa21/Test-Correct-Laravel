@@ -126,6 +126,10 @@
     overflow: hidden;
 }
 
+.overview .unanswered .cke_ltr {
+    border: 1px solid var(--all-red);
+}
+
 .overview .cke_top, .overview .cke_bottom {
     background: white!important;
     color: var(--system-base);

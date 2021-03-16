@@ -18,6 +18,7 @@ class MultipleChoiceQuestion extends Component
     public $q;
 
     public $answer = '';
+    public $answered;
 
     public $answers;
 
@@ -55,6 +56,8 @@ class MultipleChoiceQuestion extends Component
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
             $this->answerText[$answers->id] = $answers->answer;
         });
+
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     public function updatedAnswer($value)

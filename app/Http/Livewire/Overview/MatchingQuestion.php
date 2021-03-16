@@ -14,6 +14,7 @@ class MatchingQuestion extends Component
     use WithAttachments, WithNotepad, WithCloseable;
 
     public $answer;
+    public $answered;
     public $question;
     public $number;
 
@@ -25,6 +26,7 @@ class MatchingQuestion extends Component
     public function mount()
     {
         $this->question->loadRelated();
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
 
         $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
 

@@ -14,6 +14,7 @@ class MultipleSelectQuestion extends Component
     public $question;
 
     public $answer = '';
+    public $answered;
 
     public $answers;
 
@@ -44,6 +45,8 @@ class MultipleSelectQuestion extends Component
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
             $this->answerText[$answers->id] = $answers->answer;
         });
+
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     public function render()

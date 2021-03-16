@@ -17,6 +17,7 @@ class RankingQuestion extends Component
     public $question;
     public $number;
     public $answers;
+    public $answered;
     public $answerStruct;
     public $answerText = [];
 
@@ -41,6 +42,8 @@ class RankingQuestion extends Component
         collect($this->question->rankingQuestionAnswers->each(function($answers) use (&$map) {
             $this->answerText[$answers->id] = $answers->answer;
         }));
+
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     public function render()

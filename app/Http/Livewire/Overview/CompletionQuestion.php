@@ -15,6 +15,7 @@ class CompletionQuestion extends Component
     public $question;
 
     public $answer = [];
+    public $answered;
     public $answers;
 
     public $number;
@@ -22,6 +23,7 @@ class CompletionQuestion extends Component
     public function mount()
     {
         $this->answer = (array) json_decode($this->answers[$this->question->uuid]['answer']);
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     private function completionHelper($question)
