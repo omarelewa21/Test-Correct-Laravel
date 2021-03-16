@@ -7,7 +7,11 @@
                 {!! $question->getQuestionHtml() !!}
                 <x-button.secondary class="max-w-max" @click="opened = true">
                     <x-icon.edit/>
-                    <span>Antwoord tekenen</span>
+                    @if($answer == '')
+                        <span>{{ __('test_take.draw_answer') }}</span>
+                    @else
+                        <span>{{ __('test_take.adjust_answer') }}</span>
+                    @endif
                 </x-button.secondary>
             </div>
 
