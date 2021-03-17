@@ -458,4 +458,13 @@ class UsersController extends Controller
         }
         return Response::make(null, 204);
     }
+
+    public function toggleAccountVerified(User $user) {
+        $user->toggleVerified();
+        if ($user->account_verified) {
+            return new JsonResponse(['account_verified'=> $user->account_verified->format('Y-m-d H:i:s')]);
+        }
+
+        return new JsonResponse(['account_verified'=> '']);
+    }
 }

@@ -1765,4 +1765,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function resendEmailVerificationMail() {
        return Mail::to($this->username)->send(new SendOnboardingWelcomeMail($this));
     }
+
+    public function toggleVerified()
+    {
+        if ($this->account_verified === null) {
+            $this->account_verified = Carbon::now();
+        } else {
+            $this->account_verified = null;
+        }
+        $this->save();
+        return $this;
+    }
 }
