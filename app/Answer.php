@@ -109,6 +109,9 @@ class Answer extends BaseModel
     public function calculateFinalRating()
     {
         $scores = [];
+        // $this->unsetRelation('answerRatings');
+        // $this->load('answerRatings');
+ 
         foreach ($this->answerRatings as $answerRating) {
             if ($answerRating->getAttribute('rating') === null) {
                 continue;

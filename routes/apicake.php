@@ -149,6 +149,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::get('answers/drawing_answer/{answer}',['uses' => 'AnswersController@showDrawing']);
 
+    Route::get('answer/{answer}/test_take',['uses' => 'AnswersController@getTestTake']);
+
     // Test participant children
     Route::resource('test_participant.answer', 'TestParticipants\AnswersController', ['except' => ['create', 'edit']]);
 
