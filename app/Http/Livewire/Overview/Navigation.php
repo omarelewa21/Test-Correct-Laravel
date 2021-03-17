@@ -17,7 +17,7 @@ class Navigation extends Component
     public $q;
     public $queryString = ['q'];
     public $playerUrl;
-
+    public $useSlider   ;
     public $lastQuestionInGroup = [];
 
 

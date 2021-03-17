@@ -1,8 +1,17 @@
 <div class="question-indicator w-full">
-    <div class="@if($this->useSlider) flex-col @else flex flex-wrap @endif" x-data=""
-         x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q }} })}, 1)">
+    <div class="@if($this->useSlider) flex-col @else flex flex-wrap @endif"
+         x-data=""
+         x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q }} })}, 1);"
+         x-on:current-updated.window="
+               if(typeof objectToObserve != 'undefined') {
+                    myIntersectionObserver.unobserve(objectToObserve);
+               }
+                objectToObserve = document.getElementById('active');
+                myIntersectionObserver.observe(objectToObserve);
+                objectToObserve.scrollIntoView({behavior: 'smooth'});
+            "
+    >
         @if($this->useSlider)
-
             <div class="flex items-center">
                 <div class="flex items-center justify-center">
                     <button class="inline-flex base px-3 py-1 rotate-svg-180 w-10 h-8 hover:bg-white rounded-full transition items-center"
@@ -16,27 +25,28 @@
                     </button>
                 </div>
 
-                <div class="flex overflow-hidden mx-4" x-ref="navscrollbar">
+                <div id="navscrollbar" class="flex overflow-hidden mx-4" x-ref="navscrollbar">
 
                     @foreach($nav as $key => $q)
-                        <div id="item-{{$key}}" class="flex flex-col mb-3 relative
+                        <div id="{!! $key === ($this->q - 1) ? 'active' : ''!!}"
+                             class="flex flex-col mb-3 relative
                             @if($q['group']['id'] != 0 && !$loop->last && $nav[$key+1]['group']['id'] != 0 && $nav[$key+1]['group']['id'] === $q['group']['id'])
                                 number-divider group
-@endif
-                        @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
+                            @endif
+                            @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
                                 incomplete
-@elseif($q['answered'])
+                            @elseif($q['answered'])
                                 complete
-@endif
+                            @endif
                                 ">
                             <section wire:key="nav_{{$key}}"
                                      class="question-number rounded-full text-center cursor-pointer
                                         {!! $key === ($this->q - 1) ? 'active' : ''!!}
                                      @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
                                              incomplete
-@elseif($q['answered'])
+                                     @elseif($q['answered'])
                                              complete
-@endif
+                                     @endif
                                              "
                                      wire:click="goToQuestion({{ 1+$key}})"
 
@@ -134,6 +144,28 @@
 
         @endif
 
+            <script>
+                var root = document.getElementById('navscrollbar');
+
+                function callback(entries) {
+
+                    for (const entry of entries) {
+                        if (!entry.isIntersecting) {
+                            timer = setTimeout(function() {
+                                    entry.target.scrollIntoView({behavior: 'smooth'})
+                            }, 5000)
+                        } else {
+                            clearTimeout(timer);
+                        }
+                    }
+                }
+                const myIntersectionObserver = new IntersectionObserver(callback, {
+                    root: root,
+                    rootMargin: '9999px 0px 9999px 0px',
+                    threshold: 1
+                });
+            </script>
+
 
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
             @if(Auth::user()->text2speech)
@@ -167,13 +199,21 @@
             }
 
             function hideBrowseAloudButtons() {
-                var shadowRoot = document.querySelector('div#__bs_entryDiv').querySelector('div').shadowRoot
-                var elementsToHide = ['th_translate', 'th_mp3Maker', 'ba-toggle-menu']
-                elementsToHide.forEach(function (id) {
-                    shadowRoot.getElementById(id).setAttribute('style', 'display:none');
+                var shadowRoot = document.querySelector('div#__bs_entryDiv').querySelector('div').shadowRoot;
+                var elementsToHide = ['th_translate','th_mp3Maker', 'ba-toggle-menu'];
+                elementsToHide.forEach(function(id) {
+                    var el = shadowRoot.getElementById(id);
+                    if (el !== null) {
+                        shadowRoot.getElementById(id).setAttribute('style', 'display:none');
+                    }
                 });
-                shadowRoot.getElementById('th_toolbar').setAttribute('style', 'background-color: #fff');
-                [...shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function (item) {
+
+                var toolbar = shadowRoot.getElementById('th_toolbar');
+                if (toolbar !== null) {
+                    toolbar.setAttribute('style', 'background-color: #fff');
+                }
+
+                [... shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function(item) {
                     item.setAttribute('style', 'fill : #515151');
                 });
             }
@@ -182,7 +222,7 @@
             var tryIterator = 0;
 
             function waitForBrowseAloudAndThenRun() {
-                if (typeof BrowseAloud == 'undefined' || BrowseAloud.panel == 'undefined' || typeof BrowseAloud.panel.toggleBar == 'undefined' || typeof $jqTm == 'undefined') {
+                if (typeof BrowseAloud == 'undefined' || BrowseAloud.panel == 'undefined' || typeof BrowseAloud.panel.toggleBar == 'undefined') {
                     _baTimer = setTimeout(function () {
                             waitForBrowseAloudAndThenRun();
                         },
@@ -191,8 +231,8 @@
                     clearTimeout(_baTimer);
                     try {
                         _toggleBA();
-                    } catch (e) {
-                        tryIterator++;
+                    } catch(e) {
+                        tryIterator ++;
                         if (tryIterator < 10) { // just stop when it still fails after 10 tries;
                             setTimeout(function () {
                                     waitForBrowseAloudAndThenRun();
@@ -205,9 +245,9 @@
 
             function _toggleBA() {
                 BrowseAloud.panel.toggleBar(!0);
-                setTimeout(function () {
+                setTimeout(function() {
                     hideBrowseAloudButtons();
-                }, 300);
+                }, 1000);
             }
         </script>
     @endif

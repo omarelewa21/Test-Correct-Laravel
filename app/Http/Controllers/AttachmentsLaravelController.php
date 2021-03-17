@@ -16,7 +16,7 @@ class AttachmentsLaravelController extends Controller {
      */
     public function show(Attachment $attachment, Answer $answer)
     {
-        if ($attachment->canBeAccessedByUser(Auth::user(), $answer->getKey())) {
+        if ($attachment->isAccessableFrom($answer)) {
             return Response::file($attachment->getCurrentPath());
         }
         return Response::noContent();

@@ -14,16 +14,11 @@ class FraudDetection extends Component
 
     protected $listeners = ['setFraudDetected', 'setFraudDetected'];
 
+    public $testTakeEvents;
+
     public function mount()
     {
-        $testTakeEvents = TestTakeEvent::where('test_participant_id', $this->testParticipant->id)->get();
-        if (!$testTakeEvents->isEmpty()) {
-            foreach($testTakeEvents as $event){
-                if ($event->testTakeEventType->requires_confirming) {
-                    $this->fraudDetected = true;
-                }
-            }
-        }
+        $this->shouldDisplayFraudMessage();
     }
 
     public function render()
@@ -34,5 +29,24 @@ class FraudDetection extends Component
     public function setFraudDetected()
     {
         $this->fraudDetected = true;
+    }
+
+    public function isTestTakeEventConfirmed()
+    {
+        $this->shouldDisplayFraudMessage();
+    }
+
+    private function shouldDisplayFraudMessage()
+    {
+        $this->testTakeEvents = TestTakeEvent::where('test_participant_id', $this->testParticipant->id)->get();
+        if (!$this->testTakeEvents->isEmpty()) {
+            foreach ($this->testTakeEvents as $event) {
+                if ($event->testTakeEventType->requires_confirming && !$event->confirmed) {
+                    $this->fraudDetected = true;
+                } else {
+                    $this->fraudDetected = false;
+                }
+            }
+        }
     }
 }

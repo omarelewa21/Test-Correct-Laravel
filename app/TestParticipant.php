@@ -315,4 +315,11 @@ class TestParticipant extends BaseModel
         $this->setAttribute('test_take_status_id', 4)->save();
         return true;
     }
+
+    public function testTakeOpenForInteraction()
+    {
+            return null !== $this->where('test_take_status_id', 3)
+            ->orWhere('test_take_status_id', 7)
+            ->first();
+    }
 }
