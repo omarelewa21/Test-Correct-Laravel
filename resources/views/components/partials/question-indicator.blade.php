@@ -3,24 +3,23 @@
          x-data=""
          x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q }} })}, 1);"
          x-on:current-updated.window="
-               if(typeof objectToObserve != 'undefined') {
+               if(typeof objectToObserve !== 'undefined') {
                     myIntersectionObserver.unobserve(objectToObserve);
                }
                 objectToObserve = document.getElementById('active');
                 myIntersectionObserver.observe(objectToObserve);
-                objectToObserve.scrollIntoView({behavior: 'smooth'});
+                objectToObserve.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});
             "
     >
         @if($this->useSlider)
-            <div class="flex items-center">
-                <div class="flex items-center justify-center">
-                    <button class="inline-flex base px-3 py-1 rotate-svg-180 w-10 h-8 hover:bg-white rounded-full transition items-center"
+            <div class="flex">
+                <div class="flex justify-center slider-buttons relative pr-3 -right-3">
+                    <button class="inline-flex base py-1 rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center"
                             @click="$refs.navscrollbar.scrollTo({left: 0,behavior: 'smooth'})">
-                        <x-icon.chevron/>
-                        <x-icon.chevron/>
+                        <x-icon.arrow/>
                     </button>
-                    <button class="inline-flex base px-3 py-1 rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center"
-                            @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft - 50,behavior: 'smooth'})">
+                    <button class="inline-flex base px-3 py-1 rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center"
+                            @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft - 100,behavior: 'smooth'})">
                         <x-icon.chevron/>
                     </button>
                 </div>
@@ -31,14 +30,14 @@
                         <div id="{!! $key === ($this->q - 1) ? 'active' : ''!!}"
                              class="flex flex-col mb-3 relative
                             @if($q['group']['id'] != 0 && !$loop->last && $nav[$key+1]['group']['id'] != 0 && $nav[$key+1]['group']['id'] === $q['group']['id'])
-                                number-divider group
-                            @endif
-                            @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
-                                incomplete
-                            @elseif($q['answered'])
-                                complete
-                            @endif
-                                ">
+                                     number-divider group
+                             @endif
+                             @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
+                                     incomplete
+                             @elseif($q['answered'])
+                                     complete
+                             @endif
+                                     ">
                             <section wire:key="nav_{{$key}}"
                                      class="question-number rounded-full text-center cursor-pointer
                                         {!! $key === ($this->q - 1) ? 'active' : ''!!}
@@ -49,10 +48,6 @@
                                      @endif
                                              "
                                      wire:click="goToQuestion({{ 1+$key}})"
-
-                                     {{--                 wire:click="$set('q',{{ 1+$key}})"--}}
-                                     {{--                 x-on:click="$dispatch('current-updated', {'current': {{ 1+$key }} })"--}}
-
                                      x-on:current-question-answered.window="$wire.updateQuestionIndicatorColor()"
                             >
                                 <span class="align-middle">{{ ++$key }}</span>
@@ -78,15 +73,14 @@
                     @endforeach
 
                 </div>
-                <div class="flex items-center justify-center">
-                    <button class="inline-flex base px-3 py-1 w-8 h-8 hover:bg-white rounded-full transition items-center"
-                            @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft + 50,behavior: 'smooth'})">
+                <div class="flex justify-center slider-buttons relative pl-3 -left-3">
+                    <button class="inline-flex base px-3 py-1 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center"
+                            @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft + 100,behavior: 'smooth'})">
                         <x-icon.chevron/>
                     </button>
-                    <button class="inline-flex base px-3 py-1 w-10 h-8 hover:bg-white rounded-full transition items-center"
+                    <button class="inline-flex base  py-1 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center"
                             @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.offsetWidth,behavior: 'smooth'})">
-                        <x-icon.chevron/>
-                        <x-icon.chevron/>
+                        <x-icon.arrow/>
                     </button>
                 </div>
 
@@ -97,21 +91,21 @@
                 <div id="item-{{$key}}" class="flex flex-col mb-3 relative
                             @if($q['group']['id'] != 0 && !$loop->last && $nav[$key+1]['group']['id'] != 0 && $nav[$key+1]['group']['id'] === $q['group']['id'])
                         number-divider group
-@endif
-                @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
+                        @endif
+                        @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
                         incomplete
-@elseif($q['answered'])
+                        @elseif($q['answered'])
                         complete
-@endif
+                        @endif
                         ">
                     <section wire:key="nav_{{$key}}"
                              class="question-number rounded-full text-center cursor-pointer
                                         {!! $key === ($this->q - 1) ? 'active' : ''!!}
                              @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
                                      incomplete
-@elseif($q['answered'])
+                             @elseif($q['answered'])
                                      complete
-@endif
+                             @endif
                                      "
                              wire:click="goToQuestion({{ 1+$key}})"
 
@@ -144,27 +138,28 @@
 
         @endif
 
-            <script>
-                var root = document.getElementById('navscrollbar');
+        <script>
+            let timer
 
-                function callback(entries) {
+            function callback(entries) {
 
-                    for (const entry of entries) {
-                        if (!entry.isIntersecting) {
-                            timer = setTimeout(function() {
-                                    entry.target.scrollIntoView({behavior: 'smooth'})
-                            }, 5000)
-                        } else {
-                            clearTimeout(timer);
-                        }
+                for (const entry of entries) {
+                    if (!entry.isIntersecting) {
+                        timer = setTimeout(function () {
+                            entry.target.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});
+                        }, 5000)
+                    } else {
+                        clearTimeout(timer);
                     }
                 }
-                const myIntersectionObserver = new IntersectionObserver(callback, {
-                    root: root,
-                    rootMargin: '9999px 0px 9999px 0px',
-                    threshold: 1
-                });
-            </script>
+            }
+
+            const myIntersectionObserver = new IntersectionObserver(callback, {
+                root: document.getElementById('navscrollbar'),
+                rootMargin: '9999px 15px 9999px 15px',
+                threshold: 1
+            });
+        </script>
 
 
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
@@ -200,8 +195,8 @@
 
             function hideBrowseAloudButtons() {
                 var shadowRoot = document.querySelector('div#__bs_entryDiv').querySelector('div').shadowRoot;
-                var elementsToHide = ['th_translate','th_mp3Maker', 'ba-toggle-menu'];
-                elementsToHide.forEach(function(id) {
+                var elementsToHide = ['th_translate', 'th_mp3Maker', 'ba-toggle-menu'];
+                elementsToHide.forEach(function (id) {
                     var el = shadowRoot.getElementById(id);
                     if (el !== null) {
                         shadowRoot.getElementById(id).setAttribute('style', 'display:none');
@@ -213,7 +208,7 @@
                     toolbar.setAttribute('style', 'background-color: #fff');
                 }
 
-                [... shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function(item) {
+                [...shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function (item) {
                     item.setAttribute('style', 'fill : #515151');
                 });
             }
@@ -231,8 +226,8 @@
                     clearTimeout(_baTimer);
                     try {
                         _toggleBA();
-                    } catch(e) {
-                        tryIterator ++;
+                    } catch (e) {
+                        tryIterator++;
                         if (tryIterator < 10) { // just stop when it still fails after 10 tries;
                             setTimeout(function () {
                                     waitForBrowseAloudAndThenRun();
@@ -245,7 +240,7 @@
 
             function _toggleBA() {
                 BrowseAloud.panel.toggleBar(!0);
-                setTimeout(function() {
+                setTimeout(function () {
                     hideBrowseAloudButtons();
                 }, 1000);
             }

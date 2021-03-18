@@ -40,8 +40,7 @@ class Navigation extends Component
         }
         $this->startTime = time();
 
-//        $this->useSlider = $this->nav->count() > $this->questionsForSlider;
-        $this->useSlider = false;
+        $this->useSlider = $this->nav->count() > $this->questionsForSlider;
     }
 
 

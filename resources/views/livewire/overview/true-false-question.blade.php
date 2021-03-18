@@ -2,7 +2,7 @@
 
     <div class="w-full overview">
         <div class="flex space-x-4 items-center">
-            <div class="inline-flex bg-off-white border @if(!$this->answer) border-all-red @else border-blue-grey @endif rounded-lg overview truefalse-container">
+            <div class="inline-flex bg-off-white border @if(!$this->answered) border-all-red @else border-blue-grey @endif rounded-lg overview truefalse-container">
                 @foreach( $question->multipleChoiceQuestionAnswers as $link)
 
                     <label for="link{{ $link->id }}"
@@ -19,7 +19,7 @@
                         <span>{!! $link->answer !!}</span>
                     </label>
                     @if($loop->first)
-                        <div class="@if(!$this->answer) bg-all-red @else bg-blue-grey @endif"
+                        <div class="@if(!$this->answered) bg-all-red @else bg-blue-grey @endif"
                              style="width: 1px; height: 30px; margin-top: 3px"></div>
                     @endif
                 @endforeach
