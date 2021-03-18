@@ -25,6 +25,8 @@ Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\U
 Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortCodeController@registerClickAndRedirect');
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
+Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
+
 Route::middleware('auth')->prefix('student')->name('student.')->group(function () {
     Route::get('/test-take/{test_take}', tcCore\Http\Livewire\Student\TestTake::class)->name('test-take');
     Route::get('/test-take-stub/{test_take}', tcCore\Http\Livewire\Student\TesttakeStub::class)->name('test-take-stub');
