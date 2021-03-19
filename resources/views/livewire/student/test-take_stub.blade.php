@@ -52,7 +52,7 @@
                             <div class="flex">
                                 <fieldset>
                                     <legend class="sr-only">
-                                        Keuzes
+                                        {{ __("Keuzes") }}
                                     </legend>
 
                                     <ul class="relative bg-white rounded-md">
@@ -162,18 +162,18 @@
                 onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
                 href="#" rotateIcon="180">
             <x-icon.chevron/>
-            <span>Vorige vraag</span>
+            <span>{{ __("test-take_stub.Vorige vraag") }}</span>
         </x-button.text-button>
 
         <x-button.cta
                 onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('showModal')"
-                size="sm"><span>Inleveren</span>
+                size="sm"><span>{{ __("test-take_stub.Inleveren") }}</span>
             <x-icon.arrow/>
         </x-button.cta>
 
         <x-button.primary
                 onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('nextQuestion')"
-                size="sm"><span>Volgende vraag</span>
+                size="sm"><span>{{ __("test-take_stub.Volgende vraag") }}</span>
             <x-icon.chevron/>
         </x-button.primary>
     </x-slot>
@@ -181,18 +181,18 @@
 
         <x-modal id="modal">
             <x-slot name="title">
-                <h1>Weet je zeker dat je wilt inleveren?</h1>
+                <h1>{{ __("test-take_stub.Weet je zeker dat je wilt inleveren") }}?</h1>
             </x-slot>
 
             <x-slot name="body">
-                <p>Zodra de toets is ingeleverd kun je niet meer terug.</p>
+                <p>{{ __("test-take_stub.Zodra de toets is ingeleverd kun je niet meer terug") }}.</p>
             </x-slot>
 
             <x-slot name="footer">
                 <x-button.text-button @click="open = false">
                     <x-icon.chevron/>
-                    <span>Terug</span></x-button.text-button>
-                <x-button.primary><span>Doorgaan</span>
+                    <span>{{ __("test-take_stub.Terug") }}</span></x-button.text-button>
+                <x-button.primary><span>{{ __("test-take_stub.Doorgaan") }}</span>
                     <x-icon.arrow/>
                 </x-button.primary>
             </x-slot>

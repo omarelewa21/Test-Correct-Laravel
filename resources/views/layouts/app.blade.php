@@ -13,7 +13,7 @@
         <div class="user flex flex-wrap items-center ml-auto space-x-6">
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <x-dropdown.item onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
-                    Inleveren
+                    {{ __("app.Inleveren") }}
                 </x-dropdown.item>
             </x-dropdown>
         </div>

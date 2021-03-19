@@ -24,7 +24,7 @@
 
             <div id="menu" class="menu hidden flex-wrap content-center md:flex md:ml-4">
                 <div class="menu-item px-2 py-1">
-                    <button @click="" class="text-button">Dashboard</button>
+                    <button @click="" class="text-button">{{ __("plan-test-take.Dashboard") }}</button>
                 </div>
 
                 <x-menu.item label="Toetsing" name="toetsing" />
@@ -37,7 +37,7 @@
             <div class="user flex flex-wrap items-center ml-auto space-x-6">
                 <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                     <x-dropdown.item>
-                        Uitloggen
+                        {{ __("plan-test-take.Uitloggen") }}
                     </x-dropdown.item>
                 </x-dropdown>
             </div>
@@ -45,22 +45,22 @@
         <div>
             <div class="z-0 relative">
                 <x-menu.dropdown name="toetsing">
-                    <x-button.text-button>Geplande toetsen</x-button.text-button>
-                    <x-button.text-button>Te bespreken</x-button.text-button>
-                    <x-button.text-button>Inzien</x-button.text-button>
-                    <x-button.text-button>Becijferd</x-button.text-button>
+                    <x-button.text-button>{{ __("plan-test-take.Geplande toetsen") }}</x-button.text-button>
+                    <x-button.text-button>{{ __("plan-test-take.Te bespreken") }}</x-button.text-button>
+                    <x-button.text-button>{{ __("plan-test-take.Inzien") }}</x-button.text-button>
+                    <x-button.text-button>{{ __("plan-test-take.Becijferd") }}</x-button.text-button>
                 </x-menu.dropdown>
 
                 <x-menu.dropdown name="analyses">
-                    <x-button.text-button>Jouw analyses</x-button.text-button>
+                    <x-button.text-button>{{ __("plan-test-take.Jouw analyses") }}</x-button.text-button>
                 </x-menu.dropdown>
 
                 <x-menu.dropdown name="berichten">
-                    <x-button.text-button>Berichten</x-button.text-button>
+                    <x-button.text-button>{{ __("plan-test-take.Berichten") }}</x-button.text-button>
                 </x-menu.dropdown>
 
                 <x-menu.dropdown name="kennisbank">
-                    <x-button.text-button>Bezoek de kennisbank</x-button.text-button>
+                    <x-button.text-button>{{ __("plan-test-take.Bezoek de kennisbank") }}</x-button.text-button>
                 </x-menu.dropdown>
             </div>
         </div>
@@ -69,19 +69,19 @@
     <main>
         <div class="m-4 lg:mx-28 lg:mt-40 space-y-6">
             <div>
-                <h1>Geplande toetsen</h1>
+                <h1>{{ __("plan-test-take.Geplande toetsen") }}</h1>
             </div>
             <div class="content-section p-8">
                 <x-table>
                     <x-slot name="head">
-                        <x-table.heading width="20" sortable="true">Toets</x-table.heading>
-                        <x-table.heading width="5">Vragen</x-table.heading>
-                        <x-table.heading width="12">Surveillanten</x-table.heading>
-                        <x-table.heading width="12">Inplanner</x-table.heading>
-                        <x-table.heading width="10" sortable="true">Vak</x-table.heading>
-                        <x-table.heading width="8" sortable="true">Afname</x-table.heading>
-                        <x-table.heading width="3" sortable="true">Weging</x-table.heading>
-                        <x-table.heading width="8" sortable="true">Type</x-table.heading>
+                        <x-table.heading width="20" sortable="true">{{ __("plan-test-take.Toets") }}</x-table.heading>
+                        <x-table.heading width="5">{{ __("plan-test-take.Vragen") }}</x-table.heading>
+                        <x-table.heading width="12">{{ __("plan-test-take.Surveillanten") }}</x-table.heading>
+                        <x-table.heading width="12">{{ __("plan-test-take.Inplanner") }}</x-table.heading>
+                        <x-table.heading width="10" sortable="true">{{ __("plan-test-take.Vak") }}</x-table.heading>
+                        <x-table.heading width="8" sortable="true">{{ __("plan-test-take.Afname") }}</x-table.heading>
+                        <x-table.heading width="3" sortable="true">{{ __("plan-test-take.Weging") }}</x-table.heading>
+                        <x-table.heading width="8" sortable="true">{{ __("plan-test-take.Type") }}</x-table.heading>
                         <x-table.heading sortable="true"></x-table.heading>
                     </x-slot>
                     <x-slot name="body">
@@ -89,7 +89,7 @@
                             <x-table.row x-data="{i: {{$i}}}" id="row-{{ $i }}"
                                          @mouseenter="if (i !== 0) changeRowBorder(i,'transparent')"
                                          @mouseleave="if (i !== 0) changeRowBorder(i,'var(--blue-grey)')">
-                                <x-table.cell>Super mooie table mane</x-table.cell>
+                                <x-table.cell>{{ __("Super mooie table mane") }}</x-table.cell>
                                 <x-table.cell class="text-right">123</x-table.cell>
                                 <x-table.cell>L. Hamilton</x-table.cell>
                                 <x-table.cell>D. Ricciardo</x-table.cell>
@@ -97,10 +97,10 @@
                                 <x-table.cell class="text-right">05-09-1996</x-table.cell>
                                 <x-table.cell class="text-right">25</x-table.cell>
                                 <x-table.cell>
-                                    <span class="text-xs uppercase bold px-2.5 py-1 bg-off-white base">Standaard</span>
+                                    <span class="text-xs uppercase bold px-2.5 py-1 bg-off-white base">{{ __("plan-test-take.Standaard") }}</span>
                                 </x-table.cell>
                                 <x-table.cell class="text-right">
-                                    <x-button.cta size="sm">Maken</x-button.cta>
+                                    <x-button.cta size="sm">{{ __("plan-test-take.Maken") }}</x-button.cta>
                                 </x-table.cell>
                             </x-table.row>
                         @endfor
@@ -124,7 +124,7 @@
                 </div>
                 <div>
                     <x-button.text-button>
-                        <span>Volgende</span>
+                        <span>{{ __("plan-test-take.Volgende") }}</span>
                         <x-icon.chevron/>
                     </x-button.text-button>
                 </div>

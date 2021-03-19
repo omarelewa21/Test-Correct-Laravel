@@ -4,14 +4,14 @@
              class="relative">
 
             <div class="flex flex-col space-y-3">
-                <span>Maak een tekening vraag.
-                    @if(!$question->attachments->isEmpty()) Bekijk ook de bijlagen bij deze vraag. @endif
-                    @if($question->note_type != "NONE") Open het notitieblok om aantekeningen te noteren. @endif
+                <span>{{ __("drawing-question.Maak een tekening vraag") }}.
+                    @if(!$question->attachments->isEmpty()) {{ __("drawing-question.Bekijk ook de bijlagen bij deze vraag") }}. @endif
+                    @if($question->note_type != "NONE") {{ __("drawing-question.Open het notitieblok om aantekeningen te noteren") }}. @endif
                 </span>
                 {!! $question->getQuestionHtml() !!}
                 <x-button.secondary class="max-w-max" @click="opened = true">
                     <x-icon.edit/>
-                    <span>Antwoord tekenen</span>
+                    <span>{{ __("drawing-question.Antwoord tekenen") }}</span>
                 </x-button.secondary>
             </div>
 

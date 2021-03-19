@@ -3,25 +3,25 @@
 @section('content')
 <tr>
 <td colspan="999" style="padding:20px;">
-Beste {{$user->getNameFullAttribute()}},<br/>
+    {{ __("regular-staff.Beste") }} {{$user->getNameFullAttribute()}},<br/>
 <br/>
-Welkom bij Test-Correct!<br/>
+{{ __("regular-staff.Welkom bij Test-Correct") }}!<br/>
 <br/>
-Leuk dat u gaat werken in Test-Correct. Niets staat u nog in de weg om bestaande & nieuwe toetsen te creëren om vervolgens af te nemen, te bespreken & te analyseren. U bereikt al snel 80% reductie van het nakijkwerk en een aanzienlijk verhoogd leerrendement, terwijl u nog steeds gebruik kunt maken van open vragen!<br/>
-Uw gebruikersnaam: {{ $user->username }}<br/>
-Uw wachtwoord: {{ $password }}<br/>
+{{ __("regular-staff.Leuk dat u gaat werken in Test-Correct. Niets staat u nog in de weg om bestaande & nieuwe toetsen te creëren om vervolgens af te nemen, te bespreken & te analyseren. U bereikt al snel 80% reductie van het nakijkwerk en een aanzienlijk verhoogd leerrendement, terwijl u nog steeds gebruik kunt maken van open vragen") }}!<br/>
+{{ __("regular-staff.Uw gebruikersnaam") }}: {{ $user->username }}<br/>
+{{ __("regular-staff.Uw wachtwoord") }}: {{ $password }}<br/>
 <br/>
-Lees deze tips voordat u aan de slag gaat:<br/>
+{{ __("regular-staff.Lees deze tips voordat u aan de slag gaat") }}:<br/>
 <ul>
-<li><a href="http://www.test-correct.nl/support/toets-creeren/">Toets creëren</a><br/>Welke vraagsoorten kan je maken en hoe maak je daar optimaal gebruik van. Waarop let als je een bestaande toets importeert. </li>
-<li><a href="http://www.test-correct.nl/support/toets-afnemen/">Toets afnemen</a><br/>Het inplannen & surveilleren van de toets. Tips & Trucs bij het surveilleren.</li>
-<li><a href="http://www.test-correct.nl/support/toets-bespreken/">Toets bespreken</a><br/>De kracht van Test-Correct. Onderwijskundige Tips & Trucs bij het bespreken.</li>
-<li><a href="http://www.test-correct.nl/support/toets-nakijken-en-analyseren/">Toets nakijken en analyseren</a><br/>Je eigen manier van nakijken. De interessantste analyses.</li>
+<li><a href="http://www.test-correct.nl/support/toets-creeren/">{{ __("Toets creëren") }}</a><br/>{{ __("Welke vraagsoorten kan je maken en hoe maak je daar optimaal gebruik van. Waarop let als je een bestaande toets importeert") }}. </li>
+<li><a href="http://www.test-correct.nl/support/toets-afnemen/">{{ __("Toets afnemen") }}</a><br/>{{ __("Het inplannen & surveilleren van de toets. Tips & Trucs bij het surveilleren") }}.</li>
+<li><a href="http://www.test-correct.nl/support/toets-bespreken/">{{ __("Toets bespreken") }}</a><br/>{{ __("De kracht van Test-Correct. Onderwijskundige Tips & Trucs bij het bespreken") }}.</li>
+<li><a href="http://www.test-correct.nl/support/toets-nakijken-en-analyseren/">{{ __("Toets nakijken en analyseren") }}</a><br/>{{ __("Je eigen manier van nakijken. De interessantste analyses") }}.</li>
 </ul>
 <br/>
-Veel plezier met Test-Correct!<br/>
+{{ __("regular-staff.Veel plezier met Test-Correct") }}!<br/>
 <br/>
-Test-Correct supportteam
+{{ __("regular-staff.Test-Correct supportteam") }}
 </td>
 </tr>
 @stop
