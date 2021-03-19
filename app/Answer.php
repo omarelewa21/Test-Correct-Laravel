@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use phpseclib\Crypt\Random;
 use tcCore\Lib\Models\BaseModel;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -221,5 +223,23 @@ class Answer extends BaseModel
 //        )->closeable == 1);
 //    }
 
+    public function getIsAnsweredAttribute()
+    {
+        return !!$this->done;
+    }
 
+    public function getDrawingStoragePath()
+    {
+        return 'drawing_question_answers/' . $this->uuid;
+    }
+
+    public static function updateJson($answerId, $json)
+    {
+        Answer::whereId($answerId)->update(['json' => $json, 'done' => 1]);
+    }
+
+    public static function registerTime(int $answerId,  int $timeToRegister)
+    {
+        DB::table('answers')->whereId($answerId)->increment('time', $timeToRegister);
+    }
 }

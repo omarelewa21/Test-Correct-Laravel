@@ -1,7 +1,9 @@
 <?php namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Answer;
@@ -15,6 +17,7 @@ class AnswersController extends Controller {
      */
     public function index(Request $request)
     {
+        
         $answers = Answer::filtered($request->get('filter', []), $request->get('order', []));
 
         if (is_array($request->get('with')) && in_array('answer_ratings', $request->get('with'))) {
@@ -42,6 +45,15 @@ class AnswersController extends Controller {
     {
         $answer->load('answerParentQuestions');
         return Response::make($answer, 200);
+    }
+
+    public function showDrawing(Answer $answer)
+    {
+        $file = Storage::get($answer->getDrawingStoragePath());
+        if ($file) {
+            return file_get_contents($file);
+        }
+        abort(404);
     }
 
 }

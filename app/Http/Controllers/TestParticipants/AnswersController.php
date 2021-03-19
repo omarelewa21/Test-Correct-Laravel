@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers\TestParticipants;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests;
@@ -129,6 +130,13 @@ class AnswersController extends Controller {
 		} else {
 			return Response::make('Failed to delete answer', 500);
 		}
+	}
+
+    public function getDrawingAnswerUrl(Answer $answer)
+    {
+        $url['url'] = config('app.url_login').'test_takes/'.$answer->getDrawingStoragePath().'?'.date('ymds');
+
+        return Response::make($url, 200);
 	}
 
 }

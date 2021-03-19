@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Test;
 use tcCore\User;
 
@@ -119,6 +120,17 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
+    public static function getStudentXAuthRequestData($overrides = [],$studentNumber)
+    {
+        $username = sprintf('s%d@test-correct.nl',$studentNumber);
+        $user = User::where('username', $username)->first();
+        ActingAsHelper::getInstance()->setUser($user);
+        return self::getUserAuthRequestData(
+            $user,
+            $overrides
+        );
+    }
+
     public static function getTeacherOneAuthRequestData($overrides = [])
     {
         return self::getUserAuthRequestData(
@@ -231,7 +243,7 @@ abstract class TestCase extends BaseTestCase
     private function updateTestTakeStatus($testTakeId, $status) {
         $response = $this->put(
             sprintf(
-                'test_take/%d',
+                'api-c/test_take/%s',
                 $testTakeId
             ),
             static::getTeacherOneAuthRequestData(

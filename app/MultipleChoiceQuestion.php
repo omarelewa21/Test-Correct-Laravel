@@ -241,5 +241,17 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
         return true;
     }
 
+    public function getCaptionAttribute()
+    {
+        if ($this->subtype === 'TrueFalse') {
+            return __('test_take.multiple_choice_question_true_false');
+        }
 
+        if ($this->subtype === 'ARQ') {
+            return __('test_take.multiple_choice_question_arq');
+        }
+
+        return parent::getCaptionAttribute();
+
+    }
 }

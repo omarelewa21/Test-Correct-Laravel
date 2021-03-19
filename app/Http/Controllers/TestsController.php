@@ -11,6 +11,7 @@ use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestRequest;
 use tcCore\Http\Requests\UpdateTestRequest;
+use tcCore\Lib\Question\QuestionGatherer;
 
 class TestsController extends Controller {
 
@@ -24,7 +25,9 @@ class TestsController extends Controller {
         // @@ see TC-160
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
-        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        try { // added for compatibility with mariadb
+            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        } catch (\Exception $e){}
 		$tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
 //		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
         $tests->each(function($test) {
@@ -109,5 +112,53 @@ class TestsController extends Controller {
 			return Response::make('Failed to duplicate tests', 500);
 		}
 	}
+
+	public function maxScore(Test $test,$ignoreQuestions = []){
+        if(is_null($ignoreQuestions)){
+            $ignoreQuestions = [];
+        }
+        $testId = $test->id;
+        $maxScore = 0;
+        $questions = QuestionGatherer::getQuestionsOfTest($testId, true);
+        $carouselQuestions = QuestionGatherer::getCarouselQuestionsOfTest($testId);
+        $carouselQuestionIds = array_map(function($carouselQuestion){
+                                                return $carouselQuestion->getKey();
+                                                    }, $carouselQuestions);
+        $carouselQuestionChilds = [];
+        foreach ($questions as $key => $question) {
+            if(!stristr($key, '.')){
+                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
+                continue;
+            }
+            $arr = explode('.', $key);
+            if(!in_array($arr[0], $carouselQuestionIds)){
+                $this->addToMaxScore($maxScore,$question,$ignoreQuestions);
+                continue;
+            }
+            $carouselQuestionChilds[$arr[0]][$arr[1]] = $question;
+        }
+        foreach ($carouselQuestionChilds as $groupquestionId => $childArray) {
+            if(in_array($groupquestionId, $ignoreQuestions)){
+                continue;
+            }
+            $questionScore = current($childArray)->score;
+            $numberOfSubquestions = $carouselQuestions[$groupquestionId]->number_of_subquestions;
+            $maxScore += ($questionScore*$numberOfSubquestions);
+        }
+        return $maxScore;
+    }
+
+    private function addToMaxScore(&$maxScore,$question,$ignoreQuestions):void
+    {
+        if(in_array($question->getKey(), $ignoreQuestions)){
+            return;
+        }
+        $maxScore += $question->score;
+    }
+
+    public function maxScoreResponse(Test $test){
+    	$maxScore = $this->maxScore($test);
+        return Response::make($maxScore, 200);
+    }
 
 }

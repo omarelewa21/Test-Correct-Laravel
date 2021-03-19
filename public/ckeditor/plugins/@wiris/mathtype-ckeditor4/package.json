@@ -1,0 +1,85 @@
+{
+  "_from": "@wiris/mathtype-ckeditor4",
+  "_id": "@wiris/mathtype-ckeditor4@7.20.0",
+  "_inBundle": false,
+  "_integrity": "sha512-NdZNhCRDEutOV99ueyoIg0PEDVp72jmfCWes8REISGTlNcMfNZWsuCz5VZ3IqES9nEoCoErZwrGj/WmXwxiJvA==",
+  "_location": "/@wiris/mathtype-ckeditor4",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "@wiris/mathtype-ckeditor4",
+    "name": "@wiris/mathtype-ckeditor4",
+    "escapedName": "@wiris%2fmathtype-ckeditor4",
+    "scope": "@wiris",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@wiris/mathtype-ckeditor4/-/mathtype-ckeditor4-7.20.0.tgz",
+  "_shasum": "139107b3f5e0889f569323a444640305b068875e",
+  "_spec": "@wiris/mathtype-ckeditor4",
+  "_where": "/home/vagrant/ssd/portal.test-correct.nl",
+  "author": {
+    "name": "WIRIS Team",
+    "url": "http://www.wiris.com"
+  },
+  "bugs": {
+    "email": "support@wiris.com"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "MathType Web for CKEditor4 editor",
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@wiris/mathtype-html-integration-devkit": "1.1.0",
+    "babel-loader": "^8.0.2",
+    "css-loader": "^1.0.0",
+    "esdoc": "^1.1.0",
+    "esdoc-inject-script-plugin": "^1.0.0",
+    "esdoc-inject-style-plugin": "^1.0.0",
+    "esdoc-standard-plugin": "^1.0.0",
+    "jsdoc-export-default-interop": "^0.3.1",
+    "mini-css-extract-plugin": "^0.4.2",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "raw-loader": "^3.1.0",
+    "style-loader": "^0.23.0",
+    "uglifyjs-webpack-plugin": "^1.2.8",
+    "url-loader": "^1.1.2",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0"
+  },
+  "gitHead": "4d29de717ad63e6828f393b7a8de2ce7a578d13f",
+  "homepage": "http://www.wiris.com/",
+  "keywords": [
+    "chem",
+    "chemistry",
+    "chemtype",
+    "ckeditor",
+    "ckeditor4",
+    "editor",
+    "equation",
+    "latex",
+    "math",
+    "mathml",
+    "maths",
+    "mathtype",
+    "wiris"
+  ],
+  "license": "MIT",
+  "main": "plugin.js",
+  "name": "@wiris/mathtype-ckeditor4",
+  "scripts": {
+    "build": "webpack --mode production",
+    "build-dev": "webpack --mode development",
+    "clean": "npx rimraf plugin.js",
+    "compile": "node ../../scripts/services/compile plugin.src.js .",
+    "prepack": "npm install && npm run build"
+  },
+  "version": "7.20.0"
+}

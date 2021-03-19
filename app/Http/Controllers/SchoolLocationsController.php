@@ -105,4 +105,12 @@ class SchoolLocationsController extends Controller {
             return Response::make('Failed to delete school location', 500);
         }
     }
+
+    public function isAllowedNewPlayerAccess()
+    {
+        return Response::make(
+            Auth::user()->schoolLocation->allow_new_player_access,
+            200
+        );
+    }
 }
