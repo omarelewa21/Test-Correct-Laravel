@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Auth;
 
+use Carbon\Carbon;
 use Livewire\Component;
 
 class Login extends Component
@@ -18,9 +19,12 @@ class Login extends Component
     {
         $credentials = $this->validate();
 
-        return auth()->attempt($credentials)
-            ? redirect()->intended(route('student.test-take'))
-            : $this->addError('username', trans('auth.failed'));
+        if (auth()->attempt($credentials)) {
+            auth()->user()->setAttribute('session_hash', auth()->user()->generateSessionHash());
+            auth()->user()->save();
+            return redirect()->intended(route('student.test-take'));
+        }
+        return $this->addError('username', __('auth.failed'));
     }
 
     public function render()
