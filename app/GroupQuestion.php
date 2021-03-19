@@ -15,6 +15,7 @@ class GroupQuestion extends Question implements QuestionInterface {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'number_of_subquestions' => 'integer',
     ];
 
     /**
@@ -358,6 +359,28 @@ class GroupQuestion extends Question implements QuestionInterface {
             $returnArray[] = $questions[$randomKey];
         }
         return $returnArray;
+    }
+
+    public function getQuestionCount()
+    {
+        if($this->groupquestion_type == 'carousel'){
+            return $this->getCarouselGroupQuestionCount();
+        }
+        return $this->getGenericGroupQuestionCount();
+    }
+
+    protected function getCarouselGroupQuestionCount()
+    {
+        $questionCount = $this->getGenericGroupQuestionCount();
+        if($this->number_of_subquestions > $questionCount){
+            return $questionCount;
+        }
+        return $this->number_of_subquestions;
+    }
+
+    protected function getGenericGroupQuestionCount()
+    {
+        return $this->groupQuestionQuestions()->count();
     }
 
 }

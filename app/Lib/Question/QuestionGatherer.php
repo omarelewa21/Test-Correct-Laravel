@@ -99,11 +99,12 @@ class QuestionGatherer {
         $questionCount = 0;
         foreach($test->testQuestions as $testQuestion) {
             $question = $testQuestion->question;
-            if ($question instanceof GroupQuestion) {
-                $questionCount += self::getGroupQuestionCount($question);
-            } elseif($question instanceof QuestionInterface) {
-                $questionCount++;
-            }
+            $questionCount += $question->getQuestionCount();
+//            if ($question instanceof GroupQuestion) {
+//                $questionCount += self::getGroupQuestionCount($question);
+//            } elseif($question instanceof QuestionInterface) {
+//                $questionCount++;
+//            }
         }
         return $questionCount;
     }
@@ -182,10 +183,10 @@ class QuestionGatherer {
 
     private static function getGroupQuestionCount($question)
     {
-        if($question->groupquestion_type = 'carousel'){
+        if($question->groupquestion_type == 'carousel'){
             return self::getCarouselGroupQuestionCount($question);
         }
-        return getGenericGroupQuestionCount($question);
+        return self::getGenericGroupQuestionCount($question);
     }
 
     private static function getCarouselGroupQuestionCount($question)
@@ -200,7 +201,7 @@ class QuestionGatherer {
 
     private static function getGenericGroupQuestionCount($question)
     {
-        return $question->groupQuestionQuestions()->get()->count();
+        return $question->groupQuestionQuestions()->count();
     }
 
     private static function questionIsPartOfCarousel($questionId,$testId){
