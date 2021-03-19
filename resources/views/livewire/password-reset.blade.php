@@ -101,7 +101,7 @@
                                             <x-icon.chevron></x-icon.chevron>
                                         </button>
                                     @else
-                                        <button wire:click="resetPassword"
+                                        <button
                                                 class="flex items-center button button-md primary-button">
                                             <span class="mr-2">Wachtwoord resetten</span>
                                             <x-icon.chevron></x-icon.chevron>

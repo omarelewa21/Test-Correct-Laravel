@@ -14,7 +14,7 @@ class PasswordReset extends Component
     public $username;
     public $token;
 
-    public $showSuccessModal = true;
+    public $showSuccessModal = false;
 
     public $btnDisabled = false;
 
@@ -99,7 +99,6 @@ class PasswordReset extends Component
     {
         $this->redirect(config('app.url_login'));
     }
-
 
     public function render()
     {
