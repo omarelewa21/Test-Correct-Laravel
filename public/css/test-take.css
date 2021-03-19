@@ -138,7 +138,7 @@
 }
 
 [x-cloak] {
-    display: none;
+    visibility: hidden;
 }
 
 .overview .nav-overflow {
@@ -164,4 +164,17 @@
 
 .slider-buttons {
     box-shadow: 0 0 5px 10px var(--light-grey);
+}
+.slider-buttons button:hover {
+    color: var(--primary);
+}
+
+#navscrollbar {
+    /* This is the magic bit for Firefox */
+    scrollbar-width: none;
+}
+
+#navscrollbar::-webkit-scrollbar {
+    /* This is the magic bit for WebKit */
+    display: none;
 }

@@ -23,9 +23,6 @@ class Navigation extends Component
         'update-nav-with-closed-group'     => 'updateNavWithClosedGroup',
     ];
 
-    public $useSlider;
-    private $questionsForSlider = 30;
-
     public function mount()
     {
         if (!$this->q) {
@@ -39,8 +36,6 @@ class Navigation extends Component
             }
         }
         $this->startTime = time();
-
-        $this->useSlider = $this->nav->count() > $this->questionsForSlider;
     }
 
 
