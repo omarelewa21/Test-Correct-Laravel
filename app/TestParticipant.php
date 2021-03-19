@@ -39,6 +39,8 @@ class TestParticipant extends BaseModel
      */
     protected $table = 'test_participants';
 
+    protected $appends = ['intense'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -315,4 +317,8 @@ class TestParticipant extends BaseModel
         $this->setAttribute('test_take_status_id', 4)->save();
         return true;
     }
+    public function getIntenseAttribute() {
+        return $this->user->intense && $this->user->schoolLocation->intense;
+    }
+
 }

@@ -50,6 +50,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'intense' => 'boolean',
     ];
 
     /**
