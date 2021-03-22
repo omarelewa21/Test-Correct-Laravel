@@ -9,10 +9,13 @@ use tcCore\Exports\OnboardingWizardExport;
 
 class OnboardingWizardReportController extends Controller
 {
-    protected $fileName = 'marketing_report.xls';
+    protected $fileName = 'teacher_report.xls';
 
-    public function store()
+    public function store() 
     {       
+        
+       file_put_contents('log.html','in store', FILE_APPEND );
+        
         // run realtime when not on production
         if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
             
@@ -21,7 +24,7 @@ class OnboardingWizardReportController extends Controller
 
         $file = storage_path($this->fileName);     
         
-        if (file_exists($file)) {
+        if (file_exists($file)) {  
             unlink($file);
         }
         
