@@ -354,6 +354,9 @@ class GroupQuestion extends Question implements QuestionInterface {
         }
         $returnArray = [];
         $randomKeys = array_rand($questions,$this->number_of_subquestions);
+        if (! is_array($randomKeys)) {
+             $randomKeys = [$randomKeys];
+        }
         foreach ($randomKeys as $randomKey) {
             $returnArray[] = $questions[$randomKey];
         }
