@@ -7,6 +7,7 @@ use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
 use tcCore\SchoolLocation;
 use tcCore\User;
+use tcCore\SchoolClass;
 
 class SchoolClassesStudentImportRequest extends Request
 {
@@ -78,7 +79,12 @@ class SchoolClassesStudentImportRequest extends Request
             'data.*.name_first' => 'required',
             'data.*.name' => 'required',
             'data.*.name_suffix' => '',
-            'data.*.gender' => '',
+            'data.*.gender' => 'sometimes',
+            'data.*.school_class_name' => ['sometimes', function ($attribute, $value, $fail) {
+                if ($this->classDoesNotExist($value)) {
+                    return $fail(sprintf('school_class_name not found.', $attribute));
+                }
+            }]
         ]);
 
         if ($extra_rule === []) {
@@ -196,5 +202,15 @@ class SchoolClassesStudentImportRequest extends Request
     private function alreadyInDatabaseButNotInThisSchoolLocation($student)
     {
         return $student->school_location_id !== $this->schoolLocation->id;
+    }
+
+    private function classDoesNotExist($school_class_name)
+    {
+        $manager = Auth::user();
+        $schoolClass = SchoolClass::where('name', trim($school_class_name))->where('school_location_id',$manager->school_location_id)->first();
+        if(is_null($schoolClass)){
+            return true;
+        }
+        return false;
     }
 }
