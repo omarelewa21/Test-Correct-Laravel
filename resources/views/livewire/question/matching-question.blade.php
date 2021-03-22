@@ -30,7 +30,7 @@
                         @if(  $group->correct_answer_id === null )
                             <x-dropzone type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"
                                         wire:sortable.item="{{ $group->id }}">
-                                <div class="flex flex-col w-full h-full" wire:sortable-group.item-group="{{ $group->id }}">
+                                <div class="flex flex-col w-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
                                     @foreach($shuffledAnswers as $option)
                                         @if(  $option->correct_answer_id !== null )
                                             @if($answerStruct[$option->id] == $group->id)
@@ -49,7 +49,7 @@
             </div>
         @endif
         @if($question->subtype == 'Matching')
-            <div class="flex flex-col space-y-1" wire:sortable-group="updateOrder">
+            <div class="flex flex-col space-y-1 matching" wire:sortable-group="updateOrder">
                 <div class="flex">
                     <x-dropzone wire:key="group-start" startGroup="true">
                         <div class="h-full space-x-1 focus:outline-none start-group" wire:sortable-group.item-group="startGroep">
@@ -79,7 +79,7 @@
                                 <div class="flex-1 matching-dropzone">
                                     <x-dropzone type="matching" wire:key="group-{{ $group->id }}"
                                                 wire:sortable.item="{{ $group->id }}">
-                                        <div class="flex w-full h-full" wire:sortable-group.item-group="{{ $group->id }}">
+                                        <div class="flex w-full h-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
                                             @foreach($shuffledAnswers as $option)
                                                 @if(  $option->correct_answer_id !== null )
                                                     @if($answerStruct[$option->id] == $group->id)
