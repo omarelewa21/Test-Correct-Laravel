@@ -15,11 +15,10 @@ class OnboardingWizardReport extends Model
 
     public static function updateForUser(User $user)
     {
+        
         $wizardData = self::getStepsCollection($user);
-
-        self::updateOrCreate([
-            'user_id' => $user->getKey(),
-        ], [
+        
+        $updated_data_array = [
             'user_email'                                  => $user->username,
             'user_name_first'                             => $user->name_first,
             'user_name_suffix'                            => $user->name_suffix,
@@ -92,7 +91,11 @@ class OnboardingWizardReport extends Model
             'nr_colearning_sessions_60'                   => self::nrColearningSessions($user, 60), // 3.a.1
             'nr_colearning_sessions_90'                   => self::nrColearningSessions($user, 90), // 3.a.1
             'nr_colearning_sessions_total'                => self::nrColearningSessions($user, 0), // 3.a.2
-        ]);
+        ];
+        
+        self::updateOrCreate([
+            'user_id' => $user->getKey(),
+        ], $updated_data_array);
     }
 
     public static function subStepsPercentage(User $user)
@@ -196,6 +199,7 @@ ORDER BY t2.displayorder,
 
     public static function updateForAllTeachers($shouldTruncate = true)
     {
+        
         if($shouldTruncate) {
             OnboardingWizardReport::truncate();
         }
@@ -205,6 +209,7 @@ ORDER BY t2.displayorder,
             ->where('username', 'not like', '%@teachandlearncompany.com')
             ->where('username', 'not like', '%@test-correct.nl')
             ->each(function ($teacher) {
+                
                 if ($teacher->isA('teacher')) {
                     \tcCore\OnboardingWizardReport::updateForUser($teacher);
                 };
@@ -252,16 +257,7 @@ ORDER BY t2.displayorder,
             'active_step'          => $user->onboardingWizardUserState->active_step ?? 0,
         ];
     }
-    //
-    
-    ///
-    //
-    //
-    ///
-    //
-    //
-    ///
-    
+
     public static function nrApprovedTestFiles($user, $days)
     {
 
