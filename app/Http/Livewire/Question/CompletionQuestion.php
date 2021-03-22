@@ -44,9 +44,11 @@ class CompletionQuestion extends Component
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input wire:model.lazy="answer.%d" class="form-input mb-2" type="text" id="%s" style="width: 120px" />',
+                '<input wire:model.lazy="answer.%d" class="form-input mb-2 truncate" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0"/>',
                 $tag_id,
-                'answer_' . $tag_id
+                'answer_' . $tag_id,
+                'comp_answer_' . $tag_id,
+                'comp_answer_' . $tag_id
             );
         };
 

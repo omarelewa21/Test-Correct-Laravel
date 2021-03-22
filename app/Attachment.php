@@ -207,29 +207,17 @@ class Attachment extends BaseModel
         return false;
     }
 
-    public function canBeAccessedByUser(User $user, $answerId)
+    public function isAccessableFrom(Answer $answer)
     {
-        $testParticipant = TestParticipant::whereIn('id', function ($query) use ($answerId) {
-            $query->select('test_participant_id')->from('answers')->where('id', $answerId);
-        })
-            ->where('test_take_status_id', 3)
-            ->orWhere('test_take_status_id', 7)
-            ->first();
-
-        if ($testParticipant && $testParticipant->user_id === $user->getKey()) {
-            $testParticipant->testTake->test->testQuestions->map(function ($tq, $key) use (&$questions) {
-                $questions[$key] = $tq->question->getKey();
-            });
-            $question_id = $this->questionAttachments->where('attachment_id', $this->getKey())->first()->question_id;
-
-            foreach ($questions as $question) {
-                if ($question == $question_id) {
-                    return true;
-                }
-            }
+        if (!$answer->testParticipant->testTakeOpenForInteraction()) {
             return false;
         }
-        return false;
+
+        return $this->isPartOfQuestion($answer->question_id);
+    }
+
+    private function isPartOfQuestion($questionId){
+        return $this->questionAttachments->pluck('question_id')->contains($questionId);
     }
 
     public function audioIsPausable()

@@ -42,7 +42,11 @@ class DuplicateLoginLivewire {
 
     private function shouldCheckSessionHash()
     {
-        return Carbon::parse(session('new_debounce_time'), Carbon::now()->subMinute())->add(self::DEBOUNCE)->diffInSeconds(Carbon::now()) > 0;
+        if (session()->has('new_debounce_time')) {
+            return Carbon::parse(session('new_debounce_time'))->add(self::DEBOUNCE)->diffInSeconds(Carbon::now()) > 0;
+        }
+        // always check if no new_debounce_time in session;
+        return true;
     }
 }
 
