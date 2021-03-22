@@ -9,7 +9,7 @@ use tcCore\Exports\OnboardingWizardExport;
 
 class OnboardingWizardReportController extends Controller
 {
-    protected $fileName = 'teacher_report.xls';
+    protected $fileName = 'marketing_report.xls';
 
     public function store() 
     {       
