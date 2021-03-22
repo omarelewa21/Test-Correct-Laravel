@@ -35,6 +35,10 @@ Route::middleware(['auth', 'dll'])->prefix('student')->name('student.')->group(f
     Route::get('/drawing_question_answers/{answer}', [DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
 });
 
+Route::middleware('auth')->prefix('teacher')->name('teacher.')->group(function () {
+    Route::get('/preview/{test}', [\tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('preview');
+});
+
 /**
  * Authentication
  */
