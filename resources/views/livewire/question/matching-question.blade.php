@@ -79,7 +79,7 @@
                                 <div class="flex-1 matching-dropzone">
                                     <x-dropzone type="matching" wire:key="group-{{ $group->id }}"
                                                 wire:sortable.item="{{ $group->id }}">
-                                        <div class="flex w-full h-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
+                                        <div class="flex w-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
                                             @foreach($shuffledAnswers as $option)
                                                 @if(  $option->correct_answer_id !== null )
                                                     @if($answerStruct[$option->id] == $group->id)

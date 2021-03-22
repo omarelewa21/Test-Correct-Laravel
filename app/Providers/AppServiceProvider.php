@@ -1,6 +1,7 @@
 <?php namespace tcCore\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider {
 
@@ -34,6 +35,10 @@ class AppServiceProvider extends ServiceProvider {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
         }
+
+        Livewire::addPersistentMiddleware([
+            \tcCore\Http\Middleware\DuplicateLoginLivewire::class,
+        ]);
 	}
 
 }

@@ -62,8 +62,15 @@
         </a>
     </div>
     <div class="flex">
-        <div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10"
-             style="border:1px solid gray; width: 80%; height: 481px; margin-top: 10px;">
+        <div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10" x-ref="player_{{$this->question->getKey()}}"
+             style="border:1px solid gray; width: 80%; height: 481px; margin-top: 10px;"
+             x-on:resize.window.debounce.250ms="
+                    console.log($refs.player_{{$this->question->getKey()}}.offsetWidth)
+                    $refs.player_{{$this->question->getKey()}}.firstElementChild.style.width = '100%'
+                    $refs.player_{{$this->question->getKey()}}.firstElementChild.width = $refs.player_{{$this->question->getKey()}}.offsetWidth
+                    $refs.player_{{$this->question->getKey()}}.firstElementChild.style.height = '481px'
+                "
+        >
 
         </div>
 
