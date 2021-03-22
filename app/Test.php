@@ -863,7 +863,9 @@ class Test extends BaseModel
         $this->load(['testQuestions','testQuestions.question']);
         $questionCount = 0;
         foreach($this->testQuestions as $testQuestion) {
-            $questionCount += $testQuestion->question->getQuestionCount();
+            if(null !== $testQuestion->question) {
+                $questionCount += $testQuestion->question->getQuestionCount();
+            }
         }
         return $questionCount;
     }
