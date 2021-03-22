@@ -169,6 +169,10 @@ class UsersController extends Controller
         }
 
         $user = (new UserHelper())->createUserFromData($data);
+        if ($user->isA('teacher')) {
+            $user->account_verified = Carbon::now();
+            $user->save();
+        }
 
         if ($user !== false) {
             return Response::make($user, 200);
