@@ -268,12 +268,12 @@ ORDER BY t2.displayorder,
 
 
             return Test::where('tests.author_id', $user->id)
-                            ->where('tests.published', 1)
+                            ->whereNull('tests.system_test_id')
                             ->whereBetween('tests.created_at', [$start_date, $end_date])->get()->count();
         } else {
 
             return Test::where('tests.author_id', $user->id)
-                           ->where('tests.published', 1)->count();
+                           ->whereNull('tests.system_test_id')->count();
         }
     }
 
