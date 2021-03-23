@@ -36,7 +36,7 @@ Route::middleware(['auth', 'dll'])->prefix('student')->name('student.')->group(f
 });
 
 
-Route::get('/preview/{test}', [\tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('test-preview');
+Route::get('/preview/{test}/{user}', [\tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('test-preview');
 
 /**
  * Authentication

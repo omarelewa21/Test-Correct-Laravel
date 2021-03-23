@@ -6,12 +6,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Test;
+use tcCore\User;
 
 class PreviewLaravelController extends Controller
 {
-    public function show(Test $test, Request $request)
+    public function show(Test $test, User $user, Request $request)
     {
-        Auth::loginUsingId(1486);
+        Auth::login($user);
+
         $data = self::getData($test);
         $current = $request->get('q') ?: '1';
         $uuid = $test->uuid;

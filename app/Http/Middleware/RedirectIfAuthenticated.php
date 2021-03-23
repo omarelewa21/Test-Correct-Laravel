@@ -44,7 +44,7 @@ class RedirectIfAuthenticated {
                 session()->put('session_hash',$this->auth->user()->getAttribute('session_hash'));
 
                 if ('auth.teacher.show-test-with-short-code' === Route::current()->getName() && Auth::user()->isA('Teacher')) {
-                    return new RedirectResponse(url(route('test-preview', $request->test->uuid)));
+                    return new RedirectResponse(url(route('test-preview', [$request->test->uuid, Auth::user()])));
                 }
 
                 if ('auth.login_test_take_with_short_code' === Route::current()->getName() && Auth::user()->isA('Student')) {
