@@ -41,7 +41,11 @@ class SchoolClassesStudentImportRequest extends Request
         $this->filterInput(); // doesn't work here
        
         $extra_rule = [];
-      
+        $school_class_name_rule = 'sometimes';
+        if(is_null($this->schoolClass)){
+            $school_class_name_rule = 'required';
+        }
+
         // unique constraint needs to be added on external_id can only exist within a school if it is the same user (that is username is the currect username)
         foreach ($this->data as $key => $value) {
 
@@ -49,6 +53,7 @@ class SchoolClassesStudentImportRequest extends Request
                 $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'], $this->schoolLocation->getKey());
             }
         }
+
         $rules = collect([
             //'data' => 'array',
             'data.*.username' => ['required', 'email:rfc,filter,dns', function ($attribute, $value, $fail) {
@@ -79,7 +84,7 @@ class SchoolClassesStudentImportRequest extends Request
             'data.*.name' => 'required',
             'data.*.name_suffix' => '',
             'data.*.gender' => 'sometimes',
-            'data.*.school_class_name' => ['sometimes', function ($attribute, $value, $fail) {
+            'data.*.school_class_name' => [$school_class_name_rule, function ($attribute, $value, $fail) {
                 if ($this->classDoesNotExist($value)) {
                     return $fail(sprintf('school_class_name not found.', $attribute));
                 }
@@ -116,9 +121,9 @@ class SchoolClassesStudentImportRequest extends Request
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if ($this->schoolClass == null) {
-                $validator->errors()->add('class', 'Er dient een klas opgegeven te worden');
-            }
+            // if ($this->schoolClass == null) {
+            //     $validator->errors()->add('class', 'Er dient een klas opgegeven te worden');
+            // }
 
             $data = $this->addDuplicateExternalIdErrors($validator);
             $data = $this->addDuplicateUsernameErrors($validator);
@@ -193,17 +198,25 @@ class SchoolClassesStudentImportRequest extends Request
 
     private function alreadyInDatabaseAndInThisClass($student,$requestItem)
     {
-        dump(array_key_exists('school_class_name', $requestItem));
-        dump($requestItem);
         if(array_key_exists('school_class_name', $requestItem)){
             $school_class_name = $requestItem['school_class_name'];
             $manager = Auth::user();
             $schoolClass = SchoolClass::where('name', trim($school_class_name))->where('school_location_id',$manager->school_location_id)->first();
             if(!is_null($schoolClass)){
                 return $this->alreadyInDatabaseAndInThisClassGeneric($student,$schoolClass->id);
+            }else{
+                return $this->failSilent();
             }
         }
+        if(is_null($this->schoolClass)){
+            return $this->failSilent();
+        }
         return $this->alreadyInDatabaseAndInThisClassGeneric($student,$this->schoolClass->id);
+    }
+
+    private function failSilent()
+    {
+        return false;
     }
 
     private function alreadyInDatabaseAndInThisClassGeneric($student,$schoolClassId)
