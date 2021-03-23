@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\Exports\OnboardingWizardExport;
 
-class MarketingReportController extends Controller
+class OnboardingWizardReportController extends Controller
 {
     protected $fileName = 'marketing_report.xls';
 
