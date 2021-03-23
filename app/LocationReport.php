@@ -29,8 +29,7 @@ class LocationReport extends Model
         return self::updateOrCreate([
                     'location_id' => $location_id,
                         ], [
-                    //'location_name' => self::locationName($location_id),
-                    //'location_code' => self::locationCode($location_id),        
+                    'location_name' => self::locationName($location_id),       
                     'nr_licenses' => self::nrLicenses($location_id),
                     'nr_activated_licenses' => self::nrActivatedLicenses($location_id),
                     'nr_browsealoud_licenses' => self::nrBrowseAloudLicenses($location_id),
@@ -81,11 +80,6 @@ class LocationReport extends Model
         
         return $school_location_name;
         
-    }
-    
-    private static function locationCode($location_id) 
-    {
-        return 'code van school';
     }
 
     private static function nrLicenses($location_id)
