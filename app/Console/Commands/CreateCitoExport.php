@@ -199,22 +199,32 @@ class CreateCitoExport extends Command
         $citoRows = CitoExportRow::all();
         $this->handleStartOfStep($citoRows->count());
 
-        $attainments = Attainment::all();
-
-        $citoRows->each(function(CitoExportRow $c) use ($attainments){
+        // instead of the attainments we use the title of the test
+        $citoRows->each(function(CitoExportRow $c){
             $answer = Answer::where('id',$c->answer_id)->with(['testParticipant','testParticipant.testTake','testParticipant.testTake.test','question','question.subject','question.questionAttainments'])->first();
             $fieldNumber = $this->getFieldNumber($c);
             $itemName = sprintf('item_%d',$fieldNumber);
-            $_attainments = [];
-            $answer->question->questionAttainments->each(function(QuestionAttainment $qa) use (&$_attainments, $attainments){
-                $attainment = $attainments->firstWhere('id',$qa->attainment_id);
-               $attainments[] =  sprintf('%s%s %s',$attainment->code, $attainment->sub_code,$attainment->description);
-            });
-            $c->update([
+             $c->update([
                 $itemName => $answer->question->external_id,
                 'vak' => $answer->question->subject->name,
-                'leerdoel' => implode(', ',$_attainments),
+                'leerdoel' => $answer->testParticipant->testTake->test->name,
             ]);
+//        $attainments = Attainment::all();
+//
+//        $citoRows->each(function(CitoExportRow $c) use ($attainments){
+//            $answer = Answer::where('id',$c->answer_id)->with(['testParticipant','testParticipant.testTake','testParticipant.testTake.test','question','question.subject','question.questionAttainments'])->first();
+//            $fieldNumber = $this->getFieldNumber($c);
+//            $itemName = sprintf('item_%d',$fieldNumber);
+//            $_attainments = [];
+//            $answer->question->questionAttainments->each(function(QuestionAttainment $qa) use (&$_attainments, $attainments){
+//                $attainment = $attainments->firstWhere('id',$qa->attainment_id);
+//               $attainments[] =  sprintf('%s%s %s',$attainment->code, $attainment->sub_code,$attainment->description);
+//            });
+//            $c->update([
+//                $itemName => $answer->question->external_id,
+//                'vak' => $answer->question->subject->name,
+//                'leerdoel' => implode(', ',$_attainments),
+//            ]);
             $this->bar->advance();
         });
 
