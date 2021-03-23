@@ -58,7 +58,7 @@ class SchoolClassesStudentImportController extends Controller {
                 if ($school_class_id == NULL) {
                     throw new \Exception("School class id not found for class " . $school_class_name, 422);
                 }
-
+                $merged['student_school_classes'] = [$school_class_id];
                 if ($user) {
                     if ($user->isA('student')) {
 
