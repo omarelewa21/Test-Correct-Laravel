@@ -36,7 +36,7 @@ Route::middleware(['auth', 'dll'])->prefix('student')->name('student.')->group(f
 });
 
 
-Route::get('/preview/{test}', [\tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('preview');
+Route::get('/preview/{test}', [\tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('test-preview');
 
 /**
  * Authentication
@@ -44,6 +44,7 @@ Route::get('/preview/{test}', [\tcCore\Http\Controllers\PreviewLaravelController
 
 Route::middleware('guest')->group(function () {
     Route::get('/start-test-take-with-short-code/{test_take}/{short_code}', [ShortCodeController::class, 'loginAndRedirect'])->name('auth.login_test_take_with_short_code');
+    Route::get('/show-test-with-short-code/{test}/{short_code}', [ShortCodeController::class, 'loginAndRedirect'])->name('auth.teacher.show-test-with-short-code');
     Route::get('/login', Login::class)->name('auth.login');
 });
 
