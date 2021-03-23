@@ -23,6 +23,9 @@ class FraudDetection extends Component
 
     public function render()
     {
+        if (session()->pull('redirectFromDLL')) {
+            $this->redirect(config('app.url_login'));
+        }
         return view('components.fraud-detected');
     }
 
