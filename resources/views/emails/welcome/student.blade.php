@@ -15,9 +15,14 @@
                 <li><a href="https://support.test-correct.nl/knowledge/studenthandleiding"><strong>Klik hier om de handleiding te downloaden.</strong></a> Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en toets bespreken;</li>
                 <li>Heb je hulp nodig en staat er in de handleiding niet wat je moet doen? Neem contact met ons op door een email te sturen naar support@test-correct.nl. Beschrijf in je email goed wat het probleem is zodat we jou goed kunnen helpen.</li>
             </ul>
-            Onderstaand zijn jouw inloggegevens waarmee je in Test-Correct kunt inloggen::<br/>
+         <br/>
             E-mail: {{ $user->username }}<br/>
-            Wachtwoord: {{ $password }}<br/>
+            Je kunt je wachtwoord instellen op:<br />
+            <a href="{{ sprintf($url, $token) }}">{{ sprintf($url, $token) }}</a><br/>
+            <br/>
+            Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.
+            <BR/> <a href="{{ config('app.url_login') }}">Nieuwe verzoek opsturen</a><br/>
+            <br/>
             <br/>
             Het team van Test-Correct wenst jou heel veel succes met je toetsen! 😊<br/>
         </td>
