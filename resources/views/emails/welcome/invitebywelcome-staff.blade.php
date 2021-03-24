@@ -28,7 +28,7 @@
             E-mail: {{ $user->username }}<br/>
             <br/>
             U kunt uw wachtwoord instellen op:<br />
-            <a href="{{ sprintf($url, $token) }}">{{ sprintf($url, $token) }}</a><br/>
+            <a href="{{ $url }}">{{ $url }}</a><br/>
             <br/>
             Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.
             <br /> <a href="{{ config('app.url_login') }}">Nieuwe verzoek opsturen</a><br/>
