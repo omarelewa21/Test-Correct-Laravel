@@ -20,6 +20,8 @@ class SendWelcomeMail extends Job implements ShouldQueue
     protected $url;
     protected $key;
 
+    public $testBody;
+
     /**
      * Create a new job instance.
      *
@@ -32,7 +34,8 @@ class SendWelcomeMail extends Job implements ShouldQueue
         $this->key = Str::random(5);
         $this->userId = $userId;
 
-        $this->url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
+
+
     }
 
     /**
@@ -45,11 +48,14 @@ class SendWelcomeMail extends Job implements ShouldQueue
         $user = User::findOrFail($this->userId);
         $user->setAttribute('send_welcome_email', true);
         $factory = new Factory($user);
-        $password = $factory->generateNewPassword();
+        //$password = $factory->generateNewPassword();
 
         $emailConfirmation = EmailConfirmation::create(
             ['user_id' => $user->getKey()]
         );
+
+        $this->url =  sprintf('%spassword-reset/?token=%s',config('app.base_url'), $emailConfirmation->uuid);
+
 
         $roles = Roles::getUserRoles($user);
         if (in_array('Student', $roles) && count($roles) === 1) {
@@ -64,10 +70,14 @@ class SendWelcomeMail extends Job implements ShouldQueue
             }
 
         }
-        $mailer->send($template, ['user' => $user, 'url' => $this->url, 'password' => $password, 'token' => $emailConfirmation], function ($m) use ($user) {
+        $stub = '';
+        $mailer->send($template, ['user' => $user, 'url' => $this->url], function ($m) use ($user, &$stub) {
             $m->to($user->getEmailForPasswordReset())->subject('Welkom in Test-Correct');
+            $stub = $m;
         });
 
+
         $user->save();
+        $this->testBody = $stub->getBody();
     }
 }
