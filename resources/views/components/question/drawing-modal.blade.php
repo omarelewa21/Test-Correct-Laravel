@@ -62,14 +62,8 @@
         </a>
     </div>
     <div class="flex">
-        <div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10" x-ref="player_{{$this->question->getKey()}}"
-             style="border:1px solid gray; width: 80%; height: 481px; margin-top: 10px;"
-             x-on:resize.window.debounce.250ms="
-                    console.log($refs.player_{{$this->question->getKey()}}.offsetWidth)
-                    $refs.player_{{$this->question->getKey()}}.firstElementChild.style.width = '100%'
-                    $refs.player_{{$this->question->getKey()}}.firstElementChild.width = $refs.player_{{$this->question->getKey()}}.offsetWidth
-                    $refs.player_{{$this->question->getKey()}}.firstElementChild.style.height = '481px'
-                "
+        <div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10 overflow-hidden"
+             style="border:1px solid gray; width: 80%; height: 481px; margin-top: 10px;" x-on:resize.window.debounce.250ms="resizeCanvas();"
         >
 
         </div>
@@ -92,24 +86,18 @@
 
     <script src="/drawing/paint.js"></script>
     <script src="/drawing/loadPaint.js"></script>
-    {{--<script src="/drawing/test_take.js?20201014130801"></script>--}}
 
     <script>
-        var body = document.body.offsetWidth;
-        var width;
-
-        if (body < 1200) {
-            width = body / 100 * 76;
-        }
-        if (body > 1200 && body < 1536) {
-            width = body / 100 * 71;
-        }
-        if (body > 1536) {
-            width = body / 100 * 62;
-        }
-
+        let holder = document.getElementById('{{ $this->playerInstance }}canvas-holder');
         var {{ $this->playerInstance }} =
-        new App('{{ $this->playerInstance }}', width);
+        new App('{{ $this->playerInstance }}', holder.offsetWidth);
+
+        function resizeCanvas() {
+            let holder = document.getElementById('{{ $this->playerInstance }}canvas-holder');
+            let canvas = document.getElementById('{{ $this->playerInstance }}canvas-holder').firstElementChild;
+
+            {{ $this->playerInstance }}.rerender(holder.offsetWidth);
+        }
     </script>
 
 </div>

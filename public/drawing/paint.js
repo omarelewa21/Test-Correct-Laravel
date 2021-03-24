@@ -12,8 +12,17 @@ var Paint = {
 		canvas: {
 			background: '#fff'
 		}
-	}
+	},
+	width : null,
 };
+
+Paint.setWidth = function(newWidth){
+	this.width = newWidth;
+}
+
+Paint.getWidth = function(){
+	return this.width;
+}
 
 var layers = 0;
 
@@ -47,9 +56,14 @@ Paint.Canvas = function(options) {
 		canvas = this.getCanvas(),
 		context = this.getContext(),
 		grid = new Paint.Layer(),
-		events = {};
+		events = {},
+		width = null;
 	
-	
+
+	this.rerender = function(newWidth) {
+		Paint.setWidth(newWidth);
+		this.render();
+	}
 	/****************************************************************
 	 * Paint.Canvas.undo
 	 * Undo last draw
@@ -72,10 +86,11 @@ Paint.Canvas = function(options) {
 	 ****************************************************************/
 	
 	this.redo = function() {
-		this.getDisabledChildren().shift().enabled = true;
-		this.render();
-
-		layers++;
+		if(this.getDisabledChildren().length > 0) {
+			this.getDisabledChildren().shift().enabled = true;
+			this.render();
+			layers++;
+		}
 	};
 
 	
@@ -215,6 +230,10 @@ Paint.Image = function(image, options) {
 	 ****************************************************************/
 	
 	this.render = function(canvas, context) {
+		if(Paint.getWidth() != null) {
+			canvas.width = Paint.getWidth();
+		}
+
 		context.drawImage(
 			image,
 			this.position.x,	this.position.y,
@@ -235,7 +254,7 @@ Paint.Layer = function(options) {
 	var canvas = document.createElement('canvas'),
 		context = canvas.getContext('2d'),
 		children = [];
-	
+
 	this.enabled = true;
 	
 	
@@ -280,7 +299,7 @@ Paint.Layer = function(options) {
 	this.clear = function() {
 		children.length = 0;
 	};
-	
+
 	
 	/****************************************************************
 	 * Paint.Layer.render
@@ -295,7 +314,10 @@ Paint.Layer = function(options) {
 		// Reset canvas size
 		canvas.height = pcanvas ? pcanvas.height : options.height;
 		canvas.width = pcanvas ? pcanvas.width : options.width;
-		
+
+		if(Paint.getWidth() != null) {
+			canvas.width = Paint.getWidth();
+		}
 		// Clear canvas
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		
@@ -440,6 +462,10 @@ Paint.Path = function(options) {
 	 ****************************************************************/
 	
 	this.render = function(canvas, context) {
+
+		if(Paint.getWidth() != null) {
+			canvas.width = Paint.getWidth();
+		}
 		var i;
 		
 		context.beginPath();
@@ -593,7 +619,7 @@ Paint.RenderOptions = function(options) {
 		context.lineJoin		= options.line.join			|| 'miter';
 		context.strokeStyle		= options.line.style		|| '#000';
 		context.lineWidth		= options.line.width		|| 0;
-		
+
 		// Fill
 		if(
 			options.fill &&
