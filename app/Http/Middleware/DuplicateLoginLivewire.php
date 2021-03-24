@@ -31,7 +31,7 @@ class DuplicateLoginLivewire {
                 session()->put('new_debounce_time', Carbon::now());
 
                 if (Livewire::isLivewireRequest()) {
-                    session()->put('redirectFromDLL', true);
+                    return response()->make('Duplicate login', 440);
                 }
 
                 return redirect()->to(config('app.url_login'));
