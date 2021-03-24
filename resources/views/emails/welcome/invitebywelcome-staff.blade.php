@@ -9,7 +9,7 @@
         }
 
         $colleague = str_replace('  ',' ',(sprintf("%s %s %s", $user->invitedby->name_first, $user->invitedby->name_suffix, $user->invitedby->name)));
-        
+
     @endphp
     <tr>
         <td colspan="999" style="padding:20px;">
@@ -24,9 +24,14 @@
             <br/>
             Ik raad je aan om direct te beginnen met onze demo tour. Ik leid je daar op een leuke en interactieve manier door de belangrijkste stappen van Test-Correct.<br/>
             <br/>
-            Hieronder staan je inloggegevens:<br/>
+
             E-mail: {{ $user->username }}<br/>
-            Wachtwoord: {{ $password }}<br/>
+            <br/>
+            U kunt uw wachtwoord instellen op:<br />
+            <a href="{{ sprintf($url, $token) }}">{{ sprintf($url, $token) }}</a><br/>
+            <br/>
+            Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.
+            <br /> <a href="{{ config('app.url_login') }}">Nieuwe verzoek opsturen</a><br/>
             <br/>
             <a href="{{ config('app.url_login')}}" style="background-color: #42b947;padding: 15px 30px;margin-bottom: 30px;display: inline-block;color:#ffffff;text-decoration:none">Login en start demo</a><br/>
             <br/>

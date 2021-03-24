@@ -9,7 +9,11 @@ Welkom bij Test-Correct!<br/>
 <br/>
 Leuk dat u gaat werken in Test-Correct. Niets staat u nog in de weg om bestaande & nieuwe toetsen te creëren om vervolgens af te nemen, te bespreken & te analyseren. U bereikt al snel 80% reductie van het nakijkwerk en een aanzienlijk verhoogd leerrendement, terwijl u nog steeds gebruik kunt maken van open vragen!<br/>
 Uw gebruikersnaam: {{ $user->username }}<br/>
-Uw wachtwoord: {{ $password }}<br/>
+    U kunt uw wachtwoord instellen op:<br />
+    <a href="{{ sprintf($url, $token) }}">{{ sprintf($url, $token) }}</a><br/>
+    <br/>
+    Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.
+    <br /> <a href="{{ config('app.url_login') }}">Nieuwe verzoek opsturen</a><br/>
 <br/>
 Lees deze tips voordat u aan de slag gaat:<br/>
 <ul>

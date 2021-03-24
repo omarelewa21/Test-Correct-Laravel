@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Str;
+use tcCore\EmailConfirmation;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use tcCore\User;
@@ -30,8 +31,8 @@ class SendWelcomeMail extends Job implements ShouldQueue
     {
         $this->key = Str::random(5);
         $this->userId = $userId;
-        /** @TODO this var should be removed because it is not used MF 9-6-2020 */
-        $this->url = $url;
+
+        $this->url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
     }
 
     /**
@@ -46,6 +47,10 @@ class SendWelcomeMail extends Job implements ShouldQueue
         $factory = new Factory($user);
         $password = $factory->generateNewPassword();
 
+        $emailConfirmation = EmailConfirmation::create(
+            ['user_id' => $user->getKey()]
+        );
+
         $roles = Roles::getUserRoles($user);
         if (in_array('Student', $roles) && count($roles) === 1) {
             $template = 'emails.welcome.student';
@@ -59,7 +64,7 @@ class SendWelcomeMail extends Job implements ShouldQueue
             }
 
         }
-        $mailer->send($template, ['user' => $user, 'url' => $this->url, 'password' => $password], function ($m) use ($user) {
+        $mailer->send($template, ['user' => $user, 'url' => $this->url, 'password' => $password, 'token' => $emailConfirmation], function ($m) use ($user) {
             $m->to($user->getEmailForPasswordReset())->subject('Welkom in Test-Correct');
         });
 
