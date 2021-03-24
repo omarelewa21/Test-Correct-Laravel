@@ -14,6 +14,11 @@ class Login extends Component
         'username' => 'required|email',
         'password' => 'required',
     ];
+    protected $messages = [
+        'password.required' => 'Wachtwoord is verplicht',
+        'username.required' => 'E-mailadres is verplicht',
+        'username.email'    => 'E-mailadres is niet geldig',
+    ];
 
     public function mount()
     {
