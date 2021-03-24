@@ -178,3 +178,10 @@
     /* This is the magic bit for WebKit */
     display: none;
 }
+
+.matching-question .matching .dropzone-height {
+    min-height: 40px;
+}
+.matching-question .classify .dropzone-height {
+    min-height: 220px;
+}

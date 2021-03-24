@@ -1,13 +1,12 @@
 <?php namespace tcCore\Http\Middleware;
 
-use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\RedirectResponse;
+
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use tcCore\Shortcode;
-use tcCore\TestParticipant;
-use tcCore\TestTake;
 
 class RedirectIfAuthenticated {
 
@@ -43,7 +42,14 @@ class RedirectIfAuthenticated {
 
             if (Auth::loginUsingId($user)) {
                 session()->put('session_hash',$this->auth->user()->getAttribute('session_hash'));
-                return new RedirectResponse(url(route('student.test-take-laravel', $request->test_take->uuid)));
+
+                if ('auth.teacher.show-test-with-short-code' === Route::current()->getName() && Auth::user()->isA('Teacher')) {
+                    return new RedirectResponse(url(route('test-preview', [$request->test->uuid, Auth::user()])));
+                }
+
+                if ('auth.login_test_take_with_short_code' === Route::current()->getName() && Auth::user()->isA('Student')) {
+                    return new RedirectResponse(url(route('student.test-take-laravel', $request->test_take->uuid)));
+                }
             }
 	    }
 
