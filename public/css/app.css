@@ -426,3 +426,11 @@ h6 {
 .student-bg {
     background-image: linear-gradient(to top, var(--highlight-primary-mid-dark), var(--highlight-primary));
 }
+/* Hide browsealoud button*/
+button#browsealoud-button--launchpad {
+    display:none !important;
+}
+/*Hide double navigation question numbers*/
+.question-number span[id^='rw'] {
+    display: none;
+}
