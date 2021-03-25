@@ -22,7 +22,7 @@ use tcCore\User;
 
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\UsersController@confirmEmail');
-Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortCodeController@registerClickAndRedirect');
+Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortcodeController@registerClickAndRedirect');
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
 Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
