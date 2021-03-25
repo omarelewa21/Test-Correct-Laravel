@@ -7,7 +7,7 @@
             </x-button.text-button>
         </div>
 
-        <div class="content-section p-10 space-y-5 shadow-xl">
+        <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
             <div class="flex items-center space-x-2.5">
                 <div class="flex">
                     <x-stickers.login/>
@@ -18,28 +18,38 @@
 
             </div>
 
-            <div class="flex-col" x-data="{openTab: 1}">
-                <div class="flex w-full space-x-6 mb-5">
-                    <x-button.text-button class="primary"
-                                          @click="openTab = 1">{{ __('auth.log_in_verb') }}</x-button.text-button>
-                    <x-button.text-button class="primary"
-                                          @click="openTab = 2">{{ __('auth.log_in_as_guest') }}</x-button.text-button>
+            <div class="flex flex-col flex-1" x-data="{openTab: 1, showPassword: false}">
+                <div class="flex w-full space-x-6 mb-5 border-b border-light-grey">
+                    <div :class="{'border-b-2 border-primary -mb-px' : openTab === 1}">
+                        <x-button.text-button class="primary"
+                                              @click="openTab = 1">{{ __('auth.log_in_verb') }}</x-button.text-button>
+                    </div>
+                    <div class="hidden" :class="{'border-b-2 border-primary -mb-px' : openTab === 2}">
+                        <x-button.text-button class="primary"
+                                              @click="openTab = 2">{{ __('auth.log_in_as_guest') }}</x-button.text-button>
+                    </div>
                 </div>
 
-                <div x-show="openTab === 1">
+                <div class="flex flex-col flex-1" x-show="openTab === 1">
                     <div class="mb-3">
                         <h4>{{__('auth.log_in_with_student_account')}}</h4>
                     </div>
-                    <form wire:submit.prevent="login" action="#" method="POST" class="flex-col">
+                    <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
                         <div class="flex space-x-4">
                             <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
                                 <x-input.text wire:model="username"></x-input.text>
                             </x-input.group>
-                            <x-input.group label="{{ __('auth.password')}}" class="flex-1">
-                                <x-input.text wire:model.lazy="password" type="password"></x-input.text>
+                            <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
+                                <x-input.text wire:model.lazy="password"
+                                              x-bind:type="showPassword ? 'text' : 'password'"
+                                              class="pr-12 overflow-ellipsis"
+                                >
+                                </x-input.text>
+                                <x-icon.preview class="absolute bottom-3 right-3.5 primary-hover"
+                                                @click="showPassword = !showPassword"/>
                             </x-input.group>
                         </div>
-                        <div class="error-section md:mb-20">
+                        <div class="error-section">
                             @error('username')
                             <div class="notification error mt-4">
                                 <span class="title">{{ $message }}</span>
@@ -52,47 +62,35 @@
                             @enderror
                         </div>
 
-                        <div class="flex mt-4">
+                        <div class="hidden">
+                            <div class="mx-auto mt-4 flex flex-col items-center"
+                                 x-data="{selected:null}">
+                                <div class="w-full flex justify-center border-b border-light-grey">
+                                    <x-button.text-button type="link" class="rotate-svg-90 cursor-pointer"
+                                                          @click.prevent="selected !== 1 ? selected = 1 : selected = null">
+                                        <span>Meteen naar toets gaan?</span>
+                                        <x-icon.chevron/>
+                                    </x-button.text-button>
+                                </div>
+
+                                <div class="relative overflow-hidden transition-all max-h-0 duration-700"
+                                     style="" x-ref="container1"
+                                     x-bind:style="selected == 1 ? 'max-height: ' + $refs.container1.scrollHeight + 'px' : ''">
+                                    {{-- Toetscode code --}}
+                                    <div></div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="flex mt-auto">
                             <x-button.cta class="ml-auto" size="md">{{ __('auth.log_in_verb') }}</x-button.cta>
                         </div>
                     </form>
                 </div>
 
-                <div x-show="openTab === 2">
-                    Hoi ik ben tab 2
-
-                    <div class="bg-white max-w-xl mx-auto border border-gray-200" x-data="{selected:null}">
-                        <ul class="shadow-box">
-
-                            <li class="relative border-b border-gray-200">
-
-                                <button type="button" class="w-full px-8 py-6 text-left"
-                                        @click="selected !== 1 ? selected = 1 : selected = null">
-                                    <div class="flex items-center justify-between">
-					                    <span>Should I use reCAPTCHA v2 or v3?</span>
-                                        <span class="ico-plus"></span>
-                                    </div>
-                                </button>
-
-                                <div class="relative overflow-hidden transition-all max-h-0 duration-700"
-                                     style="" x-ref="container1"
-                                     x-bind:style="selected == 1 ? 'max-height: ' + $refs.container1.scrollHeight + 'px' : ''">
-                                    <div class="p-6">
-                                        <p>reCAPTCHA v2 is not going away! We will continue to fully support and
-                                            improve security and usability for v2.</p>
-                                        <p>reCAPTCHA v3 is intended for power users, site owners that want more
-                                            data about their traffic, and for use cases in which it is not
-                                            appropriate to show a challenge to the user.</p>
-                                        <p>For example, a registration page might still use reCAPTCHA v2 for a
-                                            higher-friction challenge, whereas more common actions like sign-in,
-                                            searches, comments, or voting might use reCAPTCHA v3. To see more
-                                            details, see the reCAPTCHA v3 developer guide.</p>
-                                    </div>
-                                </div>
-
-                            </li>
-                        </ul>
-                    </div>
+                <div class="flex flex-col flex-1" x-show="openTab === 2">
+                    <div>Gast login</div>
                 </div>
 
             </div>

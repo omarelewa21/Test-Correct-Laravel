@@ -250,6 +250,9 @@ svg {
     border-color: var(--note);
 }
 
+.primary-hover:hover {
+    color: var(--primary);
+}
 
 .rounded-10 {
     border-radius: 10px;
