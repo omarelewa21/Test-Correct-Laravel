@@ -1,5 +1,7 @@
 @extends('emails.layout')
-
+@php
+    \Bugsnag\BugsnagLaravel\Facades\Bugsnag::leaveBreadcrumb('regular-staff.blade.php');
+@endphp
 @section('content')
 <tr>
 <td colspan="999" style="padding:20px;">
