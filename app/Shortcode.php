@@ -68,7 +68,7 @@ class Shortcode extends BaseModel
         parent::boot();
 
         static::retrieved(function (Shortcode $shortcode) {
-            $shortcode->forceDelete();
+//            $shortcode->forceDelete();
         });
 
         static::creating(function (Shortcode $shortcode) {
