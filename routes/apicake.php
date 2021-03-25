@@ -12,10 +12,14 @@
 */
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Laravel\Dusk\Http\Controllers\UserController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use tcCore\Http\Controllers\Auth\AuthController;
 use tcCore\Http\Controllers\Testing\TestingController;
 
 // file name was api.php and is now apicake.php in order to make room for the direct access urls
+
+Route::post('/do_we_need_captcha',[AuthController::class,'doWeNeedCaptcha'])->name('user.doWeNeedCaptcha');
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');

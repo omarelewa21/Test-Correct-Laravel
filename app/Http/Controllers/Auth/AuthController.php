@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+use tcCore\FailedLogin;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\User\Roles;
@@ -24,10 +25,24 @@ class AuthController extends Controller
         $this->auth = $auth;
     }
 
+    public function doWeNeedCaptcha(Request $request)
+    {
+        if(FailedLogin::doWeNeedExtraSecurityLayer($request->get('username'))){
+            return \Response::make(true, 200);
+        }
+        return \Response::make(false,200);
+    }
+
     public function getApiKey(Request $request)
     {
         $user = $request->get('user');
         $password = $request->get('password');
+        $captcha = $request->get('captcha');
+        $ip = $request->get('ip');
+
+        if(FailedLogin::doWeNeedExtraSecurityLayer($user) && !$captcha){
+            return \Response::make("NEEDS_CAPTCHA", 403);
+        }
 
         if ($this->auth->once(['username' => $user, 'password' => $password])) {
             $user = $this->auth->user();
@@ -71,9 +86,13 @@ class AuthController extends Controller
             $clone->logins = $user->getLoginLogCount();
             $clone->is_temp_teacher = $user->getIsTempTeacher();
             LoginLog::create(['user_id' => $user->getKey()]);
-
+            FailedLogin::solveForUsernameAndIp($user,$ip);
             return new JsonResponse($clone);
         } else {
+            FailedLogin::create([
+               'username' => $user,
+               'ip' => $ip
+            ]);
             return \Response::make("Invalid credentials.", 403);
         }
     }
