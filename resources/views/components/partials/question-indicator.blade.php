@@ -120,7 +120,7 @@
 
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
             @if(Auth::user()->text2speech)
-                <div id="__ba_launchpad"></div>
+                <div id="__ba_launchpad" class="hidden"></div>
                 <x-button.text-button @click="toggleBrowseAloud()">
                     <x-icon.audio/>
                     <span>{{ __('test_take.speak') }}</span>

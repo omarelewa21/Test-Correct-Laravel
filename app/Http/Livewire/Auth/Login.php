@@ -25,6 +25,7 @@ class Login extends Component
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
+
     }
 
     public function login()

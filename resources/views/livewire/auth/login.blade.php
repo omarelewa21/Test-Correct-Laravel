@@ -37,7 +37,7 @@
                     <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
                         <div class="flex space-x-4">
                             <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                <x-input.text wire:model="username"></x-input.text>
+                                <x-input.text wire:model="username" autofocus></x-input.text>
                             </x-input.group>
                             <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                 <x-input.text wire:model.lazy="password"
