@@ -7,6 +7,7 @@ use Illuminate\Support\MessageBag;
 use Ramsey\Uuid\Uuid;
 use tcCore\SchoolLocation;
 use tcCore\User;
+use tcCore\SchoolClass;
 
 class SchoolClassesStudentImportRequest extends Request
 {
@@ -48,7 +49,6 @@ class SchoolClassesStudentImportRequest extends Request
                 $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'], $this->schoolLocation->getKey());
             }
         }
-
         $rules = collect([
             //'data' => 'array',
             'data.*.username' => ['required', 'email:rfc,filter,dns', function ($attribute, $value, $fail) {
@@ -63,11 +63,11 @@ class SchoolClassesStudentImportRequest extends Request
 
                         return $fail(sprintf('The email address contains invalid or international characters  (%s).', $value));
                 }
-            
+                $requestItem = $this->getRequestItem( $attribute);
                 $student = User::whereUsername($value)->first();
                 
                 if ($student) {
-                    if ($this->alreadyInDatabaseAndInThisClass($student)) {
+                    if ($this->alreadyInDatabaseAndInThisClass($student,$requestItem)) {
                         return $fail(sprintf('The %s has already been taken.', $attribute));
                     }
                     if ($this->alreadyInDatabaseButNotInThisSchoolLocation($student)) {
@@ -78,7 +78,12 @@ class SchoolClassesStudentImportRequest extends Request
             'data.*.name_first' => 'required',
             'data.*.name' => 'required',
             'data.*.name_suffix' => '',
-            'data.*.gender' => '',
+            'data.*.gender' => 'sometimes',
+            'data.*.school_class_name' => ['sometimes', function ($attribute, $value, $fail) {
+                if ($this->classDoesNotExist($value)) {
+                    return $fail(sprintf('school_class_name not found.', $attribute));
+                }
+            }]
         ]);
 
         if ($extra_rule === []) {
@@ -186,15 +191,56 @@ class SchoolClassesStudentImportRequest extends Request
         return $data->toArray();
     }
 
-    private function alreadyInDatabaseAndInThisClass($student)
+    private function alreadyInDatabaseAndInThisClass($student,$requestItem)
+    {
+        dump(array_key_exists('school_class_name', $requestItem));
+        dump($requestItem);
+        if(array_key_exists('school_class_name', $requestItem)){
+            $school_class_name = $requestItem['school_class_name'];
+            $manager = Auth::user();
+            $schoolClass = SchoolClass::where('name', trim($school_class_name))->where('school_location_id',$manager->school_location_id)->first();
+            if(!is_null($schoolClass)){
+                return $this->alreadyInDatabaseAndInThisClassGeneric($student,$schoolClass->id);
+            }
+        }
+        return $this->alreadyInDatabaseAndInThisClassGeneric($student,$this->schoolClass->id);
+    }
+
+    private function alreadyInDatabaseAndInThisClassGeneric($student,$schoolClassId)
     {
         return (collect($student->studentSchoolClasses)->map(function ($item) {
             return $item->id;
-        })->contains($this->schoolClass->id));
+        })->contains($schoolClassId));
     }
 
     private function alreadyInDatabaseButNotInThisSchoolLocation($student)
     {
         return $student->school_location_id !== $this->schoolLocation->id;
+    }
+
+    private function classDoesNotExist($school_class_name)
+    {
+        $manager = Auth::user();
+        $schoolClass = SchoolClass::where('name', trim($school_class_name))->where('school_location_id',$manager->school_location_id)->first();
+        if(is_null($schoolClass)){
+            return true;
+        }
+        return false;
+    }
+
+    private function getRequestItem( $attribute)
+    {
+        $attributeArray = explode('.', $attribute);
+        if(!array_key_exists(1, $attributeArray)){
+            return [];
+        }
+        $requestIndex = $attributeArray[1];
+        if(!array_key_exists('data', request()->all())){
+            return [];
+        }
+        if(!array_key_exists($requestIndex, request()->all()['data'])){
+            return [];
+        }
+        return request()->all()['data'][$requestIndex];
     }
 }
