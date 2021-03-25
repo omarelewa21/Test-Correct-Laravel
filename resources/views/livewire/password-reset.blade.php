@@ -28,7 +28,7 @@
                         </div>
 
                         <div class="flex-grow">
-                            <form class="h-full relative" wire:submit.prevent="resetPassword" action="#" method="POST">
+                            <form autocomplete="off" class="h-full relative" wire:submit.prevent="resetPassword" action="#" method="POST">
                                 <div class="input-section">
                                     <div class="email-section mb-4 w-full md:w-1/2">
                                         <div class="mb-4">

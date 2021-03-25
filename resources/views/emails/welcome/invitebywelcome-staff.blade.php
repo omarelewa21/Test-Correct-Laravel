@@ -10,6 +10,8 @@
 
         $colleague = str_replace('  ',' ',(sprintf("%s %s %s", $user->invitedby->name_first, $user->invitedby->name_suffix, $user->invitedby->name)));
 
+
+        \Bugsnag\BugsnagLaravel\Facades\Bugsnag::leaveBreadcrumb('invitedbywelcome-staff.blade.php');
     @endphp
     <tr>
         <td colspan="999" style="padding:20px;">
