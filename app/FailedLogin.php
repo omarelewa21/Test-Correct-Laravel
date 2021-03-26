@@ -26,11 +26,13 @@ class FailedLogin extends Model
     {
         return !!(static::where('solved',false)
             ->where('created_at','>=',Carbon::now()->subMinutes(static::COUNT_SINCE_IN_MINUTES))
+            ->where('username',$username)
             ->count() >= static::EXTRA_MEASURES_AFTER_FAILURE_COUNT);
     }
 
     public static function solveForUsernameAndIp($username, $ip) : void
     {
+        logger('solve for '.$username.' and ip '.$ip);
         \DB::table('failed_logins')
             ->where('solved',false)
             ->where('username',$username)
