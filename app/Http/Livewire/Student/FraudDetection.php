@@ -9,8 +9,7 @@ use tcCore\TestTakeEventType;
 class FraudDetection extends Component
 {
     public $fraudDetected = false;
-    public $testParticipant;
-    public $testTakeUuid;
+    public $testParticipantId;
 
     protected $listeners = ['setFraudDetected', 'setFraudDetected'];
 
@@ -38,15 +37,12 @@ class FraudDetection extends Component
 
     private function shouldDisplayFraudMessage()
     {
-        $this->testTakeEvents = TestTakeEvent::where('test_participant_id', $this->testParticipant->id)->get();
-        if (!$this->testTakeEvents->isEmpty()) {
-            foreach ($this->testTakeEvents as $event) {
-                if ($event->testTakeEventType->requires_confirming && !$event->confirmed) {
-                    $this->fraudDetected = true;
-                } else {
-                    $this->fraudDetected = false;
-                }
-            }
-        }
+        // select count(*) from test_take_events left join test_take_event_types on (test_take_events.test_take_event_type_id = test_take_event_types.id) where test_take_event_types.requires_confirming=1 and test_participant_id =251 and test_take_events.confirmed = 0
+
+        $this->fraudDetected = !! TestTakeEvent::leftJoin('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
+            ->where('confirmed' , 0)
+            ->where('test_participant_id', $this->testParticipantId)
+            ->where('requires_confirming', 1)
+            ->count();
     }
 }
