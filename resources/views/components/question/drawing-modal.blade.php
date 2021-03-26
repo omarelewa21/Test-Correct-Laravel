@@ -88,9 +88,9 @@
     <script src="/drawing/loadPaint.js"></script>
 
     <script>
-        let holder = document.getElementById('{{ $this->playerInstance }}canvas-holder');
+        let holder{{$this->playerInstance}} = document.getElementById('{{ $this->playerInstance }}canvas-holder');
         var {{ $this->playerInstance }} =
-        new App('{{ $this->playerInstance }}', holder.offsetWidth);
+        new App('{{ $this->playerInstance }}', holder{{$this->playerInstance}}.offsetWidth);
 
         function resizeCanvas() {
             let holder = document.getElementById('{{ $this->playerInstance }}canvas-holder');
