@@ -6,7 +6,8 @@ use Illuminate\Http\RedirectResponse;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use tcCore\Shortcode;
+
+use tcCore\TemporaryLogin;
 
 class RedirectIfAuthenticated {
 
@@ -37,19 +38,13 @@ class RedirectIfAuthenticated {
 	 */
 	public function handle($request, Closure $next)
 	{
-	    if($request->short_code) {
-            $user = Shortcode::whereCode($request->short_code)->first()->user_id;
+	    if($request->temporary_login) {
+            $user = optional(TemporaryLogin::whereUuid($request->temporary_login)->first())->user_id;
 
             if (Auth::loginUsingId($user)) {
                 session()->put('session_hash',$this->auth->user()->getAttribute('session_hash'));
 
-                if ('auth.teacher.show-test-with-short-code' === Route::current()->getName() && Auth::user()->isA('Teacher')) {
-                    return new RedirectResponse(url(route('test-preview', [$request->test->uuid, Auth::user()])));
-                }
 
-                if ('auth.login_test_take_with_short_code' === Route::current()->getName() && Auth::user()->isA('Student')) {
-                    return new RedirectResponse(url(route('student.test-take-laravel', $request->test_take->uuid)));
-                }
             }
 	    }
 

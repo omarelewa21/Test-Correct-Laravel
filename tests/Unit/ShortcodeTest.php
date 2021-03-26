@@ -69,19 +69,7 @@ class ShortcodeTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function when_retrieved_it_gets_deleted()
-    {
-        $startCount = Shortcode::count();
-        $codeOne = Shortcode::createForUser($user = User::first())->code;
-        $this->assertEquals($user, Shortcode::isValid($codeOne));
 
-        $this->assertDatabaseMissing('shortcodes', [
-            'code' => $codeOne
-        ]);
-
-        $this->assertEquals($startCount, Shortcode::count());
-    }
 
     /** @test */
     public function a_code_generated_ago_seconds_ago_should_be_invalid()

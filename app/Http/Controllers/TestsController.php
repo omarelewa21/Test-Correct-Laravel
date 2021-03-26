@@ -8,6 +8,7 @@ use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DuplicateTestRequest;
 use tcCore\Shortcode;
+use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestRequest;
@@ -162,11 +163,11 @@ class TestsController extends Controller {
         return Response::make($maxScore, 200);
     }
 
-    public function withShortCode(Test $test) {
+    public function withTemporaryLogin(Test $test) {
         $response = new \stdClass;
-        $shortCode = Shortcode::createForUser(Auth()->user());
+        $shortCode = TemporaryLogin::createForUser(Auth()->user());
 
-        $response->url = sprintf('%sshow-test-with-short-code/%s/%s', config('app.base_url'), $test->uuid, $shortCode->code);
+        $response->url = sprintf('%sshow-test-with-temporary-login/%s/%s', config('app.base_url'), $test->uuid, $shortCode->uuid);
 
         return  response()->json($response);
     }

@@ -2,6 +2,7 @@
 
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use tcCore\Http\Middleware\AuthenticateWithTemporaryLogin;
 use tcCore\Http\Middleware\LocaleMiddleware;
 use tcCore\Http\Middleware\RequestLogger;
 
@@ -29,17 +30,18 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'auth' => 'tcCore\Http\Middleware\Authenticate',
+        'auth'              => 'tcCore\Http\Middleware\Authenticate',
         //'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
-        'guest' => 'tcCore\Http\Middleware\RedirectIfAuthenticated',
+        'guest'             => 'tcCore\Http\Middleware\RedirectIfAuthenticated',
         //'csrf' => 'Illuminate\Foundation\Http\Middleware\VerifyCsrfToken',
-        'bindings'       => \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        'api'            => 'tcCore\Http\Middleware\ApiKey',
-        'dl'             => 'tcCore\Http\Middleware\DuplicateLogin',
-        'dll'             => 'tcCore\Http\Middleware\DuplicateLoginLivewire',
-        'authorize'      => 'tcCore\Http\Middleware\Authorize',
-        'authorizeBinds' => 'tcCore\Http\Middleware\AuthorizeBinds',
+        'bindings'          => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        'api'               => 'tcCore\Http\Middleware\ApiKey',
+        'dl'                => 'tcCore\Http\Middleware\DuplicateLogin',
+        'dll'               => 'tcCore\Http\Middleware\DuplicateLoginLivewire',
+        'authorize'         => 'tcCore\Http\Middleware\Authorize',
+        'authorizeBinds'    => 'tcCore\Http\Middleware\AuthorizeBinds',
         'cakeLaravelFilter' => 'tcCore\Http\Middleware\CakeLaravelFilter',
+        'auth.temp'         => AuthenticateWithTemporaryLogin::class,
     ];
 
     /**

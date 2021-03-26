@@ -19,6 +19,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\SchoolClass;
 use tcCore\Shortcode;
+use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TestParticipant;
@@ -1331,11 +1332,11 @@ class TestTakesController extends Controller {
         return $testTake->unArchiveForUser(Auth::user());
     }
 
-    public function withShortCode(TestTake $testTake) {
+    public function withTemporaryLogin(TestTake $testTake) {
         $response = new \stdClass;
-        $shortCode = Shortcode::createForUser(Auth()->user());
+        $shortCode = TemporaryLogin::createForUser(Auth()->user());
 
-        $response->url = sprintf('%sstart-test-take-with-short-code/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->code);
+        $response->url = sprintf('%sstart-test-take-with-temporary-login/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->uuid);
 
         return  response()->json($response);
     }

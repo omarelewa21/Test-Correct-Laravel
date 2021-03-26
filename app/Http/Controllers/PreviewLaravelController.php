@@ -10,10 +10,8 @@ use tcCore\User;
 
 class PreviewLaravelController extends Controller
 {
-    public function show(Test $test, User $user, Request $request)
+    public function show(Test $test, Request $request)
     {
-        Auth::login($user);
-
         $data = self::getData($test);
         $current = $request->get('q') ?: '1';
         $uuid = $test->uuid;

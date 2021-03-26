@@ -131,8 +131,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::put('test_take/{test_take}/un-archive','TestTakesController@unarchive')->name('test_take.un_archive');
 
 
-	Route::post('test/{test}/with_short_code',  'TestsController@withShortCode')->name('test.with_short_code');
-	Route::post('test_take/{test_take}/with_short_code',  'TestTakesController@withShortCode')->name('test_take.with_short_code');
+	Route::post('test/{test}/with_temporary_login',  'TestsController@withTemporaryLogin')->name('test.with_short_code');
+	Route::post('test_take/{test_take}/with_temporary_login',  'TestTakesController@withTemporaryLogin')->name('test_take.with_short_code');
 
 	// Test take children
 	Route::post('test_take/{test_take_id}/test_participant/{test_participant}/heartbeat', ['as' => 'test_take.test_participant.heartbeat', 'uses' => 'TestTakes\TestParticipantsController@heartbeat']);
@@ -306,9 +306,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::get('school_location_user/existing_teachers', 'SchoolLocationUsersController@getExistingTeachers')->name('school_location_user.get_existing_teachers');
 
-    Route::get('shortcode/{shortcode}','ShortcodeController@show')->name('shortcode.show');
     Route::get('shortcode','Api\ShortcodeController@store')->name('shortcode.store');
-    Route::get('inv/{shortcode}', 'Api\ShortcodeController@registerClickAndRedirect')->name('shortcode.registerclickandredirect');
     Route::put('shortcodeclick/{shortcodeClick}','Api\ShortCodeClickController@update')->name('shortcodeClick.update');
 
     Route::get('config/{variable_name}','ConfigController@show')->name('config.show');
