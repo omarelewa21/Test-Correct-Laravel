@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Middleware;
+namespace tcCore\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
+use tcCore\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
