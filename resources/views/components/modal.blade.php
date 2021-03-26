@@ -73,7 +73,7 @@
         </div>
         <div class="flex justify-end px-2.5">
             <div class="space-x-3">
-                @if (!$showCancelButton)
+                @if ($showCancelButton)
                 <x-button.text-button @click="show = false" class="rotate-svg-180">
                     <x-icon.chevron/>
                     <span>Terug</span>
