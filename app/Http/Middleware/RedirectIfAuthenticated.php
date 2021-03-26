@@ -1,54 +1,27 @@
-<?php namespace tcCore\Http\Middleware;
+<?php
 
+namespace App\Http\Middleware;
+
+use App\Providers\RouteServiceProvider;
 use Closure;
-use Illuminate\Contracts\Auth\Guard;
-use Illuminate\Http\RedirectResponse;
-
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 
-use tcCore\TemporaryLogin;
+class RedirectIfAuthenticated
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @param  string|null  $guard
+     * @return mixed
+     */
+    public function handle($request, Closure $next, $guard = null)
+    {
+        if (Auth::guard($guard)->check()) {
+            return redirect(RouteServiceProvider::HOME);
+        }
 
-class RedirectIfAuthenticated {
-
-	/**
-	 * The Guard implementation.
-	 *
-	 * @var Guard
-	 */
-	protected $auth;
-
-	/**
-	 * Create a new filter instance.
-	 *
-	 * @param  Guard  $auth
-	 * @return void
-	 */
-	public function __construct(Guard $auth)
-	{
-		$this->auth = $auth;
-	}
-
-	/**
-	 * Handle an incoming request.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  \Closure  $next
-	 * @return mixed
-	 */
-	public function handle($request, Closure $next)
-	{
-	    if($request->temporary_login) {
-            $user = optional(TemporaryLogin::whereUuid($request->temporary_login)->first())->user_id;
-
-            if (Auth::loginUsingId($user)) {
-                session()->put('session_hash',$this->auth->user()->getAttribute('session_hash'));
-
-
-            }
-	    }
-
-		return $next($request);
-	}
-
+        return $next($request);
+    }
 }
