@@ -55,7 +55,7 @@ class SomeTodayHelper
                 ->wsdl(self::WSDL)
                 ->trace(true)
                 ->header('http://www.edustandaard.nl/leerresultaten/2/autorisatie', 'autorisatie', [
-                    'autorisatiesleutel' => 'I/m9xDqU7mfwIpZYS7xQvaFzJ4rdQiYsgKxHP7fXMlgYnghl9C5xl3L0OZIN7q92UKuHnFsyqsco3kmQsASQ8Q==',
+                    'autorisatiesleutel' => 'gquk+C0G0Jp5Wlrs9FXmc3i44KvRb79TCPrCAFd2oQYZ2U2ZaYWXXn7181qh8tZ0qsbgC/99YYTl+kpGWmI7oA==',
                     'klantcode'          => $klantcode,
                     'klantnaam'          => $klantnaam,
                 ]);

@@ -36,12 +36,7 @@ class MagisterHelperTest extends TestCase
     /** @test */
     public function test_guzzle()
     {
-        $string = MagisterHelper::guzzle();
-
-
-
-        dd($string);
-
+        (new MagisterHelper)->parseResult();
     }
 
 }
