@@ -188,6 +188,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	// Needed lookups
     Route::post('/school_class/importStudents/{schoolLocation}/{schoolClass}','SchoolClassesStudentImportController@store')->name('school_classes.import');
+    Route::post('/school_class/importStudentsWithClasses/{schoolLocation}','SchoolClassesStudentImportController@store')->name('school_classes.import_with_classes');
+    
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
