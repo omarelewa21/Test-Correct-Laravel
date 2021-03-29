@@ -28,7 +28,6 @@
                 </button>
             </div>
             <div id="navscrollbar" class="flex pl-2.5" :class="{'overflow-x-auto' : showSlider}" x-ref="navscrollbar">
-
                 @foreach($nav as $key => $q)
                     <div id="{!! $key === ($this->q - 1) ? 'active' : ''!!}"
                          class="flex flex-col mb-3 relative
@@ -50,11 +49,11 @@
                                          complete
                                  @endif
                                          "
-                                 id="nav_item_{{$key}}"
+                                 id="nav_item_{{$q['id']}}"
                                  wire:click="goToQuestion({{ 1+$key}})"
                                  x-on:current-question-answered.window="$wire.updateQuestionIndicatorColor()"
                         >
-                            <span id="nav_{{$key}}" class="align-middle px-1.5">{{ ++$key }}</span>
+                            <span id="nav_{{$q['id']}}" class="align-middle px-1.5">{{ ++$key }}</span>
                         </section>
                         <div class="max-h-4 flex justify-center -ml-2 mt-1">
                             @if($q['closeable'] && !$q['closed'])
