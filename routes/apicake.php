@@ -307,5 +307,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('test_participant/{test_take}/is_allowed_inbrowser_testing','TestTakes\TestParticipantsController@is_allowed_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.show');
     Route::put('test_take/{test_take}/test_participant/{test_participant}/toggle_inbrowser_testing','TestTakes\TestParticipantsController@toggle_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.update');
     Route::get('test_take/{test_take}/has_carousel_question','TestTakesController@hasCarouselQuestion')->name('test_takes.has_carousel_question');
+    Route::put('test_take/{test_take}/toggle_inbrowser_testing_for_all_participants','TestTakesController@toggleInbrowserTestingForAllParticipants')->name('test_takes.toggle_inbrowser_testing_for_all_participants');
 
 });
