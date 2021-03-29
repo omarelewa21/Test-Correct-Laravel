@@ -4,10 +4,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\MessageBag;
+use Illuminate\Http\Request as RequestObj;
 use Ramsey\Uuid\Uuid;
 use tcCore\SchoolLocation;
 use tcCore\User;
 use tcCore\SchoolClass;
+use tcCore\Http\Controllers\SchoolYearsController;
 
 class SchoolClassesStudentImportRequest extends Request
 {
@@ -234,12 +236,22 @@ class SchoolClassesStudentImportRequest extends Request
     private function classDoesNotExist($school_class_name)
     {
         $manager = Auth::user();
-        $schoolClass = SchoolClass::where('name', trim($school_class_name))->where('school_location_id',$manager->school_location_id)->first();
+        $currentSchoolYear = (new SchoolYearsController())->activeSchoolYearInternal();
+        if(!$currentSchoolYear){
+            return true;
+        }
+        $schoolClass = SchoolClass::where('name', trim($school_class_name))
+                                    ->where('school_location_id',$manager->school_location_id)
+                                    ->where('school_year_id',$currentSchoolYear->id)
+                                    ->whereNull('deleted_at')
+                                    ->first();
         if(is_null($schoolClass)){
             return true;
         }
         return false;
     }
+
+    
 
     private function getRequestItem( $attribute)
     {
