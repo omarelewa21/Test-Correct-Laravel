@@ -45,9 +45,9 @@ class CalculatePValueForAnswer extends Job implements ShouldQueue
         }
         $pvalueData = array();
         $pvalueData['score'] = $finalRating;
-        dump('?');
+ 
         $pValue = PValue::firstOrNew(['answer_id' => $this->answer->getKey()]);
-        dump($pValue);
+
         $question = $this->answer->question;
         if (is_null($question)) {
             throw new \Exception('Answer does not belong to a question. This should NOT be possible!');
@@ -71,7 +71,7 @@ class CalculatePValueForAnswer extends Job implements ShouldQueue
         if (is_null($period)) {
             throw new \Exception('Test take does not belong to a period. This should NOT be possible!');
         }
-        dump('hier');
+
         $pvalueData['period_id'] = $period->getKey();
 
         $test = $testTake->test;
@@ -90,7 +90,7 @@ class CalculatePValueForAnswer extends Job implements ShouldQueue
         if (is_null($schoolClass)) {
             throw new \Exception('Test participant does not belong to a school class. This should NOT be possible!');
         }
-        dump('daar');
+
         $pvalueData['school_class_id'] = $schoolClass->getKey();
 
         $educationLevel = $schoolClass->educationLevel;
@@ -109,6 +109,6 @@ class CalculatePValueForAnswer extends Job implements ShouldQueue
         if ($pValue->save() !== true) {
             throw new \Exception('Failed to save p-value!');
         }
-        dump('waar');
+
     }
 }
