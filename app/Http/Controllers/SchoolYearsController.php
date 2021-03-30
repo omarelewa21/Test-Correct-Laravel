@@ -64,6 +64,31 @@ class SchoolYearsController extends Controller
         return Response::make($emptySchoolYear, 200);
     }
 
+    public function activeSchoolYearInternal()
+    {  
+        $schoolYears = SchoolYear::filtered([], [])->with('schoolLocations')->get();
+        $periodsCollection = collect();
+        foreach ($schoolYears as $schoolYear) {
+            $periods = $schoolYear->periods()->get();
+            foreach ($periods as $period) {
+                $periodsCollection->add($period);
+            }
+        }
+        $sortedByEndDate = $periodsCollection->sortByDesc("end_date");
+        foreach ($sortedByEndDate as $period) {
+            $endDate = new Carbon($period->end_date);
+            $startDate = new Carbon($period->start_date);
+            if($endDate->isPast()){
+                continue;
+            }
+            if($startDate->isFuture()){
+                continue;
+            }
+            $currentSchoolYear = $period->schoolYear;
+            return $currentSchoolYear;
+        }
+        return false;
+    }
     /**
      * Store a newly created school year in storage.
      *
