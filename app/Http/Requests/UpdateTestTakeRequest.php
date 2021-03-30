@@ -47,7 +47,8 @@ class UpdateTestTakeRequest extends Request {
 			'time_end' => 'sometimes|date_format:Y-m-d H:i:s',
 			'location' => '',
 			'weight' => '',
-			'note' => ''
+			'note' => '',
+            'allow_inbrowser_testing' => ''
 		];
 	}
 
