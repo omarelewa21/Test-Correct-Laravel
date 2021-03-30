@@ -54,7 +54,7 @@
                                  id="nav_item_{{$q['id']}}"
                                  wire:click="goToQuestion({{ 1+$key}})"
                                  x-on:current-question-answered.window="$wire.updateQuestionIndicatorColor()"
-                        >1
+                        >
                             <span id="nav_{{$q['id']}}" wire:key="nav_{{$q['id']}}" class="align-middle px-1.5">{{ ++$key }}</span>
                         </section>
                         <div class="max-h-4 flex justify-center -ml-2 mt-1">
@@ -128,10 +128,12 @@
                     <span>{{ __('test_take.speak') }}</span>
                 </x-button.text-button>
             @endif
-            <x-button.text-button wire:click="toOverview({{ $this->q }})">
-                <x-icon.preview/>
-                <span>{{ __('test_take.overview') }}</span>
-            </x-button.text-button>
+            @if(!$isOverview)
+                <x-button.text-button wire:click="toOverview({{ $this->q }})">
+                    <x-icon.preview/>
+                    <span>{{ __('test_take.overview') }}</span>
+                </x-button.text-button>
+            @endif
         </div>
     </div>
 
