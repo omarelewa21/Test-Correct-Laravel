@@ -4,9 +4,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\MessageBag;
+use Illuminate\Http\Request as RequestObj;
 use Ramsey\Uuid\Uuid;
 use tcCore\SchoolLocation;
 use tcCore\User;
+use tcCore\SchoolClass;
+use tcCore\Http\Controllers\SchoolYearsController;
 
 class SchoolClassesStudentImportRequest extends Request
 {
@@ -40,7 +43,11 @@ class SchoolClassesStudentImportRequest extends Request
         $this->filterInput(); // doesn't work here
        
         $extra_rule = [];
-      
+        $school_class_name_rule = 'sometimes';
+        if(is_null($this->schoolClass)){
+            $school_class_name_rule = 'required';
+        }
+
         // unique constraint needs to be added on external_id can only exist within a school if it is the same user (that is username is the currect username)
         foreach ($this->data as $key => $value) {
 
@@ -63,11 +70,11 @@ class SchoolClassesStudentImportRequest extends Request
 
                         return $fail(sprintf('The email address contains invalid or international characters  (%s).', $value));
                 }
-            
+                $requestItem = $this->getRequestItem( $attribute);
                 $student = User::whereUsername($value)->first();
                 
                 if ($student) {
-                    if ($this->alreadyInDatabaseAndInThisClass($student)) {
+                    if ($this->alreadyInDatabaseAndInThisClass($student,$requestItem)) {
                         return $fail(sprintf('The %s has already been taken.', $attribute));
                     }
                     if ($this->alreadyInDatabaseButNotInThisSchoolLocation($student)) {
@@ -78,7 +85,12 @@ class SchoolClassesStudentImportRequest extends Request
             'data.*.name_first' => 'required',
             'data.*.name' => 'required',
             'data.*.name_suffix' => '',
-            'data.*.gender' => '',
+            'data.*.gender' => 'sometimes',
+            'data.*.school_class_name' => [$school_class_name_rule, function ($attribute, $value, $fail) {
+                if ($this->classDoesNotExist($value)) {
+                    return $fail(sprintf('school_class_name not found.', $attribute));
+                }
+            }]
         ]);
 
         if ($extra_rule === []) {
@@ -111,9 +123,9 @@ class SchoolClassesStudentImportRequest extends Request
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if ($this->schoolClass == null) {
-                $validator->errors()->add('class', 'Er dient een klas opgegeven te worden');
-            }
+            // if ($this->schoolClass == null) {
+            //     $validator->errors()->add('class', 'Er dient een klas opgegeven te worden');
+            // }
 
             $data = $this->addDuplicateExternalIdErrors($validator);
             $data = $this->addDuplicateUsernameErrors($validator);
@@ -186,15 +198,74 @@ class SchoolClassesStudentImportRequest extends Request
         return $data->toArray();
     }
 
-    private function alreadyInDatabaseAndInThisClass($student)
+    private function alreadyInDatabaseAndInThisClass($student,$requestItem)
+    {
+        if(array_key_exists('school_class_name', $requestItem)){
+            $school_class_name = $requestItem['school_class_name'];
+            $manager = Auth::user();
+            $schoolClass = SchoolClass::where('name', trim($school_class_name))->where('school_location_id',$manager->school_location_id)->first();
+            if(!is_null($schoolClass)){
+                return $this->alreadyInDatabaseAndInThisClassGeneric($student,$schoolClass->id);
+            }else{
+                return $this->failSilent();
+            }
+        }
+        if(is_null($this->schoolClass)){
+            return $this->failSilent();
+        }
+        return $this->alreadyInDatabaseAndInThisClassGeneric($student,$this->schoolClass->id);
+    }
+
+    private function failSilent()
+    {
+        return false;
+    }
+
+    private function alreadyInDatabaseAndInThisClassGeneric($student,$schoolClassId)
     {
         return (collect($student->studentSchoolClasses)->map(function ($item) {
             return $item->id;
-        })->contains($this->schoolClass->id));
+        })->contains($schoolClassId));
     }
 
     private function alreadyInDatabaseButNotInThisSchoolLocation($student)
     {
         return $student->school_location_id !== $this->schoolLocation->id;
+    }
+
+    private function classDoesNotExist($school_class_name)
+    {
+        $manager = Auth::user();
+        $currentSchoolYear = (new SchoolYearsController())->activeSchoolYearInternal();
+        if(!$currentSchoolYear){
+            return true;
+        }
+        $schoolClass = SchoolClass::where('name', trim($school_class_name))
+                                    ->where('school_location_id',$manager->school_location_id)
+                                    ->where('school_year_id',$currentSchoolYear->id)
+                                    ->whereNull('deleted_at')
+                                    ->first();
+        if(is_null($schoolClass)){
+            return true;
+        }
+        return false;
+    }
+
+    
+
+    private function getRequestItem( $attribute)
+    {
+        $attributeArray = explode('.', $attribute);
+        if(!array_key_exists(1, $attributeArray)){
+            return [];
+        }
+        $requestIndex = $attributeArray[1];
+        if(!array_key_exists('data', request()->all())){
+            return [];
+        }
+        if(!array_key_exists($requestIndex, request()->all()['data'])){
+            return [];
+        }
+        return request()->all()['data'][$requestIndex];
     }
 }

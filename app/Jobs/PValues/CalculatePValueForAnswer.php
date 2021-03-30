@@ -38,13 +38,14 @@ class CalculatePValueForAnswer extends Job implements ShouldQueue
     public function handle()
     {
         $finalRating = $this->answer->calculateFinalRating();
+        dump($finalRating);
         if ($finalRating === null) {
             PValue::where('answer_id', $this->answer->getKey())->delete();
             return;
         }
         $pvalueData = array();
         $pvalueData['score'] = $finalRating;
-
+ 
         $pValue = PValue::firstOrNew(['answer_id' => $this->answer->getKey()]);
 
         $question = $this->answer->question;
@@ -108,5 +109,6 @@ class CalculatePValueForAnswer extends Job implements ShouldQueue
         if ($pValue->save() !== true) {
             throw new \Exception('Failed to save p-value!');
         }
+
     }
 }

@@ -1,4 +1,6 @@
-<?php namespace tcCore\Http\Controllers;
+<?php
+
+namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,59 +24,68 @@ class SchoolClassesStudentImportController extends Controller {
      * @param SchoolClassesStudentImportRequest $request
      * @return
      */
-    public function store(SchoolClassesStudentImportRequest $request, SchoolLocation $schoolLocation, SchoolClass $schoolClass)
-    {
-        $defaultData =[
+    public function store(SchoolClassesStudentImportRequest $request, SchoolLocation $schoolLocation, SchoolClass $schoolClass) {
+
+        $defaultData = [
             'user_roles' => [3],
             'school_location_id' => $schoolLocation->getKey(),
             'student_school_classes' => [$schoolClass->getKey()],
         ];
 
         $data = $request->validated();
+        $manager = Auth::user();
         DB::beginTransaction();
-        try{
-            collect($data['data'])->each(function($u) use ($defaultData,  $schoolClass){
-                $merged = array_merge($u, $defaultData);
 
-                $user = User::where('username',$merged['username'])->first();
-                if($user) {
+        try {
+
+            collect($data['data'])->each(function($u) use ($defaultData, $schoolClass,$manager) {
+
+                $merged = array_merge($u, $defaultData);
+                $user = User::where('username', $merged['username'])->first();
+                if (isset($merged['school_class_name'])) {
+
+                    $school_class_name = $merged['school_class_name'];
+
+                    $schoolClass = SchoolClass::where('name', trim($school_class_name))->where('school_location_id',$manager->school_location_id)->first();
+                    if(is_null($schoolClass)){
+                        throw new \Exception("School class id not found for class " . $school_class_name);
+                    }
+                    $school_class_id = $schoolClass->getKey();
+                } else {
+                    $school_class_id = $schoolClass->getKey();
+                }
+
+                if ($school_class_id == NULL) {
+                    throw new \Exception("School class id not found for class " . $school_class_name, 422);
+                }
+                $merged['student_school_classes'] = [$school_class_id];
+                if ($user) {
                     if ($user->isA('student')) {
 
-                        $_deletedClass = $user->students()->withTrashed()->Where('class_id', $schoolClass->getKey())->first();
+                        $_deletedClass = $user->students()->withTrashed()->Where('class_id', $school_class_id)->first();
 
-                        if((bool) $_deletedClass){
-                            $_deletedClass->restore();
-                        }
-                        else{
+                        if ((bool) $_deletedClass) {
+                            $_deletedClass->restore();                      
+                        } else {
                             $user->students()->create([
-                                'class_id' => $schoolClass->getKey()
+                                'class_id' => $school_class_id
                             ]);
                         }
                     }
-                }
-                else {
+                } else {
                     $userFactory = new Factory(new User());
                     $user = $userFactory->generate($merged);
                 }
             });
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             DB::rollback();
-            logger('Error importing students '.$e->getMessage());
-            return Response::make($e->getMessage(), 500);
+            logger('Error importing students ' . $e->getMessage());
+            $errors = json_encode(['errors'=>['error'=>$e->getMessage()]]);
+            return Response::make($errors, 422);
         }
         DB::commit();
-        return Response::make(json_encode(count($data['data']).' studenten zijn toegevoegd'), 200);
+        return Response::make(json_encode(count($data['data']) . ' studenten zijn toegevoegd'), 200);
 
-//		$schoolClass = new SchoolClass();
-//
-//		$schoolClass->fill($request->all());
-//
-//		if ($schoolClass->save() !== false) {
-//			return Response::make($schoolClass, 200);
-//		} else {
-//			return Response::make('Failed to create school class', 500);
-//		}
     }
 
 }

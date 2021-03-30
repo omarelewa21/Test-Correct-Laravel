@@ -39,6 +39,8 @@ class TestParticipant extends BaseModel
      */
     protected $table = 'test_participants';
 
+    protected $appends = ['intense'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -322,4 +324,8 @@ class TestParticipant extends BaseModel
             ->orWhere('test_take_status_id', 7)
             ->first();
     }
+    public function getIntenseAttribute() {
+        return $this->user->intense && $this->user->schoolLocation->intense;
+    }
+
 }

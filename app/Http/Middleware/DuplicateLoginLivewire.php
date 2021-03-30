@@ -26,6 +26,7 @@ class DuplicateLoginLivewire {
     public function handle($request, Closure $next)
     {
         $roles = Roles::getUserRoles();
+
         if ($this->auth->user()) {
             if ($this->shouldCheckSessionHash() && count($roles) === 1 && in_array('Student', $roles) && $this->auth->user()->getAttribute('session_hash') !== session('session_hash')) {
                 session()->put('new_debounce_time', Carbon::now());

@@ -46,7 +46,7 @@ class UpdateTestQuestionRequest extends UpdateQuestionRequest {
         $rules['order'] = 'sometimes|required|integer|min:0';
         $rules['maintain_position'] = 'sometimes|required|in:0,1';
         $rules['discuss'] = 'sometimes|required|in:0,1';
-        $rules['closeable'] = 'required|in:0,1';
+//        $rules['closeable'] = 'required|in:0,1';
 
         return $rules;
     }
