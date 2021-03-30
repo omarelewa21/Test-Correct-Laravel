@@ -39,8 +39,10 @@
                          @elseif($q['answered'])
                                  complete
                          @endif
-                                 ">
-                        <section wire:key="nav_{{$key}}"
+                                 "
+                         wire:key="nav_circle_for_q_{{$q['id']}}"
+                    >
+                        <section wire:key="nav_item{{$q['id']}}"
                                  class="question-number rounded-full text-center cursor-pointer flex items-center justify-center
                                     {!! $key === ($this->q - 1) ? 'active' : ''!!}
                                  @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
@@ -52,8 +54,8 @@
                                  id="nav_item_{{$q['id']}}"
                                  wire:click="goToQuestion({{ 1+$key}})"
                                  x-on:current-question-answered.window="$wire.updateQuestionIndicatorColor()"
-                        >
-                            <span id="nav_{{$q['id']}}" class="align-middle px-1.5">{{ ++$key }}</span>
+                        >1
+                            <span id="nav_{{$q['id']}}" wire:key="nav_{{$q['id']}}" class="align-middle px-1.5">{{ ++$key }}</span>
                         </section>
                         <div class="max-h-4 flex justify-center -ml-2 mt-1">
                             @if($q['closeable'] && !$q['closed'])

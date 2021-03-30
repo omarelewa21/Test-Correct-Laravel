@@ -5,7 +5,7 @@
         </div>
         <div wire:ignore>
             <x-input.group class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
-                <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.2000ms="answer"></textarea>
+                <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.1000ms="answer"></textarea>
             </x-input.group>
         </div>
 
