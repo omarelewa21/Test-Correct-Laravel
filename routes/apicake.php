@@ -51,7 +51,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     // Tests + children
 	Route::post('test/{test}/duplicate', ['as' => 'test.duplicate', 'uses' => 'TestsController@duplicate']);
 	Route::resource('test', 'TestsController', ['except' => ['create', 'edit']]);
-
+	Route::get('test_max_score/{test}','TestsController@maxScoreResponse')->name('test.max_score');
     Route::resource('cito_test','Cito\TestsController')->only(['index','show']);
 
     Route::get('shared_sections','SharedSectionsController@index');
@@ -126,6 +126,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('test_take/{test_take}/archive','TestTakesController@archive')->name('test_take.archive');
 	Route::put('test_take/{test_take}/un-archive','TestTakesController@unarchive')->name('test_take.un_archive');
 
+
+	Route::post('test_take/{test_take}/with_short_code',  'TestTakesController@withShortCode')->name('test_take.with_short_code');
+
 	// Test take children
 	Route::post('test_take/{test_take_id}/test_participant/{test_participant}/heartbeat', ['as' => 'test_take.test_participant.heartbeat', 'uses' => 'TestTakes\TestParticipantsController@heartbeat']);
 	Route::resource('test_take.test_participant', 'TestTakes\TestParticipantsController', ['except' => ['create', 'edit']]);
@@ -133,12 +136,18 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	Route::resource('test_take_event_type', 'TestTakeEventTypesController', ['except' => ['create', 'store', 'edit', 'update', 'destroy']]);
 
+	Route::get('test_take_max_score/{test_take}','TestTakesController@maxScoreResponse')->name('test_take.max_score');
+
     Route::get('test_take/{test_take}/attainment/analysis','TestTakes\TestTakeAttainmentAnalysisController@index')->name('test_take_attainment_analysis.index');
     Route::get('test_take/{test_take}/attainment/{attainment}/analysis','TestTakes\TestTakeAttainmentAnalysisController@show')->name('test_take_attainment_analysis.show');
 
     Route::get('test_participant/{test_participant}/answers_status_and_questions2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersStatusAndQuestions']);
 	Route::get('test_participant/{test_participant}/{test_take}/answers_status_and_test_take2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersStatusAndTestTake']);
     Route::get('test_participant/{test_participant}/answers_and_status2019',['uses' => 'TestParticipants\Answers2019Controller@getAnswersAndStatus']);
+
+    Route::get('test_participant/drawing_answer_url/{answer}',['uses' => 'TestParticipants\AnswersController@getDrawingAnswerUrl']);
+
+    Route::get('answers/drawing_answer/{answer}',['uses' => 'AnswersController@showDrawing']);
 
     // Test participant children
     Route::resource('test_participant.answer', 'TestParticipants\AnswersController', ['except' => ['create', 'edit']]);
@@ -227,34 +236,35 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('umbrella_organization', 'UmbrellaOrganizationsController', ['except' => ['create', 'edit']]);
 
 	Route::resource('school', 'SchoolsController', ['except' => ['create', 'edit']]);
-	// School children
-	Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
+    Route::get('school_location/is_allowed_new_player_access', 'SchoolLocationsController@isAllowedNewPlayerAccess')->name('school_location.is_allowed_new_player_access');
+    // School children
+    Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
 
-	// School location children
-	Route::resource('school_location.school_class', 'SchoolLocations\SchoolClassesController', ['except' => ['create', 'edit']]);
-	Route::resource('school_location.school_location_ip', 'SchoolLocations\SchoolLocationIpsController', ['except' => ['create', 'edit']]);
-	Route::resource('school_location.section', 'SchoolLocations\SectionsController', ['except' => ['create', 'edit']]);
-	Route::resource('school_location.license', 'SchoolLocations\LicensesController', ['except' => ['create', 'edit']]);
+    // School location children
+    Route::resource('school_location.school_class', 'SchoolLocations\SchoolClassesController', ['except' => ['create', 'edit']]);
+    Route::resource('school_location.school_location_ip', 'SchoolLocations\SchoolLocationIpsController', ['except' => ['create', 'edit']]);
+    Route::resource('school_location.section', 'SchoolLocations\SectionsController', ['except' => ['create', 'edit']]);
+    Route::resource('school_location.license', 'SchoolLocations\LicensesController', ['except' => ['create', 'edit']]);
 
-	Route::resource('school_year', 'SchoolYearsController', ['except' => ['create', 'edit']]);
-	Route::resource('school_year.period', 'SchoolYears\PeriodsController', ['except' => ['create', 'edit']]);
+    Route::resource('school_year', 'SchoolYearsController', ['except' => ['create', 'edit']]);
+    Route::resource('school_year.period', 'SchoolYears\PeriodsController', ['except' => ['create', 'edit']]);
 
-	Route::resource('section', 'SectionsController', ['except' => ['create', 'edit']]);
-	Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
+    Route::resource('section', 'SectionsController', ['except' => ['create', 'edit']]);
+    Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
 
-	Route::put('message/mark_read/{message}', 'MessageController@markRead')->name('message.mark_read');
-	Route::resource('message', 'MessageController', ['except' => ['create', 'edit']]);
+    Route::put('message/mark_read/{message}', 'MessageController@markRead')->name('message.mark_read');
+    Route::resource('message', 'MessageController', ['except' => ['create', 'edit']]);
 
-	Route::resource('address', 'AddressesController', ['except' => ['create', 'edit']]);
-	Route::resource('contact', 'ContactsController', ['except' => ['create', 'edit']]);
-	Route::resource('grading_scale', 'GradingScalesController', ['except' => ['create', 'edit']]);
+    Route::resource('address', 'AddressesController', ['except' => ['create', 'edit']]);
+    Route::resource('contact', 'ContactsController', ['except' => ['create', 'edit']]);
+    Route::resource('grading_scale', 'GradingScalesController', ['except' => ['create', 'edit']]);
 
-	Route::resource('base_subject', 'BaseSubjectsController', ['only' => ['index']]);
+    Route::resource('base_subject', 'BaseSubjectsController', ['only' => ['index']]);
     Route::resource('my_base_subject', 'MyBaseSubjectsController', ['only' => ['index']]);
 
-	Route::resource('tag', 'TagsController', ['only' => ['index', 'show']]);
+    Route::resource('tag', 'TagsController', ['only' => ['index', 'show']]);
 
-	Route::get('admin/teacher_stats','AdminTeacherStatsController@index')->name('admin_teacher_stats');
+    Route::get('admin/teacher_stats','AdminTeacherStatsController@index')->name('admin_teacher_stats');
     Route::get('qtiimport/data','QtiImportController@data')->name('qtiimport_data');
     Route::post('qtiimport/import','QtiImportController@store')->name('qtiimport_import');
 
@@ -291,12 +301,13 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('shortcode/{shortcode}','ShortcodeController@show')->name('shortcode.show');
     Route::get('shortcode','Api\ShortcodeController@store')->name('shortcode.store');
     Route::get('inv/{shortcode}', 'Api\ShortcodeController@registerClickAndRedirect')->name('shortcode.registerclickandredirect');
-    Route::put('shortcodeclick/{shortcodeClick}','ShortcodeClickController@update')->name('shortcodeClick.update');
-
+    Route::put('shortcodeclick/{shortcodeClick}','Api\ShortCodeClickController@update')->name('shortcodeClick.update');
 
     Route::get('config/{variable_name}','ConfigController@show')->name('config.show');
     // goes to the web part
     // Route::get('tlc/{shortcode}','ShortcodeController@registerClickAndRedirect')->name('shortcode.registerAndRedirect');
     Route::get('test_participant/{test_take}/is_allowed_inbrowser_testing','TestTakes\TestParticipantsController@is_allowed_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.show');
     Route::put('test_take/{test_take}/test_participant/{test_participant}/toggle_inbrowser_testing','TestTakes\TestParticipantsController@toggle_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.update');
+    Route::get('test_take/{test_take}/has_carousel_question','TestTakesController@hasCarouselQuestion')->name('test_takes.has_carousel_question');
+
 });

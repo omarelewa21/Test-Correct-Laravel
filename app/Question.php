@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\MtiBaseModel;
 use Illuminate\Database\Eloquent\Model;
@@ -1061,4 +1062,21 @@ class Question extends MtiBaseModel {
         }
 
     }
+
+
+    public function getQuestionHtml()
+    {
+        return $this->getQuestionInstance()->question;
+    }
+
+    public function getCaptionAttribute()
+    {
+        return __('test_take.'.Str::snake($this->type));;
+    }
+
+    public function getQuestionCount()
+    {
+        return 1;
+    }
+
 }

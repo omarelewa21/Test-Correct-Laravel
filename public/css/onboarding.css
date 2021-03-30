@@ -6,10 +6,10 @@
     --primary: #004df5;
     --secondary: #ECD900;
     --highlight-primary: #ECD900;
-    --system-base: #041F74;
+    --system-base: #041f74;
     --system-secondary: #CEDAF3;
     --mid-grey: #929DAF;
-    --light-grey: #F0F2F5;
+    --light-grey: #f0f2f5;
     --blue-grey: #C3D0ED;
     --shadow-blue: #4D578F;
     --off-white: #F9FAFF;
@@ -193,6 +193,10 @@ h6 {
     font-family: Nunito Regular;
 }
 
+.requirement-font-size {
+    font-size: .875rem;
+}
+
 .text-0 {
     color: var(--mid-grey);
 }
@@ -282,7 +286,7 @@ h6 {
 
 .header-check {
     width: 30px;
-    margin-right: 10px;
+    height: 30px;
 }
 
 .header-number.active {
@@ -616,7 +620,7 @@ input:focus + label {
     display: block;
 }
 
-.informational {
+.info {
     background: #E6EDFA;
     border-color: var(--blue-grey);
     color: var(--primary);

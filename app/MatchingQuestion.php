@@ -45,6 +45,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
     protected $hidden = [];
 
     public function question() {
+
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
     }
 
@@ -281,6 +282,15 @@ class MatchingQuestion extends Question implements QuestionInterface {
             }
         });
         return true;
+    }
+
+    public function getCaptionAttribute()
+    {
+        if ($this->subtype === 'Classify') {
+            return __('test_take.matching_question_classify');
+        }
+
+        return parent::getCaptionAttribute();
     }
 
 

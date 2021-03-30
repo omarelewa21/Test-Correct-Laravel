@@ -35,7 +35,19 @@ class QuestionHelper extends BaseHelper
         if($question instanceof QuestionInterface) {
             $question->loadRelated();
         }
+        if($question->type == 'GroupQuestion' && $question->groupquestion_type=='carousel'){
+            $question->score = $this->getTotalScoreForCarouselQuestion($question);
+        }
         return $question;
+    }
+
+    public function getTotalScoreForCarouselQuestion($question)
+    {
+        $numberOfSubquestions = $question->number_of_subquestions;
+        $groupQuestionQuestions = $question->groupQuestionQuestions()->orderBy('order', 'asc')->with('question')->get();
+        $questionScore = $groupQuestionQuestions->first()->question->score;
+        $maxScore = ($questionScore*$numberOfSubquestions);
+        return $maxScore;
     }
 
     public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question)

@@ -7,6 +7,7 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
+use tcCore\Http\Helpers\QuestionHelper;
 
 class GroupQuestion extends Question implements QuestionInterface {
 
@@ -14,6 +15,7 @@ class GroupQuestion extends Question implements QuestionInterface {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'number_of_subquestions' => 'integer',
     ];
 
     /**
@@ -35,7 +37,7 @@ class GroupQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['name', 'shuffle'];
+    protected $fillable = ['name', 'shuffle','groupquestion_type','number_of_subquestions'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -184,6 +186,10 @@ class GroupQuestion extends Question implements QuestionInterface {
             $questions[] = $question;
         }
 
+        if($this->isCarouselQuestion()){
+            $questions = $this->filterQuestionsForCarousel($questions);
+        }
+
         if ($questions === null) {
             return;
         }
@@ -247,7 +253,26 @@ class GroupQuestion extends Question implements QuestionInterface {
         return;
     }
 
+    // public function getQuestionScores($parents, &$questionMaxScore, &$pointsPerQuestion) {
+    //     $this->load('groupQuestionQuestions', 'groupQuestionQuestions.question');
+    //     $parents[] = $this->getKey();
+    //     foreach($this->groupQuestionQuestions as $groupQuestionQuestions) {
+    //         if ($groupQuestionQuestions->question instanceof GroupQuestion) {
+    //             if (!in_array($groupQuestionQuestions->question->getKey(), $parents)) {
+    //                 $groupQuestionQuestions->question->getQuestionScores([], $questionMaxScore, $pointsPerQuestion);
+    //             }
+    //         } else {
+    //             $questionMaxScore += $groupQuestionQuestions->question->getAttribute('score');
+    //             $pointsPerQuestion[$groupQuestionQuestions->question->getKey()] = $groupQuestionQuestions->question->getAttribute('score');
+    //         }
+    //     }
+    //     return;
+    // }
+
     public function getQuestionScores($parents, &$questionMaxScore, &$pointsPerQuestion) {
+        if($this->groupquestion_type == 'carousel'){
+            return $this->getCarouselQuestionScores($questionMaxScore, $pointsPerQuestion);
+        }
         $this->load('groupQuestionQuestions', 'groupQuestionQuestions.question');
         $parents[] = $this->getKey();
         foreach($this->groupQuestionQuestions as $groupQuestionQuestions) {
@@ -259,6 +284,15 @@ class GroupQuestion extends Question implements QuestionInterface {
                 $questionMaxScore += $groupQuestionQuestions->question->getAttribute('score');
                 $pointsPerQuestion[$groupQuestionQuestions->question->getKey()] = $groupQuestionQuestions->question->getAttribute('score');
             }
+        }
+        return;
+    }
+
+    private function getCarouselQuestionScores(&$questionMaxScore, &$pointsPerQuestion) {
+        $questionMaxScore += (new QuestionHelper())->getTotalScoreForCarouselQuestion($this);
+        $this->load('groupQuestionQuestions', 'groupQuestionQuestions.question');
+        foreach($this->groupQuestionQuestions as $groupQuestionQuestions) {
+            $pointsPerQuestion[$groupQuestionQuestions->question->getKey()] = $groupQuestionQuestions->question->getAttribute('score');
         }
         return;
     }
@@ -301,5 +335,55 @@ class GroupQuestion extends Question implements QuestionInterface {
         return false;
     }
 
+    public function isCarouselQuestion()
+    {
+        if($this->groupquestion_type=='carousel'){
+            return true;
+        }
+        return false;
+    }
+
+    public function filterQuestionsForCarousel($questions){
+        if(!$this->isCarouselQuestion()){
+            return $questions;
+        }
+        if(is_null($this->number_of_subquestions)||$this->number_of_subquestions==0){
+            return $questions;
+        }
+        if($this->number_of_subquestions>=count($questions)){
+            return $questions;
+        }
+        $returnArray = [];
+        $randomKeys = array_rand($questions,$this->number_of_subquestions);
+        if (! is_array($randomKeys)) {
+             $randomKeys = [$randomKeys];
+        }
+        foreach ($randomKeys as $randomKey) {
+            $returnArray[] = $questions[$randomKey];
+        }
+        return $returnArray;
+    }
+
+    public function getQuestionCount()
+    {
+        if($this->groupquestion_type == 'carousel'){
+            return $this->getCarouselGroupQuestionCount();
+        }
+        return $this->getGenericGroupQuestionCount();
+    }
+
+    protected function getCarouselGroupQuestionCount()
+    {
+        $questionCount = $this->getGenericGroupQuestionCount();
+        if($this->number_of_subquestions > $questionCount){
+            return $questionCount;
+        }
+        return $this->number_of_subquestions;
+    }
+
+    protected function getGenericGroupQuestionCount()
+    {
+        return $this->groupQuestionQuestions()->count();
+    }
 
 }

@@ -738,8 +738,8 @@ class Test extends BaseModel
     public function performMetadata()
     {
         QuestionGatherer::invalidateTestCache($this);
-        $questions = QuestionGatherer::getQuestionsOfTest($this->getKey(), true);
-        $this->setAttribute('question_count', count($questions));
+//        $questionsCount = QuestionGatherer::getQuestionsCountOfTest($this->getKey());
+        $this->setAttribute('question_count', $this->getQuestionCount());
         $this->save();
     }
 
@@ -858,5 +858,15 @@ class Test extends BaseModel
 
     }
 
-
+    public function getQuestionCount()
+    {
+        $this->load(['testQuestions','testQuestions.question']);
+        $questionCount = 0;
+        foreach($this->testQuestions as $testQuestion) {
+            if(null !== $testQuestion->question) {
+                $questionCount += $testQuestion->question->getQuestionCount();
+            }
+        }
+        return $questionCount;
+    }
 }

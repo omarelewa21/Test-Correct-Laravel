@@ -364,7 +364,6 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('test_take', function($item) {
-
             //return TestTake::select('test_takes.*')->whereUuid($item)->firstOrFail();
             return TestTake::whereUuid($item)->firstOrFail();
         });
