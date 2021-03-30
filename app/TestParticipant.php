@@ -57,6 +57,12 @@ class TestParticipant extends BaseModel
     {
         parent::boot();
 
+        static::created(function (TestParticipant $testParticipant) {
+            if ($testParticipant->testTake->allow_inbrowser_testing) {
+                $testParticipant->allow_inbrowser_testing = true;
+                $testParticipant->save();
+            }
+        });
         static::saved(function (TestParticipant $testParticipant) {
             //$testParticipant->load('testTakeStatus');
 
