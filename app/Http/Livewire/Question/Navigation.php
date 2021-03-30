@@ -13,6 +13,7 @@ class Navigation extends Component
     public $q;
     public $queryString = ['q'];
     public $startTime;
+    public $isOverview = false;
 
     public $lastQuestionInGroup = [];
 

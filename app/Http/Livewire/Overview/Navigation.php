@@ -19,7 +19,7 @@ class Navigation extends Component
     public $playerUrl;
     public $useSlider   ;
     public $lastQuestionInGroup = [];
-
+    public $isOverview = true;
 
     public function mount()
     {

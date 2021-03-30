@@ -89,7 +89,7 @@
             <livewire:student.test-take :testTakeUuid="$uuid" :questions="$data" :testParticipant="$testParticipant"/>
         </x-slot>
         <x-slot name="fraudDetection">
-            <livewire:student.fraud-detection :testTakeUuid="$uuid" :testParticipant="$testParticipant"/>
+            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()"/>
         </x-slot>
     </div>
 
