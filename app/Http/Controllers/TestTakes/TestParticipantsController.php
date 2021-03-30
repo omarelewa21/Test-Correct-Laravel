@@ -409,7 +409,9 @@ class TestParticipantsController extends Controller
         $me = $testTake->testParticipants()->where('user_id', Auth::id())->first();
 
         if ($me) {
-            return $me->allow_inbrowser_testing;
+            if($me->allow_inbrowser_testing || $testTake->allow_inbrowser_testing) {
+                return true;
+            }
         }
         return false;
     }

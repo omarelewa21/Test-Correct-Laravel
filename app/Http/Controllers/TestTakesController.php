@@ -1345,4 +1345,11 @@ class TestTakesController extends Controller {
     {
         return response()->json(['has_carousel' =>  $testTake->hasCarousel()]);
     }
+
+    public function toggleInbrowserTestingForAllParticipants(TestTake $testTake)
+    {
+        $allow_inbrowser_testing = $testTake->allow_inbrowser_testing;
+        $testTake->setAttribute('allow_inbrowser_testing', !$allow_inbrowser_testing)->save();
+        TestParticipant::where('test_take_id', $testTake->getKey())->update(['allow_inbrowser_testing' => !$allow_inbrowser_testing]);
+    }
 }
