@@ -34,11 +34,6 @@ class TestTake extends Component
         $this->showTurnInModal = true;
     }
 
-    public function toOverview()
-    {
-        return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
-    }
-
     public function TurnInTestTake()
     {
         $testTake = \tcCore\TestTake::whereUuid($this->testTakeUuid)->first();
@@ -75,5 +70,10 @@ class TestTake extends Component
     private function getEventType($event)
     {
         return TestTakeEventType::whereReason($event)->first();
+    }
+
+    public function isTestTakeTakenAway()
+    {
+        $this->testParticipant->getAttribute('test_take_status_id');
     }
 }

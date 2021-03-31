@@ -5,7 +5,7 @@
 
             <div class="flex flex-col space-y-3">
                 {!! $question->getQuestionHtml() !!}
-                <x-button.secondary class="max-w-max" @click="opened = true" x-on:click="var body = document.getElementById('body'); body.classList.add('modal-open')">
+                <x-button.secondary class="max-w-max" @click="opened = true" x-on:click="document.getElementById('body').classList.add('modal-open');window.scrollTo(0,0);">
                     <x-icon.edit/>
                     @if($answer == '')
                         <span>{{ __('test_take.draw_answer') }}</span>
