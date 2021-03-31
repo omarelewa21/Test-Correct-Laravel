@@ -31,11 +31,15 @@
         <a x-on:click="
                 (function() {
                     $wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());
-                })()"
+                })();
+                var body = document.getElementById('body'); body.classList.remove('modal-open');
+                "
            class="btn highlight small ml5 pull-right" style="cursor: pointer;">
             <span class="fa fa-check"></span> Opslaan
         </a>
-        <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;">
+        <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;"
+           x-on:click="var body = document.getElementById('body'); body.classList.remove('modal-open')"
+        >
             <span class="fa fa-remove"></span> Sluiten
         </a>
 
@@ -95,7 +99,7 @@
         function resizeCanvas() {
             let holder = document.getElementById('{{ $this->playerInstance }}canvas-holder');
             let canvas = document.getElementById('{{ $this->playerInstance }}canvas-holder').firstElementChild;
-
+            canvas.width = holder.offsetWidth;
             {{ $this->playerInstance }}.rerender(holder.offsetWidth);
         }
     </script>

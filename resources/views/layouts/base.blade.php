@@ -11,7 +11,7 @@
     @livewireStyles
     <link rel="stylesheet" href="/css/app.css">
 </head>
-<body class="flex flex-col min-h-screen">
+<body id="body" class="flex flex-col min-h-screen">
 {{ $slot }}
 
 @livewireScripts

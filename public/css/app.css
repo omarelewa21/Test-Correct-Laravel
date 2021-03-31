@@ -430,3 +430,7 @@ h6 {
 button#browsealoud-button--launchpad {
     display:none !important;
 }
+
+body.modal-open {
+    overflow: hidden;
+}
