@@ -318,6 +318,9 @@ Paint.Layer = function(options) {
 		if(Paint.getWidth() != null) {
 			canvas.width = Paint.getWidth();
 		}
+		if (canvas.width === 0) {
+			canvas.width = Paint.getWidth();
+		}
 		// Clear canvas
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		
@@ -327,6 +330,7 @@ Paint.Layer = function(options) {
 		}
 		
 		// Draw to parent
+
 		if(pcontext) {
 			pcontext.drawImage(canvas, 0, 0);
 		}

@@ -432,5 +432,5 @@ button#browsealoud-button--launchpad {
 }
 
 body.modal-open {
-    overflow: hidden;
+    overflow-y: hidden;
 }
