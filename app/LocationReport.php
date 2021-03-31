@@ -12,6 +12,11 @@ set_time_limit(300);
 class LocationReport extends Model
 {
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',  
+    ];
+    
     protected $guarded = [];
 
     public static function updateAllLocationStats()
