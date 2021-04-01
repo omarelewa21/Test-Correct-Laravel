@@ -12,6 +12,7 @@ set_time_limit(300);
 class OnboardingWizardReport extends Model
 {
     protected $guarded = [];
+    protected $dates = ['created_at', 'updated_at'];
 
     public static function updateForUser(User $user)
     {
@@ -325,9 +326,9 @@ ORDER BY t2.displayorder,
             $start_date = Carbon::now()->subDays($days);
         
         $count = TestTake::leftJoin('users','users.id','=','test_takes.user_id')                      
-                ->leftJoin('test_take_status_log','test_takes.id','=','test_take_status_log.test_take_id')
+                ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
                 ->where('users.id', $user->id)
-                ->where('test_take_status_log.test_take_status',$status)
+                ->where('test_take_status_logs.test_take_status',$status)
                 ->whereBetween('test_takes.created_at', [$start_date, $end_date])
                 ->groupBy('test_take_id')
                 ->count();
@@ -335,9 +336,9 @@ ORDER BY t2.displayorder,
         } else { 
 
         $count =  TestTake::leftJoin('users','users.id','=','test_takes.user_id')          
-                ->leftJoin('test_take_status_log','test_takes.id','=','test_take_status_log.test_take_id')
+                ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
                 ->where('users.id', $user->id)
-                ->where('test_take_status_log.test_take_status',$status)
+                ->where('test_take_status_logs.test_take_status',$status)
                 ->groupBy('test_take_id')
                 ->count();
             

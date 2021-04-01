@@ -23,7 +23,7 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
-use tcCore\TestTakeStatusDuration;
+use tcCore\TestTakeStatusLog;
 
 class TestTake extends BaseModel
 {
@@ -55,7 +55,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti'];
+    protected $fillable = ['test_id', 'test_take_id','test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -321,15 +321,13 @@ class TestTake extends BaseModel
     protected static function booted()
     {
         static::updated(function ($testtake) {
-            
+            l
             $now_formatted = Carbon::now()->format('Y-m-d h:m:s');
-    
+            
             $create_array = ['test_take_id'=>$testtake->id,
                 'test_take_status'=>$testtake->test_take_status_id
               ];
-            
-            TestTakeStatusDuration::create($create_array);
- 
+
         });
     }
 

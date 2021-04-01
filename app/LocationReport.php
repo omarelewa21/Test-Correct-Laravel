@@ -190,25 +190,29 @@ class LocationReport extends Model
     public static function nrTestTakeStatusForStatusLocationDays($status,$location_id, $days)
     {
 
+       
         if ($days != 0) {
 
             $end_date = Carbon::now()->toDateTimeString();
             $start_date = Carbon::now()->subDays($days);
-        
+   
         $count = TestTake::leftJoin('users','users.id','=','test_takes.user_id')                      
-                ->leftJoin('test_take_status_log','test_takes.id','=','test_take_status_log.test_take_id')
+                ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
                 ->where('users.school_location_id', $location_id)
-                ->where('test_take_status_log.test_take_status',$status)
-                ->whereBetween('test_takes.created_at', [$start_date, $end_date])
+                ->where('test_take_status_logs.test_take_status',$status)
+                ->whereBetween('test_take_status_logs.created_at', [$start_date, $end_date])
                 ->groupBy('test_take_id')
                 ->count();
+        
+        
+        logger('nr counted is' . $count);
         
         } else { 
 
         $count =  TestTake::leftJoin('users','users.id','=','test_takes.user_id')          
-                ->leftJoin('test_take_status_log','test_takes.id','=','test_take_status_log.test_take_id')
+                ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
                 ->where('users.school_location_id', $location_id)
-                ->where('test_take_status_log.test_take_status',$status)
+                ->where('test_take_status_logs.test_take_status',$status)
                 ->groupBy('test_take_id')
                 ->count();
             
