@@ -319,6 +319,10 @@ class TestParticipant extends BaseModel
         }
         return false;
     }
+    public function canSeeOverviewPage()
+    {
+        return $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
+    }
 
     public function handInTestTake()
     {

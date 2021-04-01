@@ -1,7 +1,7 @@
 <div x-data="" testtakemanager
-     @if(!$forceTakenAwayModal)
-     wire:poll.10000="isTestTakeTakenAway()"
-     @endif
+{{--     @if(!$forceTakenAwayModal)--}}
+{{--     wire:poll.10000="isTestTakeTakenAway()"--}}
+{{--     @endif--}}
 >
     <x-modal maxWidth="lg" wire:model="showTurnInModal">
         <x-slot name="title">Toets inleveren</x-slot>
@@ -14,7 +14,7 @@
         </x-slot>
     </x-modal>
 
-    <x-modal maxWidth="lg" wire:model="forceTakenAwayModal" showCancelButton="true">
+    <x-modal maxWidth="lg" wire:model="forceTakenAwayModal" showCancelButton="0">
         <x-slot name="title">Toets ingenomen door docent.</x-slot>
         <x-slot name="body">De toest is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar het dashboard.</x-slot>
         <x-slot name="actionButton">
