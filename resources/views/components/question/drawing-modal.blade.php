@@ -31,11 +31,15 @@
         <a x-on:click="
                 (function() {
                     $wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());
-                })()"
+                })();
+                document.getElementById('body').classList.remove('modal-open');
+                "
            class="btn highlight small ml5 pull-right" style="cursor: pointer;">
             <span class="fa fa-check"></span> Opslaan
         </a>
-        <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;">
+        <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;"
+           x-on:click="document.getElementById('body').classList.remove('modal-open')"
+        >
             <span class="fa fa-remove"></span> Sluiten
         </a>
 
@@ -63,7 +67,7 @@
     </div>
     <div class="flex">
         <div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10 overflow-hidden"
-             style="border:1px solid gray; width: 80%; height: 481px; margin-top: 10px;" x-on:resize.window.debounce.250ms="resizeCanvas();"
+             style="border:1px solid gray; width: 80%; height: 481px; margin-top: 10px;" x-on:resize.window.debounce.250ms=" if(opened){ resizeCanvas{{$this->playerInstance}}();}"
         >
 
         </div>
@@ -92,10 +96,8 @@
         var {{ $this->playerInstance }} =
         new App('{{ $this->playerInstance }}', holder{{$this->playerInstance}}.offsetWidth);
 
-        function resizeCanvas() {
+        function resizeCanvas{{$this->playerInstance}}() {
             let holder = document.getElementById('{{ $this->playerInstance }}canvas-holder');
-            let canvas = document.getElementById('{{ $this->playerInstance }}canvas-holder').firstElementChild;
-
             {{ $this->playerInstance }}.rerender(holder.offsetWidth);
         }
     </script>

@@ -185,6 +185,9 @@ class Navigation extends Component
         $newNav = $this->nav->map(function (&$item) use ($groupId) {
             if ($item['group']['id'] == $groupId) {
                 $item['group']['closed'] = true;
+                if ($item['closeable']) {
+                    $item['closed'] = true;
+                }
                 return $item;
             }
             return $item;

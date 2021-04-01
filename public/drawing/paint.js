@@ -327,6 +327,7 @@ Paint.Layer = function(options) {
 		}
 		
 		// Draw to parent
+
 		if(pcontext) {
 			pcontext.drawImage(canvas, 0, 0);
 		}
