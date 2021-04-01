@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
@@ -205,8 +206,10 @@ class Onboarding extends Component
         try {
             $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
             $this->step = 3;
+            Throw new \Exception('Check of de bugsnag error te zien is na goede route');
         } catch (\Throwable $e) {
             $this->step = 'error';
+            Bugsnag::notifyException($e);
         }
     }
 
