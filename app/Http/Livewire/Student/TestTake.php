@@ -18,6 +18,7 @@ class TestTake extends Component
     public $showTurnInModal = false;
     public $questions;
     public $testParticipant;
+    public $forceTakenAwayModal = false;
 
     /** @var int
      *  time in milliseconds a notification is shown
@@ -74,6 +75,8 @@ class TestTake extends Component
 
     public function isTestTakeTakenAway()
     {
-        $this->testParticipant->getAttribute('test_take_status_id');
+        if($this->testParticipant->getAttribute('test_take_status_id') == 6) {
+            $this->forceTakenAwayModal = true;
+        }
     }
 }

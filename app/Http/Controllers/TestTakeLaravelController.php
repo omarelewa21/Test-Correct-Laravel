@@ -33,7 +33,9 @@ class TestTakeLaravelController extends Controller
     public function show(TestTake $testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
-        $testParticipant->startTestTake();
+        if (!$testParticipant->startTestTake()) {
+
+        }
 
         $current = $request->get('q') ?: '1';
 
