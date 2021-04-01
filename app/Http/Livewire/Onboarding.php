@@ -206,7 +206,6 @@ class Onboarding extends Component
         try {
             $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
             $this->step = 3;
-            Throw new \Exception('Check of de bugsnag error te zien is na goede route');
         } catch (\Throwable $e) {
             $this->step = 'error';
             Bugsnag::notifyException($e);
