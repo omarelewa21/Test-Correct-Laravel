@@ -332,6 +332,8 @@ class TestTake extends BaseModel
             $create_array = ['test_take_id'=>$testtake->id,
                 'test_take_status'=>$testtake->test_take_status_id
               ];
+            
+            TestTakeStatusLog::create( $create_array);
 
         });
     }
