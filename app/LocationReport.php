@@ -76,6 +76,8 @@ class LocationReport extends Model
                     'in_browser_tests_allowed' => self::inBrowserTestsAllowed($location_id), // 3.a.2
                     'nr_active_teachers' => self::nrActiveTeachers($location_id), // 3.a.2
         ]);
+        
+             
     }
     
     private static function locationName($location_id) 
@@ -189,27 +191,12 @@ class LocationReport extends Model
 
     public static function nrTestTakeStatusForStatusLocationDays($status,$location_id, $days)
     {
-
-         logger('location is ' . $location_id);
        
         if ($days != 0) {
 
             $end_date = Carbon::now()->toDateTimeString();
             $start_date = Carbon::now()->subDays($days);
-            
-            logger('start date ' . $start_date . ' ' . $end_date  .  ' ');
 
-            /*$count = TestTake::leftJoin('users', 'users.id', '=', 'test_takes.user_id')
-                    ->leftJoin('test_take_status_logs', 'test_takes.id', '=', 'test_take_status_logs.test_take_id')
-                    ->where('users.school_location_id', $location_id)
-                    ->where('test_take_status_logs.test_take_status', $status)
-                    ->whereBetween('test_take_status_logs.created_at', [$start_date, $end_date])
-                    ->groupBy('test_take_id')
-                    ->count();
-             * 
-             * 
-             */
-            
             $count = TestTake::leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
                     ->where('test_takes.school_location_id',$location_id)
                     ->where('test_take_status_logs.test_take_status', $status)
@@ -222,40 +209,15 @@ class LocationReport extends Model
              $combined_table_status = $combined_table_location->where('test_take_status_logs.test_take_status', $status);
              $combined_table_period = $combined_table_status->whereBetween('test_take_status_logs.created_at', [$start_date, $end_date]);
              
-             $count = $combined_table_period->count();
-                     
-            logger('nr counted with period ' . $days . ' is ' . $count);
+             $count = $combined_table_period->count();                  
             
         } else {
 
-            
-            
-            /*
-            $count = TestTake::leftJoin('users', 'users.id', '=', 'test_takes.user_id')
-                    ->leftJoin('test_take_status_logs', 'test_takes.id', '=', 'test_take_status_logs.test_take_id')
-                    ->where('users.school_location_id', $location_id)
-                    ->where('test_take_status_logs.test_take_status', $status)
-                    ->groupBy('test_take_id')
-                    ->count();
-             * *
-             */
-            
-            
-            /*
-              $count = TestTake::leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
-                     ->where('test_takes.school_location_id',$location_id)
-                     ->where('test_take_status_logs.test_take_status', $status)
-                     ->groupBy('test_take_id')
-                     ->count();
-              */
-            
              $combined_table = TestTake::leftJoin('test_take_status_logs','test_take_status_logs.test_take_id','test_takes.id');
              $combined_table_location = $combined_table ->where('test_takes.school_location_id',$location_id);
              $combined_table_status = $combined_table_location->where('test_take_status_logs.test_take_status', $status);
  
              $count = $combined_table_status->count();
-              
-             logger('nr counted total is ' . $count);
         }
 
         return $count;
@@ -263,7 +225,10 @@ class LocationReport extends Model
 
     private static function inBrowserTestsAllowed($location_id)
     {
-        return SchoolLocation::where('id', $location_id)->value('allow_inbrowser_testing');
+
+        $in_browser_testing_allowed =   SchoolLocation::where('id', $location_id)->value('allow_inbrowser_testing') == true ? 1 : 0;
+        
+        return  $in_browser_testing_allowed;
     }
 
     private static function nrActiveTeachers($location_id)

@@ -15,7 +15,6 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\BeforeExport;
 use tcCore\LocationReport;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class LocationExport implements WithEvents, FromCollection, WithHeadings,WithMapping
 {
@@ -91,7 +90,7 @@ class LocationExport implements WithEvents, FromCollection, WithHeadings,WithMap
 
         }
 
-        $report_row[ 'created_at'] = substr($location_report->created_at,0,19);
+        $report_row['created_at'] = substr($location_report->created_at,0,19);
         $report_row['updated_at'] = substr($location_report->created_at,0,19);
         
         return $report_row;
