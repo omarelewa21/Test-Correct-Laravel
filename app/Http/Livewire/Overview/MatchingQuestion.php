@@ -14,15 +14,19 @@ class MatchingQuestion extends Component
     use WithAttachments, WithNotepad, WithCloseable;
 
     public $answer;
+    public $answered;
     public $question;
     public $number;
 
     public $answers;
     public $answerStruct;
 
+    public $shuffledAnswers;
+
     public function mount()
     {
         $this->question->loadRelated();
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
 
         $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
 
@@ -37,6 +41,8 @@ class MatchingQuestion extends Component
                 }
             }
         }
+
+        $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
     }
 
     public function render()

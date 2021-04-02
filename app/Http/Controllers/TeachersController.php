@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
@@ -134,7 +135,12 @@ class TeachersController extends Controller
 //                    }
                 } else {
                     $userFactory = new Factory(new User());
-                    $user = $userFactory->generate($attributes);
+                    $user = $userFactory->generate(
+                        array_merge(
+                            $attributes,
+                            ['account_verified' => Carbon::now()]
+                        )
+                    );
                 }
                 $user->save();
 

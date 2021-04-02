@@ -190,36 +190,75 @@ class LocationReport extends Model
     public static function nrTestTakeStatusForStatusLocationDays($status,$location_id, $days)
     {
 
+         logger('location is ' . $location_id);
        
         if ($days != 0) {
 
             $end_date = Carbon::now()->toDateTimeString();
             $start_date = Carbon::now()->subDays($days);
-   
-        $count = TestTake::leftJoin('users','users.id','=','test_takes.user_id')                      
-                ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
-                ->where('users.school_location_id', $location_id)
-                ->where('test_take_status_logs.test_take_status',$status)
-                ->whereBetween('test_take_status_logs.created_at', [$start_date, $end_date])
-                ->groupBy('test_take_id')
-                ->count();
-        
-        
-        logger('nr counted is' . $count);
-        
-        } else { 
-
-        $count =  TestTake::leftJoin('users','users.id','=','test_takes.user_id')          
-                ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
-                ->where('users.school_location_id', $location_id)
-                ->where('test_take_status_logs.test_take_status',$status)
-                ->groupBy('test_take_id')
-                ->count();
             
+            logger('start date ' . $start_date . ' ' . $end_date  .  ' ');
+
+            /*$count = TestTake::leftJoin('users', 'users.id', '=', 'test_takes.user_id')
+                    ->leftJoin('test_take_status_logs', 'test_takes.id', '=', 'test_take_status_logs.test_take_id')
+                    ->where('users.school_location_id', $location_id)
+                    ->where('test_take_status_logs.test_take_status', $status)
+                    ->whereBetween('test_take_status_logs.created_at', [$start_date, $end_date])
+                    ->groupBy('test_take_id')
+                    ->count();
+             * 
+             * 
+             */
+            
+            $count = TestTake::leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
+                    ->where('test_takes.school_location_id',$location_id)
+                    ->where('test_take_status_logs.test_take_status', $status)
+                     ->whereBetween('test_take_status_logs.created_at', [$start_date, $end_date])
+                     ->groupBy('test_take_id')
+                     ->count();
+            
+             $combined_table = TestTake::leftJoin('test_take_status_logs','test_take_status_logs.test_take_id','test_takes.id');
+             $combined_table_location = $combined_table ->where('test_takes.school_location_id',$location_id);
+             $combined_table_status = $combined_table_location->where('test_take_status_logs.test_take_status', $status);
+             $combined_table_period = $combined_table_status->whereBetween('test_take_status_logs.created_at', [$start_date, $end_date]);
+             
+             $count = $combined_table_period->count();
+                     
+            logger('nr counted with period ' . $days . ' is ' . $count);
+            
+        } else {
+
+            
+            
+            /*
+            $count = TestTake::leftJoin('users', 'users.id', '=', 'test_takes.user_id')
+                    ->leftJoin('test_take_status_logs', 'test_takes.id', '=', 'test_take_status_logs.test_take_id')
+                    ->where('users.school_location_id', $location_id)
+                    ->where('test_take_status_logs.test_take_status', $status)
+                    ->groupBy('test_take_id')
+                    ->count();
+             * *
+             */
+            
+            
+            /*
+              $count = TestTake::leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
+                     ->where('test_takes.school_location_id',$location_id)
+                     ->where('test_take_status_logs.test_take_status', $status)
+                     ->groupBy('test_take_id')
+                     ->count();
+              */
+            
+             $combined_table = TestTake::leftJoin('test_take_status_logs','test_take_status_logs.test_take_id','test_takes.id');
+             $combined_table_location = $combined_table ->where('test_takes.school_location_id',$location_id);
+             $combined_table_status = $combined_table_location->where('test_take_status_logs.test_take_status', $status);
+ 
+             $count = $combined_table_status->count();
+              
+             logger('nr counted total is ' . $count);
         }
-        
+
         return $count;
-               
     }
 
     private static function inBrowserTestsAllowed($location_id)

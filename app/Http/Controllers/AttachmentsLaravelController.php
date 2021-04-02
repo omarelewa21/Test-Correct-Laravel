@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use tcCore\Answer;
 use tcCore\Attachment;
 use tcCore\TestParticipant;
 
@@ -13,9 +14,9 @@ class AttachmentsLaravelController extends Controller {
      * @param  Attachment  $attachment
      * @return Response
      */
-    public function show(Attachment $attachment)
+    public function show(Attachment $attachment, Answer $answer)
     {
-        if ($attachment->canBeAccessedByUser(Auth::user())) {
+        if ($attachment->isAccessableFrom($answer)) {
             return Response::file($attachment->getCurrentPath());
         }
         return Response::noContent();

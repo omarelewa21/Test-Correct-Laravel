@@ -23,6 +23,7 @@ class MultipleChoiceQuestion extends Component
     public $answers;
 
     public $answerStruct;
+    public $shuffledKeys;
 
     public $number;
 
@@ -36,31 +37,35 @@ class MultipleChoiceQuestion extends Component
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
+    public $answerText;
+
 
     public function mount()
     {
-        $this->answer = collect((array) json_decode($this->answers[$this->question->uuid]['answer']))->search(function (
-            $item
-        ) {
-            return $item == 1;
-        });
 
-        $this->answerStruct =
-            array_fill_keys(
-                array_keys(
-                    array_flip(Question::whereUuid($this->question->uuid)
-                        ->first()
-                        ->multipleChoiceQuestionAnswers->pluck('id')
-                        ->toArray()
-                    )
-                ), 0
-            );
+        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
+            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
+        } else {
+            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+                $this->answerStruct[$answers->id] = 0;
+            });
+        }
+
+        $this->shuffledKeys = array_keys($this->answerStruct);
+        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            shuffle($this->shuffledKeys);
+        }
+
+        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+            $this->answerText[$answers->id] = $answers->answer;
+        });
     }
 
     public function updatedAnswer($value)
     {
         $this->answerStruct = array_fill_keys(array_keys($this->answerStruct), 0);
         $this->answerStruct[$value] = 1;
+
 
         $json = json_encode($this->answerStruct);
 

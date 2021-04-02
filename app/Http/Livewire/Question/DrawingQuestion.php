@@ -2,7 +2,6 @@
 
 namespace tcCore\Http\Livewire\Question;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use tcCore\Answer;
@@ -10,8 +9,6 @@ use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithQuestionTimer;
-use tcCore\Question;
 
 class DrawingQuestion extends Component
 {

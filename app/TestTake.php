@@ -55,7 +55,8 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_id','test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti'];
+
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -277,6 +278,10 @@ class TestTake extends BaseModel
                     Queue::push(new CountTeacherTestDiscussed($user));
                 }
             }
+
+            if ($testTake->getAttribute('allow_inbrowser_testing') != $testTake->getOriginal('allow_inbrowser_testing')) {
+                TestParticipant::where('test_take_id', $testTake->getKey())->update(['allow_inbrowser_testing' => $testTake->getAttribute('allow_inbrowser_testing')]);
+            }
         });
 
         static::creating(function(TestTake $testTake) {
@@ -321,7 +326,7 @@ class TestTake extends BaseModel
     protected static function booted()
     {
         static::updated(function ($testtake) {
-            l
+            
             $now_formatted = Carbon::now()->format('Y-m-d h:m:s');
             
             $create_array = ['test_take_id'=>$testtake->id,

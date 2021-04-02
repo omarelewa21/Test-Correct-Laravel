@@ -25,24 +25,29 @@ class MultipleSelectQuestion extends Component
 
     public $number;
 
+    public $answerText;
+    public $shuffledKeys;
+
     public function mount()
     {
         $this->selectable_answers = $this->question->selectable_answers;
 
-        if ($this->answers[$this->question->uuid]['answer']) {
+        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
         } else {
-            $this->answerStruct =
-                array_fill_keys(
-                    array_keys(
-                        array_flip(Question::whereUuid($this->question->uuid)
-                            ->first()
-                            ->multipleChoiceQuestionAnswers->pluck('id')
-                            ->toArray()
-                        )
-                    ), 0
-                );
+            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+                $this->answerStruct[$answers->id] = 0;
+            });
         }
+
+        $this->shuffledKeys = array_keys($this->answerStruct);
+        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            shuffle($this->shuffledKeys);
+        }
+
+        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+            $this->answerText[$answers->id] = $answers->answer;
+        });
     }
 
     public function updatedAnswer($value)

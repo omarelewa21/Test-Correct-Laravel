@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Session;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\SendNotifyInviterMail;
@@ -35,7 +36,7 @@ class DemoTeacherRegistration extends Model
 
     public static function registerIfApplicable(User $user)
     {
-        
+
         if (request('shouldRegisterUser') == true) {
 
             if ($user->schoolLocation->is(SchoolHelper::getTempTeachersSchoolLocation())) {
@@ -117,7 +118,9 @@ class DemoTeacherRegistration extends Model
 
                 if (auth()->user() === null) {
                     // zorgen dat de user altijd bestaat.
-                    auth()->login(SchoolHelper::getBaseDemoSchoolUser());
+                    $demoSchoolUser = SchoolHelper::getBaseDemoSchoolUser();
+                    auth()->login($demoSchoolUser);
+                    ActingAsHelper::getInstance()->setUser($demoSchoolUser);
                 }
 
                 $userFactory = new Factory(new User());

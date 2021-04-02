@@ -1,51 +1,27 @@
-<?php namespace tcCore\Http\Middleware;
+<?php
 
+namespace tcCore\Http\Middleware;
+
+use tcCore\Providers\RouteServiceProvider;
 use Closure;
-use Illuminate\Contracts\Auth\Guard;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use tcCore\Shortcode;
-use tcCore\TestParticipant;
-use tcCore\TestTake;
 
-class RedirectIfAuthenticated {
+class RedirectIfAuthenticated
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @param  string|null  $guard
+     * @return mixed
+     */
+    public function handle($request, Closure $next, $guard = null)
+    {
+//        if (Auth::guard($guard)->check()) {
+//            return redirect(config('app.url_login'));
+//        }
 
-	/**
-	 * The Guard implementation.
-	 *
-	 * @var Guard
-	 */
-	protected $auth;
-
-	/**
-	 * Create a new filter instance.
-	 *
-	 * @param  Guard  $auth
-	 * @return void
-	 */
-	public function __construct(Guard $auth)
-	{
-		$this->auth = $auth;
-	}
-
-	/**
-	 * Handle an incoming request.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  \Closure  $next
-	 * @return mixed
-	 */
-	public function handle($request, Closure $next)
-	{
-	    if($request->short_code) {
-            $user = Shortcode::whereCode($request->short_code)->first()->user_id;
-
-            if (Auth::loginUsingId($user)) {
-                return new RedirectResponse(url(route('student.test-take-laravel', $request->test_take->uuid)));
-            }
-	    }
-
-		return $next($request);
-	}
-
+        return $next($request);
+    }
 }

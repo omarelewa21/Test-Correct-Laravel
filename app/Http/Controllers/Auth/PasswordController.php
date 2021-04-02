@@ -33,7 +33,8 @@ class PasswordController extends Controller {
             // the current URI having nothing set in the session to indicate errors.
             $token = Password::getRepository()->create($user);
 
-            $url = $request->get('url', null);
+//            $url = $request->get('url', null);
+            $url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
             $urlLogin = config('app.url_login');
 
 			try {

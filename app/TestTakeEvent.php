@@ -56,7 +56,7 @@ class TestTakeEvent extends BaseModel {
         return $this->belongsTo('tcCore\TestParticipant');
     }
 
-        public function scopeFiltered($query, $filters = [], $sorting = []) {
+    public function scopeFiltered($query, $filters = [], $sorting = []) {
         foreach($filters as $key => $value) {
             switch($key) {
                 case 'id':

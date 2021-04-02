@@ -2,13 +2,9 @@
 
 namespace tcCore\Http\Livewire\Question;
 
-use Illuminate\Routing\Route;
-use Illuminate\Support\Collection;
 use Livewire\Component;
 use tcCore\Answer;
-use tcCore\Http\Livewire\Student\TestTake;
 use tcCore\Question;
-use function Symfony\Component\String\s;
 
 class Navigation extends Component
 {
@@ -17,6 +13,7 @@ class Navigation extends Component
     public $q;
     public $queryString = ['q'];
     public $startTime;
+    public $isOverview = false;
 
     public $lastQuestionInGroup = [];
 
@@ -127,6 +124,10 @@ class Navigation extends Component
 
     public function goToQuestion($question)
     {
+        if (!$this->nav->has($question-1)) {
+            return;
+        }
+
         $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
 
         $isThisQuestion = $this->nav[$this->q - 1];
@@ -184,6 +185,9 @@ class Navigation extends Component
         $newNav = $this->nav->map(function (&$item) use ($groupId) {
             if ($item['group']['id'] == $groupId) {
                 $item['group']['closed'] = true;
+                if ($item['closeable']) {
+                    $item['closed'] = true;
+                }
                 return $item;
             }
             return $item;
@@ -200,4 +204,5 @@ class Navigation extends Component
         );
         $this->startTime = time();
     }
+
 }

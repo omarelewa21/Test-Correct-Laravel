@@ -2,7 +2,7 @@
 
 namespace tcCore\Exports;
 use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Excel;
+
 
 class TestTakesExport implements FromArray
 {
@@ -15,4 +15,4 @@ class TestTakesExport implements FromArray
     {
         return $this->exporting;
     }
-}
+

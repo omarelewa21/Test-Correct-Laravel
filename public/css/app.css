@@ -13,8 +13,10 @@
     --cta-secondary: #004DF5;
     --primary: #004df5;
     --primary-light: #e6edfa;
-    --secondary: #ECD900;
-    --highlight-primary: #ECD900;
+    --secondary: #ECDB00;
+    --highlight-primary: #ECDB00;
+    --highlight-primary-mid-dark: #dec802;
+    --highlight-primary-light: #fffcd7;
     --system-base: #041f74;
     --system-secondary: #CEDAF3;
     --mid-grey: #929DAF;
@@ -248,6 +250,9 @@ svg {
     border-color: var(--note);
 }
 
+.primary-hover:hover {
+    color: var(--primary);
+}
 
 .rounded-10 {
     border-radius: 10px;
@@ -368,7 +373,6 @@ h6 {
     background: white;
     border-radius: 10px;
     box-shadow: 0 3px 18px 0 rgba(77, 87, 143, 0.1);
-    min-height: 300px;
 }
 
 .divider {
@@ -417,4 +421,16 @@ h6 {
 .paginator .question-number.active {
     background: var(--primary);
     border: solid 3px var(--primary);
+}
+
+.student-bg {
+    background-image: linear-gradient(to top, var(--highlight-primary-mid-dark), var(--highlight-primary));
+}
+/* Hide browsealoud button*/
+button#browsealoud-button--launchpad {
+    display:none !important;
+}
+
+body.modal-open {
+    overflow-y: hidden;
 }

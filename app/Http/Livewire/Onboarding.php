@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
@@ -207,6 +208,7 @@ class Onboarding extends Component
             $this->step = 3;
         } catch (\Throwable $e) {
             $this->step = 'error';
+            Bugsnag::notifyException($e);
         }
     }
 
