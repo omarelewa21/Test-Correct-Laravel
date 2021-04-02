@@ -34,7 +34,7 @@
                                         <div class="mb-4">
                                             <div class="input-group">
                                                 <input id="username" wire:model.lazy="username"
-                                                       autocomplete="q-q-q"
+                                                       autocomplete="new-password"
                                                        class="form-input @error('registration.username') border-red @enderror"
                                                        autofocus>
                                                 <label for="username"
@@ -45,7 +45,7 @@
                                     <div class="password items-start">
                                         <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
                                             <input id="password" wire:model="password" type="password"
-                                                   autocomplete="q-q-q-q"
+                                                   autocomplete="new-password"
                                                    class="form-input ">
                                             <label for="password" class="transition ease-in-out duration-150">Creeër
                                                 wachtwoord</label>

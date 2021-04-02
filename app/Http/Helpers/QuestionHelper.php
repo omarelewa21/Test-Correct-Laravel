@@ -45,9 +45,11 @@ class QuestionHelper extends BaseHelper
     {
         $numberOfSubquestions = $question->number_of_subquestions;
         $groupQuestionQuestions = $question->groupQuestionQuestions()->orderBy('order', 'asc')->with('question')->get();
-        $questionScore = $groupQuestionQuestions->first()->question->score;
-        $maxScore = ($questionScore*$numberOfSubquestions);
-        return $maxScore;
+        if($groupQuestionQuestions->count() > 0) {
+            $questionScore = $groupQuestionQuestions->first()->question->score;
+            return (int) ($questionScore * $numberOfSubquestions);
+        }
+        return 0;
     }
 
     public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question)
