@@ -39,6 +39,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         'uuid' => EfficientUuid::class,
         'allow_inbrowser_testing' => 'boolean',
         'intense' => 'boolean',
+        'school_language' => 'string',
     ];
 
     /**
@@ -64,7 +65,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
         'number_of_teachers', 'activated', 'main_address', 'main_postal', 'main_city', 'main_country', 'invoice_address',
         'invoice_postal', 'invoice_city', 'invoice_country', 'visit_address', 'visit_postal', 'visit_city', 'visit_country',
         'is_rtti_school_location', 'external_main_code','external_sub_code','is_open_source_content_creator',
-        'is_allowed_to_view_open_source_content','allow_inbrowser_testing', 'allow_new_player_access'];
+        'is_allowed_to_view_open_source_content','allow_inbrowser_testing', 'allow_new_player_access', 'school_language'];
 
     /**
      * The attributes excluded from the model's JSON form.
