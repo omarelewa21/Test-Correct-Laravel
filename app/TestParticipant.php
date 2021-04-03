@@ -39,6 +39,8 @@ class TestParticipant extends BaseModel
      */
     protected $table = 'test_participants';
 
+    protected $appends = ['intense'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -57,6 +59,12 @@ class TestParticipant extends BaseModel
     {
         parent::boot();
 
+        static::created(function (TestParticipant $testParticipant) {
+            if ($testParticipant->testTake->allow_inbrowser_testing) {
+                $testParticipant->allow_inbrowser_testing = true;
+                $testParticipant->save();
+            }
+        });
         static::saved(function (TestParticipant $testParticipant) {
             //$testParticipant->load('testTakeStatus');
 
@@ -315,4 +323,15 @@ class TestParticipant extends BaseModel
         $this->setAttribute('test_take_status_id', 4)->save();
         return true;
     }
+
+    public function testTakeOpenForInteraction()
+    {
+            return null !== $this->where('test_take_status_id', 3)
+            ->orWhere('test_take_status_id', 7)
+            ->first();
+    }
+    public function getIntenseAttribute() {
+        return $this->user->intense && $this->user->schoolLocation->intense;
+    }
+
 }

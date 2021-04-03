@@ -19,6 +19,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\SchoolClass;
 use tcCore\Shortcode;
+use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TestParticipant;
@@ -1331,11 +1332,11 @@ class TestTakesController extends Controller {
         return $testTake->unArchiveForUser(Auth::user());
     }
 
-    public function withShortCode(TestTake $testTake) {
+    public function withTemporaryLogin(TestTake $testTake) {
         $response = new \stdClass;
-        $shortCode = Shortcode::createForUser(Auth()->user());
+        $shortCode = TemporaryLogin::createForUser(Auth()->user());
 
-        $response->url = sprintf('%sstart-test-take-with-short-code/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->code);
+        $response->url = sprintf('%sstart-test-take-with-temporary-login/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->uuid);
 
         return  response()->json($response);
     }
@@ -1343,5 +1344,18 @@ class TestTakesController extends Controller {
     public function hasCarouselQuestion(TestTake $testTake)
     {
         return response()->json(['has_carousel' =>  $testTake->hasCarousel()]);
+    }
+
+    public function toggleInbrowserTestingForAllParticipants(TestTake $testTake)
+    {
+        $allow_inbrowser_testing = $testTake->allow_inbrowser_testing;
+        $testTake->setAttribute('allow_inbrowser_testing', !$allow_inbrowser_testing)->save();
+        TestParticipant::where('test_take_id', $testTake->getKey())->update(['allow_inbrowser_testing' => !$allow_inbrowser_testing]);
+    }
+
+    public function isAllowedInbrowserTesting(TestTake $testTake)
+    {
+        $response['allowed'] = $testTake->allow_inbrowser_testing;
+        return $response;
     }
 }

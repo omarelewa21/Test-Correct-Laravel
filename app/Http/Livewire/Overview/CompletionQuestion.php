@@ -15,6 +15,7 @@ class CompletionQuestion extends Component
     public $question;
 
     public $answer = [];
+    public $answered;
     public $answers;
 
     public $number;
@@ -22,6 +23,7 @@ class CompletionQuestion extends Component
     public function mount()
     {
         $this->answer = (array) json_decode($this->answers[$this->question->uuid]['answer']);
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     private function completionHelper($question)
@@ -35,7 +37,7 @@ class CompletionQuestion extends Component
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input wire:model="answer.%d" class="form-input mb-2 disabled" type="text" id="%s" style="width: 100px" disabled/>',
+                '<input wire:model="answer.%d" class="form-input mb-2 disabled truncate" type="text" id="%s" style="width: 100px" disabled/>',
                 $tag_id,
                 'answer_'.$tag_id
             );

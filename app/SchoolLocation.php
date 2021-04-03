@@ -38,6 +38,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
     protected $casts = [
         'uuid' => EfficientUuid::class,
         'allow_inbrowser_testing' => 'boolean',
+        'intense' => 'boolean',
     ];
 
     /**

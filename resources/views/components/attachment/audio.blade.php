@@ -17,11 +17,11 @@
             <h5>{{__('test_take.sound_clip')}}</h5>
         @endif
         @if($this->timeout)
-            <h5>Je hebt {{ $this->timeout }} seconden om de vraag te beantwoorden na het sluiten van de bijlage.</h5>
+            <h5>{{ __('test_take.time_left_to_answer_after_closing_attachment', ['timeout' => $this->timeout]) }}</h5>
         @endif
     </div>
     <div>
-        <audio id="player" src="{{ route('student.question-attachment-show', $attachment->getKey(), false) }}"
+        <audio id="player" src="{{ route('student.question-attachment-show', ['attachment' => $attachment->getKey(), 'answer' => $this->answerId], false) }}"
                x-ref="player"
                @if($attachment->audioOnlyPlayOnce())
                     x-on:ended="@this.audioIsPlayedOnce(attachment);"

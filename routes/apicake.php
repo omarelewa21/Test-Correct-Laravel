@@ -12,10 +12,14 @@
 */
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Laravel\Dusk\Http\Controllers\UserController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use tcCore\Http\Controllers\Auth\AuthController;
 use tcCore\Http\Controllers\Testing\TestingController;
 
 // file name was api.php and is now apicake.php in order to make room for the direct access urls
+
+Route::post('/do_we_need_captcha',[AuthController::class,'doWeNeedCaptcha'])->name('user.doWeNeedCaptcha');
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
@@ -127,7 +131,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::put('test_take/{test_take}/un-archive','TestTakesController@unarchive')->name('test_take.un_archive');
 
 
-	Route::post('test_take/{test_take}/with_short_code',  'TestTakesController@withShortCode')->name('test_take.with_short_code');
+	Route::post('test/{test}/with_temporary_login',  'TestsController@withTemporaryLogin')->name('test.with_short_code');
+	Route::post('test_take/{test_take}/with_temporary_login',  'TestTakesController@withTemporaryLogin')->name('test_take.with_short_code');
 
 	// Test take children
 	Route::post('test_take/{test_take_id}/test_participant/{test_participant}/heartbeat', ['as' => 'test_take.test_participant.heartbeat', 'uses' => 'TestTakes\TestParticipantsController@heartbeat']);
@@ -148,6 +153,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('test_participant/drawing_answer_url/{answer}',['uses' => 'TestParticipants\AnswersController@getDrawingAnswerUrl']);
 
     Route::get('answers/drawing_answer/{answer}',['uses' => 'AnswersController@showDrawing']);
+
+    Route::get('answer/{answer}/test_take',['uses' => 'AnswersController@getTestTake']);
 
     // Test participant children
     Route::resource('test_participant.answer', 'TestParticipants\AnswersController', ['except' => ['create', 'edit']]);
@@ -181,6 +188,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	// Needed lookups
     Route::post('/school_class/importStudents/{schoolLocation}/{schoolClass}','SchoolClassesStudentImportController@store')->name('school_classes.import');
+    Route::post('/school_class/importStudentsWithClasses/{schoolLocation}','SchoolClassesStudentImportController@store')->name('school_classes.import_with_classes');
+    
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
@@ -208,6 +217,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
     Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
     Route::get('user/is_account_verified', ['as' => 'user.is_account_verified', 'uses' => 'UsersController@isAccountVerified']);
+    Route::post('user/toggle_account_verified/{user}', ['as' => 'user.toggle_account_verified', 'uses' => 'UsersController@toggleAccountVerified']);
+
+
 
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
     Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
@@ -296,16 +308,15 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::get('school_location_user/existing_teachers', 'SchoolLocationUsersController@getExistingTeachers')->name('school_location_user.get_existing_teachers');
 
-    Route::get('shortcode/{shortcode}','ShortcodeController@show')->name('shortcode.show');
     Route::get('shortcode','Api\ShortcodeController@store')->name('shortcode.store');
-    Route::get('inv/{shortcode}', 'Api\ShortcodeController@registerClickAndRedirect')->name('shortcode.registerclickandredirect');
     Route::put('shortcodeclick/{shortcodeClick}','Api\ShortCodeClickController@update')->name('shortcodeClick.update');
 
     Route::get('config/{variable_name}','ConfigController@show')->name('config.show');
     // goes to the web part
     // Route::get('tlc/{shortcode}','ShortcodeController@registerClickAndRedirect')->name('shortcode.registerAndRedirect');
     Route::get('test_participant/{test_take}/is_allowed_inbrowser_testing','TestTakes\TestParticipantsController@is_allowed_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.show');
+    Route::get('test_take/{test_take}/is_allowed_inbrowser_testing','TestTakesController@isAllowedInbrowserTesting')->name('test_takes.is_allowed_inbrowser_testing.show');
     Route::put('test_take/{test_take}/test_participant/{test_participant}/toggle_inbrowser_testing','TestTakes\TestParticipantsController@toggle_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.update');
     Route::get('test_take/{test_take}/has_carousel_question','TestTakesController@hasCarouselQuestion')->name('test_takes.has_carousel_question');
-
+    Route::put('test_take/{test_take}/toggle_inbrowser_testing_for_all_participants','TestTakesController@toggleInbrowserTestingForAllParticipants')->name('test_takes.toggle_inbrowser_testing_for_all_participants');
 });

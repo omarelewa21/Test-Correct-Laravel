@@ -1,3 +1,4 @@
+@props(['notificationTimeout' => 5000])
 <div
         x-data="{
         messages: [],
@@ -5,7 +6,7 @@
             this.messages.splice(this.messages.indexOf(message), 1)
         },
     }"
-        @notify.window="let message = $event.detail; messages.push(message); setTimeout(() => { remove(message) }, 3000)"
+        @notify.window="let message = $event.detail; messages.push(message); setTimeout(() => { remove(message) }, {{ $notificationTimeout }})"
         class="fixed z-50 inset-0 flex flex-col items-end justify-center px-4 py-6 pointer-events-none sm:p-6 sm:justify-start space-y-4"
 >
     <template x-for="(message, messageIndex) in messages" :key="messageIndex">
@@ -18,9 +19,9 @@
                 x-transition:leave-end="opacity-0"
                 class="max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto"
         >
-            <div class="rounded-lg shadow-xs overflow-hidden">
+            <div class="rounded-lg shadow-xs overflow-hidden border border-light-grey">
                 <div class="p-4">
-                    <div class="flex items-start">
+                    <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <template x-if="message.type != 'error'">
                                 <svg class="h-6 w-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -29,9 +30,10 @@
                                 </svg>
                             </template>
                             <template x-if="message.type == 'error'">
-                                <svg class="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                </svg>
+                                <div class="fraud-detection rounded-full bg-all-red text-white flex justify-center items-center"
+                                     style="width:30px;height:30px">
+                                    <img src="{{ asset('/svg/icons/exclamation-white.svg') }}" alt="" width="6" height="30">
+                                </div>
                             </template>
                         </div>
                         <div class="ml-3 w-0 flex-1 pt-0.5">

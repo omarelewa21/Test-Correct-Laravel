@@ -1,5 +1,7 @@
 @extends('emails.layout')
-
+@php
+ \Bugsnag\BugsnagLaravel\Facades\Bugsnag::leaveBreadcrumb('regular-student.blade.php');
+@endphp
 @section('content')
 <tr>
 <td colspan="999" style="padding:20px;">
@@ -7,9 +9,14 @@
 <br/>
 {{ __("regular-student.Welkom bij Test-Correct") }}!<br/>
 <br/>
-{{ __("regular-student.Leuk dat je gaat werken in Test-Correct. Niets staat je nog in de weg om betere resultaten te behalen. Je actieve bijdrage bij het bespreken van de toets gaat ervoor zorgen dat jij veel meer gaat begrijpen en onthouden, de automatische analyse wijst je ook nog eens op je sterktes en zwaktes! Een goede voorbereiding voor ieder examen. Niets staat een prachtig diploma nog in de weg") }}!<br/>
-{{ __("regular-student.Je gebruikersnaam") }}: {{ $user->username }}<br/>
-{{ __("regular-student.Je wachtwoord") }}: {{ $password }}<br/>
+Leuk dat je gaat werken in Test-Correct. Niets staat je nog in de weg om betere resultaten te behalen. Je actieve bijdrage bij het bespreken van de toets gaat ervoor zorgen dat jij veel meer gaat begrijpen en onthouden, de automatische analyse wijst je ook nog eens op je sterktes en zwaktes! Een goede voorbereiding voor ieder examen. Niets staat een prachtig diploma nog in de weg!<br/>
+Je gebruikersnaam: {{ $user->username }}<br/>
+    Je kunt je wachtwoord instellen op:<br />
+    <a href="{{ sprintf($url, $token) }}">{{ sprintf($url, $token) }}</a><br/>
+    <br/>
+    Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.
+    <BR/> <a href="{{ config('app.url_login') }}">Nieuwe verzoek opsturen</a><br/>
+    <br/>
 <br/>
 {{ __("regular-student.Lees deze tips voordat je aan de slag gaat") }}:<br/>
 <ul>
