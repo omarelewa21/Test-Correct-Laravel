@@ -40,7 +40,7 @@
         @endif
     </div>
 
-
+    @push('scripts')
     <script>
         dragElement(document.getElementById("attachment"));
 
@@ -85,4 +85,5 @@
             }
         }
     </script>
+    @endpush
 @endif

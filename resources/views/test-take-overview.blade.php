@@ -107,6 +107,7 @@
             <livewire:student.fraud-detection :testTakeUuid="$uuid" :testParticipant="$testParticipant"/>
         </x-slot>
     </div>
+    @push('scripts')
     <script>
         function calculateMarginTop() {
             var questionNav = document.getElementById('overviewQuestionNav').offsetHeight;
@@ -115,5 +116,6 @@
             return 'margin-top:' + total +'px';
         }
     </script>
+    @endpush
 </x-layouts.app>
 

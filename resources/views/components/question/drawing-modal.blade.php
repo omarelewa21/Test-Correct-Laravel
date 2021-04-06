@@ -84,13 +84,12 @@
           placeholder="Begeleidende tekst"></textarea>
     </div>
     <!-- Vendors -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    @push('scripts')
     <script src="/drawing/filesaver.min.js"></script>
     <script src="/drawing/canvas-toblob.js"></script>
 
     <script src="/drawing/paint.js"></script>
     <script src="/drawing/loadPaint.js"></script>
-
     <script>
         let holder{{$this->playerInstance}} = document.getElementById('{{ $this->playerInstance }}canvas-holder');
         var {{ $this->playerInstance }} =
@@ -101,5 +100,5 @@
             {{ $this->playerInstance }}.rerender(holder.offsetWidth);
         }
     </script>
-
+    @endpush
 </div>

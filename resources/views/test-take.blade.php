@@ -92,7 +92,7 @@
             <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()"/>
         </x-slot>
     </div>
-
+    @push('scripts')
     <script>
         function footerButtonData(q, last) {
             if (q === 1) {
@@ -125,5 +125,6 @@
             return data;
         }
     </script>
+    @endpush
 </x-layouts.app>
 
