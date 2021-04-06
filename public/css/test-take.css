@@ -145,20 +145,20 @@
     background: linear-gradient(to bottom, var(--light-grey) 0%, rgba(255,255,255,0) 100%);
 }
 
-.matching-question #drag-item {
+.matching-question .drag-item {
     max-width: 100%;
 }
 
-.matching-question .startGroup #drag-item {
+.matching-question .startGroup .drag-item {
     margin-bottom: 4px;
     max-width: fit-content;
 }
-.matching-question .classify #drag-item {
+.matching-question .classify .drag-item {
     margin-bottom: 4px;
     margin-right: 4px;
 }
 
-.matching-question .matching-dropzone #drag-item {
+.matching-question .matching-dropzone .drag-item {
     width: 100%;
 }
 
