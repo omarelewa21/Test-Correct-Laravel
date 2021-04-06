@@ -86,7 +86,7 @@
             </div>
         </x-slot>
         <x-slot name="testTakeManager">
-            <livewire:student.test-take :testTakeUuid="$uuid" :questions="$data" :testParticipant="$testParticipant"/>
+            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipant="$testParticipant"/>
         </x-slot>
         <x-slot name="fraudDetection">
             <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()"/>

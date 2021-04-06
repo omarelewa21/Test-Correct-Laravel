@@ -29,18 +29,19 @@
         prevFocusable() { return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable() },
         nextFocusableIndex() { return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1) },
         prevFocusableIndex() { return Math.max(0, this.focusables().indexOf(document.activeElement)) -1 },
+        showCancelButton: true
     }"
         x-init="$watch('show', value => {
-        if (value) {
-            document.body.classList.add('overflow-y-hidden');
-        } else {
-            document.body.classList.remove('overflow-y-hidden');
-        }
-    })"
-        @if($showCancelButton)
-        x-on:close.stop="show = false"
-        x-on:keydown.escape.window="show = false"
-        @endif
+            if (value) {
+                document.body.classList.add('overflow-y-hidden');
+            } else {
+                document.body.classList.remove('overflow-y-hidden');
+            }
+        });
+        showCancelButton = {{ $showCancelButton }}
+        "
+        x-on:close.stop="showCancelButton ? show = false : ''"
+        x-on:keydown.escape.window="showCancelButton ? show = false : ''"
         x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
         x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
         x-show="show"
@@ -48,7 +49,7 @@
         class="jetstream-modal fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
         style="display: none;"
 >
-    <div x-show="show" class="fixed inset-0 transform transition-all" @if($showCancelButton)x-on:click="show = false" @endif
+    <div x-show="show" class="fixed inset-0 transform transition-all" x-on:click="showCancelButton ? show = false : '';"
          x-transition:enter="ease-out duration-300"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
