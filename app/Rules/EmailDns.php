@@ -5,9 +5,12 @@ namespace tcCore\Rules;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
+use Egulias\EmailValidator\EmailLexer;
+use Egulias\EmailValidator\Validation\DNSCheckValidation;
 
 class EmailDns implements Rule
 {
+    private $attribute;
     /**
      * Create a new rule instance.
      *
@@ -27,12 +30,11 @@ class EmailDns implements Rule
      */
     public function passes($attribute, $value)
     {
-        $request = new Request();
-        $request->merge([$attribute=>$value]);
-        $validator = Validator::make($request->all(), [
-            'data.*.username' => 'email:dns',
-         ]);
-        if ($validator->fails()) {
+        $this->attribute  = $attribute;
+        $DNSCheckValidation = new DNSCheckValidation();
+        $emailLexer = new EmailLexer();
+        $result = $DNSCheckValidation->isValid($value,$emailLexer);
+        if (!$result) {
             return false;
         }
         return true;
@@ -45,6 +47,6 @@ class EmailDns implements Rule
      */
     public function message()
     {
-        return 'joepie.';
+        return $this->attribute. ' email failed on dns';
     }
 }
