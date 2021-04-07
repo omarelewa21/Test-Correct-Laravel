@@ -28,7 +28,6 @@
                 </button>
             </div>
             <div id="navscrollbar" class="flex pl-2.5" :class="{'overflow-x-auto' : showSlider}" x-ref="navscrollbar">
-
                 @foreach($nav as $key => $q)
                     <div id="{!! $key === ($this->q - 1) ? 'active' : ''!!}"
                          class="flex flex-col mb-3 relative
@@ -40,8 +39,10 @@
                          @elseif($q['answered'])
                                  complete
                          @endif
-                                 ">
-                        <section wire:key="nav_{{$key}}"
+                                 "
+                         wire:key="nav_circle_for_q_{{$q['id']}}"
+                    >
+                        <section wire:key="nav_item{{$q['id']}}"
                                  class="question-number rounded-full text-center cursor-pointer flex items-center justify-center
                                     {!! $key === ($this->q - 1) ? 'active' : ''!!}
                                  @if (!$q['answered'] && ($q['group']['closed'] || $q['closed']))
@@ -50,10 +51,11 @@
                                          complete
                                  @endif
                                          "
+                                 id="nav_item_{{$q['id']}}"
                                  wire:click="goToQuestion({{ 1+$key}})"
                                  x-on:current-question-answered.window="$wire.updateQuestionIndicatorColor()"
                         >
-                            <span class="align-middle px-1.5">{{ ++$key }}</span>
+                            <span id="nav_{{$q['id']}}" wire:key="nav_{{$q['id']}}" class="align-middle px-1.5">{{ ++$key }}</span>
                         </section>
                         <div class="max-h-4 flex justify-center -ml-2 mt-1">
                             @if($q['closeable'] && !$q['closed'])
@@ -88,6 +90,7 @@
             </div>
         </div>
 
+        @push('scripts')
         <script>
             let timer
             function callback(entries) {
@@ -117,23 +120,27 @@
                 }
             }
         </script>
+        @endpush
 
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
             @if(Auth::user()->text2speech)
-                <div id="__ba_launchpad"></div>
+                <div id="__ba_launchpad" class="hidden"></div>
                 <x-button.text-button @click="toggleBrowseAloud()">
                     <x-icon.audio/>
                     <span>{{ __('test_take.speak') }}</span>
                 </x-button.text-button>
             @endif
-            <x-button.text-button wire:click="toOverview({{ $this->q }})">
-                <x-icon.preview/>
-                <span>{{ __('test_take.overview') }}</span>
-            </x-button.text-button>
+            @if(!$isOverview)
+                <x-button.text-button wire:click="toOverview({{ $this->q }})">
+                    <x-icon.preview/>
+                    <span>{{ __('test_take.overview') }}</span>
+                </x-button.text-button>
+            @endif
         </div>
     </div>
 
     @if(Auth::user()->text2speech)
+        @push('scripts')
         <script>
             function toggleBrowseAloud() {
                 if (typeof BrowseAloud == 'undefined') {
@@ -201,5 +208,6 @@
                 }, 1000);
             }
         </script>
+        @endpush
     @endif
 </div>

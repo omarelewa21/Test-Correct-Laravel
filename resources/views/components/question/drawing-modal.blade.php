@@ -31,11 +31,15 @@
         <a x-on:click="
                 (function() {
                     $wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());
-                })()"
+                })();
+                document.getElementById('body').classList.remove('modal-open');
+                "
            class="btn highlight small ml5 pull-right" style="cursor: pointer;">
             <span class="fa fa-check"></span> Opslaan
         </a>
-        <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;">
+        <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;"
+           x-on:click="document.getElementById('body').classList.remove('modal-open')"
+        >
             <span class="fa fa-remove"></span> Sluiten
         </a>
 
@@ -62,14 +66,8 @@
         </a>
     </div>
     <div class="flex">
-        <div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10" x-ref="player_{{$this->question->getKey()}}"
-             style="border:1px solid gray; width: 80%; height: 481px; margin-top: 10px;"
-             x-on:resize.window.debounce.250ms="
-                    console.log($refs.player_{{$this->question->getKey()}}.offsetWidth)
-                    $refs.player_{{$this->question->getKey()}}.firstElementChild.style.width = '100%'
-                    $refs.player_{{$this->question->getKey()}}.firstElementChild.width = $refs.player_{{$this->question->getKey()}}.offsetWidth
-                    $refs.player_{{$this->question->getKey()}}.firstElementChild.style.height = '481px'
-                "
+        <div id="{{ $this->playerInstance }}canvas-holder" class="v-center__wrapper rounded-10 overflow-hidden"
+             style="border:1px solid gray; width: 80%; height: 481px; margin-top: 10px;" x-on:resize.window.debounce.250ms=" if(opened){ resizeCanvas{{$this->playerInstance}}();}"
         >
 
         </div>
@@ -86,30 +84,21 @@
           placeholder="Begeleidende tekst"></textarea>
     </div>
     <!-- Vendors -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    @push('scripts')
     <script src="/drawing/filesaver.min.js"></script>
     <script src="/drawing/canvas-toblob.js"></script>
 
     <script src="/drawing/paint.js"></script>
     <script src="/drawing/loadPaint.js"></script>
-    {{--<script src="/drawing/test_take.js?20201014130801"></script>--}}
-
     <script>
-        var body = document.body.offsetWidth;
-        var width;
-
-        if (body < 1200) {
-            width = body / 100 * 76;
-        }
-        if (body > 1200 && body < 1536) {
-            width = body / 100 * 71;
-        }
-        if (body > 1536) {
-            width = body / 100 * 62;
-        }
-
+        let holder{{$this->playerInstance}} = document.getElementById('{{ $this->playerInstance }}canvas-holder');
         var {{ $this->playerInstance }} =
-        new App('{{ $this->playerInstance }}', width);
-    </script>
+        new App('{{ $this->playerInstance }}', holder{{$this->playerInstance}}.offsetWidth);
 
+        function resizeCanvas{{$this->playerInstance}}() {
+            let holder = document.getElementById('{{ $this->playerInstance }}canvas-holder');
+            {{ $this->playerInstance }}.rerender(holder.offsetWidth);
+        }
+    </script>
+    @endpush
 </div>

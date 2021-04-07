@@ -3,7 +3,7 @@
 'number',
 ])
 <div x-cloak
-     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 0, progress: 0 }"
+     x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0 }"
      x-show="showMe"
      x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current);"
      x-transition:enter="transition duration-200"
@@ -33,13 +33,13 @@
              startTime = $event.detail.timeout;
              progress = startTime;
 
-             timer = setInterval(function () {
+             var timer = setInterval(function () {
                 progress = startTime - endTime;
                 endTime += 1;
 
                 if(progress === 0) {
+                    showMe ? $wire.closeQuestion({{ $number+1 }}) : $wire.closeQuestion();
                     clearInterval(timer);
-                    $wire.closeQuestion({{ $number+1 }});
                     progressBar = false;
                 }
              }, 1000);

@@ -47,7 +47,6 @@ class AnswerRating extends BaseModel {
             $answer = $answerRating->answer;
             $answer->setAttribute('final_rating', null);
             $answer->save();
-
             Queue::push(new CalculatePValueForAnswer($answer));
         });
     }

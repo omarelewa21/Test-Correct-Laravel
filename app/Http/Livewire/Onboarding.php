@@ -2,10 +2,12 @@
 
 namespace tcCore\Http\Livewire;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
+use Ramsey\Uuid\Uuid;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Requests\Request;
 use tcCore\SchoolLocation;
@@ -121,10 +123,12 @@ class Onboarding extends Component
             $this->confirmed = 0;
             $this->shouldDisplayEmail = true;
         }
-        if ($this->ref) {
+        if ($this->ref && Uuid::isValid($this->ref)) {
             $shortcodeId = ShortcodeClick::whereUuid($this->ref)->first();
-            $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
-            $this->registration->invitee = $invited_by->user_id;
+            if (null !== $shortcodeId) {
+                $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
+                $this->registration->invitee = $invited_by->user_id;
+            }
         }
 
         $this->registration->registration_email_confirmed = $this->confirmed;
@@ -204,6 +208,7 @@ class Onboarding extends Component
             $this->step = 3;
         } catch (\Throwable $e) {
             $this->step = 'error';
+            Bugsnag::notifyException($e);
         }
     }
 

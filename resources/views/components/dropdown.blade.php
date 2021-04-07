@@ -8,14 +8,17 @@
 -- Purchase here: https://tailwindui.com/
 --}}
 
-@props(['label' => ''])
+@props([
+    'label' => '',
+    'button' => 'dropdown-button',
+])
 
 <div x-data="{ open: false }" @keydown.window.escape="open = false" @click.away="open = false"
      class="relative inline-block text-left z-10">
     <div>
         <span class="rounded-md shadow-sm">
             <button @click="open = !open" type="button"
-                    class="body1 bold rotate-svg-90 space-x-1.5 inline dropdown-button justify-center w-full rounded-md px-4 py-2 bg-white text-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150"
+                    class="body1 bold rotate-svg-90 space-x-1.5 inline justify-center w-full rounded-10 px-4 py-2 bg-white text-sm focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-gray-50 active:text-gray-800 transition ease-in-out duration-150 {{$button}}"
                     :class="{primary: open}"
                     id="options-menu" aria-haspopup="true" x-bind:aria-expanded="open" aria-expanded="true">
                 <span class="align-middle">{{ $label }}</span>
@@ -34,7 +37,7 @@
             <div class="dropdown-items-container" role="menu" aria-orientation="vertical"
                  aria-labelledby="options-menu">
                 <button @click="open = !open" class="w-full font-size-18 px-4 py-2 primary bold rotate-svg-270 items-center flex justify-end space-x-3 outline-none focus:outline-none">
-                    <span>{{ Auth::user()->getNameFullAttribute() }}</span>
+                    <span>{{ $label }}</span>
                     <x-icon.chevron></x-icon.chevron>
                 </button>
                 {{ $slot }}

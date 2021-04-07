@@ -2,7 +2,7 @@
 
 namespace tcCore\Http\Livewire\Auth;
 
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class Login extends Component
@@ -14,6 +14,19 @@ class Login extends Component
         'username' => 'required|email',
         'password' => 'required',
     ];
+    protected $messages = [
+        'password.required' => 'Wachtwoord is verplicht',
+        'username.required' => 'E-mailadres is verplicht',
+        'username.email'    => 'E-mailadres is niet geldig',
+    ];
+
+    public function mount()
+    {
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+    }
 
     public function login()
     {

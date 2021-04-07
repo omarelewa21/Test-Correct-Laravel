@@ -3,7 +3,7 @@
     'startGroup' => false,
     'type'
 ])
-<div class="flex flex-col flex-1 space-y-3 leading-5">
+<div class="flex flex-col flex-1 space-y-3 leading-5" id="main-{{$attributes->get('id')}}">
     @isset($title)
         <h6 class="text-center"> {{ $title }}</h6>
     @endif

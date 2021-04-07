@@ -169,6 +169,10 @@ class UsersController extends Controller
         }
 
         $user = (new UserHelper())->createUserFromData($data);
+        if ($user->isA('teacher')) {
+            $user->account_verified = Carbon::now();
+            $user->save();
+        }
 
         if ($user !== false) {
             return Response::make($user, 200);
@@ -457,5 +461,14 @@ class UsersController extends Controller
             return Response::make(true, 200);
         }
         return Response::make(null, 204);
+    }
+
+    public function toggleAccountVerified(User $user) {
+        $user->toggleVerified();
+        if ($user->account_verified) {
+            return new JsonResponse(['account_verified'=> $user->account_verified->format('Y-m-d H:i:s')]);
+        }
+
+        return new JsonResponse(['account_verified'=> '']);
     }
 }

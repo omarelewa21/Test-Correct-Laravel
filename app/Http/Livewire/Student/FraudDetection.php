@@ -3,14 +3,15 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Livewire\Component;
+use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
-use tcCore\TestTakeEventType;
+use tcCore\TestTakeStatus;
 
 class FraudDetection extends Component
 {
     public $fraudDetected = false;
-    public $testParticipant;
-    public $testTakeUuid;
+    public $testParticipantId;
+    public $forceTakenAwayModal = false;
 
     protected $listeners = ['setFraudDetected', 'setFraudDetected'];
 
@@ -34,19 +35,22 @@ class FraudDetection extends Component
     public function isTestTakeEventConfirmed()
     {
         $this->shouldDisplayFraudMessage();
+        if(!$this->canParticipantContinue($this->testParticipantId)) {
+            $this->emitTo('student.test-take', 'set_force_taken_away');
+        }
     }
 
     private function shouldDisplayFraudMessage()
     {
-        $this->testTakeEvents = TestTakeEvent::where('test_participant_id', $this->testParticipant->id)->get();
-        if (!$this->testTakeEvents->isEmpty()) {
-            foreach ($this->testTakeEvents as $event) {
-                if ($event->testTakeEventType->requires_confirming && !$event->confirmed) {
-                    $this->fraudDetected = true;
-                } else {
-                    $this->fraudDetected = false;
-                }
-            }
-        }
+        $this->fraudDetected = !! TestTakeEvent::leftJoin('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
+            ->where('confirmed' , 0)
+            ->where('test_participant_id', $this->testParticipantId)
+            ->where('requires_confirming', 1)
+            ->count();
+    }
+
+    private function canParticipantContinue($testParticipantId)
+    {
+        return TestParticipant::whereId($testParticipantId)->value('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST;
     }
 }

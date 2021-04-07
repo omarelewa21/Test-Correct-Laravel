@@ -22,19 +22,10 @@
                     <div class="divider my-2"></div>
                     <div class="space-y-2">
                         @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
-                            <label
-                                class="flex
-                                        p-5
-                                        border-2
-                                        border-blue-grey
-                                        rounded-10
-                                        base
-                                        multiple-choice-question
-                                        transition
-                                        ease-in-out
-                                        duration-150
-                                        {!! ($this->answer == $link->id) ? 'active' :'' !!}
-                                    focus:outline-none"
+                            <label id="arq_{{$link->id}}" wire:key="arq_{{$link->id}}"
+                                class="flex p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question
+                                transition ease-in-out duration-150 {!! ($this->answer == $link->id) ? 'active' :'' !!}
+                                        focus:outline-none"
                                 for="link{{ $link->id }}">
                                 <input
                                     wire:model="answer"

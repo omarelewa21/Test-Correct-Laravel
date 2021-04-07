@@ -6,7 +6,7 @@
         </div>
         <div class="flex flex-col max-w-max space-y-2" wire:sortable="updateOrder" wire:model="answerStruct">
             @foreach($answerStruct as $answer)
-                <x-drag-item sortId="{{ $answer->value }}"
+                <x-drag-item id="ranking-{{$answer->value}}" sortId="{{ $answer->value }}"
                              wireKey="option-{{ $answer->value }}">
                         {{ $answerText[$answer->value] }}
                 </x-drag-item>

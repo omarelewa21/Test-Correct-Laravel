@@ -1074,4 +1074,9 @@ class Question extends MtiBaseModel {
         return __('test_take.'.Str::snake($this->type));;
     }
 
+    public function getQuestionCount()
+    {
+        return 1;
+    }
+
 }

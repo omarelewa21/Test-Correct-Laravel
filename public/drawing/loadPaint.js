@@ -406,6 +406,9 @@ var App = function (prefix, width) {
     this.getActiveImageBase64Encoded = function() {
         return canvas.getCanvas().toDataURL();
     }
+    this.rerender = function(newWidth) {
+        canvas.rerender(newWidth);
+    }
 
     document.getElementById(prefix + 'btn-export').onclick =
         document.getElementById(prefix + 'btn-export').ontouchdown = function () {
@@ -454,8 +457,6 @@ var App = function (prefix, width) {
     });
 
     canvas.add(background);
-
-
 
     holder.appendChild(canvas.getCanvas());
 

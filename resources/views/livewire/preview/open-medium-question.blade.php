@@ -8,7 +8,7 @@
                 <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.2000ms="answer"></textarea>
             </x-input.group>
         </div>
-
+        @push('scripts')
         <script>
             (function() {
                 var editor = CKEDITOR.instances['{{ $editorId }}']
@@ -34,6 +34,7 @@
                     })
             })()
         </script>
+        @endpush
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad"/>

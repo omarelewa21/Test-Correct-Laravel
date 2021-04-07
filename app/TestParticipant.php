@@ -22,7 +22,7 @@ class TestParticipant extends BaseModel
     protected $casts = [
         'uuid'                    => EfficientUuid::class,
         'allow_inbrowser_testing' => 'boolean',
-        'allow_new_player_access' => 'boolean',
+        'started_in_new_player'   => 'boolean',
     ];
 
     /**
@@ -39,12 +39,14 @@ class TestParticipant extends BaseModel
      */
     protected $table = 'test_participants';
 
+    protected $appends = ['intense'];
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'allow_new_player_access'];
+    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -57,6 +59,12 @@ class TestParticipant extends BaseModel
     {
         parent::boot();
 
+        static::created(function (TestParticipant $testParticipant) {
+            if ($testParticipant->testTake->allow_inbrowser_testing) {
+                $testParticipant->allow_inbrowser_testing = true;
+                $testParticipant->save();
+            }
+        });
         static::saved(function (TestParticipant $testParticipant) {
             //$testParticipant->load('testTakeStatus');
 
@@ -305,21 +313,39 @@ class TestParticipant extends BaseModel
     public function startTestTake()
     {
         //Remaining startTestTake actions handled in TestParticipant boot method
-        $this->setAttribute('test_take_status_id', 3)->setAttribute('allow_new_player_access', true)->save();
-        return true;
+        if ($this->canStartTestTake()) {
+            $this->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST)->setAttribute('started_in_new_player', true)->save();
+            return true;
+        }
+        return false;
+    }
+    public function canSeeOverviewPage()
+    {
+        return $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
     }
 
     public function handInTestTake()
     {
         //Remaining handInTestTake actions handled in TestParticipant boot method
-        $this->setAttribute('test_take_status_id', 4)->save();
+        $this->setAttribute('test_take_status_id', TestTakeStatus::STATUS_HANDED_IN)->save();
         return true;
     }
 
     public function testTakeOpenForInteraction()
     {
-            return null !== $this->where('test_take_status_id', 3)
-            ->orWhere('test_take_status_id', 7)
-            ->first();
+        return null !== $this->where('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST)
+                ->orWhere('test_take_status_id', TestTakeStatus::STATUS_DISCUSSING)
+                ->first();
     }
+
+    public function getIntenseAttribute()
+    {
+        return $this->user->intense && $this->user->schoolLocation->intense;
+    }
+
+    private function canStartTestTake()
+    {
+        return $this->test_take_status_id <= TestTakeStatus::STATUS_TAKING_TEST;
+    }
+
 }

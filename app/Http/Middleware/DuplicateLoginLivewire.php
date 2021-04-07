@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Livewire\Livewire;
 use tcCore\Lib\User\Roles;
 use tcCore\User;
 
@@ -25,13 +26,15 @@ class DuplicateLoginLivewire {
     public function handle($request, Closure $next)
     {
         $roles = Roles::getUserRoles();
+
         if ($this->auth->user()) {
             if ($this->shouldCheckSessionHash() && count($roles) === 1 && in_array('Student', $roles) && $this->auth->user()->getAttribute('session_hash') !== session('session_hash')) {
                 session()->put('new_debounce_time', Carbon::now());
 
-                if (strpos($request->getRequestUri(), 'livewire') !== false) {
+                if (Livewire::isLivewireRequest()) {
                     return response()->make('Duplicate login', 440);
                 }
+
                 return redirect()->to(config('app.url_login'));
             }
         }

@@ -56,4 +56,10 @@ class AnswersController extends Controller {
         abort(404);
     }
 
+    public function getTestTake(Answer $answer)
+    {
+        $testTake = $answer->testParticipant->testTake;
+        return Response::make($testTake, 200);
+    }
+
 }
