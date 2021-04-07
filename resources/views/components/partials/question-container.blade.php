@@ -33,13 +33,13 @@
              startTime = $event.detail.timeout;
              progress = startTime;
 
-             timer = setInterval(function () {
+             var timer = setInterval(function () {
                 progress = startTime - endTime;
                 endTime += 1;
 
                 if(progress === 0) {
+                    showMe ? $wire.closeQuestion({{ $number+1 }}) : $wire.closeQuestion();
                     clearInterval(timer);
-                    $wire.closeQuestion({{ $number+1 }});
                     progressBar = false;
                 }
              }, 1000);
