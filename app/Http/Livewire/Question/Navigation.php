@@ -121,6 +121,13 @@ class Navigation extends Component
             $this->updateQuestionIndicatorColor();
         }
     }
+    public function isCurrentQuestionAnOpenQuestion($question)
+    {
+        $questionUuid = $this->nav[$question - 1]['uuid'];
+        if (Question::whereUuid($questionUuid)->first()->type === 'OpenQuestion') {
+            $this->dispatchBrowserEvent('leaving-open-question', $questionUuid);
+        }
+    }
 
     public function goToQuestion($nextQuestion)
     {
@@ -128,7 +135,8 @@ class Navigation extends Component
             return;
         }
 
-        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
+        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
+        $this->isCurrentQuestionAnOpenQuestion($this->q);
 
         $currentQuestion = $this->nav[$this->q - 1];
 
