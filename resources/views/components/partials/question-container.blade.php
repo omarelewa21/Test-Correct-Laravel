@@ -41,6 +41,7 @@
                     showMe ? $wire.closeQuestion({{ $number+1 }}) : $wire.closeQuestion();
                     clearInterval(timer);
                     progressBar = false;
+                    endTime = 1;
                 }
              }, 1000);
          "
