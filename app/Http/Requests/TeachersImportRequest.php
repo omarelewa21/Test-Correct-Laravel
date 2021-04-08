@@ -7,6 +7,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use tcCore\Lib\Repositories\SchoolYearRepository;
+use tcCore\Rules\EmailDns;
 use tcCore\SchoolClass;
 use tcCore\Subject;
 
@@ -38,7 +39,7 @@ class TeachersImportRequest extends Request {
 
         return [
 
-             'data.*.username' => ['required', 'email:rfc,filter,dns', function ($attribute, $value, $fail) {
+             'data.*.username' => ['required', 'email:rfc,filter',new EmailDns, function ($attribute, $value, $fail) {
 
                     if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
 
