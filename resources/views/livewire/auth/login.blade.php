@@ -1,5 +1,10 @@
-<div class="flex justify-center items-center min-h-screen">
-    <div class="w-full max-w-3xl space-y-4">
+<div id="login-body" class="flex justify-center min-h-screen"
+     x-data=""
+     x-init="addRelativePaddingToBody('login-body', 10)"
+     x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
+     wire:ignore.self
+>
+    <div class="w-full max-w-3xl space-y-4 mx-4 py-4">
         <div class="flex justify-center">
             <x-button.text-button>
                 <span>{{__('auth.login_as_teacher')}}</span>
@@ -35,7 +40,7 @@
                         <h4>{{__('auth.log_in_with_student_account')}}</h4>
                     </div>
                     <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
-                        <div class="flex space-x-4">
+                        <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                             <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
                                 <x-input.text wire:model="username" autofocus></x-input.text>
                             </x-input.group>
@@ -45,19 +50,28 @@
                                               class="pr-12 overflow-ellipsis"
                                 >
                                 </x-input.text>
-                                <x-icon.preview class="absolute bottom-3 right-3.5 primary-hover"
+                                <x-icon.preview class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
                                                 @click="showPassword = !showPassword"/>
                             </x-input.group>
                         </div>
                         <div class="error-section">
                             @error('username')
-                            <div class="notification error mt-4">
+                            <div class="notification error stretched mt-4">
                                 <span class="title">{{ $message }}</span>
                             </div>
                             @enderror
                             @error('password')
-                            <div class="notification error mt-4">
+                            <div class="notification error stretched mt-4">
                                 <span class="title">{{ $message }}</span>
+                            </div>
+                            @enderror
+                            @error('invalid_user')
+                            <div class="notification error stretched mt-4">
+                                <div class="flex items-center space-x-3">
+                                    <x-icon.exclamation/>
+                                    <span class="title">{{ __('auth.incorrect_credentials') }}</span>
+                                </div>
+                                <span class="body">{{ __('auth.incorrect_credentials_long') }}</span>
                             </div>
                             @enderror
                         </div>
@@ -65,7 +79,7 @@
                         <div class="hidden">
                             <div class="mx-auto mt-4 flex flex-col items-center"
                                  x-data="{selected:null}">
-                                <div class="w-full flex justify-center border-b border-light-grey">
+                                <div class="w-full flex justify-center">
                                     <x-button.text-button type="link" class="rotate-svg-90 cursor-pointer"
                                                           @click.prevent="selected !== 1 ? selected = 1 : selected = null">
                                         <span>Meteen naar toets gaan?</span>
@@ -73,17 +87,19 @@
                                     </x-button.text-button>
                                 </div>
 
-                                <div class="relative overflow-hidden transition-all max-h-0 duration-700"
+                                <div class="relative overflow-hidden transition-all max-h-0 duration-500"
                                      style="" x-ref="container1"
                                      x-bind:style="selected == 1 ? 'max-height: ' + $refs.container1.scrollHeight + 'px' : ''">
+                                    <div>
                                     {{-- Toetscode code --}}
-                                    <div></div>
+
+                                    </div>
                                 </div>
                             </div>
 
                         </div>
 
-                        <div class="flex mt-auto">
+                        <div class="flex mt-auto pt-4">
                             <x-button.cta class="ml-auto" size="md">{{ __('auth.log_in_verb') }}</x-button.cta>
                         </div>
                     </form>
@@ -96,25 +112,32 @@
             </div>
         </div>
 
-        <div class="flex justify-center items-center space-x-6">
+        <div class="flex flex-col md:flex-row justify-center items-center space-x-6">
             <span>{{__('auth.forgot_password_long')}}</span>
             <x-button.text-button>
                 <span>{{__('auth.reset_password')}}</span>
                 <x-icon.arrow/>
             </x-button.text-button>
         </div>
-        <div class="flex justify-center items-center space-x-4">
-            <x-button.primary>
+
+        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4">
+            <x-button.primary type="link" href="https://www.test-correct.nl/student/">
                 <x-icon.download/>
                 <span>{{__('auth.download_app')}}</span>
             </x-button.primary>
-            <h5 class="inline-flex">&amp;</h5>
+            <h5 class="inline-flex mt-2 md:mt-0">&amp;</h5>
             <x-button.text-button>
                 <span>{{__('auth.request_account_from_teacher')}}</span>
                 <x-icon.arrow/>
             </x-button.text-button>
         </div>
-
-
     </div>
+
+    @push('scripts')
+        <script>
+            function addRelativePaddingToBody(elementId, extraPadding = 0) {
+                document.getElementById(elementId).style.paddingTop = (document.getElementById('auth-header').offsetHeight+extraPadding) + 'px';
+            }
+        </script>
+    @endpush
 </div>

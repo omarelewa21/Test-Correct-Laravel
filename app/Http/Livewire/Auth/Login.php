@@ -14,30 +14,40 @@ class Login extends Component
         'username' => 'required|email',
         'password' => 'required',
     ];
-    protected $messages = [
-        'password.required' => 'Wachtwoord is verplicht',
-        'username.required' => 'E-mailadres is verplicht',
-        'username.email'    => 'E-mailadres is niet geldig',
-    ];
+    protected function messages(): array
+    {
+        return [
+            'password.required' => __('auth.password_required'),
+            'username.required' => __('auth.email_required'),
+            'username.email'    => __('auth.email_incorrect'),
+        ];
+    }
+
 
     public function mount()
     {
-        Auth::logout();
-        session()->invalidate();
-        session()->regenerateToken();
-
+        if (Auth::check()) {
+            return redirect()->intended(route('student.dashboard'));
+        }
     }
 
     public function login()
     {
         $credentials = $this->validate();
 
-        if (auth()->attempt($credentials)) {
-            auth()->user()->setAttribute('session_hash', auth()->user()->generateSessionHash());
+        //captcha nodig voor
+
+    if (auth()->attempt($credentials)) {
+            $sessionHash = auth()->user()->generateSessionHash();
+            session()->put('session_hash', $sessionHash);
+            auth()->user()->setAttribute('session_hash', $sessionHash);
             auth()->user()->save();
-            return redirect()->intended(route('student.test-take'));
+
+            return redirect()->intended(route('student.dashboard'));
         }
-        return $this->addError('username', __('auth.failed'));
+
+
+        return $this->addError('invalid_user', __('auth.failed'));
     }
 
     public function render()

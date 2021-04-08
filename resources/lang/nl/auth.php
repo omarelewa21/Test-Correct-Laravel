@@ -25,5 +25,9 @@ return [
     'download_app'                 => 'Download de app',
     'request_account_from_teacher' => 'Vraag jouw account aan bij je docent',
     'reset_password'               => 'Stel je wachtwoord opnieuw in',
-
+    'incorrect_credentials'        => 'Inloggegevens incorrect',
+    'incorrect_credentials_long'   => 'De combinatie van het opgegeven e-mailadres en wachtwoord klopt niet, of er bestaat geen account met dit e-mailadres.',
+    'password_required'            => 'Wachtwoord is verplicht',
+    'email_required'               => 'E-mailadres is verplicht',
+    'email_incorrect'              => 'E-mailadres is niet correct',
 ];
