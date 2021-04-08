@@ -16,9 +16,10 @@ class AuthenticatedAsTeacher
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::user()->hasRole('teacher')){
+        if (optional(Auth::user())->hasRole('teacher')){
             return $next($request);
         }
+        /** @TODO should redirect to a dashboard page, but this is currently not available. */
         return redirect(config('app.url_login'));
     }
 }
