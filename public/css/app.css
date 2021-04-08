@@ -1672,6 +1672,12 @@ video {
 	max-width: -moz-max-content;
 	max-width: max-content;
 }
+.max-w-6xl{
+	max-width: 72rem;
+}
+.max-w-5xl{
+	max-width: 64rem;
+}
 .flex-1{
 	flex: 1 1 0%;
 }
@@ -2023,6 +2029,9 @@ video {
 }
 .p-5{
 	padding: 1.25rem;
+}
+.p-2\.5{
+	padding: 0.625rem;
 }
 .py-5{
 	padding-top: 1.25rem;
