@@ -33,13 +33,15 @@
             </div>
         </div>
 
+        @push('scripts')
         <script>
             function calculateProgress(count, total) {
                 return 'height: 10px; width:' + count / total * 100 + '%';
             }
         </script>
+        @endpush
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
+    <x-attachment.preview-attachment-modal :attachment="$attachment" :questionId="$questionId"/>
     <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>
 

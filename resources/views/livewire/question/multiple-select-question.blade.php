@@ -3,7 +3,7 @@
         {!! $question->getQuestionHtml()  !!}
         <div class="mt-4 space-y-2 w-1/2">
             @foreach( $this->shuffledKeys as $value)
-                <div class="flex items-center mc-radio">
+                <div id="mc-s-{{$value}}" wire:key="mc-s-{{$value}}" class="flex items-center mc-radio">
                     <label
                             for="link{{ $value }}"
                             class="relative w-full flex hover:font-bold p-5 border-2 border-blue-grey rounded-10 base

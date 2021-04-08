@@ -3,26 +3,25 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
 use Livewire\Component;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
-use tcCore\User;
 
 
 class TestTake extends Component
 {
     public $testTakeUuid;
     public $showTurnInModal = false;
-    public $questions;
     public $testParticipant;
+    public $forceTakenAwayModal = false;
 
     /** @var int
      *  time in milliseconds a notification is shown
      */
     public $notificationTimeout = 5000;
+    protected $listeners = ['set_force_taken_away' => 'setForceTakenAway'];
 
     public function render()
     {
@@ -40,6 +39,7 @@ class TestTake extends Component
         $testParticipant = TestParticipant::where('test_take_id', $testTake->id)->where('user_id', Auth::id())->first();
 
         if (!$testParticipant->handInTestTake()) {
+//            @TODO make error handling on failed hand in
             //error handling
         }
 
@@ -72,8 +72,8 @@ class TestTake extends Component
         return TestTakeEventType::whereReason($event)->first();
     }
 
-    public function isTestTakeTakenAway()
+    public function setForceTakenAway()
     {
-        $this->testParticipant->getAttribute('test_take_status_id');
+        $this->forceTakenAwayModal = true;
     }
 }

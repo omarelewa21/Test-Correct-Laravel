@@ -59,7 +59,7 @@
                 </button>
             </div>
         </div>
-
+        @push('scripts')
         <script>
             let timer
             function callback(entries) {
@@ -89,5 +89,6 @@
                 }
             }
         </script>
+        @endpush
     </div>
 </div>

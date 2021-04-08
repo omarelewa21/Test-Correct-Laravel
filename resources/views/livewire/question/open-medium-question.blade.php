@@ -9,6 +9,7 @@
             </x-input.group>
         </div>
 
+
         <script>
             (function() {
                 var editor = CKEDITOR.instances['{{ $editorId }}']

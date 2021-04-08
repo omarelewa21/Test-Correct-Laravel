@@ -4,7 +4,7 @@
 ])
 
 
-<div id="drag-item"
+<div
      class="bg-system-secondary base border-system-secondary border-2
      rounded-10 inline-flex px-4 py-1.5 items-center justify-between drag-item bold font-size-18"
      @if($sortId)
