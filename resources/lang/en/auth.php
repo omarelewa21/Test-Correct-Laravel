@@ -30,4 +30,5 @@ return [
     'password_required'            => 'Password is required',
     'email_required'               => 'E-mail address is required',
     'email_incorrect'              => 'E-mail address is incorrect',
+    'require_captcha'              => 'Captcha required',
 ];

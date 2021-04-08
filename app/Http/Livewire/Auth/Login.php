@@ -2,18 +2,24 @@
 
 namespace tcCore\Http\Livewire\Auth;
 
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
+use tcCore\FailedLogin;
 
 class Login extends Component
 {
     public $username = '';
     public $password = '';
+    public $captcha = '';
+    public $requireCaptcha = false;
 
     protected $rules = [
         'username' => 'required|email',
         'password' => 'required',
     ];
+
     protected function messages(): array
     {
         return [
@@ -35,18 +41,26 @@ class Login extends Component
     {
         $credentials = $this->validate();
 
-        //captcha nodig voor
+        //is captcha nodig voor username
+        if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
+            //laat captcha zien
+            $this->requireCaptcha = true;
+            return;
+        }
 
-    if (auth()->attempt($credentials)) {
-            $sessionHash = auth()->user()->generateSessionHash();
-            session()->put('session_hash', $sessionHash);
-            auth()->user()->setAttribute('session_hash', $sessionHash);
-            auth()->user()->save();
-
+        //valideer captcha wanneer ingevuld
+        if ($this->captcha) {
+            $this->validateOnly($this->captcha, [
+                'captcha' => 'captcha'
+            ]);
+        }
+        dd('correct?');
+        if (auth()->attempt($credentials)) {
+            $this->doLoginProcedure();
             return redirect()->intended(route('student.dashboard'));
         }
 
-
+        $this->createFailedLogin();
         return $this->addError('invalid_user', __('auth.failed'));
     }
 
@@ -54,5 +68,27 @@ class Login extends Component
     {
         return view('livewire.auth.login')
             ->layout('layouts.auth');
+    }
+
+    public function goToPasswordReset()
+    {
+        $this->redirect(route('password.reset'));
+    }
+
+    private function doLoginProcedure()
+    {
+        $sessionHash = auth()->user()->generateSessionHash();
+        session()->put('session_hash', $sessionHash);
+        auth()->user()->setAttribute('session_hash', $sessionHash);
+        auth()->user()->save();
+        FailedLogin::solveForUsernameAndIp($this->username, request()->ip());
+    }
+
+    private function createFailedLogin()
+    {
+        FailedLogin::create([
+            'username' => $this->username,
+            'ip' => request()->ip()
+        ]);
     }
 }

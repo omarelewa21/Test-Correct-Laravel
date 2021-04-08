@@ -30,4 +30,5 @@ return [
     'password_required'            => 'Wachtwoord is verplicht',
     'email_required'               => 'E-mailadres is verplicht',
     'email_incorrect'              => 'E-mailadres is niet correct',
+    'require_captcha'              => 'Captcha vereist',
 ];

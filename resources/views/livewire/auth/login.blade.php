@@ -74,6 +74,22 @@
                                 <span class="body">{{ __('auth.incorrect_credentials_long') }}</span>
                             </div>
                             @enderror
+                            @if($requireCaptcha)
+                                <div wire:ignore>
+                                    <div class="notification error stretched mt-4">
+                                        <div class="flex items-center space-x-3">
+                                            <x-icon.exclamation/>
+                                            <span class="title">{{ __('auth.require_captcha') }}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        @captcha
+                                        <input type="text" id="captcha" class="form-input" name="captcha"
+                                               wire:model="captcha" autocomplete="off"/>
+                                    </div>
+
+                                </div>
+                            @endif
                         </div>
 
                         <div class="hidden">
@@ -91,7 +107,7 @@
                                      style="" x-ref="container1"
                                      x-bind:style="selected == 1 ? 'max-height: ' + $refs.container1.scrollHeight + 'px' : ''">
                                     <div>
-                                    {{-- Toetscode code --}}
+                                        {{-- Toetscode code --}}
 
                                     </div>
                                 </div>
@@ -114,7 +130,7 @@
 
         <div class="flex flex-col md:flex-row justify-center items-center space-x-6">
             <span>{{__('auth.forgot_password_long')}}</span>
-            <x-button.text-button>
+            <x-button.text-button wire:click="goToPasswordReset()">
                 <span>{{__('auth.reset_password')}}</span>
                 <x-icon.arrow/>
             </x-button.text-button>
@@ -136,7 +152,7 @@
     @push('scripts')
         <script>
             function addRelativePaddingToBody(elementId, extraPadding = 0) {
-                document.getElementById(elementId).style.paddingTop = (document.getElementById('auth-header').offsetHeight+extraPadding) + 'px';
+                document.getElementById(elementId).style.paddingTop = (document.getElementById('auth-header').offsetHeight + extraPadding) + 'px';
             }
         </script>
     @endpush
