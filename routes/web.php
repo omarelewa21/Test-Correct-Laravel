@@ -31,8 +31,6 @@ Route::middleware(['auth', 'dll'])->prefix('student')->name('student.')->group(f
     Route::get('/drawing_question_answers/{answer}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
 });
 
-
-/** @TODO needs prefix for teacher? */
 Route::middleware(['auth', 'dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/preview/{test}', [tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('test-preview');
     Route::get('/preview/attachment/{attachment}/{question}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'showPreview'])->name('preview.question-attachment-show');
