@@ -33,7 +33,7 @@ Route::middleware(['auth', 'dll'])->prefix('student')->name('student.')->group(f
 
 
 /** @TODO needs prefix for teacher? */
-Route::middleware(['auth', 'dll', 'teacher'])->group(function () {
+Route::middleware(['auth', 'dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
     Route::get('/preview/{test}', [tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('test-preview');
     Route::get('/preview/attachment/{attachment}/{question}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'showPreview'])->name('preview.question-attachment-show');
     Route::get('/preview/attachment/pdf/{attachment}/{question}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'showPreview'])->name('preview.question-pdf-attachment-show');
@@ -48,7 +48,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
 });
 Route::middleware(['guest', 'auth.temp'])->group(function () {
-    Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview' ])->name('auth.teacher.show-test-with-short-code');
-    Route::get('/start-test-take-with-temporary-login/{test_take}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'studentPlayer'])->name('auth.login_test_take_with_short_code');
+    Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview' ])->name('auth.teacher.show-test-with-temporary-login');
+    Route::get('/start-test-take-with-temporary-login/{test_take}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'studentPlayer'])->name('auth.student.start-take-with-temporary-login');
 });
 

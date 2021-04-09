@@ -21,7 +21,7 @@
         @endif
     </div>
     <div>
-        <audio id="player" src="{{ route('preview.question-attachment-show', ['attachment' => $attachment->getKey(), 'question' => $questionId], false) }}"
+        <audio id="player" src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->getKey(), 'question' => $questionId], false) }}"
                x-ref="player"
                @if($attachment->audioOnlyPlayOnce())
                     x-on:ended="@this.audioIsPlayedOnce(attachment);"

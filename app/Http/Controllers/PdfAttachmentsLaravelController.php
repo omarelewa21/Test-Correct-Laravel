@@ -20,7 +20,7 @@ class PdfAttachmentsLaravelController extends Controller
 
     public function showPreview(Attachment $attachment, $question)
     {
-        $attachment_url = route('preview.question-attachment-show', ['attachment' => $attachment->getKey(), 'question' => $question->uuid], false);
+        $attachment_url = route('teacher.preview.question-attachment-show', ['attachment' => $attachment->getKey(), 'question' => $question->uuid], false);
         $is_question_pdf = 1;
         return view('components.attachment.pdf-attachment', compact(['attachment_url', 'is_question_pdf']));
     }
