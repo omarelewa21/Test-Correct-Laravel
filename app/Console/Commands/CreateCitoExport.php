@@ -62,6 +62,8 @@ class CreateCitoExport extends Command
     protected $bar = null;
     protected $stepNr = 0;
 
+    protected $noAnswerVal = '--GeenAntwoord';
+
     /**
      * Create a new command instance.
      *
@@ -156,6 +158,7 @@ class CreateCitoExport extends Command
     }
 
     // set all brin numbers
+    // instead of brin nummers we use the customer_code as brin isn't set mostly
     protected function handleStep6()
     {
         $citoRows = CitoExportRow::all();
@@ -164,7 +167,7 @@ class CreateCitoExport extends Command
         $citoRows->each(function(CitoExportRow $c){
             $brin = \DB::table('users')->where('users.id',$c->user_id)
                 ->join('school_locations','users.school_location_id','=','school_locations.id')
-                ->value('external_main_code');
+                ->value('customer_code');
 
             $c->update(['brin' => $brin]);
             $this->bar->advance();
@@ -180,11 +183,16 @@ class CreateCitoExport extends Command
         $this->handleStartOfStep($citoRows->count());
 
         $citoRows->each(function(CitoExportRow $c){
-            $rating = \DB::table('answers')->where('answers.id',$c->answer_id)->join('answer_ratings',function($join){
-                $join->on('answers.id','=','answer_ratings.answer_id')
-                    ->where('type','SYSTEM');
-            })->value('rating');
             $fieldNumber = $this->getFieldNumber($c);
+            $answerField = sprintf('answer_%d',$fieldNumber);
+            if($c->$answerField == $this->noAnswerVal){
+                $rating = -1;
+            } else {
+                $rating = \DB::table('answers')->where('answers.id', $c->answer_id)->join('answer_ratings', function ($join) {
+                    $join->on('answers.id', '=', 'answer_ratings.answer_id')
+                        ->where('type', 'SYSTEM');
+                })->value('rating');
+            }
             $fieldName = sprintf('score_%d',$fieldNumber);
             $c->update([$fieldName => $rating]);
             $this->bar->advance();
@@ -260,28 +268,34 @@ class CreateCitoExport extends Command
             $answer = Answer::find($c->answer_id);
             $question = $answer->question;
             $json = json_decode($answer->json);
-            $answerValue = '--onbekend--';
+            $answerValue = $this->noAnswerVal;
             $answerAr = [];
 
             switch($question->type){
                 case 'RankingQuestion':
                     foreach((array) $json as $key => $value){
-                        $answerAr[] = sprintf('%s => %s',
-                          $value,
-                            RankingQuestionAnswer::find($key)->value('answer')
-                        );
+                        if(strlen(trim($value)) > 0){
+                            $answerAr[] = sprintf('%s => %s',
+                                $value,
+                                RankingQuestionAnswer::find($key)->value('answer')
+                            );
+                        }
                     }
-                    $answerValue = implode(', ',$answerAr);
+                    if(count($answerAr)){
+                        $answerValue = implode(', ', $answerAr);
+                    }
                     break;
                 case 'MatrixQuestion':
                     foreach ((array)$json as $key => $value) {
                         $subQuestion = optional(MatrixQuestionSubQuestion::find($key))->value('sub_question');
                         $answer = optional(MatrixQuestionAnswer::find($value))->value('answer');
                         if($subQuestion && $answer) {
-                            $answerAr[] = sprintf('%s => %s',
-                                $subQuestion,
-                                $answer
-                            );
+                            if(strlen(trim($answer)) > 0) {
+                                $answerAr[] = sprintf('%s => %s',
+                                    $subQuestion,
+                                    $answer
+                                );
+                            }
                         }
                     }
                     if(count($answerAr)) {
@@ -290,9 +304,13 @@ class CreateCitoExport extends Command
                     break;
                 case 'CompletionQuestion':
                     foreach((array) $json as $key => $value){
-                        $answerAr[] = sprintf('%s => %s', $key, $value);
+                        if(strlen(trim($value)) > 0){
+                            $answerAr[] = sprintf('%s => %s', $key, $value);
+                        }
                     }
-                    $answerValue = implode(', ', $answerAr);
+                    if(count($answerAr)){
+                        $answerValue = implode(', ', $answerAr);
+                    }
                     break;
                 case 'MultipleChoiceQuestion':
                     if(null !== $question->multipleChoiceQuestionAnswers) {
@@ -303,7 +321,9 @@ class CreateCitoExport extends Command
                                 }
                             }
                         });
-                        $answerValue = implode(', ', $answerAr);
+                        if(count($answerAr)){
+                            $answerValue = implode(', ', $answerAr);
+                        }
                     }
                     break;
                 case 'OpenQuestion':
