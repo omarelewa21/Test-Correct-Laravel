@@ -89,6 +89,8 @@ class Navigation extends Component
     
     public function toOverview($currentQuestion)
     {
+        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
+
         $isThisQuestion = $this->nav[$this->q - 1];
 
         if ($isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
@@ -121,13 +123,6 @@ class Navigation extends Component
             $this->updateQuestionIndicatorColor();
         }
     }
-    public function isCurrentQuestionAnOpenQuestion($question)
-    {
-        $questionUuid = $this->nav[$question - 1]['uuid'];
-        if (Question::whereUuid($questionUuid)->first()->type === 'OpenQuestion') {
-            $this->dispatchBrowserEvent('leaving-open-question', $questionUuid);
-        }
-    }
 
     public function goToQuestion($nextQuestion)
     {
@@ -136,7 +131,6 @@ class Navigation extends Component
         }
 
         $this->checkIfCurrentQuestionIsInfoscreen($this->q);
-        $this->isCurrentQuestionAnOpenQuestion($this->q);
 
         $currentQuestion = $this->nav[$this->q - 1];
 

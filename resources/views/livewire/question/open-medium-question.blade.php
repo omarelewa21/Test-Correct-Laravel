@@ -1,13 +1,5 @@
 <x-partials.question-container :number="$number" :question="$question">
-    <div class="w-full"
-         x-on:leaving-open-question.window="
-          if('{{ $this->question->uuid }}' == $event.detail){
-            var editorData = CKEDITOR.instances['{{ $editorId }}'].getData();
-            console.log(editorData);
-            CKEDITOR.instances['{{ $editorId }}'].setData(editorData);
-         }
-         "
-    >
+    <div class="w-full">
         <div class="mb-4">
             {!! $question->getQuestionHtml()  !!}
         </div>
@@ -39,7 +31,7 @@
                 CKEDITOR.instances['{{ $editorId }}']
                     .on('change',function(e){
                         var textarea = document.getElementById('{{ $editorId }}');
-                        textarea.value = e.editor.getData();
+                        setTimeout(function() {textarea.value = e.editor.getData();}, 400);
                         textarea.dispatchEvent(new Event('input'));
                 })
             })()
