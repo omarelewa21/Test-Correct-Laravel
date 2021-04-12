@@ -8,8 +8,6 @@ use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithQuestionTimer;
-use tcCore\Question;
 
 class OpenQuestion extends Component
 {
@@ -30,7 +28,7 @@ class OpenQuestion extends Component
             $this->answer = $temp['value'];
         }
 
-        $this->attachments = $this->question->attachments;
+//        $this->attachments = $this->question->attachments;
     }
 
 

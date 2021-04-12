@@ -17,9 +17,11 @@ trait WithGroups
             $groupQuestions = GroupQuestionQuestion::whereQuestionId($this->question->getKey())->get();
             if ($groupQuestions->count() > 1) {
                 $groupQuestionIds = $groupQuestions->pluck('group_question_id')->toArray();
-
-                $testTake = Answer::whereId($this->answers[$this->question->uuid]['id'])->first()->testParticipant->testTake;
-                $this->group =  TestQuestion::whereTestId($testTake->test_id)->whereIn('question_id', $groupQuestionIds)->first()->question;
+                $testId = Answer::where('answers.id',$this->answers[$this->question->uuid]['id'])
+                    ->leftJoin('test_participants','answers.test_participant_id','=','test_participants.id')
+                    ->leftJoin('test_takes','test_participants.test_take_id','=','test_takes.id')
+                    ->value('test_id');
+                $this->group =  TestQuestion::whereTestId($testId)->whereIn('question_id', $groupQuestionIds)->first()->question;
             } else {
                 $this->group = $groupQuestions->first()->groupQuestion;
             }

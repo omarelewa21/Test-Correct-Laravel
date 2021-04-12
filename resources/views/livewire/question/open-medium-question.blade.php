@@ -1,11 +1,11 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
-        <div class="mb-4">
+        <div class="mb-4" wire:ignore>
             {!! $question->getQuestionHtml()  !!}
         </div>
         <div wire:ignore>
             <x-input.group class="w-full" label="{!! __('test_take.instruction_open_question') !!}">
-                <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.1000ms="answer"></textarea>
+                <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.1000ms="answer">{!! $this->answer !!}</textarea>
             </x-input.group>
         </div>
 
@@ -31,7 +31,7 @@
                 CKEDITOR.instances['{{ $editorId }}']
                     .on('change',function(e){
                         var textarea = document.getElementById('{{ $editorId }}');
-                        setTimeout(function() {textarea.value = e.editor.getData();}, 400);
+                        setTimeout(function() {textarea.value = e.editor.getData();}, 300);
                         textarea.dispatchEvent(new Event('input'));
                 })
             })()
