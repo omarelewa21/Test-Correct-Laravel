@@ -5,7 +5,7 @@
      wire:ignore.self
 >
     <div class="w-full max-w-3xl space-y-4 mx-4 py-4">
-        <div class="flex justify-center">
+        <div class="hidden flex justify-center">
             <x-button.text-button>
                 <span>{{__('auth.login_as_teacher')}}</span>
                 <x-icon.arrow/>
@@ -75,27 +75,25 @@
                             </div>
                             @enderror
                             @if($requireCaptcha)
-                                <div x-on:refresh-captcha.window="
-                                    $refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());
-                                    ">
+                                <div x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
                                     <div class="notification error stretched mt-4">
                                         <div class="flex items-center space-x-3">
                                             <x-icon.exclamation/>
                                             <span class="title">{{ __('auth.require_captcha') }}</span>
                                         </div>
-                                        <span class="body">{{ __('auth.require_captcha') }}</span>
+                                        <span class="body">{{ __('auth.require_captcha_long') }}</span>
                                     </div>
-                                    <div>
+                                    <div class="mt-2 inline-flex flex-col items-center space-y-1">
                                         <div x-ref="captcha" wire:ignore>
                                             @captcha
                                         </div>
                                         <input type="text" id="captcha" class="form-input @error('captcha') border-all-red @enderror" name="captcha"
-                                               wire:model="captcha" autocomplete="off"/>
+                                               wire:model="captcha" autocomplete="off" style="width: 180px"/>
                                     </div>
                                 </div>
                             @endif
                             @error('captcha')
-                            <div>Foute captcha</div>
+                                <span class="text-sm all-red">{{ __('auth.incorrect_captcha') }}</span>
                             @enderror
                         </div>
 
@@ -143,7 +141,7 @@
             </x-button.text-button>
         </div>
 
-        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4">
+        <div class="hidden flex flex-col md:flex-row justify-center items-center md:space-x-4">
             <x-button.primary type="link" href="https://www.test-correct.nl/student/">
                 <x-icon.download/>
                 <span>{{__('auth.download_app')}}</span>

@@ -29,24 +29,21 @@
 
             </div>
             <div class="flex sm:ml-auto items-center space-x-3">
-                <x-button.cta size="sm">Maak account</x-button.cta>
+{{--                <x-button.cta size="sm">Maak account</x-button.cta>--}}
 
-                <x-dropdown label="Log in" button="primary-button">
-                    <x-dropdown.item @click="alert('Oplossingen')">
-                        Docent
-                    </x-dropdown.item>
-                    <x-dropdown.item @click="alert('Oplossingen')">
-                        Student
-                    </x-dropdown.item>
-                    <x-dropdown.item @click="alert('Oplossingen')">
-                        Schoolbeheerder
-                    </x-dropdown.item>
-                </x-dropdown>
+{{--                <x-dropdown label="Log in" button="primary-button">--}}
+{{--                    <x-dropdown.item @click="alert('Oplossingen')">--}}
+{{--                        Docent--}}
+{{--                    </x-dropdown.item>--}}
+{{--                    <x-dropdown.item @click="alert('Oplossingen')">--}}
+{{--                        Student--}}
+{{--                    </x-dropdown.item>--}}
+{{--                    <x-dropdown.item @click="alert('Oplossingen')">--}}
+{{--                        Schoolbeheerder--}}
+{{--                    </x-dropdown.item>--}}
+{{--                </x-dropdown>--}}
 
-                <a href="#" @click.prevent=""
-                   class="flex justify-center items-center rounded-full bg-primary text-white p-2 w-8 h-8">
-                    <x-icon.questionmark/>
-                </a>
+                <x-button.question/>
             </div>
         </div>
     </header>

@@ -31,5 +31,6 @@ return [
     'email_required'               => 'E-mailadres is verplicht',
     'email_incorrect'              => 'E-mailadres is niet correct',
     'require_captcha'              => 'Captcha vereist',
-    'require_captcha_long'         => 'Captcha vereist',
+    'require_captcha_long'         => 'Je hebt te vaak een verkeerde combinatie van inloggegevens ingevuld. Vul de onderstaande code correct in om door te gaan.',
+    'incorrect_captcha'            => 'Code incorrect.',
 ];

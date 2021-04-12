@@ -4,24 +4,31 @@ namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Dashboard extends Component
 {
-    public $testTakes;
+    use WithPagination;
+
+    private $testTakes;
 
     public function mount()
     {
-//       select * from test_takes where id in (select test_take_id from test_participants where user_id = 1483 ) and test_take_status_id < 4 and time_start >= DATE('2021-04-07 00:00:00')
-        $this->testTakes = \tcCore\TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
-            ->where('test_participants.user_id', Auth::id())
-            ->where('test_takes.test_take_status_id', '<=', 3)
-            ->where('test_takes.time_start', '>=', date('y-m-d'))
-            ->get();
+//        $this->testTakes = \tcCore\TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
+//            ->where('test_participants.user_id', Auth::id())
+//            ->where('test_takes.test_take_status_id', '<=', 3)
+//            ->where('test_takes.time_start', '>=', date('y-m-d'))
+//            ->paginate(1);
     }
 
     public function render()
     {
-        return view('plan-test-take')->layout('layouts.base');
+        $this->testTakes = \tcCore\TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
+            ->where('test_participants.user_id', Auth::id())
+            ->where('test_takes.test_take_status_id', '<=', 3)
+            ->where('test_takes.time_start', '>=', date('y-m-d'))
+            ->paginate(1);
+        return view('plan-test-take', ['testTakes' => $this->testTakes])->layout('layouts.base');
     }
 
     public function logout()

@@ -3,7 +3,6 @@
 namespace tcCore\Http\Livewire\Auth;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\FailedLogin;
@@ -37,32 +36,17 @@ class Login extends Component
         }
     }
 
-    public function login(Request $request)
+    public function login()
     {
+        $this->resetErrorBag();
+
         $credentials = $this->validate();
 
-        //is captcha nodig voor username
         if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
-            //laat captcha zien
-            $this->requireCaptcha = true;
-            return;
+            return $this->requireCaptcha = true;
         }
-
-        //valideer captcha wanneer ingevuld
         if ($this->captcha) {
-            $validateCaptcha = Validator::make(
-                ['captcha' => $this->captcha],
-                ['captcha' => 'required|captcha']
-            );
-
-            if ($validateCaptcha->fails()) {
-                $this->dispatchBrowserEvent('refresh-captcha');
-            }
-
-            $rulesWithCaptcha = array_merge($this->rules, [
-                'captcha' => 'required|captcha'
-            ]);
-            $this->validate($rulesWithCaptcha);
+            $this->validateCaptcha();
         }
 
         if (auth()->attempt($credentials)) {
@@ -100,5 +84,18 @@ class Login extends Component
             'username' => $this->username,
             'ip'       => request()->ip()
         ]);
+    }
+
+    private function validateCaptcha(): void
+    {
+        $validateCaptcha = Validator::make(['captcha' => $this->captcha], ['captcha' => 'required|captcha']);
+
+        if ($validateCaptcha->fails()) {
+            $this->reset('captcha');
+            $this->dispatchBrowserEvent('refresh-captcha');
+        }
+
+        $rulesWithCaptcha = array_merge($this->rules, ['captcha' => 'required|captcha']);
+        $this->validate($rulesWithCaptcha);
     }
 }
