@@ -12,7 +12,7 @@
 
     <x-modal maxWidth="lg" wire:model="forceTakenAwayModal" showCancelButton="0">
         <x-slot name="title">Toets ingenomen door docent.</x-slot>
-        <x-slot name="body">De toest is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar
+        <x-slot name="body">De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar
             het dashboard.
         </x-slot>
         <x-slot name="actionButton">
