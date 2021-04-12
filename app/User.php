@@ -70,7 +70,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified'
+        'invited_by', 'account_verified','eck_id'
     ];
 
 
@@ -79,7 +79,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
      *
      * @var array
      */
-    protected $hidden = ['password', 'remember_token', 'session_hash', 'api_key', 'login_logs'];
+    protected $hidden = ['password', 'remember_token', 'session_hash', 'api_key', 'login_logs','eck_id'];
 
     /**
      * @var array Array with school class IDs of which this user is student, for saving
@@ -262,6 +262,22 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasActiveText2Speech();
     }
 
+    public function getEck_idAttribute()
+    {
+        $passphrase = config('custom.encrypt.eck_id_passphrase');
+        $iv = config('custom.encrypt.eck_id_iv');
+        $method = 'aes-256-cbc';
+        return openssl_decrypt(base64_decode($this->eck_id), $method, $passphrase, OPENSSL_RAW_DATA, $iv);
+    }
+
+    public function setEck_idAttribute($eckId)
+    {
+        $passphrase = config('custom.encrypt.eck_id_passphrase');
+        $iv = config('custom.encrypt.eck_id_iv');
+        $method = 'aes-256-cbc';
+        return base64_encode(openssl_encrypt($eckId, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
+    }
+
     public function getIsTempTeacher()
     {
         return ($this->isA('Teacher') && $this->schoolLocation->getKey() == SchoolHelper::getTempTeachersSchoolLocation()->getKey());
@@ -306,12 +322,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear, $user);
             }
             if ($user->isA('teacher')&&!is_null($user->school_location_id)){
-                $schoolLocationUser = SchoolLocation::where('user_id',$user->id)->first();
-                if(!is_null($schoolLocationUser)){
-                    SchoolLocation::create( [   'user_id'=>$user->id,
-                                                'school_location_id'=>$user->school_location_id,
-                                                'external_id'=>$user->external_id]);
-                }
+                $schoolLocation = SchoolLocation::find($user->school_location_id);
+                $user->schoolLocations()->attach([$schoolLocation->id => ['external_id' => $user->external_id]]);
             }
         });
 
@@ -338,6 +350,22 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if (isset($user->demoRestrictionOverrule)) {
                 unset($user->demoRestrictionOverrule);
             }
+        });
+
+        static::updated(function (User $user) {
+            if ($user->isA('teacher')){
+                if ($user->external_id == $user->getOriginal('external_id')) {
+                    return false;
+                }
+                $schoolLocations = $user->schoolLocations()->get();
+                foreach ($schoolLocations as $schoolLocation) {
+                    $user->schoolLocations()->updateExistingPivot($schoolLocation->id, [
+                        'external_id' => $user->external_id,
+                    ]);
+                }
+            }
+
+
         });
 
         static::deleting(function (User $user) {
@@ -990,7 +1018,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     // Account manager's schoolLocations
     public function schoolLocations()
     {
-        return $this->hasMany('tcCore\SchoolLocation');
+        return $this->belongsToMany('tcCore\SchoolLocation')->withPivot(['external_id']);
     }
 
 

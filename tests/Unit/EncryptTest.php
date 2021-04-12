@@ -11,10 +11,13 @@ namespace Tests\Unit;
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
 use tcCore\TestTake;
+use tcCore\User;
 use Tests\TestCase;
 
 class EncryptTest extends TestCase
 {
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
+
     /** @test */
     public function testAesEncryption()
     {
@@ -38,8 +41,8 @@ class EncryptTest extends TestCase
 
 // Most secure iv
 // Never ever use iv=0 in real life. Better use this iv:
-// $ivlen = openssl_cipher_iv_length($method);
-// $iv = openssl_random_pseudo_bytes($ivlen);
+ $ivlen = openssl_cipher_iv_length($method);
+ $iv = openssl_random_pseudo_bytes($ivlen);
 
 // av3DYGLkwBsErphcyYp+imUW4QKs19hUnFyyYcXwURU=
         $encrypted = base64_encode(openssl_encrypt($plaintext, $method, $key, OPENSSL_RAW_DATA, $iv));
@@ -51,9 +54,39 @@ class EncryptTest extends TestCase
         dump('cipher=' . $method);
         dump('encrypted to: ' . $encrypted);
         dump('decrypted to: ' . $decrypted);
+        dump($iv);
         dump(strlen($encrypted));
         $this->assertTrue(strlen($encrypted)>0);
         $this->assertTrue(strlen($encrypted)<50);
+    }
+
+    /** @test */
+    public function after_create_a_teacher_has_a_encrypted_eck_id()
+    {
+        $data =[
+            'school_location_id' => '2',
+            'name_first' => 'a',
+            'name_suffix' => '',
+            'name' => 'bc',
+            'abbreviation' => 'abcc',
+            'username' => 'abc@test-correct.nl',
+            'password' => 'aa',
+            'external_id' => 'abc',
+            'note' => '',
+            'user_roles' => [1],
+            'eck_id' => 'hoi'
+        ];
+
+        $response = $this->post(
+            'api-c/user',
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+        //dump($response->getContent());
+        $response->assertStatus(200);
+        $rData = $response->decodeResponseJson();
+        $user = User::find($rData['id']);
+        dump($user);
+        $this->assertEquals('hoi',$user->eck_id);
     }
 
 }

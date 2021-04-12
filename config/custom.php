@@ -13,4 +13,8 @@ return [
         'link' => env('SHORTCODE_LINK','https://welcome.test-correct.nl/inv/'),
         'redirect' => env('SHORTCODE_REDIRECT','https://test-correct.nl/invite')
     ],
+    'encrypt' => [
+        'eckid_passphrase' => env('ECK_ID_PASSPHRASE','joepie'),
+        'eckid_iv' => env('ECK_ID_IV',''),
+    ]
 ];
