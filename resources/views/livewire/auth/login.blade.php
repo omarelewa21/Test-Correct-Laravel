@@ -75,21 +75,28 @@
                             </div>
                             @enderror
                             @if($requireCaptcha)
-                                <div wire:ignore>
+                                <div x-on:refresh-captcha.window="
+                                    $refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());
+                                    ">
                                     <div class="notification error stretched mt-4">
                                         <div class="flex items-center space-x-3">
                                             <x-icon.exclamation/>
                                             <span class="title">{{ __('auth.require_captcha') }}</span>
                                         </div>
+                                        <span class="body">{{ __('auth.require_captcha') }}</span>
                                     </div>
                                     <div>
-                                        @captcha
-                                        <input type="text" id="captcha" class="form-input" name="captcha"
+                                        <div x-ref="captcha" wire:ignore>
+                                            @captcha
+                                        </div>
+                                        <input type="text" id="captcha" class="form-input @error('captcha') border-all-red @enderror" name="captcha"
                                                wire:model="captcha" autocomplete="off"/>
                                     </div>
-
                                 </div>
                             @endif
+                            @error('captcha')
+                            <div>Foute captcha</div>
+                            @enderror
                         </div>
 
                         <div class="hidden">

@@ -2,9 +2,9 @@
 
 namespace tcCore\Http\Livewire\Auth;
 
-use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use tcCore\FailedLogin;
 
@@ -37,7 +37,7 @@ class Login extends Component
         }
     }
 
-    public function login()
+    public function login(Request $request)
     {
         $credentials = $this->validate();
 
@@ -50,11 +50,21 @@ class Login extends Component
 
         //valideer captcha wanneer ingevuld
         if ($this->captcha) {
-            $this->validateOnly($this->captcha, [
-                'captcha' => 'captcha'
+            $validateCaptcha = Validator::make(
+                ['captcha' => $this->captcha],
+                ['captcha' => 'required|captcha']
+            );
+
+            if ($validateCaptcha->fails()) {
+                $this->dispatchBrowserEvent('refresh-captcha');
+            }
+
+            $rulesWithCaptcha = array_merge($this->rules, [
+                'captcha' => 'required|captcha'
             ]);
+            $this->validate($rulesWithCaptcha);
         }
-        dd('correct?');
+
         if (auth()->attempt($credentials)) {
             $this->doLoginProcedure();
             return redirect()->intended(route('student.dashboard'));
@@ -88,7 +98,7 @@ class Login extends Component
     {
         FailedLogin::create([
             'username' => $this->username,
-            'ip' => request()->ip()
+            'ip'       => request()->ip()
         ]);
     }
 }

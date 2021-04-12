@@ -1363,9 +1363,6 @@ video {
 .right-3{
 	right: 0.75rem;
 }
-.-bottom-3{
-	bottom: -0.75rem;
-}
 .z-0{
 	z-index: 0;
 }
@@ -1557,14 +1554,14 @@ video {
 .h-5{
 	height: 1.25rem;
 }
-.h-auto{
-	height: auto;
-}
 .h-16{
 	height: 4rem;
 }
 .h-7{
 	height: 1.75rem;
+}
+.h-auto{
+	height: auto;
 }
 .h-80{
 	height: 20rem;
@@ -1586,6 +1583,12 @@ video {
 }
 .min-h-screen{
 	min-height: 100vh;
+}
+.min-h-\[200\]{
+	min-height: 200;
+}
+.min-h-\[200px\]{
+	min-height: 200px;
 }
 .w-1\/2{
 	width: 50%;
@@ -1671,9 +1674,6 @@ video {
 	max-width: -webkit-max-content;
 	max-width: -moz-max-content;
 	max-width: max-content;
-}
-.max-w-6xl{
-	max-width: 72rem;
 }
 .max-w-5xl{
 	max-width: 64rem;
@@ -2081,10 +2081,6 @@ video {
 	padding-left: 1.25rem;
 	padding-right: 1.25rem;
 }
-.py-2\.5{
-	padding-top: 0.625rem;
-	padding-bottom: 0.625rem;
-}
 .px-28{
 	padding-left: 7rem;
 	padding-right: 7rem;
@@ -2351,11 +2347,11 @@ video {
 .duration-200{
 	transition-duration: 200ms;
 }
-.duration-500{
-	transition-duration: 500ms;
-}
 .duration-700{
 	transition-duration: 700ms;
+}
+.duration-500{
+	transition-duration: 500ms;
 }
 .ease-in-out{
 	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -2899,20 +2895,12 @@ body.modal-open {
 		margin-right: 0px;
 	}
 
-	.sm\:mb-0{
-		margin-bottom: 0px;
-	}
-
-	.sm\:mr-4{
-		margin-right: 1rem;
-	}
-
-	.sm\:ml-auto{
-		margin-left: auto;
-	}
-
 	.sm\:ml-2{
 		margin-left: 0.5rem;
+	}
+
+	.sm\:mb-0{
+		margin-bottom: 0px;
 	}
 
 	.sm\:mt-2{
@@ -2925,6 +2913,14 @@ body.modal-open {
 
 	.sm\:ml-4{
 		margin-left: 1rem;
+	}
+
+	.sm\:mr-4{
+		margin-right: 1rem;
+	}
+
+	.sm\:ml-auto{
+		margin-left: auto;
 	}
 
 	.sm\:flex{

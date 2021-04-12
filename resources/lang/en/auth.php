@@ -31,4 +31,5 @@ return [
     'email_required'               => 'E-mail address is required',
     'email_incorrect'              => 'E-mail address is incorrect',
     'require_captcha'              => 'Captcha required',
+    'require_captcha_long'         => 'Too many failed attempts to log into your account.',
 ];
