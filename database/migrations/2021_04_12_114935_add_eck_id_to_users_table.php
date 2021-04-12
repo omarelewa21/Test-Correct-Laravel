@@ -14,7 +14,7 @@ class AddEckIdToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('eck_id', 45)->nullable();
+            $table->string('eck_id')->nullable();
             $table->unique(['eck_id', 'external_id']);
         });
     }

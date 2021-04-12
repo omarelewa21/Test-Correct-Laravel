@@ -305,6 +305,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $helper = new DemoHelper();
                 $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear, $user);
             }
+            if ($user->isA('teacher')&&!is_null($user->school_location_id)){
+                $schoolLocationUser = SchoolLocation::where('user_id',$user->id)->first();
+                if(!is_null($schoolLocationUser)){
+                    SchoolLocation::create( [   'user_id'=>$user->id,
+                                                'school_location_id'=>$user->school_location_id,
+                                                'external_id'=>$user->external_id]);
+                }
+            }
         });
 
         static::saving(function (User $user) {
@@ -1738,9 +1746,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         $this->allowedSchoolLocations()->detach($schoolLocation);
 // when only one left also delete that one;
-        if ($this->allowedSchoolLocations()->count() === 1) {
-            $this->allowedSchoolLocations()->detach($this->allowedSchoolLocations()->first());
-        }
+//        if ($this->allowedSchoolLocations()->count() === 1) {
+//            $this->allowedSchoolLocations()->detach($this->allowedSchoolLocations()->first());
+//        }
 
         return $this;
     }

@@ -10,6 +10,7 @@ namespace Tests\Unit;
 
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
+use tcCore\SchoolLocation;
 use tcCore\TestTake;
 use tcCore\User;
 use Tests\TestCase;
@@ -40,6 +41,31 @@ class UserTest extends TestCase
 
         $teacherA->delete();
         $this->assertNull(User::whereUsername('teacher-a@test-correct.nl')->first());
+    }
+
+    /** @test */
+    public function after_create_a_teacher_has_a_school_location()
+    {
+        $data =[
+            'school_location_id' => '2',
+            'name_first' => 'a',
+            'name_suffix' => '',
+            'name' => 'bc',
+            'abbreviation' => 'abcc',
+            'username' => 'abc@test-correct.nl',
+            'password' => 'aa',
+            'external_id' => 'abc',
+            'note' => '',
+            'user_roles' => [1],
+        ];
+
+        $response = $this->post(
+            'api-c/user',
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+        $response->assertStatus(200);
+        $rData = $response->decodeResponseJson();
+        $this->assertTrue($rData['school_location']['id']==2);
     }
 
 }
