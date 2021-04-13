@@ -12,12 +12,12 @@
                     <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
                 @elseif($attachment->file_mime_type == 'application/pdf')
                     <iframe class="w-full h-full"
-                            src="{{ route('preview.question-pdf-attachment-show', ['attachment' => $attachment->getKey(), 'question' => $questionId], false) }}"></iframe>
+                            src="{{ route('teacher.preview.question-pdf-attachment-show', ['attachment' => $attachment->getKey(), 'question' => $questionId], false) }}"></iframe>
                 @elseif($attachment->file_mime_type == 'audio/mpeg')
                     <x-attachment.preview-audio :attachment="$attachment" :questionId="$questionId"/>
                 @else
                     <iframe class="w-full h-full"
-                            src="{{ route('preview.question-attachment-show', ['attachment' => $attachment->getKey(), 'question' => $questionId], false) }}"></iframe>
+                            src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->getKey(), 'question' => $questionId], false) }}"></iframe>
                 @endif
             </div>
         </div>

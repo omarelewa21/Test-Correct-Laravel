@@ -1334,9 +1334,9 @@ class TestTakesController extends Controller {
 
     public function withTemporaryLogin(TestTake $testTake) {
         $response = new \stdClass;
-        $shortCode = TemporaryLogin::createForUser(Auth()->user());
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
 
-        $response->url = sprintf('%sstart-test-take-with-temporary-login/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->uuid);
+        $response->url = route('auth.student.start-take-with-temporary-login', [$testTake->uuid, $temporaryLogin->uuid]);
 
         return  response()->json($response);
     }

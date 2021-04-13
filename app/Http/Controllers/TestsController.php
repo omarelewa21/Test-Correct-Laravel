@@ -165,9 +165,9 @@ class TestsController extends Controller {
 
     public function withTemporaryLogin(Test $test) {
         $response = new \stdClass;
-        $shortCode = TemporaryLogin::createForUser(Auth()->user());
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
 
-        $response->url = sprintf('%sshow-test-with-temporary-login/%s/%s', config('app.base_url'), $test->uuid, $shortCode->uuid);
+        $response->url = route('auth.teacher.show-test-with-temporary-login', [$test->uuid, $temporaryLogin->uuid]);
 
         return  response()->json($response);
     }
