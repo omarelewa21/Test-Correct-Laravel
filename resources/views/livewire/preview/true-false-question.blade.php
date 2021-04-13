@@ -22,7 +22,7 @@
                     @endif
                 @endforeach
             </div>
-            {!! $question->getQuestionHtml()  !!}
+            <div wire:ignore>{!! $question->getQuestionHtml()  !!}</div>
         </div>
     </div>
     <x-attachment.preview-attachment-modal :attachment="$attachment" :questionId="$questionId"/>

@@ -1,7 +1,7 @@
 <x-partials.question-container :number="$number" :question="$question">
 
     <div class="w-full space-y-3 matching-question">
-        <div>
+        <div wire:ignore>
             {!!   $question->getQuestionHtml() !!}
         </div>
         <div>

@@ -5,7 +5,7 @@ namespace tcCore\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 
-class AuthenticatedAsTeacher
+class AuthenticatedAsStudent
 {
     /**
      * Handle an incoming request.
@@ -16,7 +16,7 @@ class AuthenticatedAsTeacher
      */
     public function handle($request, Closure $next)
     {
-        if (optional(Auth::user())->isA('Teacher')){
+        if (optional(Auth::user())->isA('Student')){
             return $next($request);
         }
         /** @TODO should redirect to a dashboard page, but this is currently not available. */

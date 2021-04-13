@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DuplicateTestRequest;
@@ -163,11 +164,19 @@ class TestsController extends Controller {
         return Response::make($maxScore, 200);
     }
 
-    public function withTemporaryLogin(Test $test) {
+    public function withTemporaryLogin(Test $test)
+    {
         $response = new \stdClass;
         $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
 
-        $response->url = route('auth.teacher.show-test-with-temporary-login', [$test->uuid, $temporaryLogin->uuid]);
+        $relativeUrl = sprintf('%s?redirect=%s',
+            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
+            rawurlencode(route('teacher.test-preview', $test->uuid,false))
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+        $response->url = sprintf('%s%s',config('app.base_url'),$relativeUrl);
 
         return  response()->json($response);
     }

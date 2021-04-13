@@ -4,7 +4,7 @@
              class="relative">
 
             <div class="flex flex-col space-y-3">
-                {!! $question->getQuestionHtml() !!}
+                <div wire:ignore>{!! $question->getQuestionHtml() !!}</div>
                 <x-button.secondary class="max-w-max" @click="opened = true">
                     <x-icon.edit/>
                     @if($answer == '')

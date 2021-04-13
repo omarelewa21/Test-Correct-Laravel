@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
@@ -1336,7 +1337,14 @@ class TestTakesController extends Controller {
         $response = new \stdClass;
         $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
 
-        $response->url = route('auth.student.start-take-with-temporary-login', [$testTake->uuid, $temporaryLogin->uuid]);
+        $relativeUrl = sprintf('%s?redirect=%s',
+            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
+            rawurlencode(route('student.test-take-laravel', $testTake->uuid,false))
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+        $response->url = sprintf('%s%s',config('app.base_url'), $relativeUrl);
 
         return  response()->json($response);
     }
