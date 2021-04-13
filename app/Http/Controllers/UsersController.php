@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
+use PHPUnit\Util\Exception;
 use tcCore\BaseSubject;
 use tcCore\EmailConfirmation;
 use tcCore\Http\Helpers\ActingAsHelper;
@@ -20,6 +21,7 @@ use tcCore\Http\Requests;
 use tcCore\Http\Requests\AllowOnlyAsTeacherRequest;
 use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
+use tcCore\Http\Requests\UserImportRequest;
 use tcCore\Http\Requests\UserMoveSchoolLocationRequest;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Jobs\SendWelcomeMail;
@@ -470,5 +472,71 @@ class UsersController extends Controller
         }
 
         return new JsonResponse(['account_verified'=> '']);
+    }
+
+    public function import(UserImportRequest $request,$type)
+    {
+        $userRoles = [];
+        if($type=='teacher'){
+            $userRoles  = [1];
+        }
+        if($type=='student'){
+            $userRoles  = [3];
+        }
+        $defaultData = [
+            'user_roles'         => $userRoles,
+            'school_location_id' => auth()->user()->school_location_id,
+        ];
+
+        DB::beginTransaction();
+        try {
+            $users = collect($request->all()['data'])->map(function ($row) use ($defaultData,$type) {
+                $attributes = array_merge($row, $defaultData);
+                logger($attributes);
+
+                $user = User::where('username', $attributes['username'])->first();
+                if ($user) {
+                        if ($user->isA('teacher')&&$type=='teacher') {
+                            $this->handleExternalId($user,$attributes);
+                        }else {
+                            throw new \Exception('conflict: exists but not teacher');
+                        }
+                } else {
+                    $userFactory = new Factory(new User());
+                    $user = $userFactory->generate(
+                        array_merge(
+                            $attributes,
+                            ['account_verified' => Carbon::now()]
+                        )
+                    );
+                }
+                $user->save();
+                return $user;
+            });
+        } catch (\Exception $e) {
+            DB::rollBack();
+            logger('Failed to import teachers' . $e);
+            return Response::make('Failed to import teachers' . print_r($e->getMessage(), true), 500);
+        }
+        DB::commit();
+
+        return Response::make($users, 200);
+    }
+
+    protected function handleExternalId($user,$attributes)
+    {
+        if(!array_key_exists('external_id',$attributes)){
+            return;
+        }
+        if(!array_key_exists('school_location_id',$attributes)){
+            return;
+        }
+        $schoolLocations = $user->schoolLocations();
+        foreach ($schoolLocations as $schoolLocation){
+            if($schoolLocation->pivot->external_id == $attributes['external_id']&&$attributes['school_location_id']==$schoolLocation->id){
+                return;
+            }
+        }
+        $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
     }
 }

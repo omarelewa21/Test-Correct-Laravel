@@ -37,8 +37,7 @@ class TeachersImportRequest extends Request {
     public function rules() {
         $this->filterInput();
 
-        return [
-
+        return  [
              'data.*.username' => ['required', 'email:rfc,filter',new EmailDns, function ($attribute, $value, $fail) {
 
                     if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
