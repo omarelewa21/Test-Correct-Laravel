@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -10,25 +11,17 @@ class Dashboard extends Component
 {
     use WithPagination;
 
-    private $testTakes;
-
     public function mount()
     {
-//        $this->testTakes = \tcCore\TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
-//            ->where('test_participants.user_id', Auth::id())
-//            ->where('test_takes.test_take_status_id', '<=', 3)
-//            ->where('test_takes.time_start', '>=', date('y-m-d'))
-//            ->paginate(1);
+
     }
 
     public function render()
     {
-        $this->testTakes = \tcCore\TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
-            ->where('test_participants.user_id', Auth::id())
-            ->where('test_takes.test_take_status_id', '<=', 3)
-            ->where('test_takes.time_start', '>=', date('y-m-d'))
-            ->paginate(1);
-        return view('plan-test-take', ['testTakes' => $this->testTakes])->layout('layouts.base');
+        return view('plan-test-take', [
+            'testTakes' => $this->fetchTestTakes(),
+        ])
+            ->layout('layouts.base');
     }
 
     public function logout()
@@ -38,5 +31,26 @@ class Dashboard extends Component
         session()->regenerateToken();
 
         return redirect(route('auth.login'));
+    }
+
+    private function fetchTestTakes()
+    {
+        return \tcCore\TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
+            ->where('test_participants.user_id', Auth::id())
+            ->where('test_takes.test_take_status_id', '<=', 3)
+            ->where('test_takes.time_start', '>=', date('y-m-d'))
+            ->paginate(4);
+    }
+
+    public function giveInvigilatorNamesFor(\tcCore\TestTake $testTake)
+    {
+        $invigilators = [];
+        $invigilators = $testTake->invigilatorUsers->map(function ($invigilator){
+            $letter = Str::substr($invigilator->name_first, 0,1);
+            !blank($invigilator->name_suffix) ? $suffix = $invigilator->name_suffix.' ' : $suffix = '';
+            return sprintf('%s. %s%s', $letter, $suffix, $invigilator->name);
+        });
+
+        return collect($invigilators);
     }
 }

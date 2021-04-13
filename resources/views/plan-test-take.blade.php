@@ -24,25 +24,32 @@
 
                                 <x-table.row>
                                     <x-table.cell>{{ $testTake->test->name }}</x-table.cell>
-                                    <x-table.cell class="text-right">123</x-table.cell>
-                                    <x-table.cell>L. Hamilton</x-table.cell>
-                                    <x-table.cell>D. Ricciardo</x-table.cell>
-                                    <x-table.cell>Software Development</x-table.cell>
-                                    <x-table.cell class="text-right">05-09-1996</x-table.cell>
-                                    <x-table.cell class="text-right">25</x-table.cell>
+                                    <x-table.cell class="text-right">{{ $testTake->test->question_count }}</x-table.cell>
                                     <x-table.cell>
-                                        <span class="text-xs uppercase bold px-2.5 py-1 bg-off-white base">Standaard</span>
+                                        <x-partials.invigilator-list :invigilators="$this->giveInvigilatorNamesFor($testTake)"/>
+                                    </x-table.cell>
+                                    <x-table.cell>{{ $testTake->user_id }}</x-table.cell>
+                                    <x-table.cell>Software Development</x-table.cell>
+                                    <x-table.cell class="text-right">{{ \Carbon\Carbon::parse($testTake->time_start)->format('d-m-Y') }}</x-table.cell>
+                                    <x-table.cell class="text-right">{{ $testTake->weight }}</x-table.cell>
+                                    <x-table.cell class="text-right">
+                                        <span class="text-xs uppercase bold px-2.5 py-1 rounded-[4px] bg-system-secondary base">{{ $testTake->retake != '1' ? 'Standaard' : 'Inhaal' }}</span>
                                     </x-table.cell>
                                     <x-table.cell class="text-right">
-                                        <x-button.cta size="sm">Maken</x-button.cta>
+                                        @if($testTake->time_start == \Carbon\Carbon::today())
+                                            <x-button.cta size="sm">Maken</x-button.cta>
+                                        @else
+                                            <span class="italic">gepland</span>
+                                        @endif
                                     </x-table.cell>
                                 </x-table.row>
                         @endforeach
                     </x-slot>
                 </x-table>
-                            {{ $testTakes->links() }}
+                <div>
+                    {{ $testTakes->links() }}
+                </div>
             </div>
-
         </div>
     </main>
 </div>
