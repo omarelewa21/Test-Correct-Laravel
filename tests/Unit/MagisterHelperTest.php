@@ -31,12 +31,12 @@ use Tests\Unit\Http\Helpers\OnboardingTestHelper;
 
 class MagisterHelperTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     /** @test */
     public function test_guzzle()
     {
-        (new MagisterHelper)->parseResult();
+        (new MagisterHelper)->parseResult()->storeInDB();
     }
 
 }
