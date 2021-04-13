@@ -46,7 +46,7 @@ class CompletionQuestion extends Component
             return sprintf(
                 '<input wire:model.lazy="answer.%d" class="form-input mb-2 truncate" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" wire:key="%s"/>',
                 $tag_id,
-                'answer_' . $tag_id,
+                'answer_' . $tag_id .'_'.$this->question->getKey(),
                 'comp_answer_' . $tag_id,
                 'comp_answer_' . $tag_id,
                 'comp_answer_' . $tag_id

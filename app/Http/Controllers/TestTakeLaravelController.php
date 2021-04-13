@@ -14,7 +14,7 @@ class TestTakeLaravelController extends Controller
     public function overview(TestTake $testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
-        if(!$testParticipant->canSeeOverviewPage()) {
+        if (!$testParticipant->canSeeOverviewPage()) {
             return redirect(config('app.url_login'));
         }
 
@@ -40,12 +40,18 @@ class TestTakeLaravelController extends Controller
             return redirect(config('app.url_login'));
         }
 
-        $current = $request->get('q') ?: '1';
-
         $data = self::getData($testTake, $testParticipant);
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
-
         $nav = $this->getNavigationData($data, $answers);
+
+        $current = (int) $request->get('q') ?: 1;
+        if($current < 1){
+            $current = 1;
+        } else if ($current > $nav->count()) {
+            $current = $nav->count();
+        }
+        $request->merge(['q' => $current]);
+
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
 

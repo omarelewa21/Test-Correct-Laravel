@@ -74,7 +74,7 @@
                 </x-button.text-button>
                 <x-button.cta x-show="display.turnin"
                         size="sm"
-                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview')">
+                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{ $nav->count() }})">
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.cta>
                 <x-button.primary x-show="display.next"

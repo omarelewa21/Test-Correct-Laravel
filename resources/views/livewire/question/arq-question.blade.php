@@ -7,7 +7,7 @@
                 <span>{!! __('test_take.instruction_arq') !!}</span>
             </div>
             <div class="flex flex-row space-x-5">
-                <div class="flex flex-1 flex-col space-y-6">
+                <div class="flex flex-1 flex-col space-y-6" wire:ignore>
                     {!! $question->getQuestionHtml() !!}
                 </div>
                 <div class="flex flex-1 flex-col">
@@ -35,11 +35,11 @@
                                     class="hidden"
                                     value="{{ $link->id }}"
                                 >
-                                <span class="w-16 mr-4">{{ __($this->arqStructure[$loopCount][0]) }}</span>
-                                <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][1]) }}</span>
-                                <span class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][2]) }}</span>
-                                <span class="">{{ __($this->arqStructure[$loopCount][3]) }}</span>
-                                <div class="ml-auto   {!! ($this->answer == $link->id) ? '' :'hidden' !!}">
+                                <span id="arq_option_1{{$loopCount}}_{{$link->id}}" wire:key="arq_option_1{{$loopCount}}_{{$link->id}}" class="w-16 mr-4">{{ __($this->arqStructure[$loopCount][0]) }}</span>
+                                <span id="arq_option_2{{$loopCount}}_{{$link->id}}" wire:key="arq_option_2{{$loopCount}}_{{$link->id}}" class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][1]) }}</span>
+                                <span id="arq_option_3{{$loopCount}}_{{$link->id}}" wire:key="arq_option_3{{$loopCount}}_{{$link->id}}" class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][2]) }}</span>
+                                <span id="arq_option_4{{$loopCount}}_{{$link->id}}" wire:key="arq_option_4{{$loopCount}}_{{$link->id}}" class="">{{ __($this->arqStructure[$loopCount][3]) }}</span>
+                                <div id="arq_selected_{{$loopCount}}_{{$link->id}}" wire:key="arq_selected_{{$loopCount}}_{{$link->id}}" class="ml-auto   {!! ($this->answer == $link->id) ? '' :'hidden' !!}">
                                     <x-icon.checkmark/>
                                 </div>
                             </label>

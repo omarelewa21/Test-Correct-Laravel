@@ -86,14 +86,16 @@ class Navigation extends Component
         }
         $this->dispatchBrowserEvent('update-footer-navigation', $details);
     }
-
+    
     public function toOverview($currentQuestion)
     {
-        $currentQuestion = $this->nav[$this->q - 1];
+        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
 
-        if ($currentQuestion['group']['closeable'] && !$currentQuestion['group']['closed']) {
+        $isThisQuestion = $this->nav[$this->q - 1];
+
+        if ($isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
             $this->dispatchBrowserEvent('close-this-group', $currentQuestion);
-        } elseif ($currentQuestion['closeable'] && !$currentQuestion['closed']) {
+        } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
         } else {
             return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
@@ -121,13 +123,6 @@ class Navigation extends Component
             $this->updateQuestionIndicatorColor();
         }
     }
-    public function isCurrentQuestionAnOpenQuestion($question)
-    {
-        $questionUuid = $this->nav[$question - 1]['uuid'];
-        if (Question::whereUuid($questionUuid)->first()->type === 'OpenQuestion') {
-            $this->dispatchBrowserEvent('leaving-open-question', $questionUuid);
-        }
-    }
 
     public function goToQuestion($nextQuestion)
     {
@@ -136,7 +131,6 @@ class Navigation extends Component
         }
 
         $this->checkIfCurrentQuestionIsInfoscreen($this->q);
-        $this->isCurrentQuestionAnOpenQuestion($this->q);
 
         $currentQuestion = $this->nav[$this->q - 1];
 
