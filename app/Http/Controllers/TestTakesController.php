@@ -1344,6 +1344,7 @@ class TestTakesController extends Controller {
         if(Str::startsWith($relativeUrl,'/')) {
             $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
         }
+
         $response->url = sprintf('%s%s',config('app.base_url'), $relativeUrl);
 
         return  response()->json($response);

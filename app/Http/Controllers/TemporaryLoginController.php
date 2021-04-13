@@ -6,8 +6,6 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use tcCore\Test;
-use tcCore\TestTake;
 
 class TemporaryLoginController extends Controller
 {
