@@ -115,4 +115,53 @@ class UserTest extends TestCase
             //dump($schoolLocation->pivot->external_id);
         }
     }
+
+    /** @test */
+    public function create_and_update_teacher_fails_when_external_already_exists_in_school_location()
+    {
+        $data =[
+            'school_location_id' => '2',
+            'name_first' => 'a',
+            'name_suffix' => '',
+            'name' => 'bc',
+            'abbreviation' => 'abcc',
+            'username' => 'abc@test-correct.nl',
+            'password' => 'aa',
+            'external_id' => 'abc',
+            'note' => '',
+            'user_roles' => [1],
+        ];
+
+        $response = $this->post(
+            'api-c/user',
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+        //dump($response->getContent());
+        $response->assertStatus(200);
+        $rData = $response->decodeResponseJson();
+        $data['username'] = 'cde@test-correct.nl';
+        $response = $this->post(
+            'api-c/user',
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+        $response->assertStatus(422);
+        $data['external_id'] = 'cde';
+        $response = $this->post(
+            'api-c/user',
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+        $response->assertStatus(200);
+        $data['username'] = 'abc@test-correct.nl';
+        $response = $this->put(
+            'api-c/user/'.$rData['uuid'],
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+        $response->assertStatus(422);
+        $data['external_id'] = 'efg';
+        $response = $this->put(
+            'api-c/user/'.$rData['uuid'],
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+        $response->assertStatus(200);
+    }
 }

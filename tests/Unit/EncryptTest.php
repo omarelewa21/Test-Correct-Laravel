@@ -43,7 +43,7 @@ class EncryptTest extends TestCase
 // Never ever use iv=0 in real life. Better use this iv:
  $ivlen = openssl_cipher_iv_length($method);
  $iv = openssl_random_pseudo_bytes($ivlen);
-
+dump($iv);
 // av3DYGLkwBsErphcyYp+imUW4QKs19hUnFyyYcXwURU=
         $encrypted = base64_encode(openssl_encrypt($plaintext, $method, $key, OPENSSL_RAW_DATA, $iv));
 
@@ -74,7 +74,7 @@ class EncryptTest extends TestCase
             'external_id' => 'abc',
             'note' => '',
             'user_roles' => [1],
-            'eck_id' => 'hoi'
+            'eckid' => 'hoi'
         ];
 
         $response = $this->post(
@@ -85,8 +85,12 @@ class EncryptTest extends TestCase
         $response->assertStatus(200);
         $rData = $response->decodeResponseJson();
         $user = User::find($rData['id']);
-        dump($user);
-        $this->assertEquals('hoi',$user->eck_id);
+        dump($user->eckid);
+        dump($user->eckidFromRelation);
+        //$this->assertEquals('hoi',$user->eckid);
+        $row = \DB::table('eckid_user')->where('user_id',$user->id)->first();
+        dump($row);
+        $this->assertNotEquals('hoi',$row->eckid);
     }
 
 }

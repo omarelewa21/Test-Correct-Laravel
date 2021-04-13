@@ -9,6 +9,7 @@ class SchoolLocationUserExternalId implements Rule
 {
     private $schoolLocationId;
     private $userId = false;
+    private $type = 'external_id';
     /**
      * Create a new rule instance.
      *
@@ -35,6 +36,7 @@ class SchoolLocationUserExternalId implements Rule
                 ->where('user_id', $this->userId)
                 ->first();
             if(!is_null($row)){
+                $this->type = 'school_location';
                 return false;
             }
         }
@@ -54,7 +56,10 @@ class SchoolLocationUserExternalId implements Rule
      */
     public function message()
     {
-        return $this->attribute.' failed on double entry';
+        if($this->type == 'external_id'){
+            return $this->attribute.' failed on double entry';
+        }
+        return $this->attribute.' failed on double user entry';
     }
 
     private function setUserId($username)

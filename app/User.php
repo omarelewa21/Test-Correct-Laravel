@@ -70,7 +70,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified','eck_id'
+        'invited_by', 'account_verified'
     ];
 
 
@@ -79,7 +79,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
      *
      * @var array
      */
-    protected $hidden = ['password', 'remember_token', 'session_hash', 'api_key', 'login_logs','eck_id'];
+    protected $hidden = ['password', 'remember_token', 'session_hash', 'api_key', 'login_logs'];
 
     /**
      * @var array Array with school class IDs of which this user is student, for saving
@@ -262,20 +262,30 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasActiveText2Speech();
     }
 
-    public function getEck_idAttribute()
+    public function eckidFromRelation()
     {
-        $passphrase = config('custom.encrypt.eck_id_passphrase');
-        $iv = config('custom.encrypt.eck_id_iv');
-        $method = 'aes-256-cbc';
-        return openssl_decrypt(base64_decode($this->eck_id), $method, $passphrase, OPENSSL_RAW_DATA, $iv);
+        return $this->hasOne(EckidUser::class);
     }
 
-    public function setEck_idAttribute($eckId)
+    public function getEckidAttribute()
     {
         $passphrase = config('custom.encrypt.eck_id_passphrase');
         $iv = config('custom.encrypt.eck_id_iv');
         $method = 'aes-256-cbc';
-        return base64_encode(openssl_encrypt($eckId, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
+        $eckid = '';
+        if(!is_null($this->eckidFromRelation)){
+            $eckid = $this->eckidFromRelation->eckid;
+        }
+        return openssl_decrypt(base64_decode($eckid), $method, $passphrase, OPENSSL_RAW_DATA, $iv);
+    }
+
+    public function setEckidAttribute($eckid)
+    {
+        $passphrase = config('custom.encrypt.eck_id_passphrase');
+        $iv = config('custom.encrypt.eck_id_iv');
+        $method = 'aes-256-cbc';
+        dd(base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv)));
+        $this->attributes['eckid'] = base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
     }
 
     public function getIsTempTeacher()
@@ -325,6 +335,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $schoolLocation = SchoolLocation::find($user->school_location_id);
                 $user->schoolLocations()->attach([$schoolLocation->id => ['external_id' => $user->external_id]]);
             }
+            if (!is_null($user->eckid)){
+                $user->eckidFromRelation()->create(['eckid'=>$user->eckid]);
+            }
         });
 
         static::saving(function (User $user) {
@@ -364,7 +377,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     ]);
                 }
             }
-
+            if ($user->getOriginal('eckid') != $user->eckid){
+                $user->eckidFromRelation()->update(['eckid'=>$user->eckid]);
+            }
 
         });
 
