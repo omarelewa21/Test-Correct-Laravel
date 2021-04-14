@@ -4,6 +4,7 @@
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use tcCore\Http\Middleware\AuthenticatedAsTeacher;
 use tcCore\Http\Middleware\AuthenticateWithTemporaryLogin;
+use tcCore\Http\Middleware\CheckForDeploymentMaintenance;
 use tcCore\Http\Middleware\LocaleMiddleware;
 use tcCore\Http\Middleware\RequestLogger;
 
@@ -44,6 +45,7 @@ class Kernel extends HttpKernel
         'cakeLaravelFilter' => 'tcCore\Http\Middleware\CakeLaravelFilter',
         'auth.temp'         => AuthenticateWithTemporaryLogin::class,
         'teacher'           => AuthenticatedAsTeacher::class,
+        'deploymentMaintenance' => CheckForDeploymentMaintenance::class,
     ];
 
     /**
@@ -61,6 +63,7 @@ class Kernel extends HttpKernel
             \tcCore\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             LocaleMiddleware::class,
+            CheckForDeploymentMaintenance::class,
         ],
     ];
 
