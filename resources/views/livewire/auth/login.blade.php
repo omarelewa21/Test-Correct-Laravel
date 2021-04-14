@@ -5,8 +5,8 @@
      wire:ignore.self
 >
     <div class="w-full max-w-3xl space-y-4 mx-4 py-4">
-        <div class="hidden flex justify-center">
-            <x-button.text-button>
+        <div class="flex justify-center">
+            <x-button.text-button type="link" href="{{ config('app.url_login') }}">
                 <span>{{__('auth.login_as_teacher')}}</span>
                 <x-icon.arrow/>
             </x-button.text-button>
@@ -141,24 +141,16 @@
             </x-button.text-button>
         </div>
 
-        <div class="hidden flex flex-col md:flex-row justify-center items-center md:space-x-4">
+        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4">
             <x-button.primary type="link" href="https://www.test-correct.nl/student/">
                 <x-icon.download/>
                 <span>{{__('auth.download_app')}}</span>
             </x-button.primary>
-            <h5 class="inline-flex mt-2 md:mt-0">&amp;</h5>
-            <x-button.text-button>
+            <h5 class="hidden inline-flex mt-2 md:mt-0">&amp;</h5>
+            <x-button.text-button class="hidden">
                 <span>{{__('auth.request_account_from_teacher')}}</span>
                 <x-icon.arrow/>
             </x-button.text-button>
         </div>
     </div>
-
-    @push('scripts')
-        <script>
-            function addRelativePaddingToBody(elementId, extraPadding = 0) {
-                document.getElementById(elementId).style.paddingTop = (document.getElementById('auth-header').offsetHeight + extraPadding) + 'px';
-            }
-        </script>
-    @endpush
 </div>

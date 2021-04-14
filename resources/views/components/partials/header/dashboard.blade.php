@@ -1,4 +1,4 @@
-<header class="header fixed w-full content-center">
+<header id="header" class="header fixed w-full content-center">
     <div class="mx-4 lg:mx-28 flex h-full items-center">
         <div class="relative">
             <a href="{{config('app.url_login')}}">

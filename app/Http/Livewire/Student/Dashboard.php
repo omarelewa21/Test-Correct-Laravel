@@ -18,10 +18,10 @@ class Dashboard extends Component
 
     public function render()
     {
-        return view('plan-test-take', [
+        return view('livewire.student.dashboard', [
             'testTakes' => $this->fetchTestTakes(),
         ])
-            ->layout('layouts.base');
+            ->layout('layouts.student');
     }
 
     public function logout()
@@ -39,7 +39,7 @@ class Dashboard extends Component
             ->where('test_participants.user_id', Auth::id())
             ->where('test_takes.test_take_status_id', '<=', 3)
             ->where('test_takes.time_start', '>=', date('y-m-d'))
-            ->paginate(4);
+            ->paginate(10);
     }
 
     public function giveInvigilatorNamesFor(\tcCore\TestTake $testTake)

@@ -17,7 +17,7 @@
 
 <th
         {{ $attributes->merge(['class' => 'text-left px-3 bg-cool-gray-50'])->only('class') }}
-        @isset($width) style="max-width:{{$width}}%" @endisset
+        @isset($width) style="width:{{$width}}%" @endisset
 >
     @unless ($sortable)
         <span class="text-left body2 bold">{{ $slot }}</span>

@@ -1,5 +1,5 @@
 <x-layouts.base>
-    <header id="auth-header"
+    <header id="header"
             class="header top-0 fixed w-full h-auto p-2.5 z-20">
         <div class="flex flex-wrap content-center justify-center sm:justify-start mx-auto max-w-5xl">
             <a class="mb-4 sm:mb-0 sm:mr-4 flex" href="#">
@@ -29,19 +29,16 @@
 
             </div>
             <div class="flex sm:ml-auto items-center space-x-3">
-{{--                <x-button.cta size="sm">Maak account</x-button.cta>--}}
+                <x-button.cta size="sm">Maak account</x-button.cta>
 
-{{--                <x-dropdown label="Log in" button="primary-button">--}}
-{{--                    <x-dropdown.item @click="alert('Oplossingen')">--}}
-{{--                        Docent--}}
-{{--                    </x-dropdown.item>--}}
-{{--                    <x-dropdown.item @click="alert('Oplossingen')">--}}
-{{--                        Student--}}
-{{--                    </x-dropdown.item>--}}
-{{--                    <x-dropdown.item @click="alert('Oplossingen')">--}}
-{{--                        Schoolbeheerder--}}
-{{--                    </x-dropdown.item>--}}
-{{--                </x-dropdown>--}}
+                <x-dropdown label="Log in" button="primary-button">
+                    <x-dropdown.item type="link" href="{{ config('app.url_login') }}">
+                        Docent
+                    </x-dropdown.item>
+                    <x-dropdown.item @click="alert('Schoolbeheerder')">
+                        Schoolbeheerder
+                    </x-dropdown.item>
+                </x-dropdown>
 
                 <x-button.question/>
             </div>

@@ -22,33 +22,39 @@
                     <x-slot name="body">
                         @foreach($testTakes as $testTake)
 
-                                <x-table.row>
-                                    <x-table.cell>{{ $testTake->test->name }}</x-table.cell>
-                                    <x-table.cell class="text-right">{{ $testTake->test->question_count }}</x-table.cell>
-                                    <x-table.cell>
-                                        <x-partials.invigilator-list :invigilators="$this->giveInvigilatorNamesFor($testTake)"/>
-                                    </x-table.cell>
-                                    <x-table.cell>{{ $testTake->user_id }}</x-table.cell>
-                                    <x-table.cell>Software Development</x-table.cell>
-                                    <x-table.cell class="text-right">{{ \Carbon\Carbon::parse($testTake->time_start)->format('d-m-Y') }}</x-table.cell>
-                                    <x-table.cell class="text-right">{{ $testTake->weight }}</x-table.cell>
-                                    <x-table.cell class="text-right">
-                                        <span class="text-xs uppercase bold px-2.5 py-1 rounded-[4px] bg-system-secondary base">{{ $testTake->retake != '1' ? 'Standaard' : 'Inhaal' }}</span>
-                                    </x-table.cell>
-                                    <x-table.cell class="text-right">
-                                        @if($testTake->time_start == \Carbon\Carbon::today())
-                                            <x-button.cta size="sm">Maken</x-button.cta>
-                                        @else
-                                            <span class="italic">gepland</span>
-                                        @endif
-                                    </x-table.cell>
-                                </x-table.row>
+                            <x-table.row>
+                                <x-table.cell>{{ $testTake->test->name }}</x-table.cell>
+                                <x-table.cell class="text-right">{{ $testTake->test->question_count }}</x-table.cell>
+                                <x-table.cell>
+                                    <x-partials.invigilator-list :invigilators="$this->giveInvigilatorNamesFor($testTake)"/>
+                                </x-table.cell>
+                                <x-table.cell>{{ $testTake->user_id }}</x-table.cell>
+                                <x-table.cell>Software Development</x-table.cell>
+                                <x-table.cell class="text-right">
+                                    @if($testTake->time_start == \Carbon\Carbon::today())
+                                        <span class="capitalize">vandaag</span>
+                                    @else
+                                        {{ \Carbon\Carbon::parse($testTake->time_start)->format('d-m-Y') }}
+                                    @endif
+                                </x-table.cell>
+                                <x-table.cell class="text-right">{{ $testTake->weight }}</x-table.cell>
+                                <x-table.cell>
+                                    <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
+                                </x-table.cell>
+                                <x-table.cell class="text-right">
+                                    @if($testTake->time_start == \Carbon\Carbon::today())
+                                        <x-button.cta size="sm">Maken</x-button.cta>
+                                    @else
+                                        <span class="italic">gepland</span>
+                                    @endif
+                                </x-table.cell>
+                            </x-table.row>
                         @endforeach
                     </x-slot>
                 </x-table>
-                <div>
-                    {{ $testTakes->links() }}
-                </div>
+            </div>
+            <div>
+                {{ $testTakes->links('components.partials.tc-paginator') }}
             </div>
         </div>
     </main>
