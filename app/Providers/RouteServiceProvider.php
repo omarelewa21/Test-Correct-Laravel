@@ -13,6 +13,7 @@ use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\CompletionQuestion;
 use tcCore\Contact;
+use tcCore\Deployment;
 use tcCore\DrawingQuestion;
 use tcCore\EducationLevel;
 use tcCore\EmailConfirmation;
@@ -25,6 +26,7 @@ use tcCore\InfoscreenQuestion;
 use tcCore\Invigilator;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\License;
+use tcCore\MaintenanceWhitelistIp;
 use tcCore\Message;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\OnboardingWizard;
@@ -279,6 +281,14 @@ class RouteServiceProvider extends ServiceProvider
             throw new RouteModelBindingNotFoundHttpException('Email Confirmation not found');
         });
 
+        Route::model('deployment', 'tcCore\Deployment', function () {
+            throw new RouteModelBindingNotFoundHttpException('Deployment not found');
+        });
+
+        Route::model('maintenanceWhitelistIp', 'tcCore\MaintenanceWhitelistIp', function () {
+            throw new RouteModelBindingNotFoundHttpException('MaintenanceWhitelistIp not found');
+        });
+
         /**
          * Route::model('user_role','tcCore\UserRole', function() {
          * throw new NotFoundHttpException('User role not found');
@@ -491,6 +501,14 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('EmailConfirmation', function($item) {
             return EmailConfirmation::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('deployment', function($item) {
+            return Deployment::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('maintenanceWhitelistIp', function($item) {
+            return MaintenanceWhitelistIp::whereUuid($item)->firstOrFail();
         });
 
     }

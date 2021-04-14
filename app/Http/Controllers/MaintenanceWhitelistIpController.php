@@ -21,7 +21,7 @@ class MaintenanceWhitelistIpController extends Controller
 {
     public function index(IndexMaintenanceWhitelistIpRequest $request)
     {
-        return Response::make(Deployment::orderBy('deployment_day','desc')->get(), 200);
+        return Response::make(MaintenanceWhitelistIp::orderBy('ip','asc')->get(), 200);
     }
 
     public function show(ShowMaintenanceWhitelistIpRequest $request, MaintenanceWhitelistIp $maintenanceWhitelistIp)

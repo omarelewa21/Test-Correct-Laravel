@@ -20,7 +20,7 @@ class Deployment extends Model
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
-        'deployment_day' => 'datetime',
+        'deployment_day' => 'datetime:Y-m-d',
     ];
 
     protected $fillable = [
@@ -30,41 +30,43 @@ class Deployment extends Model
       'status'
     ];
 
-    public function handleIfNeeded() : void
+    public function handleIfNeeded($oldStatus) : void
     {
-        if($this->isDirty('status')){
-            if($this->status === static::DONE && $this->getOriginal('status') === static::ACTIVE){
+        logger('Deployment: handle if needed');
+        if($oldStatus !== $this->status){
+            logger('Deployment: status changed to '.$this->status);
+            if($this->status === static::ACTIVE){
+                logger('Deployment: show maintenance should be set');
                 $this->showMaintenance();
             }
-            else if($this->status === static::ACTIVE){
+            else if($oldStatus === static::ACTIVE){
+                logger('Deployment: remove maintenance should be set');
                 $this->removeMaintenance();
             }
+            logger('Deployment: do a portal call in order to set the notification');
+            $this->callCakeForMaintenanceCheck();
         }
     }
 
     public function showMaintenance()
     {
-        // set system in maintenance mode
-        $ips = MaintenanceWhitelistIp::pluck('ip');
-        $callString = sprintf('down %s --message="%s"',
-            implode(' --alllow=',$ips),
-            $this->content
-        );
-        Artisan::call($callString);
-        // call cake to check if in maintenance mode
-        $this->callCakeForMaintenanceCheck();
+        logger('Deployment: ready to set mainteanance');
+        // nothing to do on the laravel side as this is based on an ACTIVE status
     }
 
     protected function removeMaintenance()
     {
-        // remote system maintenance mode
-        Artisan::call('up');
-        // call cake to check if in maintenance mode
-        $this->callCakeForMaintenanceCheck();
+        logger('Deployment: ready to remove maintenance');
+        // nothing to do on the laravel side as this is based on an ACTIVE status or not
     }
 
     protected function callCakeForMaintenanceCheck()
     {
-
+        logger('Deployment: ready to call Cake');
+        $url = sprintf('%sdeployment_maintenance/check_for_maintenance',config('app.url_login'));
+        logger('Deployment: url to call '.$url);
+        $response = file_get_contents($url);
+        logger('Deployment: response from url ');
+        logger($response);
     }
 }

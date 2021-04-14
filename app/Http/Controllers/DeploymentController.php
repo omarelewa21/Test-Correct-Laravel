@@ -13,6 +13,7 @@ use tcCore\Http\Requests\UpdateDeploymentRequest;
 
 class DeploymentController extends Controller
 {
+
     public function index(IndexDeploymentRequest $request)
     {
         return Response::make(Deployment::orderBy('deployment_day','desc')->get(), 200);
@@ -25,19 +26,21 @@ class DeploymentController extends Controller
 
     public function update(UpdateDeploymentRequest $request, Deployment $deployment)
     {
+        $oldStatus = $deployment->status;
         $deployment->fill($request->validated());
         $deployment->save();
         // if status = ACTIVE and was different
         // set maintenance mode
         // if status = DONE and was ACTIVE
         // remove maintenance mode
-        $deployment->handleIfNeeded();
+        $deployment->handleIfNeeded($oldStatus);
         return Response::make($deployment,200);
     }
 
     public function create(CreateDeploymentRequest $request)
     {
         $deployment = Deployment::create($request->validated());
+        $deployment->handleIfNeeded(null);
         return Response::make($deployment,200);
     }
 
