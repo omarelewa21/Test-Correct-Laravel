@@ -8,6 +8,6 @@
 -- Purchase here: https://tailwindui.com/
 --}}
 
-<td {{ $attributes->merge(['class' => 'px-3 py-4']) }}>
+<td {{ $attributes->merge(['class' => 'px-3 py-4 whitespace-nowrap overflow-ellipsis overflow-hidden max-w-0']) }}>
         {{ $slot }}
 </td>

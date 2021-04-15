@@ -7,5 +7,5 @@
         <x-button.cta size="sm" wire:click="startTestTake('{{ $uuid }}')">Maken</x-button.cta>
     @endif
 @else
-    <span class="italic">gepland</span>
+    <span class="italic text-sm">gepland</span>
 @endif

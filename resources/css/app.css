@@ -364,11 +364,11 @@ h6 {
     border: solid 1px var(--light-grey);
     border-radius: .375rem;
 }
-.dropdown-items-container .dropdown-item:first-child {
+.dropdown-items-container > .dropdown-item:first-child {
     border-top-left-radius: .375rem;
     border-top-right-radius: .375rem;
 }
-.dropdown-items-container .dropdown-item:last-child {
+.dropdown-items-container > .dropdown-item:last-child {
     border-bottom-left-radius: .375rem;
     border-bottom-right-radius: .375rem;
 }
