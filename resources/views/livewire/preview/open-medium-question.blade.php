@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
-        <div class="mb-4">
+        <div class="mb-4" wire:ignore>
             {!! $question->getQuestionHtml()  !!}
         </div>
         <div wire:ignore>

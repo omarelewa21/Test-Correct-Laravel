@@ -21,9 +21,7 @@ Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
 Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
 
-Route::middleware(['auth', 'dll'])->prefix('student')->name('student.')->group(function () {
-    Route::get('/test-take/{test_take}', tcCore\Http\Livewire\Student\TestTake::class)->name('test-take');
-    Route::get('/test-take-stub/{test_take}', tcCore\Http\Livewire\Student\TesttakeStub::class)->name('test-take-stub');
+Route::middleware(['auth', 'dll', 'student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/test-take-overview/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'overview'])->name('test-take-overview');
     Route::get('/test-take-laravel/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');
     Route::get('/attachment/{attachment}/{answer}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'show'])->name('question-attachment-show');
@@ -46,7 +44,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
 });
 Route::middleware(['guest', 'auth.temp'])->group(function () {
-    Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview' ])->name('auth.teacher.show-test-with-temporary-login');
-    Route::get('/start-test-take-with-temporary-login/{test_take}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'studentPlayer'])->name('auth.student.start-take-with-temporary-login');
+    Route::get('/redirect-with-temporary-login/{temporary_login}',tcCore\Http\Controllers\TemporaryLoginController::class)->name('auth.temporary-login-redirect');
 });
 

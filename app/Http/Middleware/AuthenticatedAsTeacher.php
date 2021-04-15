@@ -16,7 +16,7 @@ class AuthenticatedAsTeacher
      */
     public function handle($request, Closure $next)
     {
-        if (optional(Auth::user())->isA('teacher')){
+        if (optional(Auth::user())->isA('Teacher')){
             return $next($request);
         }
         /** @TODO should redirect to a dashboard page, but this is currently not available. */
