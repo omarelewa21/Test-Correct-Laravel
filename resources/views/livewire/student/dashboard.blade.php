@@ -35,7 +35,7 @@
                             <x-table.cell>
                                 <x-partials.invigilator-list :invigilators="$this->giveInvigilatorNamesFor($testTake)"/>
                             </x-table.cell>
-                            <x-table.cell>{{ $testTake->user_id }}</x-table.cell>
+                            <x-table.cell>{{ $testTake->user->getFullNameWithAbbreviatedFirstName() }}</x-table.cell>
                             <x-table.cell>Software Development</x-table.cell>
                             <x-table.cell class="text-right">
                                 @if($testTake->time_start == \Carbon\Carbon::today())
@@ -49,11 +49,7 @@
                                 <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
                             </x-table.cell>
                             <x-table.cell class="text-right">
-                                @if($testTake->time_start == \Carbon\Carbon::today())
-                                    <x-button.cta size="sm">Maken</x-button.cta>
-                                @else
-                                    <span class="italic">gepland</span>
-                                @endif
+                                <x-partials.start-take-button :timeStart=" $testTake->time_start " :status="$testTake->test_take_status_id" uuid="{{$testTake->uuid}}"/>
                             </x-table.cell>
                         </x-table.row>
                     @endforeach
