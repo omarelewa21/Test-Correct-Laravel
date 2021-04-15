@@ -19,8 +19,8 @@
                                 class="hidden"
                                 value="{{ $value }}"
                         >
-                        <div>{!! $this->answerText[$value] !!}</div>
-                        <div class="{!! ($this->answerStruct[$value] == 1) ? '' :'hidden' !!}">
+                        <div id="mc_c_answertext_{{$value}}" wire:key="mc_c_answertext_{{$value}}">{!! $this->answerText[$value] !!}</div>
+                        <div id="mc_c_checkmark_{{$value}}" wire:key="mc_c_checkmark_{{$value}}" class="{!! ($this->answerStruct[$value] == 1) ? '' :'hidden' !!}">
                             <x-icon.checkmark></x-icon.checkmark>
                         </div>
                     </label>

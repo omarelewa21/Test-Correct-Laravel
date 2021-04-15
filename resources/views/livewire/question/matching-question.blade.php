@@ -30,7 +30,7 @@
                         @if(  $group->correct_answer_id === null )
                             <x-dropzone id="dropzone{{$question->getKey()}}-{{$group->id}}" type="classify" title="{{ $group->answer }}" wire:key="group-{{ $group->id }}"
                                         wire:sortable.item="{{ $group->id }}">
-                                <div class="flex flex-col w-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
+                                <div id="inner-dropzone{{$question->getKey()}}-{{$group->id}}" class="flex flex-col w-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
                                     @foreach($shuffledAnswers as $option)
                                         @if(  $option->correct_answer_id !== null )
                                             @if($answerStruct[$option->id] == $group->id)
@@ -79,7 +79,7 @@
                                 <div class="flex-1 matching-dropzone">
                                     <x-dropzone id="dropzone{{$question->getKey()}}-{{$group->id}}" type="matching" wire:key="group-{{ $group->id }}"
                                                 wire:sortable.item="{{ $group->id }}">
-                                        <div class="flex w-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
+                                        <div id="inner-dropzone{{$question->getKey()}}-{{$group->id}}" class="flex w-full dropzone-height" wire:sortable-group.item-group="{{ $group->id }}">
                                             @foreach($shuffledAnswers as $option)
                                                 @if(  $option->correct_answer_id !== null )
                                                     @if($answerStruct[$option->id] == $group->id)

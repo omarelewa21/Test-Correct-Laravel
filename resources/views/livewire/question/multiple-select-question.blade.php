@@ -18,8 +18,8 @@
                                 class="hidden"
                                 value="{{ $value }}"
                         >
-                        <div>{!! $this->answerText[$value] !!}</div>
-                        <div class="{!! ($this->answerStruct[$value] == 1) ? '' :'hidden' !!}">
+                        <div id="mc_c_answertext_{{$value}}" wire:key="mc_c_answertext_{{$value}}">{!! $this->answerText[$value] !!}</div>
+                        <div id="mc_c_icon_{{$value}}" wire:key="mc_c_icon_{{$value}}" class="{!! ($this->answerStruct[$value] == 1) ? '' :'hidden' !!}">
                             <x-icon.checkmark class="checkmark transition"></x-icon.checkmark>
                             <x-icon.close class="w-4 h-4 close transition"/>
                         </div>
