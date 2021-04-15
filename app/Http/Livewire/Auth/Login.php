@@ -25,7 +25,8 @@ class Login extends Component
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
-
+        //Redirect to portal for now, not supposed to be accessed by public.
+        $this->redirect(config('app.url_login'));
     }
 
     public function login()
