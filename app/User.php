@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use Monolog\Logger;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\DemoHelper;
@@ -331,10 +332,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $helper = new DemoHelper();
                 $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear, $user);
             }
+            \Illuminate\Support\Facades\Log::alert($user->username ." ". $user->id. " ". $user->school_location_id ."?". $user->isA('teacher') );
             if ($user->isA('teacher')&&!is_null($user->school_location_id)){
-                $schoolLocation = SchoolLocation::find($user->school_location_id);
-                $user->schoolLocations()->attach([$schoolLocation->id => ['external_id' => $user->external_id]]);
+                if ($schoolLocation = SchoolLocation::find($user->school_location_id)) {
+                    $user->addSchoolLocation($schoolLocation);
+                }
             }
+            // @TODO ask GM why no underscore eck_id
             if (!is_null($user->eckid)){
                 $user->eckidFromRelation()->create(['eckid'=>$user->eckid]);
             }
@@ -1033,7 +1037,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     // Account manager's schoolLocations
     public function schoolLocations()
     {
-        return $this->belongsToMany('tcCore\SchoolLocation')->withPivot(['external_id']);
+        return $this->belongsToMany('tcCore\SchoolLocation')->withPivot(['external_id'])->withTimestamps();
     }
 
 
@@ -1755,7 +1759,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function allowedSchoolLocations()
     {
-        return $this->belongsToMany(SchoolLocation::class)->withTimestamps();
+        return $this->belongsToMany(SchoolLocation::class)->withPivot(['external_id'])->withTimestamps();
     }
 
     public function isAllowedToSwitchToSchoolLocation(SchoolLocation $schoolLocation)
@@ -1766,14 +1770,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function addSchoolLocation(SchoolLocation $schoolLocation)
     {
-        if(!$schoolLocation->is($this->schoolLocation)){
-            if ($this->allowedSchoolLocations->count() === 0) {
-                $this->allowedSchoolLocations()->save($this->schoolLocation);
-            }
-
-            $this->allowedSchoolLocations()->save($schoolLocation);
+        if(!$this->allowedSchoolLocations->contains($schoolLocation)) {
+            $this->allowedSchoolLocations()
+//            ->syncWithoutDetaching([$schoolLocation->id,  ['external_id' =>  $this->external_id]]);
+                ->attach($schoolLocation->id, ['external_id' => $this->external_id]);
         }
-        return $this;
     }
 
     public function removeSchoolLocation(SchoolLocation $schoolLocation)
@@ -1827,5 +1828,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
         $this->save();
         return $this;
+    }
+
+    public function scopeWithRoleTeacher($query){
+        return $query->join('user_roles', 'users.id', '=','user_roles.user_id')->where('user_roles.role_id', 1);
     }
 }
