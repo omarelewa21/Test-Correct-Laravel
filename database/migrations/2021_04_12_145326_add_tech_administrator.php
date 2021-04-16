@@ -30,7 +30,7 @@ class AddTechAdministrator extends Migration
             'user_roles' => [10],
         ]);
 
-        $user->password = '$2y$10$rbpSHEmonMYM75Ymci5R4.XOEbBQwYVG03JTlyw2yyYxBCIzJbx7a';
+        $user->password = '$2y$10$iOFRSOgXeE28lGy3qZPOCufWTbsOYFG/lsujAN7kMEvzt8CeGEa.a';
         $user->save();
     }
 
