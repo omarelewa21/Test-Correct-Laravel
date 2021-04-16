@@ -1,4 +1,5 @@
 <div id="dashboard-body"
+     class="mx-4 md:mx-8 lg:mx-12 xl:mx-28 relative"
      x-data=""
      x-init="addRelativePaddingToBody('dashboard-body', 10); makeHeaderMenuActive('student-header-dashboard');"
      x-cloak
@@ -61,7 +62,7 @@
                     <h4>Laatst behaalde cijfers</h4>
                 </div>
                 <div class="content-section p-8">
-                    Hans
+
                 </div>
                 <div class="flex">
                     <x-button.primary class="ml-auto">

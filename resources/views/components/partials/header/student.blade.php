@@ -1,4 +1,4 @@
-<header id="header" class="header fixed w-full content-center">
+<header id="header" class="header fixed w-full content-center z-10">
     <div class="mx-4 md:mx-8 lg:mx-12 xl:mx-28 flex h-full items-center">
         <div class="relative">
             <a href="{{config('app.url_login')}}">
@@ -26,7 +26,8 @@
             </div>
         </div>
 
-        <div class="user flex flex-wrap items-center ml-auto space-x-6">
+        <div class="user flex flex-wrap items-center ml-auto space-x-2" x-data="">
+            <x-button.question class="bg-system-base bg-primary-hover transition" @click="alert('Ik heb een vraag!')"></x-button.question>
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <div class="lg:hidden">
                     <x-dropdown.item wire:click="logout()">
