@@ -6,30 +6,12 @@ class AppVersionGetter {
 
     private static $releasesPath  = "../../.dep/releases";
 
-    protected static $serverList = [
-        '10.233.253.122' => 'web02',
-        '10.233.253.124' => 'web03',
-        '10.233.169.175' => 'web04',
-        '10.233.169.176' => 'web05',
-        '10.233.169.177' => 'web06',
-        '10.233.169.178' => 'web07',
-    ];
-
     public static $defaultFilters = [
         'api_key', 'session_hash', 'main_address', 'main_city', 'main_country', 'main_postal', 
         'invoice_address', 'visit_address', 'visit_postal', 'visit_city', 'visit_country', 
         'username', 'name_first', 'name_suffix', 'abbreviation', 'password', 'wachtwoord',
         'cakelaravelfilterkey', 'cookie', 'name', 'user'
     ];
-
-    public static function getServer()
-    {
-        $ip = $_SERVER["SERVER_ADDR"];
-        if(in_array($ip,self::serverList)){
-            return self::$serverList[$ip];
-        }
-        return $ip;
-    }
 
     public static function configureAppversion() {
         if (!file_exists(self::$releasesPath)) {
@@ -106,8 +88,6 @@ class AppVersionGetter {
 $appVersion = AppVersionGetter::configureAppversion();
 
 $filters = empty(env('BUGSNAG_FILTERS')) ? AppVersionGetter::$defaultFilters : array_merge(explode(',', str_replace(' ', '', env('BUGSNAG_FILTERS'))), AppVersionGetter::$defaultFilters);
-
-$server = AppVersionGetter::getServer();
 
 return [
 
@@ -198,7 +178,7 @@ return [
     |
     */
 
-    'hostname' => $server,
+    'hostname' => php_uname('n'),
 
     /*
     |--------------------------------------------------------------------------
