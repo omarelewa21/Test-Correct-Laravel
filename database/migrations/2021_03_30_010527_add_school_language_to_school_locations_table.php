@@ -14,7 +14,7 @@ class AddSchoolLanguageToSchoolLocationsTable extends Migration
     public function up()
     {
         Schema::table('school_locations', function (Blueprint $table) {
-            $table->string('school_language')->default('dutch');
+            $table->string('school_language')->default('nl');
         });
     }
 
