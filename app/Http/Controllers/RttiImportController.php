@@ -9,13 +9,13 @@ class RttiImportController extends Controller {
 
     /**
      *
-     * @var type 
+     * @var type
      */
     protected $dateStamp;
-  
+
     /**
      *
-     * @var type 
+     * @var type
      */
     protected $basePath;
 
@@ -33,7 +33,8 @@ class RttiImportController extends Controller {
 
             $this->validate($request, [
                 'csv_file' => 'required',
-                'separator' => 'required'
+                'separator' => 'required',
+                'email_domain' => 'required',
             ]);
 
             $this->requestData = $request->all();
@@ -47,7 +48,7 @@ class RttiImportController extends Controller {
             $this->basePath = storage_path('app/rtti_import');
 
             $startDir = $this->dateStamp = date('YmdHis');
-            
+
             $file->move(sprintf('%s/%s', $this->basePath, $startDir), $fileName);
 
             $file_path = $this->basePath . '/' . $startDir . '/' . $fileName;

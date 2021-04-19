@@ -180,8 +180,10 @@ class RTTIImportHelper {
                         $external_sub_code = "0" . $external_sub_code;
                     }
 
-                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
-                    $teacher_email = 'rtti_' . $teacher_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
+                    $student_email = sprintf('%s@%s', $student_external_code, $this->email_domain);
+
+////                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
+//                    $teacher_email = 'rtti_' . $teacher_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
 
 
                     if (!in_array($study_year, range(($now->year - 10), ($now->year + 10)))) {
@@ -366,30 +368,18 @@ class RTTIImportHelper {
                             $this->importLog("Teacher already assigned with id " . $school_class_id . " and subject id " . $subject_id);
                         }
                     } else {
+                        $missing_user =  sprintf(
+                            '%s\t%s\t%s',
+                            $teacher_name_first,
+                            $teacher_name_suffix,
+                            $teacher_name_last
+                        );
+                        throw new \Exception('
+                        Voor de onderstaande docenten bestaat nog geen account. Maak die eerst aan voordat u de RTTI importer draait:  en dan een lijstje met de volgende gegevens, per docent 1 regel: Docent [Voornaam] [tussenvoegsels] [Achternaam] met stamnummer [stamnummer] (zodat dit makkelijk te kopieren is naar een e-mail door support)
+                        '. $missing_user);
 
-                        $user_data = ['external_id' => $teacher_external_code,
-                            'name_first' => $teacher_name_first,
-                            'name_suffix' => $teacher_name_suffix,
-                            'name' => $teacher_name_last,
-                            'username' => $teacher_email,
-                            'school_location_id' => $school_location_id,
-                            'user_roles' => [1]];
 
-                        $user_id = $this->createOrRestoreUser($user_data);
-
-                        $this->importLog('Teacher user created with id ' . $user_id);
-
-                        $teacher = $this->createOrRestoreTeacher([
-                            'user_id' => $user_id,
-                            'class_id' => $school_class_id,
-                            'subject_id' => $subject_id
-                        ]);
-
-                        $this->create_tally['teachers'] ++;
-
-                        $teacher_id = $teacher->user_id;
-
-                        $this->importLog("Teacher created with id " . $teacher_id);
+                        $this->importLog("User missing Teacher not created " . $missing_user);
                     }
 
                     if (isset($teachersPerClass[$teacher_id])) {
