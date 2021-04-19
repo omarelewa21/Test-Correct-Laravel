@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
-use Monolog\Logger;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\DemoHelper;
@@ -332,13 +331,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $helper = new DemoHelper();
                 $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear, $user);
             }
-            \Illuminate\Support\Facades\Log::alert($user->username ." ". $user->id. " ". $user->school_location_id ."?". $user->isA('teacher') );
+
             if ($user->isA('teacher')&&!is_null($user->school_location_id)){
                 if ($schoolLocation = SchoolLocation::find($user->school_location_id)) {
                     $user->addSchoolLocation($schoolLocation);
                 }
             }
-            // @TODO ask GM why no underscore eck_id
             if (!is_null($user->eckid)){
                 $user->eckidFromRelation()->create(['eckid'=>$user->eckid]);
             }
