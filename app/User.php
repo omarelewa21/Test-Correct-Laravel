@@ -372,9 +372,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 if ($user->external_id == $user->getOriginal('external_id')) {
                     return false;
                 }
-                $schoolLocations = $user->schoolLocations()->get();
+                $schoolLocations = $user->allowedSchoolLocations()->get();
                 foreach ($schoolLocations as $schoolLocation) {
-                    $user->schoolLocations()->updateExistingPivot($schoolLocation->id, [
+                    $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
                         'external_id' => $user->external_id,
                     ]);
                 }
@@ -1031,13 +1031,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         return $this->hasMany('tcCore\School');
     }
-
-    // Account manager's schoolLocations
-    public function schoolLocations()
-    {
-        return $this->belongsToMany('tcCore\SchoolLocation')->withPivot(['external_id'])->withTimestamps();
-    }
-
 
     public function ratings()
     {
