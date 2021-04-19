@@ -8,6 +8,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Rules\EmailDns;
+use tcCore\Rules\SchoolLocationUserExternalId;
 use tcCore\SchoolClass;
 use tcCore\Subject;
 
@@ -44,13 +45,13 @@ class UserImportRequest extends Request {
             }
             if (array_key_exists('username', $value)) {
                 if (request()->type == 'teacher') {
-                    $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:school_location_user,external_id,%s,username,school_location_id,%d', $value['external_id'], $this->schoolLocation);
+                    $extra_rule[sprintf('data.%d.external_id', $key)] = new SchoolLocationUserExternalId($this->schoolLocation,$value['username']);
                 } else {
                     $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'],  $this->schoolLocation);
                 }
             }
         }
-        $rules = [
+        $rules = collect([
             'data.*.username' => ['required', 'email:rfc,filter',new EmailDns, function ($attribute, $value, $fail) {
                 if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                     return $fail(sprintf('The user email address contains international characters  (%s).', $value));
@@ -59,7 +60,7 @@ class UserImportRequest extends Request {
             'data.*.name_first' => 'required',
             'data.*.name' => 'required',
             'data.*.external_id' => 'required',
-        ];
+        ]);
         if ($extra_rule === []) {
             $mergedRules = $rules->merge([
                 'data.*.external_id' => 'required',
