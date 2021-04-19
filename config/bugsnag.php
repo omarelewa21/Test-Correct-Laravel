@@ -15,11 +15,9 @@ if(!class_exists('AppVersionGetter')) {
 
         public static function configureAppversion()
         {
-            $realPath = realpath(ROOT);
-            if(!$realPath){
-                return "";
-            }
-            $ar = explode(DS,$realPath);
+            $realPath = base_path();
+
+            $ar = explode(DIRECTORY_SEPARATOR,$realPath);
             if(count($ar) === 0){
                 return "";
             }
