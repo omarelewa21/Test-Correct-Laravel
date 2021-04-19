@@ -99,7 +99,6 @@ class RttiImportController extends Controller {
                 return response()->json(['error' => $error_message], 200);
             }
         } catch (\Exception $e) {
-            dump($this);
             if (isset($return['data'])) {
 
                 return response()->json(['error' => $return['data']], 200);
