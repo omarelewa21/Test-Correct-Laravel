@@ -19,11 +19,11 @@ class DeploymentMaintenanceController extends Controller
     public function checkForMaintenance(Request $request)
     {
         $deployment = Deployment::whereIn('status',[Deployment::ACTIVE,Deployment::NOTIFY])->orderBy('status','asc')->first();
-        logger('DeploymentMaintenance');
+//        logger('DeploymentMaintenance');
         if(null !== $deployment){
-            logger('DeploymentMaintenance: we do have a deployment with active or notify '.$deployment->status);
+//            logger('DeploymentMaintenance: we do have a deployment with active or notify '.$deployment->status);
             if($deployment->status === Deployment::ACTIVE) {
-                logger('DeploymentStatus: status is active');
+//                logger('DeploymentStatus: status is active');
                 $ips = MaintenanceWhitelistIp::pluck('ip');
                 return response::make([
                     'status' => $deployment->status,
@@ -32,14 +32,14 @@ class DeploymentMaintenanceController extends Controller
                     'whitelisted_ips' => $ips
                 ],200);
             } else {
-                logger('DeploymentStatus: status is notify');
+//                logger('DeploymentStatus: status is notify');
                 return response::make([
                     'status' => $deployment->status,
                     'notification' => $deployment->notification,
                 ],200);
             }
         }
-        logger('DeploymentMaintenance: nothing to do');
+//        logger('DeploymentMaintenance: nothing to do');
         return Response::make(false, 200);
     }
 
