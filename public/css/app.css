@@ -1479,6 +1479,9 @@ video {
 .mr-40{
 	margin-right: 10rem;
 }
+.mb-2{
+	margin-bottom: 0.5rem;
+}
 .mr-2{
 	margin-right: 0.5rem;
 }
@@ -1511,9 +1514,6 @@ video {
 }
 .mt-auto{
 	margin-top: auto;
-}
-.mb-2{
-	margin-bottom: 0.5rem;
 }
 .grid{
 	display: grid;
