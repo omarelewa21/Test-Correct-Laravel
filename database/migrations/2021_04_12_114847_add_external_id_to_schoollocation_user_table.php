@@ -15,7 +15,7 @@ class AddExternalIdToSchoollocationUserTable extends Migration
     {
         Schema::table('school_location_user', function (Blueprint $table) {
             $table->string('external_id', 45)->nullable();
-            $table->unique(['school_location_id', 'external_id']);
+//            $table->unique(['school_location_id', 'external_id']); // removed in correspondence with Carlo, should be guarded by the software as we now have some teachers with no external_id, otherwise it would break with the import migration
         });
     }
 
