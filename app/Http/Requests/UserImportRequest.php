@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Rules\EmailDns;
 use tcCore\Rules\SchoolLocationUserExternalId;
+use tcCore\Rules\UsernameUniqueSchool;
 use tcCore\SchoolClass;
 use tcCore\Subject;
 
@@ -52,7 +53,7 @@ class UserImportRequest extends Request {
             }
         }
         $rules = collect([
-            'data.*.username' => ['required', 'email:rfc,filter',new EmailDns, function ($attribute, $value, $fail) {
+            'data.*.username' => ['required','email:rfc,filter',new UsernameUniqueSchool($this->schoolLocation,request()->type),new EmailDns, function ($attribute, $value, $fail) {
                 if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                     return $fail(sprintf('The user email address contains international characters  (%s).', $value));
                 }
