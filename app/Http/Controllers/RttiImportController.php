@@ -9,15 +9,17 @@ class RttiImportController extends Controller {
 
     /**
      *
-     * @var type 
+     * @var type
      */
     protected $dateStamp;
-  
+
     /**
      *
-     * @var type 
+     * @var type
      */
     protected $basePath;
+
+    protected $startDir;
 
     /**
      * Store a newly created resource in storage.
@@ -33,11 +35,14 @@ class RttiImportController extends Controller {
 
             $this->validate($request, [
                 'csv_file' => 'required',
-                'separator' => 'required'
+                'separator' => 'required',
             ]);
 
-            $this->requestData = $request->all();
 
+            $this->requestData = $request->all();
+            if(!array_key_exists('email_domain',$this->requestData)||$this->requestData['email_domain']==''){
+                throw new \Exception('Domein is verplicht!');
+            }
             $email_domain = $this->requestData['email_domain'];
             $separator = $this->requestData['separator'];
 
@@ -46,11 +51,11 @@ class RttiImportController extends Controller {
             $fileName = $file->getClientOriginalName();
             $this->basePath = storage_path('app/rtti_import');
 
-            $startDir = $this->dateStamp = date('YmdHis');
-            
-            $file->move(sprintf('%s/%s', $this->basePath, $startDir), $fileName);
+            $this->startDir = $this->dateStamp = date('YmdHis');
 
-            $file_path = $this->basePath . '/' . $startDir . '/' . $fileName;
+            $file->move(sprintf('%s/%s', $this->basePath, $this->startDir), $fileName);
+
+            $file_path = $this->basePath . '/' . $this->startDir . '/' . $fileName;
 
             if (!file_exists($file_path)) {
                 return ['errors' => ["file does not exists"], 'report' => 'path ' . $this->csv_file_path];
@@ -89,12 +94,11 @@ class RttiImportController extends Controller {
 
                 $error_message = 'Versie 0.1 We hebben helaas een aantal fouten geconstateerd waardoor we de import niet goed '
                         . 'konden afronden<br />Je kunt hiervoor contact opnemen met de Teach & Learn Company en daarbij '
-                        . 'als referentie <br><br>rtti_import/' . $startDir . ' mee geven<br /><br>' . $return['errors'];
+                        . 'als referentie <br><br>rtti_import/' . $this->startDir . ' mee geven<br /><br>' . $return['errors'];
 
                 return response()->json(['error' => $error_message], 200);
             }
         } catch (\Exception $e) {
-
             if (isset($return['data'])) {
 
                 return response()->json(['error' => $return['data']], 200);
@@ -102,7 +106,7 @@ class RttiImportController extends Controller {
 
                 $error_message = 'Versie 0.1 We hebben helaas een aantal fouten geconstateerd waardoor we de import niet goed '
                         . 'konden afronden<br />Je kunt hiervoor contact opnemen met de Teach & Learn Company en daarbij '
-                        . 'als referentie <br><br>rtti_import/' . $startDir . ' mee geven<br /><br>' . $e->getMessage();
+                        . 'als referentie <br><br>rtti_import/' . $this->startDir . ' mee geven<br /><br>' . $e->getMessage();
 
                 return response()->json(['error' => $error_message], 200);
             }
@@ -127,5 +131,6 @@ class RttiImportController extends Controller {
         }
         return $fillableData;
     }
+
 
 }
