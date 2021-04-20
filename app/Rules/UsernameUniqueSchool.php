@@ -38,12 +38,12 @@ class UsernameUniqueSchool implements Rule
             }
             $school = $schoolLocation->school;
             $schoolLocations = $school->schoolLocations()->pluck('id')->toArray();
-            $user = User::where('username',$value)->whereNotIn('school_location_id',$schoolLocations );
+            $user = User::where('username',$value)->whereNotIn('school_location_id',$schoolLocations )->first();
             if(!is_null($user)){
                 return false;
             }
         }
-        $user = User::where('user_name',$value)->first();
+        $user = User::where('username',$value)->first();
         if(!is_null($user)){
             return false;
         }
