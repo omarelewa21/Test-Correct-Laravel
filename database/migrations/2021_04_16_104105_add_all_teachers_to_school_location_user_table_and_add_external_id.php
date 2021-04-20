@@ -19,7 +19,7 @@ class AddAllTeachersToSchoolLocationUserTableAndAddExternalId extends Migration
     {
         User::withRoleTeacher()->chunk(100, function($users) {
             $users->map(function ($user) {
-                if ($user->isA('teacher') && !is_null($user->school_location_id)) {
+                if ($user->isA('teacher') && !is_null($user->school_location_id) && !is_null($user->schoolLocation)) {
                     $user->addSchoolLocation($user->schoolLocation);
                 }
             });
