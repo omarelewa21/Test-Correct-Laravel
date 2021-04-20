@@ -93,7 +93,7 @@ class TestTakeLaravelController extends Controller
 
     public static function getData($testParticipant)
     {
-//        return cache()->remember('data'.$testParticipant->getKey(), now()->addSeconds(60), function() use ($testParticipant) {
+        return cache()->remember('data'.$testParticipant->getKey(), now()->addMinutes(60), function() use ($testParticipant) {
             $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
 
             return $testParticipant->answers->flatMap(function ($answer) use ($visibleAttributes) {
@@ -102,7 +102,7 @@ class TestTakeLaravelController extends Controller
 
                 return collect([$answer->question]);
             });
-//        });
+        });
     }
 
     /**
