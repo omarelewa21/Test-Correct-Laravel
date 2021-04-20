@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Http\Requests\RttiImportRequest;
 
 class RttiImportController extends Controller {
 
@@ -27,22 +28,16 @@ class RttiImportController extends Controller {
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
+    public function store(RttiImportRequest $request) {
 
         \set_time_limit(3 * 60);
 
         try {
 
-            $this->validate($request, [
-                'csv_file' => 'required',
-                'separator' => 'required',
-            ]);
 
 
             $this->requestData = $request->all();
-            if(!array_key_exists('email_domain',$this->requestData)||$this->requestData['email_domain']==''){
-                throw new \Exception('Domein is verplicht!');
-            }
+
             $email_domain = $this->requestData['email_domain'];
             $separator = $this->requestData['separator'];
 
@@ -63,7 +58,7 @@ class RttiImportController extends Controller {
 
             $rtti_import_helper = new \tcCore\Http\Helpers\RTTIImportHelper($file_path, $email_domain);
 
-            $rtti_import_helper->validateEmailDomain($email_domain);
+            //$rtti_import_helper->validateEmailDomain($email_domain);
 
             $rtti_import_helper->getDataFromFile($file_path, $separator);
 
