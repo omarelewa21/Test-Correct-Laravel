@@ -24,14 +24,21 @@
                             <td id="td_{{ $subQuestion->getKey() }}_{{ $questionAnswer->getKey() }}"
                                 class="w-full lg:w-auto p-3 text-gray-800 text-center border border-b table-cell static">
                                 <label id="label_{{ $subQuestion->getKey() }}_{{ $questionAnswer->getKey() }}"
-                                       class="@isset($this->answerStruct[$subQuestion->getKey()]) @if($this->answerStruct[$subQuestion->getKey()] == $questionAnswer->getKey()) bg-all-red @endif @endisset"
+                                       class="flex items-center justify-center"
                                 >
                                     <input id="input_{{ $subQuestion->getKey() }}_{{ $questionAnswer->getKey() }}"
                                            wire:model="answer"
                                            type="radio" name="matrix_input_{{$subQuestion->getKey()}}"
                                            value="{{ $subQuestion->getKey() }}:{{ $questionAnswer->getKey() }}"
-                                           @isset($this->answerStruct[$subQuestion->getKey()]) @if($this->answerStruct[$subQuestion->getKey()] == $questionAnswer->getKey()) checked="checked" @endif @endisset
+                                           class="hidden"
                                     >
+                                    <div class="flex w-5 h-5 rounded-full border border-system-secondary bg-white items-center justify-center">
+                                        @isset($this->answerStruct[$subQuestion->getKey()])
+                                            @if($this->answerStruct[$subQuestion->getKey()] == $questionAnswer->getKey())
+                                                <x-icon.checkmark-small class="primary"/>
+                                            @endif
+                                        @endisset
+                                    </div>
                                 </label>
                             </td>
                         @endforeach

@@ -50,3 +50,6 @@ Route::middleware(['guest', 'auth.temp'])->group(function () {
     Route::get('/start-test-take-with-temporary-login/{test_take}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'studentPlayer'])->name('auth.login_test_take_with_short_code');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineimage']);
+});

@@ -1066,10 +1066,6 @@ class Question extends MtiBaseModel {
 
     public function getQuestionHtml()
     {
-        if($this->isCitoQuestion()){
-            $html = str_replace('/questions/inlineimage', config('app.url_login').'questions/inlineimage', $this->getQuestionInstance()->question);
-            return $html;
-        }
         return $this->getQuestionInstance()->question;
     }
 
