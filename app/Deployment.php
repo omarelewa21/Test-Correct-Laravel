@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Dyrynda\Database\Casts\EfficientUuid;
+use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Artisan;
@@ -60,13 +61,15 @@ class Deployment extends Model
         // nothing to do on the laravel side as this is based on an ACTIVE status or not
     }
 
-    protected function callCakeForMaintenanceCheck()
+    public function callCakeForMaintenanceCheck()
     {
 //        logger('Deployment: ready to call Cake');
+        $client = new Client();
         $url = sprintf('%sdeployment_maintenance/check_for_maintenance?%d',config('app.url_login'),date("YmdHis"));
+        $res = $client->request('GET',$url);
 //        logger('Deployment: url to call '.$url);
-        $response = file_get_contents($url);
 //        logger('Deployment: response from url ');
-//        logger($response);
+//        logger('Deployment: statuscode '.$res->getStatusCode());
+//        logger($res->getBody());
     }
 }
