@@ -284,7 +284,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $passphrase = config('custom.encrypt.eck_id_passphrase');
         $iv = config('custom.encrypt.eck_id_iv');
         $method = 'aes-256-cbc';
-        dd(base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv)));
         $this->attributes['eckid'] = base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
     }
 
@@ -337,9 +336,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $user->addSchoolLocation($schoolLocation);
                 }
             }
-            if (!is_null($user->eckid)){
-                $user->eckidFromRelation()->create(['eckid'=>$user->eckid]);
-            }
+
         });
 
         static::saving(function (User $user) {
@@ -379,9 +376,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     ]);
                 }
             }
-            if ($user->getOriginal('eckid') != $user->eckid){
-                $user->eckidFromRelation()->update(['eckid'=>$user->eckid]);
-            }
+
 
         });
 
