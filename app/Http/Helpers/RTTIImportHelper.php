@@ -67,6 +67,12 @@ class RTTIImportHelper {
     private $studydirectionarray = [];
 
     /**
+     *
+     * @var array
+     */
+    private $errorMessages = [];
+
+    /**
      * The console command description.
      *
      * @var array counting created and soft-deleted students, teachers and classes
@@ -130,6 +136,7 @@ class RTTIImportHelper {
         $classMentorCheck=[];
         $yearCheck = [];
         $allClasses = [];
+        $this->errorMessages = [];
 
         $this->importLog('----- ' . $this->csv_data_lines . ' data lines in input file');
 
@@ -169,11 +176,11 @@ class RTTIImportHelper {
                     $now = Carbon::now();
 
                     $school_location_id = $this->getSchoolLocationId($external_sub_code, $external_main_code);
-
                     if ($school_location_id == NULL) {
                         $this->importLog('Cannot find school location by brin/location code ' . $external_main_code . ' ' . $external_sub_code);
-
-                        throw new \Exception('De Brincode/locatiecode ' . $external_main_code . ' ' . $external_sub_code . ' in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.');
+                        $this->errorMessages[] = 'De Brincode/locatiecode ' . $external_main_code . ' ' . $external_sub_code . ' in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.';
+                        continue;
+                        //throw new \Exception('De Brincode/locatiecode ' . $external_main_code . ' ' . $external_sub_code . ' in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.');
                     }
 
                     if (strlen($external_sub_code) == 1) {
@@ -187,31 +194,34 @@ class RTTIImportHelper {
 
 
                     if (!in_array($study_year, range(($now->year - 10), ($now->year + 10)))) {
-
-                        throw new \Exception('Invalid study year ' . $study_year);
+                        $this->errorMessages[] = 'Invalid study year ' . $study_year;
+                        //throw new \Exception('Invalid study year ' . $study_year);
                     }
 
                     // collect years
                     $yearCheck[$study_year] = 1;
 
                     if (count($yearCheck) > 1) {
-
-                        throw new \Exception('Meerdere lesjaren in RTTI bestand ' . implode(',', array_keys($yearCheck)));
+                        $this->errorMessages[] = 'Meerdere lesjaren in RTTI bestand ' . implode(',', array_keys($yearCheck));
+                        //throw new \Exception('Meerdere lesjaren in RTTI bestand ' . implode(',', array_keys($yearCheck)));
                     }
 
                     $school_year_id = $this->getSchoolYearId($school_location_id, $study_year);
                     if (!$school_year_id) {
                         $this->importLog('Cannot find school year id for study year ' . $study_year);
-
-                        throw new \Exception('Het schooljaar ' . $study_year . ' in het bestand kon niet gevonden '
-                        . 'worden in de database voor de schoollocatie met Brincode '
-                        . $external_main_code . ' en locatiecode ' . $external_sub_code . '. '
-                        . 'Neem contact op met de schoolbeheerder om het schooljaar te laten aanmaken.');
+                        $this->errorMessages[] = 'Het schooljaar ' . $study_year . ' in het bestand kon niet gevonden '
+                            . 'worden in de database voor de schoollocatie met Brincode '
+                            . $external_main_code . ' en locatiecode ' . $external_sub_code . '. '
+                            . 'Neem contact op met de schoolbeheerder om het schooljaar te laten aanmaken.';
+//                        throw new \Exception('Het schooljaar ' . $study_year . ' in het bestand kon niet gevonden '
+//                        . 'worden in de database voor de schoollocatie met Brincode '
+//                        . $external_main_code . ' en locatiecode ' . $external_sub_code . '. '
+//                        . 'Neem contact op met de schoolbeheerder om het schooljaar te laten aanmaken.');
                     }
 
                     $education_level_id = $this->getStudyDirectionId($study_direction);
                     if (!$education_level_id) {
-
+                        $this->errorMessages[] = 'Onbekende studierichting ' . $study_direction;
                         throw new \Exception('Onbekende studierichting ' . $study_direction);
                     }
 
@@ -219,8 +229,8 @@ class RTTIImportHelper {
                     $education_level_max_years = Educationlevel::select('max_years')->where('id', $education_level_id)->value('max_years');
 
                     if ($study_year_layer >= $education_level_max_years) {
-
-                        throw new \Exception('De les jaar laag ' . $study_year_layer . ' is niet correct. De Studierichting (niveau) ' . $study_direction . ' kan maximaal ' . $education_level_max_years . ' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT');
+                        $this->errorMessages[] = 'De les jaar laag ' . $study_year_layer . ' is niet correct. De Studierichting (niveau) ' . $study_direction . ' kan maximaal ' . $education_level_max_years . ' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT';
+                        //throw new \Exception('De les jaar laag ' . $study_year_layer . ' is niet correct. De Studierichting (niveau) ' . $study_direction . ' kan maximaal ' . $education_level_max_years . ' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT');
                     }
 
                     $school_class_id = $this->getSchoolClassId($class_name, $school_location_id, $study_year, $study_year_layer, $education_level_id);
@@ -243,10 +253,12 @@ class RTTIImportHelper {
                     if (!$subject_id) {
 
                         $this->importLog('Cannot find subject ' . $subject_abbreviation);
-
-                        throw new \Exception('Het vak met de afkorting ' . $subject_abbreviation . ' in het bestand kon niet gevonden '
-                        . 'worden in de database voor de schoollocatie met Brincode/locatiecode: ' . $external_main_code . ' '
-                        . $external_sub_code . '. Neem contact op met de schoolbeheerder om het vak te laten aanmaken');
+                        $this->errorMessages[] = 'Het vak met de afkorting ' . $subject_abbreviation . ' in het bestand kon niet gevonden '
+                            . 'worden in de database voor de schoollocatie met Brincode/locatiecode: ' . $external_main_code . ' '
+                            . $external_sub_code . '. Neem contact op met de schoolbeheerder om het vak te laten aanmaken';
+//                        throw new \Exception('Het vak met de afkorting ' . $subject_abbreviation . ' in het bestand kon niet gevonden '
+//                        . 'worden in de database voor de schoollocatie met Brincode/locatiecode: ' . $external_main_code . ' '
+//                        . $external_sub_code . '. Neem contact op met de schoolbeheerder om het vak te laten aanmaken');
                     }
 
                     $this->importLog('school location ' . $school_location_id . ' sub ' . $external_sub_code . ' main ' . $external_main_code);
@@ -307,8 +319,8 @@ class RTTIImportHelper {
 
 
                         if ($user->count() > 1) {
-
-                            throw new \Exception('Dubbele externe id voor dezelfde gebruiker ' . $student_external_code);
+                            $this->errorMessages[] = 'Dubbele externe id voor dezelfde gebruiker ' . $student_external_code;
+                            //throw new \Exception('Dubbele externe id voor dezelfde gebruiker ' . $student_external_code);
                         }
                     } else {
 
@@ -368,18 +380,22 @@ class RTTIImportHelper {
                             $this->importLog("Teacher already assigned with id " . $school_class_id . " and subject id " . $subject_id);
                         }
                     } else {
-                        $missing_user =  sprintf(
-                            '%s\t%s\t%s',
+                        $missing_user =  [
                             $teacher_name_first,
                             $teacher_name_suffix,
                             $teacher_name_last
-                        );
-                        throw new \Exception('
-                        Voor de onderstaande docenten bestaat nog geen account. Maak die eerst aan voordat u de RTTI importer draait:  en dan een lijstje met de volgende gegevens, per docent 1 regel: Docent [Voornaam] [tussenvoegsels] [Achternaam] met stamnummer [stamnummer] (zodat dit makkelijk te kopieren is naar een e-mail door support)
-                        '. $missing_user);
+                        ];
+                        if(!array_key_exists('missing_teachers',$this->errorMessages)){
+                            $this->errorMessages['missing_teachers'] = [];
+                        }
+                        $this->errorMessages['missing_teachers'][] = $missing_user;
+//                        throw new \Exception('
+//                        Voor de onderstaande docenten bestaat nog geen account. Maak die eerst aan voordat u de RTTI importer draait:
+//                        '. $missing_user);
 
 
-                        $this->importLog("User missing Teacher not created " . $missing_user);
+                        $this->importLog("User missing Teacher not created " . implode(';',$missing_user));
+                        continue;
                     }
 
                     if (isset($teachersPerClass[$teacher_id])) {
@@ -541,11 +557,17 @@ class RTTIImportHelper {
                     }
                 }
             }
+            if(count($this->errorMessages)>0){
+                throw new \Exception('collected errors');
+            }
         } catch (\Throwable $e) {
             \DB::rollback();
             $this->importLog("Transaction failed with message " . $e->getMessage());
-
-            return ['errors' => $e->getMessage()];
+            if($e->getMessage()=='collected errors'){
+                $uniqueErrors =  $this->makeErrorsUnique();
+                return ['errors' => $uniqueErrors];
+            }
+            return ['errors' => [$e->getMessage()]];
         }
 
         \DB::commit();
@@ -714,8 +736,8 @@ class RTTIImportHelper {
      * @param type $external_main_code
      * @return type
      */
-    public function getSchoolLocationId($external_sub_code, $external_main_code) {
-
+    public function getSchoolLocationId($external_sub_code, $external_main_code)
+    {
         return SchoolLocation::select('id')
                         ->where('external_sub_code', $external_sub_code)
                         ->where('external_main_code', $external_main_code)
@@ -1039,4 +1061,19 @@ class RTTIImportHelper {
         return $rows;
     }
 
+    private function makeErrorsUnique()
+    {
+        $returnArray = [];
+        foreach ($this->errorMessages as $key => $value)
+        {
+            if(is_array($value)){
+                $returnArray[$key] = $value;
+                continue;
+            }
+            if(!in_array($value,$returnArray)){
+                $returnArray[] = $value;
+            }
+        }
+        return $returnArray;
+    }
 }
