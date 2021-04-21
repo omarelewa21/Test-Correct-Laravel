@@ -337,9 +337,10 @@ class TestParticipant extends BaseModel
                 ->orWhere('test_take_status_id', TestTakeStatus::STATUS_DISCUSSING)
                 ->first();
     }
-
-    public function getIntenseAttribute()
-    {
+    public function getIntenseAttribute() {
+        if (!$this->user || !$this->user->schoolLocation) {
+            return false;
+        }
         return $this->user->intense && $this->user->schoolLocation->intense;
     }
 
