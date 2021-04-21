@@ -259,6 +259,9 @@ svg {
 .bg-primary-hover:hover {
     background-color: var(--primary);
 }
+.border-primary-hover:hover {
+    border-color: var(--primary);
+}
 
 .rounded-10 {
     border-radius: 10px;

@@ -1,12 +1,9 @@
 <?php
 
-namespace tcCore\Http\Livewire\Question;
+namespace tcCore\Http\Livewire\Preview;
 
-use Composer\Package\Package;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
@@ -38,16 +35,12 @@ class MatrixQuestion extends Component
 
     public function render()
     {
-        return view('livewire.question.matrix-question');
+        return view('livewire.preview.matrix-question');
     }
 
     public function updatingAnswer($value)
     {
         $answerIds = Str::of($value)->explode(':');
         $this->answerStruct[$answerIds[0]] = $answerIds[1];
-
-        $json = json_encode($this->answerStruct);
-
-        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
     }
 }

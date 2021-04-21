@@ -1,4 +1,4 @@
-<x-partials.question-container :number="$number" :question="$question">
+<x-partials.overview-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full">
         <div wire:ignore>{!! $question->getQuestionHtml()  !!}</div>
         <div class="mt-4 flex">
@@ -33,12 +33,11 @@
                                 >
                                     <input id="input_{{ $subQuestion->getKey() }}_{{ $questionAnswer->getKey() }}"
                                            wire:key="input_{{ $subQuestion->getKey() }}_{{ $questionAnswer->getKey() }}"
-                                           wire:model="answer"
                                            type="radio" name="matrix_input_{{$subQuestion->getKey()}}"
                                            value="{{ $subQuestion->getKey() }}:{{ $questionAnswer->getKey() }}"
                                            class="hidden"
                                     >
-                                    <x-question.matrix-radio :subQuestionId="$subQuestion->getKey()" :questionAnswerId="$questionAnswer->getKey()" />
+                                    <x-question.matrix-radio :subQuestionId="$subQuestion->getKey()" :questionAnswerId="$questionAnswer->getKey()" disabled="true"/>
                                 </label>
                             </td>
                         @endforeach
@@ -50,4 +49,4 @@
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad"/>
-</x-partials.question-container>
+</x-partials.overview-question-container>

@@ -71,6 +71,13 @@
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
+                    @elseif($testQuestion->type === 'MatrixQuestion')
+                        <livewire:overview.matrix-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid"
+                        />
                     @endif
 
                     @if($testQuestion->type != 'InfoscreenQuestion')
