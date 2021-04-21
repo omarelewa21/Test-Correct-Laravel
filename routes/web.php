@@ -47,3 +47,6 @@ Route::middleware(['guest', 'auth.temp'])->group(function () {
     Route::get('/redirect-with-temporary-login/{temporary_login}',tcCore\Http\Controllers\TemporaryLoginController::class)->name('auth.temporary-login-redirect');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineimage']);
+});

@@ -60,6 +60,13 @@
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid"
                         />
+                    @elseif($testQuestion->type === 'MatrixQuestion')
+                        <livewire:question.matrix-question
+                            :question="$testQuestion"
+                            :number="++$key"
+                            :answers="$answers"
+                            wire:key="'q-'.$testQuestion->uuid"
+                        />
                     @endif
                 </div>
             @endforeach
