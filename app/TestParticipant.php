@@ -331,6 +331,9 @@ class TestParticipant extends BaseModel
             ->first();
     }
     public function getIntenseAttribute() {
+        if (!$this->user || !$this->user->schoolLocation) {
+            return false;
+        }
         return $this->user->intense && $this->user->schoolLocation->intense;
     }
 
