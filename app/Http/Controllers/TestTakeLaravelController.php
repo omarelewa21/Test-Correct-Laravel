@@ -20,7 +20,7 @@ class TestTakeLaravelController extends Controller
 
         $current = $request->get('q') ?: '1';
 
-        $data = self::getData($testTake, $testParticipant);
+        $data = self::getData($testParticipant);
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
 
         $playerUrl = route('student.test-take-laravel', ['test_take' => $testTake->uuid]);
@@ -40,7 +40,7 @@ class TestTakeLaravelController extends Controller
             return redirect(config('app.url_login'));
         }
 
-        $data = self::getData($testTake, $testParticipant);
+        $data = self::getData($testParticipant);
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
         $nav = $this->getNavigationData($data, $answers);
 
@@ -91,33 +91,18 @@ class TestTakeLaravelController extends Controller
         return $result;
     }
 
-    public static function getData(Test $testTake, $testParticipant)
+    public static function getData($testParticipant)
     {
-        $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
-//        $testTake->load(['test', 'test.testQuestions', 'test.testQuestions.question'])->get();
-//
-//        return $testTake->test->testQuestions->flatMap(function ($testQuestion) use ($visibleAttributes) {
-//            if ($testQuestion->question->type === 'GroupQuestion') {
-//                return $testQuestion->question->groupQuestionQuestions->map(function ($item) use ($visibleAttributes) {
-//                    $hideAttributes = array_keys($item->question->getAttributes());
-//
-//                    $item->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
-//
-//                    return $item->question;
-//                });
-//            }
-//            $hideAttributes = array_keys($testQuestion->question->getAttributes());
-//            $testQuestion->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
-//
-//            return collect([$testQuestion->question]);
+//        return cache()->remember('data'.$testParticipant->getKey(), now()->addSeconds(60), function() use ($testParticipant) {
+            $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
+
+            return $testParticipant->answers->flatMap(function ($answer) use ($visibleAttributes) {
+                $hideAttributes = array_keys($answer->question->getAttributes());
+                $answer->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
+
+                return collect([$answer->question]);
+            });
 //        });
-
-        return $testParticipant->answers->flatMap(function ($answer) use ($visibleAttributes) {
-            $hideAttributes = array_keys($answer->question->getAttributes());
-            $answer->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
-
-            return collect([$answer->question]);
-        });
     }
 
     /**

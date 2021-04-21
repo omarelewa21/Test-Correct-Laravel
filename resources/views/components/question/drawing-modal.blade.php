@@ -54,15 +54,15 @@
 
         <a id="{{ $this->playerInstance }}btn-thick-1" class="btn small mr2  pull-right thickBtn highlight"
            title="lijndikte 1">
-            <img src="/img/ico/line1.png"/>
+            <img id="line_img_{{ $this->playerInstance }}" wire:key="line_img_{{ $this->playerInstance }}" src="/img/ico/line1.png"/>
         </a>
         <a id="{{ $this->playerInstance }}btn-thick-2" class="btn small mr2  pull-right thickBtn highlight"
            title="lijndikte 2">
-            <img src="/img/ico/line2.png"/>
+            <img id="line_img_{{ $this->playerInstance }}" wire:key="line_img_{{ $this->playerInstance }}" src="/img/ico/line2.png"/>
         </a>
         <a id="{{ $this->playerInstance }}btn-thick-3" class="btn small mr2 ml10 pull-right thickBtn highlight"
            title="lijndikte 3">
-            <img src="/img/ico/line3.png"/>
+            <img id="line_img_{{ $this->playerInstance }}" wire:key="line_img_{{ $this->playerInstance }}" src="/img/ico/line3.png"/>
         </a>
     </div>
     <div class="flex">
