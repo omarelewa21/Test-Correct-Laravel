@@ -371,6 +371,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 }
                 $schoolLocations = $user->allowedSchoolLocations()->get();
                 foreach ($schoolLocations as $schoolLocation) {
+                    if($schoolLocation->id != Auth::user()->school_location_id){
+                        continue;
+                    }
                     $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
                         'external_id' => $user->external_id,
                     ]);
