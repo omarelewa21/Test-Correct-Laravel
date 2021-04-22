@@ -177,13 +177,4 @@ class Navigation extends Component
         $this->nav = $newNav;
     }
 
-    private function registerTimeForQuestion($question)
-    {
-        Answer::registerTime(
-            $question['answer_id'],
-            time() - $this->startTime
-        );
-        $this->startTime = time();
-    }
-
 }

@@ -3,14 +3,10 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Livewire\Component;
-use tcCore\Answer;
-use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithQuestionTimer;
-use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
 {
@@ -59,7 +55,8 @@ class MultipleChoiceQuestion extends Component
 
     public function updatedAnswer($value)
     {
-
+        $this->answerStruct = array_fill_keys(array_keys($this->answerStruct), 0);
+        $this->answerStruct[$value] = 1;
     }
 
     public function render()
