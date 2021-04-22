@@ -177,4 +177,9 @@ class Navigation extends Component
         $this->nav = $newNav;
     }
 
+    public function shouldHaveGroupDivider($question)
+    {
+        dd($question->question->getQuestionGroupId($this->testTakeUuid));
+    }
+
 }

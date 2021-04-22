@@ -31,7 +31,7 @@
 
                 @foreach($nav as $key => $q)
                     <div id="{!! $key === ($this->q - 1) ? 'active' : ''!!}"
-                         class="flex flex-col mb-3 relative">
+                         class="flex flex-col mb-3 relative @if(!$loop->last && $q->is_subquestion && $this->shouldHaveGroupDivider($q)) number-divider group @endif">
 
                         <section wire:key="nav_{{$key}}"
                                  class="question-number rounded-full text-center cursor-pointer flex items-center justify-center
