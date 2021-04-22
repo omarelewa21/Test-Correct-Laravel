@@ -30,7 +30,7 @@ Route::middleware(['auth', 'dll'])->prefix('student')->name('student.')->group(f
     Route::get('/attachment/pdf/{attachment}/{answer}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'show'])->name('question-pdf-attachment-show');
     Route::get('/drawing_question_answers/{answer}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
     Route::get('/dashboard', tcCore\Http\Livewire\Student\Dashboard::class)->name('dashboard');
-    Route::get('/planned', tcCore\Http\Livewire\Student\Tests::class)->name('planned');
+    Route::get('/tests', tcCore\Http\Livewire\Student\Tests::class)->name('tests');
 });
 
 

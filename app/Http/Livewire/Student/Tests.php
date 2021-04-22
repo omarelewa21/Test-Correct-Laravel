@@ -9,15 +9,30 @@ class Tests extends Component
 {
     use WithPersonalizedTestTakes;
 
-    const PLANNED_TAB = 1;
-    const DISCUSS_TAB = 2;
-    const REVIEW_TAB = 3;
-    const GRADED_TAB = 4;
+    public $plannedTab = 1;
+    public $discussTab = 2;
+    public $reviewTab = 3;
+    public $gradedTab = 4;
+    public $waitingroomTab = 5;
     public $activeTab;
+
+    protected $queryString = [
+        'waitingroom' => ['except' => false],
+        'take' => ['except' => '']
+    ];
+    public $waitingroom;
+    public $take;
+
+    public $waitingTestTake;
 
     public function mount()
     {
-        $this->activeTab = self::PLANNED_TAB;
+        $this->activeTab = $this->plannedTab;
+
+        if ($this->waitingroom) {
+            $this->activeTab = $this->waitingroomTab;
+            $this->waitingTestTake = $this->getTestTakeDataForWaitingRoom($this->take);
+        }
     }
 
     public function render()
@@ -27,6 +42,16 @@ class Tests extends Component
 
     public function changeActiveTab($tab)
     {
+        if ($tab != $this->waitingroomTab) {
+            $this->waitingroom = false;
+            $this->take = '';
+        }
+
         $this->activeTab = $tab;
+    }
+
+    public function getTestTakeDataForWaitingRoom($testTake)
+    {
+        return \tcCore\TestTake::whereUuid($testTake)->firstOrFail();
     }
 }

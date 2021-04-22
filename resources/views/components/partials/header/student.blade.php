@@ -13,7 +13,7 @@
                 <x-button.text-button id="student-header-dashboard" type="link" href="{{ route('student.dashboard') }}">Dashboard</x-button.text-button>
             </div>
             <div class="menu-item px-2 py-1">
-                <x-button.text-button id="student-header-planned" type="link" href="{{ route('student.planned') }}">Toetsing</x-button.text-button>
+                <x-button.text-button id="student-header-tests" type="link" href="{{ route('student.tests') }}">Toetsing</x-button.text-button>
             </div>
             <div class="menu-item px-2 py-1">
                 <x-button.text-button id="student-header-analysis" wire:click="">Analyses</x-button.text-button>
@@ -30,19 +30,19 @@
             <x-button.question class="bg-system-base bg-primary-hover transition" @click="alert('Ik heb een vraag!')"></x-button.question>
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <div class="lg:hidden">
-                    <x-dropdown.item wire:click="logout()">
+                    <x-dropdown.item type="link" href="{{ route('student.dashboard') }}">
                         Dashboard
                     </x-dropdown.item>
-                    <x-dropdown.item wire:click="logout()">
+                    <x-dropdown.item type="link" href="{{ route('student.tests') }}">
                         Toetsing
                     </x-dropdown.item>
-                    <x-dropdown.item wire:click="logout()">
+                    <x-dropdown.item >
                         Analyses
                     </x-dropdown.item>
-                    <x-dropdown.item wire:click="logout()">
+                    <x-dropdown.item >
                         Berichten
                     </x-dropdown.item>
-                    <x-dropdown.item wire:click="logout()">
+                    <x-dropdown.item >
                         Kennisbank
                     </x-dropdown.item>
                 </div>

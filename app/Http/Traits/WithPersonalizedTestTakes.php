@@ -30,6 +30,6 @@ trait WithPersonalizedTestTakes
 
     public function startTestTake($uuid)
     {
-        $this->redirect(route('student.test-take-laravel', $uuid));
+        $this->redirect(route('student.tests', ['waitingroom' => true,'take' => $uuid]));
     }
 }

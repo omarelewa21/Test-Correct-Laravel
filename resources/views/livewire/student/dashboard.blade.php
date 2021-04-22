@@ -50,7 +50,7 @@
                     </x-table>
                 </div>
                 <div class="flex">
-                    <x-button.primary class="ml-auto" type="link" href="{{ route('student.planned') }}">
+                    <x-button.primary class="ml-auto" type="link" href="{{ route('student.tests') }}">
                         <span>Geplande toetsen</span>
                         <x-icon.chevron/>
                     </x-button.primary>
