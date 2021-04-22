@@ -9,12 +9,14 @@ use tcCore\Question;
 class Navigation extends Component
 {
     public $nav;
-    public $testTakeUuid;
+    public $testUuid;
     public $q;
     public $queryString = ['q'];
     public $startTime;
 
     public $lastQuestionInGroup = [];
+    public $groupQuestionArray = [];
+    public $closeableGroups;
 
     protected $listeners = [
         'redirect-from-closing-a-question' => 'redirectFromClosedQuestion',
@@ -30,11 +32,19 @@ class Navigation extends Component
         }
         $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
 
-        foreach ($this->nav as $key => $q) {
-            if ($q['group']['closeable']) {
-                $this->lastQuestionInGroup[$q['group']['id']] = $key + 1;
+        foreach ($this->nav as $key => $question) {
+            $this->groupQuestionArray[$question->getKey()] = 0;
+            if($question['is_subquestion']) {
+                $groupId = $question->getGroupIdForQuestion($this->testUuid);
+                $this->groupQuestionArray[$question->getKey()] = $groupId;
+
+                $closeable = Question::whereId($groupId)->value('closeable');
+                if($closeable) {
+                    $this->closeableGroups[$groupId] = true;
+                }
             }
         }
+
         $this->startTime = time();
     }
 
@@ -176,10 +186,4 @@ class Navigation extends Component
 
         $this->nav = $newNav;
     }
-
-    public function shouldHaveGroupDivider($question)
-    {
-        dd($question->question->getQuestionGroupId($this->testTakeUuid));
-    }
-
 }
