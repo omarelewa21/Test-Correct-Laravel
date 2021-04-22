@@ -371,6 +371,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 }
                 $schoolLocations = $user->allowedSchoolLocations()->get();
                 foreach ($schoolLocations as $schoolLocation) {
+                    if($schoolLocation->id != Auth::user()->school_location_id){
+                        continue;
+                    }
                     $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
                         'external_id' => $user->external_id,
                     ]);
@@ -383,6 +386,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         static::deleting(function (User $user) {
             if ($user->getOriginal('demo') == true) {
                 return false;
+            }
+            if ($user->allowedSchoolLocations->count() === 1){
+                $user->removeSchoolLocation($user->schoolLocation);
             }
             if (static::isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation($user)){
                 $user->removeSchoolLocation(Auth::user()->schoolLocation);
@@ -679,9 +685,19 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
      */
     private static function isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation(User $user)
     {
-        return (bool) $user->allowedSchoolLocations()->count() > 1
-            && null !== Auth::user()->schoolLocation
-            && $user->allowedSchoolLocations->contains(Auth::user()->schoolLocation->getKey());
+        if($user->allowedSchoolLocations()->count() <= 1){
+            return false;
+        }
+        if(null === Auth::user()->schoolLocation){
+            return false;
+        }
+        if(!$user->allowedSchoolLocations->contains(Auth::user()->schoolLocation->getKey())){
+            return false;
+        }
+        return true;
+//        return (bool) $user->allowedSchoolLocations()->count() > 1
+//            && null !== Auth::user()->schoolLocation
+//            && $user->allowedSchoolLocations->contains(Auth::user()->schoolLocation->getKey());
     }
 
     public function getOriginalProfileImagePath()

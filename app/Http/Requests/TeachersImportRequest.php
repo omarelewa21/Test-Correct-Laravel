@@ -56,6 +56,8 @@ class TeachersImportRequest extends Request {
             }],
             'data.*.name_first' => 'required',
             'data.*.name' => 'required',
+            'data.*.school_class' => 'required',
+            'data.*.subject' => 'required',
         ]);
         if ($extra_rule === []) {
             $mergedRules = $rules->merge([
