@@ -378,20 +378,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         static::updated(function (User $user) {
             if ($user->isA('teacher')){
                 if ($user->external_id == $user->getOriginal('external_id')) {
-                    return false;
+                    return true;
                 }
-                $schoolLocations = $user->allowedSchoolLocations()->get();
-                foreach ($schoolLocations as $schoolLocation) {
-                    if($schoolLocation->id != Auth::user()->school_location_id){
-                        continue;
+                foreach ($user->allowedSchoolLocations as $schoolLocation) {
+                    if($schoolLocation->id == Auth::user()->school_location_id){
+                        $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
+                            'external_id' => $user->external_id,
+                        ]);
+                        break; // no need to continu as there's max 1 schoollocationid for this user
                     }
-                    $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
-                        'external_id' => $user->external_id,
-                    ]);
                 }
             }
-
-
         });
 
         static::deleting(function (User $user) {
