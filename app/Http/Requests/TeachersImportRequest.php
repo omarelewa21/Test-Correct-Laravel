@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Rules\EmailDns;
 use tcCore\Rules\SchoolLocationUserExternalId;
+use tcCore\Rules\SchoolLocationUserName;
 use tcCore\Rules\UsernameUniqueSchool;
 use tcCore\SchoolClass;
 use tcCore\Subject;
@@ -45,6 +46,7 @@ class TeachersImportRequest extends Request {
                 if(!array_key_exists('username',$value)){
                     continue;
                 }
+                $extra_rule[sprintf('data.%d.username', $key)] = new SchoolLocationUserName($this->schoolLocation,$value['username']);
                 $extra_rule[sprintf('data.%d.external_id', $key)] = new SchoolLocationUserExternalId($this->schoolLocation,$value['username']);
             }
         }

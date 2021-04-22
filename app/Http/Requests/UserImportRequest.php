@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Rules\EmailDns;
 use tcCore\Rules\SchoolLocationUserExternalId;
+use tcCore\Rules\SchoolLocationUserName;
 use tcCore\Rules\UsernameUniqueSchool;
 use tcCore\SchoolClass;
 use tcCore\Subject;
@@ -46,6 +47,16 @@ class UserImportRequest extends Request {
             }
             if (array_key_exists('username', $value)) {
                 if (request()->type == 'teacher') {
+                    $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
+                                                                        'email:rfc,filter',
+                                                                        new SchoolLocationUserName($this->schoolLocation,$value['username']),
+                                                                        new UsernameUniqueSchool($this->schoolLocation,request()->type),
+                                                                        new EmailDns,
+                                                                        function ($attribute, $value, $fail) {
+                                                                            if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                                                                                return $fail(sprintf('The user email address contains international characters  (%s).', $value));
+                                                                            }
+                                                                        }];
                     $extra_rule[sprintf('data.%d.external_id', $key)] = new SchoolLocationUserExternalId($this->schoolLocation,$value['username']);
                 } else {
                     $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'],  $this->schoolLocation);
