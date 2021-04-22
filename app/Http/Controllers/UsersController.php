@@ -531,12 +531,12 @@ class UsersController extends Controller
         if(!array_key_exists('school_location_id',$attributes)){
             return;
         }
-        $schoolLocations = $user->schoolLocations();
+        $schoolLocations = $user->allowedSchoolLocations;
         foreach ($schoolLocations as $schoolLocation){
             if($schoolLocation->pivot->external_id == $attributes['external_id']&&$attributes['school_location_id']==$schoolLocation->id){
                 return;
             }
         }
-        $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+        $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
     }
 }
