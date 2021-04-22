@@ -4,9 +4,8 @@ namespace tcCore\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
-use tcCore\TemporaryLogin;
 
-class AuthenticateWithTemporaryLogin
+class AuthenticatedAsTeacher
 {
     /**
      * Handle an incoming request.
@@ -17,13 +16,10 @@ class AuthenticateWithTemporaryLogin
      */
     public function handle($request, Closure $next)
     {
-        if ($user = TemporaryLogin::isValid($request->temporary_login)) {
-            if (Auth::loginUsingId($user)) {
-                session()->put('session_hash', auth()->user()->getAttribute('session_hash'));
-                return $next($request);
-            }
+        if (optional(Auth::user())->isA('Teacher')){
+            return $next($request);
         }
-
+        /** @TODO should redirect to a dashboard page, but this is currently not available. */
         return redirect(config('app.url_login'));
     }
 }
