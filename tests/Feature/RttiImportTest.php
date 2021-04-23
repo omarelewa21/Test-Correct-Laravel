@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 
+use Illuminate\Database\Eloquent\Model;
 use tcCore\Http\Helpers\ActingAsHelper;
 use Tests\TestCase;
 use tcCore\Http\Helpers\RTTIImportHelper;
@@ -222,14 +223,24 @@ class RttiImportTest extends TestCase
      * */
     public function rtti_import_can_have_two_mentors()
     {
+        $user = User::createTeacher([
+            'name_first' => 'Mark',
+            'name_suffix' => '',
+            'name' => 'Docent1',
+            'external_id' => '2902',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        $user->save();
 
         $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
-            ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2902,Docent1,,Mark,1\n"
-            ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10004,01,,XAlbert,FransTest12,FRS,2902,Docent1,,Mark,1\n"
-            ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10005,01,,YAlbert,FransTest12,FRS,2902,Docent1,,Mark,1\n"
-            ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2903,Docent1,,Mark1,1";
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2902,Docent1,,Mark,1\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10004,01,,XAlbert,FransTest12,FRS,2902,Docent1,,Mark,1\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10005,01,,YAlbert,FransTest12,FRS,2902,Docent1,,Mark,1\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2902,Docent1,,Mark1,1";
 
         $output = $this->upload_data($csv_file_content);
+
 
         $class_id = SchoolClass::where('name', 'FransTest12')->value('id');
 
