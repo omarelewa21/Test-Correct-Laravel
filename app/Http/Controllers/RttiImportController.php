@@ -33,9 +33,6 @@ class RttiImportController extends Controller {
         \set_time_limit(3 * 60);
 
         try {
-
-
-
             $this->requestData = $request->all();
 
             $email_domain = $this->requestData['email_domain'];
@@ -56,7 +53,7 @@ class RttiImportController extends Controller {
                 return ['errors' => ["file does not exists"], 'report' => 'path ' . $this->csv_file_path];
             }
 
-            $rtti_import_helper = new \tcCore\Http\Helpers\RTTIImportHelper($file_path, $email_domain);
+            $rtti_import_helper = \tcCore\Http\Helpers\RTTIImportHelper::initWithCVS($file_path, $email_domain);
 
             //$rtti_import_helper->validateEmailDomain($email_domain);
 
