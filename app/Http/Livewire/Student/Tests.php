@@ -18,10 +18,12 @@ class Tests extends Component
 
     protected $queryString = [
         'waitingroom' => ['except' => false],
-        'take' => ['except' => '']
+        'take'        => ['except' => ''],
+        'tab'         => ['except' => ''],
     ];
     public $waitingroom;
     public $take;
+    public $tab;
 
     public $waitingTestTake;
 
@@ -33,11 +35,18 @@ class Tests extends Component
             $this->activeTab = $this->waitingroomTab;
             $this->waitingTestTake = $this->getTestTakeDataForWaitingRoom($this->take);
         }
+        if ($this->tab === 'grades') {
+            $this->tab = '';
+            $this->activeTab = $this->gradedTab;
+        }
     }
 
     public function render()
     {
-        return view('livewire.student.tests', ['testTakes' => $this->fetchTestTakes()])->layout('layouts.student');
+        return view('livewire.student.tests', [
+            'testTakes' => $this->fetchTestTakes(),
+            'ratings'   => $this->getRatings()
+        ])->layout('layouts.student');
     }
 
     public function changeActiveTab($tab)

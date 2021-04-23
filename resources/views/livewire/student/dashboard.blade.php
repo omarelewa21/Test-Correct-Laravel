@@ -28,7 +28,7 @@
                             @foreach($testTakes as $testTake)
                                 <x-table.row>
                                     <x-table.cell>{{ $testTake->test->name }}</x-table.cell>
-                                    <x-table.cell>Software Development</x-table.cell>
+                                    <x-table.cell>{!! $testTake->test->subject->name !!}</x-table.cell>
                                     <x-table.cell class="text-right">
                                         @if($testTake->time_start == \Carbon\Carbon::today())
                                             <span class="capitalize">vandaag</span>
@@ -62,10 +62,42 @@
                     <h4>Laatst behaalde cijfers</h4>
                 </div>
                 <div class="content-section p-8">
-
+                    <x-table>
+                        <x-slot name="head">
+                            <x-table.heading width="30">Toets</x-table.heading>
+                            <x-table.heading width="20">Vak</x-table.heading>
+                            <x-table.heading width="20" textAlign="right">Afname</x-table.heading>
+                            <x-table.heading width="15">Type</x-table.heading>
+                            <x-table.heading>Cijfer</x-table.heading>
+                        </x-slot>
+                        <x-slot name="body">
+                            @foreach($ratings as $rating)
+                                <x-table.row>
+                                    <x-table.cell>{{ $rating->name }}</x-table.cell>
+                                    <x-table.cell>{!! $rating->subject_id !!}</x-table.cell>
+                                    <x-table.cell class="text-right">
+                                        @if($rating->time_start == \Carbon\Carbon::today())
+                                            <span class="capitalize">vandaag</span>
+                                        @else
+                                            {{ \Carbon\Carbon::parse($rating->time_start)->format('d-m-Y') }}
+                                        @endif
+                                    </x-table.cell>
+                                    <x-table.cell>
+                                        <x-partials.test-take-type-label type="{{ $rating->retake }}"/>
+                                    </x-table.cell>
+                                    <x-table.cell class="text-right">
+                                        <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForRating($rating->rating) !!}">
+                                            {!! round($rating->rating, 1) !!}
+                                        </span>
+                                    </x-table.cell>
+                                </x-table.row>
+                            @endforeach
+                        </x-slot>
+                    </x-table>
                 </div>
                 <div class="flex">
-                    <x-button.primary class="ml-auto">
+                    <x-button.primary class="ml-auto" type="link"
+                                      href="{{ route('student.tests', ['tab' => 'grades']) }}">
                         <span>Bekijk cijfers</span>
                         <x-icon.chevron/>
                     </x-button.primary>

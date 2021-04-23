@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Http\Traits\WithPersonalizedTestTakes;
+use tcCore\TestParticipant;
 
 class Dashboard extends Component
 {
@@ -21,6 +22,7 @@ class Dashboard extends Component
     {
         return view('livewire.student.dashboard', [
             'testTakes' => $this->fetchTestTakes(5),
+            'ratings'   => $this->getRatings(5),
         ])
             ->layout('layouts.student');
     }
@@ -33,5 +35,4 @@ class Dashboard extends Component
 
         return redirect(route('auth.login'));
     }
-
 }

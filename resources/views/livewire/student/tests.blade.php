@@ -8,25 +8,26 @@
 >
     <div class="border-b border-system-secondary">
         <div class="flex mx-4 md:mx-8 lg:mx-12 xl:mx-28 space-x-4">
-            <div class="py-2" :class="{'border-b-2 border-system-base': activeTab === {{ $this->plannedTab }} || activeTab === {{ $this->waitingroomTab }}}"
+            <div class="py-2"
+                 :class="{'border-b-2 border-system-base border-primary-hover': activeTab === {{ $this->plannedTab }} || activeTab === {{ $this->waitingroomTab }}}"
                  wire:click="changeActiveTab({{ $this->plannedTab }})">
                 <x-button.text-button>Gepland</x-button.text-button>
             </div>
-            <div class="py-2" :class="{'border-b-2 border-system-base': activeTab === {{ $this->discussTab }}}"
+            <div class="py-2" :class="{'border-b-2 border-system-base border-primary-hover': activeTab === {{ $this->discussTab }}}"
                  wire:click="changeActiveTab({{ $this->discussTab }})">
                 <x-button.text-button>Bespreken</x-button.text-button>
             </div>
-            <div class="py-2" :class="{'border-b-2 border-system-base': activeTab === {{ $this->reviewTab }}}"
+            <div class="py-2" :class="{'border-b-2 border-system-base border-primary-hover': activeTab === {{ $this->reviewTab }}}"
                  wire:click="changeActiveTab({{ $this->reviewTab }})">
                 <x-button.text-button>Inzien</x-button.text-button>
             </div>
-            <div class="py-2" :class="{'border-b-2 border-system-base': activeTab === {{ $this->gradedTab }}}"
+            <div class="py-2" :class="{'border-b-2 border-system-base border-primary-hover': activeTab === {{ $this->gradedTab }}}"
                  wire:click="changeActiveTab({{ $this->gradedTab }})">
                 <x-button.text-button>Becijferd</x-button.text-button>
             </div>
         </div>
     </div>
-    <div class="flex flex-col my-10 mx-4 md:mx-8 lg:mx-12 xl:mx-28 ">
+    <div class="flex flex-col mt-10 mx-4 md:mx-8 lg:mx-12 xl:mx-28 ">
         <div x-show="activeTab === {{ $this->plannedTab }}" class="flex flex-col space-y-4">
             <div>
                 <h1>Geplande toetsen</h1>
@@ -55,7 +56,7 @@
                                             :invigilators="$this->giveInvigilatorNamesFor($testTake)"/>
                                 </x-table.cell>
                                 <x-table.cell>{{ $testTake->user->getFullNameWithAbbreviatedFirstName() }}</x-table.cell>
-                                <x-table.cell>Software Development</x-table.cell>
+                                <x-table.cell>{!! $testTake->test->subject->name !!}</x-table.cell>
                                 <x-table.cell class="text-right">
                                     @if($testTake->time_start == \Carbon\Carbon::today())
                                         <span class="capitalize">vandaag</span>
@@ -96,68 +97,96 @@
                 <h1>Becijferde toetsen</h1>
             </div>
         </div>
-        <div x-show="activeTab === {{ $this->waitingroomTab }}" class="flex flex-col space-y-4">
-            <div class="flex body2 bold items-center space-x-2">
-                <div class="flex items-center space-x-2"><x-icon.schedule/><span>Gepland</span></div>
-                <x-icon.chevron-small class="opacity-50 w-2 h-3"/>
-                <div class="flex items-center space-x-2 opacity-50"><x-icon.discuss/><span>Bespreken</span></div>
-                <x-icon.chevron-small class="opacity-50"/>
-                <div class="flex items-center space-x-2 opacity-50"><x-icon.preview/><span>Inzien</span></div>
-                <x-icon.chevron-small class="opacity-50"/>
-                <div class="flex items-center space-x-2 opacity-50"><x-icon.grade/><span>Becijferd</span></div>
-            </div>
-            <div>
-                <x-button.text-button class="rotate-svg-180" wire:click="changeActiveTab({{$this->plannedTab}})">
-                    <x-icon.arrow/>
-                    <span class="text-[32px]">{{ $waitingTestTake->test->name }}</span>
-                </x-button.text-button>
-            </div>
-            <div>
-                <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 body2">
-
-                    <div class="flex flex-col space-y-2">
-                        <span>Grid heading</span>
-                        <h6>Grid body</h6>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <span>Grid heading</span>
-                        <h6>Grid body</h6>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <span>Grid heading</span>
-                        <h6>Grid body</h6>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <span>Grid heading</span>
-                        <h6>Grid body</h6>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <span>Grid heading</span>
-                        <h6>Grid body</h6>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <span>Grid heading</span>
-                        <h6>Grid body</h6>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <span>Grid heading</span>
-                        <h6>Grid body</h6>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                        <span>Grid heading</span>
-                        <h6>Grid body</h6>
-                    </div>
-
+        <div x-show="activeTab === {{ $this->waitingroomTab }}" class="flex flex-col space-y-4 relative">
+            @if($this->activeTab === $this->waitingroomTab)
+                <div class="flex body2 bold items-center space-x-2">
+                    <div class="flex items-center space-x-2">
+                        <x-icon.schedule/>
+                        <span>Gepland</span></div>
+                    <x-icon.chevron-small class="opacity-50 w-2 h-3"/>
+                    <div class="flex items-center space-x-2 opacity-50">
+                        <x-icon.discuss/>
+                        <span>Bespreken</span></div>
+                    <x-icon.chevron-small class="opacity-50"/>
+                    <div class="flex items-center space-x-2 opacity-50">
+                        <x-icon.preview/>
+                        <span>Inzien</span></div>
+                    <x-icon.chevron-small class="opacity-50"/>
+                    <div class="flex items-center space-x-2 opacity-50">
+                        <x-icon.grade/>
+                        <span>Becijferd</span></div>
                 </div>
-            </div>
-            <div class="flex w-full">
-                <div class="divider flex flex-1"></div>
-                <div class="mx-4">Wachten op docent</div>
-                <div class="divider flex flex-1"></div>
-            </div>
-            <div class="flex w-full justify-center">
-                <x-illustrations.waiting-room/>
-            </div>
+                <div>
+                    <x-button.text-button class="rotate-svg-180" wire:click="changeActiveTab({{$this->plannedTab}})">
+                        <x-icon.arrow/>
+                        <span class="text-[32px]">{{ $waitingTestTake->test->name }}</span>
+                    </x-button.text-button>
+                </div>
+                <div>
+                    <div class="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 body2">
+
+                        <div class="flex flex-col space-y-2">
+                            <span>Vak</span>
+                            <h6>{!! $waitingTestTake->test->subject->name !!}</h6>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <span>Gepland op</span>
+                            @if($testTake->time_start == \Carbon\Carbon::today())
+                                <h6 class="capitalize">vandaag</h6>
+                            @else
+                                <h6>{{ \Carbon\Carbon::parse($testTake->time_start)->format('d-m-Y') }}</h6>
+                            @endif
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <span>Ingelogde studenten</span>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <span>Klas(sen)</span>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <span>Docent</span>
+                            <h6>{{ $waitingTestTake->user->getFullNameWithAbbreviatedFirstName() }}</h6>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <span>Surveillanten</span>
+                            <h6>
+                                <x-partials.invigilator-list
+                                        :invigilators="$this->giveInvigilatorNamesFor($waitingTestTake)"/>
+                            </h6>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <span>Weging</span>
+                            <h6>{{ $waitingTestTake->weight }}</h6>
+                        </div>
+                        <div class="flex flex-col space-y-2">
+                            <span>Type</span>
+                            <x-partials.test-take-type-label type="{{ $waitingTestTake->retake }}"/>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="flex w-full items-center space-x-4">
+                    <div class="divider flex flex-1"></div>
+                    <div class="pulse-div flex justify-center">
+                        @if($waitingTestTake->test_take_status_id == 3)
+                            <x-button.cta><span>Toets starten</span>
+                                <x-icon.arrow/>
+                            </x-button.cta>
+                        @else
+                            <div class="mx-4">wachten om toets te maken</div>
+                        @endif
+                    </div>
+                    <div class="divider flex flex-1"></div>
+                </div>
+                <div class="flex w-full justify-center @if($waitingTestTake->test_take_status_id == 3) opacity-50 @endif">
+                    <x-illustrations.waiting-room/>
+                </div>
+            @endif
         </div>
     </div>
+    @if($this->activeTab === $this->waitingroomTab)
+        <div class="bg-light-grey">
+
+        </div>
+    @endif
 </div>

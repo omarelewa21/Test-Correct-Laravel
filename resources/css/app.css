@@ -31,6 +31,7 @@
     --all-red: #cf1b04;
     --red-light: #ffedeb;
     --note: #6b7789;
+    --orange: #eca000;
 }
 
 @font-face {
@@ -243,6 +244,15 @@ svg {
 .border-red-light {
     border-color: var(--red-light);
 }
+.orange {
+    color: var(--orange);
+}
+.bg-orange {
+    background: var(--orange);
+}
+.border-orange {
+    border-color: var(--orange);
+}
 
 .note {
     color: var(--note);
@@ -259,6 +269,9 @@ svg {
 }
 .bg-primary-hover:hover {
     background-color: var(--primary);
+}
+.border-primary-hover:hover {
+    border-color: var(--primary);
 }
 
 .rounded-10 {
