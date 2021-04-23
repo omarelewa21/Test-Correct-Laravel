@@ -57,7 +57,7 @@ class Shortcode extends BaseModel
         $shortcode = self::whereCode($code)->first();
 
         if ($shortcode && Carbon::now()->diffInSeconds($shortcode->created_at) < Shortcode::MAX_VALID_IN_SECONDS) {
-            $result = $shortcode->user;
+            $result = $shortcode->user_id;
         }
 
         return $result;
@@ -66,10 +66,6 @@ class Shortcode extends BaseModel
     public static function boot()
     {
         parent::boot();
-
-        static::retrieved(function (Shortcode $shortcode) {
-            $shortcode->forceDelete();
-        });
 
         static::creating(function (Shortcode $shortcode) {
 

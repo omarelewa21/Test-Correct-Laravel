@@ -5,18 +5,27 @@
     <meta charset="UTF-8">
     <title>Test-Correct</title>
     <link rel="icon" href="https://www.test-correct.nl/wp-content/uploads/2019/01/cropped-fav-192x192.png" sizes="192x192" />
-    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-
+{{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
-    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 
     @livewireStyles
-    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
 </head>
-<body class="flex flex-col min-h-screen">
+<body id="body" class="flex flex-col min-h-screen">
 {{ $slot }}
 
 @livewireScripts
-<script src="https://cdn.jsdelivr.net/gh/livewire/sortable@v0.x.x/dist/livewire-sortable.js"></script>
+<script>
+    window.livewire.onError(statusCode => {
+        if (statusCode === 440) {
+            location.href = '{{ config('app.url_login') }}';
+
+            return false
+        }
+    })
+</script>
+<script src="{{ mix('/js/app.js') }}"></script>
+<script src="https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image"></script>
+@stack('scripts')
 </body>
 </html>

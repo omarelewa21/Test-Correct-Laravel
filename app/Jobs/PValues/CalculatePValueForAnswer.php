@@ -108,5 +108,6 @@ class CalculatePValueForAnswer extends Job implements ShouldQueue
         if ($pValue->save() !== true) {
             throw new \Exception('Failed to save p-value!');
         }
+
     }
 }

@@ -5,9 +5,9 @@
                 x-init="count = $refs.countme.value.length;"
                 class="relative"
         >
-            {!!   $question->getQuestionHtml() !!}
+            <div wire:ignore>{!!   $question->getQuestionHtml() !!}</div>
 
-            <div class="flex-col relative">
+            <div class="flex-col relative mt-4">
                 <x-input.group for="me" label="{!! __('test_take.instruction_open_question') !!}"
                                class="w-full">
                     <x-input.textarea
@@ -16,11 +16,12 @@
                             name="name"
                             maxlength="140"
                             x-ref="countme"
-                            wire:model="answer"
+                            wire:model.lazy="answer"
                             x-on:keyup="count = $refs.countme.value.length"
                     ></x-input.textarea>
                 </x-input.group>
-                <div class="absolute bg-blue-grey rounded-lg overflow-hidden " style="height: 10px; width: calc(100% - 4px);left:2px; bottom: 2px">
+                <div class="absolute bg-blue-grey rounded-lg overflow-hidden "
+                     style="height: 10px; width: calc(100% - 4px);left:2px; bottom: 2px">
                     <span :style="calculateProgress(count, $refs.countme.maxLength)"
                           class="transition bg-primary absolute h-2 border border-primary rounded-lg">
                     </span>
@@ -32,15 +33,16 @@
                 <span>{!! __('test_take.characters') !!}</span>
             </div>
         </div>
-
-        <script>
-            function calculateProgress(count, total) {
-                return 'height: 10px; width:' + count / total * 100 + '%';
-            }
-        </script>
+        @push('scripts')
+            <script>
+                function calculateProgress(count, total) {
+                    return 'height: 10px; width:' + count / total * 100 + '%';
+                }
+            </script>
+        @endpush
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" />
-    <x-question.notepad :showNotepad="$showNotepad" />
+    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
+    <x-question.notepad :showNotepad="$showNotepad"/>
 </x-partials.question-container>
 
 

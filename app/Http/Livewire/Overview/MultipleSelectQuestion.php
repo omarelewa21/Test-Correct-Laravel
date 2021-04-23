@@ -4,13 +4,17 @@ namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithCloseable;
 use tcCore\Question;
 
 class MultipleSelectQuestion extends Component
 {
+    use WithCloseable;
+
     public $question;
 
     public $answer = '';
+    public $answered;
 
     public $answers;
 
@@ -18,44 +22,31 @@ class MultipleSelectQuestion extends Component
 
     public $number;
 
-
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
+    public $answerText;
+    public $shuffledKeys;
 
 
     public function mount()
     {
-        $this->answer = collect((array) json_decode($this->answers[$this->question->uuid]['answer']))->search(function (
-            $item
-        ) {
-            return $item == 1;
+        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
+            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
+            $this->answer = 'answered';
+        } else {
+            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+                $this->answerStruct[$answers->id] = 0;
+            });
+        }
+
+        $this->shuffledKeys = array_keys($this->answerStruct);
+        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            shuffle($this->shuffledKeys);
+        }
+
+        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+            $this->answerText[$answers->id] = $answers->answer;
         });
 
-        $this->answerStruct =
-            array_fill_keys(
-                array_keys(
-                    array_flip(Question::whereUuid($this->question->uuid)
-                        ->first()
-                        ->multipleChoiceQuestionAnswers->pluck('id')
-                        ->toArray()
-                    )
-                ), 0
-            );
-    }
-
-    public function updatedAnswer($value)
-    {
-        $this->answerStruct = array_fill_keys(array_keys($this->answerStruct), 0);
-        $this->answerStruct[$value] = 1;
-
-        $json = json_encode($this->answerStruct);
-
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
-
-
-//        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     public function render()

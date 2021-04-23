@@ -5,11 +5,14 @@ namespace tcCore\Http\Livewire\Question;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithQuestionTimer;
 
 class RankingQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $uuid;
     public $answer;
@@ -19,23 +22,16 @@ class RankingQuestion extends Component
     public $answerStruct;
     public $answerText = [];
 
-    public function questionUpdated($uuid, $answer)
-    {
-        $this->uuid = $uuid;
-        $this->answer = $answer;
-
-    }
-
     public function mount()
     {
         $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
 
-
         $result = [];
-        if(!$this->answerStruct) {
+        if(empty($this->answerStruct)) {
             foreach($this->question->rankingQuestionAnswers as $key => $value) {
                 $result[] = (object)['order' => $key + 1, 'value' => $value->id];
             }
+            shuffle($result);
         } else {
             collect($this->answerStruct)->each(function ($value, $key) use (&$result) {
                 $result[] = (object)['order' => $value + 1, 'value' => $key];
@@ -60,13 +56,10 @@ class RankingQuestion extends Component
 
         $json = json_encode($result);
 
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
-
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->createAnswerStruct();
+        $this->dispatchBrowserEvent('current-question-answered');
     }
 
 
@@ -84,5 +77,10 @@ class RankingQuestion extends Component
         })->toArray();
 
         $this->answerStruct = ($result);
+    }
+
+    public function hydrateAnswerStruct()
+    {
+        $this->createAnswerStruct();
     }
 }

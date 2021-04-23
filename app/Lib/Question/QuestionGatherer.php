@@ -88,26 +88,6 @@ class QuestionGatherer {
         }
     }
 
-    public static function getQuestionsCountOfTest($testId)
-    {
-        $test = Test::with([
-                'testQuestions' => function($query)
-            {
-                $query->orderBy('order', 'asc');
-            },
-            'testQuestions.question'])->find($testId);
-        $questionCount = 0;
-        foreach($test->testQuestions as $testQuestion) {
-            $question = $testQuestion->question;
-            if ($question instanceof GroupQuestion) {
-                $questionCount += self::getGroupQuestionCount($question);
-            } elseif($question instanceof QuestionInterface) {
-                $questionCount++;
-            }
-        }
-        return $questionCount;
-    }
-
     protected static function getQuestionsOfGroupQuestion(GroupQuestion $question, $parents, &$array, &$dottedArray) {
         if (in_array($question->getKey(), $parents)) {
             return;
@@ -178,29 +158,6 @@ class QuestionGatherer {
         }
 
         return false;
-    }
-
-    private static function getGroupQuestionCount($question)
-    {
-        if($question->groupquestion_type = 'carousel'){
-            return self::getCarouselGroupQuestionCount($question);
-        }
-        return getGenericGroupQuestionCount($question);
-    }
-
-    private static function getCarouselGroupQuestionCount($question)
-    {
-        $numberOfQuestions = $question->number_of_subquestions;
-        $questionCount = self::getGenericGroupQuestionCount($question);
-        if($numberOfQuestions>$questionCount){
-            return $questionCount;
-        }
-        return $numberOfQuestions;
-    }
-
-    private static function getGenericGroupQuestionCount($question)
-    {
-        return $question->groupQuestionQuestions()->get()->count();
     }
 
     private static function questionIsPartOfCarousel($questionId,$testId){

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use phpseclib\Crypt\Random;
 use tcCore\Lib\Models\BaseModel;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -10,7 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
-class Answer extends BaseModel {
+class Answer extends BaseModel
+{
 
     use SoftDeletes;
     use UuidTrait;
@@ -107,6 +109,9 @@ class Answer extends BaseModel {
     public function calculateFinalRating()
     {
         $scores = [];
+        // $this->unsetRelation('answerRatings');
+        // $this->load('answerRatings');
+ 
         foreach ($this->answerRatings as $answerRating) {
             if ($answerRating->getAttribute('rating') === null) {
                 continue;
@@ -149,7 +154,7 @@ class Answer extends BaseModel {
                 case 'question_id':
                     if (UUid::isValid($value)) {
                         $value = Question::findByUuid($value)->getKey();
-                    }  
+                    }
                     if (is_array($value)) {
                         $query->whereIn('question_id', $value);
                     } else {
@@ -159,7 +164,7 @@ class Answer extends BaseModel {
                 case 'test_participant_id':
                     if (Uuid::isValid($value)) {
                         $value = TestParticipant::whereUuid($value)->first()->getKey();
-                    }                    
+                    }
                     if (is_array($value)) {
                         $query->whereIn('test_participant_id', $value);
                     } else {
@@ -223,13 +228,21 @@ class Answer extends BaseModel {
 
     public function getIsAnsweredAttribute()
     {
-        return  $this->created_at->ne($this->updated_at);
+        return !!$this->done;
     }
 
     public function getDrawingStoragePath()
     {
-        return 'drawing_question_answers/'.$this->uuid;
+        return 'drawing_question_answers/' . $this->uuid;
     }
 
+    public static function updateJson($answerId, $json)
+    {
+        Answer::whereId($answerId)->update(['json' => $json, 'done' => 1]);
+    }
 
+    public static function registerTime(int $answerId,  int $timeToRegister)
+    {
+        DB::table('answers')->whereId($answerId)->increment('time', $timeToRegister);
+    }
 }

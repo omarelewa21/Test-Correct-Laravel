@@ -2,10 +2,12 @@
 
 namespace tcCore\Http\Livewire;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
+use Ramsey\Uuid\Uuid;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Requests\Request;
 use tcCore\SchoolLocation;
@@ -90,18 +92,19 @@ class Onboarding extends Component
             ]);
         }
 
-        if ($this->step === 2) {
-            return array_merge($default, [
-                'registration.school_location' => 'required',
-                'registration.website_url'     => 'required',
-                'registration.address'         => 'required',
-                'registration.house_number'    => 'required|regex:/\d/',
-                'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
-                'registration.city'            => 'required',
-            ]);
-        }
-
         return $default;
+    }
+
+    public function rulesStep2()
+    {
+        return [
+            'registration.school_location' => 'required',
+            'registration.website_url'     => 'required',
+            'registration.address'         => 'required',
+            'registration.house_number'    => 'required|regex:/\d/',
+            'registration.postcode'        => 'required|min:6|regex:/^[1-9][0-9]{3}\s?[a-zA-Z]{2}$/',
+            'registration.city'            => 'required',
+        ];
     }
 
     public function mount()
@@ -110,7 +113,7 @@ class Onboarding extends Component
         $this->registration->username = $this->email;
         $this->registration->gender = 'male';
 
-        if (!$this->step != 1 || $this->step = '4') {
+        if (!$this->step != 1 || $this->step >= '4') {
             $this->step = 1;
         }
         if (!$this->email) {
@@ -120,10 +123,12 @@ class Onboarding extends Component
             $this->confirmed = 0;
             $this->shouldDisplayEmail = true;
         }
-        if ($this->ref) {
+        if ($this->ref && Uuid::isValid($this->ref)) {
             $shortcodeId = ShortcodeClick::whereUuid($this->ref)->first();
-            $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
-            $this->registration->invitee = $invited_by->user_id;
+            if (null !== $shortcodeId) {
+                $invited_by = Shortcode::where('id', $shortcodeId->shortcode_id)->first();
+                $this->registration->invitee = $invited_by->user_id;
+            }
         }
 
         $this->registration->registration_email_confirmed = $this->confirmed;
@@ -174,7 +179,6 @@ class Onboarding extends Component
 
     public function step1()
     {
-        $this->dispatchTagManagerEvent();
         $this->validate();
         if (!$this->checkInputForLength() && !$this->warningStepOneConfirmed) {
             $this->warningStepOneConfirmed = true;
@@ -197,19 +201,19 @@ class Onboarding extends Component
             $this->warningStepTwoConfirmed = true;
             return;
         }
+        $this->validate($this->rulesStep2());
         $this->registration->save();
         try {
             $this->newRegistration = $this->registration->addUserToRegistration($this->password, $this->registration->invitee, $this->ref);
             $this->step = 3;
         } catch (\Throwable $e) {
             $this->step = 'error';
+            Bugsnag::notifyException($e);
         }
-        $this->dispatchTagManagerEvent();
     }
 
     public function loginUser()
     {
-        $this->dispatchTagManagerEvent();
         $redirectUrl = config('app.url_login');
         if ($this->newRegistration) {
             $user = User::where('username', $this->registration->username)->first();
@@ -345,7 +349,5 @@ class Onboarding extends Component
         }
     }
 
-    private function dispatchTagManagerEvent(){
-        $this->dispatchBrowserEvent('onboarding-step-updated');
-    }
+
 }

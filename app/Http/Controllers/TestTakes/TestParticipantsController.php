@@ -16,6 +16,7 @@ use tcCore\Lib\TestParticipant\Factory;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\GroupQuestion;
+use tcCore\Answer;
 
 class TestParticipantsController extends Controller
 {
@@ -53,7 +54,7 @@ class TestParticipantsController extends Controller
                 $testParticipants->with(['answers', 'answers.answerParentQuestions' => function ($query) {
                     $query->orderBy('level');
                 }, 'answers.answerRatings'                                          => function ($query) use ($testTake) {
-                    $query->where('test_take_id', $testTake->getKey());
+                    //$query->where('test_take_id', $testTake->getKey());
                 }]);
 
                 $testParticipants = $testParticipants->get();
@@ -67,7 +68,6 @@ class TestParticipantsController extends Controller
                     foreach ($questions as $questionId => $question) {
                         $questions[$questionId] = $question['score'];
                     }
-
                     // Calculate Score / Max Score + total time
                     foreach ($testParticipants as $testParticipant) {
                         $score = 0;
@@ -75,6 +75,7 @@ class TestParticipantsController extends Controller
                         $questionsCount = 0;
                         $totalTime = 0;
                         $answerRequireRating = 0;
+
                         foreach ($testParticipant->answers as $answer) {
                             $answerQuestionId = null;
                             foreach ($answer->answerParentQuestions as $answerParentQuestion) {
@@ -92,7 +93,6 @@ class TestParticipantsController extends Controller
 
                             if (array_key_exists($answerQuestionId, $questions)) {
                                 $answerScore = $answer->getAttribute('final_rating');
-
                                 if ($answerScore === null) {
                                     $answerScore = $answer->calculateFinalRating();
                                     if ($answerScore !== null) {
@@ -159,7 +159,7 @@ class TestParticipantsController extends Controller
                                 }
                             }
                         }
-
+                        
                         $testParticipant->setAttribute('score', $score);
                         $testParticipant->setAttribute('max_score', $maxScore);
                         if(!$this->validateForMaxScore($testParticipant)){
@@ -409,7 +409,9 @@ class TestParticipantsController extends Controller
         $me = $testTake->testParticipants()->where('user_id', Auth::id())->first();
 
         if ($me) {
-            return $me->allow_inbrowser_testing;
+            if($me->allow_inbrowser_testing || $testTake->allow_inbrowser_testing) {
+                return true;
+            }
         }
         return false;
     }

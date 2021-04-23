@@ -4,13 +4,17 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
 
@@ -19,6 +23,7 @@ class MultipleChoiceQuestion extends Component
     public $answers;
 
     public $answerStruct;
+    public $shuffledKeys;
 
     public $number;
 
@@ -32,25 +37,31 @@ class MultipleChoiceQuestion extends Component
 
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
 
+    public $answerText;
+
 
     public function mount()
     {
-        $this->answer = collect((array) json_decode($this->answers[$this->question->uuid]['answer']))->search(function (
-            $item
-        ) {
-            return $item == 1;
-        });
 
-        $this->answerStruct =
-            array_fill_keys(
-                array_keys(
-                    array_flip(Question::whereUuid($this->question->uuid)
-                        ->first()
-                        ->multipleChoiceQuestionAnswers->pluck('id')
-                        ->toArray()
-                    )
-                ), 0
-            );
+        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
+            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
+            if ($this->question->subtype == 'ARQ') {
+                $this->answer = array_keys($this->answerStruct, 1)[0];
+            }
+        } else {
+            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+                $this->answerStruct[$answers->id] = 0;
+            });
+        }
+
+        $this->shuffledKeys = array_keys($this->answerStruct);
+        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            shuffle($this->shuffledKeys);
+        }
+
+        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+            $this->answerText[$answers->id] = $answers->answer;
+        });
     }
 
     public function updatedAnswer($value)
@@ -58,13 +69,10 @@ class MultipleChoiceQuestion extends Component
         $this->answerStruct = array_fill_keys(array_keys($this->answerStruct), 0);
         $this->answerStruct[$value] = 1;
 
+
         $json = json_encode($this->answerStruct);
 
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
-
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
 //        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
     }

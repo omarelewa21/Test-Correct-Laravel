@@ -19,12 +19,12 @@
                     <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
                 @elseif($attachment->file_mime_type == 'application/pdf')
                     <iframe class="w-full h-full"
-                            src="{{ route('student.question-pdf-attachment-show', $attachment->getKey()) }}"></iframe>
+                            src="{{ route('student.question-pdf-attachment-show', ['attachment' => $attachment->getKey(), 'answer' => $answerId], false) }}"></iframe>
                 @elseif($attachment->file_mime_type == 'audio/mpeg')
                     <x-attachment.audio :attachment="$attachment"/>
                 @else
                     <iframe class="w-full h-full"
-                            src="{{ route('student.question-attachment-show', $attachment->getKey()) }}"></iframe>
+                            src="{{ route('student.question-attachment-show', ['attachment' => $attachment->getKey(), 'answer' => $answerId], false) }}"></iframe>
                 @endif
             </div>
         </div>
@@ -33,13 +33,12 @@
                 <div class="notification error">
                     <div class="title space-x-2 items-center"><x-icon.warning class="h-5"/><span>Let op</span></div>
                     <div class="body">
-                        Als je de bijlage sluit is het geluidsfragment niet meer te beluisteren.
+                        Als je de bijlage sluit is het geluidsfragment niet meer te beluisteren. @if($this->timeout != null) Je hebt na het sluiten {{ $this->timeout }} seconden om de vraag te beantwoorden @endif
                     </div>
                 </div>
             </div>
         @endif
     </div>
-
 
     <script>
         dragElement(document.getElementById("attachment"));

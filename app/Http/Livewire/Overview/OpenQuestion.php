@@ -4,12 +4,16 @@ namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithCloseable;
 use tcCore\Question;
 
 class OpenQuestion extends Component
 {
+    use WithCloseable;
+
     protected $listeners = ['questionUpdated' => 'questionUpdated'];
     public $answer = '';
+    public $answered;
     public $question;
     public $number;
     public $answers;
@@ -23,19 +27,8 @@ class OpenQuestion extends Component
         if (key_exists('value', $temp)) {
             $this->answer = $temp['value'];
         }
-    }
 
-
-    public function updatedAnswer($value)
-    {
-        $json = json_encode((object) ['value' => $this->answer]);
-
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
-
-//        $this->emitUp('updateAnswer', $this->uuid, $value);
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     public function render()

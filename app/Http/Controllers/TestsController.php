@@ -4,9 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DuplicateTestRequest;
+use tcCore\Shortcode;
+use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateTestRequest;
@@ -25,7 +28,9 @@ class TestsController extends Controller {
         // @@ see TC-160
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
-        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        try { // added for compatibility with mariadb
+            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        } catch (\Exception $e){}
 		$tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
 //		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
         $tests->each(function($test) {
@@ -137,7 +142,7 @@ class TestsController extends Controller {
         }
         foreach ($carouselQuestionChilds as $groupquestionId => $childArray) {
             if(in_array($groupquestionId, $ignoreQuestions)){
-                return;
+                continue;
             }
             $questionScore = current($childArray)->score;
             $numberOfSubquestions = $carouselQuestions[$groupquestionId]->number_of_subquestions;
@@ -159,4 +164,21 @@ class TestsController extends Controller {
         return Response::make($maxScore, 200);
     }
 
+    public function withTemporaryLogin(Test $test)
+    {
+        $response = new \stdClass;
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
+
+        $relativeUrl = sprintf('%s?redirect=%s',
+            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
+            rawurlencode(route('teacher.test-preview', $test->uuid,false))
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+
+        $response->url = sprintf('%s%s',config('app.base_url'),$relativeUrl);
+
+        return  response()->json($response);
+    }
 }

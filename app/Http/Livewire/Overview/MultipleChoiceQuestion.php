@@ -4,10 +4,12 @@ namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithCloseable;
 use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
 {
+    use WithCloseable;
 
     public $question;
 
@@ -16,10 +18,13 @@ class MultipleChoiceQuestion extends Component
     public $q;
 
     public $answer = '';
+    public $answered;
 
     public $answers;
 
     public $answerStruct;
+    public $shuffledKeys;
+
     public $number;
 
     public $arqStructure = [
@@ -30,27 +35,29 @@ class MultipleChoiceQuestion extends Component
         ['E', 'test_take.incorrect', 'test_take.incorrect', 'test_take.not_applicable'],
     ];
 
-    protected $listeners = ['questionUpdated' => 'questionUpdated'];
-
+    public $answerText;
 
     public function mount()
     {
-        $this->answer = collect((array) json_decode($this->answers[$this->question->uuid]['answer']))->search(function (
-            $item
-        ) {
-            return $item == 1;
+        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
+            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
+            $this->answer = array_keys($this->answerStruct, 1)[0];
+        } else {
+            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+                $this->answerStruct[$answers->id] = 0;
+            });
+        }
+
+        $this->shuffledKeys = array_keys($this->answerStruct);
+        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            shuffle($this->shuffledKeys);
+        }
+
+        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+            $this->answerText[$answers->id] = $answers->answer;
         });
 
-        $this->answerStruct =
-            array_fill_keys(
-                array_keys(
-                    array_flip(Question::whereUuid($this->question->uuid)
-                        ->first()
-                        ->multipleChoiceQuestionAnswers->pluck('id')
-                        ->toArray()
-                    )
-                ), 0
-            );
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     public function updatedAnswer($value)

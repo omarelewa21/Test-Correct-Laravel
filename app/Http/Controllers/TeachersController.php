@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
@@ -129,12 +130,20 @@ class TeachersController extends Controller
 
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
-//                    if ($user->isA('teacher')) {
-//                        }else{logger('klas '.$schoolClass->getKey.' bestaat al voor '.$user->getKey());}
-//                    }
+                    if ($user->isA('teacher')) {
+                        $this->handleExternalId($user,$attributes);
+                        return $user;
+                    }else {
+                        throw new \Exception('conflict: exists but not teacher');
+                    }
                 } else {
                     $userFactory = new Factory(new User());
-                    $user = $userFactory->generate($attributes);
+                    $user = $userFactory->generate(
+                        array_merge(
+                            $attributes,
+                            ['account_verified' => Carbon::now()]
+                        )
+                    );
                 }
                 $user->save();
 
@@ -158,6 +167,21 @@ class TeachersController extends Controller
         return Response::make($teachers, 200);
     }
 
-
+    protected function handleExternalId($user,$attributes)
+    {
+        if(!array_key_exists('external_id',$attributes)){
+            return;
+        }
+        if(!array_key_exists('school_location_id',$attributes)){
+            return;
+        }
+        $schoolLocations = $user->schoolLocations;
+        foreach ($schoolLocations as $schoolLocation){
+            if($schoolLocation->pivot->external_id == $attributes['external_id']&&$attributes['school_location_id']==$schoolLocation->id){
+                return;
+            }
+        }
+        $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+    }
 
 }

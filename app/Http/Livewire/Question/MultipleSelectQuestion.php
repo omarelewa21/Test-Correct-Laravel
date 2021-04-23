@@ -5,12 +5,15 @@ namespace tcCore\Http\Livewire\Question;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
 
 class MultipleSelectQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
 
@@ -22,34 +25,45 @@ class MultipleSelectQuestion extends Component
 
     public $number;
 
+    public $answerText;
+    public $shuffledKeys;
+
     public function mount()
     {
-        if ($this->answers[$this->question->uuid]['answer']) {
-            $this->answerStruct = collect((array) json_decode($this->answers[$this->question->uuid]['answer']));
+        $this->selectable_answers = $this->question->selectable_answers;
+
+        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
+            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
         } else {
-            $this->answerStruct =
-                array_fill_keys(
-                    array_keys(
-                        array_flip(Question::whereUuid($this->question->uuid)
-                            ->first()
-                            ->multipleChoiceQuestionAnswers->pluck('id')
-                            ->toArray()
-                        )
-                    ), 0
-                );
+            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+                $this->answerStruct[$answers->id] = 0;
+            });
         }
+
+        $this->shuffledKeys = array_keys($this->answerStruct);
+        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+            shuffle($this->shuffledKeys);
+        }
+
+        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+            $this->answerText[$answers->id] = $answers->answer;
+        });
     }
 
     public function updatedAnswer($value)
     {
-        $this->answerStruct[$value] === 1 ? $this->answerStruct[$value] = 0 : $this->answerStruct[$value] = 1;
+        if ($this->answerStruct[$value] === 1) {
+            $this->answerStruct[$value] = 0;
+        } else {
+            $selected = count(array_keys($this->answerStruct, 1));
+            if ($selected != $this->question->selectable_answers) {
+                $this->answerStruct[$value] = 1;
+            }
+        }
 
         $json = json_encode($this->answerStruct);
 
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->answer = '';
     }

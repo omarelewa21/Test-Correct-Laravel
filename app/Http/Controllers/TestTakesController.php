@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
@@ -19,6 +20,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\SchoolClass;
 use tcCore\Shortcode;
+use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\TestParticipant;
@@ -730,7 +732,6 @@ class TestTakesController extends Controller {
         } else {
             $totalScore = null;
         }
-
         $scores = [];
         foreach ($testTake->testParticipants as $testParticipant) {
             $score = 0;
@@ -793,7 +794,6 @@ class TestTakesController extends Controller {
                 if (array_key_exists($testParticipant->getKey(), $scores)) {
                     $score = $scores[$testParticipant->getKey()];
                     $rate = ($score / $ppp);
-
                     if ($rate < 1) {
                         $rate = 1;
                     } elseif ($rate > 10) {
@@ -820,7 +820,6 @@ class TestTakesController extends Controller {
                 if (array_key_exists($testParticipant->getKey(), $scores)) {
                     $score = $scores[$testParticipant->getKey()];
                     $rate = 10 - (($totalScore - $score) / $epp);
-
                     if ($rate < 1) {
                         $rate = 1;
                     } elseif ($rate > 10) {
@@ -1301,7 +1300,9 @@ class TestTakesController extends Controller {
         // @@ see TC-160
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
-        \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        try { // added for compatibility with mariadb
+            \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
+        } catch (\Exception $e){}
 
         if (Auth::user()->isA('teacher')) {
             $demoSubject = (new DemoHelper())->getDemoSubjectForTeacher(Auth::user());
@@ -1332,12 +1333,38 @@ class TestTakesController extends Controller {
         return $testTake->unArchiveForUser(Auth::user());
     }
 
-    public function withShortCode(TestTake $testTake) {
+    public function withTemporaryLogin(TestTake $testTake) {
         $response = new \stdClass;
-        $shortCode = Shortcode::createForUser(Auth()->user());
+        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
 
-        $response->url = sprintf('%sstart-test-take-with-short-code/%s/%s', config('app.base_url'), $testTake->uuid, $shortCode->code);
+        $relativeUrl = sprintf('%s?redirect=%s',
+            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
+            rawurlencode(route('student.test-take-laravel', $testTake->uuid,false))
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+
+        $response->url = sprintf('%s%s',config('app.base_url'), $relativeUrl);
 
         return  response()->json($response);
+    }
+
+    public function hasCarouselQuestion(TestTake $testTake)
+    {
+        return response()->json(['has_carousel' =>  $testTake->hasCarousel()]);
+    }
+
+    public function toggleInbrowserTestingForAllParticipants(TestTake $testTake)
+    {
+        $allow_inbrowser_testing = $testTake->allow_inbrowser_testing;
+        $testTake->setAttribute('allow_inbrowser_testing', !$allow_inbrowser_testing)->save();
+        TestParticipant::where('test_take_id', $testTake->getKey())->update(['allow_inbrowser_testing' => !$allow_inbrowser_testing]);
+    }
+
+    public function isAllowedInbrowserTesting(TestTake $testTake)
+    {
+        $response['allowed'] = $testTake->allow_inbrowser_testing;
+        return $response;
     }
 }

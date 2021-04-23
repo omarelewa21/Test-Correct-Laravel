@@ -1,13 +1,7 @@
 <?php
 
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use tcCore\Http\Controllers\DrawingQuestionLaravelController;
-use tcCore\Http\Controllers\ShortCodeController;
-use tcCore\Http\Livewire\Auth\Login;
-use tcCore\Jobs\SendOnboardingWelcomeMail;
-use tcCore\User;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,33 +15,34 @@ use tcCore\User;
 */
 
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
-Route::get('/user/confirm_email/{EmailConfirmation}', 'tcCore\Http\Controllers\UsersController@confirmEmail');
-Route::get('/inv/{shortcode}','tcCore\Http\Controllers\Api\ShortcodeController@registerClickAndRedirect');
+Route::get('/user/confirm_email/{EmailConfirmation}', [tcCore\Http\Controllers\UsersController::class, 'confirmEmail']);
+Route::get('/inv/{shortcode}',[tcCore\Http\Controllers\Api\ShortcodeController::class, 'registerClickAndRedirect']);
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
-Route::middleware('auth')->prefix('student')->name('student.')->group(function () {
-    Route::get('/test-take/{test_take}', tcCore\Http\Livewire\Student\TestTake::class)->name('test-take');
-    Route::get('/test-take-stub/{test_take}', tcCore\Http\Livewire\Student\TesttakeStub::class)->name('test-take-stub');
-    Route::get('/test-take-overview/{test_take}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'overview'])->name('test-take-overview');
-    Route::get('/test-take-laravel/{test_take}', [\tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');
-    Route::get('/attachment/{attachment}', [\tcCore\Http\Controllers\AttachmentsLaravelController::class, 'show'])->name('question-attachment-show');
-    Route::get('/attachment/pdf/{attachment}', [\tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'show'])->name('question-pdf-attachment-show');
-    Route::get('/drawing_question_answers/{answer}', [DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
+Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
+Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
+
+Route::middleware(['auth.temp'])->group(function () {
+    Route::get('/redirect-with-temporary-login/{temporary_login}',tcCore\Http\Controllers\TemporaryLoginController::class)->name('auth.temporary-login-redirect');
 });
 
-Route::get('/plan', function() {
-    return  view('plan-test-take');
+Route::middleware('auth')->group(function () {
+    Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineimageLaravel']);
+
+    Route::middleware(['dll', 'student'])->prefix('student')->name('student.')->group(function () {
+        Route::get('/test-take-overview/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'overview'])->name('test-take-overview');
+        Route::get('/test-take-laravel/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');
+        Route::get('/attachment/{attachment}/{answer}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'show'])->name('question-attachment-show');
+        Route::get('/attachment/pdf/{attachment}/{answer}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'show'])->name('question-pdf-attachment-show');
+        Route::get('/drawing_question_answers/{answer}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
+    });
+
+    Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {
+        Route::get('/preview/{test}', [tcCore\Http\Controllers\PreviewLaravelController::class, 'show'])->name('test-preview');
+        Route::get('/preview/attachment/{attachment}/{question}', [tcCore\Http\Controllers\AttachmentsLaravelController::class, 'showPreview'])->name('preview.question-attachment-show');
+        Route::get('/preview/attachment/pdf/{attachment}/{question}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'showPreview'])->name('preview.question-pdf-attachment-show');
+    });
 });
-
-/**
- * Authentication
- */
-Route::middleware('guest')->group(function () {
-    Route::get('/start-test-take-with-short-code/{test_take}/{short_code}', [ShortCodeController::class, 'loginAndRedirect'])->name('auth.login_test_take_with_short_code');
-    Route::get('/login', Login::class)->name('auth.login');
-});
-
-
 
 
 

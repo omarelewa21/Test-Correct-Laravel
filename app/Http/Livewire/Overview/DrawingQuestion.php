@@ -7,12 +7,13 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Question;
 
 class DrawingQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, WithCloseable;
 
     public $question;
 
@@ -23,6 +24,7 @@ class DrawingQuestion extends Component
     public $answers;
 
     public $answer;
+    public $answered;
 
     public $additionalText;
 
@@ -33,7 +35,10 @@ class DrawingQuestion extends Component
             ->first();
         if ($answer->json) {
             $this->answer = json_decode($answer->json)->answer;
+            $this->additionalText = json_decode($answer->json)->additional_text;
         }
+
+        $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
     public function render()

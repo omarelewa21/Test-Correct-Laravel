@@ -106,10 +106,11 @@ class SchoolLocationsController extends Controller {
         }
     }
 
-    public function isAllowedNewPlayerAccess($schoolLocation)
+    public function isAllowedNewPlayerAccess()
     {
-        $isAllowed =  SchoolLocation::where('id',$schoolLocation)->value('allow_new_player_access');
-        logger($isAllowed);
-        return Response::make($isAllowed, 200);
+        return Response::make(
+            Auth::user()->schoolLocation->allow_new_player_access,
+            200
+        );
     }
 }

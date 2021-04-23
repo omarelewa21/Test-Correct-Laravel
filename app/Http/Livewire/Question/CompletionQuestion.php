@@ -4,13 +4,14 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Answer;
-use tcCore\Attachment;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 
 class CompletionQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $question;
     public $answer;
@@ -19,22 +20,17 @@ class CompletionQuestion extends Component
 
     public function mount()
     {
-        $this->answer = (array) json_decode($this->answers[$this->question->uuid]['answer']);
+        $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
     }
 
-    public function updated($field, $value)
+    public function updatedAnswer($value, $field)
     {
-        $index = last(explode('.', $field));
-        $this->answer[$index] = $value;
+        $this->answer[$field] = $value;
 
         $json = json_encode((object)$this->answer);
 
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
-//        $this->emitUp('updateAnswer', $this->uuid, $this->answer);
     }
 
     private function completionHelper($question)
@@ -48,9 +44,12 @@ class CompletionQuestion extends Component
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input wire:model.lazy="answer.%d" class="form-input mb-2" type="text" id="%s" style="width: 120px" />',
+                '<input wire:model.lazy="answer.%d" class="form-input mb-2 truncate" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" wire:key="%s"/>',
                 $tag_id,
-                'answer_'.$tag_id
+                'answer_' . $tag_id .'_'.$this->question->getKey(),
+                'comp_answer_' . $tag_id,
+                'comp_answer_' . $tag_id,
+                'comp_answer_' . $tag_id
             );
         };
 

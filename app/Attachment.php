@@ -22,7 +22,7 @@ class Attachment extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['type', 'title', 'description', 'text', 'link', 'json'];
+    protected $fillable = ['type', 'title', 'description', 'text', 'link', 'json', 'question_closed'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -207,27 +207,17 @@ class Attachment extends BaseModel
         return false;
     }
 
-    public function canBeAccessedByUser(User $user)
+    public function isAccessableFrom(Answer $answer)
     {
-        $testParticipant = TestParticipant::whereUserId($user->getKey())
-            ->where('test_take_status_id', 3)
-            ->orWhere('test_take_status_id', 7)
-            ->first();
-
-        if ($testParticipant) {
-            $testParticipant->testTake->test->testQuestions->map(function ($tq, $key) use (&$questions) {
-                $questions[$key] = $tq->question->getKey();
-            });
-            $question_id = $this->questionAttachments->where('attachment_id', $this->getKey())->first()->question_id;
-
-            foreach ($questions as $question) {
-                if ($question == $question_id) {
-                    return true;
-                }
-            }
+        if (!$answer->testParticipant->testTakeOpenForInteraction()) {
             return false;
         }
-        return false;
+
+        return $this->isPartOfQuestion($answer->question_id);
+    }
+
+    private function isPartOfQuestion($questionId){
+        return $this->questionAttachments->pluck('question_id')->contains($questionId);
     }
 
     public function audioIsPausable()
@@ -240,14 +230,28 @@ class Attachment extends BaseModel
         return json_decode($this->json)->play_once;
     }
 
+    public function audioTimeoutTime()
+    {
+        $json = null;
+        if ($this->json) {
+            $json = json_decode($this->json);
+        }
+
+        if ($json != null && property_exists($json, 'timeout')) {
+            return $json->timeout;
+        }
+
+        return null;
+    }
+
     public function audioIsPlayedOnce()
     {
-        session()->put('attachment_'.$this->getKey(), 1);
+        session()->put('attachment_' . $this->getKey(), 1);
     }
 
     public function audioCanBePlayedAgain()
     {
-        if(session()->get('attachment_'.$this->getKey())) {
+        if (session()->get('attachment_' . $this->getKey())) {
             return false;
         }
         return true;
@@ -255,8 +259,8 @@ class Attachment extends BaseModel
 
     public function audioHasCurrentTime()
     {
-        $sessionValue = 'attachment_'.$this->getKey().'_currentTime';
-        if(session()->get($sessionValue)) {
+        $sessionValue = 'attachment_' . $this->getKey() . '_currentTime';
+        if (session()->get($sessionValue)) {
             return session()->get($sessionValue);
         }
         return 0;

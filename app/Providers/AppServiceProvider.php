@@ -1,6 +1,7 @@
 <?php namespace tcCore\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider {
 
@@ -34,6 +35,12 @@ class AppServiceProvider extends ServiceProvider {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
         }
+
+        /** @TODO Uitzoeken of persistent middleware uberhaupt werkt, lijkt namelijk niet te (kunnen) werken. -Roan 24/3/2021 */
+        Livewire::addPersistentMiddleware([
+            \tcCore\Http\Middleware\Authenticate::class,
+            \tcCore\Http\Middleware\RedirectIfAuthenticated::class,
+        ]);
 	}
 
 }

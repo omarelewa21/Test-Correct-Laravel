@@ -5,12 +5,15 @@ namespace tcCore\Http\Livewire\Question;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
 
 class MatchingQuestion extends Component
 {
-    use WithAttachments, WithNotepad;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups;
 
     public $answer;
     public $question;
@@ -18,6 +21,8 @@ class MatchingQuestion extends Component
 
     public $answers;
     public $answerStruct;
+
+    public $shuffledAnswers;
 
     public function mount()
     {
@@ -32,6 +37,8 @@ class MatchingQuestion extends Component
                 }
             }
         }
+
+        $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
     }
 
     public function questionUpdated($uuid, $answer)
@@ -40,14 +47,8 @@ class MatchingQuestion extends Component
         $this->answer = $answer;
     }
 
-    public function updatedAnswer($value)
-    {
-//        $this->emitUp('updateAnswer', $this->uuid, $value);
-    }
-
     public function updateOrder($value)
     {
-//        dd($value);
         $dbstring = [];
         foreach ($value as $key => $value) {
             if ($value['value'] == 'startGroep') {
@@ -59,12 +60,12 @@ class MatchingQuestion extends Component
         }
 
         $json = json_encode($dbstring);
-        Answer::where([
-            ['id', $this->answers[$this->question->uuid]['id']],
-            ['question_id', $this->question->id],
-        ])->update(['json' => $json]);
+
+        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->answerStruct = $dbstring;
+
+        $this->dispatchBrowserEvent('current-question-answered');
     }
 
 

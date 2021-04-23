@@ -11,20 +11,25 @@
 {{--            </x-button.text-button>--}}
 {{--        </div>--}}
         <div class="user flex flex-wrap items-center ml-auto space-x-6">
+            @if(Auth::user()->isA('Teacher'))
+                <span class="bold">{{ Auth::user()->getNameFullAttribute() }}</span>
+            @else
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <x-dropdown.item onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
                     Inleveren
                 </x-dropdown.item>
             </x-dropdown>
+            @endif
         </div>
     </header>
+
     <main class="flex flex-1 items-stretch mx-8 xl:mx-28 m-foot-head">
         {{ $slot }}
     </main>
     <footer class="footer px-8 xl:px-28 flex content-center fixed w-full bottom-0 z-10">
 
         <div class="flex items-center">
-            <livewire:student.fraud-detection/>
+            {{ $fraudDetection }}
         </div>
 
         <div class="flex items-center ml-auto space-x-6">
