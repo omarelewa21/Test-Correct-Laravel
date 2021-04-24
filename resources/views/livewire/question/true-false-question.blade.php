@@ -4,7 +4,8 @@
             <div class="inline-flex bg-off-white border border-blue-grey rounded-lg truefalse-container transition duration-150">
                 @foreach( $question->multipleChoiceQuestionAnswers as $link)
 
-                    <label for="link{{ $link->id }}"
+                    <label id="truefalse-{{$link->id}}" wire:key="truefalse-{{$link->id}}"
+                           for="link{{ $link->id }}"
                            class="bg-off-white border border-off-white rounded-lg trueFalse bold transition duration-150
                                       @if($loop->iteration == 1) true border-r-0 @else false border-l-0 @endif
                            {!! ($this->answer == $link->id) ? 'active' :'' !!}">
@@ -22,7 +23,9 @@
                     @endif
                 @endforeach
             </div>
-            {!! $question->getQuestionHtml()  !!}
+            <div wire:ignore>
+                {!! $question->getQuestionHtml()  !!}
+            </div>
         </div>
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>

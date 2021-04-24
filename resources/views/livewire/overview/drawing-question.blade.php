@@ -10,8 +10,8 @@
                      src="{{ route('student.drawing-question-answer',$answer) }}?{!! date('Ymdsi') !!}" alt="">
                 <span>{{ $additionalText }}</span>
             @else
-                <div class="flex flex-1 w-1/2 border border-blue-grey rounded-10 justify-center items-center">
-                    <span class="bold mid-grey font-size-18">{{ __("drawing-question.Geen afbeelding") }}</span>
+                <div class="flex flex-1 w-1/2 border border-blue-grey rounded-10 justify-center items-center" style="min-height:200px">
+                    <span class="bold mid-grey font-size-18">Geen afbeelding</span>
                 </div>
             @endif
         </div>

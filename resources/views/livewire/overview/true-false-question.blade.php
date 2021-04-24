@@ -24,7 +24,9 @@
                     @endif
                 @endforeach
             </div>
-            {!! $question->getQuestionHtml()  !!}
+            <div>
+                {!! $question->getQuestionHtml()  !!}
+            </div>
         </div>
     </div>
 </x-partials.overview-question-container>

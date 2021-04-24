@@ -40,7 +40,6 @@
         @endif
     </div>
 
-
     <script>
         dragElement(document.getElementById("attachment"));
 

@@ -54,15 +54,15 @@
 
         <a id="{{ $this->playerInstance }}btn-thick-1" class="btn small mr2  pull-right thickBtn highlight"
            title="lijndikte 1">
-            <img src="/img/ico/line1.png"/>
+            <img id="line_img_{{ $this->playerInstance }}" wire:key="line_img_{{ $this->playerInstance }}" src="/img/ico/line1.png"/>
         </a>
         <a id="{{ $this->playerInstance }}btn-thick-2" class="btn small mr2  pull-right thickBtn highlight"
            title="lijndikte 2">
-            <img src="/img/ico/line2.png"/>
+            <img id="line_img_{{ $this->playerInstance }}" wire:key="line_img_{{ $this->playerInstance }}" src="/img/ico/line2.png"/>
         </a>
         <a id="{{ $this->playerInstance }}btn-thick-3" class="btn small mr2 ml10 pull-right thickBtn highlight"
            title="lijndikte 3">
-            <img src="/img/ico/line3.png"/>
+            <img id="line_img_{{ $this->playerInstance }}" wire:key="line_img_{{ $this->playerInstance }}" src="/img/ico/line3.png"/>
         </a>
     </div>
     <div class="flex">
@@ -84,13 +84,12 @@
           placeholder="Begeleidende tekst"></textarea>
     </div>
     <!-- Vendors -->
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    @push('scripts')
     <script src="/drawing/filesaver.min.js"></script>
     <script src="/drawing/canvas-toblob.js"></script>
 
     <script src="/drawing/paint.js"></script>
     <script src="/drawing/loadPaint.js"></script>
-
     <script>
         let holder{{$this->playerInstance}} = document.getElementById('{{ $this->playerInstance }}canvas-holder');
         var {{ $this->playerInstance }} =
@@ -101,5 +100,5 @@
             {{ $this->playerInstance }}.rerender(holder.offsetWidth);
         }
     </script>
-
+    @endpush
 </div>

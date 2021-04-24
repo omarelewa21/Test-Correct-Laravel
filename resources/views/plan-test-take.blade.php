@@ -1,13 +1,15 @@
-<script>
-    function menuItemStates() {
-        return {
-            toetsing: false,
-            analyses: false,
-            berichten: false,
-            kennisbank: false,
+@push('scripts')
+    <script>
+        function menuItemStates() {
+            return {
+                toetsing: false,
+                analyses: false,
+                berichten: false,
+                kennisbank: false,
+            }
         }
-    }
-</script>
+    </script>
+@endpush
 <x-layouts.base>
 
     <header class="header fixed w-full content-center"
@@ -27,10 +29,10 @@
                     <button @click="" class="text-button">{{ __("plan-test-take.Dashboard") }}</button>
                 </div>
 
-                <x-menu.item label="Toetsing" name="toetsing" />
-                <x-menu.item label="Analyses" name="analyses" />
-                <x-menu.item label="Berichten" name="berichten" />
-                <x-menu.item label="Kennisbank" name="kennisbank" />
+                <x-menu.item label="Toetsing" name="toetsing"/>
+                <x-menu.item label="Analyses" name="analyses"/>
+                <x-menu.item label="Berichten" name="berichten"/>
+                <x-menu.item label="Kennisbank" name="kennisbank"/>
 
             </div>
 
@@ -131,10 +133,11 @@
             </div>
         </div>
     </main>
-    <script>
-        function changeRowBorder(i, style) {
-            document.getElementById('row-' + (i - 1)).style.borderBottomColor = style
-        }
-    </script>
-
+    @push('scripts')
+        <script>
+            function changeRowBorder(i, style) {
+                document.getElementById('row-' + (i - 1)).style.borderBottomColor = style
+            }
+        </script>
+    @endpush
 </x-layouts.base>
