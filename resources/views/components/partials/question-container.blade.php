@@ -41,6 +41,7 @@
                     showMe ? $wire.closeQuestion({{ $number+1 }}) : $wire.closeQuestion();
                     clearInterval(timer);
                     progressBar = false;
+                    endTime = 1;
                 }
              }, 1000);
          "
@@ -79,7 +80,7 @@
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 @if($this->group)
-                    <div class="mb-5">{!! $this->group->question->getQuestionHtml() !!}</div>
+                    <div class="mb-5" wire:ignore>{!! $this->group->question->getQuestionHtml() !!}</div>
                 @endif
                 {{ $slot }}
             @else

@@ -87,4 +87,13 @@ class QuestionsController extends Controller {
         }
     }
 
+    public function inlineimageLaravel(Request $request, $image)
+    {
+        $path = storage_path(sprintf('inlineimages/%s',$image));
+        if(file_exists($path)){
+            return Response::file($path);
+        }
+
+        abort(404);
+    }
 }

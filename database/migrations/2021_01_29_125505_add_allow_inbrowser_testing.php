@@ -18,7 +18,7 @@ class AddAllowInbrowserTesting extends Migration
         });
 
         Schema::table('school_locations', function (Blueprint $table) {
-            $table->boolean('allow_inbrowser_testing')->default(false);
+            $table->boolean('allow_inbrowser_testing')->default(true);
         });
     }
 

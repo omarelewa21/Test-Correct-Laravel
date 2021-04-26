@@ -7,6 +7,9 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use tcCore\Lib\Repositories\SchoolYearRepository;
+use tcCore\Rules\EmailDns;
+use tcCore\Rules\SchoolLocationUserExternalId;
+use tcCore\Rules\UsernameUniqueSchool;
 use tcCore\SchoolClass;
 use tcCore\Subject;
 
@@ -35,21 +38,35 @@ class TeachersImportRequest extends Request {
      */
     public function rules() {
         $this->filterInput();
+        $extra_rule = [];
 
-        return [
-
-             'data.*.username' => ['required', 'email:rfc,filter,dns', function ($attribute, $value, $fail) {
-
-                    if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-
-                        return $fail(sprintf('The teacher email address contains international characters  (%s).', $value));
-                    }
-                }],
+        foreach ($this->data as $key => $value) {
+            if (array_key_exists('external_id', $value)) {
+                if(!array_key_exists('username',$value)){
+                    continue;
+                }
+                $extra_rule[sprintf('data.%d.external_id', $key)] = new SchoolLocationUserExternalId($this->schoolLocation,$value['username']);
+            }
+        }
+        $rules = collect([
+            'data.*.username' => ['required', 'email:rfc,filter',new UsernameUniqueSchool($this->schoolLocation,'teacher'),new EmailDns, function ($attribute, $value, $fail) {
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                    return $fail(sprintf('The user email address contains international characters  (%s).', $value));
+                }
+            }],
             'data.*.name_first' => 'required',
             'data.*.name' => 'required',
             'data.*.school_class' => 'required',
             'data.*.subject' => 'required',
-        ];
+        ]);
+        if ($extra_rule === []) {
+            $mergedRules = $rules->merge([
+                'data.*.external_id' => 'required',
+            ]);
+        } else {
+            $mergedRules = $rules->merge($extra_rule);
+        }
+        return $mergedRules->toArray();
     }
 
     /**
@@ -72,7 +89,7 @@ class TeachersImportRequest extends Request {
             $data = $this->request->get('data');
             $teachers = collect(request('data'))->map(function ($row, $index) use ($validator, &$data) {
                 if (!array_key_exists('school_class', $row)) {
-                    
+
                 } else {
                     $schoolClass = $this->getSchoolClassByName($row['school_class']);
 
@@ -92,7 +109,7 @@ class TeachersImportRequest extends Request {
                     }
                 }
                 if (!array_key_exists('subject', $row)) {
-                    
+
                 } else {
                     $subject = $this->getSubjectByName($row['subject']);
                     if ($subject == null) {

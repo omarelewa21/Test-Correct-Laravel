@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
-        <div class="mb-4">
+        <div class="mb-4" wire:ignore>
             {!! $question->getQuestionHtml()  !!}
         </div>
         <div wire:ignore>
@@ -36,6 +36,6 @@
         </script>
         @endpush
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
+    <x-attachment.preview-attachment-modal :attachment="$attachment" :questionId="$questionId"/>
     <x-question.notepad :showNotepad="$showNotepad"/>
 </x-partials.question-container>

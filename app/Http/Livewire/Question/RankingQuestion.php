@@ -22,13 +22,6 @@ class RankingQuestion extends Component
     public $answerStruct;
     public $answerText = [];
 
-    public function questionUpdated($uuid, $answer)
-    {
-        $this->uuid = $uuid;
-        $this->answer = $answer;
-
-    }
-
     public function mount()
     {
         $this->answerStruct = (array)json_decode($this->answers[$this->question->uuid]['answer']);
@@ -84,5 +77,10 @@ class RankingQuestion extends Component
         })->toArray();
 
         $this->answerStruct = ($result);
+    }
+
+    public function hydrateAnswerStruct()
+    {
+        $this->createAnswerStruct();
     }
 }

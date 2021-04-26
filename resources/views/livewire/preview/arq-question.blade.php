@@ -7,7 +7,7 @@
                 <span>{!! __('test_take.instruction_arq') !!}</span>
             </div>
             <div class="flex flex-row space-x-5">
-                <div class="flex flex-1 flex-col space-y-6">
+                <div class="flex flex-1 flex-col space-y-6" wire:ignore>
                     {!! $question->getQuestionHtml() !!}
                 </div>
                 <div class="flex flex-1 flex-col">
@@ -58,7 +58,7 @@
             </div>
         </div>
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
+    <x-attachment.preview-attachment-modal :attachment="$attachment" :questionId="$questionId"/>
     <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>
 

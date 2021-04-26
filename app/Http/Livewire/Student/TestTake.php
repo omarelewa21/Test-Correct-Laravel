@@ -14,7 +14,7 @@ class TestTake extends Component
 {
     public $testTakeUuid;
     public $showTurnInModal = false;
-    public $testParticipant;
+    public $testParticipantId;
     public $forceTakenAwayModal = false;
 
     /** @var int
@@ -35,8 +35,7 @@ class TestTake extends Component
 
     public function TurnInTestTake()
     {
-        $testTake = \tcCore\TestTake::whereUuid($this->testTakeUuid)->first();
-        $testParticipant = TestParticipant::where('test_take_id', $testTake->id)->where('user_id', Auth::id())->first();
+        $testParticipant = TestParticipant::whereId($this->testParticipantId)->first();
 
         if (!$testParticipant->handInTestTake()) {
 //            @TODO make error handling on failed hand in
@@ -56,7 +55,7 @@ class TestTake extends Component
     {
         $eventType = $this->getEventType($event);
         $testTakeEvent = new TestTakeEvent([
-            'test_participant_id' => $this->testParticipant->getKey(),
+            'test_participant_id' => $this->testParticipantId,
             'test_take_event_type_id' => $eventType->getKey(),
         ]);
 
