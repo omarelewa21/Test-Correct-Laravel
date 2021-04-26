@@ -6,17 +6,19 @@ use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
+use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
 
 class MatchingQuestion extends Component
 {
-    use WithPreviewAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
     public $answer;
     public $question;
+public $testUuid;
+public $testId;
     public $number;
 
     public $answers;

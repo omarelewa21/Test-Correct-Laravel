@@ -3,7 +3,6 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Question;
 
 class Navigation extends Component
@@ -37,6 +36,7 @@ class Navigation extends Component
             if($question['is_subquestion']) {
                 $groupId = $question->getGroupIdForQuestion($this->testUuid);
                 $this->groupQuestionArray[$question->getKey()] = $groupId;
+                $this->lastQuestionInGroup[$groupId] = $question->getKey();
 
                 $closeable = Question::whereId($groupId)->value('closeable');
                 if($closeable) {

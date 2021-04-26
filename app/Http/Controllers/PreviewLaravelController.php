@@ -15,10 +15,11 @@ class PreviewLaravelController extends Controller
         $data = self::getData($test);
         $current = $request->get('q') ?: '1';
         $uuid = $test->uuid;
+        $testId = $test->getKey();
         $answers = $data;
         $nav = $data;
 
-        return view('test-preview', compact(['data', 'nav', 'uuid', 'answers', 'current']));
+        return view('test-preview', compact(['data', 'nav', 'uuid', 'answers', 'current', 'testId']));
     }
 
     public static function getData(Test $test)

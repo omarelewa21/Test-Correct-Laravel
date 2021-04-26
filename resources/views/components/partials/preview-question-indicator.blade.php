@@ -47,7 +47,7 @@
                             @endif
                         </div>
                     </div>
-                    @if($this->groupQuestionArray[$q['id']] != 0 && array_key_exists($this->groupQuestionArray[$q['id']], $this->closeableGroups) && $this->groupQuestionArray[$q['id']] != $this->groupQuestionArray[$nav[$key]['id']])
+                    @if($this->groupQuestionArray[$q['id']] != 0 && array_key_exists($this->groupQuestionArray[$q['id']], $this->closeableGroups) && $q['id'] == $this->lastQuestionInGroup[$this->groupQuestionArray[$q['id']]])
                         <div class="mr-3 @if($loop->last) pr-3 @endif">
                                 <x-icon.unlocked/>
                         </div>
