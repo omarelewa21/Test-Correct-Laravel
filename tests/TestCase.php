@@ -27,6 +27,7 @@ abstract class TestCase extends BaseTestCase
     const FIORETTI_TEACHER = 'd1@test-correct.nl';
     const USER_ACCOUNTMANAGER = 'standaardschoolbeheerder@test-correct.nl';
     const USER_SCHOOLBEHEERDER = 'standaardschoolbeheerder@test-correct.nl';
+    const USER_ADMIN = 'testadmin@teachandlearncompany.com';
 
     public static function getAuthRequestData($overrides = [])
     {

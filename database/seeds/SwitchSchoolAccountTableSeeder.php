@@ -164,6 +164,7 @@ class SwitchSchoolAccountTableSeeder extends Seeder
             'password'           => 'Sobit4456',
             'user_roles'         => [1],
             'gender'             => 'Male',
+            'external_id'        => 'teacher-a-external-id',
         ]);
 
         $teacherA->addSchoolLocation($locationA);
@@ -181,7 +182,10 @@ class SwitchSchoolAccountTableSeeder extends Seeder
             'gender'             => 'Male',
         ]);
 
-        collect(['c', 'd', 'e', 'f', 'g', 'h', 'k', 'l'])->each(function ($letter) use ($locationB, $comprehensiveSchool) {
+        collect(['c', 'd', 'e', 'f', 'g', 'h', 'k', 'l'])->each(function ($letter) use (
+            $locationB,
+            $comprehensiveSchool
+        ) {
             $userFactory = new Factory(new User());
             $userFactory->generate([
                 'name_first'         => 'Teacher',

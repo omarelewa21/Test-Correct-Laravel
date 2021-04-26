@@ -117,8 +117,7 @@ class RttiImportTest extends TestCase {
                 . "RTTI School," . $this->brincode . ",1,VWO,1,2020-2021,10002,02,,Berend,FransTest,FRS,2002,Docent1,,Mark,1";
 
         $output = $this->upload_data($csv_file_content);
-
-        $this->assertStringContainsString('Het schooljaar', $output['errors']);
+        $this->assertErrorsContainsString('Het schooljaar', $output['errors']);
 
 
         return true;
@@ -562,4 +561,18 @@ class RttiImportTest extends TestCase {
         return $csv_array;
     }
 
+    private function assertErrorsContainsString($string,$errors)
+    {
+        if(is_string($errors)){
+            $this->assertStringContainsString($string,$errors);
+        }
+        $pass = false;
+        foreach($errors as $error){
+            if(stristr($string,$error)){
+                $pass = true;
+                break;
+            }
+        }
+        $this->assertTrue($pass);
+    }
 }
