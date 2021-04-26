@@ -382,7 +382,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         static::updated(function (User $user) {
             if ($user->isA('teacher')){
-                dump($user->user_table_external_id);
                 if ($user->user_table_external_id == $user->getOriginal('external_id')) {
                     return true;
                 }
