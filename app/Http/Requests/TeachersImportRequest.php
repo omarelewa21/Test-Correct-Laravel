@@ -17,6 +17,7 @@ use tcCore\Subject;
 class TeachersImportRequest extends Request {
 
     protected $schoolLocation;
+    protected $data;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -40,8 +41,8 @@ class TeachersImportRequest extends Request {
     public function rules() {
         $this->filterInput();
         $extra_rule = [];
-
-        foreach ($this->data as $key => $value) {
+        $data  = request()->data;
+        foreach ($data as $key => $value) {
             if (array_key_exists('username', $value)) {
                 $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
                     'email:rfc,filter',

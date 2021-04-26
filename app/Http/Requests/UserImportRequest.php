@@ -17,6 +17,7 @@ use tcCore\Subject;
 class UserImportRequest extends Request {
 
     protected $schoolLocation;
+    protected $data;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -40,8 +41,8 @@ class UserImportRequest extends Request {
     public function rules() {
         $this->filterInput();
         $extra_rule = [];
-
-        foreach ($this->data as $key => $value) {
+        $data  = request()->data;
+        foreach ($data as $key => $value) {
             if(is_null(request()->type)){
                 break;
             }
