@@ -262,6 +262,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasActiveText2Speech();
     }
 
+    public function getUserTableExternalIdAttribute()
+    {
+        return $this->attributes['external_id'];
+    }
+
     public function getExternalIdAttribute()
     {
         if ($this->isA('Teacher')) {
@@ -377,14 +382,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         static::updated(function (User $user) {
             if ($user->isA('teacher')){
-                if ($user->external_id == $user->getOriginal('external_id')) {
+                dump($user->user_table_external_id);
+                if ($user->user_table_external_id == $user->getOriginal('external_id')) {
                     return true;
                 }
                 foreach ($user->allowedSchoolLocations as $schoolLocation) {
                     if($schoolLocation->id == Auth::user()->school_location_id){
                         $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
-                            'external_id' => $user->external_id,
+                            'external_id' => $user->user_table_external_id,
                         ]);
+                        dump($user->user_table_external_id);
                         break; // no need to continu as there's max 1 schoollocationid for this user
                     }
                 }

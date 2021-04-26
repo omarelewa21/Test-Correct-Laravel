@@ -42,11 +42,17 @@ class TeachersImportRequest extends Request {
         $extra_rule = [];
 
         foreach ($this->data as $key => $value) {
-            if (array_key_exists('external_id', $value)) {
-                if(!array_key_exists('username',$value)){
-                    continue;
-                }
-                $extra_rule[sprintf('data.%d.username', $key)] = new SchoolLocationUserName($this->schoolLocation,$value['username']);
+            if (array_key_exists('username', $value)) {
+                $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
+                    'email:rfc,filter',
+                    new SchoolLocationUserName($this->schoolLocation,$value['username']),
+                    new UsernameUniqueSchool($this->schoolLocation,request()->type),
+                    new EmailDns,
+                    function ($attribute, $value, $fail) {
+                        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                            return $fail(sprintf('The user email address contains international characters  (%s).', $value));
+                        }
+                    }];
                 $extra_rule[sprintf('data.%d.external_id', $key)] = new SchoolLocationUserExternalId($this->schoolLocation,$value['username']);
             }
         }
