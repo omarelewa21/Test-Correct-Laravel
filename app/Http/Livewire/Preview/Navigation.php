@@ -16,7 +16,7 @@ class Navigation extends Component
 
     public $lastQuestionInGroup = [];
     public $groupQuestionArray = [];
-    public $closeableGroups;
+    public $closeableGroups = [];
 
     protected $listeners = [
         'redirect-from-closing-a-question' => 'redirectFromClosedQuestion',
