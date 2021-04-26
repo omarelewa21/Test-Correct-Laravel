@@ -61,6 +61,13 @@
 
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
+                    @elseif($testQuestion->type === 'MatrixQuestion')
+                        <livewire:preview.matrix-question
+                                :question="$testQuestion"
+                                :number="++$key"
+
+                                wire:key="'q-'.$testQuestion->uuid"
+                        />
                     @endif
                 </div>
             @endforeach
@@ -88,6 +95,7 @@
 
         </x-slot>
     </div>
+    @push('scripts')
     <script>
         function footerButtonData(q, last) {
             if (q === 1) {
@@ -120,4 +128,5 @@
             return data;
         }
     </script>
+    @endpush
 </x-layouts.app>

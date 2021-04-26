@@ -262,6 +262,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasActiveText2Speech();
     }
 
+    public function getExternalIdAttribute()
+    {
+        if ($this->isA('Teacher')) {
+            return DB::table('school_location_user')
+                ->where('school_location_id',$this->school_location_id)
+                ->where('user_id',$this->getKey())
+                ->value('external_id');
+        }
+        return $this->attributes['external_id'];
+    }
+
     public function eckidFromRelation()
     {
         return $this->hasOne(EckidUser::class);

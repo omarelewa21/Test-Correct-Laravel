@@ -30,7 +30,6 @@ See https://github.com/adobe-type-tools/cmap-resources
     <link rel="stylesheet" href="/pdf/viewer.css">
     <!-- This snippet is used in production (included from viewer.html) -->
     <link rel="resource" type="application/l10n" href="/pdf/locale/locale.properties">
-    <script src="/pdf/pdf.js"></script>
     <script>
         <!-- MarkO: I took the original DEFAULT_URL out of the viewer.js file and added it here so we can overwrite it with our own -->
         <?
@@ -47,8 +46,9 @@ See https://github.com/adobe-type-tools/cmap-resources
         }
         ?>
     </script>
-    <script src="/pdf/tcViewer.js"></script>
+    <script src="/pdf/pdf.js"></script>
     <script src="/pdf/viewer.js"></script>
+    <script src="/pdf/tcViewer.js"></script>
 </head>
 
 <body tabindex="1" class="loadingInProgress">

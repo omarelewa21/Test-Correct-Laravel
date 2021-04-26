@@ -86,9 +86,11 @@ class Navigation extends Component
         }
         $this->dispatchBrowserEvent('update-footer-navigation', $details);
     }
-
+    
     public function toOverview($currentQuestion)
     {
+        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
+
         $isThisQuestion = $this->nav[$this->q - 1];
 
         if ($isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
@@ -122,38 +124,41 @@ class Navigation extends Component
         }
     }
 
-    public function goToQuestion($question)
+    public function goToQuestion($nextQuestion)
     {
-        if (!$this->nav->has($question-1)) {
+        if (!$this->nav->has($nextQuestion-1)) {
             return;
         }
 
-        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
+        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
 
-        $isThisQuestion = $this->nav[$this->q - 1];
+        $currentQuestion = $this->nav[$this->q - 1];
 
-        $this->registerTimeForQuestion($isThisQuestion);
+        $this->registerTimeForQuestion($currentQuestion);
 
-        if ($this->nav[$question - 1]['group']['id'] != $isThisQuestion['group']['id'] && $isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
-            $this->dispatchBrowserEvent('close-this-group', $question);
-        } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
-            $this->dispatchBrowserEvent('close-this-question', $question);
-        } else {
-            $this->q = $question;
-
-            $details = $this->getDetailsQuestion();
-            if ($this->q == 1) {
-                $details = $this->getDetailsFirstQuestion();
-            }
-
-            if ($this->q == $this->nav->count()) {
-                $details = $this->getDetailsLastQuestion();
-            }
-
-            $this->dispatchBrowserEvent('update-footer-navigation', $details);
-
-            $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
+        if ($this->nav[$nextQuestion - 1]['group']['id'] != $currentQuestion['group']['id'] && $currentQuestion['group']['closeable'] && !$currentQuestion['group']['closed']) {
+            $this->dispatchBrowserEvent('close-this-group', $nextQuestion);
+            return;
         }
+        if ($currentQuestion['closeable'] && !$currentQuestion['closed']) {
+            $this->dispatchBrowserEvent('close-this-question', $nextQuestion);
+            return;
+        }
+
+        $this->q = $nextQuestion;
+
+        $details = $this->getDetailsQuestion();
+        if ($this->q == 1) {
+            $details = $this->getDetailsFirstQuestion();
+        }
+        if ($this->q == $this->nav->count()) {
+            $details = $this->getDetailsLastQuestion();
+        }
+
+        $this->dispatchBrowserEvent('update-footer-navigation', $details);
+
+        $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
+
     }
 
     public function redirectFromClosedQuestion($navInfo)
