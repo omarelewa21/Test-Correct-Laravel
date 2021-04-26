@@ -126,7 +126,6 @@ class TeachersController extends Controller
         try {
             $teachers = collect($request->all()['data'])->map(function ($row) use ($defaultData) {
                 $attributes = array_merge($row, $defaultData);
-                logger($attributes);
 
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
@@ -145,7 +144,7 @@ class TeachersController extends Controller
                         )
                     );
                 }
-                $user->save();
+                  $user->save();
 
                 $teacher = Teacher::withTrashed()
                     ->firstOrNew(([

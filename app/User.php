@@ -382,7 +382,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         static::updated(function (User $user) {
             if ($user->isA('teacher')){
-                dump($user->user_table_external_id);
                 if ($user->user_table_external_id == $user->getOriginal('external_id')) {
                     return true;
                 }
@@ -391,7 +390,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
                             'external_id' => $user->user_table_external_id,
                         ]);
-                        dump($user->user_table_external_id);
                         break; // no need to continu as there's max 1 schoollocationid for this user
                     }
                 }
@@ -1790,7 +1788,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if(!$this->allowedSchoolLocations->contains($schoolLocation)) {
             $this->allowedSchoolLocations()
 //            ->syncWithoutDetaching([$schoolLocation->id,  ['external_id' =>  $this->external_id]]);
-                ->attach($schoolLocation->id, ['external_id' => $this->external_id]);
+                ->attach($schoolLocation->id, ['external_id' => $this->user_table_external_id]);
         }
     }
 
