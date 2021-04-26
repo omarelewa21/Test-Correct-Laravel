@@ -21,18 +21,8 @@
                 <div class="space-y-2">
                     @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
                         <label
-                                class="flex
-                                        p-5
-                                        border-2
-                                        border-blue-grey
-                                        rounded-10
-                                        base
-                                        multiple-choice-question
-                                        transition
-                                        ease-in-out
-                                        duration-150
-                                        {!! ($this->answer == $link->id) ? 'active' : 'disabled' !!}
-                                        focus:outline-none"
+                                class="flex p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question transition ease-in-out duration-150 focus:outline-none
+                                        {!! ($this->answer == $link->id) ? 'active' : 'disabled' !!}"
                                 for="link{{ $link->id }}">
                             <input
                                     id="link{{ $link->id }}"

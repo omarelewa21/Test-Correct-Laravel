@@ -32,7 +32,6 @@ class FailedLogin extends Model
 
     public static function solveForUsernameAndIp($username, $ip) : void
     {
-        logger('solve for '.$username.' and ip '.$ip);
         \DB::table('failed_logins')
             ->where('solved',false)
             ->where('username',$username)

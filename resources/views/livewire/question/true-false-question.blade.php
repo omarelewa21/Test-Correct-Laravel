@@ -23,7 +23,9 @@
                     @endif
                 @endforeach
             </div>
-            {!! $question->getQuestionHtml()  !!}
+            <div wire:ignore>
+                {!! $question->getQuestionHtml()  !!}
+            </div>
         </div>
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>

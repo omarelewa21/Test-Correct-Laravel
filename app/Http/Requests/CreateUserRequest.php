@@ -5,6 +5,7 @@ use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 
+use tcCore\Rules\SchoolLocationUserExternalId;
 use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\User;
@@ -31,7 +32,7 @@ class CreateUserRequest extends Request {
 	{
 		$this->filterInput();
 
-		return [
+		$rules = [
 			'username' => 'required|email|unique:users,username,NULL,'.(new User())->getKeyName().',deleted_at,NULL',
 			'name_first' => '',
 			'name_suffix' => '',
@@ -44,6 +45,11 @@ class CreateUserRequest extends Request {
 			'gender' => '',
 			'abbreviation' => ''
 		];
+        $data = ($this->all());
+        if(isset($data['user_roles']) && collect($data['user_roles'])->contains(function($val){return $val == 1;}) && isset($data['username'])){
+            $rules['external_id'] = new SchoolLocationUserExternalId(\Auth::user()->school_location_id,($data['username']));
+        }
+        return $rules;
 	}
 
 	public function getValidatorInstance()

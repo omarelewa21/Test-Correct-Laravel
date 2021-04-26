@@ -41,7 +41,7 @@ class MultipleChoiceQuestion extends Component
     {
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-            $this->answer = 'answered';
+            $this->answer = array_keys($this->answerStruct, 1)[0];
         } else {
             $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
                 $this->answerStruct[$answers->id] = 0;

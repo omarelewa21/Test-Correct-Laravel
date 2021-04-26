@@ -59,8 +59,7 @@ class DrawingQuestion extends Component
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->drawingModalOpened = false;
-
-
+        $this->dispatchBrowserEvent('current-question-answered');
     }
 
     public function render()

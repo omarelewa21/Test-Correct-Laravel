@@ -86,14 +86,16 @@ class Navigation extends Component
         }
         $this->dispatchBrowserEvent('update-footer-navigation', $details);
     }
-
+    
     public function toOverview($currentQuestion)
     {
-        $currentQuestion = $this->nav[$this->q - 1];
+        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
 
-        if ($currentQuestion['group']['closeable'] && !$currentQuestion['group']['closed']) {
+        $isThisQuestion = $this->nav[$this->q - 1];
+
+        if ($isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
             $this->dispatchBrowserEvent('close-this-group', $currentQuestion);
-        } elseif ($currentQuestion['closeable'] && !$currentQuestion['closed']) {
+        } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
         } else {
             return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
@@ -128,7 +130,7 @@ class Navigation extends Component
             return;
         }
 
-        $this->CheckIfCurrentQuestionIsInfoscreen($this->q);
+        $this->checkIfCurrentQuestionIsInfoscreen($this->q);
 
         $currentQuestion = $this->nav[$this->q - 1];
 

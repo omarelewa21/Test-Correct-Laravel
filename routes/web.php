@@ -22,12 +22,13 @@ Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
 Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
 
-
 Route::middleware(['auth.temp'])->group(function () {
     Route::get('/redirect-with-temporary-login/{temporary_login}',tcCore\Http\Controllers\TemporaryLoginController::class)->name('auth.temporary-login-redirect');
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineimageLaravel']);
+
     Route::middleware(['dll', 'student'])->prefix('student')->name('student.')->group(function () {
         Route::get('/test-take-overview/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'overview'])->name('test-take-overview');
         Route::get('/test-take-laravel/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'show'])->name('test-take-laravel');
@@ -42,5 +43,3 @@ Route::middleware('auth')->group(function () {
         Route::get('/preview/attachment/pdf/{attachment}/{question}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'showPreview'])->name('preview.question-pdf-attachment-show');
     });
 });
-
-

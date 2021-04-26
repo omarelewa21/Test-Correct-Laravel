@@ -71,6 +71,13 @@
                                 :answers="$answers"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
+                    @elseif($testQuestion->type === 'MatrixQuestion')
+                        <livewire:overview.matrix-question
+                                :question="$testQuestion"
+                                :number="++$key"
+                                :answers="$answers"
+                                wire:key="'q-'.$testQuestion->uuid"
+                        />
                     @endif
 
                     @if($testQuestion->type != 'InfoscreenQuestion')
@@ -101,10 +108,10 @@
             </x-button.cta>
         </x-slot>
         <x-slot name="testTakeManager">
-            <livewire:student.test-take :testTakeUuid="$uuid" :questions="$data" :testParticipant="$testParticipant"/>
+            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()"/>
         </x-slot>
         <x-slot name="fraudDetection">
-            <livewire:student.fraud-detection :testTakeUuid="$uuid" :testParticipant="$testParticipant"/>
+            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()"/>
         </x-slot>
     </div>
     @push('scripts')
