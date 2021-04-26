@@ -5,7 +5,7 @@ namespace tcCore\Rules;
 use Illuminate\Contracts\Validation\Rule;
 use tcCore\User;
 
-class SchoolLocationUserExternalId implements Rule
+class SchoolLocationUserName implements Rule
 {
     private $schoolLocationId;
     private $userId = false;
@@ -31,22 +31,15 @@ class SchoolLocationUserExternalId implements Rule
     public function passes($attribute, $value)
     {
         $this->attribute  = $attribute;
-//        if($this->userId){
-//            $row = \DB::table('school_location_user')  ->where('school_location_id', $this->schoolLocationId)
-//                ->where('user_id', $this->userId)
-//                ->first();
-//            if(!is_null($row)){
-//                $this->type = 'school_location';
-//                return false;
-//            }
-//        }
-        $row = \DB::table('school_location_user')  ->where('school_location_id', $this->schoolLocationId)
-                                            ->where('external_id', $value)
-                                            ->first();
-        if(is_null($row)){
-            return true;
+        if($this->userId){
+            $row = \DB::table('school_location_user')  ->where('school_location_id', $this->schoolLocationId)
+                ->where('user_id', $this->userId)
+                ->first();
+            if(!is_null($row)){
+                return false;
+            }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -56,10 +49,7 @@ class SchoolLocationUserExternalId implements Rule
      */
     public function message()
     {
-        //if($this->type == 'external_id'){
-            return $this->attribute.' failed on double entry';
-//        }
-//        return $this->attribute.' failed on double user entry';
+        return $this->attribute.' failed on double user entry';
     }
 
     private function setUserId($username)
