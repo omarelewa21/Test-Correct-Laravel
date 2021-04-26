@@ -307,6 +307,11 @@ class UsersController extends Controller
 
         }
 
+        if($this->hasTeacherRole($user)){
+            $externalId = $this->getExternalIdForSchoolLocationOfLoggedInUser($user);
+            $user->teacher_external_id = $externalId;
+        }
+
         return Response::make($user, 200);
     }
 
@@ -538,5 +543,24 @@ class UsersController extends Controller
             }
         }
         $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+    }
+
+    protected function getExternalIdForSchoolLocationOfLoggedInUser(User $user)
+    {
+        $allowedSchoolLocation = $user->allowedSchoolLocations()->wherePivot('school_location_id',Auth::user()->school_location_id)->first();
+        if(is_null($allowedSchoolLocation)){
+            return $user->external_id;
+        }
+        return $allowedSchoolLocation->pivot->external_id;
+    }
+
+    public function hasTeacherRole($user)
+    {
+        foreach($user->roles as $role){
+            if($role->name=='Teacher'){
+                return true;
+            }
+        }
+        return false;
     }
 }

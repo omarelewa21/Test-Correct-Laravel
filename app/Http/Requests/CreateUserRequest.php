@@ -1,17 +1,22 @@
 <?php namespace tcCore\Http\Requests;
 
+use Illuminate\Support\Facades\Auth;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 
+use tcCore\Rules\EmailDns;
 use tcCore\Rules\SchoolLocationUserExternalId;
+use tcCore\Rules\SchoolLocationUserName;
+use tcCore\Rules\UsernameUniqueSchool;
 use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\User;
 
 class CreateUserRequest extends Request {
 
+    protected $schoolLocation;
 	/**
 	 * Determine if the user is authorized to make this request.
 	 *
@@ -19,7 +24,7 @@ class CreateUserRequest extends Request {
 	 */
 	public function authorize()
 	{
-
+        $this->schoolLocation = Auth::user()->school_location_id;
 		return true;
 	}
 
@@ -31,9 +36,24 @@ class CreateUserRequest extends Request {
 	public function rules()
 	{
 		$this->filterInput();
+        $extra_rule = [];
+        $data = request()->all();
 
-		$rules = [
-			'username' => 'required|email|unique:users,username,NULL,'.(new User())->getKeyName().',deleted_at,NULL',
+        if(isset($data['user_roles']) && collect($data['user_roles'])->contains(function($val){return $val == 1;}) && isset($data['username'])){
+            $extra_rule['username'] = [  'required',
+                'email:rfc,filter',
+                new SchoolLocationUserName($this->schoolLocation,$data['username']),
+                new UsernameUniqueSchool($this->schoolLocation,'teacher'),
+                new EmailDns,
+                function ($attribute, $value, $fail) {
+                    if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                        return $fail(sprintf('The user email address contains international characters  (%s).', $value));
+                    }
+                }];
+            $extra_rule['external_id'] = new SchoolLocationUserExternalId($this->schoolLocation,$data['username']);
+        }
+		$rules = collect([
+			'username' => ['required|email|unique:users,username,NULL,'.(new User())->getKeyName().',deleted_at,NULL',new EmailDns],
 			'name_first' => '',
 			'name_suffix' => '',
 			'name' => '',
@@ -44,12 +64,14 @@ class CreateUserRequest extends Request {
 			'external_id' => '',
 			'gender' => '',
 			'abbreviation' => ''
-		];
-        $data = ($this->all());
-        if(isset($data['user_roles']) && collect($data['user_roles'])->contains(function($val){return $val == 1;}) && isset($data['username'])){
-            $rules['external_id'] = new SchoolLocationUserExternalId(\Auth::user()->school_location_id,($data['username']));
+		]);
+
+
+        $mergedRules = $rules;
+        if ($extra_rule != []) {
+            $mergedRules = $rules->merge($extra_rule);
         }
-        return $rules;
+        return $mergedRules->toArray();
 	}
 
 	public function getValidatorInstance()
