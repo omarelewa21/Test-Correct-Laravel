@@ -26,7 +26,7 @@ use tcCore\User;
 class RttiImportTest extends TestCase
 {
 
-//     use \Illuminate\Foundation\Testing\DatabaseTransactions;
+    use \Illuminate\Foundation\Testing\DatabaseTransactions;
 
     /**
      *
@@ -121,7 +121,6 @@ class RttiImportTest extends TestCase
      * */
     public function rtti_import_unknown_school_year()
     {
-
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
         $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
@@ -146,17 +145,22 @@ class RttiImportTest extends TestCase
      * */
     public function rtti_import_year_layer_incorrect()
     {
+        $user = User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
 
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
-
         $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
             ."RTTI School,".$this->brincode.",1,VWO,9,2020-2021,10001,01,,Albert,FransTest,FRS,2002,Docent1,,Mark,1";
-
 
         $output = $this->upload_data($csv_file_content);
 
         $this->assertContains(
-            'De Brincode/locatiecode 8888 1 in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.',
+            'De les jaar laag 9 is niet correct. De Studierichting (niveau) VWO kan maximaal 6 jaren zijn. Pas dit in het bestand aan of neem contact op met ICT',
             $output['errors']
         );
 
@@ -179,10 +183,10 @@ class RttiImportTest extends TestCase
         $output = $this->upload_data($csv_file_content);
 
         $this->assertEquals([
-                "missing_teachers" => [
-                    ["Mark", "", "Docent1"]
-                ]
-            ],
+            "missing_teachers" => [
+                ["Mark", "", "Docent1"]
+            ]
+        ],
             $output['errors']
         );
 
@@ -199,6 +203,14 @@ class RttiImportTest extends TestCase
     {
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
+        $user = User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
         $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
             ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,1Albert,FransTest,A&M,2002,Docent1,,Mark,1\n"
             ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10201,01,,2Albert,FransTest,A&M,2002,Docent1,,Mark,1\n"
@@ -206,9 +218,8 @@ class RttiImportTest extends TestCase
             ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10301,01,,4Albert,FransTest,A&M,2002,Docent1,,Mark,1";
 
         $output = $this->upload_data($csv_file_content);
-        dd($output);
 
-        $this->assertStringContainsString('Er zijn 4 leerlingen aangemaakt, 1 docenten en 1 klassen.', $output['data']);
+        $this->assertStringContainsString('Er zijn 4 leerlingen aangemaakt, 1 docent en 1 klas.', $output['data']);
 
         return true;
     }
@@ -224,10 +235,18 @@ class RttiImportTest extends TestCase
     public function rtti_import_can_have_two_mentors()
     {
         $user = User::createTeacher([
-            'name_first' => 'Mark',
-            'name_suffix' => '',
-            'name' => 'Docent1',
-            'external_id' => '2902',
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2902',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        $user = User::createTeacher([
+            'name_first'         => 'Mark1',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2903',
             'school_location_id' => $this->location_data['school_location_id'],
         ]);
 
@@ -237,7 +256,7 @@ class RttiImportTest extends TestCase
             ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2902,Docent1,,Mark,1\n"
             ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10004,01,,XAlbert,FransTest12,FRS,2902,Docent1,,Mark,1\n"
             ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10005,01,,YAlbert,FransTest12,FRS,2902,Docent1,,Mark,1\n"
-            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2902,Docent1,,Mark1,1";
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2903,Docent1,,Mark1,1";
 
         $output = $this->upload_data($csv_file_content);
 
@@ -252,17 +271,26 @@ class RttiImportTest extends TestCase
 
         // remove mentors
 
+        User::createTeacher([
+            'name_first'         => 'Steve',
+            'name_suffix'        => '',
+            'name'               => 'Docent2',
+            'external_id'        => '2777',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
         $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
             ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2902,Docent1,,Mark,0\n"
             ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10004,01,,XAlbert,FransTest12,FRS,2902,Docent1,,Mark,0\n"
             ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10005,01,,YAlbert,FransTest12,FRS,2902,Docent1,,Mark,0\n"
             ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10005,01,,YAlbert,FransTest12,FRS,2777,Docent2,,Steve,0\n"
-            ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2903,Docent3,,Mark1,1";
+            ."RTTI School,".$this->brincode.",1,VWO,3,2020-2021,10001,01,,Albert,FransTest12,FRS,2903,Docent1,,Mark1,1";
 
         $output = $this->upload_data($csv_file_content);
 
         $teachers_count = Teacher::where('class_id', $class_id)->count();
         $mentor_count = Mentor::where('school_class_id', $class_id)->count();
+
 
         $this->assertEquals(3, $teachers_count);
         $this->assertEquals(1, $mentor_count);
@@ -279,6 +307,13 @@ class RttiImportTest extends TestCase
      * */
     public function rtti_import_multiple_school_years()
     {
+        User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
 
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
@@ -288,7 +323,7 @@ class RttiImportTest extends TestCase
 
         $output = $this->upload_data($csv_file_content);
 
-        $this->assertStringContainsString('Meerdere lesjaren', $output['errors']);
+        $this->assertContains('Meerdere lesjaren in RTTI bestand 2020,2021', $output['errors']);
 
         return true;
     }
@@ -303,6 +338,13 @@ class RttiImportTest extends TestCase
      * */
     public function rtti_import_unknown_brin_code()
     {
+        User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
 
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
@@ -312,7 +354,10 @@ class RttiImportTest extends TestCase
 
         $output = $this->upload_data($csv_file_content);
 
-        $this->assertStringContainsString('De Brincode', $output['errors']);
+        $this->assertContains(
+            'De Brincode/locatiecode 0000 01 in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.',
+            $output['errors']
+        );
 
         return true;
     }
@@ -330,9 +375,9 @@ class RttiImportTest extends TestCase
 
         $helper = RTTIImportHelper::initWithCVS();
 
-        $output = $helper->getSubjectId('FRS', 4);
+        $output = $helper->getSubjectId('NED', 1);
 
-        $this->assertEquals(9, $output);
+        $this->assertEquals(1, $output);
     }
 
     /**
@@ -365,6 +410,13 @@ class RttiImportTest extends TestCase
      * */
     public function rtti_import_unknown_subject()
     {
+        User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
 
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
@@ -374,7 +426,10 @@ class RttiImportTest extends TestCase
 
         $output = $this->upload_data($csv_file_content);
 
-        $this->assertStringContainsString('Het vak met de afkorting', $output['errors']);
+        $this->assertContains(
+            'Het vak met de afkorting ERR in het bestand kon niet gevonden worden in de database voor de schoollocatie met Brincode/locatiecode: 8888 01. Neem contact op met de schoolbeheerder om het vak te laten aanmaken',
+            $output['errors']
+        );
 
         return true;
     }
@@ -385,8 +440,15 @@ class RttiImportTest extends TestCase
      *
      * @test
      * */
-    public function rtti_import_test_class_overwrite_protection()
+    public function rtti_import_test_class_with_protection()
     {
+        User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
 
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
@@ -397,15 +459,12 @@ class RttiImportTest extends TestCase
             ."RTTI School,".$this->brincode.",1,VWO,1,2020-2021,12002,02,,Berend,FransTest,FRS,2002,Docent1,,Mark,1";
 
         $output = $this->upload_data($csv_file_content);
+        $this->assertStringContainsString('Er zijn 2 leerlingen aangemaakt, 1 docent en 1 klas.', $output['data']);
 
-        $this->assertStringContainsString('2 leerlingen aangemaakt, 0 docenten en 1 klassen', $output['data']);
+        $class = SchoolClass::where('name', 'FransTest')->first();//->value('id');
 
-        $class_id = SchoolClass::where('name', 'FransTest')
-            ->value('id');
 
-        $student_count = Student::where('class_id', $class_id)->count();
-
-        $this->assertEquals(2, $student_count);
+        $this->assertEquals(2, $class->studentUsers()->count());//Student::where('class_id', $class_id)->count());
 
         // try to remove one student
         $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
@@ -413,47 +472,106 @@ class RttiImportTest extends TestCase
         // student Berend no longer in this class
 
         $output = $this->upload_data($csv_file_content);
-
-        $student_count = Student::where('class_id', $class_id)->count();
-
-        // remove succes
-
-        $this->assertEquals(1, $student_count);
+        $this->assertStringContainsString(
+            'Versie 0.1. De import was succesvol. Er zijn 0 leerlingen aangemaakt, 0 docenten en 0 klassen.',
+            $output['data']
+        );
+        $this->assertEquals(1, $class->studentUsers()->count());
+        $this->assertEquals('Albert', $class->studentUsers()->first()->name_first);
 
         // protect this class against removal
-        SchoolClass::where('id', $class_id)
-            ->update(['do_not_overwrite_from_interface' => 1]);
+        $class->do_not_overwrite_from_interface = 1;
+        $class->save();
 
-        // import new class
+        User::createTeacher([
+            'name_first'         => 'Fred',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2003',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
 
         $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
             ."RTTI School,".$this->brincode.",1,VWO,1,2020-2021,12001,01,,Albert,FransTest_2,FRS,2003,Docent1,,Fred,1";
+        $output = $this->upload_data($csv_file_content);
+        // check if created
+        $this->assertStringContainsString('0 leerlingen aangemaakt, 1 docent en 1 klas', $output['data']);
         // student Berend no longer in this class
 
-        $output = $this->upload_data($csv_file_content);
-
-        // check if created
-        $this->assertStringContainsString('0 leerlingen aangemaakt, 1 docenten en 1 klassen', $output['data']);
-
+        // check class was created;
+        $this->assertNotEmpty(SchoolClass::where('name', 'FransTest')->first());
         // check if other class still exists
-        $this->assertTrue(SchoolClass::where('id', $class_id)->exists());
+        $this->assertNotEmpty($class = SchoolClass::where('name', 'FransTest')->first());
+    }
+
+    /**
+     *
+     *  Testing the creation of teachers and students
+     *
+     * @test
+     * */
+    public function rtti_import_test_class_without_protection()
+    {
+        User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
+
+        User::createTeacher([
+            'name_first'         => 'Fred',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2003',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
+            ."RTTI School,".$this->brincode.",1,VWO,1,2020-2021,12001,01,,Albert,FransTest,FRS,2002,Docent1,,Mark,1\n"
+            ."RTTI School,".$this->brincode.",1,VWO,1,2020-2021,12002,02,,Berend,FransTest,FRS,2002,Docent1,,Mark,1";
+
+        $output = $this->upload_data($csv_file_content);
+        $this->assertStringContainsString('Er zijn 2 leerlingen aangemaakt, 1 docent en 1 klas.', $output['data']);
+
+        $class = SchoolClass::where('name', 'FransTest')->first();
+        $this->assertEquals(2, $class->studentUsers()->count());//Student::where('class_id', $class_id)->count());
 
         // remove protection
-        SchoolClass::where('id', $class_id)
-            ->update(['do_not_overwrite_from_interface' => 0]);
+        $class->do_not_overwrite_from_interface = 0;
+        $class->save();
+
+        $this->assertNotNull(SchoolClass::find($class->getKey()));
+
+        $fred = User::where(['name_first' => 'Fred', 'name' => 'Docent1'])->first();
+        $classFransTest = ($fred->teacherSchoolClasses()->get()->first(function ($class) {
+            return $class->name === 'FransTest_2';
+        }));
+        // fred has no class with name FransTest_2
+        $this->assertNull($classFransTest);
 
         // load other class again
         $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
             ."RTTI School,".$this->brincode.",1,VWO,1,2020-2021,12001,01,,Albert,FransTest_2,FRS,2003,Docent1,,Fred,1";
-        // student Berend no longer in this class
 
         $output = $this->upload_data($csv_file_content);
+        // the old class had been deleted;
+        $class = SchoolClass::withTrashed()->find($class->getKey());
+        $this->assertTrue($class->trashed());
+        $fred = User::where(['name_first' => 'Fred', 'name' => 'Docent1'])->first();
+        // the new class has been created;
+        $classFransTest = ($fred->teacherSchoolClasses()->get()->first(function ($class) {
+            return $class->name === 'FransTest_2';
+        }));
+        $this->assertInstanceOf(SchoolClass::class, $classFransTest);
 
-        $this->assertFalse(SchoolClass::where('id', $class_id)->exists());
-
-        // change mentor role of teacher
-        //
-        return true;
+        $this->assertStringContainsString(
+            'Versie 0.1. De import was succesvol. Er zijn 0 leerlingen aangemaakt, 1 docent en 1 klas. Er zijn 0 leerlingen verwijderd, 0 docenten en 1 klas.',
+            $output['data']
+        );
     }
 
     /**
@@ -464,6 +582,31 @@ class RttiImportTest extends TestCase
      * */
     public function rtti_import_can_load_multiple_students_and_subjects()
     {
+        User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+
+        User::createTeacher([
+            'name_first'         => 'Pete',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2012',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+
+        User::createTeacher([
+            'name_first'         => 'Steve',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2013',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
 
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
@@ -484,9 +627,7 @@ class RttiImportTest extends TestCase
             ."RTTI School,".$this->brincode.",1,VWO,1,2020-2021,12008,02,,Berend,FransTest2,FRS,2002,Docent1,,Mark,1";
 
         $output = $this->upload_data($csv_file_content);
-
-        $this->assertStringContainsString('6 leerlingen aangemaakt, 1 docenten en 4 klassen', $output['data']);
-
+        $this->assertStringContainsString('Er zijn 8 leerlingen aangemaakt, 5 docenten en 4 klassen. Er zijn 0 leerlingen verwijderd, 0 docenten en 0 klassen.', $output['data']);
         $class_id = SchoolClass::where('name', 'FransTest')
             ->value('id');
 
@@ -507,7 +648,7 @@ class RttiImportTest extends TestCase
 
         $output = $this->upload_data($csv_file_content);
 
-        $this->assertStringContainsString('Er zijn 0 leerlingen aangemaakt, 1 docenten en 0 klassen', $output['data']);
+        $this->assertStringContainsString('Er zijn 0 leerlingen aangemaakt, 1 docent en 0 klassen', $output['data']);
     }
 
     protected function verbose_out($string)

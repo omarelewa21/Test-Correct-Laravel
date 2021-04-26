@@ -87,7 +87,8 @@ class RTTIImportHelper
     public $create_tally = [
         'students' => 0,
         'classes'  => 0,
-        'teachers' => 0
+        'teachers' => 0,
+        'mentors'  => 0,
     ];
 
 
@@ -98,7 +99,8 @@ class RTTIImportHelper
     public $delete_tally = [
         'students' => 0,
         'classes'  => 0,
-        'teachers' => 0
+        'teachers' => 0,
+        'mentors'  => 0,
     ];
 
 
@@ -181,6 +183,9 @@ class RTTIImportHelper
                     $teacher_name_last = $row[$column_index['docAchternaam']];
                     $teacher_is_mentor = $row[$column_index['IsMentor']];
 
+                    if (strlen($external_sub_code) == 1) {
+                        $external_sub_code = "0".$external_sub_code;
+                    }
 
                     $school_location_id = $this->getSchoolLocationId($external_sub_code, $external_main_code);
                     if ($school_location_id == null) {
@@ -190,15 +195,11 @@ class RTTIImportHelper
                         //throw new \Exception('De Brincode/locatiecode ' . $external_main_code . ' ' . $external_sub_code . ' in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.');
                     }
 
-                    if (strlen($external_sub_code) == 1) {
-                        $external_sub_code = "0".$external_sub_code;
-                    }
 
                     $student_email = sprintf('%s@%s', $student_external_code, $this->email_domain);
 
 ////                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
 //                    $teacher_email = 'rtti_' . $teacher_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
-
 
 
                     if (!in_array($study_year, range((now()->year - 10), (now()->year + 10)))) {
@@ -234,10 +235,10 @@ class RTTIImportHelper
                     }
 
                     // check if education level is allowed
-                    $education_level_max_years = Educationlevel::select('max_years')->where('id',
-                        $education_level_id)->value('max_years');
-
-                    if ($study_year_layer >= $education_level_max_years) {
+                    $education_level_max_years = Educationlevel::select('max_years')
+                        ->where('id', $education_level_id)
+                        ->value('max_years');
+                    if ($study_year_layer > $education_level_max_years) {
                         $this->errorMessages[] = 'De les jaar laag '.$study_year_layer.' is niet correct. De Studierichting (niveau) '.$study_direction.' kan maximaal '.$education_level_max_years.' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT';
                         //throw new \Exception('De les jaar laag ' . $study_year_layer . ' is niet correct. De Studierichting (niveau) ' . $study_direction . ' kan maximaal ' . $education_level_max_years . ' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT');
                     }
@@ -383,6 +384,9 @@ class RTTIImportHelper
                                 'class_id'   => $school_class_id,
                                 'subject_id' => $subject_id
                             ]);
+
+                            $this->create_tally['teachers']++;
+
 
                             $this->importLog('Assigned teacher with id '.$user->id.' to class id '.$school_class_id.' and subject id '.$subject_id);
                         } else {
@@ -554,7 +558,7 @@ class RTTIImportHelper
                 return ['errors' => $uniqueErrors];
             }
             // MF merge the errorMessages of helper on the return to fix schoolyear error;
-            return ['errors' => array_merge([$e->getMessage()] , $this->errorMessages)];
+            return ['errors' => array_merge([$e->getMessage()], $this->errorMessages)];
         }
 
         \DB::commit();
@@ -562,12 +566,58 @@ class RTTIImportHelper
         $this->importLog('import done');
 
         return [
-            'data' => 'Versie 0.1. De import was succesvol. '
-                .' Er zijn '.$this->create_tally['students'].' leerlingen aangemaakt, '
-                .$this->create_tally['teachers'].' docenten en '
-                .$this->create_tally['classes'].' klassen. '
-                .'c'.$this->delete_tally['classes'].'t'.$this->delete_tally['teachers'].'s'.$this->delete_tally['students']
+            'data' => sprintf('Versie 0.1. De import was succesvol. %s%s', $this->createTally(), $this->deleteTally())
         ];
+    }
+
+    private function createTally()
+    {
+        $return = '';
+
+        if ($this->create_tally['students'] === 1) {
+            $return .= 'Er is 1 leerling aangemaakt, ';
+        } else {
+            $return .= sprintf('Er zijn %d leerlingen aangemaakt, ', $this->create_tally['students']);
+        }
+
+        if ($this->create_tally['teachers'] === 1) {
+            $return .= '1 docent en ';
+        } else {
+            $return .= sprintf('%d docenten en ', $this->create_tally['teachers']);
+        }
+
+        if ($this->create_tally['classes'] === 1) {
+            $return .= '1 klas. ';
+        } else {
+            $return .= sprintf('%s klassen. ', $this->create_tally['classes']);
+        }
+
+        return $return;
+    }
+
+    private function deleteTally()
+    {
+        $return = '';
+
+        if ($this->delete_tally['students'] === 1) {
+            $return .= 'Er is 1 leerling verwijderd, ';
+        } else {
+            $return .= sprintf('Er zijn %d leerlingen verwijderd, ', $this->delete_tally['students']);
+        }
+
+        if ($this->delete_tally['teachers'] === 1) {
+            $return .= '1 docent en ';
+        } else {
+            $return .= sprintf('%d docenten en ', $this->delete_tally['teachers']);
+        }
+
+        if ($this->delete_tally['classes'] === 1) {
+            $return .= '1 klas.';
+        } else {
+            $return .= sprintf('%s klassen.', $this->delete_tally['classes']);
+        }
+
+        return $return;
     }
 
     /**
@@ -744,7 +794,13 @@ class RTTIImportHelper
      * @param  type  $education_level_id
      * @return type
      */
-    public function getSchoolClassId( $class_name, $school_location_id, $year, $education_level_year, $education_level_id ) {
+    public function getSchoolClassId(
+        $class_name,
+        $school_location_id,
+        $year,
+        $education_level_year,
+        $education_level_id
+    ) {
 
         $school_year_id = SchoolLocationSchoolYear::select('school_year_id')
             ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
@@ -968,13 +1024,13 @@ class RTTIImportHelper
         // only mentors in the file are touched
         $mentor = Mentor::withTrashed()
             ->where('user_id', $teacher_id)
-            ->where('school_class_id', $school_class_id);
+            ->where('school_class_id', $school_class_id)->first();
 
         if ($mentor) {
             $mentor->restore();
         } else {
             $mentor = Mentor::create([
-                'user_id' => $teacher_id,
+                'user_id'         => $teacher_id,
                 'school_class_id' => $school_class_id
             ]);
         }
@@ -994,6 +1050,7 @@ class RTTIImportHelper
             Mentor::whereNotIn('user_id', array_unique($mentor_ids))
                 ->where('school_class_id', $class_id)
                 ->delete();
+//            $this->delete_tally['mentors']++;
         }
 
         return true;
