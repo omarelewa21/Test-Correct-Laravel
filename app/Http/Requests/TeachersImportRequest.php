@@ -47,7 +47,7 @@ class TeachersImportRequest extends Request {
                 $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
                     'email:rfc,filter',
                     new SchoolLocationUserName($this->schoolLocation,$value['username']),
-                    new UsernameUniqueSchool($this->schoolLocation,request()->type),
+                    new UsernameUniqueSchool($this->schoolLocation,'teacher'),
                     new EmailDns,
                     function ($attribute, $value, $fail) {
                         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
