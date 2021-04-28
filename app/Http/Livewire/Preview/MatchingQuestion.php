@@ -17,8 +17,7 @@ class MatchingQuestion extends Component
 
     public $answer;
     public $question;
-public $testUuid;
-public $testId;
+    public $testId;
     public $number;
 
     public $answers;

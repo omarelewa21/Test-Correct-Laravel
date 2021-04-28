@@ -14,8 +14,7 @@ class MatrixQuestion extends Component
     use WithAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
     public $question;
-public $testUuid;
-public $testId;
+    public $testId;
     public $number;
     public $answers;
 

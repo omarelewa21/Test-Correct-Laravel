@@ -16,7 +16,6 @@ class ArqQuestion extends Component
     public $uuid;
 
     public $question;
-public $testUuid;
 public $testId;
 
     public function questionUpdated($uuid)

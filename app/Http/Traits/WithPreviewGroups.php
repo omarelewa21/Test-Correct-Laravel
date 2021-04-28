@@ -12,7 +12,7 @@ trait WithPreviewGroups
     public function mountWithPreviewGroups()
     {
         if ($this->question->is_subquestion) {
-            $this->group = TestQuestion::whereQuestionId($this->question->getGroupIdForQuestion($this->testUuid))->whereTestId($this->testId)->first()->question;
+            $this->group = TestQuestion::whereQuestionId($this->question->getGroupQuestionIdByTest($this->testId))->whereTestId($this->testId)->first()->question;
         }
     }
 }

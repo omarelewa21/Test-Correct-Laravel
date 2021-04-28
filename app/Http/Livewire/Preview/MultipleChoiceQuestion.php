@@ -13,8 +13,7 @@ class MultipleChoiceQuestion extends Component
     use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
     public $question;
-public $testUuid;
-public $testId;
+    public $testId;
 
     public $answer = '';
 
@@ -46,8 +45,10 @@ public $testId;
         });
 
         $this->shuffledKeys = array_keys($this->answerStruct);
-        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
-            shuffle($this->shuffledKeys);
+        if (!$this->question->isCitoQuestion()) {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+                shuffle($this->shuffledKeys);
+            }
         }
 
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {

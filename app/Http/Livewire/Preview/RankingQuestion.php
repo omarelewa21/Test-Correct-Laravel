@@ -16,8 +16,7 @@ class RankingQuestion extends Component
     public $uuid;
     public $answer;
     public $question;
-public $testUuid;
-public $testId;
+    public $testId;
     public $number;
     public $answers;
     public $answerStruct;

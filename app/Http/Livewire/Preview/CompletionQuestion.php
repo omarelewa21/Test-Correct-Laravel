@@ -14,8 +14,7 @@ class CompletionQuestion extends Component
     use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
     public $question;
-public $testUuid;
-public $testId;
+    public $testId;
     public $answer;
     public $answers;
     public $number;

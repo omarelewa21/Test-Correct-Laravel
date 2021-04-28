@@ -1,7 +1,6 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5">
-        <livewire:preview.navigation :nav="$data" :testUuid="$uuid"
-                                     :testId="$testId"></livewire:preview.navigation>
+        <livewire:preview.navigation :nav="$data" :testId="$testId"></livewire:preview.navigation>
         <div>
             @foreach($data as  $key => $testQuestion)
                 <div>
@@ -9,7 +8,6 @@
                         <livewire:preview.multiple-select-question
                                 :question="$testQuestion"
                                 :number="++$key"
-                                :testUuid="$uuid"
                                 :testId="$testId"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
@@ -17,7 +15,6 @@
                         <livewire:preview.multiple-choice-question
                                 :question="$testQuestion"
                                 :number="++$key"
-                                :testUuid="$uuid"
                                 :testId="$testId"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
@@ -25,7 +22,6 @@
                         <livewire:preview.open-question
                                 :question="$testQuestion"
                                 :number="++$key"
-                                :testUuid="$uuid"
                                 :testId="$testId"
                                 wire:key="'q-'.$testQuestion->uuid'q-'"
                         />
@@ -33,7 +29,6 @@
                         <livewire:preview.matching-question
                                 :question="$testQuestion"
                                 :number="++$key"
-                                :testUuid="$uuid"
                                 :testId="$testId"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
@@ -41,7 +36,6 @@
                         <livewire:preview.completion-question
                                 :question="$testQuestion"
                                 :number="++$key"
-                                :testUuid="$uuid"
                                 :testId="$testId"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
@@ -49,7 +43,6 @@
                         <livewire:preview.ranking-question
                                 :question="$testQuestion"
                                 :number="++$key"
-                                :testUuid="$uuid"
                                 :testId="$testId"
                                 wire:key="'q-'.$testQuestion->uuid'"
                         />
@@ -57,7 +50,6 @@
                         <livewire:preview.info-screen-question
                                 :question="$testQuestion"
                                 :number="++$key"
-                                :testUuid="$uuid"
                                 :testId="$testId"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
@@ -65,7 +57,6 @@
                         <livewire:preview.drawing-question
                                 :question="$testQuestion"
                                 :number="++$key"
-                                :testUuid="$uuid"
                                 :testId="$testId"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
@@ -73,7 +64,6 @@
                         <livewire:preview.matrix-question
                                 :question="$testQuestion"
                                 :number="++$key"
-                                :testUuid="$uuid"
                                 :testId="$testId"
                                 wire:key="'q-'.$testQuestion->uuid"
                         />
