@@ -8,7 +8,7 @@
             <span>{!! __('test_take.instruction_matching_question') !!}</span>
         </div>
         @if($question->subtype == 'Classify')
-            <div class="flex flex-col classify" wire:sortable-group="updateOrder">
+            <div id="matching-container{{$question->getKey()}}" class="flex flex-col classify" wire:sortable-group="updateOrder">
                 <div class="flex">
                     <x-dropzone wire:key="group-start" startGroup="true">
                         <div class="h-full space-x-1 focus:outline-none start-group" wire:sortable-group.item-group="startGroep">
@@ -49,7 +49,7 @@
             </div>
         @endif
         @if($question->subtype == 'Matching')
-            <div class="flex flex-col space-y-1 matching" wire:sortable-group="updateOrder">
+            <div id="matching-container{{$question->getKey()}}" class="flex flex-col space-y-1 matching" wire:sortable-group="updateOrder">
                 <div class="flex">
                     <x-dropzone wire:key="group-start" startGroup="true">
                         <div class="h-full space-x-1 focus:outline-none start-group" wire:sortable-group.item-group="startGroep">
@@ -99,6 +99,15 @@
                 </div>
             </div>
         @endif
+        @push('scripts')
+            <script>
+                setTimeout(function() {
+                    document.getElementById('matching-container{{$question->getKey()}}').livewire_sortable.on('mirror:move', (evt) => {
+                        evt.data.mirror.id = 'drag_mirror_{{$question->getKey()}}';
+                    });
+                }, 100);
+            </script>
+        @endpush
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad" />

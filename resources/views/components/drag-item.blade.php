@@ -14,7 +14,6 @@
          wire:key="{{ $wireKey }}"
      @endif
     {{ $attributes }}
-        x-on:mousedown="setTimeout(function() {var el = document.getElementsByClassName('draggable-mirror')[0]; el.id = 'drag-mirror'; console.log(el)}, 100)"
 >
     <span id="span_{{ $attributes->get('id') }}" class="mr-3 flex items-center" >{!! $slot !!}</span>
     <div id="icon_{{ $attributes->get('id') }}" class="w-4">
