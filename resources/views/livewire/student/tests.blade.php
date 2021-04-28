@@ -185,8 +185,12 @@
         </div>
     </div>
     @if($this->activeTab === $this->waitingroomTab)
-        <div class="bg-light-grey">
-
+        <div class="flex w-full bg-light-grey items-center justify-center py-12">
+            <div class="content-section flex p-4 w-full md:w-">
+                <h4 class="px-4">Introductie van de docent</h4>
+                <div class="divider"></div>
+                <div class="px-4">Introductie van de docent wordt zichtbaar zodra de toets gemaakt kan worden. Wacht op de docent</div>
+            </div>
         </div>
     @endif
 </div>
