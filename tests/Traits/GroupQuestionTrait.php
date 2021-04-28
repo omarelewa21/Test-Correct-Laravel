@@ -19,8 +19,8 @@ trait GroupQuestionTrait
     protected function addQuestionGroupAndReturnId(int $testId, array $overrides = []): int
     {
         $attributes = array_merge([
-            'name'              => 'Vraaggroup naam',
-            'question'          => 'VraagGroup Omschrijving',
+            'name'              => 'Vraaggroep naam',
+            'question'          => 'VraagGroep Omschrijving',
             'order'             => 0,
             'shuffle'           => '0',
             'maintain_position' => '0',

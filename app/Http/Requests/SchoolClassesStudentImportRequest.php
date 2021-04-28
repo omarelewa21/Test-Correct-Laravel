@@ -6,6 +6,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\MessageBag;
 use Illuminate\Http\Request as RequestObj;
 use Ramsey\Uuid\Uuid;
+use tcCore\Rules\EmailDns;
 use tcCore\SchoolLocation;
 use tcCore\User;
 use tcCore\SchoolClass;
@@ -58,11 +59,11 @@ class SchoolClassesStudentImportRequest extends Request
 
         $rules = collect([
             //'data' => 'array',
-            'data.*.username' => ['required', 'email:rfc,filter,dns', function ($attribute, $value, $fail) {
+            'data.*.username' => ['required', 'email:rfc,filter', new EmailDns , function ($attribute, $value, $fail) {
 
                 if(strpos($value,'&') > NULL) 
                 {
-                     return $fail(sprintf('The email address contains an amparsand symbol  (%s).', $value));
+                     return $fail(sprintf('The email address contains an ampersand symbol  (%s).', $value));
                 }
             
                 if (!filter_var($value, FILTER_VALIDATE_EMAIL)) 
@@ -142,6 +143,14 @@ class SchoolClassesStudentImportRequest extends Request
             $this->merge(['data' => $data]);
         });
     }
+
+//    public function messages()
+//    {
+//        return [
+//            'data.*.username.email' => 'lorem',
+//            'data.*.username.required' => 'sit',
+//        ];
+//    }
 
     private function addDuplicateExternalIdErrors($validator)
     {

@@ -5,6 +5,7 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Ramsey\Uuid\Uuid;
+use tcCore\Rules\SchoolLocationUserExternalId;
 use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\User;
@@ -60,7 +61,7 @@ class UpdateUserRequest extends Request {
 	{
 		$this->filterInput();
 
-		return [
+		$rules = [
 			'username' => 'sometimes|required|email|unique:users,username,'.$this->user->getKey().','.$this->user->getKeyName().',deleted_at,NULL',
 			'name_first' => '',
 			'name_suffix' => '',
@@ -74,6 +75,10 @@ class UpdateUserRequest extends Request {
 			'gender' => '',
 			'abbreviation' => ''
 		];
+        if($this->user->hasRole('Teacher')){
+            $rules['external_id'] = new SchoolLocationUserExternalId($this->user->getAttribute('school_location_id'),($this->user->getAttribute('username')));
+        }
+        return $rules;
 	}
 
 	public function getValidatorInstance()
@@ -89,6 +94,7 @@ class UpdateUserRequest extends Request {
 			$schoolId = $this->user->getAttribute('school_id');
 			return ((isset($input->school_id) && !empty($input->school_id)) || (!isset($input->school_id) && !empty($schoolId)));
 		});
+
 
 		return $validator;
 	}
