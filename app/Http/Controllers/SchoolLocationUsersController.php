@@ -111,7 +111,14 @@ class SchoolLocationUsersController extends Controller {
 
         return $users->map(function($user)  {
             $user->active = $user->allowedSchoolLocations->contains(Auth::user()->schoolLocation);
-
+            $user->teacher_external_id  = $user->external_id;
+            if($user->active){
+                try {
+                    $user->teacher_external_id = $user->allowedSchoolLocations()->where('school_location_id',Auth::user()->schoolLocation->id)->firstOrFail()->pivot->external_id;
+                }catch(\Exception $e){
+                    //silent fail
+                }
+            }
             return $user;
         });
     }

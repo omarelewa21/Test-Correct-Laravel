@@ -176,7 +176,7 @@ class TeachersController extends Controller
         }
         $schoolLocations = $user->schoolLocations;
         if(is_null($schoolLocations)){
-            $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+            $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
             return;
         }
         foreach ($schoolLocations as $schoolLocation){
@@ -184,7 +184,7 @@ class TeachersController extends Controller
                 return;
             }
         }
-        $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+        $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
     }
 
 }

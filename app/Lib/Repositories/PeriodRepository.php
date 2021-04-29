@@ -11,7 +11,7 @@ class PeriodRepository
         $now = Carbon::now();
         $result = Period::filtered()->where('start_date', '<=', $now->toDateString())->where('end_date', '>=',
             $now->toDateString())->first();
-        return $result;
+         return $result;
     }
 
     public static function getCurrentOrPreviousPeriod()
