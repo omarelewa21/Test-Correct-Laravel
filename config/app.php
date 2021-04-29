@@ -1,4 +1,16 @@
 <?php
+    if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
+        $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+        if($language !=	 'nl'){
+            $lang = 'eng';
+        }
+        else{
+            $lang = $language;
+        }   
+    }
+    else{
+        $lang = 'eng';
+    }
 
 return [
 
@@ -79,7 +91,7 @@ return [
     |
     */
 
-    'locale' => 'eng',
+    'locale' => $lang,
 
     /*
     |--------------------------------------------------------------------------
