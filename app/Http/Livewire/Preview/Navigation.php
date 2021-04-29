@@ -3,19 +3,18 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Question;
 
 class Navigation extends Component
 {
     public $nav;
-    public $testUuid;
+    public $testId;
     public $q;
     public $queryString = ['q'];
     public $startTime;
 
     public $lastQuestionInGroup = [];
-    public $groupQuestionArray = [];
+    public $groupQuestionIdsForQuestions = [];
     public $closeableGroups = [];
 
     protected $listeners = [
@@ -33,15 +32,12 @@ class Navigation extends Component
         $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
 
         foreach ($this->nav as $key => $question) {
-            $this->groupQuestionArray[$question->getKey()] = 0;
+            $this->groupQuestionIdsForQuestions[$question->getKey()] = 0;
             if($question['is_subquestion']) {
-                $groupId = $question->getGroupIdForQuestion($this->testUuid);
-                $this->groupQuestionArray[$question->getKey()] = $groupId;
-
-                $closeable = Question::whereId($groupId)->value('closeable');
-                if($closeable) {
-                    $this->closeableGroups[$groupId] = true;
-                }
+                $groupId = $question->getGroupQuestionIdByTest($this->testId);
+                $this->groupQuestionIdsForQuestions[$question->getKey()] = $groupId;
+                $this->lastQuestionInGroup[$groupId] = $question->getKey();
+                $this->closeableGroups[$groupId] = (bool) Question::whereId($groupId)->value('closeable');
             }
         }
 

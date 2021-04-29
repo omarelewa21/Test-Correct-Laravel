@@ -31,7 +31,7 @@
 
                 @foreach($nav as $key => $q)
                     <div id="{!! $key === ($this->q - 1) ? 'active' : ''!!}"
-                         class="flex flex-col mb-3 relative @if(!$loop->last && $q['is_subquestion'] == 1 && $this->groupQuestionArray[$q['id']] == $this->groupQuestionArray[$nav[$key+1]['id']]) number-divider group @endif">
+                         class="flex flex-col mb-3 relative @if(!$loop->last && $q['is_subquestion'] == 1 && $this->groupQuestionIdsForQuestions[$q['id']] == $this->groupQuestionIdsForQuestions[$nav[$key+1]['id']]) number-divider group @endif">
 
                         <section wire:key="nav_{{$key}}"
                                  class="question-number rounded-full text-center cursor-pointer flex items-center justify-center
@@ -47,7 +47,7 @@
                             @endif
                         </div>
                     </div>
-                    @if($this->groupQuestionArray[$q['id']] != 0 && array_key_exists($this->groupQuestionArray[$q['id']], $this->closeableGroups) && $this->groupQuestionArray[$q['id']] != $this->groupQuestionArray[$nav[$key]['id']])
+                    @if($this->groupQuestionIdsForQuestions[$q['id']] != 0 && array_key_exists($this->groupQuestionIdsForQuestions[$q['id']], $this->closeableGroups) && $q['id'] == $this->lastQuestionInGroup[$this->groupQuestionIdsForQuestions[$q['id']]])
                         <div class="mr-3 @if($loop->last) pr-3 @endif">
                                 <x-icon.unlocked/>
                         </div>

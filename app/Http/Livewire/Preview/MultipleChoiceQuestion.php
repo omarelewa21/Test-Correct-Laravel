@@ -5,14 +5,15 @@ namespace tcCore\Http\Livewire\Preview;
 use Livewire\Component;
 use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
+use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
 
 class MultipleChoiceQuestion extends Component
 {
-    use WithPreviewAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
     public $question;
+    public $testId;
 
     public $answer = '';
 
@@ -44,8 +45,10 @@ class MultipleChoiceQuestion extends Component
         });
 
         $this->shuffledKeys = array_keys($this->answerStruct);
-        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
-            shuffle($this->shuffledKeys);
+        if (!$this->question->isCitoQuestion()) {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+                shuffle($this->shuffledKeys);
+            }
         }
 
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
