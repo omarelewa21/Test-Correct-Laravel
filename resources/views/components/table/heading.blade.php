@@ -12,13 +12,13 @@
 'sortable' => null,
 'direction' => null,
 'multiColumn' => null,
-'width' => null,
+'width' => 'auto',
 'textAlign' => 'left',
 ])
 
 <th
-        {{ $attributes->merge(['class' => 'text-'.$textAlign.' px-3 bg-cool-gray-50'])->only('class') }}
-        @isset($width) style="max-width: {{$width}}%; width:{{$width}}%" @endisset
+        {{ $attributes->merge(['class' => 'text-'.$textAlign.' px-3 bg-cool-gray-50 w-auto'])->only('class') }}
+        @isset($width) style="width:{{$width}}" @endisset
 >
     @unless ($sortable)
         <span class="text-{{$textAlign}} body2 bold">{{ $slot }}</span>

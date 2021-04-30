@@ -1,28 +1,29 @@
 <header id="header" class="header fixed w-full content-center z-10">
-    <div class="mx-4 md:mx-8 lg:mx-12 xl:mx-28 flex h-full items-center">
+    <div class="mx-4 lg:mx-8 xl:mx-24 flex h-full items-center">
         <div class="relative">
-            <a href="{{config('app.url_login')}}">
+            <a href="{{ route('student.dashboard') }}">
                 <img class="h-12" src="{{ asset('/svg/logos/Logo-Test-Correct-2.svg') }}"
                      alt="Test-Correct">
-                <span class="note text-xs absolute min-w-max -bottom-1 left-[60px]">Version 1.2</span>
+                <span class="note text-xs absolute min-w-max -bottom-1 left-[60px]">{{ __('student.version') }} 1.2</span>
             </a>
         </div>
 
         <div id="menu" class="menu hidden flex-wrap content-center lg:flex lg:ml-4">
             <div class="menu-item px-2 py-1">
-                <x-button.text-button id="student-header-dashboard" type="link" href="{{ route('student.dashboard') }}">Dashboard</x-button.text-button>
+                <x-button.text-button id="student-header-dashboard" type="link" href="{{ route('student.dashboard') }}">
+                    {{ __('student.dashboard') }}</x-button.text-button>
             </div>
             <div class="menu-item px-2 py-1">
-                <x-button.text-button id="student-header-tests" type="link" href="{{ route('student.tests') }}">Toetsing</x-button.text-button>
+                <x-button.text-button id="student-header-tests" type="link" href="{{ route('student.test-takes') }}">{{ __('student.tests') }}</x-button.text-button>
             </div>
             <div class="menu-item px-2 py-1">
-                <x-button.text-button id="student-header-analysis" wire:click="">Analyses</x-button.text-button>
+                <x-button.text-button id="student-header-analysis" wire:click="">{{ __('student.analysis') }}</x-button.text-button>
             </div>
             <div class="menu-item px-2 py-1">
-                <x-button.text-button id="student-header-messages" wire:click="">Berichten</x-button.text-button>
+                <x-button.text-button id="student-header-messages" wire:click="">{{ __('student.messages') }}</x-button.text-button>
             </div>
             <div class="menu-item px-2 py-1">
-                <x-button.text-button id="student-header-knowledgebank" wire:click="">Kennisbank</x-button.text-button>
+                <x-button.text-button id="student-header-knowledgebank" wire:click="">{{ __('student.knowledgebank') }}</x-button.text-button>
             </div>
         </div>
 
@@ -31,23 +32,23 @@
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <div class="lg:hidden">
                     <x-dropdown.item type="link" href="{{ route('student.dashboard') }}">
-                        Dashboard
+                        {{ __('student.dashboard') }}
                     </x-dropdown.item>
-                    <x-dropdown.item type="link" href="{{ route('student.tests') }}">
-                        Toetsing
-                    </x-dropdown.item>
-                    <x-dropdown.item >
-                        Analyses
+                    <x-dropdown.item type="link" href="{{ route('student.test-takes') }}">
+                        {{ __('student.tests') }}
                     </x-dropdown.item>
                     <x-dropdown.item >
-                        Berichten
+                        {{ __('student.analysis') }}
                     </x-dropdown.item>
                     <x-dropdown.item >
-                        Kennisbank
+                        {{ __('student.messages') }}
+                    </x-dropdown.item>
+                    <x-dropdown.item >
+                        {{ __('student.knowledgebank') }}
                     </x-dropdown.item>
                 </div>
                 <x-dropdown.item wire:click="logout()">
-                    Uitloggen
+                    {{ __('auth.logout') }}
                 </x-dropdown.item>
             </x-dropdown>
         </div>

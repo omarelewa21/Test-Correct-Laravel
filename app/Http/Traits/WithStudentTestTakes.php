@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\TestParticipant;
 use tcCore\TestTakeStatus;
 
-trait WithPersonalizedTestTakes
+trait WithStudentTestTakes
 {
 
-    private function fetchTestTakes($paginateBy = 0)
+    private function getSchedueledTestTakesForStudent($amount = null, $paginateBy = 0)
     {
         return \tcCore\TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
             ->leftJoin('tests','tests.id','=','test_takes.test_id')
@@ -34,22 +34,10 @@ trait WithPersonalizedTestTakes
 
     public function goToWaitingRoom($uuid)
     {
-        /**
-         * Check for activeTab because it only exists (for now) on the Tests component, it does not need redirect then.
-         * needs to be refactored into something that reads better
-         */
-        if (isset($this->activeTab)) {
-            $this->waitingroom = true;
-            $this->take = $uuid;
-            $this->waitingTestTake = $this->getTestTakeDataForWaitingRoom($uuid);
-            $this->changeActiveTab($this->waitingroomTab);
-            return;
-        }
-
-        $this->redirect(route('student.tests', ['waitingroom' => true, 'take' => $uuid]));
+        $this->redirect(route('student.test-takes', ['waitingroom' => true, 'take' => $uuid]));
     }
 
-    private function getRatings($amount = null)
+    private function getRatingsForStudent($amount = null)
     {
         return TestParticipant::leftJoin('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')
             ->leftJoin('tests', 'test_takes.test_id', '=', 'tests.id')

@@ -6,12 +6,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
-use tcCore\Http\Traits\WithPersonalizedTestTakes;
+use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestParticipant;
 
 class Dashboard extends Component
 {
-    use WithPagination, WithPersonalizedTestTakes;
+    use WithStudentTestTakes;
 
     public function mount()
     {
@@ -21,8 +21,8 @@ class Dashboard extends Component
     public function render()
     {
         return view('livewire.student.dashboard', [
-            'testTakes' => $this->fetchTestTakes(5),
-            'ratings'   => $this->getRatings(5),
+            'testTakes' => $this->getSchedueledTestTakesForStudent(5),
+            'ratings'   => $this->getRatingsForStudent(5),
         ])
             ->layout('layouts.student');
     }

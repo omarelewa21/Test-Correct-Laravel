@@ -33,4 +33,5 @@ return [
     'require_captcha'              => 'Captcha vereist',
     'require_captcha_long'         => 'Je hebt te vaak een verkeerde combinatie van inloggegevens ingevuld. Vul de onderstaande code correct in om door te gaan.',
     'incorrect_captcha'            => 'Code incorrect.',
+    'logout'                       => 'Uitloggen',
 ];

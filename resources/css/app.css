@@ -416,3 +416,14 @@ button#browsealoud-button--launchpad {
 body.modal-open {
     overflow-y: hidden;
 }
+
+#popover:before{
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 5%;
+    margin-left: -10px;
+    border-width: 7px;
+    border-style: solid;
+    border-color: transparent transparent lightgray transparent;
+}
