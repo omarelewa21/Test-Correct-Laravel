@@ -99,15 +99,6 @@
                 </div>
             </div>
         @endif
-        @push('scripts')
-            <script>
-                setTimeout(function() {
-                    document.getElementById('matching-container{{$question->getKey()}}').livewire_sortable.on('mirror:move', (evt) => {
-                        evt.data.mirror.id = 'drag_mirror_{{$question->getKey()}}';
-                    });
-                }, 100);
-            </script>
-        @endpush
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad" />

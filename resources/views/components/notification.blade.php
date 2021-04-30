@@ -32,7 +32,7 @@
                             <template x-if="message.type == 'error'">
                                 <div class="fraud-detection rounded-full bg-all-red text-white flex justify-center items-center"
                                      style="width:30px;height:30px">
-                                    <img src="{{ asset('/svg/icons/exclamation-white.svg') }}" alt="" width="6" height="30">
+                                    <x-icon.exclamation style="transform: scale(1.5)"/>
                                 </div>
                             </template>
                         </div>

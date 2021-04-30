@@ -7,7 +7,7 @@
 >
     <div class="fraud-detection rounded-full bg-all-red text-white flex justify-center items-center"
          style="width:40px;height:40px">
-        <img src="{{ asset('/svg/icons/exclamation-white.svg') }}" alt="" width="6" height="30">
+        <x-icon.exclamation style="transform: scale(1.5)"/>
     </div>
     <div>
         <h6 class="all-red">{{__('test_take.attention_required')}}</h6>
