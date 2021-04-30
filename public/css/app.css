@@ -1898,6 +1898,11 @@ video {
 	margin-right: calc(1rem * var(--tw-space-x-reverse));
 	margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
 }
+.space-y-2 > :not([hidden]) ~ :not([hidden]){
+	--tw-space-y-reverse: 0;
+	margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+	margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+}
 .space-y-5 > :not([hidden]) ~ :not([hidden]){
 	--tw-space-y-reverse: 0;
 	margin-top: calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));
@@ -1907,11 +1912,6 @@ video {
 	--tw-space-y-reverse: 0;
 	margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
 	margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
-}
-.space-y-2 > :not([hidden]) ~ :not([hidden]){
-	--tw-space-y-reverse: 0;
-	margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
-	margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
 }
 .space-x-5 > :not([hidden]) ~ :not([hidden]){
 	--tw-space-x-reverse: 0;
@@ -2886,6 +2886,64 @@ body.modal-open {
     border-color: transparent transparent lightgray transparent;
 }
 
+.pulse-left {
+    -webkit-animation: pulse-left 0.9s infinite ease-out;
+            animation: pulse-left 0.9s infinite ease-out;
+}
+
+.pulse-right {
+    -webkit-animation: pulse-right 0.9s infinite ease-out;
+            animation: pulse-right 0.9s infinite ease-out;
+}
+
+@-webkit-keyframes pulse-left {
+    0% {
+        margin-right: 15px;
+    }
+    50% {
+        margin-right: 30px;
+    }
+    100% {
+        margin-right: 15px;
+    }
+}
+
+@keyframes pulse-left {
+    0% {
+        margin-right: 15px;
+    }
+    50% {
+        margin-right: 30px;
+    }
+    100% {
+        margin-right: 15px;
+    }
+}
+
+@-webkit-keyframes pulse-right {
+    0% {
+        margin-left: 15px;
+    }
+    50% {
+        margin-left: 30px;
+    }
+    100% {
+        margin-left: 15px;
+    }
+}
+
+@keyframes pulse-right {
+    0% {
+        margin-left: 15px;
+    }
+    50% {
+        margin-left: 30px;
+    }
+    100% {
+        margin-left: 15px;
+    }
+}
+
 .hover\:scale-110:hover{
 	--tw-scale-x: 1.1;
 	--tw-scale-y: 1.1;
@@ -3407,11 +3465,6 @@ body.modal-open {
 	.xl\:px-28{
 		padding-left: 7rem;
 		padding-right: 7rem;
-	}
-
-	.xl\:px-0{
-		padding-left: 0px;
-		padding-right: 0px;
 	}
 
 	.xl\:px-12{

@@ -831,4 +831,13 @@ class TestTake extends BaseModel
 
         return $countCarouselGroupsInTestTake > 0;
     }
+
+    public function giveAbbreviatedInvigilatorNames()
+    {
+        $invigilators = $this->invigilatorUsers->map(function ($invigilator) {
+            return $invigilator->getFullNameWithAbbreviatedFirstName();
+        });
+
+        return collect($invigilators);
+    }
 }

@@ -11,7 +11,7 @@ use tcCore\TestParticipant;
 
 class Dashboard extends Component
 {
-    use WithStudentTestTakes;
+    use WithPagination,WithStudentTestTakes;
 
     public function mount()
     {

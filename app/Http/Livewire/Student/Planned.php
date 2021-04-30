@@ -10,12 +10,10 @@ class Planned extends Component
 {
     use WithPagination, WithStudentTestTakes;
 
-    public $activeTab;
-
     public function render()
     {
         return view('livewire.student.planned', [
-            'testTakes' => $this->getSchedueledTestTakesForStudent(10)
+            'testTakes' => $this->getSchedueledTestTakesForStudent(null, 6)
         ]);
     }
 }

@@ -427,3 +427,35 @@ body.modal-open {
     border-style: solid;
     border-color: transparent transparent lightgray transparent;
 }
+
+.pulse-left {
+    animation: pulse-left 0.9s infinite ease-out;
+}
+
+.pulse-right {
+    animation: pulse-right 0.9s infinite ease-out;
+}
+
+@keyframes pulse-left {
+    0% {
+        margin-right: 15px;
+    }
+    50% {
+        margin-right: 30px;
+    }
+    100% {
+        margin-right: 15px;
+    }
+}
+
+@keyframes pulse-right {
+    0% {
+        margin-left: 15px;
+    }
+    50% {
+        margin-left: 30px;
+    }
+    100% {
+        margin-left: 15px;
+    }
+}

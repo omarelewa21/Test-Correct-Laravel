@@ -73,8 +73,8 @@
                         <x-slot name="body">
                             @foreach($ratings as $rating)
                                 <x-table.row>
-                                    <x-table.cell>{{ $rating->name }}</x-table.cell>
-                                    <x-table.cell>{!! \tcCore\Subject::whereId($rating->subject_id)->value('name') !!}</x-table.cell>
+                                    <x-table.cell>{!! $rating->name !!}</x-table.cell>
+                                    <x-table.cell>{!! $rating->subject_name !!}</x-table.cell>
                                     <x-table.cell class="text-right">
                                         @if($rating->time_start == \Carbon\Carbon::today())
                                             <span class="capitalize">{{ __('student.today') }}</span>

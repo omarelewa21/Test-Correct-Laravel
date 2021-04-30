@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/drawing_question_answers/{answer}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
         Route::get('/dashboard', tcCore\Http\Livewire\Student\Dashboard::class)->name('dashboard');
         Route::get('/test-takes', tcCore\Http\Livewire\Student\TestTakes::class)->name('test-takes');
+        Route::get('/waiting-room', tcCore\Http\Livewire\Student\WaitingRoom::class)->name('waiting-room');
     });
 
     Route::middleware(['dll', 'teacher'])->prefix('teacher')->name('teacher.')->group(function () {

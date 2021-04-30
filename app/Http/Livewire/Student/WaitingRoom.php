@@ -5,40 +5,31 @@ namespace tcCore\Http\Livewire\Student;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\TestTakeStatus;
 
 class WaitingRoom extends Component
 {
     use WithStudentTestTakes;
 
-    protected $queryString = [
-        'waitingroom' => ['except' => false],
-        'take'        => ['except' => ''],
-    ];
-    public $waitingroom;
+    protected $queryString = ['take'];
     public $take;
-
     public $waitingTestTake;
 
     public function mount()
     {
-        $this->performWaitingRoomCheck();
+        if (!isset($this->take) || !Uuid::isValid($this->take)) {
+            return redirect(route('student.dashboard'));
+        }
+
+        $this->waitingTestTake = \tcCore\TestTake::whereUuid($this->take)->firstOrFail();
+
+        if ($this->waitingTestTake->test_take_status_id > TestTakeStatus::STATUS_TAKING_TEST) {
+            return redirect(route('student.dashboard'));
+        }
     }
 
     public function render()
     {
-        return view('livewire.student.waiting-room');
-    }
-
-    private function getTestTakeDataForWaitingRoom($testTake)
-    {
-        $this->waitingTestTake = \tcCore\TestTake::whereUuid($testTake)->firstOrFail();
-    }
-
-    private function performWaitingRoomCheck()
-    {
-        if (!Uuid::isValid($this->take) || !$this->waitingroom) {
-            $this->redirectRoute('student.test-takes');
-        }
-        $this->getTestTakeDataForWaitingRoom($this->take);
+        return view('livewire.student.waiting-room')->layout('layouts.student');
     }
 }

@@ -1,4 +1,4 @@
-<div>
+<div class="flex flex-col space-y-4">
     <div>
         <h1>{{ __('student.upcoming_tests') }}</h1>
     </div>
@@ -27,7 +27,7 @@
                         </x-table.cell>
                         <x-table.cell class="hidden xl:table-cell">
                             <x-partials.invigilator-list
-                                    :invigilators="$this->giveInvigilatorNamesFor($testTake)"/>
+                                    :invigilators="$testTake->giveAbbreviatedInvigilatorNames()"/>
                         </x-table.cell>
                         <x-table.cell class="hidden xl:table-cell">
                             {{ $testTake->user->getFullNameWithAbbreviatedFirstName() }}
@@ -47,9 +47,9 @@
                             <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
                         </x-table.cell>
                         <x-table.cell class="text-right">
-                            <x-partials.start-take-button :timeStart=" $testTake->time_start "
+                            <x-partials.start-take-button :timeStart="$testTake->time_start"
                                                           :status="$testTake->test_take_status_id"
-                                                          uuid="{{$testTake->uuid}}"/>
+                                                          :uuid="$testTake->uuid"/>
                         </x-table.cell>
                     </x-table.row>
                 @endforeach
