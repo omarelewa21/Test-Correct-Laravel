@@ -1723,6 +1723,10 @@ video {
 	--tw-scale-x: 1;
 	--tw-scale-y: 1;
 }
+.scale-150{
+	--tw-scale-x: 1.5;
+	--tw-scale-y: 1.5;
+}
 .cursor-pointer{
 	cursor: pointer;
 }
