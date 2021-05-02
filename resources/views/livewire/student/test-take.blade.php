@@ -11,9 +11,8 @@
     </x-modal>
 
     <x-modal maxWidth="lg" wire:model="forceTakenAwayModal" showCancelButton="0">
-        <x-slot name="title">Toets ingenomen door docent.</x-slot>
-        <x-slot name="body">De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar
-            het dashboard.
+        <x-slot name="title">{{__('test-take.Toets ingenomen door docent.')}}</x-slot>
+        <x-slot name="body">{{__('test-take.De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar het dashboard.')}}
         </x-slot>
         <x-slot name="actionButton">
             <x-button.cta size="md" wire:click="TurnInTestTake">
@@ -67,9 +66,9 @@
 
             function lostFocus(reason) {
                 if (reason == "printscreen") {
-                    Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
+                    Notify.notify('{{__(\'test-take.Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd\')}}', 'error');
                 } else {
-                    Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
+                    Notify.notify('{{__(\'test-take.Het is niet toegestaan om uit de app te gaan\')}}', 'error');
                 }
 
                 if (shouldLostFocusBeReported(reason)) {

@@ -25,5 +25,11 @@ return [
     'download_app'                 => 'Download de app',
     'request_account_from_teacher' => 'Vraag jouw account aan bij je docent',
     'reset_password'               => 'Stel je wachtwoord opnieuw in',
+    'Oplossingen'                  => 'Oplossingen',
+    'Docent'                       => 'Docent',
+    'Student'                      => 'Student',
+    'Schoolbeheerder'              => 'Schoolbeheerder' 
+
+    
 
 ];

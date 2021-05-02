@@ -16,12 +16,12 @@
                 <li>{{ __("student.Heb je hulp nodig en staat er in de handleiding niet wat je moet doen? Neem contact met ons op door een email te sturen naar support@test-correct.nl. Beschrijf in je email goed wat het probleem is zodat we jou goed kunnen helpen") }}.</li>
             </ul>
          <br/>
-            E-mail: {{ $user->username }}<br/>
-            Je kunt je wachtwoord instellen op:<br />
+            {{__('student.E-mail')}}: {{ $user->username }}<br/>
+            {{__('student.Je kunt je wachtwoord instellen op')}}:<br />
             <a href="{{ $url }}">{{ $url }}</a><br/>
             <br/>
-            Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.
-            <BR/> <a href="{{ config('app.url_login') }}">Nieuwe verzoek opsturen</a><br/>
+            {{__('student.Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.')}}
+            <BR/> <a href="{{ config('app.url_login') }}">{{__('student.Nieuwe verzoek opsturen')}}</a><br/>
             <br/>
             <br/>
             {{ __("student.Het team van Test-Correct wenst jou heel veel succes met je toetsen") }}! 😊<br/>

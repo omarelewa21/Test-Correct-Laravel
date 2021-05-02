@@ -100,6 +100,7 @@
 
 			'Ben je een student' => 'Are you a student',
 
-			'Kijk hier' => 'Look here'
-];
+			'Kijk hier' => 'Look here',
+
+		];
 ?>

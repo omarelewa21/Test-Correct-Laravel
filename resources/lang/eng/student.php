@@ -46,6 +46,12 @@
 
 			'Wachtwoord' => 'Password',
 
-			'Het team van Test-Correct wenst jou heel veel succes met je toetsen' => 'The Test-Correct team wishes you a lot of success with your tests'
+			'Het team van Test-Correct wenst jou heel veel succes met je toetsen' => 'The Test-Correct team wishes you a lot of success with your tests',
+
+			'Je kunt je wachtwoord instellen op' => 'You can set your password on',
+
+			'Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.' => 'This link will expire four hours after this email is sent. You can have a new link sent via the forgot password functionality.',
+
+			'Nieuwe verzoek opsturen' => 'Send new request'
     ]
 ?>

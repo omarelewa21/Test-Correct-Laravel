@@ -14,11 +14,29 @@ class Login extends Component
         'username' => 'required|email',
         'password' => 'required',
     ];
-    protected $messages = [
-        'password.required' => 'Wachtwoord is verplicht',
-        'username.required' => 'E-mailadres is verplicht',
-        'username.email'    => 'E-mailadres is niet geldig',
-    ];
+    private function get_browser_language(){
+        if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
+            $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+            if($language ==	 'nl'){
+                return 'nl';
+            }
+        }
+        return 'eng';
+    }
+    protected function messages(){
+        if($this->get_browser_language() == 'nl'){
+            return[
+                'password.required' => 'Wachtwoord is verplicht',
+                'username.required' => 'E-mailadres is verplicht',
+                'username.email'    => 'E-mailadres is niet geldig',
+            ];
+        }
+        return[
+            'password.required' => 'Password is required',
+            'username.required' => 'Email address is required',
+            'username.email'    => 'Email address is not valid',
+        ];
+    }
 
     public function mount()
     {

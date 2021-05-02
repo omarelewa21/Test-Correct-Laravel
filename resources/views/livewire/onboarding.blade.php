@@ -465,7 +465,7 @@
                                     <div class="notification warning stretched mb-4 md:mb-16">
                                         <span class="title">{{ __("onboarding.Verifieer je e-mailadres") }}</span>
                                         <span class="body">{{ __("onboarding.Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?") }}
-                                            <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">{{ __("Stuur de verificatiemail opnieuw") }} <x-icon.arrow-small></x-icon.arrow-small></a> {{ __("of") }}
+                                            <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">{{ __("onboarding.Stuur de verificatiemail opnieuw") }} <x-icon.arrow-small></x-icon.arrow-small></a> {{ __("of") }}
                                             <a href="https://support.test-correct.nl/knowledge" class="bold"
                                                target="_blank">{{ __("onboarding.zoek ondersteuning") }} <x-icon.arrow-small></x-icon.arrow-small></a></span>
                                     </div>

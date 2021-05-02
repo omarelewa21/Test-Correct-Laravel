@@ -25,4 +25,8 @@ return [
     'download_app'                 => 'Download the app',
     'request_account_from_teacher' => 'Request your account from your teacher',
     'reset_password'               => 'Reset your password',
+    'Oplossingen'                  => 'Solutions',
+    'Docent'                       => 'Teacher',
+    'Student'                      =>  'Student',
+    'Schoolbeheerder'              => 'Administrator' 
 ];

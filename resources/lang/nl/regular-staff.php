@@ -30,6 +30,16 @@
 
 			'Veel plezier met Test-Correct' => 'Veel plezier met Test-Correct',
 
-			'Test-Correct supportteam' => 'Test-Correct supportteam'
+			'Test-Correct supportteam' => 'Test-Correct supportteam',
+
+			'Leuk dat u gaat werken in Test-Correct. Niets staat u nog in de weg om bestaande & nieuwe toetsen te creëren om vervolgens af te nemen, te bespreken & te analyseren. U bereikt al snel 80% reductie van het nakijkwerk en een aanzienlijk verhoogd leerrendement, terwijl u nog steeds gebruik kunt maken van open vragen!' => 'Nice that you are going to work in Test-Correct. Nothing stands in the way of creating existing & new tests and then administering, discussing & analyzing them. You quickly achieve an 80% reduction in grading work and a significantly increased learning efficiency, while still being able to use open questions!',
+
+			'Uw gebruikersnaam:' => 'Uw gebruikersnaam:',
+
+			'U kunt uw wachtwoord instellen op:' => 'U kunt uw wachtwoord instellen op:',
+
+			'Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.' => 'Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.',
+
+			'Nieuwe verzoek opsturen' => 'Nieuwe verzoek opsturen'
 ];
 ?>

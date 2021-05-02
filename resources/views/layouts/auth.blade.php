@@ -7,19 +7,19 @@
         <div class="flex items-center">
             <x-dropdown label="Oplossingen">
                 <x-dropdown.item @click="alert('Oplossingen')">
-                    Oplossingen
+                    {{__('auth.Oplossingen')}}
                 </x-dropdown.item>
             </x-dropdown>
 
             <x-dropdown label="Diensten">
                 <x-dropdown.item @click="alert('Oplossingen')">
-                    Oplossingen
+                    {{__('auth.Oplossingen')}}
                 </x-dropdown.item>
             </x-dropdown>
 
             <x-dropdown label="Support">
                 <x-dropdown.item @click="alert('Oplossingen')">
-                    Oplossingen
+                    {{__('auth.Oplossingen')}}
                 </x-dropdown.item>
             </x-dropdown>
 
@@ -31,13 +31,13 @@
 
             <x-dropdown label="Log in" button="primary-button">
                 <x-dropdown.item @click="alert('Oplossingen')">
-                    Docent
+                    {{__('auth.Docent')}}
                 </x-dropdown.item>
                 <x-dropdown.item @click="alert('Oplossingen')">
-                    Student
+                    {{__('auth.Student')}}
                 </x-dropdown.item>
                 <x-dropdown.item @click="alert('Oplossingen')">
-                    Schoolbeheerder
+                    {{__('auth.Schoolbeheerder')}}
                 </x-dropdown.item>
             </x-dropdown>
 
