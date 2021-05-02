@@ -34,10 +34,12 @@ class CreateMaintenanceWhitelistIpsTable extends Migration
         ];
         MaintenanceWhitelistIp::withoutEvents(function () use ($ipList) {
             foreach ($ipList as $ip => $name) {
-                MaintenanceWhitelistIp::create([
+                $model = MaintenanceWhitelistIp::make([
                     'ip' => $ip,
                     'name' => $name,
                 ]);
+                $model->uuid = Ramsey\Uuid\Uuid::uuid4();
+                $model->save();
             }
         });
 
