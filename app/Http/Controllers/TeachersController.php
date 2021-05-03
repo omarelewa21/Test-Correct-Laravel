@@ -126,12 +126,12 @@ class TeachersController extends Controller
         try {
             $teachers = collect($request->all()['data'])->map(function ($row) use ($defaultData) {
                 $attributes = array_merge($row, $defaultData);
-
+                $exists = false;
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
+                    $exists = true;
                     if ($user->isA('teacher')) {
                         $this->handleExternalId($user,$attributes);
-                        return $user;
                     }else {
                         throw new \Exception('conflict: exists but not teacher');
                     }
@@ -144,7 +144,10 @@ class TeachersController extends Controller
                         )
                     );
                 }
-                  $user->save();
+                if(!$exists){
+                    $user->save();
+                }
+
 
                 $teacher = Teacher::withTrashed()
                     ->firstOrNew(([

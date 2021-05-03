@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
+use tcCore\Scopes\TeacherSchoolLocationScope;
 
 class Teacher extends BaseModel {
 
     use SoftDeletes;
     use UuidTrait;
+
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -48,6 +50,8 @@ class Teacher extends BaseModel {
     public static function boot()
     {
         parent::boot();
+
+        static::addGlobalScope(new TeacherSchoolLocationScope);
 
         static::created(function(Teacher $teacher) {
             Queue::push(new UpdatePValueUsers($teacher->getAttribute('class_id'), $teacher->getAttribute('subject_id'), $teacher->getAttribute('user_id'), null, null, null));

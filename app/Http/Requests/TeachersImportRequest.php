@@ -27,7 +27,6 @@ class TeachersImportRequest extends Request {
     public function authorize() {
         $this->schoolLocation = Auth::user()->school_location_id;
 
-
         return
                 Auth::user()->hasRole('School manager') &&
                 $this->schoolLocation !== null;

@@ -27,6 +27,7 @@ abstract class TestCase extends BaseTestCase
     const FIORETTI_TEACHER = 'd1@test-correct.nl';
     const USER_ACCOUNTMANAGER = 'standaardschoolbeheerder@test-correct.nl';
     const USER_SCHOOLBEHEERDER = 'standaardschoolbeheerder@test-correct.nl';
+    const USER_SCHOOLBEHEERDER_LOCATION1 = 'opensourceschoollocatie1schoolbeheerder@test-correct.nl';
     const USER_ADMIN = 'testadmin@teachandlearncompany.com';
 
     public static function getAuthRequestData($overrides = [])
@@ -70,6 +71,40 @@ abstract class TestCase extends BaseTestCase
             $url,
             $user->session_hash,
             static::USER_BEHEERDER,
+            http_build_query($params, '', '&')
+        );
+    }
+
+    public static function AuthBeheerderGetRequestLocation3($url, $params=[]) {
+        $user = \tcCore\User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first();
+        ActingAsHelper::getInstance()->setUser($user);
+        if(!$user->session_hash) {
+            $user->session_hash = $user->generateSessionHash();
+            $user->save();
+        }
+
+        return sprintf(
+            '%s/?session_hash=%s&signature=aaebbf4a062594c979128ec2f2ef477d4f7d08893c6940cc736b62b106f6498f&user=%s&%s',
+            $url,
+            $user->session_hash,
+            static::USER_SCHOOLBEHEERDER,
+            http_build_query($params, '', '&')
+        );
+    }
+
+    public static function AuthBeheerderGetRequestLocation1($url, $params=[]) {
+        $user = \tcCore\User::where('username','=',static::USER_SCHOOLBEHEERDER_LOCATION1)->get()->first();
+        ActingAsHelper::getInstance()->setUser($user);
+        if(!$user->session_hash) {
+            $user->session_hash = $user->generateSessionHash();
+            $user->save();
+        }
+
+        return sprintf(
+            '%s/?session_hash=%s&signature=aaebbf4a062594c979128ec2f2ef477d4f7d08893c6940cc736b62b106f6498f&user=%s&%s',
+            $url,
+            $user->session_hash,
+            static::USER_SCHOOLBEHEERDER_LOCATION1,
             http_build_query($params, '', '&')
         );
     }

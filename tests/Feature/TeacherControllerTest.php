@@ -4,6 +4,7 @@ use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use tcCore\Exceptions\Handler;
 use tcCore\User;
@@ -33,7 +34,7 @@ class TeacherControllerTest extends TestCase
             ['data' => $this->getData()]
         );
 
-        $response->assertStatus(201);
+        $response->assertStatus(200);
         $this->assertCount(
             1,
             User::where('username', 'jan.janssen@sobit.nl')->get()
@@ -128,6 +129,38 @@ class TeacherControllerTest extends TestCase
         $response->assertStatus(422);
     }
 
+    /** @test */
+    public function teacher_import_in_two_schoollocations_gives_two_teachers()
+    {
+        $this->assertCount(
+            0,
+            User::where('username', 'bobdebouwer@test-correct.nl')->get()
+        );
+
+        $startCountTeachers = \tcCore\Teacher::count();
+
+        $response = $this->postJson(
+            static::AuthBeheerderGetRequestLocation1(route('teacher.import')),
+            ['data' => $this->getDataLocation1BobDeBouwer()]
+        );
+        $response->assertStatus(200);
+        $this->assertCount(
+            1,
+            User::where('username', 'bobdebouwer@test-correct.nl')->get()
+        );
+        //$user = User::where('username', 'bobdebouwer@test-correct.nl')->first();
+        //$this->assertEquals(($startCountTeachers + 1), \tcCore\Teacher::count());
+        $this->assertGreaterThan($startCountTeachers,\tcCore\Teacher::count());
+        $secondStartCountTeachers = \tcCore\Teacher::count();
+        $response = $this->postJson(
+            static::AuthBeheerderGetRequestLocation3(route('teacher.import')),
+            ['data' => $this->getDataLocation3BobDeBouwer()]
+        );
+        $response->assertStatus(200);
+        $this->assertEquals(($secondStartCountTeachers + 1), \tcCore\Teacher::count());
+
+    }
+
 
     private function getData($overrides = [])
     {
@@ -186,6 +219,43 @@ class TeacherControllerTest extends TestCase
         "class_list": "A1",
         "subject_list": "Nederlands"
     }]');
+    }
 
+    private function getDataLocation1BobDeBouwer()
+    {
+        return json_decode( '[
+            {
+                "name_first": "Bob",
+                "name_suffix": "de",
+                "name": "Bouwer",
+                "abbreviation": "bdb",
+                "username": "bobdebouwer@test-correct.nl",
+                "external_id": "12435678",
+                "note": "testnotities",
+                "school_class": "Klas1",
+                "subject": "Nederlands",
+                "class_id": 1,
+                "subject_id": 1
+            }
+        ]');
+    }
+
+    private function getDataLocation3BobDeBouwer()
+    {
+        return json_decode( '[
+            {
+                "name_first": "Bob",
+                "name_suffix": "de",
+                "name": "Bouwer",
+                "abbreviation": "bdb",
+                "username": "bobdebouwer@test-correct.nl",
+                "external_id": "12435678",
+                "note": "testnotities",
+                "school_class": "Biologie",
+                "subject": "Vak Biologie",
+                "class_id": 3,
+                "subject_id": 4
+            }
+        ]');
     }
 }
