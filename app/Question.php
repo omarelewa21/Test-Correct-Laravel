@@ -1089,6 +1089,6 @@ class Question extends MtiBaseModel {
                 ->question
                 ->getKey();
         }
-        return $groupQuestions->first()->question->getKey();
+        return $groupQuestions->first()->groupQuestion->getKey();
     }
 }

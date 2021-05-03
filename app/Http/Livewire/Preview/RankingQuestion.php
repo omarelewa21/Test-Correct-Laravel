@@ -53,7 +53,7 @@ class RankingQuestion extends Component
 
     public function updateOrder()
     {
-        $this->createAnswerStruct();
+
     }
 
     public function createAnswerStruct()
@@ -65,5 +65,10 @@ class RankingQuestion extends Component
         })->toArray();
 
         $this->answerStruct = ($result);
+    }
+
+    public function hydrateAnswerStruct()
+    {
+        $this->createAnswerStruct();
     }
 }
