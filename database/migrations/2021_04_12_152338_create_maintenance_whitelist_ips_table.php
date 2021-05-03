@@ -32,12 +32,17 @@ class CreateMaintenanceWhitelistIpsTable extends Migration
             '77.167.20.237' => 'Jonathan thuis',
             '136.144.207.195' => 'Devportal (Grafana)'
         ];
-        foreach($ipList as $ip => $name){
-            MaintenanceWhitelistIp::create([
-                'ip' => $ip,
-                'name' => $name,
-            ]);
-        }
+        MaintenanceWhitelistIp::withoutEvents(function () use ($ipList) {
+            foreach ($ipList as $ip => $name) {
+                $model = MaintenanceWhitelistIp::make([
+                    'ip' => $ip,
+                    'name' => $name,
+                ]);
+                $model->uuid = Ramsey\Uuid\Uuid::uuid4();
+                $model->save();
+            }
+        });
+
     }
 
     /**
