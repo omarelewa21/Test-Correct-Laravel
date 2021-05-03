@@ -22,5 +22,5 @@ class TeacherSchoolLocationScope implements Scope
     {
         $schoolClasses = SchoolClass::where('school_location_id',Auth::user()->school_location_id)->get()->pluck('id');
         $builder->whereIn('class_id',$schoolClasses);
-     }
+    }
 }

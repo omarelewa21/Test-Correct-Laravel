@@ -136,8 +136,43 @@ class TeacherControllerTest extends TestCase
             0,
             User::where('username', 'bobdebouwer@test-correct.nl')->get()
         );
+        $user = User::where('username', static::USER_SCHOOLBEHEERDER_LOCATION1)->first();
+        $this->actingAs($user);
+        $startCountTeachers = \tcCore\Teacher::withoutGlobalScope(\tcCore\Scopes\TeacherSchoolLocationScope::class)->count();
 
-        $startCountTeachers = \tcCore\Teacher::count();
+        $response = $this->postJson(
+            static::AuthBeheerderGetRequestLocation1(route('teacher.import')),
+            ['data' => $this->getDataLocation1BobDeBouwer()]
+        );
+
+        $response->assertStatus(200);
+        $this->assertCount(
+            1,
+            User::where('username', 'bobdebouwer@test-correct.nl')->get()
+        );
+        //$user = User::where('username', 'bobdebouwer@test-correct.nl')->first();
+        //$this->assertEquals(($startCountTeachers + 1), \tcCore\Teacher::count());
+        $this->assertGreaterThan($startCountTeachers,\tcCore\Teacher::withoutGlobalScope(\tcCore\Scopes\TeacherSchoolLocationScope::class)->count());
+        $secondStartCountTeachers = \tcCore\Teacher::withoutGlobalScope(\tcCore\Scopes\TeacherSchoolLocationScope::class)->count();
+        $response = $this->postJson(
+            static::AuthBeheerderGetRequestLocation3(route('teacher.import')),
+            ['data' => $this->getDataLocation3BobDeBouwer()]
+        );
+        $response->assertStatus(200);
+        $this->assertEquals(($secondStartCountTeachers + 1), \tcCore\Teacher::withoutGlobalScope(\tcCore\Scopes\TeacherSchoolLocationScope::class)->count());
+
+    }
+
+    /** @test */
+    public function teacher_import_in_one_schoollocations_two_classes_subjects_gives_two_teachers()
+    {
+        $this->assertCount(
+            0,
+            User::where('username', 'bobdebouwer@test-correct.nl')->get()
+        );
+        $user = User::where('username', static::USER_SCHOOLBEHEERDER_LOCATION1)->first();
+        $this->actingAs($user);
+        $startCountTeachers = \tcCore\Teacher::withoutGlobalScope(\tcCore\Scopes\TeacherSchoolLocationScope::class)->count();
 
         $response = $this->postJson(
             static::AuthBeheerderGetRequestLocation1(route('teacher.import')),
@@ -148,17 +183,15 @@ class TeacherControllerTest extends TestCase
             1,
             User::where('username', 'bobdebouwer@test-correct.nl')->get()
         );
-        //$user = User::where('username', 'bobdebouwer@test-correct.nl')->first();
-        //$this->assertEquals(($startCountTeachers + 1), \tcCore\Teacher::count());
-        $this->assertGreaterThan($startCountTeachers,\tcCore\Teacher::count());
-        $secondStartCountTeachers = \tcCore\Teacher::count();
+        $this->assertGreaterThan($startCountTeachers,\tcCore\Teacher::withoutGlobalScope(\tcCore\Scopes\TeacherSchoolLocationScope::class)->count());
+        $secondStartCountTeachers = \tcCore\Teacher::withoutGlobalScope(\tcCore\Scopes\TeacherSchoolLocationScope::class)->count();
         $response = $this->postJson(
-            static::AuthBeheerderGetRequestLocation3(route('teacher.import')),
-            ['data' => $this->getDataLocation3BobDeBouwer()]
+            static::AuthBeheerderGetRequestLocation1(route('teacher.import')),
+            ['data' => $this->getDataLocation1BobDeBouwer2()]
         );
+        dump($response->decodeResponseJson());
         $response->assertStatus(200);
-        $this->assertEquals(($secondStartCountTeachers + 1), \tcCore\Teacher::count());
-
+        $this->assertEquals(($secondStartCountTeachers + 1), \tcCore\Teacher::withoutGlobalScope(\tcCore\Scopes\TeacherSchoolLocationScope::class)->count());
     }
 
 
@@ -236,6 +269,25 @@ class TeacherControllerTest extends TestCase
                 "subject": "Nederlands",
                 "class_id": 1,
                 "subject_id": 1
+            }
+        ]');
+    }
+
+    private function getDataLocation1BobDeBouwer2()
+    {
+        return json_decode( '[
+            {
+                "name_first": "Bob",
+                "name_suffix": "de",
+                "name": "Bouwer",
+                "abbreviation": "bdb",
+                "username": "bobdebouwer@test-correct.nl",
+                "external_id": "12435678",
+                "note": "testnotities",
+                "school_class": "Klas19",
+                "subject": "Vak Biologie",
+                "class_id": 19,
+                "subject_id": 4
             }
         ]');
     }

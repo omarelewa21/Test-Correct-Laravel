@@ -8,8 +8,11 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Rules\EmailDns;
+use tcCore\Rules\SameSchoollocationSameExternalIdDifferentUsername;
+use tcCore\Rules\SameSchoollocationSameUserNameDifferentExternalId;
 use tcCore\Rules\SchoolLocationUserExternalId;
 use tcCore\Rules\SchoolLocationUserName;
+use tcCore\Rules\TeacherWithSchoolClassShouldNotExist;
 use tcCore\Rules\UsernameUniqueSchool;
 use tcCore\SchoolClass;
 use tcCore\Subject;
@@ -42,18 +45,28 @@ class TeachersImportRequest extends Request {
         $extra_rule = [];
         $data  = request()->data;
         foreach ($data as $key => $value) {
-            if (array_key_exists('username', $value)) {
+            if (array_key_exists('username', $value)&&array_key_exists('external_id',$value)) {
                 $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
                     'email:rfc,filter',
-                    new SchoolLocationUserName($this->schoolLocation,$value['username']),
                     new UsernameUniqueSchool($this->schoolLocation,'teacher'),
+                    new SameSchoollocationSameExternalIdDifferentUsername($this->schoolLocation,$value['username'],$value['external_id']),
                     new EmailDns,
                     function ($attribute, $value, $fail) {
                         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                             return $fail(sprintf('The user email address contains international characters  (%s).', $value));
                         }
                     }];
-                $extra_rule[sprintf('data.%d.external_id', $key)] = new SchoolLocationUserExternalId($this->schoolLocation,$value['username']);
+                $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
+            }
+            if (array_key_exists('username', $value)&&array_key_exists('school_class',$value)) {
+                $extra_rule[sprintf('data.%d.school_class', $key)] = [  'required',
+                        new TeacherWithSchoolClassShouldNotExist($this->schoolLocation,$value),
+                ];
+            }
+            if (array_key_exists('username', $value)&&array_key_exists('subject',$value)) {
+                $extra_rule[sprintf('data.%d.subject', $key)] = [  'required',
+                    new TeacherWithSubjectShouldNotExist($this->schoolLocation,$value),
+                ];
             }
         }
         $rules = collect([
