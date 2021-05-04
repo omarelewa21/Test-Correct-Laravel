@@ -54,12 +54,15 @@
                     <x-table.heading>Count</x-table.heading>
                 </x-slot>
                 <x-slot name="body">
-                    @foreach($report as $group => $count)
+                    @forelse($report as $group => $count)
                         <x-table.row>
                             <x-table.heading>{{ $group }}</x-table.heading>
                             <x-table.cell>{{ $count }}</x-table.cell>
                         </x-table.row>
-                    @endforeach
+                        @empty
+                        <x-table.heading>&nbsp;</x-table.heading>
+                        <x-table.cell>geen resultaten</x-table.cell>
+                    @endforelse
                 </x-slot>
             </x-table>
         </div>

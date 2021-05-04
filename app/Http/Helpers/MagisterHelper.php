@@ -70,7 +70,7 @@ class MagisterHelper
        <leer:brincode>99DE</leer:brincode>
        <leer:dependancecode>00</leer:dependancecode>
         <leer:xsdversie>2.3</leer:xsdversie>
-       <leer:gegevenssetid></leer:gegevenssetid>
+       <leer:gegevenssetid>FDE-SET</leer:gegevenssetid>
     </leer:leerlinggegevens_verzoek>
  </soapenv:Body>
 </soapenv:Envelope>
@@ -291,9 +291,10 @@ class MagisterHelper
 
             $sGroepen = [];
 
+
             foreach ($obj['groepen']['lesamengestelde_groep'] as $sGroep) {
-                if (array_key_exists('@attributes', $sGroep)) {
-                    $sGroepen[] = $sGroep['@attributes']['key'];
+                if (array_key_exists('key', $sGroep)) {
+                    $sGroepen[] = $sGroep['key'];
                 }
             }
             $obj['groepen'] = $groepen;

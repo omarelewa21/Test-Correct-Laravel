@@ -56,7 +56,7 @@ class UwlrFetcher extends Component
 
     public function render()
     {
-        $rep = $this->report? $this->report : 'a';
-        return view('livewire.uwlr-fetcher')->with(['report' => $rep]);
+        $rep = $this->report? $this->report : [];
+        return view('livewire.uwlr-fetcher')->with(['report' => $rep])->layout('layouts.app-admin');
     }
 }

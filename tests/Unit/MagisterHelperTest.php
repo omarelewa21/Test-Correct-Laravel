@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use tcCore\EducationLevel;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\MagisterHelper;
+use tcCore\Http\Helpers\RTTIImportHelper;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\OnboardingWizard;
 use tcCore\OnboardingWizardStep;
@@ -33,7 +34,7 @@ use Tests\Unit\Http\Helpers\OnboardingTestHelper;
 
 class MagisterHelperTest extends TestCase
 {
-    use DatabaseTransactions;
+//    use DatabaseTransactions;
 
     /** @test */
     public function test_guzzle()
@@ -54,6 +55,36 @@ class MagisterHelperTest extends TestCase
         $result->client_code = 'Magister';
         $result->client_name = 'UNIT_TEST';
         $result->school_year = '20-21';
+    }
+
+    /** @test */
+    public function FeedUwlrSoapResult()
+    {
+        (new MagisterHelper)
+            ->parseResult()
+            ->storeInDB();
+
+        $result = UwlrSoapResult::first();
+
+        $helper = RTTIImportHelper::initWithUwlrSoapResult($result, 'sobit.nl');
+
+        dd($helper->process());
+    }
+    /** @test */
+    public function uwlrSoapResultToCVs()
+    {
+        $helper = (new MagisterHelper)
+            ->parseResult()
+            ->storeInDB();
+
+        UwlrSoapResult::first()->toCVS();
+    }
+
+    /** @test */
+    public function test_service()
+    {
+        dd(MagisterHelper::guzzle());
+
     }
 
 

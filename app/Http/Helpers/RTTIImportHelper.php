@@ -21,6 +21,7 @@ use tcCore\SchoolLocationSchoolYear;
 use tcCore\SchoolLocation;
 use Carbon\Carbon;
 use tcCore\Http\Requests\Request;
+use tcCore\UwlrSoapResult;
 
 class RTTIImportHelper
 {
@@ -90,6 +91,11 @@ class RTTIImportHelper
         'teachers' => 0,
         'mentors'  => 0,
     ];
+    /**
+     *
+     * @var bool rtti is not allowed to create users for teachers but magister uwlrImport is
+     */
+    public $can_create_users_for_teacher = false;
 
 
     /**
@@ -102,6 +108,19 @@ class RTTIImportHelper
         'teachers' => 0,
         'mentors'  => 0,
     ];
+
+    public static function initWithUwlrSoapResult(UwlrSoapResult $data, $email_domain)
+    {
+        $instance = new self($email_domain);
+        $instance->can_create_users_for_teacher = true;
+
+        $instance->log_name = date("mdh_i_s");
+
+        $instance->csv_data = $data->toCVS();
+
+        return $instance;
+
+    }
 
 
     public static function initWithCVS($csv_file_path = "", $email_domain = "")
@@ -153,6 +172,7 @@ class RTTIImportHelper
 
         $this->importLog('----- '.$this->csv_data_lines.' data lines in input file');
 
+
         \DB::beginTransaction();
         try {
             foreach ($this->csv_data as $index => $row) {
@@ -199,7 +219,7 @@ class RTTIImportHelper
                     $student_email = sprintf('%s@%s', $student_external_code, $this->email_domain);
 
 ////                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
-//                    $teacher_email = 'rtti_' . $teacher_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
+                    $teacher_email = 'rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code.'@'.$this->email_domain;
 
 
                     if (!in_array($study_year, range((now()->year - 10), (now()->year + 10)))) {
@@ -377,7 +397,7 @@ class RTTIImportHelper
                         $teacher_table_id = $this->getTeachersForClassSubject($teacher_id, $school_class_id,
                             $subject_id);
 
-                        if ($teacher_table_id == null) {
+                        if ($teacher_table_id == null && $subject_id !== null) {
 
                             $teacher = $this->createOrRestoreTeacher([
                                 'user_id'    => $user->id,
@@ -394,22 +414,49 @@ class RTTIImportHelper
                             $this->importLog("Teacher already assigned with id ".$school_class_id." and subject id ".$subject_id);
                         }
                     } else {
-                        $missing_user = [
-                            $teacher_name_first,
-                            $teacher_name_suffix,
-                            $teacher_name_last
-                        ];
-                        if (!array_key_exists('missing_teachers', $this->errorMessages)) {
-                            $this->errorMessages['missing_teachers'] = [];
-                        }
-                        $this->errorMessages['missing_teachers'][] = $missing_user;
+                        if ($this->can_create_users_for_teacher) {
+                            $user_data = [
+                                'external_id'        => $teacher_external_code,
+                                'name_first'         => $teacher_name_first,
+                                'name_suffix'        => $teacher_name_suffix,
+                                'name'               => $teacher_name_last,
+                                'username'           => $teacher_email,
+                                'school_location_id' => $school_location_id,
+                                'user_roles'         => [1]
+                            ];
+
+                            $user_id = $this->createOrRestoreUser($user_data);
+
+                            $this->importLog('Teacher user created with id '.$user_id);
+                            if ($subject_id !== null) {
+                                $teacher = $this->createOrRestoreTeacher([
+                                    'user_id'    => $user_id,
+                                    'class_id'   => $school_class_id,
+                                    'subject_id' => $subject_id
+                                ]);
+
+                                $this->create_tally['teachers']++;
+
+                                $teacher_id = $teacher->user_id;
+                            }
+                        } else {
+                            $missing_user = [
+                                $teacher_name_first,
+                                $teacher_name_suffix,
+                                $teacher_name_last
+                            ];
+                            if (!array_key_exists('missing_teachers', $this->errorMessages)) {
+                                $this->errorMessages['missing_teachers'] = [];
+                            }
+                            $this->errorMessages['missing_teachers'][] = $missing_user;
 //                        throw new \Exception('
 //                        Voor de onderstaande docenten bestaat nog geen account. Maak die eerst aan voordat u de RTTI importer draait:
 //                        '. $missing_user);
 
 
-                        $this->importLog("User missing Teacher not created ".implode(';', $missing_user));
-                        continue;
+                            $this->importLog("User missing Teacher not created ".implode(';', $missing_user));
+                            continue;
+                        }
                     }
 
                     if (isset($teachersPerClass[$teacher_id])) {
@@ -435,7 +482,7 @@ class RTTIImportHelper
                     }
 
                     // set mentor state
-                    if ($teacher_is_mentor) {
+                    if ($teacher_is_mentor && $teacher_id) {
 
                         $classMentorCheck[$school_class_id][] = $teacher_id;
 
@@ -555,6 +602,8 @@ class RTTIImportHelper
             $this->importLog("Transaction failed with message ".$e->getMessage());
             if ($e->getMessage() == 'collected errors') {
                 $uniqueErrors = $this->makeErrorsUnique();
+
+
                 return ['errors' => $uniqueErrors];
             }
             // MF merge the errorMessages of helper on the return to fix schoolyear error;

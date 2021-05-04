@@ -1,7 +1,9 @@
 <div class="mt-10 flex-1 p-8">
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
-        <div class="flex-shrink-0"><x-button.primary class="" wire:click="newImport">Import</x-button.primary></div>
+        <div class="flex-shrink-0">
+            <x-button.primary class="" wire:click="newImport">Import</x-button.primary>
+        </div>
     </div>
     <div class="content-section mt-10 flex-1 p-8">
 
@@ -41,8 +43,10 @@
                                 {{ $set->client_code }}
                             </x-table.cell>
                             <x-table.cell>
-                                <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Modal
-                                </x-button.text-button>
+                                <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Modal</x-button.text-button>
+                            </x-table.cell>
+                            <x-table.cell>
+                                <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Process</x-button.text-button>
                             </x-table.cell>
                         </x-table.row>
                     @endforeach
@@ -58,9 +62,10 @@
     <x-modal wire:model="showImportModal" maxWidth="7xl">
         <x-slot name="title">Import</x-slot>
         <x-slot name="body">
-            <div class="hidden sm:block">
+            <div class="sm:block">
                 <div class="border-b border-gray-200">
                     <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+
                         @if($this->activeResult)
                             @foreach($this->activeResult as $key => $item )
                                 @if($key == $this->modalActiveTab)
@@ -97,7 +102,11 @@
                                 @foreach($this->modalActiveTabHtml as $object)
                                     <x-table.row>
                                         @foreach($object as $value)
-                                            <x-table.cell>{{ $value }}</x-table.cell>
+                                            @if( is_array($value))
+                                                <x-table.cell>{!! collect($value).join([',']) !!}</x-table.cell>
+                                            @else
+                                                <x-table.cell>{!!  substr( $value, 0, 20) !!}</x-table.cell>
+                                            @endif
                                         @endforeach
                                     </x-table.row>
                                 @endforeach
@@ -105,6 +114,27 @@
                         </x-table>
                     </div>
                 </div>
+            </div>
+        </x-slot>
+        <x-slot name="actionButton">me</x-slot>
+    </x-modal>
+
+    <x-modal wire:model="showProcessResultModal" maxWidth="7xl">
+        <x-slot name="title">ProcesResult</x-slot>
+        <x-slot name="body">
+            <div class="sm:block">
+                <div class="border-b border-gray-200" id="melding">
+                    @foreach($this->processingResultErrors as $error)
+                        <div class="error-section md:mb-20">
+                            <div class="notification error mt-4">
+                                <span class="title">  {{ $error }}</span>
+                            </div>
+                        </div>
+                    @endforeach
+                   {{ $this->processingResult }}
+                </div>
+
+                <button wire:click="startProcessingResult">Start</button>
             </div>
         </x-slot>
         <x-slot name="actionButton">me</x-slot>
