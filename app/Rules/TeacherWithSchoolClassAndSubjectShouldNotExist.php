@@ -46,6 +46,9 @@ class TeacherWithSchoolClassAndSubjectShouldNotExist implements Rule
             return true;
         }
         $subject = $this->getSubjectByName();
+        if ($subject === null) {
+            return true;
+        }
         $teacher = Teacher::where('user_id',$this->userId)
                             ->where('class_id',$schoolClass->id)
                             ->where('subject_id',$subject->id)
@@ -107,17 +110,17 @@ class TeacherWithSchoolClassAndSubjectShouldNotExist implements Rule
     private function getSchoolClassByName()
     {
         $school_class_name = $this->school_class;
-        return SchoolClass::filtered()->orderBy('created_at', 'desc')->get()->first(function ($school_class) use ($school_class_name) {
+        return SchoolClass::filtered()->orderBy('created_at', 'desc')->get()->filter(function ($school_class) use ($school_class_name) {
             return strtolower($school_class_name) === strtolower($school_class->name);
-        });
+        })->first();
     }
 
 
     private function getSubjectByName() {
         $subject_name = $this->subject;
-        return Subject::filtered()->get()->first(function ($subject) use ($subject_name) {
+        return Subject::filtered()->get()->filter(function ($subject) use ($subject_name) {
             return strtolower($subject_name) === strtolower($subject->name);
-        });
+        })->first();
     }
 
 }

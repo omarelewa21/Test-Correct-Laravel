@@ -60,7 +60,7 @@ class TeachersImportRequest extends Request {
                 $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
             }
             if (array_key_exists('username', $value)&&array_key_exists('school_class',$value)&&array_key_exists('subject',$value)) {
-                $extra_rule[sprintf('data.%d.combined', $key)] = [
+                $extra_rule[sprintf('data.%d.subject', $key)] = [
                         new TeacherWithSchoolClassAndSubjectShouldNotExist($this->schoolLocation,$value),
                 ];
             }
@@ -201,15 +201,15 @@ class TeachersImportRequest extends Request {
     }
 
     private function getSchoolClassByName($school_class_name) {
-        return SchoolClass::filtered()->orderBy('created_at', 'desc')->get()->first(function ($school_class) use ($school_class_name) {
+        return SchoolClass::filtered()->orderBy('created_at', 'desc')->get()->filter(function ($school_class) use ($school_class_name) {
                     return strtolower($school_class_name) === strtolower($school_class->name);
-                });
+                })->first();
     }
 
     private function getSubjectByName($subject_name) {
-        return Subject::filtered()->get()->first(function ($subject) use ($subject_name) {
+        return Subject::filtered()->get()->filter(function ($subject) use ($subject_name) {
                     return strtolower($subject_name) === strtolower($subject->name);
-                });
+                })->first();
     }
 
     private function schoolClassYearIsActual($schoolClass){

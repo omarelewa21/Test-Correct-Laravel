@@ -407,6 +407,36 @@ class TeacherControllerTest extends TestCase
         $this->assertEquals('testnotities',$bob->note );
     }
 
+    /** @test */
+    public function teacher_import_same_username_same_external_id_same_schoollocation_same_subject_same_schoolclass_two_imports_must_fail()
+    {
+        $this->assertCount(
+            0,
+            User::where('username', 'bobdebouwer@test-correct.nl')->get()
+        );
+        $user = User::where('username', static::USER_SCHOOLBEHEERDER_LOCATION1)->first();
+        $this->actingAs($user);
+        $startCountTeachers = \tcCore\Teacher::count();
+
+        $response = $this->postJson(
+            static::AuthBeheerderGetRequestLocation1(route('teacher.import')),
+            ['data' => $this->getDataLocation1BobDeBouwer()]
+        );
+        $response->assertStatus(200);
+        $this->assertCount(
+            1,
+            User::where('username', 'bobdebouwer@test-correct.nl')->get()
+        );
+        $this->assertGreaterThan($startCountTeachers,\tcCore\Teacher::count());
+        $secondStartCountTeachers = \tcCore\Teacher::count();
+        $response = $this->postJson(
+            static::AuthBeheerderGetRequestLocation1(route('teacher.import')),
+            ['data' => $this->getDataLocation1BobDeBouwer()]
+        );
+        $response->assertStatus(422);
+        dump($response->decodeResponseJson());
+    }
+
 
 
     private function getData($overrides = [])

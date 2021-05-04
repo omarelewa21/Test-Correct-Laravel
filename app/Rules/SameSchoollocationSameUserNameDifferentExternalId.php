@@ -48,7 +48,7 @@ class SameSchoollocationSameUserNameDifferentExternalId implements Rule
      */
     public function message()
     {
-        return $this->attribute.' failed on double user entry';
+        return $this->attribute.' failed on same username same schoollocation different external_id';
     }
 
     private function setUserId($username)
