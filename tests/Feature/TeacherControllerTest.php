@@ -117,7 +117,7 @@ class TeacherControllerTest extends TestCase
                 "subject"      => "Vak biologie"
             ])]
         );
-        dump($response->decodeResponseJson());
+        //dump($response->decodeResponseJson());
         $response->assertStatus(200);
     }
 
@@ -266,7 +266,7 @@ class TeacherControllerTest extends TestCase
             ['data' => $this->getDataLocation1SameUsernameSameExternalIdSameSchoolclassSameSubject()]
         );
         $response->assertStatus(422);
-        dump($response->decodeResponseJson());
+        //dump($response->decodeResponseJson());
 
     }
 
@@ -297,7 +297,7 @@ class TeacherControllerTest extends TestCase
             ['data' => $this->getDataLocation1BobDeBouwer3()]
         );
         $response->assertStatus(422);
-        dump($response->decodeResponseJson());
+        //dump($response->decodeResponseJson());
     }
 
     /** @test */
@@ -327,7 +327,7 @@ class TeacherControllerTest extends TestCase
             ['data' => $this->getDataLocation1BobDeBouwer4()]
         );
         $response->assertStatus(422);
-        dump($response->decodeResponseJson());
+        //dump($response->decodeResponseJson());
     }
 
     /** @test */
@@ -346,7 +346,7 @@ class TeacherControllerTest extends TestCase
             ['data' => $this->getDataLocation1NonexistingSubject()]
         );
         $response->assertStatus(422);
-        dump($response->decodeResponseJson());
+        //dump($response->decodeResponseJson());
 
     }
 
@@ -366,7 +366,7 @@ class TeacherControllerTest extends TestCase
             ['data' => $this->getDataLocation1NonexistingSchoolclass()]
         );
         $response->assertStatus(422);
-        dump($response->decodeResponseJson());
+        //dump($response->decodeResponseJson());
 
     }
 
@@ -434,7 +434,7 @@ class TeacherControllerTest extends TestCase
             ['data' => $this->getDataLocation1BobDeBouwer()]
         );
         $response->assertStatus(422);
-        dump($response->decodeResponseJson());
+        //dump($response->decodeResponseJson());
     }
 
 
