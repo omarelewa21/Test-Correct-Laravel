@@ -429,11 +429,11 @@ body.modal-open {
 }
 
 .pulse-left {
-    animation: pulse-left 0.9s infinite ease-out;
+    animation: pulse-left 1.2s infinite ease;
 }
 
 .pulse-right {
-    animation: pulse-right 0.9s infinite ease-out;
+    animation: pulse-right 1.2s infinite ease;
 }
 
 @keyframes pulse-left {
@@ -441,7 +441,7 @@ body.modal-open {
         margin-right: 15px;
     }
     50% {
-        margin-right: 30px;
+        margin-right: 45px;
     }
     100% {
         margin-right: 15px;
@@ -453,7 +453,7 @@ body.modal-open {
         margin-left: 15px;
     }
     50% {
-        margin-left: 30px;
+        margin-left: 45px;
     }
     100% {
         margin-left: 15px;

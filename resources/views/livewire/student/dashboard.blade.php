@@ -1,7 +1,7 @@
 <div id="dashboard-body"
-     class="mx-4 lg:mx-8 xl:mx-24 relative max-w-7xl"
+     class="mx-4 lg:mx-8 xl:mx-24 relative max-w-7xl pb-10"
      x-data=""
-     x-init="addRelativePaddingToBody('dashboard-body', 10); makeHeaderMenuActive('student-header-dashboard');"
+     x-init="addRelativePaddingToBody('dashboard-body'); makeHeaderMenuActive('student-header-dashboard');"
      x-cloak
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('dashboard-body')"
      wire:ignore.self
