@@ -5,15 +5,18 @@ namespace tcCore\Rules;
 use Illuminate\Contracts\Validation\Rule;
 use tcCore\SchoolClass;
 use tcCore\Scopes\TeacherSchoolLocationScope;
+use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\User;
 
-class TeacherWithSchoolClassShouldNotExist implements Rule
+class TeacherWithSchoolClassAndSubjectShouldNotExist implements Rule
 {
     private $schoolLocationId;
     private $userId = false;
-    private $externalId;
-    private $schoolClass;
+    private $external_id;
+    private $school_class;
+    private $subject;
+    private $attribute;
     /**
      * Create a new rule instance.
      *
@@ -25,6 +28,7 @@ class TeacherWithSchoolClassShouldNotExist implements Rule
         $this->setExternalId($vars);
         $this->setUserId($vars);
         $this->setSchoolClass($vars);
+        $this->setSubject($vars);
     }
 
     /**
@@ -36,12 +40,17 @@ class TeacherWithSchoolClassShouldNotExist implements Rule
      */
     public function passes($attribute, $value)
     {
-        $schoolClass = $this->getSchoolClass();
+        $this->attribute = $attribute;
+        $schoolClass = $this->getSchoolClassByName();
         if ($schoolClass === null) {
             return true;
         }
-        $teacher = Teacher::withoutGlobalScope(TeacherSchoolLocationScope::class)->where('user_id',$this->userId)->where('class_id',$schoolClass->id)->first();
-        if(is_null($row)){
+        $subject = $this->getSubjectByName();
+        $teacher = Teacher::where('user_id',$this->userId)
+                            ->where('class_id',$schoolClass->id)
+                            ->where('subject_id',$subject->id)
+                            ->first();
+        if(is_null($teacher)){
             return true;
         }
         return false;
@@ -54,7 +63,7 @@ class TeacherWithSchoolClassShouldNotExist implements Rule
      */
     public function message()
     {
-        return 'The validation error message.';
+        return $this->attribute.' failed on double schoolclass subject entry';
     }
 
     private function setUserId($vars)
@@ -72,6 +81,7 @@ class TeacherWithSchoolClassShouldNotExist implements Rule
     {
         if(!array_key_exists('external_id',$vars)){
             $this->external_id = false;
+            return;
         }
         $this->external_id = $vars['external_id'];
     }
@@ -80,13 +90,34 @@ class TeacherWithSchoolClassShouldNotExist implements Rule
     {
         if(!array_key_exists('school_class',$vars)){
             $this->school_class = false;
+            return;
         }
         $this->school_class = $vars['school_class'];
     }
 
-    private function getSchoolClassByName($school_class_name) {
+    private function setSubject($vars)
+    {
+        if(!array_key_exists('subject',$vars)){
+            $this->subject = false;
+            return;
+        }
+        $this->subject = $vars['subject'];
+    }
+
+    private function getSchoolClassByName()
+    {
+        $school_class_name = $this->school_class;
         return SchoolClass::filtered()->orderBy('created_at', 'desc')->get()->first(function ($school_class) use ($school_class_name) {
             return strtolower($school_class_name) === strtolower($school_class->name);
         });
     }
+
+
+    private function getSubjectByName() {
+        $subject_name = $this->subject;
+        return Subject::filtered()->get()->first(function ($subject) use ($subject_name) {
+            return strtolower($subject_name) === strtolower($subject->name);
+        });
+    }
+
 }

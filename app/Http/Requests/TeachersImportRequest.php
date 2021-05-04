@@ -12,7 +12,8 @@ use tcCore\Rules\SameSchoollocationSameExternalIdDifferentUsername;
 use tcCore\Rules\SameSchoollocationSameUserNameDifferentExternalId;
 use tcCore\Rules\SchoolLocationUserExternalId;
 use tcCore\Rules\SchoolLocationUserName;
-use tcCore\Rules\TeacherWithSchoolClassShouldNotExist;
+use tcCore\Rules\TeacherWithSchoolClassAndSubjectShouldNotExist;
+use tcCore\Rules\TeacherWithSubjectShouldNotExist;
 use tcCore\Rules\UsernameUniqueSchool;
 use tcCore\SchoolClass;
 use tcCore\Subject;
@@ -58,16 +59,12 @@ class TeachersImportRequest extends Request {
                     }];
                 $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
             }
-            if (array_key_exists('username', $value)&&array_key_exists('school_class',$value)) {
-                $extra_rule[sprintf('data.%d.school_class', $key)] = [  'required',
-                        new TeacherWithSchoolClassShouldNotExist($this->schoolLocation,$value),
+            if (array_key_exists('username', $value)&&array_key_exists('school_class',$value)&&array_key_exists('subject',$value)) {
+                $extra_rule[sprintf('data.%d.combined', $key)] = [
+                        new TeacherWithSchoolClassAndSubjectShouldNotExist($this->schoolLocation,$value),
                 ];
             }
-            if (array_key_exists('username', $value)&&array_key_exists('subject',$value)) {
-                $extra_rule[sprintf('data.%d.subject', $key)] = [  'required',
-                    new TeacherWithSubjectShouldNotExist($this->schoolLocation,$value),
-                ];
-            }
+
         }
         $rules = collect([
             'data.*.username' => ['required', 'email:rfc,filter',new UsernameUniqueSchool($this->schoolLocation,'teacher'),new EmailDns, function ($attribute, $value, $fail) {
@@ -144,17 +141,63 @@ class TeachersImportRequest extends Request {
             });
             $this->merge(['data' => $data]);
 
-            $dataCollection = collect(request('data'));
-            $unique = collect(request('data'))->unique();
-            if ($unique->count() < $dataCollection->count()) {
-                $duplicates = $dataCollection->keys()->diff($unique->keys());
-                $duplicates->each(function($duplicate) use ($validator) {
-                    $validator->errors()->add(
-                            sprintf('data.%d.duplicate', $duplicate), 'Dit record komt meerdere keren voor;'
-                    );
-                });
-            }
+            $this->usernameExternalIdSchoolClassSubjectUniqueInImport($validator);
+            $this->usernameExternalIdCombinationUnique($validator);
+
+
+
+            //$unique = collect(request('data'))->unique();
+//            if ($unique->count() < $dataCollection->count()) {
+//                $duplicates = $dataCollection->keys()->diff($unique->keys());
+//                $duplicates->each(function($duplicate) use ($validator) {
+//                    $validator->errors()->add(
+//                            sprintf('data.%d.duplicate', $duplicate), 'Dit record komt meerdere keren voor;'
+//                    );
+//                });
+//            }
         });
+    }
+
+    private function usernameExternalIdSchoolClassSubjectUniqueInImport(&$validator)
+    {
+        $dataCollection = collect(request('data'));
+        $essentialDataCollection = $dataCollection->map(function ($item, $key) {
+            $username = array_key_exists('username',$item)?$item['username']:'';
+            $external_id = array_key_exists('external_id',$item)?$item['external_id']:'';
+            $school_class = array_key_exists('school_class',$item)?$item['school_class']:'';
+            $subject = array_key_exists('subject',$item)?$item['subject']:'';
+            return [    'username' => $username,
+                        'external_id' => $external_id,
+                        'school_class' => $school_class,
+                        'subject' => $subject,
+                    ];
+        });
+        $unique = $essentialDataCollection->unique();
+        if ($unique->count() < $essentialDataCollection->count()) {
+            $duplicates = $essentialDataCollection->keys()->diff($unique->keys());
+            $duplicates->each(function($duplicate) use ($validator) {
+                $validator->errors()->add(
+                    sprintf('data.%d.duplicate', $duplicate), 'Dit record komt meerdere keren voor;'
+                );
+            });
+        }
+    }
+
+    private function usernameExternalIdCombinationUnique(&$validator)
+    {
+        $dataCollection = collect(request('data'));
+        $usernameDataCollection = $dataCollection->pluck('username');
+        $externalIdDataCollection = $dataCollection->pluck(['external_id']);
+        $usernameExternalIdDataCollection = $dataCollection->map(function ($item, $key) {
+            $username = array_key_exists('username',$item)?$item['username']:'';
+            $external_id = array_key_exists('external_id',$item)?$item['external_id']:'';
+            return [    'username' => $username,
+                        'external_id' => $external_id,
+            ];
+        });
+        $this->validateUsernameExternalIdCombination($validator,$usernameDataCollection,$usernameExternalIdDataCollection,'username','external_id');
+        $this->validateUsernameExternalIdCombination($validator,$externalIdDataCollection,$usernameExternalIdDataCollection,'external_id','username');
+
     }
 
     private function getSchoolClassByName($school_class_name) {
@@ -172,6 +215,27 @@ class TeachersImportRequest extends Request {
     private function schoolClassYearIsActual($schoolClass){
         $currentYear = SchoolYearRepository::getCurrentSchoolYear();
         return (null !== $currentYear && $currentYear->getKey() === $schoolClass->schoolYear->getKey());
+    }
+
+    private function validateUsernameExternalIdCombination(&$validator,$paramCollection,$usernameExternalIdDataCollection,$primaryParamName,$secondaryParamName)
+    {
+        $unique = $paramCollection->unique();
+        $duplicates = $paramCollection->diffAssoc($unique);
+        $duplicates->each(function($duplicate,$duplicatekey) use ($validator,$usernameExternalIdDataCollection,$primaryParamName,$secondaryParamName) {
+            $firstEntry = $usernameExternalIdDataCollection->where($primaryParamName,$duplicate)->first();
+            $secondaryParam = $firstEntry[$secondaryParamName];
+            $filtered = $usernameExternalIdDataCollection->filter(function ($value, $key) use ($duplicate,$primaryParamName) {
+                return $value[$primaryParamName] == $duplicate;
+            });
+            foreach ($filtered as $entry){
+                if($entry[$secondaryParamName]!=$secondaryParam){
+                    $validator->errors()->add(
+                        sprintf('data.%d.duplicate', $duplicatekey), 'Dit record komt meerdere keren voor met verschillende email/externe code combinatie'
+                    );
+                }
+
+            }
+        });
     }
 
 }

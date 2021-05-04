@@ -305,6 +305,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function getSchoolBeheerder(){
         $user = User::where('username',static::USER_SCHOOLBEHEERDER)->first();
+        $this->actingAs($user);
         return $user;
     }
 

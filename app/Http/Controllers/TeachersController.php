@@ -25,7 +25,7 @@ class TeachersController extends Controller
      */
     public function index(Request $request)
     {
-        $teachers = Teacher::filtered($request->get('filter', []), $request->get('order', []));
+        $teachers = Teacher::filtered($request->get('filter', []), $request->get('order', []))->scopeCurrentSchoolLocation();
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
@@ -177,7 +177,7 @@ class TeachersController extends Controller
         if(!array_key_exists('school_location_id',$attributes)){
             return;
         }
-        $schoolLocations = $user->schoolLocations;
+        $schoolLocations = $user->allowedSchoolLocations;
         if(is_null($schoolLocations)){
             $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
             return;

@@ -11,6 +11,7 @@ class SameSchoollocationSameExternalIdDifferentUsername implements Rule
     private $schoolLocationId;
     private $userId = false;
     private $externalId;
+    private $attribute;
     /**
      * Create a new rule instance.
      *
@@ -32,9 +33,10 @@ class SameSchoollocationSameExternalIdDifferentUsername implements Rule
      */
     public function passes($attribute, $value)
     {
+        $this->attribute = $attribute;
         $row = \DB::table('school_location_user')  ->where('school_location_id', $this->schoolLocationId)
             ->where('external_id', $this->externalId)
-            ->where('user_id','!=',$this->user->id)
+            ->where('user_id','!=',$this->userId)
             ->first();
         if(is_null($row)){
             return true;
