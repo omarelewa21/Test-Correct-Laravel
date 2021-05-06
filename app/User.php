@@ -264,6 +264,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getUserTableExternalIdAttribute()
     {
+        if(!array_key_exists('external_id',$this->attributes)){
+            return null;
+        }
         return $this->attributes['external_id'];
     }
 
