@@ -30,21 +30,11 @@
             </div>
             <div class="flex sm:ml-auto items-center space-x-3">
                 <x-button.cta size="sm">Maak account</x-button.cta>
-
-                <x-dropdown label="Log in" button="primary-button">
-                    <x-dropdown.item type="link" href="{{ config('app.url_login') }}">
-                        Docent
-                    </x-dropdown.item>
-                    <x-dropdown.item @click="alert('Schoolbeheerder')">
-                        Schoolbeheerder
-                    </x-dropdown.item>
-                </x-dropdown>
-
-                <x-button.question/>
+                <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}">Log in</x-button.primary>
             </div>
         </div>
     </header>
-    <main class="student-bg">
+    <main class="">
         {{ $slot }}
     </main>
 </x-layouts.base>

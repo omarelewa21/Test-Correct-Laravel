@@ -13,6 +13,8 @@ class Login extends Component
     public $password = '';
     public $captcha = '';
     public $requireCaptcha = false;
+    public $testTakeCode = [];
+    public $loginTab = true;
 
     protected $rules = [
         'username' => 'required|email',
@@ -49,13 +51,13 @@ class Login extends Component
             $this->validateCaptcha();
         }
 
-        if (auth()->attempt($credentials)) {
-            $this->doLoginProcedure();
-            return redirect()->intended(route('student.dashboard'));
+        if (!auth()->attempt($credentials)) {
+            $this->createFailedLogin();
+            return $this->addError('invalid_user', __('auth.failed'));
         }
 
-        $this->createFailedLogin();
-        return $this->addError('invalid_user', __('auth.failed'));
+        $this->doLoginProcedure();
+        return redirect()->intended(route('student.dashboard'));
     }
 
     public function render()

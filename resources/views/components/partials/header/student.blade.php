@@ -47,7 +47,7 @@
                         {{ __('student.knowledgebank') }}
                     </x-dropdown.item>
                 </div>
-                <x-dropdown.item wire:click="logout()">
+                <x-dropdown.item type="link" href="{{ route('student.dashboard.logout') }}">
                     {{ __('auth.logout') }}
                 </x-dropdown.item>
             </x-dropdown>

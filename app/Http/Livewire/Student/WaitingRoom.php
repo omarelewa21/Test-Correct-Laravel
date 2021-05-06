@@ -17,6 +17,7 @@ class WaitingRoom extends Component
     public $take;
     public $waitingTestTake;
     public $isTakeOpen;
+    public $countdownNumber = 3;
 
     public function mount()
     {
@@ -39,12 +40,17 @@ class WaitingRoom extends Component
 
     public function startTestTake()
     {
-        $this->redirectRoute('student.test-take-laravel', $this->take);
+//        $this->redirectRoute('student.test-take-laravel', $this->take);
     }
 
     public function isTestTakeOpen()
     {
         $this->isTakeOpen = TestTake::whereUuid($this->take)->value('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST;
         return $this->isTakeOpen;
+    }
+
+    public function getCountdownNumber()
+    {
+        return $this->countdownNumber;
     }
 }

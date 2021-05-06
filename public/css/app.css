@@ -693,6 +693,80 @@ textarea {
         display: inline-block;
     }
 }
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height:28px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #c3d0ed;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #3dbb56;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #3dbb56;
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 25px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.test-take-code-component .form-input.disabled {
+    color: var(--mid-grey);
+}
 /*! tailwindcss v2.0.4 | MIT License | https://tailwindcss.com */
 
 /*! modern-normalize v1.0.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
@@ -1391,6 +1465,9 @@ video {
 .left-\[60px\]{
 	left: 60px;
 }
+.top-8{
+	top: 2rem;
+}
 .z-10{
 	z-index: 10;
 }
@@ -1559,6 +1636,9 @@ video {
 .mt-16{
 	margin-top: 4rem;
 }
+.mr-8{
+	margin-right: 2rem;
+}
 .grid{
 	display: grid;
 }
@@ -1631,11 +1711,11 @@ video {
 .h-screen{
 	height: 100vh;
 }
-.h-28{
-	height: 7rem;
-}
 .h-10{
 	height: 2.5rem;
+}
+.h-28{
+	height: 7rem;
 }
 .max-h-4{
 	max-height: 1rem;
@@ -1712,6 +1792,12 @@ video {
 .w-28{
 	width: 7rem;
 }
+.w-48{
+	width: 12rem;
+}
+.w-px{
+	width: 1px;
+}
 .min-w-full{
 	min-width: 100%;
 }
@@ -1748,6 +1834,11 @@ video {
 }
 .max-w-7xl{
 	max-width: 80rem;
+}
+.max-w-min{
+	max-width: -webkit-min-content;
+	max-width: -moz-min-content;
+	max-width: min-content;
 }
 .flex-1{
 	flex: 1 1 0%;
@@ -1793,6 +1884,14 @@ video {
 .scale-100{
 	--tw-scale-x: 1;
 	--tw-scale-y: 1;
+}
+.scale-90{
+	--tw-scale-x: .9;
+	--tw-scale-y: .9;
+}
+.scale-75{
+	--tw-scale-x: .75;
+	--tw-scale-y: .75;
 }
 .cursor-pointer{
 	cursor: pointer;
@@ -2281,6 +2380,9 @@ video {
 .pt-6{
 	padding-top: 1.5rem;
 }
+.pb-10{
+	padding-bottom: 2.5rem;
+}
 .pb-16{
 	padding-bottom: 4rem;
 }
@@ -2292,9 +2394,6 @@ video {
 }
 .pt-16{
 	padding-top: 4rem;
-}
-.pb-10{
-	padding-bottom: 2.5rem;
 }
 .text-right{
 	text-align: right;
@@ -2338,6 +2437,9 @@ video {
 }
 .font-bold{
 	font-weight: 700;
+}
+.font-normal{
+	font-weight: 400;
 }
 .uppercase{
 	text-transform: uppercase;

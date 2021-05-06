@@ -1,5 +1,5 @@
 <div id="planned-body"
-     x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen')}"
+     x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }} }"
      x-init="
         addRelativePaddingToBody('planned-body');
         makeHeaderMenuActive('student-header-tests');
@@ -52,7 +52,16 @@
                     @if($isTakeOpen)
                         <div class="divider flex flex-1 pulse-left"></div>
                         <div class="flex flex-col justify-center">
-                            <x-button.cta x-on:click="startCountdown = true; countdownTimer()">
+                            <x-button.cta x-on:click="startCountdown = true;
+                                                        countdownTimer = setInterval(function() {
+                                                            console.log(countdownNumber);
+                                                            countdownNumber -= 1;
+                                                            if (countdownNumber === 0) {
+                                                                Livewire.emitTo('student.waiting-room', 'start-test-take')
+                                                                clearInterval(countdownTimer);
+                                                            }
+                                                        },1000);
+                                                        ">
                                 <span>{{ __('student.start_test') }}</span>
                                 <x-icon.arrow/>
                             </x-button.cta>
@@ -66,7 +75,8 @@
                         <div class="divider flex flex-1"></div>
                     @endif
                 </div>
-                <div class="flex w-full justify-center transition-all duration-300" :class="{'opacity-50' : isTakeOpen}">
+                <div class="flex w-full justify-center transition-all duration-300"
+                     :class="{'opacity-50' : isTakeOpen}">
                     <x-illustrations.waiting-room/>
                 </div>
 
@@ -87,9 +97,7 @@
         </div>
     </div>
     <div class="w-full bg-white fixed bottom-0 footer-shadow transition-all duration-500 z-10"
-         :class="{'pb-16 pt-1.5' : startCountdown}">
-
-    </div>
+         :class="{'pb-16 pt-1.5' : startCountdown}"></div>
 
     <div class="fixed student-bg top-0 left-0 h-full w-full transition-all duration-500 py-[70px]"
          x-show.transition.500ms="startCountdown"
@@ -98,7 +106,7 @@
             <div class="flex h-full flex-col mx-auto max-w-7xl transition-all duration-500 pt-16">
                 <div class="flex flex-col mb-4">
                     <span class="-mb-2">Geplande toets</span>
-                    <x-button.text-button class="rotate-svg-180" x-on:click="startCountdown = false;">
+                    <x-button.text-button class="rotate-svg-180" x-on:click="startCountdown = false; clearInterval(countdownTimer); countdownNumber = {{ $this->getCountdownNumber() }}">
                         <x-icon.arrow/>
                         <span class="text-[32px]">{{ $waitingTestTake->test->name }}</span>
                     </x-button.text-button>
@@ -107,7 +115,7 @@
                     <span>Toets maken start in</span>
                     <div class="flex w-28 h-28 justify-center items-center text-center bold border-4 border-system-base rounded-full"
                          style="font-size: 64px">
-                        <span class="w-full countdownNumber">3</span>
+                        <span class="w-full" x-text="countdownNumber"></span>
                     </div>
                 </div>
                 <div class="flex w-full mt-auto opacity-50 justify-center">
@@ -116,22 +124,4 @@
             </div>
         </div>
     </div>
-    @push('scripts')
-        <script>
-            function countdownTimer() {
-                let numberContainer = document.querySelector('.countdownNumber');
-                let countdownNumber = 3;
-
-                let countdown = setInterval(function() {
-                    --countdownNumber
-                    numberContainer.innerHTML = countdownNumber;
-                    if (countdownNumber === 0) {
-                        countdownNumber = 3;
-                        Livewire.emitTo('student.waiting-room', 'start-test-take')
-                        clearInterval(countdown);
-                    }
-                }, 1000)
-            }
-        </script>
-    @endpush
 </div>
