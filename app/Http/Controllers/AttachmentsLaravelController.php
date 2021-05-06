@@ -3,8 +3,11 @@
 use Illuminate\Support\Facades\Response;
 use tcCore\Answer;
 use tcCore\Attachment;
+use tcCore\Question;
+use tcCore\QuestionAttachment;
 
-class AttachmentsLaravelController extends Controller {
+class AttachmentsLaravelController extends Controller
+{
 
     /**
      * Display the specified attachment.
@@ -21,11 +24,16 @@ class AttachmentsLaravelController extends Controller {
         return Response::noContent();
     }
 
-    public function showPreview(Attachment $attachment, $question)
+    public function showPreview(Attachment $attachment, Question $question)
     {
-        if ($attachment->questions()->value('uuid') === $question->uuid) {
-            return Response::file($attachment->getCurrentPath());
+        if (!QuestionAttachment::whereAttachmentId($attachment->getKey())->whereQuestionId($question->getKey())->exists()) {
+            return Response::noContent();
         }
-        return Response::noContent();
+
+        if(!file_exists($attachment->getCurrentPath())) {
+            return Response::noContent();
+        }
+
+        return Response::file($attachment->getCurrentPath());
     }
 }

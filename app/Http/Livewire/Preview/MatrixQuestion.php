@@ -4,14 +4,14 @@ namespace tcCore\Http\Livewire\Preview;
 
 use Illuminate\Support\Str;
 use Livewire\Component;
-use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
+use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
 
 class MatrixQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithPreviewGroups;
+    use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
     public $question;
     public $testId;
