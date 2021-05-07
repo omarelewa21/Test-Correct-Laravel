@@ -33,20 +33,22 @@ class Deployment extends Model
 
     public function handleIfNeeded($oldStatus) : void
     {
-//        logger('Deployment: handle if needed');
-        if($oldStatus !== $this->status){
-//            logger('Deployment: status changed to '.$this->status);
-            if($this->status === static::ACTIVE){
-//                logger('Deployment: show maintenance should be set');
-                $this->showMaintenance();
-            }
-            else if($oldStatus === static::ACTIVE){
-//                logger('Deployment: remove maintenance should be set');
-                $this->removeMaintenance();
-            }
-//            logger('Deployment: do a portal call in order to set the notification');
-            $this->callCakeForMaintenanceCheck();
-        }
+        // we don't check, we always fire the call to cake
+        $this->callCakeForMaintenanceCheck();
+////        logger('Deployment: handle if needed');
+//        if($oldStatus !== $this->status){
+////            logger('Deployment: status changed to '.$this->status);
+//            if($this->status === static::ACTIVE){
+////                logger('Deployment: show maintenance should be set');
+//                $this->showMaintenance();
+//            }
+//            else if($oldStatus === static::ACTIVE){
+////                logger('Deployment: remove maintenance should be set');
+//                $this->removeMaintenance();
+//            }
+////            logger('Deployment: do a portal call in order to set the notification');
+//
+//        }
     }
 
     public function showMaintenance()
