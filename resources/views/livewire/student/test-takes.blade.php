@@ -30,7 +30,7 @@
             </div>
         </div>
     </div>
-    <div class="flex flex-col mt-10 w-full">
+    <div class="flex flex-col my-10 w-full">
         <div class="w-full px-4 lg:px-8 xl:px-12">
             <div x-show="activeTab === {{ $this->plannedTab }}" class="flex flex-col space-y-4 mx-auto max-w-7xl">
                 <livewire:student.planned/>
@@ -46,9 +46,7 @@
                 </div>
             </div>
             <div x-show="activeTab === {{ $this->gradedTab }}" class="flex flex-col space-y-4 mx-auto max-w-7xl">
-                <div>
-                    <h1>{{ __('student.graded_tests') }}</h1>
-                </div>
+                <livewire:student.graded/>
             </div>
         </div>
     </div>

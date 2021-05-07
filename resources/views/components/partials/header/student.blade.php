@@ -28,7 +28,6 @@
         </div>
 
         <div class="user flex flex-wrap items-center ml-auto space-x-2" x-data="">
-            <x-button.question class="bg-system-base bg-primary-hover transition" @click="alert('Ik heb een vraag!')"></x-button.question>
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <div class="lg:hidden">
                     <x-dropdown.item type="link" href="{{ route('student.dashboard') }}">

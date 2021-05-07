@@ -14,10 +14,11 @@
 'multiColumn' => null,
 'width' => 'auto',
 'textAlign' => 'left',
+'column' => null,
 ])
 
 <th
-        {{ $attributes->merge(['class' => 'text-'.$textAlign.' px-3 bg-cool-gray-50 w-auto'])->only('class') }}
+        {{ $attributes->merge(['class' => 'text-'.$textAlign.' px-3 bg-cool-gray-50 w-auto']) }}
         @isset($width) style="width:{{$width}}" @endisset
 >
     @unless ($sortable)

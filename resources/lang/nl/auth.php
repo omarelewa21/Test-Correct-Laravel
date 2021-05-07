@@ -38,5 +38,6 @@ return [
     'first_name'                          => 'Voornaam',
     'suffix'                              => 'Tussenvoegsel',
     'last_name'                           => 'Achternaam',
-    'send_email'                           => 'Verstuur e-mail',
+    'send_email'                          => 'Verstuur e-mail',
+    'test_code_invalid'                   => 'Toetscode is niet geldig',
 ];

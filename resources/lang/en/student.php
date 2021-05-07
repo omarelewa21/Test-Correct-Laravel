@@ -53,4 +53,10 @@ return [
     'knowledgebank'                    => 'Knowledgebank',
     'version'                          => 'Version',
     'make'                             => 'Make',
+    'to_message'                       => 'Show message',
+    'no_recent_messages'               => 'You have no recent messages.',
+    'recent_grades'                    => 'Recently received grades',
+    'no_recent_grades'                 => 'You have no recently received grades.',
+    'no_upcoming_tests'                => 'You have no upcoming tests.',
+
 ];

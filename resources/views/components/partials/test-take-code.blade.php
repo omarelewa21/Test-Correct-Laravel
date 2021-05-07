@@ -5,30 +5,49 @@
             <x-input.text class="w-12 text-center disabled" disabled value="AA"/>
         </x-input.group>
         <div class="h-5 w-px bg-blue-grey"></div>
-        <x-input.text class="w-10 text-center text-code" type="number" min="1"
-                      max="9" maxlength="1" wire:model="testTakeCode.0"
+        <x-input.text class="w-10 text-center test-code" type="number" min="1"
+                      max="9" maxlength="1" wire:model.lazy="testTakeCode.0"
                       x-ref="testCode_1"
-                      x-on:input="if($refs.testCode_1.value.length > 1) $refs.testCode_1.value = $refs.testCode_1.value.slice(0, 1); $refs.testCode_2.focus()"/>
-        <x-input.text class="w-10 text-center text-code" type="number" min="1"
-                      max="9" maxlength="1" wire:model="testTakeCode.1"
+                      x-on:input="testCodeInput($refs.testCode_1)"/>
+        <x-input.text class="w-10 text-center test-code" type="number" min="1"
+                      max="9" maxlength="1" wire:model.lazy="testTakeCode.1"
                       x-ref="testCode_2"
-                      x-on:input="if($refs.testCode_2.value.length > 1) $refs.testCode_2.value = $refs.testCode_2.value.slice(0, 1); $refs.testCode_3.focus()"/>
-        <x-input.text class="w-10 text-center text-code" type="number" min="1"
-                      max="9" maxlength="1" wire:model="testTakeCode.2"
+                      x-on:input="testCodeInput($refs.testCode_2)"/>
+        <x-input.text class="w-10 text-center test-code" type="number" min="1"
+                      max="9" maxlength="1" wire:model.lazy="testTakeCode.2"
                       x-ref="testCode_3"
-                      x-on:input="if($refs.testCode_3.value.length > 1) $refs.testCode_3.value = $refs.testCode_3.value.slice(0, 1); $refs.testCode_4.focus()"/>
+                      x-on:input="testCodeInput($refs.testCode_3)"/>
         <div class="h-5 w-px bg-blue-grey"></div>
-        <x-input.text class="w-10 text-center text-code" type="number" min="1"
-                      max="9" maxlength="1" wire:model="testTakeCode.3"
+        <x-input.text class="w-10 text-center test-code" type="number" min="1"
+                      max="9" maxlength="1" wire:model.lazy="testTakeCode.3"
                       x-ref="testCode_4"
-                      x-on:input="if($refs.testCode_4.value.length > 1) $refs.testCode_4.value = $refs.testCode_4.value.slice(0, 1); $refs.testCode_5.focus()"/>
-        <x-input.text class="w-10 text-center text-code" type="number" min="1"
-                      max="9" maxlength="1" wire:model="testTakeCode.4"
+                      x-on:input="testCodeInput($refs.testCode_4)"/>
+        <x-input.text class="w-10 text-center test-code" type="number" min="1"
+                      max="9" maxlength="1" wire:model.lazy="testTakeCode.4"
                       x-ref="testCode_5"
-                      x-on:input="if($refs.testCode_5.value.length > 1) $refs.testCode_5.value = $refs.testCode_5.value.slice(0, 1); $refs.testCode_6.focus()"/>
-        <x-input.text class="w-10 text-center text-code" type="number" min="1"
+                      x-on:input="testCodeInput($refs.testCode_5)"/>
+        <x-input.text class="w-10 text-center test-code" type="number" min="1"
                       max="9" maxlength="1" wire:model="testTakeCode.5"
                       x-ref="testCode_6"
-                      x-on:input="if($refs.testCode_6.value.length > 1) $refs.testCode_6.value = $refs.testCode_6.value.slice(0, 1)"/>
+                      x-on:input="testCodeInput($refs.testCode_6)"/>
     </div>
+    @push('scripts')
+        <script>
+            function testCodeInput(element) {
+                if (element.value.length > 1) {
+                    element.value = element.value.slice(0, 1);
+                }
+                if (element === element.parentElement.lastElementChild) {
+                    return;
+                }
+                if (!element.nextElementSibling.matches('.test-code') && element.value.length === 1) {
+                    element.nextElementSibling.nextElementSibling.focus();
+                    return;
+                }
+                if (element.value.length === 1) {
+                    element.nextElementSibling.focus();
+                }
+            }
+        </script>
+    @endpush
 </div>

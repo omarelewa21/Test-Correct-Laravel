@@ -38,5 +38,6 @@ return [
     'first_name'                          => 'First name',
     'suffix'                              => 'Suffix',
     'last_name'                           => 'Last name',
-    'send_email'                           => 'Send e-mail',
+    'send_email'                          => 'Send e-mail',
+    'test_code_invalid'                   => 'Test code is invalid',
 ];

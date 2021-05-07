@@ -4,17 +4,31 @@ namespace tcCore\Http\Livewire\Auth;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
+use tcCore\TemporaryLogin;
 
 class Login extends Component
 {
     public $username = '';
     public $password = '';
     public $captcha = '';
+
+    public $firstName = '';
+    public $suffix = '';
+    public $lastName = '';
+
+    public $forgotPasswordEmail = '';
+
     public $requireCaptcha = false;
     public $testTakeCode = [];
+
     public $loginTab = true;
+    public $showTestCode = false;
+    public $loginButtonDisabled = true;
+    public $guestLoginButtonDisabled = true;
+    public $forgotPasswordButtonDisabled = true;
 
     protected $rules = [
         'username' => 'required|email',
@@ -57,7 +71,18 @@ class Login extends Component
         }
 
         $this->doLoginProcedure();
-        return redirect()->intended(route('student.dashboard'));
+
+        if (auth()->user()->isA('Student')) {
+            return redirect()->intended(route('student.dashboard'));
+        }
+        auth()->user()->redirectToCakeWithTemporaryLogin();
+    }
+
+    public function guestLogin()
+    {
+        if($this->isTestTakeCodeValid()) {
+            dd('Helemaal goed');
+        }
     }
 
     public function render()
@@ -99,5 +124,55 @@ class Login extends Component
 
         $rulesWithCaptcha = array_merge($this->rules, ['captcha' => 'required|captcha']);
         $this->validate($rulesWithCaptcha);
+    }
+
+    public function updated($name, $value)
+    {
+        if ($this->couldBeEmail($this->username) && !blank($this->password)) {
+            $this->loginButtonDisabled = false;
+
+            if ($this->showTestCode) {
+                $this->loginButtonDisabled = true;
+                if (count($this->testTakeCode) == 6) {
+                    $this->loginButtonDisabled = false;
+                }
+            }
+        } else {
+            $this->loginButtonDisabled = true;
+        }
+
+        $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
+
+        $this->guestLoginButtonDisabled = !(!blank($this->firstName) && !blank($this->lastName) && count($this->testTakeCode) == 6);
+
+    }
+
+
+    public function updatedShowTestCode($value)
+    {
+        if (!$value) {
+            $this->testTakeCode = [];
+        }
+    }
+
+    private function couldBeEmail(string $email): bool
+    {
+        return Str::of($email)->containsAll(['@', '.']);
+    }
+
+    public function sendForgotPasswordEmail()
+    {
+        dd('Verzend de mail naar: ' . $this->forgotPasswordEmail);
+    }
+
+    private function isTestTakeCodeValid(): bool
+    {
+        foreach ($this->testTakeCode as $key => $value){
+            if (!$value) {
+                $this->addError('invalid_test_code', __('auth.test_code_invalid'));
+                return false;
+            }
+        }
+        return true;
     }
 }

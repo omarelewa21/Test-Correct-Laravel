@@ -53,5 +53,9 @@ return [
     'knowledgebank'                    => 'Kennisbank',
     'version'                          => 'Versie',
     'make'                             => 'Maken',
-
+    'to_message'                       => 'Naar bericht',
+    'no_recent_messages'               => 'Je hebt geen berichten.',
+    'recent_grades'                    => 'Laatst behaalde cijfers',
+    'no_recent_grades'                 => 'Je hebt geen laatst behaalde cijfers',
+    'no_upcoming_tests'                => 'Je hebt geen binnenkort geplande toetsen.',
 ];
