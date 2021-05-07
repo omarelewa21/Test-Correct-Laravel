@@ -68,7 +68,7 @@
                 <x-icon.locked class="ml-2"/>
             @endif
 
-            <h1 class="inline-block ml-2 mr-6">{!! __($question->caption) !!}</h1>
+            <h1 class="inline-block ml-2 mr-6" selid="questiontitle">{!! __($question->caption) !!}</h1>
 
             @if ($question->score > 0)
                 <h4 class="inline-block">{{ $question->score }} pt</h4>
