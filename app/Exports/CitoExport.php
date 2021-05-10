@@ -83,7 +83,7 @@ class CitoExport implements WithEvents, FromCollection, WithMapping, WithHeading
     public function map($row): array
     {
         $data = [
-            '-', // BRIN
+            $row->getBrinHash(), // BRIN
             $row->getUserIdHash(),
             $row->vak,
             $row->leerdoel,
