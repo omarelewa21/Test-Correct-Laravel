@@ -293,7 +293,7 @@ class CreateCitoExport extends Command
                         if(strlen(trim($value)) > 0){
                             $answerAr[] = sprintf('%s => %s',
                                 $value,
-                                RankingQuestionAnswer::find($key)->value('answer')
+                                RankingQuestionAnswer::find($key)->answer
                             );
                         }
                     }
@@ -303,8 +303,8 @@ class CreateCitoExport extends Command
                     break;
                 case 'MatrixQuestion':
                     foreach ((array)$json as $key => $value) {
-                        $subQuestion = optional(MatrixQuestionSubQuestion::find($key))->value('sub_question');
-                        $answer = optional(MatrixQuestionAnswer::find($value))->value('answer');
+                        $subQuestion = optional(MatrixQuestionSubQuestion::find($key))->sub_question;
+                        $answer = optional(MatrixQuestionAnswer::find($value))->answer;
                         if($subQuestion && $answer) {
                             if(strlen(trim($answer)) > 0) {
                                 $answerAr[] = sprintf('%s => %s',
