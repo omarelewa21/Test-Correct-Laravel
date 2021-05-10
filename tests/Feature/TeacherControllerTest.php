@@ -437,6 +437,51 @@ class TeacherControllerTest extends TestCase
         //dump($response->decodeResponseJson());
     }
 
+    /** @test */
+    public function deleting_user_with_role_docent_results_in_deleting_teacher()
+    {
+        $this->assertCount(
+            0,
+            User::where('username', 'bobdebouwer@test-correct.nl')->get()
+        );
+        $user = User::where('username', static::USER_SCHOOLBEHEERDER_LOCATION1)->first();
+        $this->actingAs($user);
+        $startCountTeachers = \tcCore\Teacher::count();
+
+        $response = $this->postJson(
+            static::AuthBeheerderGetRequestLocation1(route('teacher.import')),
+            ['data' => $this->getDataLocation1BobDeBouwer()]
+        );
+
+        $response->assertStatus(200);
+        $this->assertCount(
+            1,
+            User::where('username', 'bobdebouwer@test-correct.nl')->get()
+        );
+
+        $this->assertGreaterThan($startCountTeachers,\tcCore\Teacher::count());
+        $secondStartCountTeachers = \tcCore\Teacher::count();
+        $response = $this->postJson(
+            static::AuthBeheerderGetRequestLocation3(route('teacher.import')),
+            ['data' => $this->getDataLocation3BobDeBouwer()]
+        );
+        $response->assertStatus(200);
+        $this->assertEquals(($secondStartCountTeachers + 1), \tcCore\Teacher::count());
+        $user = User::where('username', 'bobdebouwer@test-correct.nl')->first();
+        $response = $this->delete(
+            static::AuthBeheerderGetRequestLocation3('/api-c/user/'.$user->uuid)
+        );
+        $response->assertStatus(500);
+        $this->assertEquals('Failed to delete user',$response->getContent());
+        $this->assertEquals(($secondStartCountTeachers), \tcCore\Teacher::count());
+        $response = $this->postJson(
+            static::AuthBeheerderGetRequestLocation3(route('teacher.import')),
+            ['data' => $this->getDataLocation3BobDeBouwer()]
+        );
+        $response->assertStatus(200);
+        $this->assertEquals(($secondStartCountTeachers + 1), \tcCore\Teacher::count());
+    }
+
 
 
     private function getData($overrides = [])

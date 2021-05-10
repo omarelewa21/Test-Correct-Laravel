@@ -249,7 +249,19 @@ class UsersController extends Controller
      */
     public function show(User $user, Requests\ShowUserRequest $request)
     {
-        $user->load('roles', 'studentSchoolClasses', 'managerSchoolClasses', 'mentorSchoolClasses', 'teacher', 'teacher.schoolClass', 'teacher.subject', 'salesOrganization', 'school.schoolLocations', 'schoolLocation');
+        $user->load('roles',
+                            'studentSchoolClasses',
+                            'managerSchoolClasses',
+                            'mentorSchoolClasses',
+                            'ownTeachers',
+                            'ownTeachers.schoolClass',
+                            'ownTeachers.subject',
+                            'teacher.schoolClass',
+                            'teacher.subject',
+                            'salesOrganization',
+                            'school.schoolLocations',
+                            'schoolLocation'
+                    );
 
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
             AverageRatingRepository::getSubjectAveragesOfStudents(Collection::make([$user]));
@@ -400,7 +412,6 @@ class UsersController extends Controller
         // for safety now disabled
         // @TODO fix security issue with deletion of users (as well update/ add and such)
 //	    return Response::make($user,200);
-
         if ($user->delete()) {
             return Response::make($user, 200);
         } else {

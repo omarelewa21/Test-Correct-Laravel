@@ -82,7 +82,6 @@ abstract class TestCase extends BaseTestCase
             $user->session_hash = $user->generateSessionHash();
             $user->save();
         }
-
         return sprintf(
             '%s/?session_hash=%s&signature=aaebbf4a062594c979128ec2f2ef477d4f7d08893c6940cc736b62b106f6498f&user=%s&%s',
             $url,
