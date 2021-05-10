@@ -9,18 +9,37 @@
             @else
                 <x-table>
                     <x-slot name="head">
-                        <x-table.heading width="">{{ __('student.test') }}</x-table.heading>
-                        <x-table.heading width="">{{ __('student.subject') }}</x-table.heading>
-                        <x-table.heading width="120px"
-                                         textAlign="right">{{ __('student.take_date') }}</x-table.heading>
+                        <x-table.heading width=""
+                                         sortable
+                                         wire:click="sortBy('tests.name')"
+                                         :direction="$sortField === 'tests.name' ? $sortDirection : null"
+                        >
+                            {{ __('student.test') }}
+                        </x-table.heading>
+                        <x-table.heading width=""
+                                         sortable
+                                         wire:click="sortBy('subjects.name')"
+                                         :direction="$sortField === 'subjects.name' ? $sortDirection : null">
+                            {{ __('student.subject') }}
+                        </x-table.heading>
+                        <x-table.heading width="180px">{{ __('student.teacher') }}</x-table.heading>
+                        <x-table.heading width="130px"
+                                         textAlign="right"
+                                         sortable
+                                         wire:click="sortBy('test_takes.time_start')"
+                                         :direction="$sortField === 'test_takes.time_start' ? $sortDirection : null"
+                        >
+                            {{ __('student.take_date') }}
+                        </x-table.heading>
                         <x-table.heading width="100px">{{ __('student.type') }}</x-table.heading>
-                        <x-table.heading width="40px">{{ __('student.grade') }}</x-table.heading>
+                        <x-table.heading width="70px">{{ __('student.grade') }}</x-table.heading>
                     </x-slot>
                     <x-slot name="body">
                         @foreach($ratings as $rating)
                             <x-table.row>
                                 <x-table.cell>{!! $rating->name !!}</x-table.cell>
                                 <x-table.cell>{!! $rating->subject_name !!}</x-table.cell>
+                                <x-table.cell>{!! $this->getTeacherNameForRating($rating->user_id) !!}</x-table.cell>
                                 <x-table.cell class="text-right">
                                     @if($rating->time_start == \Carbon\Carbon::today())
                                         <span class="capitalize">{{ __('student.today') }}</span>

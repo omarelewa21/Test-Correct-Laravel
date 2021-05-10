@@ -459,3 +459,7 @@ body.modal-open {
         margin-left: 15px;
     }
 }
+
+.paginator-button:hover {
+    background: var(--blue-grey);
+}

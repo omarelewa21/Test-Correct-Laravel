@@ -19,26 +19,33 @@
                                      class="hidden xl:table-cell">{{ __('student.invigilators') }}</x-table.heading>
                     <x-table.heading width="150px"
                                      class="hidden xl:table-cell">{{ __('student.planner') }}</x-table.heading>
-                    <x-table.heading width="">{{ __('student.subject') }}</x-table.heading>
+                    <x-table.heading width=""
+                                     sortable
+                                     wire:click="sortBy('subjects.name')"
+                                     :direction="$sortField === 'subjects.name' ? $sortDirection : null">
+                        {{ __('student.subject') }}
+                    </x-table.heading>
 
-                    <x-table.heading width="120px" sortable wire:click="sortBy('test_takes.time_start')"
+                    <x-table.heading width="130px" sortable wire:click="sortBy('test_takes.time_start')"
                                      :direction="$sortField === 'test_takes.time_start' ? $sortDirection : null"
-                                     textAlign="right">{{ __('student.take_date') }}</x-table.heading>
+                                     textAlign="right">
+                        {{ __('student.take_date') }}
+                    </x-table.heading>
 
                     <x-table.heading width="60px" textAlign="right" class="hidden lg:table-cell">
                         {{ __('student.weight') }}
                     </x-table.heading>
-                    <x-table.heading width="100px">{{ __('student.type') }}</x-table.heading>
+                    <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
                     <x-table.heading width="125px"></x-table.heading>
                 </x-slot>
                 <x-slot name="body">
                     @foreach($testTakes as $testTake)
 
                         <x-table.row class="cursor-pointer"
-                                     wire:click="redirectToWaitingRoom({{ $testTake->getKey() }})">
-                            <x-table.cell>{{ $testTake->test->name }}</x-table.cell>
+                                     wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">
+                            <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
                             <x-table.cell
-                                    class="text-right hidden lg:table-cell">{{ $testTake->test->question_count }}
+                                    class="text-right hidden lg:table-cell">{{ $testTake->question_count }}
                             </x-table.cell>
                             <x-table.cell class="hidden xl:table-cell">
                                 <x-partials.invigilator-list
@@ -47,7 +54,7 @@
                             <x-table.cell class="hidden xl:table-cell">
                                 {{ $testTake->user->getFullNameWithAbbreviatedFirstName() }}
                             </x-table.cell>
-                            <x-table.cell>{!! $testTake->test->subject->name !!}</x-table.cell>
+                            <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
                             <x-table.cell class="text-right">
                                 @if($testTake->time_start == \Carbon\Carbon::today())
                                     <span class="capitalize">{{ __('student.today') }}</span>

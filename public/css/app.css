@@ -1719,12 +1719,6 @@ video {
 .max-h-0{
 	max-height: 0px;
 }
-.max-h-28{
-	max-height: 7rem;
-}
-.max-h-24{
-	max-height: 6rem;
-}
 .min-h-screen{
 	min-height: 100vh;
 }
@@ -1804,9 +1798,6 @@ video {
 	min-width: -webkit-max-content;
 	min-width: -moz-max-content;
 	min-width: max-content;
-}
-.min-w-\[20rem\]{
-	min-width: 20rem;
 }
 .max-w-2xl{
 	max-width: 42rem;
@@ -2060,9 +2051,6 @@ video {
 .overflow-ellipsis{
 	text-overflow: ellipsis;
 }
-.overflow-clip{
-	text-overflow: clip;
-}
 .whitespace-nowrap{
 	white-space: nowrap;
 }
@@ -2300,10 +2288,6 @@ video {
 .py-\[70px\]{
 	padding-top: 70px;
 	padding-bottom: 70px;
-}
-.py-3{
-	padding-top: 0.75rem;
-	padding-bottom: 0.75rem;
 }
 .pt-4{
 	padding-top: 1rem;
@@ -3082,6 +3066,10 @@ body.modal-open {
     100% {
         margin-left: 15px;
     }
+}
+
+.paginator-button:hover {
+    background: var(--blue-grey);
 }
 
 .hover\:scale-110:hover{

@@ -25,14 +25,14 @@
                                 <x-table.heading width="">{{ __('student.subject') }}</x-table.heading>
                                 <x-table.heading width="120px"
                                                  textAlign="right">{{ __('student.take_date') }}</x-table.heading>
-                                <x-table.heading width="100px">{{ __('student.type') }}</x-table.heading>
+                                <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
                                 <x-table.heading width="125px"></x-table.heading>
                             </x-slot>
                             <x-slot name="body">
                                 @foreach($testTakes as $testTake)
-                                    <x-table.row wire:click="redirectToWaitingRoom({!!$testTake->getKey() !!})">
-                                        <x-table.cell>{{ $testTake->test->name }}</x-table.cell>
-                                        <x-table.cell>{!! $testTake->test->subject->name !!}</x-table.cell>
+                                    <x-table.row wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">
+                                        <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
+                                        <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
                                         <x-table.cell class="text-right">
                                             @if($testTake->time_start == \Carbon\Carbon::today())
                                                 <span class="capitalize">{{ __('student.today') }}</span>
@@ -43,7 +43,7 @@
                                         <x-table.cell>
                                             <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
                                         </x-table.cell>
-                                        <x-table.cell class="text-right">
+                                        <x-table.cell class="text-right" buttonCell>
                                             <x-partials.start-take-button :timeStart=" $testTake->time_start "
                                                                           :uuid="$testTake->uuid"/>
                                         </x-table.cell>
@@ -74,10 +74,10 @@
                             <x-slot name="head">
                                 <x-table.heading width="">{{ __('student.test') }}</x-table.heading>
                                 <x-table.heading width="">{{ __('student.subject') }}</x-table.heading>
-                                <x-table.heading width="120px"
+                                <x-table.heading width="130px"
                                                  textAlign="right">{{ __('student.take_date') }}</x-table.heading>
                                 <x-table.heading width="100px">{{ __('student.type') }}</x-table.heading>
-                                <x-table.heading width="40px">{{ __('student.grade') }}</x-table.heading>
+                                <x-table.heading width="70px">{{ __('student.grade') }}</x-table.heading>
                             </x-slot>
                             <x-slot name="body">
                                 @foreach($ratings as $rating)
@@ -107,7 +107,7 @@
                 </div>
                 <div class="flex">
                     <x-button.primary class="ml-auto" type="link"
-                                      href="{{ route('student.test-takes', ['tab' => 'grades']) }}">
+                                      href="{{ route('student.test-takes', ['tab' => 'graded']) }}">
                         <span>{{ __('student.see_grades') }}</span>
                         <x-icon.chevron/>
                     </x-button.primary>

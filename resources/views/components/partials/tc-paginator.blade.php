@@ -74,12 +74,12 @@
                                     <span wire:key="paginator-page{{ $page }}">
                                         @if ($page == $paginator->currentPage())
                                             <span aria-current="page">
-                                                <span class="relative inline-flex items-center justify-center w-8 h-8 transition ease-in-out duration-150 bg-primary text-sm text-white rounded-full focus:outline-none">
+                                                <span class="relative cursor-default inline-flex items-center justify-center w-8 h-8 transition ease-in-out duration-150 bg-primary text-sm text-white rounded-full focus:outline-none">
                                                     {{ $page }}
                                                 </span>
                                             </span>
                                         @else
-                                            <button wire:click="gotoPage({{ $page }})" class="relative inline-flex items-center justify-center w-8 h-8 transition ease-in-out duration-150 bg-mid-grey text-sm text-white rounded-full focus:outline-none" aria-label="{{ __('Go to page :page', ['page' => $page]) }}">
+                                            <button wire:click="gotoPage({{ $page }})" class="relative paginator-button inline-flex items-center justify-center w-8 h-8 transition ease-in-out duration-150 bg-mid-grey text-sm text-white rounded-full focus:outline-none" aria-label="{{ __('Go to page :page', ['page' => $page]) }}">
                                             {{ $page }}
                                             </button>
                                         @endif

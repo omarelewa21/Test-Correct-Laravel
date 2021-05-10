@@ -9,7 +9,7 @@
      :class="{'overflow-hidden h-screen' : startCountdown}"
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('planned-body')"
      wire:ignore.self
-     wire:poll.10000="isTestTakeOpen()"
+     wire:poll.10000ms="isTestTakeOpen()"
 >
     <div class="flex w-full justify-center border-b border-system-secondary transition-all duration-500"
          :class="{'opacity-0': startCountdown}">
@@ -42,7 +42,7 @@
                     <x-button.text-button class="rotate-svg-180" type="link"
                                           href="{{ route('student.test-takes', ['tab' => 'planned']) }}">
                         <x-icon.arrow/>
-                        <span class="text-[32px]">{{ $waitingTestTake->test->name }}</span>
+                        <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
                     </x-button.text-button>
                 </div>
                 <div>
@@ -67,6 +67,12 @@
                             </x-button.cta>
                         </div>
                         <div class="divider flex flex-1 pulse-right"></div>
+                    @elseif($this->isTakeAlreadyTaken)
+                        <div class="divider flex flex-1"></div>
+                        <div class="flex flex-col justify-center">
+                            <div class="mx-4">{{ __('student.test_already_taken') }}</div>
+                        </div>
+                        <div class="divider flex flex-1"></div>
                     @else
                         <div class="divider flex flex-1"></div>
                         <div class="flex flex-col justify-center">
@@ -106,7 +112,8 @@
             <div class="flex h-full flex-col mx-auto max-w-7xl transition-all duration-500 pt-16">
                 <div class="flex flex-col mb-4">
                     <span class="-mb-2">Geplande toets</span>
-                    <x-button.text-button class="rotate-svg-180" x-on:click="startCountdown = false; clearInterval(countdownTimer); countdownNumber = {{ $this->getCountdownNumber() }}">
+                    <x-button.text-button class="rotate-svg-180"
+                                          x-on:click="startCountdown = false; clearInterval(countdownTimer); countdownNumber = {{ $this->getCountdownNumber() }}">
                         <x-icon.arrow/>
                         <span class="text-[32px]">{{ $waitingTestTake->test->name }}</span>
                     </x-button.text-button>

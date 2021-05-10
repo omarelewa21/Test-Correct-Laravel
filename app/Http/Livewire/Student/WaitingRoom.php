@@ -17,6 +17,7 @@ class WaitingRoom extends Component
     public $take;
     public $waitingTestTake;
     public $isTakeOpen;
+    public $isTakeAlreadyTaken;
     public $countdownNumber = 3;
 
     public function mount()
@@ -24,13 +25,14 @@ class WaitingRoom extends Component
         if (!isset($this->take) || !Uuid::isValid($this->take)) {
             return redirect(route('student.dashboard'));
         }
+        /**
+            @TODO Improve query for testTake (including test.name and subject.name)
+         */
 
         $this->waitingTestTake = TestTake::whereUuid($this->take)->firstOrFail();
 
-        if ($this->waitingTestTake->test_take_status_id > TestTakeStatus::STATUS_TAKING_TEST) {
-            return redirect(route('student.dashboard'));
-        }
         $this->isTakeOpen = $this->waitingTestTake->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
+        $this->isTakeAlreadyTaken = $this->waitingTestTake->test_take_status_id == TestTakeStatus::STATUS_TAKEN;
     }
 
     public function render()
@@ -40,7 +42,7 @@ class WaitingRoom extends Component
 
     public function startTestTake()
     {
-//        $this->redirectRoute('student.test-take-laravel', $this->take);
+        $this->redirectRoute('student.test-take-laravel', $this->take);
     }
 
     public function isTestTakeOpen()

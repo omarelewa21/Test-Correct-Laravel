@@ -58,5 +58,6 @@ return [
     'recent_grades'                    => 'Recently received grades',
     'no_recent_grades'                 => 'You have no recently received grades.',
     'no_upcoming_tests'                => 'You have no upcoming tests.',
+    'test_already_taken'               => 'This test is taken and cannot be opened again.',
 
 ];

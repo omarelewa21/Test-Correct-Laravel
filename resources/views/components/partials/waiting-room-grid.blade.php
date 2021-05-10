@@ -2,7 +2,7 @@
 
     <div class="flex flex-col space-y-2">
         <span>{{ __('student.subject') }}</span>
-        <h6>{!! $waitingTestTake->test->subject->name !!}</h6>
+        <h6>{!! $waitingTestTake->subject_name !!}</h6>
     </div>
     <div class="flex flex-col space-y-2">
         <span>{{ __('student.take_date') }}</span>
