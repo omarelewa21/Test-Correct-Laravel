@@ -65,6 +65,7 @@ return [
     'draw_answer'                                  => 'Draw answer',
     'seconds_left'                                 => 'Seconds left',
     'time_left_to_answer_after_closing_attachment' => 'You have :timeout seconds to answer the question after closing this attachment.',
-    'matrix_question'                              => 'Matrix question'
+    'matrix_question'                              => 'Matrix question',
+    'attachment'                                   => 'Attachment',
 
 ];
