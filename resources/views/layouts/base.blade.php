@@ -17,6 +17,11 @@
 @livewireScripts
 <script>
     window.livewire.onError(statusCode => {
+        if(statusCode === 406){
+            Livewire.emit('set_force_taken_away');
+            console.log('has');
+            return false;
+        }
         if (statusCode === 440) {
             location.href = '{{ config('app.url_login') }}';
 
