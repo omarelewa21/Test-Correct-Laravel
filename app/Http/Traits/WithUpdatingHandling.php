@@ -13,7 +13,5 @@ trait WithUpdatingHandling
     public function updating(&$name, &$value)
     {
         Request::filter($value);
-        throw new LivewireTestTakeClosedException('blabla');
-
     }
 }

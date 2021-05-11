@@ -21,7 +21,7 @@ class TestTake extends Component
      *  time in milliseconds a notification is shown
      */
     public $notificationTimeout = 5000;
-    protected $listeners = ['set_force_taken_away' => 'setForceTakenAway'];
+    protected $listeners = ['set-force-taken-away' => 'setForceTakenAway'];
 
     public function render()
     {
