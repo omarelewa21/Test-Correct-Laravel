@@ -90,6 +90,7 @@
             </div>
         </div>
 
+        @push('scripts')
         <script>
             let timer
             function callback(entries) {
@@ -119,6 +120,7 @@
                 }
             }
         </script>
+        @endpush
 
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
             @if(Auth::user()->text2speech)
@@ -138,6 +140,7 @@
     </div>
 
     @if(Auth::user()->text2speech)
+        @push('scripts')
         <script>
             function toggleBrowseAloud() {
                 if (typeof BrowseAloud == 'undefined') {
@@ -205,5 +208,6 @@
                 }, 1000);
             }
         </script>
+        @endpush
     @endif
 </div>

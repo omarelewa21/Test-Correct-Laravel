@@ -43,7 +43,20 @@ Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController
 
 Route::get('temporary_login/{tlid}', ['as' => 'user.temporary_login', 'uses'=>'UsersController@temporaryLogin']);
 
+Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceController@checkForMaintenance']);
+
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
+
+    Route::get('/deployment',['uses' => 'DeploymentController@index']);
+    Route::get('/deployment/{deployment}',['uses' => 'DeploymentController@show']);
+    Route::post('/deployment',['uses' => 'DeploymentController@create']);
+    Route::put('/deployment/{deployment}',['uses' => 'DeploymentController@update']);
+
+    Route::get('/maintenance_whitelist_ip',['uses' => 'MaintenanceWhitelistIpController@index']);
+    Route::get('/maintenance_whitelist_ip/{maintenanceWhitelistIp}',['uses' => 'MaintenanceWhitelistIpController@show']);
+    Route::post('/maintenance_whitelist_ip',['uses' => 'MaintenanceWhitelistIpController@create']);
+    Route::put('/maintenance_whitelist_ip/{maintenanceWhitelistIp}',['uses' => 'MaintenanceWhitelistIpController@update']);
+    Route::delete('/maintenance_whitelist_ip/{maintenanceWhitelistIp}',['uses' => 'MaintenanceWhitelistIpController@delete']);
 
     // app_version_info
     Route::post('/app_version_info',['as' => 'app_version_info.store','uses' => 'AppVersionInfoController@store']);
@@ -218,7 +231,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
     Route::get('user/is_account_verified', ['as' => 'user.is_account_verified', 'uses' => 'UsersController@isAccountVerified']);
     Route::post('user/toggle_account_verified/{user}', ['as' => 'user.toggle_account_verified', 'uses' => 'UsersController@toggleAccountVerified']);
-
+    Route::post('/user/import/{type}','UsersController@import')->name('user.import');
 
 
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);

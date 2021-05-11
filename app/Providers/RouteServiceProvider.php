@@ -13,6 +13,7 @@ use tcCore\Attainment;
 use tcCore\BaseSubject;
 use tcCore\CompletionQuestion;
 use tcCore\Contact;
+use tcCore\Deployment;
 use tcCore\DrawingQuestion;
 use tcCore\EducationLevel;
 use tcCore\EmailConfirmation;
@@ -25,6 +26,7 @@ use tcCore\InfoscreenQuestion;
 use tcCore\Invigilator;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\License;
+use tcCore\MaintenanceWhitelistIp;
 use tcCore\Message;
 use tcCore\MultipleChoiceQuestion;
 use tcCore\OnboardingWizard;
@@ -279,6 +281,14 @@ class RouteServiceProvider extends ServiceProvider
             throw new RouteModelBindingNotFoundHttpException('Email Confirmation not found');
         });
 
+        Route::model('deployment', 'tcCore\Deployment', function () {
+            throw new RouteModelBindingNotFoundHttpException('Deployment not found');
+        });
+
+        Route::model('maintenanceWhitelistIp', 'tcCore\MaintenanceWhitelistIp', function () {
+            throw new RouteModelBindingNotFoundHttpException('MaintenanceWhitelistIp not found');
+        });
+
         /**
          * Route::model('user_role','tcCore\UserRole', function() {
          * throw new NotFoundHttpException('User role not found');
@@ -344,7 +354,23 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('test', function($item) {
-            return Test::whereUuid($item)->firstOrFail();
+            /**
+             * Sometimes the Test UUID is not actually
+             * a Test UUID, but a TestQuestion UUID that
+             * should be handled as it were a 'group_question_question'
+             * So now we handle both cases
+             * 
+             * This inconsistency is also the case for 'question'
+             * 
+             * Relates to TCP-833
+             */
+            $test = Test::whereUuid($item)->first();
+            if ($test != null) {
+                return $test;
+            }
+
+            $testQuestion = \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstanceWithUuid($item);
+            return $testQuestion->getQuestionLink()->test;
         });
 
         Route::bind('onboarding_wizard', function($item) {
@@ -429,16 +455,6 @@ class RouteServiceProvider extends ServiceProvider
             }
 
             return Answer::whereUuid($item)->firstOrFail()->question;
-
-//            $answer = Answer::whereUuid($item)->firstOrFail()->question;
-//
-//            if (!$answer == null) {
-//                return $answer;
-//            }
-//
-//            //$group_question =
-//
-//            throw new NotFoundHttpException('Question could not be found');
         });
 
         Route::bind('multiple_choice_question', function($item) {
@@ -491,6 +507,14 @@ class RouteServiceProvider extends ServiceProvider
 
         Route::bind('EmailConfirmation', function($item) {
             return EmailConfirmation::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('deployment', function($item) {
+            return Deployment::whereUuid($item)->firstOrFail();
+        });
+
+        Route::bind('maintenanceWhitelistIp', function($item) {
+            return MaintenanceWhitelistIp::whereUuid($item)->firstOrFail();
         });
 
     }
