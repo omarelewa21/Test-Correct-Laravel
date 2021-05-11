@@ -9,7 +9,7 @@ use tcCore\Exports\SchoolLocationExport;
 
 class SchoolLocationReportController extends Controller
 {
-    protected $fileName = 'location_report.xls';
+    protected $fileName = 'school_location_report.xls';
 
     public function store()
     {

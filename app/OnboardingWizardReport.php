@@ -318,8 +318,8 @@ ORDER BY t2.displayorder,
     public static function nrTestTakesByStatusIdUserAndNumberOfDays($statusId, $user, $days)
     {
 
-        $builder = TestTake::leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
-            ->where('users.id', $user->getKey())
+        $builder = TestTake::where('test_takes.user_id', $user->getKey())
+            ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
             ->where('test_take_status_logs.test_take_status_id',$statusId)
             ->groupBy('test_take_id');
 
