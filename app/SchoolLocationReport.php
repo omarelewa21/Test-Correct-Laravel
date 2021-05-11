@@ -30,7 +30,7 @@ class SchoolLocationReport extends Model
                         ], [
                     'school_location_name' => $location->name,
                     'nr_licenses' => $location->count_licenses,
-                    'nr_activated_licenses' => $location->count_active_licenses,
+                    'nr_activated_licenses' => self::getActiveLicenses($location),
                     'nr_browsealoud_licenses' => $location->count_text2speech,
                     'nr_approved_test_files_7' => self::nrApprovedTestFiles($location, 7),
                     'nr_approved_test_files_30' => self::nrApprovedTestFiles($location, 30),
@@ -72,6 +72,18 @@ class SchoolLocationReport extends Model
         ]);
         
              
+    }
+
+    public static function getActiveLicenses($location)
+    {
+        $date = Carbon::now();
+        return $location->licenses()
+            ->where('start', '<=', $date->format('Y-m-d'))
+            ->where(function ($query) use ($date) {
+                $query->whereNull('end')
+                    ->orWhere('end', '>=', $date->format('Y-m-d'));
+            })
+            ->sum('amount');
     }
 
     public static function nrApprovedTestFiles($location, $days)
