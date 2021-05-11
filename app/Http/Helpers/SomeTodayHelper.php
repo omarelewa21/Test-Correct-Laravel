@@ -55,7 +55,7 @@ class SomeTodayHelper
                 ->wsdl(self::WSDL)
                 ->trace(true)
                 ->header('http://www.edustandaard.nl/leerresultaten/2/autorisatie', 'autorisatie', [
-                    'autorisatiesleutel' => 'gquk+C0G0Jp5Wlrs9FXmc3i44KvRb79TCPrCAFd2oQYZ2U2ZaYWXXn7181qh8tZ0qsbgC/99YYTl+kpGWmI7oA==',
+                    'autorisatiesleutel' => 'pmjkO4VbG8uOGNS1T3Q3sHBnOxf/q76osIPUTCbXGQZcs9q5UlgnhUP8p6sUNzf1ZbhLPOfzk85y9OdD9Nz3Rw==',
                     'klantcode'          => $klantcode,
                     'klantnaam'          => $klantnaam,
                 ]);
@@ -79,6 +79,7 @@ class SomeTodayHelper
         if (!$this->result) {
             throw new \Exception('no result to store');
         }
+        dd($this->result);
 
         $this->resultSet = UwlrSoapResult::create($this->searchParams);
 

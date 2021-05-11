@@ -91,12 +91,16 @@ class UwlrSoapResult extends Model
      */
     private function addCvsRow($school, $leerling, $klasNaam, $leerkracht, $isMentorGroep = 1, $studierichting='vwo'): void
     {
+        /** @todo jaargroep uit klas halen als die niet in de leerling zit. */
+
         $this->csvArray[] = [
             $school['name'], //Schoolnaam,
             $school['brincode'], //Brincode,
             $school['dependancecode'], //Locatiecode,
             $studierichting, //Studierichting,
-            $leerling['jaargroep'], //lesJaarlaag,
+            $leerling['jaargroep']? $leerling['jaargroep']-10: $klas['jaargroep'], //lesJaarlaag wordt gedefineerd als 11-16 is 1-6 vo zie code table uwlr,
+
+
             $school['schooljaar'], // Schooljaar,
             $leerling['key'], //leeStamNummer,
             $leerling['achternaam'], //leeAchternaam,
