@@ -408,6 +408,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             }
             if (static::isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation($user)){
                 $user->removeSchoolLocation(Auth::user()->schoolLocation);
+                $user->removeSchoolLocationTeachers(Auth::user()->schoolLocation);
                 return false;
             }
         });
@@ -996,6 +997,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function teacher()
     {
         return $this->hasMany('tcCore\Teacher');
+    }
+
+    public function ownTeachers()
+    {
+
+        return $this->hasMany('tcCore\Teacher')->currentSchoolLocation();
     }
 
     public function tests()
@@ -1813,6 +1820,24 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        }
 
         return $this;
+    }
+
+    public function removeSchoolLocationTeachers(SchoolLocation $schoolLocation)
+    {
+        foreach($this->teacher as $teacher){
+            if(!$this->teacherBelongsToSchoolLocation($teacher,$schoolLocation)){
+                continue;
+            }
+            $teacher->delete();
+        }
+    }
+
+    private function teacherBelongsToSchoolLocation(Teacher $teacher,SchoolLocation $schoolLocation)
+    {
+        if($teacher->schoolClass->schoolLocation->id == $schoolLocation->id){
+            return true;
+        }
+        return false;
     }
 
     private function fromAnotherLocation($user)

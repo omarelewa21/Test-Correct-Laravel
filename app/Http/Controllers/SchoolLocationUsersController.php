@@ -69,6 +69,7 @@ class SchoolLocationUsersController extends Controller {
         $user = User::whereUuid($request->get('user_uuid'))->first();
 
         $user->removeSchoolLocation(Auth::user()->schoolLocation);
+        $user->removeSchoolLocationTeachers(Auth::user()->schoolLocation);
     }
 
     public function getExistingTeachers(Request $request){
