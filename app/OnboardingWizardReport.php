@@ -262,104 +262,79 @@ ORDER BY t2.displayorder,
     public static function nrApprovedTestFiles($user, $days)
     {
 
+        $builder = Test::where('tests.author_id', $user->id)
+            ->whereNull('tests.system_test_id');
+
         if ($days != 0) {
 
             $end_date = Carbon::now()->toDateTimeString();
             $start_date = Carbon::now()->subDays($days);
 
 
-            return Test::where('tests.author_id', $user->id)
-                            ->whereNull('tests.system_test_id')
-                            ->whereBetween('tests.created_at', [$start_date, $end_date])->get()->count();
-        } else {
-
-            return Test::where('tests.author_id', $user->id)
-                           ->whereNull('tests.system_test_id')->count();
+            $builder->whereBetween('tests.created_at', [$start_date, $end_date]);
         }
+
+        return $builder->count();
     }
 
     public static function nrAddedQuestionItems($user, $days)
     {
 
+        $builder = QuestionAuthor::where('question_authors.user_id',$user->id);
+
         if ($days != 0) {
 
             $end_date = Carbon::now()->toDateTimeString();
             $start_date = Carbon::now()->subDays($days);
 
 
-            return QuestionAuthor::where('question_authors.user_id',$user->id)
-                            ->whereBetween('question_authors.created_at', [$start_date, $end_date])->get()->count();
-        } else {
-
-            return QuestionAuthor::where('question_authors.user_id',$user->id)
-                            ->count();
+            $builder->whereBetween('question_authors.created_at', [$start_date, $end_date]);
         }
+
+        return $builder->count();
     }
 
     public static function nrTestsTaken($user, $days)
     {
-        return self::nrTestTakeStatusForStatusLocationDays(6,$user, $days);
+        return self::nrTestTakesByStatusIdUserAndNumberOfDays(6,$user, $days);
     }
 
     public static function nrTestsChecked($user, $days)
     {
 
-        return self::nrTestTakeStatusForStatusLocationDays(8,$user, $days);
+        return self::nrTestTakesByStatusIdUserAndNumberOfDays(8,$user, $days);
     }
 
     public static function nrTestsRated($user, $days)
     {
-        return self::nrTestTakeStatusForStatusLocationDays(9,$user, $days);
+        return self::nrTestTakesByStatusIdUserAndNumberOfDays(9,$user, $days);
     }
 
     public static function nrColearningSessions($user, $days)
     {
-        return self::nrTestTakeStatusForStatusLocationDays(7,$user, $days);
+        return self::nrTestTakesByStatusIdUserAndNumberOfDays(7,$user, $days);
     }   
 
-    public static function nrTestTakeStatusForStatusLocationDays($status,$user, $days)
+    public static function nrTestTakesByStatusIdUserAndNumberOfDays($statusId, $user, $days)
     {
+
+        $builder = TestTake::leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
+            ->where('users.id', $user->getKey())
+            ->where('test_take_status_logs.test_take_status_id',$statusId)
+            ->groupBy('test_take_id');
 
         if ($days != 0) {
 
             $end_date = Carbon::now()->toDateTimeString();
             $start_date = Carbon::now()->subDays($days);
-        
-        $count = TestTake::leftJoin('users','users.id','=','test_takes.user_id')                      
-                ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
-                ->where('users.id', $user->id)
-                ->where('test_take_status_logs.test_take_status',$status)
-                ->whereBetween('test_takes.created_at', [$start_date, $end_date])
-                ->groupBy('test_take_id')
-                ->count();
-        
-        } else { 
 
-        $count =  TestTake::leftJoin('users','users.id','=','test_takes.user_id')          
-                ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
-                ->where('users.id', $user->id)
-                ->where('test_take_status_logs.test_take_status',$status)
-                ->groupBy('test_take_id')
-                ->count();
-            
+            $builder->whereBetween('test_takes.created_at', [$start_date, $end_date]);
         }
-        
-        return $count;
+
+        return $builder->count();
                
     }
     
-    
-    ///
-    
-    ///
-    
-    ///
-    
-    ///
-    
-    
-    ///
-
     /**
      * @param User $user
      * @return mixed

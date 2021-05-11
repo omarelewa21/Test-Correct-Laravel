@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddColumnsForLocationReport extends Migration
+class AddColumnsForSchoolLocationReport extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddColumnsForLocationReport extends Migration
      */
     public function up()
     {
-        Schema::table('location_reports', function (Blueprint $table) {
-            $table->string('location_name')->after('location_id');
+        Schema::table('school_location_reports', function (Blueprint $table) {
+            $table->string('school_location_name')->after('school_location_id');
         });
     }
 
@@ -25,8 +25,8 @@ class AddColumnsForLocationReport extends Migration
      */
     public function down()
     {
-        Schema::table('location_reports', function (Blueprint $table) {
-            $table->dropColumn('location_name');
+        Schema::table('school_location_reports', function (Blueprint $table) {
+            $table->dropColumn('school_location_name');
         });
     }
 }

@@ -14,15 +14,15 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\BeforeExport;
-use tcCore\LocationReport;
+use tcCore\SchoolLocationReport;
 
-class LocationExport implements WithEvents, FromCollection, WithHeadings,WithMapping
+class SchoolLocationExport implements WithEvents, FromCollection, WithHeadings,WithMapping
 {
 
     private $field_names = [
         'id',	
-        'location_id',	
-        'location_name',
+        'school_location_id',
+        'school_location_name',
         'nr_licenses',	
         'nr_activated_licenses',	
         'nr_browsealoud_licenses',
@@ -67,13 +67,13 @@ class LocationExport implements WithEvents, FromCollection, WithHeadings,WithMap
     
     public function headings(): array
     {
-        return array_keys(LocationReport::first()->toArray());
+        return array_keys(SchoolLocationReport::first()->toArray());
     }
 
     public function collection()
     {
 
-       $all_fields = LocationReport::all();
+       $all_fields = SchoolLocationReport::all();
 
         return collect($all_fields);
 

@@ -15,4 +15,4 @@ class TestTakesExport implements FromArray
     {
         return $this->exporting;
     }
-
+}

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateLocationReportsTable extends Migration
+class CreateSchoolLocationReportsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,9 @@ class CreateLocationReportsTable extends Migration
     public function up()
     {
 
-        Schema::create('location_reports', function (Blueprint $table) {
+        Schema::create('school_location_reports', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('location_id')->nullable();
+            $table->integer('school_location_id')->nullable();
             $table->integer('nr_licenses')->nullable();                                      
             $table->integer('nr_activated_licenses')->nullable();                      
             $table->integer('nr_browsealoud_licenses')->nullable();               
@@ -68,6 +68,6 @@ class CreateLocationReportsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('location_reports');
+        Schema::dropIfExists('school_location_reports');
     }
 }

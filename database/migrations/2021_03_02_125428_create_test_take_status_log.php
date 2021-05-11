@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class TestTakeStatusLog extends Migration
+class CreateTestTakeStatusLog extends Migration
 {
     /**
      * Run the migrations.
@@ -16,8 +16,8 @@ class TestTakeStatusLog extends Migration
        
             Schema::create('test_take_status_logs', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('test_take_id')->nullable();   
-            $table->integer('test_take_status')->nullable();   
+            $table->integer('test_take_id');
+            $table->integer('test_take_status_id');
             $table->timestamps();
             });
         

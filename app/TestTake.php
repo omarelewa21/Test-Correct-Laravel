@@ -23,7 +23,6 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\Traits\Archivable;
 use tcCore\Traits\UuidTrait;
-use tcCore\TestTakeStatusLog;
 
 class TestTake extends BaseModel
 {
@@ -107,7 +106,16 @@ class TestTake extends BaseModel
         });
 
         static::saved(function (TestTake $testTake) {
+
             $originalTestTakeStatus = TestTakeStatus::find($testTake->getOriginal('test_take_status_id'));
+
+            // logging statuses if changed
+            if($testTake->getOriginal('test_take_status_id') != $testTake->test_take_status_id) {
+                TestTakeStatusLog::create([
+                    'test_take_id' => $testTake->getKey(),
+                    'test_take_status_id' => $testTake->test_take_status_id
+                ]);
+            }
 
             if ($testTake->invigilators !== null) {
                 $testTake->saveInvigilators();
@@ -315,29 +323,6 @@ class TestTake extends BaseModel
         });
     }
     
-    /**
-     * The "booted" method of the model.
-     * 
-     * this closure logs the statuses of test
-     * takes for analysis
-     *
-     * @return void
-     */
-    protected static function booted()
-    {
-        static::updated(function ($testtake) {
-            
-            $now_formatted = Carbon::now()->format('Y-m-d h:m:s');
-            
-            $create_array = ['test_take_id'=>$testtake->id,
-                'test_take_status'=>$testtake->test_take_status_id
-              ];
-            
-            TestTakeStatusLog::create( $create_array);
-
-        });
-    }
-
     public function test()
     {
         return $this->belongsTo('tcCore\Test');

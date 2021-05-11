@@ -5,9 +5,9 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Maatwebsite\Excel\Facades\Excel;
-use tcCore\Exports\LocationExport;
+use tcCore\Exports\SchoolLocationExport;
 
-class LocationReportController extends Controller
+class SchoolLocationReportController extends Controller
 {
     protected $fileName = 'location_report.xls';
 
@@ -16,7 +16,7 @@ class LocationReportController extends Controller
         
         // run realtime when not on production
         if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
-            \tcCore\LocationReport::updateAllLocationStats();
+            \tcCore\SchoolLocationReport::updateAllLocationStats();
         }
 
         $file = storage_path($this->fileName);
@@ -25,7 +25,7 @@ class LocationReportController extends Controller
             unlink($file);
         }
 
-        Excel::store(new LocationExport(),$this->fileName);
+        Excel::store(new SchoolLocationExport(),$this->fileName);
 
         return Response::make(['status' => 'ok'], 200);
     }

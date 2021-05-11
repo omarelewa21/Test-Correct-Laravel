@@ -3,12 +3,12 @@
 namespace Tests\Unit;
 
 use tcCore\LoginLog;
-use tcCore\LocationReport;
+use tcCore\SchoolLocationReport;
 use tcCore\SchoolLocation;
 use Tests\TestCase;
 use Carbon\Carbon;
 
-class HubspotQueryTest extends TestCase
+class LocationReportTest extends TestCase
 {
 
     //use \Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -23,9 +23,9 @@ class HubspotQueryTest extends TestCase
         
         $nr_locations = SchoolLocation::distinct('id')->count();
         
-        LocationReport::updateAllLocationStats();
+        SchoolLocationReport::updateAllLocationStats();
         
-        $nr_report_locations_updated = LocationReport::where('updated_at','>',Carbon::now()->subMinute(5))->count();
+        $nr_report_locations_updated = SchoolLocationReport::where('updated_at','>',Carbon::now()->subMinute(5))->count();
         
         // all locations are present and updated in the report
         $this->assertEquals($nr_locations, $nr_report_locations_updated);
