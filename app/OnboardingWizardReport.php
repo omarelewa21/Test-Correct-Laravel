@@ -7,17 +7,19 @@ use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+set_time_limit(300);
+
 class OnboardingWizardReport extends Model
 {
     protected $guarded = [];
+    protected $dates = ['created_at', 'updated_at'];
 
     public static function updateForUser(User $user)
     {
+        
         $wizardData = self::getStepsCollection($user);
-
-        self::updateOrCreate([
-            'user_id' => $user->getKey(),
-        ], [
+        
+        $updated_data_array = [
             'user_email'                                  => $user->username,
             'user_name_first'                             => $user->name_first,
             'user_name_suffix'                            => $user->name_suffix,
@@ -59,8 +61,42 @@ class OnboardingWizardReport extends Model
             'invited_by'                                  => self::invitedBy($user),
             'invited_users_amount'                        => self::invitedUsersAmount($user),
             'invited_users'                               => self::invitedUsers($user),
-            'account_verified'                            => $user->account_verified
-        ]);
+            'account_verified'                            => $user->account_verified,
+            'nr_approved_test_files_7'                       => self::nrApprovedTestFiles($user, 7),
+            'nr_approved_test_files_30'                      => self::nrApprovedTestFiles($user, 30),
+            'nr_approved_test_files_60'                      => self::nrApprovedTestFiles($user, 60),
+            'nr_approved_test_files_90'                      => self::nrApprovedTestFiles($user, 90),
+            'nr_approved_test_files_total'                   => self::nrapprovedTestFiles($user, 0),
+            'nr_added_question_items_7'                   => self::nrAddedQuestionItems($user, 7),
+            'nr_added_question_items_30'                  => self::nrAddedQuestionItems($user, 30),
+            'nr_added_question_items_60'                  => self::nrAddedQuestionItems($user, 60),
+            'nr_added_question_items_90'                  => self::nrAddedQuestionItems($user, 90),
+            'nr_added_question_items_total'               => self::nrAddedQuestionItems($user, 0),
+            'nr_tests_taken_7'                            => self::nrTestsTaken($user, 7), // 3.a.1
+            'nr_tests_taken_30'                           => self::nrTestsTaken($user, 30), // 3.a.1
+            'nr_tests_taken_60'                           => self::nrTestsTaken($user, 60), // 3.a.1
+            'nr_tests_taken_90'                           => self::nrTestsTaken($user, 90), // 3.a.1
+            'nr_test_taken_total'                         => self::nrTestsTaken($user, 0), // 3.a.2
+            'nr_tests_checked_7'                          => self::nrTestsChecked($user, 7), // 3.a.1
+            'nr_tests_checked_30'                         => self::nrTestsChecked($user, 30), // 3.a.1
+            'nr_tests_checked_60'                         => self::nrTestsChecked($user, 60), // 3.a.1
+            'nr_tests_checked_90'                         => self::nrTestsChecked($user, 90), // 3.a.1
+            'nr_tests_checked_total'                      => self::nrTestsChecked($user, 0), // 3.a.2
+            'nr_tests_rated_7'                            => self::nrTestsRated($user, 7), // 3.a.1
+            'nr_tests_rated_30'                           => self::nrTestsRated($user, 30), // 3.a.1
+            'nr_tests_rated_60'                           => self::nrTestsRated($user, 60), // 3.a.1
+            'nr_tests_rated_90'                           => self::nrTestsRated($user, 90), // 3.a.1
+            'nr_tests_rated_total'                        => self::nrTestsRated($user, 0), // 3.a.2
+            'nr_colearning_sessions_7'                    => self::nrColearningSessions($user, 7), // 3.a.1
+            'nr_colearning_sessions_30'                   => self::nrColearningSessions($user, 30), // 3.a.1
+            'nr_colearning_sessions_60'                   => self::nrColearningSessions($user, 60), // 3.a.1
+            'nr_colearning_sessions_90'                   => self::nrColearningSessions($user, 90), // 3.a.1
+            'nr_colearning_sessions_total'                => self::nrColearningSessions($user, 0), // 3.a.2
+        ];
+        
+        self::updateOrCreate([
+            'user_id' => $user->getKey(),
+        ], $updated_data_array);
     }
 
     public static function subStepsPercentage(User $user)
@@ -164,6 +200,7 @@ ORDER BY t2.displayorder,
 
     public static function updateForAllTeachers($shouldTruncate = true)
     {
+        
         if($shouldTruncate) {
             OnboardingWizardReport::truncate();
         }
@@ -173,6 +210,7 @@ ORDER BY t2.displayorder,
             ->where('username', 'not like', '%@teachandlearncompany.com')
             ->where('username', 'not like', '%@test-correct.nl')
             ->each(function ($teacher) {
+                
                 if ($teacher->isA('teacher')) {
                     \tcCore\OnboardingWizardReport::updateForUser($teacher);
                 };
@@ -220,8 +258,83 @@ ORDER BY t2.displayorder,
             'active_step'          => $user->onboardingWizardUserState->active_step ?? 0,
         ];
     }
-    //
 
+    public static function nrApprovedTestFiles($user, $days)
+    {
+
+        $builder = Test::where('tests.author_id', $user->id)
+            ->whereNull('tests.system_test_id');
+
+        if ($days != 0) {
+
+            $end_date = Carbon::now()->toDateTimeString();
+            $start_date = Carbon::now()->subDays($days);
+
+
+            $builder->whereBetween('tests.created_at', [$start_date, $end_date]);
+        }
+
+        return $builder->count();
+    }
+
+    public static function nrAddedQuestionItems($user, $days)
+    {
+
+        $builder = QuestionAuthor::where('question_authors.user_id',$user->id);
+
+        if ($days != 0) {
+
+            $end_date = Carbon::now()->toDateTimeString();
+            $start_date = Carbon::now()->subDays($days);
+
+
+            $builder->whereBetween('question_authors.created_at', [$start_date, $end_date]);
+        }
+
+        return $builder->count();
+    }
+
+    public static function nrTestsTaken($user, $days)
+    {
+        return self::nrTestTakesByStatusIdUserAndNumberOfDays(6,$user, $days);
+    }
+
+    public static function nrTestsChecked($user, $days)
+    {
+
+        return self::nrTestTakesByStatusIdUserAndNumberOfDays(8,$user, $days);
+    }
+
+    public static function nrTestsRated($user, $days)
+    {
+        return self::nrTestTakesByStatusIdUserAndNumberOfDays(9,$user, $days);
+    }
+
+    public static function nrColearningSessions($user, $days)
+    {
+        return self::nrTestTakesByStatusIdUserAndNumberOfDays(7,$user, $days);
+    }   
+
+    public static function nrTestTakesByStatusIdUserAndNumberOfDays($statusId, $user, $days)
+    {
+
+        $builder = TestTake::where('test_takes.user_id', $user->getKey())
+            ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
+            ->where('test_take_status_logs.test_take_status_id',$statusId)
+            ->groupBy('test_take_id');
+
+        if ($days != 0) {
+
+            $end_date = Carbon::now()->toDateTimeString();
+            $start_date = Carbon::now()->subDays($days);
+
+            $builder->whereBetween('test_takes.created_at', [$start_date, $end_date]);
+        }
+
+        return $builder->count();
+               
+    }
+    
     /**
      * @param User $user
      * @return mixed

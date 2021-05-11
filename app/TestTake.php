@@ -54,6 +54,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
+
     protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing'];
 
     /**
@@ -105,7 +106,16 @@ class TestTake extends BaseModel
         });
 
         static::saved(function (TestTake $testTake) {
+
             $originalTestTakeStatus = TestTakeStatus::find($testTake->getOriginal('test_take_status_id'));
+
+            // logging statuses if changed
+            if($testTake->getOriginal('test_take_status_id') != $testTake->test_take_status_id) {
+                TestTakeStatusLog::create([
+                    'test_take_id' => $testTake->getKey(),
+                    'test_take_status_id' => $testTake->test_take_status_id
+                ]);
+            }
 
             if ($testTake->invigilators !== null) {
                 $testTake->saveInvigilators();
@@ -312,7 +322,7 @@ class TestTake extends BaseModel
             }
         });
     }
-
+    
     public function test()
     {
         return $this->belongsTo('tcCore\Test');
