@@ -400,7 +400,7 @@
 }
 
 .ranking .drag-item.draggable-mirror {
-    width: 100%;
+    /*width: 100%;*/
 }
 
 .matching-question .startGroup .drag-item {
