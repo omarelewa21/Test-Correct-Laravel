@@ -314,7 +314,14 @@ class RTTIImportHelper
 
                         $this->importLog('Class '.$class_name.' with id '.$school_class_id.'  created ');
                     } else {
-                        $this->importLog('Class '.$class_name.' with id '.$school_class_id.' exists');
+                        $schoolClass = SchoolClass::find($school_class_id);
+                        if ($schoolClass->is_main_school_class === 0 && $teacher_is_mentor == 1) {
+                            $schoolClass->is_main_school_class = 1;
+                            $schoolClass->save();
+                            $this->importLog('Class '.$class_name.' with id '.$school_class_id.' exists and was updated to is_main_school_class=1');
+                        } else {
+                            $this->importLog('Class '.$class_name.' with id '.$school_class_id.' exists');
+                        }
                     }
 
 

@@ -224,6 +224,112 @@ class RttiImportTest extends TestCase
         return true;
     }
 
+    /**
+     * when a import rule is marked als isMentor = 0 the school_class should not be registered as a stam klas tcp-888
+     * *
+     * @test
+     * */
+    public function isMentorZeroMeansNoStamClass()
+    {
+        Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
+
+        $teacherOne = User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        $teacherTwo = User::createTeacher([
+            'name_first'         => 'Eddy',
+            'name_suffix'        => '',
+            'name'               => 'Docent2',
+            'external_id'        => '2003',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+
+        $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,1Albert,FransTest,A&M,2002,Docent1,,Mark,0\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,1Albert,FransTest,A&M,2003,Docent2,,Eddy,1\n";
+
+        $output = $this->upload_data($csv_file_content);
+
+        $this->assertStringContainsString('Er is 1 leerling aangemaakt, 2 docenten en 1 klas.', $output['data']);
+
+        $classTeacherOne = $teacherOne->teacher->map(function(Teacher $teacher) {
+            return $teacher->schoolClass;
+        })->first(function(SchoolClass $class) {
+            return $class->demo == 0;
+        });
+
+        $classTeacherTwo = $teacherOne->teacher->map(function(Teacher $teacher) {
+            return $teacher->schoolClass;
+        })->first(function(SchoolClass $class) {
+            return $class->demo == 0;
+        });
+
+        // only one class should have been created;
+        $this->assertTrue(
+            $classTeacherOne->is($classTeacherTwo)
+        );
+        // because teacher two is the mentor for this class it should be marced as is_main_school_class = 1 not 0
+        $this->assertEquals(1, $classTeacherOne->is_main_school_class);
+
+    }
+    /**
+     * @test geen stamklas als beide docenten 0 hebben
+     */
+    function when_no_teacher_is_marked_as_mentor_the_school_class_should_not_be_marked_as_main_school_class(){
+        Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
+
+        $teacherOne = User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        $teacherTwo = User::createTeacher([
+            'name_first'         => 'Eddy',
+            'name_suffix'        => '',
+            'name'               => 'Docent2',
+            'external_id'        => '2003',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,1Albert,FransTest,A&M,2002,Docent1,,Mark,0\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,01,,1Albert,FransTest,A&M,2003,Docent2,,Eddy,0\n";
+
+        $output = $this->upload_data($csv_file_content);
+
+        $this->assertStringContainsString('Er is 1 leerling aangemaakt, 2 docenten en 1 klas.', $output['data']);
+
+        $classTeacherOne = $teacherOne->teacher->map(function(Teacher $teacher) {
+            return $teacher->schoolClass;
+        })->first(function(SchoolClass $class) {
+            return $class->demo == 0;
+        });
+
+        $classTeacherTwo = $teacherOne->teacher->map(function(Teacher $teacher) {
+            return $teacher->schoolClass;
+        })->first(function(SchoolClass $class) {
+            return $class->demo == 0;
+        });
+
+        // only one class should have been created;
+        $this->assertTrue(
+            $classTeacherOne->is($classTeacherTwo)
+        );
+        // because both teachers are not a mentor for this class it should be marked as is_main_school_class = 0
+        $this->assertEquals(0, $classTeacherOne->is_main_school_class);
+
+
+    }
+
 
     /**
      *  No transactions
