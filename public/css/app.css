@@ -1781,9 +1781,6 @@ video {
 .justify-end{
 	justify-content: flex-end;
 }
-.justify-items-end{
-	justify-items: end;
-}
 .gap-y-4{
 	row-gap: 1rem;
 }
@@ -1866,9 +1863,6 @@ video {
 	--tw-space-y-reverse: 0;
 	margin-top: calc(2.5rem * calc(1 - var(--tw-space-y-reverse)));
 	margin-bottom: calc(2.5rem * var(--tw-space-y-reverse));
-}
-.justify-self-center{
-	justify-self: center;
 }
 .overflow-y-hidden{
 	overflow-y: hidden;
@@ -2099,10 +2093,6 @@ video {
 .px-1{
 	padding-left: 0.25rem;
 	padding-right: 0.25rem;
-}
-.py-3{
-	padding-top: 0.75rem;
-	padding-bottom: 0.75rem;
 }
 .py-2\.5{
 	padding-top: 0.625rem;
