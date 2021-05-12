@@ -225,6 +225,66 @@ class RttiImportTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    function the_user_properties_should_be_overwritten_for_the_student(){
+        $user = User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,achternaam_oud,tussenvoegsel_oud,voornaam_oud,FransTest,A&M,2002,Docent1,,Mark,0\n";
+
+        $output = $this->upload_data($csv_file_content);
+        $this->assertStringContainsString('Er is 1 leerling aangemaakt, 1 docent en 1 klas.', $output['data']);
+
+        $student = User::firstWhere('external_id', '10001');
+        $this->assertEquals('voornaam_oud', $student->name_first);
+        $this->assertEquals('tussenvoegsel_oud', $student->name_suffix);
+        $this->assertEquals('achternaam_oud', $student->name);
+
+        $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,achternaam_nieuw,tussenvoegsel_nieuw,voornaam_nieuw,FransTest,A&M,2002,Docent1,,Mark,0\n";
+
+        $output = $this->upload_data($csv_file_content);
+        $this->assertStringContainsString('Er is 1 leerling geupdate, 0 docenten en 0 klassen.', $output['data']);
+
+        $student->refresh();
+        $this->assertEquals('voornaam_nieuw', $student->name_first);
+        $this->assertEquals('tussenvoegsel_nieuw', $student->name_suffix);
+        $this->assertEquals('achternaam_nieuw', $student->name);
+    }
+
+    /**
+     * @test
+     */
+    function the_user_properties_should_be_overwritten_for_the_teacher(){
+        $teacher = User::createTeacher([
+            'name_first'         => 'Mark',
+            'name_suffix'        => '',
+            'name'               => 'Docent1',
+            'external_id'        => '2002',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
+            ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,achternaam_oud,tussenvoegsel_oud,voornaam_oud,FransTest,A&M,2002,achternaam_nieuw,tussenvoegsel_nieuw,voornaam_nieuw,0\n";
+
+        $output = $this->upload_data($csv_file_content);
+       $this->assertStringContainsString('Er zijn 0 leerlingen geupdate, 1 docent en 0 klassen.', $output['data']);
+
+        $teacher->refresh();
+        $this->assertEquals('voornaam_nieuw', $teacher->name_first);
+        $this->assertEquals('tussenvoegsel_nieuw', $teacher->name_suffix);
+        $this->assertEquals('achternaam_nieuw', $teacher->name);
+    }
+
+
+    /**
      * when a import rule is marked als isMentor = 0 the school_class should not be registered as a stam klas tcp-888
      * *
      * @test
@@ -675,7 +735,7 @@ class RttiImportTest extends TestCase
         $this->assertInstanceOf(SchoolClass::class, $classFransTest);
 
         $this->assertStringContainsString(
-            'Versie 0.1. De import was succesvol. Er zijn 0 leerlingen aangemaakt, 1 docent en 1 klas. Er zijn 0 leerlingen verwijderd, 0 docenten en 1 klas.',
+            'Versie 0.1. De import was succesvol. Er zijn 0 leerlingen aangemaakt, 1 docent en 1 klas.  Er zijn 0 leerlingen geupdate, 0 docenten en 0 klassen.  Er zijn 0 leerlingen verwijderd, 0 docenten en 1 klas.',
             $output['data']
         );
     }
@@ -733,7 +793,7 @@ class RttiImportTest extends TestCase
             ."RTTI School,".$this->brincode.",1,VWO,1,2020-2021,12008,02,,Berend,FransTest2,FRS,2002,Docent1,,Mark,1";
 
         $output = $this->upload_data($csv_file_content);
-        $this->assertStringContainsString('Er zijn 8 leerlingen aangemaakt, 5 docenten en 4 klassen. Er zijn 0 leerlingen verwijderd, 0 docenten en 0 klassen.', $output['data']);
+        $this->assertStringContainsString('Versie 0.1. De import was succesvol. Er zijn 8 leerlingen aangemaakt, 5 docenten en 4 klassen.  Er zijn 0 leerlingen geupdate, 0 docenten en 0 klassen.  Er zijn 0 leerlingen verwijderd, 0 docenten en 0 klassen.', $output['data']);
         $class_id = SchoolClass::where('name', 'FransTest')
             ->value('id');
 

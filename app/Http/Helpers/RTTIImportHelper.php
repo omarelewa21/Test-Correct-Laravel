@@ -91,6 +91,17 @@ class RTTIImportHelper
         'teachers' => 0,
         'mentors'  => 0,
     ];
+
+    /**
+     *
+     * @var array counting updated user models for students, teachers and classes
+     */
+    public $update_tally = [
+        'students' => 0,
+        'classes'  => 0,
+        'teachers' => 0,
+        'mentors'  => 0,
+    ];
     /**
      *
      * @var bool rtti is not allowed to create users for teachers but magister uwlrImport is
@@ -335,6 +346,16 @@ class RTTIImportHelper
                     // student is known
                     if ($student_id != null) {
 
+                        if ($student = User::find($student_id)) {
+                                $student->name_first  = $student_name_first;
+                                $student->name_suffix = $student_name_suffix;
+                                $student->name        = $student_name_last;
+                                if ($student->isDirty()) {
+                                    $student->save();
+                                    $this->update_tally['students']++;
+                                }
+                        }
+
                         // student not in class (always the case with a new class)
                         if (!$this->getStudentIdForClass($student_id, $school_class_id)) {
 
@@ -400,6 +421,18 @@ class RTTIImportHelper
                         }
 
                         $user = $user_collection->first();
+
+                        $user->name_first  = $teacher_name_first;
+                        $user->name_suffix = $teacher_name_suffix;
+                        $user->name        = $teacher_name_last;
+                        if ($user->isDirty()) {
+                            $user->save();
+                            $this->update_tally['teachers']++;
+                        }
+
+
+
+
 
                         $teacher_table_id = $this->getTeachersForClassSubject($teacher_id, $school_class_id,
                             $subject_id);
@@ -622,7 +655,12 @@ class RTTIImportHelper
         $this->importLog('import done');
 
         return [
-            'data' => sprintf('Versie 0.1. De import was succesvol. %s%s', $this->createTally(), $this->deleteTally())
+            'data' => sprintf(
+                'Versie 0.1. De import was succesvol. %s %s %s',
+                $this->createTally(),
+                $this->updateTally(),
+                $this->deleteTally()
+            )
         ];
     }
 
@@ -650,6 +688,33 @@ class RTTIImportHelper
 
         return $return;
     }
+
+
+    private function updateTally()
+    {
+        $return = '';
+
+        if ($this->update_tally['students'] === 1) {
+            $return .= 'Er is 1 leerling geupdate, ';
+        } else {
+            $return .= sprintf('Er zijn %d leerlingen geupdate, ', $this->update_tally['students']);
+        }
+
+        if ($this->update_tally['teachers'] === 1) {
+            $return .= '1 docent en ';
+        } else {
+            $return .= sprintf('%d docenten en ', $this->update_tally['teachers']);
+        }
+
+        if ($this->update_tally['classes'] === 1) {
+            $return .= '1 klas. ';
+        } else {
+            $return .= sprintf('%s klassen. ', $this->update_tally['classes']);
+        }
+
+        return  $return;
+    }
+
 
     private function deleteTally()
     {
