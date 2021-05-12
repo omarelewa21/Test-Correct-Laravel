@@ -62,9 +62,7 @@
                                             <x-icon.questionmark class="transform scale-75"/>
                                             <div class="absolute p-4 top-8 rounded-10 bg-off-white w-60 z-10 shadow-lg"
                                                  x-cloak x-show.transition="tooltip">
-                                                <p>Turducken shankle t-bone pancetta chicken. Pork belly ham hock
-                                                    leberkas
-                                                    frankfurter turducken hamburger</p>
+                                                <p>Tooltip tekst voor meteen naar toets gaan</p>
                                             </div>
                                         </div>
 
@@ -212,7 +210,7 @@
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <form wire:submit.prevent="sendForgotPasswordEmail" action="#" method="POST"
                       class="flex-col flex flex-1">
-                    <div class="flex items-center space-x-2.5">
+                    <div class="flex items-center space-x-2.5 mb-4">
                         <div class="flex">
                             <x-stickers.login/>
                         </div>
@@ -222,8 +220,7 @@
                     </div>
                     <div class="flex flex-col flex-1 h-full">
                         <p class="mb-6">We hebben we het e-mailadres nodig dat geassocieerd is met jouw account om een
-                            mail
-                            te kunnen sturen over het opnieuw instellen van het wachtwoord.</p>
+                            mail te kunnen sturen over het opnieuw instellen van het wachtwoord.</p>
                         <x-input.group label="E-mailadres">
                             <x-input.text wire:model.debounce.300ms="forgotPasswordEmail"/>
                         </x-input.group>

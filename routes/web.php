@@ -20,7 +20,10 @@ Route::get('/inv/{shortcode}',[tcCore\Http\Controllers\Api\ShortcodeController::
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
 Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
-Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
+
+if(!tcCore\Http\Helpers\BaseHelper::onProduction()) {
+    Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
+}
 
 Route::middleware(['auth.temp'])->group(function () {
     Route::get('/redirect-with-temporary-login/{temporary_login}',tcCore\Http\Controllers\TemporaryLoginController::class)->name('auth.temporary-login-redirect');

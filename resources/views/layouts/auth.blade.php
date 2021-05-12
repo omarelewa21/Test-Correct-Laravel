@@ -29,7 +29,7 @@
 
             </div>
             <div class="flex sm:ml-auto items-center space-x-3">
-                <x-button.cta size="sm">Maak account</x-button.cta>
+                <x-button.cta size="sm" type="link" href="/">Maak account</x-button.cta>
                 <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}">Log in</x-button.primary>
             </div>
         </div>

@@ -9,7 +9,8 @@
      :class="{'overflow-hidden h-screen' : startCountdown}"
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('planned-body')"
      wire:ignore.self
-     wire:poll.10000ms="isTestTakeOpen()"
+     wire:poll.5000ms="isTestTakeOpen"
+     wire:init="isTestTakeOpen"
 >
     <div class="flex w-full justify-center border-b border-system-secondary transition-all duration-500"
          :class="{'opacity-0': startCountdown}">

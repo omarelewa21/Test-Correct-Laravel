@@ -31,7 +31,7 @@
                         >
                             {{ __('student.take_date') }}
                         </x-table.heading>
-                        <x-table.heading width="100px">{{ __('student.type') }}</x-table.heading>
+                        <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
                         <x-table.heading width="70px">{{ __('student.grade') }}</x-table.heading>
                     </x-slot>
                     <x-slot name="body">

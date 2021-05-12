@@ -126,10 +126,6 @@
                             <div class="flex flex-col flex-1 p-2 pt-4 text-md space-y-2">
                                 <h6>{{ $message->subject }}</h6>
                                 <p>{{ \Illuminate\Support\Str::limit($message->message, 200) }}</p>
-                                <x-button.text-button>
-                                    <span>{{ __('student.to_message') }}</span>
-                                    <x-icon.arrow></x-icon.arrow>
-                                </x-button.text-button>
                             </div>
                         </div>
                     @empty

@@ -80,9 +80,9 @@ class Login extends Component
 
     public function guestLogin()
     {
-        if($this->isTestTakeCodeValid()) {
-            dd('Helemaal goed');
-        }
+//        if($this->isTestTakeCodeValid()) {
+//
+//        }
     }
 
     public function render()
@@ -128,7 +128,7 @@ class Login extends Component
 
     public function updated($name, $value)
     {
-        if ($this->couldBeEmail($this->username) && !blank($this->password)) {
+        if ($this->couldBeEmail($this->username) && filled($this->password)) {
             $this->loginButtonDisabled = false;
 
             if ($this->showTestCode) {
@@ -143,7 +143,7 @@ class Login extends Component
 
         $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
 
-        $this->guestLoginButtonDisabled = !(!blank($this->firstName) && !blank($this->lastName) && count($this->testTakeCode) == 6);
+        $this->guestLoginButtonDisabled = !(filled($this->firstName) && filled($this->lastName) && count($this->testTakeCode) == 6);
 
     }
 
@@ -162,7 +162,7 @@ class Login extends Component
 
     public function sendForgotPasswordEmail()
     {
-        dd('Verzend de mail naar: ' . $this->forgotPasswordEmail);
+
     }
 
     private function isTestTakeCodeValid(): bool
