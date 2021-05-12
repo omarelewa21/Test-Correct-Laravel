@@ -1876,4 +1876,22 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function scopeWithRoleTeacher($query){
         return $query->join('user_roles', 'users.id', '=','user_roles.user_id')->where('user_roles.role_id', 1);
     }
+
+    public function getFullNameWithAbbreviatedFirstName(): string
+    {
+        $letter = Str::substr($this->name_first, 0, 1);
+        !blank($this->name_suffix) ? $suffix = $this->name_suffix . ' ' : $suffix = '';
+
+        return sprintf('%s. %s%s', $letter, $suffix, $this->name);
+    }
+
+    public function redirectToCakeWithTemporaryLogin()
+    {
+        $temporaryLogin = TemporaryLogin::create(
+            ['user_id' => $this->getKey()]
+        );
+        $redirectUrl = $temporaryLogin->createCakeUrl();
+
+        return redirect()->to($redirectUrl);
+    }
 }

@@ -23,6 +23,12 @@
             return false
         }
     })
+    function addRelativePaddingToBody(elementId, extraPadding = 0) {
+        document.getElementById(elementId).style.paddingTop = (document.getElementById('header').offsetHeight + extraPadding) + 'px';
+    }
+    function makeHeaderMenuActive(elementId) {
+        document.getElementById(elementId).classList.add('active');
+    }
 </script>
 <script src="{{ mix('/js/app.js') }}"></script>
 <script src="https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image"></script>
