@@ -6,7 +6,7 @@
 
 			'Op' => 'On',
 
-			'afgenomen' => 'decreased',
+			'afgenomen' => 'grades',
 
 			'Bereid je goed voor op deze toets. Succes' => 'Prepare yourself well for this test. Good luck',
 
