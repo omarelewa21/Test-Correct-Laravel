@@ -60,7 +60,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
      */
     protected $table = 'users';
 
-    protected $appends = ['has_text2speech', 'active_text2speech'];
+    protected $appends = ['has_text2speech', 'active_text2speech','external_id'];
 
     /**
      * The attributes that are mass assignable.
