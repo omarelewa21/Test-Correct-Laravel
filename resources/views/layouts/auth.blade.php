@@ -28,8 +28,8 @@
                 <x-button.text-button class="ml-4">Over Ons</x-button.text-button>
 
             </div>
-            <div class="flex sm:ml-auto items-center space-x-3">
-                <x-button.cta size="sm" type="link" href="/">Maak account</x-button.cta>
+            <div class="flex sm:ml-auto items-center space-x-3" x-data="{}">
+                <x-button.cta size="sm" @click="Livewire.emit('open-auth-modal')">Maak account</x-button.cta>
                 <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}">Log in</x-button.primary>
             </div>
         </div>

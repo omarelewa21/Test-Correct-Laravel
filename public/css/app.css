@@ -1865,6 +1865,9 @@ video {
 .-translate-y-1{
 	--tw-translate-y: -0.25rem;
 }
+.translate-y-1\/2{
+	--tw-translate-y: 50%;
+}
 .scale-95{
 	--tw-scale-x: .95;
 	--tw-scale-y: .95;
