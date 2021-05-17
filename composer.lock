@@ -4,8 +4,73 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8ad57e446a9a65efbb6a30fcf2e4acfb",
+    "content-hash": "3c213f446dd23897f20d61ca43704749",
     "packages": [
+        {
+            "name": "aacotroneo/laravel-saml2",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/aacotroneo/laravel-saml2.git",
+                "reference": "6ed350b37aec3470655335a33e24496e15bde9b7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/aacotroneo/laravel-saml2/zipball/6ed350b37aec3470655335a33e24496e15bde9b7",
+                "reference": "6ed350b37aec3470655335a33e24496e15bde9b7",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "illuminate/support": ">=5.0.0",
+                "onelogin/php-saml": "^3.0.0",
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Aacotroneo\\Saml2\\Saml2ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Aacotroneo\\Saml2\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "aacotroneo",
+                    "email": "aacotroneo@gmail.com"
+                },
+                {
+                    "name": "Niraj Patkar",
+                    "email": "niraj@alphonso.in"
+                }
+            ],
+            "description": "A Laravel package for Saml2 integration as a SP (service provider) for multiple IdPs, based on OneLogin toolkit which is much more lightweight than simplesamlphp.",
+            "homepage": "https://github.com/aacotroneo/laravel-saml2",
+            "keywords": [
+                "SAML2",
+                "laravel",
+                "onelogin",
+                "saml"
+            ],
+            "support": {
+                "issues": "https://github.com/aacotroneo/laravel-saml2/issues",
+                "source": "https://github.com/aacotroneo/laravel-saml2/tree/master"
+            },
+            "time": "2019-10-01T23:05:14+00:00"
+        },
         {
             "name": "bonecms/laravel-captcha",
             "version": "v2.2.4",
@@ -1590,7 +1655,7 @@
                     "homepage": "https://github.com/mtdowling"
                 },
                 {
-                    "name": "Márk Sági-Kazár",
+                    "name": "MÃ¡rk SÃ¡gi-KazÃ¡r",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://sagikazarmark.hu"
                 }
@@ -2503,7 +2568,7 @@
                     "email": "pabs@pablotron.org"
                 },
                 {
-                    "name": "Jonatan Männchen",
+                    "name": "Jonatan MÃ¤nnchen",
                     "email": "jonatan@maennchen.ch"
                 },
                 {
@@ -2511,7 +2576,7 @@
                     "email": "donatj@gmail.com"
                 },
                 {
-                    "name": "András Kolesár",
+                    "name": "AndrÃ¡s KolesÃ¡r",
                     "email": "kolesar@kolesar.hu"
                 }
             ],
@@ -2760,7 +2825,7 @@
             ],
             "authors": [
                 {
-                    "name": "Muharrem ERİN",
+                    "name": "Muharrem ERÄ°N",
                     "email": "me@mewebstudio.com",
                     "homepage": "https://github.com/mewebstudio",
                     "role": "Developer"
@@ -3145,6 +3210,61 @@
                 "source": "https://github.com/nikic/PHP-Parser/tree/v4.10.4"
             },
             "time": "2020-12-20T10:01:03+00:00"
+        },
+        {
+            "name": "onelogin/php-saml",
+            "version": "3.6.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/onelogin/php-saml.git",
+                "reference": "a7328b11887660ad248ea10952dd67a5aa73ba3b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/onelogin/php-saml/zipball/a7328b11887660ad248ea10952dd67a5aa73ba3b",
+                "reference": "a7328b11887660ad248ea10952dd67a5aa73ba3b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4",
+                "robrichards/xmlseclibs": ">=3.1.1"
+            },
+            "require-dev": {
+                "pdepend/pdepend": "^2.5.0",
+                "php-coveralls/php-coveralls": "^1.0.2 || ^2.0",
+                "phploc/phploc": "^2.1 || ^3.0 || ^4.0",
+                "phpunit/phpunit": "<7.5.18",
+                "sebastian/phpcpd": "^2.0 || ^3.0 || ^4.0",
+                "squizlabs/php_codesniffer": "^3.1.1"
+            },
+            "suggest": {
+                "ext-curl": "Install curl lib to be able to use the IdPMetadataParser for parsing remote XMLs",
+                "ext-gettext": "Install gettext and php5-gettext libs to handle translations",
+                "ext-openssl": "Install openssl lib in order to handle with x509 certs (require to support sign and encryption)"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OneLogin\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "OneLogin PHP SAML Toolkit",
+            "homepage": "https://developers.onelogin.com/saml/php",
+            "keywords": [
+                "SAML2",
+                "onelogin",
+                "saml"
+            ],
+            "support": {
+                "email": "sixto.garcia@onelogin.com",
+                "issues": "https://github.com/onelogin/php-saml/issues",
+                "source": "https://github.com/onelogin/php-saml/"
+            },
+            "time": "2021-03-02T10:13:07+00:00"
         },
         {
             "name": "opis/closure",
@@ -3620,7 +3740,7 @@
                     "role": "Developer"
                 },
                 {
-                    "name": "Hans-Jürgen Petrich",
+                    "name": "Hans-JÃ¼rgen Petrich",
                     "email": "petrich@tronic-media.com",
                     "role": "Developer"
                 },
@@ -4319,6 +4439,48 @@
             "time": "2020-08-18T17:17:46+00:00"
         },
         {
+            "name": "robrichards/xmlseclibs",
+            "version": "3.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/robrichards/xmlseclibs.git",
+                "reference": "f8f19e58f26cdb42c54b214ff8a820760292f8df"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/robrichards/xmlseclibs/zipball/f8f19e58f26cdb42c54b214ff8a820760292f8df",
+                "reference": "f8f19e58f26cdb42c54b214ff8a820760292f8df",
+                "shasum": ""
+            },
+            "require": {
+                "ext-openssl": "*",
+                "php": ">= 5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "RobRichards\\XMLSecLibs\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "A PHP library for XML Security",
+            "homepage": "https://github.com/robrichards/xmlseclibs",
+            "keywords": [
+                "security",
+                "signature",
+                "xml",
+                "xmldsig"
+            ],
+            "support": {
+                "issues": "https://github.com/robrichards/xmlseclibs/issues",
+                "source": "https://github.com/robrichards/xmlseclibs/tree/3.1.1"
+            },
+            "time": "2020-09-05T13:00:25+00:00"
+        },
+        {
             "name": "scrivo/highlight.php",
             "version": "v9.18.1.6",
             "source": {
@@ -4602,7 +4764,7 @@
                     "email": "fabien@symfony.com"
                 },
                 {
-                    "name": "Jean-François Simon",
+                    "name": "Jean-FranÃ§ois Simon",
                     "email": "jeanfrancois.simon@sensiolabs.com"
                 },
                 {
@@ -7164,7 +7326,7 @@
             ],
             "authors": [
                 {
-                    "name": "François Zaninotto"
+                    "name": "FranÃ§ois Zaninotto"
                 }
             ],
             "description": "Faker is a PHP library that generates fake data for you.",
@@ -7407,7 +7569,7 @@
             ],
             "authors": [
                 {
-                    "name": "Pádraic Brady",
+                    "name": "PÃ¡draic Brady",
                     "email": "padraic.brady@gmail.com",
                     "homepage": "http://blog.astrumfutura.com"
                 },
