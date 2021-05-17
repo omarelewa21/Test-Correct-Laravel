@@ -368,7 +368,6 @@
     border: 2px solid var(--primary-light);
     color: var(--primary);
     box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
-    max-width: 500px;
 }
 
 .cke_top, .cke_bottom {
@@ -400,8 +399,8 @@
     background: linear-gradient(to bottom, var(--light-grey) 0%, rgba(255,255,255,0) 100%);
 }
 
-.matching-question .drag-item {
-    max-width: 100%;
+.ranking .drag-item.draggable-mirror {
+    /*width: 100%;*/
 }
 
 .matching-question .startGroup .drag-item {
@@ -624,27 +623,8 @@ textarea {
     margin: -1px -1px -1px;
 }
 
-
-.multiple-choice-question:hover {
-    box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.4);
-    border-color: var(--off-white);
-    font-weight: bold;
-    color: var(--primary);
-    background: var(--off-white);
-}
-
 .multiple-choice-question:focus {
     border-color: var(--primary);
-}
-
-.multiple-choice-question:active {
-    box-sizing: border-box;
-    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.4);
-    border-color: var(--primary);
-    border-width: 2px;
-    background: var(--off-white);
-    font-weight: bold;
-    color: var(--primary);
 }
 
 .multiple-choice-question.active {
@@ -674,8 +654,24 @@ textarea {
 .multiple-choice-question.active:hover .checkmark {
     display: none;
 }
-.multiple-choice-question.active:hover .close {
-    display: inline-block;
+
+@media (hover: hover) {
+    .multiple-choice-question:hover {
+        box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.4);
+        border-color: var(--off-white);
+        font-weight: 700;
+        color: var(--primary);
+        background: var(--off-white);
+    }
+    .multiple-choice-question.active:hover {
+        border-color: var(--primary);
+    }
+    .multiple-choice-question.active:hover .checkmark {
+        display: none;
+    }
+    .multiple-choice-question.active:hover .close {
+        display: inline-block;
+    }
 }
 /*! tailwindcss v2.0.4 | MIT License | https://tailwindcss.com */
 
@@ -2097,6 +2093,10 @@ video {
 .px-1{
 	padding-left: 0.25rem;
 	padding-right: 0.25rem;
+}
+.py-2\.5{
+	padding-top: 0.625rem;
+	padding-bottom: 0.625rem;
 }
 .pt-4{
 	padding-top: 1rem;

@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
-        <div wire:ignore>{!! $question->getQuestionHtml()  !!}</div>
+        <div questionHtml wire:ignore>{!! $question->getQuestionHtml()  !!}</div>
         <div class="mt-4 flex">
             <table class="border-collapse">
                 <thead>
