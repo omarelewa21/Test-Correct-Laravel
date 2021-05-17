@@ -8,7 +8,7 @@
             <span>{!! __('test_take.instruction_matching_question') !!}</span>
         </div>
         @if($question->subtype == 'Classify')
-            <div class="flex flex-col classify" wire:sortable-group="updateOrder">
+            <div id="matching-container{{$question->getKey()}}" class="flex flex-col classify" wire:sortable-group="updateOrder">
                 <div class="flex">
                     <x-dropzone wire:key="group-start" startGroup="true">
                         <div class="h-full space-x-1 focus:outline-none start-group" wire:sortable-group.item-group="startGroep">
@@ -49,7 +49,7 @@
             </div>
         @endif
         @if($question->subtype == 'Matching')
-            <div class="flex flex-col space-y-1 matching" wire:sortable-group="updateOrder">
+            <div id="matching-container{{$question->getKey()}}" class="flex flex-col space-y-1 matching" wire:sortable-group="updateOrder">
                 <div class="flex">
                     <x-dropzone wire:key="group-start" startGroup="true">
                         <div class="h-full space-x-1 focus:outline-none start-group" wire:sortable-group.item-group="startGroep">
@@ -100,6 +100,20 @@
             </div>
         @endif
     </div>
+    @push('scripts')
+        <script>
+            var draggableElementWidth;
+            setTimeout(function () {
+                document.getElementById('matching-container{{$question->getKey()}}').livewire_sortable.on('mirror:attached', (evt) => {
+                    draggableElementWidth = evt.data.mirror.parentElement.offsetWidth+'px';
+                });
+
+                document.getElementById('matching-container{{$question->getKey()}}').livewire_sortable.on('mirror:move', (evt) => {
+                    evt.data.mirror.style.width = draggableElementWidth;
+                });
+            }, 100);
+        </script>
+    @endpush
     <x-attachment.preview-attachment-modal :attachment="$attachment" :questionId="$questionId"/>
     <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>
