@@ -103,7 +103,10 @@ return $settings = array(
 
         // Indicates whether the <samlp:AuthnRequest> messages sent by this SP
         // will be signed.              [The Metadata of the SP will offer this info]
-        'authnRequestsSigned' => false,
+        'authnRequestsSigned' => true,
+
+        // Entree Federatie only uses SHA1 for SAML signing.
+        'signatureAlgorithm' => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
 
         // Indicates whether the <samlp:logoutRequest> messages sent by this SP
         // will be signed.
