@@ -2,11 +2,17 @@
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Http\Controllers\RequestController;
+use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Requests\UpdateTestQuestionRequest;
+use tcCore\Http\Requests\UpdateTestRequest;
 use tcCore\Jobs\CountTeacherTests;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,11 +22,13 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
+
 class Test extends BaseModel
 {
 
     use SoftDeletes;
     use UuidTrait;
+
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -69,6 +77,27 @@ class Test extends BaseModel
             if ((count($dirty) > 1 && array_key_exists('system_test_id', $dirty)) || (count($dirty) > 0 && !array_key_exists('system_test_id', $dirty)) && !$test->getAttribute('is_system_test')) {
                 $test->setAttribute('system_test_id', null);
             }
+        });
+
+        static::saved(function (Test $test){
+            $dirty = $test->getDirty();
+            if(array_key_exists('subject_id',$dirty)){
+                $testQuestions = $test->testQuestions;
+                foreach ($testQuestions as $testQuestion){
+                    if($testQuestion->question->subject_id==$test->subject_id){
+                        continue;
+                    }
+                    $params = [
+                        'session_hash' => Auth::user()->session_hash,
+                        'user'         => Auth::user()->username,
+                        'id' => $testQuestion->id,
+                        'subject_id' => $test->subject_id
+                    ];
+                    $requestController = new RequestController();
+                    $requestController->put('/api-c/test_question/'.$testQuestion->uuid,$params);
+                }
+            }
+
         });
 
         static::deleted(function (Test $test) {
