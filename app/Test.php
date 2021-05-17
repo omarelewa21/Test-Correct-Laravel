@@ -81,23 +81,23 @@ class Test extends BaseModel
 
         static::saved(function (Test $test){
             $dirty = $test->getDirty();
-            if(array_key_exists('subject_id',$dirty)){
+            if(array_key_exists('subject_id',$dirty)||array_key_exists('education_level_id',$dirty)){
                 $testQuestions = $test->testQuestions;
                 foreach ($testQuestions as $testQuestion){
-                    if($testQuestion->question->subject_id==$test->subject_id){
+                    if(($testQuestion->question->subject_id==$test->subject_id)&&($testQuestion->question->education_level_id==$test->education_level_id)){
                         continue;
                     }
                     $params = [
                         'session_hash' => Auth::user()->session_hash,
                         'user'         => Auth::user()->username,
                         'id' => $testQuestion->id,
-                        'subject_id' => $test->subject_id
+                        'subject_id' => $test->subject_id,
+                        'education_level_id' => $test->education_level_id
                     ];
                     $requestController = new RequestController();
                     $requestController->put('/api-c/test_question/'.$testQuestion->uuid,$params);
                 }
             }
-
         });
 
         static::deleted(function (Test $test) {
