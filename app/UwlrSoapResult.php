@@ -67,12 +67,14 @@ class UwlrSoapResult extends Model
             'leeAchternaam',
             'leeTussenvoegsels',
             'leeVoornaam',
+            'leeEmail',
             'lesNaam',
             'vakNaam',
             'docStamNummer',
             'docAchternaam',
             'docTussenvoegsels',
             'docVoornaam',
+            'docEmail',
             'IsMentor',
         ];
 
@@ -106,12 +108,14 @@ class UwlrSoapResult extends Model
             $leerling['achternaam'], //leeAchternaam,
             array_key_exists('tussenvoegsel', $leerling) ? $leerling['tussenvoegsel'] : '', //leeTussenvoegsels,
             $leerling['roepnaam'],//leeVoornaam,
+            array_key_exists('email', $leerling) ? $leerling['email'] : '', //email student,
             $klasNaam,//lesNaam,
             '', //vakNaam,
             $leerkracht['key'],//docStamNummer,
             array_key_exists('achternaam', $leerkracht) ? $leerkracht['achternaam'] : '', //docAchternaam,
             array_key_exists('tussenvoegsel', $leerkracht) ? $leerkracht['tussenvoegsel'] : '',//docTussenvoegsels,
             array_key_exists('roepnaam', $leerkracht) ? $leerkracht['roepnaam'] : '', //docVoornaam,
+            array_key_exists('email', $leerkracht) ? $leerkracht['email'] : '', //docEmail,
             $isMentorGroep,//IsMentor
         ];
     }

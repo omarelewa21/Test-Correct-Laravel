@@ -205,6 +205,8 @@ class RTTIImportHelper
                     $student_name_suffix = $row[$column_index['leeTussenvoegsels']];
                     $student_name_last = $row[$column_index['leeAchternaam']];
 
+                    $student_email = array_key_exists('leeEmail', $column_index) ? $row[$column_index['leeEmail']]: null;
+
                     $class_name = $row[$column_index['lesNaam']];
                     $subject_abbreviation = $row[$column_index['vakNaam']];
 
@@ -212,7 +214,11 @@ class RTTIImportHelper
                     $teacher_name_first = $row[$column_index['docVoornaam']];
                     $teacher_name_suffix = $row[$column_index['docTussenvoegsels']];
                     $teacher_name_last = $row[$column_index['docAchternaam']];
+
+                    $teacher_email = array_key_exists('docEmail', $column_index) ? $row[$column_index['docEmail']]: null;
+
                     $teacher_is_mentor = $row[$column_index['IsMentor']];
+
 
                     if (strlen($external_sub_code) == 1) {
                         $external_sub_code = "0".$external_sub_code;
@@ -389,7 +395,7 @@ class RTTIImportHelper
                             'name'               => $student_name_last,
                             'username'           => $student_email, // moet email zijn?
                             'school_location_id' => $school_location_id,
-                            'user_roles'         => [3]
+                            'user_roles'         => [3],
                         ];
 
                         $user_id = $this->createOrRestoreUser($user_data);
