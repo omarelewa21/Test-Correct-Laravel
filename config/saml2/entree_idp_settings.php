@@ -1,11 +1,11 @@
 <?php
 return $settings = array(
-    'strict'              => false,
-    'debug'               => false,
+    'strict'   => false,
+    'debug'    => false,
     // Vul hier de base URL van de applicatie in (voorbeeld: https://example.com)
-    'baseurl'             => 'https://testwelcome.test-correct.nl',
+    'baseurl'  => 'https://testwelcome.test-correct.nl',
     // Informatie over de te implementeren Service Provider applicatie
-    'sp'                  => array(
+    'sp'       => array(
         // Het entityID is de unieke idenitfier van de applicatie (voorbeeld: https://example.com/projectnaam)
         'entityId'                 => 'https://testwelcome.test-correct.nl/saml2/entree',
         // Informatie over het endpoint waar Entree Federatie de responses naar toestuurt
@@ -72,7 +72,7 @@ jzwnvGSTRr4zLbXwz+RZmkre'
     // De informatie staat in de metadata van Entree Federatie
     // Metadata staging omgeving: https://hub-s.entree.kennisnet.nl/openaselect/profiles/saml/
     // Metadata productie omgeving: https://hub.entree.kennisnet.nl/openaselect/profiles/saml/
-    'idp'                 => array(
+    'idp'      => array(
         // De unieke identifier van Entree Federatie
 //        'entityId'            => 'https://aselect.entree.kennisnet.nl/',
         'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
@@ -113,32 +113,33 @@ DwwVN+YKl7O/tLUYRvmTnOed5zpOwX6WELT9Gshmi9T3lVn/p3XnGxxz8RpnrcQbc/MvGjybsRsj
 7uD696761sUpsGnDlWjf6oGIsG8YulDhAf8hZTOlB4Xi3GowtQ42gCKVgE1cgXeDRjkOIgSHhXuF
 N99D5dVbx2vmPcidF8Lqre2S6R7AvpP0vVuh'
     ),
+    'security' => array(
+        // Alle verzonden en ontvangen berichten moeten gesigned zijn
+        'authnRequestsSigned' => true,
 
-    // Alle verzonden en ontvangen berichten moeten gesigned zijn
-    'authnRequestsSigned' => true,
+        // Algorithm that the toolkit will use on signing process. Options:
+        // Entree Federatie only uses SHA1 for SAML signing.
+        'signatureAlgorithm'  => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
 
-    // Algorithm that the toolkit will use on signing process. Options:
-    // Entree Federatie only uses SHA1 for SAML signing.
-    'signatureAlgorithm'  => 'http://www.w3.org/2000/09/xmldsig#rsa-sha1',
-
-    // Contact informatie
-    'contactPerson'       => array(
-        'technical' => array(
-            'givenName'    => 'martin folkerts',
-            'emailAddress' => 'martin@sobit.nl'
+        // Contact informatie
+        'contactPerson'       => array(
+            'technical' => array(
+                'givenName'    => 'martin folkerts',
+                'emailAddress' => 'martin@sobit.nl'
+            ),
+            'support'   => array(
+                'givenName'    => 'Robert',
+                'emailAddress' => 'support@test-correct.nl'
+            ),
         ),
-        'support'   => array(
-            'givenName'    => 'Robert',
-            'emailAddress' => 'support@test-correct.nl'
+        // Organisatie informatie
+        'organization'        => array(
+            'nl-nl' => array(
+                'name'        => 'Teach and Learn company',
+                'displayname' => 'TLC',
+                'url'         => 'https://www.test-correct.nl/'
+            ),
         ),
-    ),
-    // Organisatie informatie
-    'organization'        => array(
-        'nl-nl' => array(
-            'name'        => 'Teach and Learn company',
-            'displayname' => 'TLC',
-            'url'         => 'https://www.test-correct.nl/'
-        ),
-    ),
+    )
 
 );
