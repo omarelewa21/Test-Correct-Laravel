@@ -48,6 +48,31 @@ class TestsControllerTest extends TestCase
         $this->assertEquals(1,$copyQuestions->first()->question->subject_id);
     }
 
+    /** @test */
+    public function it_should_copy_questionsWhenModifyingTestEducationLevelYear()
+    {
+        $this->setupScenario1();
+        $tests = Test::where('name','TToets van GM1')->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $originalQuestionArray = $questions->pluck('question_id')->toArray();
+        $tests = Test::where('name','Kopie #1 TToets van GM1')->get();
+        $this->assertTrue(count($tests)==1);
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $this->assertEquals(6,$copyQuestions->first()->question->subject_id);
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)==0);
+        $copyTest = Test::find($this->copyTestId);
+        $copyTest->education_level_year = 5;
+        $copyTest->save();
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $this->assertTrue(count($result)>0);
+        $this->assertEquals(5,$copyQuestions->first()->question->education_level_year);
+    }
 
 
     private function setupScenario1(){
@@ -67,6 +92,7 @@ class TestsControllerTest extends TestCase
             'abbreviation'           => 'TTGM1',
             'subject_id'             => '6',
             'introduction'           => 'intro',
+            "education_level_year"   => 2
         ]);
 
     }
@@ -123,7 +149,8 @@ class TestsControllerTest extends TestCase
             "miller"=> "Weten",
             "test_id"=> $testId,
             "closeable"=> 0,
-            "subject_id"=> 6
+            "subject_id"=> 6,
+            "education_level_year"=> 2
         ];
     }
 }
