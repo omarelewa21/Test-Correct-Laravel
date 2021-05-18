@@ -3,8 +3,6 @@
 
 namespace tcCore\Http\Traits;
 
-
-
 use tcCore\Http\Requests\Request;
 
 trait WithUpdatingHandling
