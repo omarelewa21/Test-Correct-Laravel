@@ -86,12 +86,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     /**
      * @var string in case of external id which needs to be updated
      */
-    protected $_externalId;
+    protected $updateExternalId;
 
     /**
      * @var string in case of school location id which needs to be updated
      */
-    protected $_schoolLocationId;
+    protected $updateSchoolLocationId;
 
     /**
      * @var array Array with school class IDs of which this user is student, for saving
@@ -159,15 +159,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         parent::fill($attributes);
 
         if (array_key_exists('external_id', $attributes)) {
-            $this->_externalId = $attributes['external_id'];
+            $this->updateExternalId = $attributes['external_id'];
         }
 
         if (array_key_exists('school_location_id', $attributes)) {
-            $this->_schoolLocationId = $attributes['school_location_id'];
+            $this->updateSchoolLocationId = $attributes['school_location_id'];
         } else if(null !== Auth::user() && Auth::user()->isA('school manager') && null !== Auth::user()->school_location_id){ // ingelogde gebruiker die het uitvoert, school beheerder en school location id
-            $this->_schoolLocationId = Auth::user()->school_location_id;
+            $this->updateSchoolLocationId = Auth::user()->school_location_id;
         }
-
 
         if (array_key_exists('student_school_classes', $attributes)) {
             $this->studentSchoolClasses = $attributes['student_school_classes'];
@@ -434,10 +433,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         static::updated(function (User $user) {
             if($user->isA('teacher')){
-                if(null !== $user->_externalId && null !== $user->_schoolLocationId){
-                    $user->allowedSchoolLocations()->updateExistingPivot($user->_schoolLocationId, [
-                        'external_id' => $user->_externalId,
+                if(null !== $user->updateExternalId && null !== $user->updateSchoolLocationId){
+                    $user->allowedSchoolLocations()->updateExistingPivot($user->updateSchoolLocationId, [
+                        'external_id' => $user->updateExternalId,
                     ]);
+                    $user->updateExternalId = null;
+                    $user->updateSchoolLocationId = null;
                 }
             }
 //            if ($user->isA('teacher')){
