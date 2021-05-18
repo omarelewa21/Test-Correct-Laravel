@@ -272,7 +272,7 @@ class TestQuestionsController extends Controller {
 //            DB::enableQueryLog();
             // Save the link
             if ($testQuestion->save()) {
-                if(Question::usesDeleteAndAddAnswersMethods($questionInstance->type)){
+                if(Question::usesDeleteAndAddAnswersMethods($questionInstance->type)&&array_key_exists('answers',$totalData)){
                     // delete old answers
                     $question->deleteAnswers($question);
 

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\MultipleChoiceQuestionTrait;
+use Tests\Traits\OpenQuestionTrait;
 use Tests\Traits\TestTrait;
 
 class TestsControllerTest extends TestCase
@@ -16,6 +17,7 @@ class TestsControllerTest extends TestCase
     use DatabaseTransactions;
     use TestTrait;
     use MultipleChoiceQuestionTrait;
+    use OpenQuestionTrait;
 
     private $originalTestId;
     private $originalQuestionId;
@@ -100,6 +102,38 @@ class TestsControllerTest extends TestCase
         $this->assertEquals(5,$copyQuestions->first()->question->education_level_year);
     }
 
+    /** @test */
+    public function it_should_modify_questionsWhenModifyingTestSubjectIdOpenQuestion()
+    {
+        $this->setupScenario2();
+        $tests = Test::where('name','TToets van GM1')->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $test = $tests->first();
+        $test->subject_id = 1;
+        $test->save();
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $question = $questions->first();
+        $this->assertEquals(1,$question->question->subject_id);
+    }
+
+    /** @test */
+    public function it_should_modify_questionsWhenModifyingTestSubjectIdMCQuestion()
+    {
+        $this->setupScenario3();
+        $tests = Test::where('name','TToets van GM1')->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $this->assertTrue(count($questions)==1);
+        $test = $tests->first();
+        $test->subject_id = 1;
+        $test->save();
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $question = $questions->first();
+        $this->assertEquals(1,$question->question->subject_id);
+    }
+
 
     private function setupScenario1(){
         $attributes = $this->getAttributesForTest1();
@@ -108,6 +142,21 @@ class TestsControllerTest extends TestCase
         $attributes = $this->getAttributesForQuestion1($this->originalTestId);
         $this->createMultipleChoiceQuestion($attributes);
         $this->duplicateTest($this->originalTestId);
+    }
+
+    private function setupScenario2(){
+        $attributes = $this->getAttributesForTest1();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $this->addOpenQuestionAndReturnQuestionId($this->originalTestId);
+     }
+
+    private function setupScenario3(){
+        $attributes = $this->getAttributesForTest1();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForQuestion1($this->originalTestId);
+        $this->createMultipleChoiceQuestion($attributes);
     }
 
 
@@ -180,5 +229,31 @@ class TestsControllerTest extends TestCase
             "education_level_year"=> 2,
             'education_level_id'   => 1
         ];
+    }
+
+    private function getOpenQuestionAttributes(array $overrides = []): array
+    {
+        return array_merge([
+            'question'               => '<p>Question tekst</p>\r\n',
+            'answer'                 => '<p>Answer Text</p>\r\n',
+            'type'                   => 'OpenQuestion',
+            'score'                  => '5',
+            'order'                  => 0,
+            'subtype'                => 'short',
+            'maintain_position'      => '0',
+            'discuss'                => '1',
+            'decimal_score'          => '0',
+            'add_to_database'        => 1,
+            'attainments'            => [],
+            'note_type'              => 'NONE',
+            'is_open_source_content' => 1,
+            'tags'                   => [],
+            'rtti'                   => null,
+            'test_id'                => '9',
+            "closeable"=> 0,
+            "subject_id"=> 6,
+            "education_level_year"=> 2,
+            'education_level_id'   => 1
+        ], $overrides);
     }
 }
