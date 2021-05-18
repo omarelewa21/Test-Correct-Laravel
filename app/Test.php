@@ -81,10 +81,7 @@ class Test extends BaseModel
 
         static::saved(function (Test $test){
             $dirty = $test->getDirty();
-            if( array_key_exists('subject_id',$dirty)||
-                array_key_exists('education_level_id',$dirty)||
-                array_key_exists('education_level_year',$dirty)
-            ){
+            if( $test->isDirty(['subject_id','education_level_id','education_level_year'])){
                 $testQuestions = $test->testQuestions;
                 foreach ($testQuestions as $testQuestion){
                     if((    $testQuestion->question->subject_id==$test->subject_id)&&
