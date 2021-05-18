@@ -84,6 +84,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $hidden = ['password', 'remember_token', 'session_hash', 'api_key', 'login_logs'];
 
     /**
+     * @var string in case of external id which needs to be updated
+     */
+    protected $_externalId;
+
+    /**
+     * @var string in case of school location id which needs to be updated
+     */
+    protected $_schoolLocationId;
+
+    /**
      * @var array Array with school class IDs of which this user is student, for saving
      */
     protected $studentSchoolClasses;
@@ -147,6 +157,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         // or relations. They will end up in the insert query when guarding is off.
         self::reguard();
         parent::fill($attributes);
+
+        if (array_key_exists('external_id', $attributes)) {
+            $this->_externalId = $attributes['external_id'];
+        }
+
+        if (array_key_exists('school_location_id', $attributes)) {
+            $this->_schoolLocationId = $attributes['school_location_id'];
+        } else if(null !== Auth::user() && Auth::user()->isA('school manager') && null !== Auth::user()->school_location_id){ // ingelogde gebruiker die het uitvoert, school beheerder en school location id
+            $this->_schoolLocationId = Auth::user()->school_location_id;
+        }
+
 
         if (array_key_exists('student_school_classes', $attributes)) {
             $this->studentSchoolClasses = $attributes['student_school_classes'];
@@ -412,19 +433,26 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
 
         static::updated(function (User $user) {
-            if ($user->isA('teacher')){
-                if ($user->user_table_external_id == $user->getOriginal('external_id')) {
-                    return true;
-                }
-                foreach ($user->allowedSchoolLocations as $schoolLocation) {
-                    if($schoolLocation->id == Auth::user()->school_location_id){
-                        $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
-                            'external_id' => $user->user_table_external_id,
-                        ]);
-                        break; // no need to continu as there's max 1 schoollocationid for this user
-                    }
+            if($user->isA('teacher')){
+                if(null !== $user->_externalId && null !== $user->_schoolLocationId){
+                    $user->allowedSchoolLocations()->updateExistingPivot($user->_schoolLocationId, [
+                        'external_id' => $user->_externalId,
+                    ]);
                 }
             }
+//            if ($user->isA('teacher')){
+//                if ($user->user_table_external_id == $user->getOriginal('external_id')) {
+//                    return true;
+//                }
+//                foreach ($user->allowedSchoolLocations as $schoolLocation) {
+//                    if($schoolLocation->id == Auth::user()->school_location_id){
+//                        $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
+//                            'external_id' => $user->user_table_external_id,
+//                        ]);
+//                        break; // no need to continu as there's max 1 schoollocationid for this user
+//                    }
+//                }
+//            }
         });
 
         static::deleting(function (User $user) {
