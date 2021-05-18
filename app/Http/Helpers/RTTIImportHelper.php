@@ -21,14 +21,16 @@ use tcCore\SchoolLocationSchoolYear;
 use tcCore\SchoolLocation;
 use Carbon\Carbon;
 use tcCore\Http\Requests\Request;
+use tcCore\UwlrSoapResult;
 
-class RTTIImportHelper {
+class RTTIImportHelper
+{
 
     /**
      *
      * @var string
      */
-    public $email_domain;
+    public $email_domain = "rttiimport.nl";
 
     /**
      *
@@ -64,7 +66,14 @@ class RTTIImportHelper {
      *
      * @var array
      */
-    private $studydirectionarray = [];
+    private $studydirectionarray = [
+        'b'   => 'Vmbo bb',
+        'b/k' => 'Vmbo kb',
+        'k'   => 'Vmbo kb',
+        'k/t' => 'Mavo / Vmbo tl',
+        't'   => 'Mavo / Vmbo tl',
+        'm/h' => 'Havo',
+    ];
 
     /**
      *
@@ -73,84 +82,116 @@ class RTTIImportHelper {
     private $errorMessages = [];
 
     /**
-     * The console command description.
      *
-     * @var array counting created and soft-deleted students, teachers and classes
+     * @var array counting created students, teachers and classes
      */
-    public $create_tally = ['students' => 0, 'classes' => 0, 'teachers' => 0];
-    public $delete_tally = ['students' => 0, 'classes' => 0, 'teachers' => 0];
+    public $create_tally = [
+        'students' => 0,
+        'classes'  => 0,
+        'teachers' => 0,
+        'mentors'  => 0,
+    ];
 
     /**
-     * Create a new command instance.
      *
-     * @return void
+     * @var array counting updated user models for students, teachers and classes
      */
-    public function __construct($csv_file_path = "", $email_domain = "") {
+    public $update_tally = [
+        'students' => 0,
+        'classes'  => 0,
+        'teachers' => 0,
+        'mentors'  => 0,
+    ];
+    /**
+     *
+     * @var bool rtti is not allowed to create users for teachers but magister uwlrImport is
+     */
+    public $can_create_users_for_teacher = false;
 
-        $this->log_name = date("mdh_i_s");
 
+    /**
+     *
+     * @var array counting soft-deleted teachers and classes
+     */
+    public $delete_tally = [
+        'students' => 0,
+        'classes'  => 0,
+        'teachers' => 0,
+        'mentors'  => 0,
+    ];
+
+    public static function initWithUwlrSoapResult(UwlrSoapResult $data, $email_domain)
+    {
+        $instance = new self($email_domain);
+        $instance->can_create_users_for_teacher = true;
+
+        $instance->log_name = date("mdh_i_s");
+
+        $instance->csv_data = $data->toCVS();
+
+        return $instance;
+
+    }
+
+
+    public static function initWithCVS($csv_file_path = "", $email_domain = "")
+    {
+        $instance = new self($email_domain);
+
+        $instance->log_name = date("mdh_i_s");
+        $instance->csv_file_path = $csv_file_path;
+        $instance->importLog('Loading '.$instance->csv_file_path);
+
+        return $instance;
+    }
+
+    private function __construct($email_domain)
+    {
         if ($email_domain != "") {
             $this->email_domain = $email_domain;
-        } else {
-            // find default in user settings?
-            $this->email_domain = "rttiimport.nl";
         }
-
-        $this->csv_file_path = $csv_file_path;
-
-        $this->importLog('Loading ' . $this->csv_file_path);
-
-        $this->studydirectionarray = [
-            'b' => 'Vmbo bb',
-            'b/k' => 'Vmbo kb',
-            'k' => 'Vmbo kb',
-            'k/t' => 'Mavo / Vmbo tl',
-            't' => 'Mavo / Vmbo tl',
-            'm/h' => 'Havo',
-        ];
     }
 
     /**
      *
-     * @param type $string
+     * @param  type  $string
      * @return boolean
      */
-    public function importLog($string) {
-
+    public function importLog($string)
+    {
         logger($string);
 
         return true;
     }
 
-    private function checkAlphaNumericAndSpace($string) {
-
+    private function checkAlphaNumericAndSpace($string)
+    {
         return preg_match('/^[a-z0-9&; .\-]+$/i', $string);
     }
 
-    public function process() {
+    public function process()
+    {
 
         // Temporary datastore
         $studentsPerClass = [];
         $teachersPerClass = [];
         $classTeacherCheck = [];
-        $classMentorCheck=[];
+        $classMentorCheck = [];
         $yearCheck = [];
         $allClasses = [];
         $this->errorMessages = [];
 
-        $this->importLog('----- ' . $this->csv_data_lines . ' data lines in input file');
+        $this->importLog('----- '.$this->csv_data_lines.' data lines in input file');
+
 
         \DB::beginTransaction();
         try {
-
             foreach ($this->csv_data as $index => $row) {
-
                 if ($index == 0) {
-
                     $column_index = array_flip($row);
                 } else {
 
-                    $this->importLog('Processing line ' . $index);
+                    $this->importLog('Processing line '.$index);
 
                     $external_main_code = $row[$column_index['Brincode']];
                     $external_sub_code = $row[$column_index['Locatiecode']];
@@ -164,6 +205,8 @@ class RTTIImportHelper {
                     $student_name_suffix = $row[$column_index['leeTussenvoegsels']];
                     $student_name_last = $row[$column_index['leeAchternaam']];
 
+                    $student_email = array_key_exists('leeEmail', $column_index) ? $row[$column_index['leeEmail']]: null;
+
                     $class_name = $row[$column_index['lesNaam']];
                     $subject_abbreviation = $row[$column_index['vakNaam']];
 
@@ -171,30 +214,33 @@ class RTTIImportHelper {
                     $teacher_name_first = $row[$column_index['docVoornaam']];
                     $teacher_name_suffix = $row[$column_index['docTussenvoegsels']];
                     $teacher_name_last = $row[$column_index['docAchternaam']];
+
+                    $teacher_email = array_key_exists('docEmail', $column_index) ? $row[$column_index['docEmail']]: null;
+
                     $teacher_is_mentor = $row[$column_index['IsMentor']];
 
-                    $now = Carbon::now();
+
+                    if (strlen($external_sub_code) == 1) {
+                        $external_sub_code = "0".$external_sub_code;
+                    }
 
                     $school_location_id = $this->getSchoolLocationId($external_sub_code, $external_main_code);
-                    if ($school_location_id == NULL) {
-                        $this->importLog('Cannot find school location by brin/location code ' . $external_main_code . ' ' . $external_sub_code);
-                        $this->errorMessages[] = 'De Brincode/locatiecode ' . $external_main_code . ' ' . $external_sub_code . ' in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.';
+                    if ($school_location_id == null) {
+                        $this->importLog('Cannot find school location by brin/location code '.$external_main_code.' '.$external_sub_code);
+                        $this->errorMessages[] = 'De Brincode/locatiecode '.$external_main_code.' '.$external_sub_code.' in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.';
                         continue;
                         //throw new \Exception('De Brincode/locatiecode ' . $external_main_code . ' ' . $external_sub_code . ' in het bestand kon niet gevonden worden in de database. Vraag aan de Test-Correct admin om een schoollocatie aan te maken met de juiste Brincode en locatiecode.');
                     }
 
-                    if (strlen($external_sub_code) == 1) {
-                        $external_sub_code = "0" . $external_sub_code;
-                    }
 
                     $student_email = sprintf('%s@%s', $student_external_code, $this->email_domain);
 
 ////                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
-//                    $teacher_email = 'rtti_' . $teacher_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
+                    $teacher_email = 'rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code.'@'.$this->email_domain;
 
 
-                    if (!in_array($study_year, range(($now->year - 10), ($now->year + 10)))) {
-                        $this->errorMessages[] = 'Invalid study year ' . $study_year;
+                    if (!in_array($study_year, range((now()->year - 10), (now()->year + 10)))) {
+                        $this->errorMessages[] = 'Invalid study year '.$study_year;
                         //throw new \Exception('Invalid study year ' . $study_year);
                     }
 
@@ -202,17 +248,17 @@ class RTTIImportHelper {
                     $yearCheck[$study_year] = 1;
 
                     if (count($yearCheck) > 1) {
-                        $this->errorMessages[] = 'Meerdere lesjaren in RTTI bestand ' . implode(',', array_keys($yearCheck));
-                        //throw new \Exception('Meerdere lesjaren in RTTI bestand ' . implode(',', array_keys($yearCheck)));
+                        $this->errorMessages[] = 'Meerdere lesjaren in RTTI bestand '.implode(',',
+                                array_keys($yearCheck));
                     }
 
                     $school_year_id = $this->getSchoolYearId($school_location_id, $study_year);
                     if (!$school_year_id) {
-                        $this->importLog('Cannot find school year id for study year ' . $study_year);
-                        $this->errorMessages[] = 'Het schooljaar ' . $study_year . ' in het bestand kon niet gevonden '
-                            . 'worden in de database voor de schoollocatie met Brincode '
-                            . $external_main_code . ' en locatiecode ' . $external_sub_code . '. '
-                            . 'Neem contact op met de schoolbeheerder om het schooljaar te laten aanmaken.';
+                        $this->importLog('Cannot find school year id for study year '.$study_year);
+                        $this->errorMessages[] = 'Het schooljaar '.$study_year.' in het bestand kon niet gevonden '
+                            .'worden in de database voor de schoollocatie met Brincode '
+                            .$external_main_code.' en locatiecode '.$external_sub_code.'. '
+                            .'Neem contact op met de schoolbeheerder om het schooljaar te laten aanmaken.';
 //                        throw new \Exception('Het schooljaar ' . $study_year . ' in het bestand kon niet gevonden '
 //                        . 'worden in de database voor de schoollocatie met Brincode '
 //                        . $external_main_code . ' en locatiecode ' . $external_sub_code . '. '
@@ -221,24 +267,26 @@ class RTTIImportHelper {
 
                     $education_level_id = $this->getStudyDirectionId($study_direction);
                     if (!$education_level_id) {
-                        $this->errorMessages[] = 'Onbekende studierichting ' . $study_direction;
-                        throw new \Exception('Onbekende studierichting ' . $study_direction);
+                        $this->errorMessages[] = 'Onbekende studierichting '.$study_direction;
+                        throw new \Exception('Onbekende studierichting '.$study_direction);
                     }
 
                     // check if education level is allowed
-                    $education_level_max_years = Educationlevel::select('max_years')->where('id', $education_level_id)->value('max_years');
-
-                    if ($study_year_layer >= $education_level_max_years) {
-                        $this->errorMessages[] = 'De les jaar laag ' . $study_year_layer . ' is niet correct. De Studierichting (niveau) ' . $study_direction . ' kan maximaal ' . $education_level_max_years . ' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT';
+                    $education_level_max_years = Educationlevel::select('max_years')
+                        ->where('id', $education_level_id)
+                        ->value('max_years');
+                    if ($study_year_layer > $education_level_max_years) {
+                        $this->errorMessages[] = 'De les jaar laag '.$study_year_layer.' is niet correct. De Studierichting (niveau) '.$study_direction.' kan maximaal '.$education_level_max_years.' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT';
                         //throw new \Exception('De les jaar laag ' . $study_year_layer . ' is niet correct. De Studierichting (niveau) ' . $study_direction . ' kan maximaal ' . $education_level_max_years . ' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT');
                     }
 
-                    $school_class_id = $this->getSchoolClassId($class_name, $school_location_id, $study_year, $study_year_layer, $education_level_id);
+                    $school_class_id = $this->getSchoolClassId($class_name, $school_location_id, $study_year,
+                        $study_year_layer, $education_level_id);
                     $teacher_id = $this->getUserIdForTeacherInLocation($teacher_external_code, $school_location_id);
                     $student_id = $this->getUserIdForLocation($student_external_code, $school_location_id);
                     $subject_id = $this->getSubjectId($subject_abbreviation, $school_location_id);
 
-                    $this->importLog("subject id is " . $subject_id . " for abbreviation " . $subject_abbreviation . " and location " . $school_location_id);
+                    $this->importLog("subject id is ".$subject_id." for abbreviation ".$subject_abbreviation." and location ".$school_location_id);
 
                     if (isset($allClasses[$school_location_id]['school_class_id'])) {
                         if (!in_array($school_class_id, $allClasses[$school_location_id]['school_class_id'])) {
@@ -252,41 +300,45 @@ class RTTIImportHelper {
 
                     if (!$subject_id) {
 
-                        $this->importLog('Cannot find subject ' . $subject_abbreviation);
-                        $this->errorMessages[] = 'Het vak met de afkorting ' . $subject_abbreviation . ' in het bestand kon niet gevonden '
-                            . 'worden in de database voor de schoollocatie met Brincode/locatiecode: ' . $external_main_code . ' '
-                            . $external_sub_code . '. Neem contact op met de schoolbeheerder om het vak te laten aanmaken';
+                        $this->importLog('Cannot find subject '.$subject_abbreviation);
+                        $this->errorMessages[] = 'Het vak met de afkorting '.$subject_abbreviation.' in het bestand kon niet gevonden '
+                            .'worden in de database voor de schoollocatie met Brincode/locatiecode: '.$external_main_code.' '
+                            .$external_sub_code.'. Neem contact op met de schoolbeheerder om het vak te laten aanmaken';
 //                        throw new \Exception('Het vak met de afkorting ' . $subject_abbreviation . ' in het bestand kon niet gevonden '
 //                        . 'worden in de database voor de schoollocatie met Brincode/locatiecode: ' . $external_main_code . ' '
 //                        . $external_sub_code . '. Neem contact op met de schoolbeheerder om het vak te laten aanmaken');
                     }
 
-                    $this->importLog('school location ' . $school_location_id . ' sub ' . $external_sub_code . ' main ' . $external_main_code);
-                    $this->importLog('Start inserting record ' . $index . ' for location ' . $school_location_id . '  BRIN ' . $external_main_code);
-
-
+                    $this->importLog('school location '.$school_location_id.' sub '.$external_sub_code.' main '.$external_main_code);
+                    $this->importLog('Start inserting record '.$index.' for location '.$school_location_id.'  BRIN '.$external_main_code);
 
                     // class doesnt exist, create it else use it
-                    if ($school_class_id == NULL) {
-
+                    if ($school_class_id == null) {
                         $this->importLog('Restoring school class');
 
+
                         $school_class_id = $this->createOrRestoreSchoolClass([
-                            'school_location_id' => $school_location_id,
-                            'education_level_id' => $education_level_id,
-                            'school_year_id' => $school_year_id,
-                            'name' => $class_name,
-                            'education_level_year' => $study_year_layer,
-                            'is_main_school_class' => $teacher_is_mentor,
+                            'school_location_id'              => $school_location_id,
+                            'education_level_id'              => $education_level_id,
+                            'school_year_id'                  => $school_year_id,
+                            'name'                            => $class_name,
+                            'education_level_year'            => $study_year_layer,
+                            'is_main_school_class'            => $teacher_is_mentor,
                             'do_not_overwrite_from_interface' => 0
                         ]);
 
-                        $this->create_tally['classes'] ++;
+                        $this->create_tally['classes']++;
 
-                        $this->importLog('Class ' . $class_name . ' with id ' . $school_class_id . '  created ');
+                        $this->importLog('Class '.$class_name.' with id '.$school_class_id.'  created ');
                     } else {
-
-                        $this->importLog('Class ' . $class_name . ' with id ' . $school_class_id . ' exists');
+                        $schoolClass = SchoolClass::find($school_class_id);
+                        if ($schoolClass->is_main_school_class === 0 && $teacher_is_mentor == 1) {
+                            $schoolClass->is_main_school_class = 1;
+                            $schoolClass->save();
+                            $this->importLog('Class '.$class_name.' with id '.$school_class_id.' exists and was updated to is_main_school_class=1');
+                        } else {
+                            $this->importLog('Class '.$class_name.' with id '.$school_class_id.' exists');
+                        }
                     }
 
 
@@ -298,112 +350,172 @@ class RTTIImportHelper {
                     }
 
                     // student is known
-                    if ($student_id != NULL) {
+                    if ($student_id != null) {
+
+                        if ($student = User::find($student_id)) {
+                                $student->name_first  = $student_name_first;
+                                $student->name_suffix = $student_name_suffix;
+                                $student->name        = $student_name_last;
+                                if ($student->isDirty()) {
+                                    $student->save();
+                                    $this->update_tally['students']++;
+                                }
+                        }
 
                         // student not in class (always the case with a new class)
                         if (!$this->getStudentIdForClass($student_id, $school_class_id)) {
 
                             $this->createOrRestoreStudent([
-                                'user_id' => $student_id,
+                                'user_id'  => $student_id,
                                 'class_id' => $school_class_id
                             ]);
 
-                            $this->importLog('Added student with id ' . $student_id . ' to class ' . $school_class_id);
+                            $this->importLog('Added student with id '.$student_id.' to class '.$school_class_id);
                         } else {
 
-                            $this->importLog('Student with id ' . $student_id . ' exists in class ' . $school_class_id);
+                            $this->importLog('Student with id '.$student_id.' exists in class '.$school_class_id);
                         }
 
                         $user = User::where('external_id', $student_external_code)
-                                ->where('school_location_id', $school_location_id);
+                            ->where('school_location_id', $school_location_id);
 
 
                         if ($user->count() > 1) {
-                            $this->errorMessages[] = 'Dubbele externe id voor dezelfde gebruiker ' . $student_external_code;
+                            $this->errorMessages[] = 'Dubbele externe id voor dezelfde gebruiker '.$student_external_code;
                             //throw new \Exception('Dubbele externe id voor dezelfde gebruiker ' . $student_external_code);
                         }
                     } else {
 
-                        $this->importLog("Create student with external code " . $student_external_code);
+                        $this->importLog("Create student with external code ".$student_external_code);
 
-                        $user_data = ['external_id' => $student_external_code,
-                            'name_first' => $student_name_first,
-                            'name_suffix' => $student_name_suffix,
-                            'name' => $student_name_last,
-                            'username' => $student_email, // moet email zijn?
+                        $user_data = [
+                            'external_id'        => $student_external_code,
+                            'name_first'         => $student_name_first,
+                            'name_suffix'        => $student_name_suffix,
+                            'name'               => $student_name_last,
+                            'username'           => $student_email, // moet email zijn?
                             'school_location_id' => $school_location_id,
-                            'user_roles' => [3]
+                            'user_roles'         => [3],
                         ];
 
                         $user_id = $this->createOrRestoreUser($user_data);
 
-                        $this->importLog('User created for student with id ' . $user_id . ' and external code ' . $student_external_code);
+                        $this->importLog('User created for student with id '.$user_id.' and external code '.$student_external_code);
 
                         $this->createOrRestoreStudent([
-                            'user_id' => $user_id,
+                            'user_id'  => $user_id,
                             'class_id' => $school_class_id
                         ]);
 
-                        $this->create_tally['students'] ++;
+                        $this->create_tally['students']++;
 
                         $student_id = $user_id;
                     }
 
                     $studentsPerClass[$school_class_id][] = $student_id;
 
-                    if ($teacher_id != NULL) {
-                        $user_collection =  User::join('school_location_user', 'users.id', '=','school_location_user.user_id')
+                    if ($teacher_id != null) {
+                        $user_collection = User::join('school_location_user', 'users.id', '=',
+                            'school_location_user.user_id')
                             ->where('school_location_user.school_location_id', $school_location_id)
                             ->where('school_location_user.external_id', $teacher_external_code)
                             ->get();
 
                         if ($user_collection->count() > 1) {
 
-                            throw new \Exception('Dubbele externe id voor leraar met externe code ' . $teacher_external_code);
+                            throw new \Exception('Dubbele externe id voor leraar met externe code '.$teacher_external_code);
                         }
 
                         $user = $user_collection->first();
 
-                        $teacher_table_id = $this->getTeachersForClassSubject($teacher_id, $school_class_id, $subject_id);
+                        $user->name_first  = $teacher_name_first;
+                        $user->name_suffix = $teacher_name_suffix;
+                        $user->name        = $teacher_name_last;
+                        if ($user->isDirty()) {
+                            $user->save();
+                            $this->update_tally['teachers']++;
+                        }
 
-                        if ($teacher_table_id == NULL) {
+
+
+
+
+                        $teacher_table_id = $this->getTeachersForClassSubject($teacher_id, $school_class_id,
+                            $subject_id);
+
+                        if ($teacher_table_id == null && $subject_id !== null) {
 
                             $teacher = $this->createOrRestoreTeacher([
-                                'user_id' => $user->id,
-                                'class_id' => $school_class_id,
+                                'user_id'    => $user->id,
+                                'class_id'   => $school_class_id,
                                 'subject_id' => $subject_id
                             ]);
 
-                            $this->importLog('Assigned teacher with id ' . $user->id . ' to class id ' . $school_class_id . ' and subject id ' . $subject_id);
+                            $this->create_tally['teachers']++;
+
+
+                            $this->importLog('Assigned teacher with id '.$user->id.' to class id '.$school_class_id.' and subject id '.$subject_id);
                         } else {
 
-                            $this->importLog("Teacher already assigned with id " . $school_class_id . " and subject id " . $subject_id);
+                            $this->importLog("Teacher already assigned with id ".$school_class_id." and subject id ".$subject_id);
                         }
                     } else {
-                        $missing_user =  [
-                            $teacher_name_first,
-                            $teacher_name_suffix,
-                            $teacher_name_last
-                        ];
-                        if(!array_key_exists('missing_teachers',$this->errorMessages)){
-                            $this->errorMessages['missing_teachers'] = [];
-                        }
-                        $this->errorMessages['missing_teachers'][] = $missing_user;
+                        if ($this->can_create_users_for_teacher) {
+                            $user_data = [
+                                'external_id'        => $teacher_external_code,
+                                'name_first'         => $teacher_name_first,
+                                'name_suffix'        => $teacher_name_suffix,
+                                'name'               => $teacher_name_last,
+                                'username'           => $teacher_email,
+                                'school_location_id' => $school_location_id,
+                                'user_roles'         => [1]
+                            ];
+
+                            $user_id = $this->createOrRestoreUser($user_data);
+
+                            $this->importLog('Teacher user created with id '.$user_id);
+                            if ($subject_id !== null) {
+                                $teacher = $this->createOrRestoreTeacher([
+                                    'user_id'    => $user_id,
+                                    'class_id'   => $school_class_id,
+                                    'subject_id' => $subject_id
+                                ]);
+
+                                $this->create_tally['teachers']++;
+
+                                $teacher_id = $teacher->user_id;
+                            }
+                        } else {
+                            $missing_user = [
+                                $teacher_name_first,
+                                $teacher_name_suffix,
+                                $teacher_name_last
+                            ];
+                            if (!array_key_exists('missing_teachers', $this->errorMessages)) {
+                                $this->errorMessages['missing_teachers'] = [];
+                            }
+                            $this->errorMessages['missing_teachers'][] = $missing_user;
 //                        throw new \Exception('
 //                        Voor de onderstaande docenten bestaat nog geen account. Maak die eerst aan voordat u de RTTI importer draait:
 //                        '. $missing_user);
 
 
-                        $this->importLog("User missing Teacher not created " . implode(';',$missing_user));
-                        continue;
+                            $this->importLog("User missing Teacher not created ".implode(';', $missing_user));
+                            continue;
+                        }
                     }
 
                     if (isset($teachersPerClass[$teacher_id])) {
-                        if (!in_array(['subject_id' => $subject_id, 'class_id' => $school_class_id], $teachersPerClass[$teacher_id])) {
-                            $teachersPerClass[$teacher_id][] = ['subject_id' => $subject_id, 'class_id' => $school_class_id];
+                        if (!in_array(['subject_id' => $subject_id, 'class_id' => $school_class_id],
+                            $teachersPerClass[$teacher_id])) {
+                            $teachersPerClass[$teacher_id][] = [
+                                'subject_id' => $subject_id, 'class_id' => $school_class_id
+                            ];
                         }
                     } else {
-                        $teachersPerClass[$teacher_id][] = ['subject_id' => $subject_id, 'class_id' => $school_class_id];
+                        $teachersPerClass[$teacher_id][] = [
+                            'subject_id' => $subject_id, 'class_id' => $school_class_id
+                        ];
                     }
 
                     // collect teacher class combinations
@@ -411,22 +523,22 @@ class RTTIImportHelper {
 
                     foreach ($teachersPerClass as $teacher_id => $class_subjects) {
                         foreach ($class_subjects as $class_subject_tuple) {
-                            $this->importLog('Assigned teacher ' . $teacher_id . ' where class ' . $class_subject_tuple['class_id'] . ' and subject ' . $class_subject_tuple['subject_id']);
+                            $this->importLog('Assigned teacher '.$teacher_id.' where class '.$class_subject_tuple['class_id'].' and subject '.$class_subject_tuple['subject_id']);
                         }
                     }
 
                     // set mentor state
-                    if ($teacher_is_mentor) {
+                    if ($teacher_is_mentor && $teacher_id) {
 
-                        $classMentorCheck[$school_class_id][]=$teacher_id;
+                        $classMentorCheck[$school_class_id][] = $teacher_id;
 
-                        $this->importLog('Setting teacher as mentor for ' . $school_class_id . ' ' . $teacher_id);
+                        $this->importLog('Setting teacher as mentor for '.$school_class_id.' '.$teacher_id);
 
                         $this->setTeacherAsMentor($teacher_id, $school_class_id);
 
                     }
 
-                    $this->importLog('-------- index ' . $index . ' data lines ' . $this->csv_data_lines);
+                    $this->importLog('-------- index '.$index.' data lines '.$this->csv_data_lines);
 
                     // only execute after the last line is processed
                     if ($index == $this->csv_data_lines) {
@@ -444,17 +556,17 @@ class RTTIImportHelper {
 
                         foreach ($studentsPerClass as $class_id => $students) {
 
-                            $this->importLog('Students in class ' . $class_id . ' ' . implode(',', $students));
+                            $this->importLog('Students in class '.$class_id.' '.implode(',', $students));
 
                             $this->delete_tally['students'] += Student::whereNotIn('user_id', $students)
-                                    ->where('class_id', $class_id)
-                                    ->count();
+                                ->where('class_id', $class_id)
+                                ->count();
 
                             Student::whereNotIn('user_id', $students)
-                                    ->where('class_id', $class_id)
-                                    ->delete();
+                                ->where('class_id', $class_id)
+                                ->delete();
 
-                            $this->importLog("Deleted students from class " . $class_id);
+                            $this->importLog("Deleted students from class ".$class_id);
                         }
 
                         $class_subjects_combined = [];
@@ -474,78 +586,49 @@ class RTTIImportHelper {
                             foreach ($subject_teachers as $subject => $teachers) {
 
                                 $this->delete_tally['teachers'] += Teacher::whereNotIn('user_id', $teachers)
-                                        ->where('class_id', $class)
-                                        ->where('subject_id', $subject)
-                                        ->count();
+                                    ->where('class_id', $class)
+                                    ->where('subject_id', $subject)
+                                    ->count();
 
                                 // @TODO er kunnen meerdere docenten hetzelfde vak geven aan dezelfde klas, dus er moet iets anders bedacht worden
                                 // voor het verwijderen van docenten die ECHT NIET MEER gekoppeld zijn aan deze klas met dit vak
                                 Teacher::whereNotIn('user_id', $teachers)
-                                        ->where('class_id', $class)
-                                        ->where('subject_id', $subject)
-                                        ->delete();
+                                    ->where('class_id', $class)
+                                    ->where('subject_id', $subject)
+                                    ->delete();
 
-                                $this->importLog('deleting other teachers from class ' . $class_subject_tuple['class_id'] . ' and subject ' . $class_subject_tuple['subject_id']);
+                                $this->importLog('deleting other teachers from class '.$class_subject_tuple['class_id'].' and subject '.$class_subject_tuple['subject_id']);
                             }
                         }
-
-                        /*
-                          // loop through the class/subjects by teacher
-                          foreach ($teachersPerClass as $teacher_id => $class_subjects) {
-
-                          // loop through the class subjects
-                          foreach ($class_subjects as $class_subject_tuple) {
-
-                          $class_subjects_combined[$class_subject_tuple['class_id']][] = $class_subject_tuple['subject_id'];
-                          $class_teachers_combined[$class_subject_tuple['class_id']][] = $teacher_id;
-
-                          $this->delete_tally['teachers'] += Teacher::where('user_id', '<>', $teacher_id)
-                          ->where('class_id', $class_subject_tuple['class_id'])
-                          ->where('subject_id', $class_subject_tuple['subject_id'])
-                          ->count();
-
-                          // @TODO er kunnen meerdere docenten hetzelfde vak geven aan dezelfde klas, dus er moet iets anders bedacht worden
-                          // voor het verwijderen van docenten die ECHT NIET MEER gekoppeld zijn aan deze klas met dit vak
-                          Teacher::where('user_id', '<>', $teacher_id)
-                          ->where('class_id', $class_subject_tuple['class_id'])
-                          ->where('subject_id', $class_subject_tuple['subject_id'])
-                          ->delete();
-
-                          $this->importLog('deleting other teachers from class ' . $class_subject_tuple['class_id'] . ' and subject ' . $class_subject_tuple['subject_id']);
-                          }
-                          }
-                         * *
-                         */
-
-                        // disconnect teachers and subjects that where not in the import file
 
                         foreach ($class_subjects_combined as $class_id => $subject_ids) {
 
                             // delete teachers where the subject is not in the import for the class
-                            $deleted_teachers = Teacher::leftjoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
-                                    ->where('school_classes.do_not_overwrite_from_interface', 0)
-                                    ->where('teachers.class_id', $class_id)
-                                    ->whereNotIn('teachers.subject_id', $subject_ids)
-                                    ->delete();
+                            $deleted_teachers = Teacher::leftjoin('school_classes', 'school_classes.id', '=',
+                                'teachers.class_id')
+                                ->where('school_classes.do_not_overwrite_from_interface', 0)
+                                ->where('teachers.class_id', $class_id)
+                                ->whereNotIn('teachers.subject_id', $subject_ids)
+                                ->delete();
                         }
 
-                        $this->importLog('teachers deleted due to subject not in import ' . $deleted_teachers);
+                        $this->importLog('teachers deleted due to subject not in import '.$deleted_teachers);
 
                         $this->delete_tally['teachers'] += $deleted_teachers;
 
                         foreach ($allClasses as $school_location_id => $data) {
 
                             $ids = SchoolClass::select('id')
-                                    ->where('school_location_id', $school_location_id)
-                                    ->where('do_not_overwrite_from_interface', 0)
-                                    ->where('school_year_id', $data['school_year_id'])
-                                    ->whereNotIn('id', array_unique($class_ids))
-                                    ->get()
-                                    ->toArray();
+                                ->where('school_location_id', $school_location_id)
+                                ->where('do_not_overwrite_from_interface', 0)
+                                ->where('school_year_id', $data['school_year_id'])
+                                ->whereNotIn('id', array_unique($class_ids))
+                                ->get()
+                                ->toArray();
 
                             foreach ($ids as $id) {
 
-                                $this->delete_tally['classes'] ++;
+                                $this->delete_tally['classes']++;
 
                                 // remove student from class
                                 Student::where('class_id', $id['id'])->delete();
@@ -557,35 +640,119 @@ class RTTIImportHelper {
                     }
                 }
             }
-            if(count($this->errorMessages)>0){
+            if (count($this->errorMessages) > 0) {
                 throw new \Exception('collected errors');
             }
         } catch (\Throwable $e) {
             \DB::rollback();
-            $this->importLog("Transaction failed with message " . $e->getMessage());
-            if($e->getMessage()=='collected errors'){
-                $uniqueErrors =  $this->makeErrorsUnique();
+            $this->importLog("Transaction failed with message ".$e->getMessage());
+            if ($e->getMessage() == 'collected errors') {
+                $uniqueErrors = $this->makeErrorsUnique();
+
+
                 return ['errors' => $uniqueErrors];
             }
-            return ['errors' => [$e->getMessage()]];
+            // MF merge the errorMessages of helper on the return to fix schoolyear error;
+            return ['errors' => array_merge([$e->getMessage()], $this->errorMessages)];
         }
 
         \DB::commit();
 
         $this->importLog('import done');
 
-        return ['data' => 'Versie 0.1. De import was succesvol. '
-            . ' Er zijn ' . $this->create_tally['students'] . ' leerlingen aangemaakt, '
-            . $this->create_tally['teachers'] . ' docenten en '
-            . $this->create_tally['classes'] . ' klassen. '
-            . 'c' . $this->delete_tally['classes'] . 't' . $this->delete_tally['teachers'] . 's' . $this->delete_tally['students']];
+        return [
+            'data' => sprintf(
+                'Versie 0.1. De import was succesvol. %s %s %s',
+                $this->createTally(),
+                $this->updateTally(),
+                $this->deleteTally()
+            )
+        ];
+    }
+
+    private function createTally()
+    {
+        $return = '';
+
+        if ($this->create_tally['students'] === 1) {
+            $return .= 'Er is 1 leerling aangemaakt, ';
+        } else {
+            $return .= sprintf('Er zijn %d leerlingen aangemaakt, ', $this->create_tally['students']);
+        }
+
+        if ($this->create_tally['teachers'] === 1) {
+            $return .= '1 docent en ';
+        } else {
+            $return .= sprintf('%d docenten en ', $this->create_tally['teachers']);
+        }
+
+        if ($this->create_tally['classes'] === 1) {
+            $return .= '1 klas. ';
+        } else {
+            $return .= sprintf('%s klassen. ', $this->create_tally['classes']);
+        }
+
+        return $return;
+    }
+
+
+    private function updateTally()
+    {
+        $return = '';
+
+        if ($this->update_tally['students'] === 1) {
+            $return .= 'Er is 1 leerling geupdate, ';
+        } else {
+            $return .= sprintf('Er zijn %d leerlingen geupdate, ', $this->update_tally['students']);
+        }
+
+        if ($this->update_tally['teachers'] === 1) {
+            $return .= '1 docent en ';
+        } else {
+            $return .= sprintf('%d docenten en ', $this->update_tally['teachers']);
+        }
+
+        if ($this->update_tally['classes'] === 1) {
+            $return .= '1 klas. ';
+        } else {
+            $return .= sprintf('%s klassen. ', $this->update_tally['classes']);
+        }
+
+        return  $return;
+    }
+
+
+    private function deleteTally()
+    {
+        $return = '';
+
+        if ($this->delete_tally['students'] === 1) {
+            $return .= 'Er is 1 leerling verwijderd, ';
+        } else {
+            $return .= sprintf('Er zijn %d leerlingen verwijderd, ', $this->delete_tally['students']);
+        }
+
+        if ($this->delete_tally['teachers'] === 1) {
+            $return .= '1 docent en ';
+        } else {
+            $return .= sprintf('%d docenten en ', $this->delete_tally['teachers']);
+        }
+
+        if ($this->delete_tally['classes'] === 1) {
+            $return .= '1 klas.';
+        } else {
+            $return .= sprintf('%s klassen.', $this->delete_tally['classes']);
+        }
+
+        return $return;
     }
 
     /**
      *
      * @return string
      */
-    public function validate() {
+    public function validate()
+    {
 
         $errors = [];
         $lines = 0;
@@ -606,91 +773,91 @@ class RTTIImportHelper {
                         case "Schoolnaam":
                             // no rules
                             if ($row[$fieldindex] == "") {
-                                $errors[] = $field . " missing ";
+                                $errors[] = $field." missing ";
                             }
                             break;
                         case "Brincode":
                             // alphanumeric max 4 chars
                             if ($row[$fieldindex] == "" || !ctype_alnum($row[$fieldindex]) || strlen($row[$fieldindex]) > 4) {
-                                $errors[] = $field . " error ";
+                                $errors[] = $field." error ";
                             }
                             break;
                         case "Locatiecode":
                             if ($row[$fieldindex] == "") {
-                                $errors[] = $field . " missing " . $row[$fieldindex];
+                                $errors[] = $field." missing ".$row[$fieldindex];
                             }
                             if (\strlen($row[$fieldindex]) > 2 || !ctype_digit($row[$fieldindex])) {
-                                $errors[] = $field . " niet numeriek of te lang " . $row[$fieldindex];
+                                $errors[] = $field." niet numeriek of te lang ".$row[$fieldindex];
                             }
                             break;
                         case "Studierichting":
                             if (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || \strlen($row[$fieldindex]) > 45) {
-                                $errors[] = $field . " incorrect (" . $row[$fieldindex] . ")";
+                                $errors[] = $field." incorrect (".$row[$fieldindex].")";
                             }
                             break;
                         case "lesJaarlaag":
                             if (!ctype_digit($row[$fieldindex])) {
-                                $errors[] = $field . " incorrect (" . $row[$fieldindex] . ")";
+                                $errors[] = $field." incorrect (".$row[$fieldindex].")";
                             }
                             break;
                         case "Schooljaar":
                             if (!ctype_digit(substr($row[$fieldindex], 0, 4))) {
-                                $errors[] = $field . " incorrect (" . $row[$fieldindex] . ").";
+                                $errors[] = $field." incorrect (".$row[$fieldindex].").";
                             }
                             break;
                         case "leeStamNummer":
                             if ($row[$fieldindex] == "" || !ctype_alnum($row[$fieldindex]) || strlen($row[$fieldindex]) > 45) {
-                                $errors[] = "Een stamnummer (" . $row[$fieldindex] . ") van een leerling kan maximaal 45 tekens lang zijn en mag niet leeg zijn.";
+                                $errors[] = "Een stamnummer (".$row[$fieldindex].") van een leerling kan maximaal 45 tekens lang zijn en mag niet leeg zijn.";
                             }
                             break;
                         case "leeAchternaam":
                             if (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || strlen($row[$fieldindex]) > 45) {
-                                $errors[] = "Een achternaam (" . $row[$fieldindex] . ") van een leerling kan maximaal 45 tekens lang zijn.";
+                                $errors[] = "Een achternaam (".$row[$fieldindex].") van een leerling kan maximaal 45 tekens lang zijn.";
                             }
                             break;
                         case "leeTussenvoegsels":
                             if ($row[$fieldindex] != '' && (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || strlen($row[$fieldindex]) > 45)) {
-                                $errors[] = "Een tussenvoegsel (" . $row[$fieldindex] . ")  van een leerling kan maximaal 45 tekens lang zijn.";
+                                $errors[] = "Een tussenvoegsel (".$row[$fieldindex].")  van een leerling kan maximaal 45 tekens lang zijn.";
                             }
                             break;
                         case "leeVoornaam":
                             if (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || strlen($row[$fieldindex]) > 45) {
-                                $errors[] = "Een voornaam  (" . $row[$fieldindex] . ")  van een leerling kan maximaal 45 tekens lang zijn.";
+                                $errors[] = "Een voornaam  (".$row[$fieldindex].")  van een leerling kan maximaal 45 tekens lang zijn.";
                             }
                             break;
                         case "lesNaam":
                             if (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || strlen($row[$fieldindex]) > 45) {
-                                $errors[] = "Een lesnaam  (" . $row[$fieldindex] . ")  kan maximaal 45 tekens lang zijn.";
+                                $errors[] = "Een lesnaam  (".$row[$fieldindex].")  kan maximaal 45 tekens lang zijn.";
                             }
                             break;
                         case "vakNaam":
                             if (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || strlen($row[$fieldindex]) > 10) {
-                                $errors[] = "Een vaknaam (" . $row[$fieldindex] . ") is een afkorting en kan maximaal 10 tekens lang zijn.";
+                                $errors[] = "Een vaknaam (".$row[$fieldindex].") is een afkorting en kan maximaal 10 tekens lang zijn.";
                             }
                             break;
                         case "docStamNummer":
                             if (!ctype_alnum($row[$fieldindex]) || strlen($row[$fieldindex]) > 45) {
-                                $errors[] = "Een stamNummer (" . $row[$fieldindex] . ") kan maximaal 45 tekens lang zijn.";
+                                $errors[] = "Een stamNummer (".$row[$fieldindex].") kan maximaal 45 tekens lang zijn.";
                             }
                             break;
                         case "docAchternaam":
                             if (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || strlen($row[$fieldindex]) > 45) {
-                                $errors[] = "Een achternaam  (" . $row[$fieldindex] . ")  van een docent kan maximaal 45 tekens lang zijn.";
+                                $errors[] = "Een achternaam  (".$row[$fieldindex].")  van een docent kan maximaal 45 tekens lang zijn.";
                             }
                             break;
                         case "docTussenvoegsels":
                             if ($row[$fieldindex] != '' && (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || strlen($row[$fieldindex]) > 45)) {
-                                $errors[] = "Een tussenvoegsel  (" . $row[$fieldindex] . ")  van een docent kan maximaal 45 tekens lang zijn.";
+                                $errors[] = "Een tussenvoegsel  (".$row[$fieldindex].")  van een docent kan maximaal 45 tekens lang zijn.";
                             }
                             break;
                         case "docVoornaam":
                             if (!$this->checkAlphaNumericAndSpace($row[$fieldindex]) || strlen($row[$fieldindex]) > 45) {
-                                $errors[] = "Een voornaam (" . $row[$fieldindex] . ")  van een docent kan maximaal 45 tekens lang zijn.";
+                                $errors[] = "Een voornaam (".$row[$fieldindex].")  van een docent kan maximaal 45 tekens lang zijn.";
                             }
                             break;
                         case "IsMentor":
                             if ($row[$fieldindex] != 1 && $row[$fieldindex] != 0) {
-                                $errors[] = " Het IsMentor veld moet een 0 of een 1 zijn. 1 betekent dat de docent een mentor is en 0 dat de docent geen mentor is. De waarde is nu (" . $row[$fieldindex] . ")";
+                                $errors[] = " Het IsMentor veld moet een 0 of een 1 zijn. 1 betekent dat de docent een mentor is en 0 dat de docent geen mentor is. De waarde is nu (".$row[$fieldindex].")";
                             }
                             break;
                         default:
@@ -708,11 +875,12 @@ class RTTIImportHelper {
 
     /**
      *
-     * @param type $email_domain
+     * @param  type  $email_domain
      * @return boolean
      * @throws \Exception
      */
-    public function validateEmailDomain($email_domain) {
+    public function validateEmailDomain($email_domain)
+    {
 
         // email must be valid or empty
         if ($email_domain != "") {
@@ -732,63 +900,70 @@ class RTTIImportHelper {
 
     /**
      *
-     * @param type $external_sub_code
-     * @param type $external_main_code
+     * @param  type  $external_sub_code
+     * @param  type  $external_main_code
      * @return type
      */
     public function getSchoolLocationId($external_sub_code, $external_main_code)
     {
         return SchoolLocation::select('id')
-                        ->where('external_sub_code', $external_sub_code)
-                        ->where('external_main_code', $external_main_code)
-                        ->value('id');
+            ->where('external_sub_code', $external_sub_code)
+            ->where('external_main_code', $external_main_code)
+            ->value('id');
     }
 
     /**
      *
-     * @param type $class_name
-     * @param type $school_location_id
-     * @param type $year
-     * @param type $education_level_year
-     * @param type $education_level_id
+     * @param  type  $class_name
+     * @param  type  $school_location_id
+     * @param  type  $year
+     * @param  type  $education_level_year
+     * @param  type  $education_level_id
      * @return type
      */
-    public function getSchoolClassId($class_name, $school_location_id, $year, $education_level_year, $education_level_id) {
+    public function getSchoolClassId(
+        $class_name,
+        $school_location_id,
+        $year,
+        $education_level_year,
+        $education_level_id
+    ) {
 
         $school_year_id = SchoolLocationSchoolYear::select('school_year_id')
-                ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
-                ->whereNull('school_location_school_years.deleted_at')
-                ->where('school_location_school_years.school_location_id', '=', $school_location_id)
-                ->where('school_years.year', $year)
-                ->value('school_year_id');
+            ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
+            ->whereNull('school_location_school_years.deleted_at')
+            ->where('school_location_school_years.school_location_id', '=', $school_location_id)
+            ->where('school_years.year', $year)
+            ->value('school_year_id');
 
-        if ($school_year_id != NULL) {
+        if ($school_year_id != null) {
 
             return SchoolClass::where('name', $class_name)
-                            ->where('school_location_id', $school_location_id)
-                            ->where('school_year_id', $school_year_id)
-                            ->where('education_level_year', $education_level_year)
-                            ->where('education_level_id', $education_level_id)
-                            ->whereNull('school_classes.deleted_at')
-                            ->value('id');
+                ->where('school_location_id', $school_location_id)
+                ->where('school_year_id', $school_year_id)
+                ->where('education_level_year', $education_level_year)
+                ->where('education_level_id', $education_level_id)
+                ->whereNull('school_classes.deleted_at')
+                ->value('id');
         } else {
-            return NULL;
+            return null;
         }
     }
 
     /**
      *
-     * @param type $user_data
+     * @param  type  $user_data
      * @return type
      */
-    public function createOrRestoreUser($user_data) {
+    public function createOrRestoreUser($user_data)
+    {
 
         $user = User::withTrashed()
-                ->where('external_id', $user_data['external_id'])
-                ->where('school_location_id', $user_data['school_location_id'])
-                ->first();
+            ->where('external_id', $user_data['external_id'])
+            ->where('school_location_id', $user_data['school_location_id'])
+            ->first();
 
-        if ($user != NULL) {
+        if ($user != null) {
 
             $user->restore();
         } else {
@@ -802,18 +977,19 @@ class RTTIImportHelper {
 
     /**
      *
-     * @param type $teacher_data
+     * @param  type  $teacher_data
      * @return type
      */
-    public function createOrRestoreTeacher($teacher_data) {
+    public function createOrRestoreTeacher($teacher_data)
+    {
 
         $teacher = Teacher::withTrashed()
-                ->where('class_id', $teacher_data['class_id'])
-                ->where('user_id', $teacher_data['user_id'])
-                ->where('subject_id', $teacher_data['subject_id'])
-                ->first();
+            ->where('class_id', $teacher_data['class_id'])
+            ->where('user_id', $teacher_data['user_id'])
+            ->where('subject_id', $teacher_data['subject_id'])
+            ->first();
 
-        if ($teacher != NULL) {
+        if ($teacher != null) {
 
             $teacher->restore();
 
@@ -826,120 +1002,111 @@ class RTTIImportHelper {
 
     /**
      *
-     * @param type $student_data
+     * @param  type  $student_data
      * @return type
      */
-    public function createOrRestoreStudent($student_data) {
-
+    public function createOrRestoreStudent($student_data)
+    {
         $student = Student::withTrashed()
-                ->where('class_id', $student_data['class_id'])
-                ->where('user_id', $student_data['user_id'])
-                ->first();
+            ->where('class_id', $student_data['class_id'])
+            ->where('user_id', $student_data['user_id'])
+            ->first();
 
-        if ($student != NULL) {
-
-            $student->restore();
-
-            return $student;
-        } else {
-
-            return Student::Create($student_data);
+        if ($student) {
+            return $student->restore();
         }
+        return Student::Create($student_data);
     }
 
     /**
      *
-     * @param type $data
+     * @param  type  $data
      * @return type
      */
-    public function createOrRestoreSchoolClass($data) {
-
+    public function createOrRestoreSchoolClass($data)
+    {
         $schoolclass = SchoolClass::withTrashed()
-                ->where('school_location_id', $data['school_location_id'])
-                ->where('education_level_id', $data['education_level_id'])
-                ->where('school_year_id', $data['school_year_id'])
-                ->where('name', $data['name'])
-                ->where('education_level_year', $data['education_level_year'])
-                ->first();
+            ->where('school_location_id', $data['school_location_id'])
+            ->where('education_level_id', $data['education_level_id'])
+            ->where('school_year_id', $data['school_year_id'])
+            ->where('name', $data['name'])
+            ->where('education_level_year', $data['education_level_year'])
+            ->first();
 
-        if ($schoolclass !== NULL) {
+        if ($schoolclass) {
             $schoolclass->restore();
 
             return $schoolclass->getKey();
-        } else {
-            return SchoolClass::create($data)->getKey();
         }
+        return SchoolClass::create($data)->getKey();
     }
 
     /**
      *
-     * @param type $abbreviation
-     * @param type $school_location_id
+     * @param  type  $abbreviation
+     * @param  type  $school_location_id
      * @return type
      */
-    public function getSubjectId($abbreviation, $school_location_id) {
+    public function getSubjectId($abbreviation, $school_location_id)
+    {
+        $subject = Subject::select('subjects.id as id')
+            ->join('sections as SEC', 'SEC.id', '=', 'subjects.section_id')
+            ->join('school_location_sections as SLS', 'SLS.section_id', '=', 'SEC.id')
+            ->where('subjects.abbreviation', $abbreviation)
+            ->where('SLS.school_location_id', $school_location_id)
+            ->whereNull('SEC.deleted_at')
+            ->whereNull('SLS.deleted_at')
+            ->whereNull('subjects.deleted_at')
+            ->first();
 
-        $result = Subject::select('subjects.id as id')
-                ->join('sections as SEC', 'SEC.id', '=', 'subjects.section_id')
-                ->join('school_location_sections as SLS', 'SLS.section_id', '=', 'SEC.id')
-                ->where('subjects.abbreviation', $abbreviation)
-                ->where('SLS.school_location_id', $school_location_id)
-                ->whereNull('SEC.deleted_at')
-                ->whereNull('SLS.deleted_at')
-                ->whereNull('subjects.deleted_at')
-                ->first();
-
-        if (is_object($result)) {
-            return $result->getKey();
-        } else {
-            return NULL;
+        if (is_object($subject)) {
+            return $subject->getKey();
         }
+        return null;
     }
 
     /**
      *
-     * @param type $name
+     * @param  type  $name
      * @return type
      */
-    public function getStudyDirectionId($name) {
-
-        $translated_name = $this->translateStudyDirectionName($name);
-
-        return EducationLevel::where('name', $translated_name)
-                        ->value('id');
+    public function getStudyDirectionId($name)
+    {
+        return EducationLevel::where('name', $this->translateStudyDirectionName($name))->value('id');
     }
 
     /**
      *
-     * @param type $name
+     * @param  type  $name
      * @return type string
      */
-    public function translateStudyDirectionName($name) {
-
+    public function translateStudyDirectionName($name)
+    {
         return array_key_exists($name, $this->studydirectionarray) ? $this->studydirectionarray[$name] : $name;
     }
 
     /**
      *
-     * @param type $external_id
-     * @param type $school_location_id
+     * @param  type  $external_id
+     * @param  type  $school_location_id
      * @return type int
      */
-    public function getUserIdForLocation($external_id, $school_location_id) {
-
+    public function getUserIdForLocation($external_id, $school_location_id)
+    {
         return User::where('external_id', $external_id)
-                        ->where('school_location_id', $school_location_id)
-                        ->value('id');
+            ->where('school_location_id', $school_location_id)
+            ->value('id');
     }
 
     /**
      *
-     * @param type $external_id
-     * @param type $school_location_id
+     * @param  type  $external_id
+     * @param  type  $school_location_id
      * @return type int
      */
-    public function getUserIdForTeacherInLocation($external_id, $school_location_id) {
-        return User::join('school_location_user', 'users.id', '=','school_location_user.user_id')
+    public function getUserIdForTeacherInLocation($external_id, $school_location_id)
+    {
+        return User::join('school_location_user', 'users.id', '=', 'school_location_user.user_id')
             ->where('school_location_user.school_location_id', $school_location_id)
             ->where('school_location_user.external_id', $external_id)
             ->value('id');
@@ -947,52 +1114,52 @@ class RTTIImportHelper {
 
     /**
      *
-     * @param type $user_id
-     * @param type $class_id
+     * @param  type  $user_id
+     * @param  type  $class_id
      * @return type int
      */
-    public function getStudentIdForClass($user_id, $class_id) {
-
+    public function getStudentIdForClass($user_id, $class_id)
+    {
         return Student::where('user_id', $user_id)
-                        ->where('class_id', $class_id)
-                        ->value('user_id');
+            ->where('class_id', $class_id)
+            ->value('user_id');
     }
 
     /**
      *
-     * @param type $user_id
-     * @param type $class_id
-     * @param type $subject_id
+     * @param  type  $user_id
+     * @param  type  $class_id
+     * @param  type  $subject_id
      * @return type
      */
-    public function getTeachersForClassSubject($user_id, $class_id, $subject_id) {
-
+    public function getTeachersForClassSubject($user_id, $class_id, $subject_id)
+    {
         return Teacher::where('user_id', $user_id)
-                        ->where('class_id', $class_id)
-                        ->where('subject_id', $subject_id)
-                        ->value('user_id');
+            ->where('class_id', $class_id)
+            ->where('subject_id', $subject_id)
+            ->value('user_id');
     }
 
     /**
      *
-     * @param type $teacher_id
-     * @param type $school_class_id
+     * @param  type  $teacher_id
+     * @param  type  $school_class_id
      * @return type
      */
-    public function setTeacherAsMentor($teacher_id, $school_class_id) {
-
+    public function setTeacherAsMentor($teacher_id, $school_class_id)
+    {
         // only mentors in the file are touched
-
-
         $mentor = Mentor::withTrashed()
-                ->where('user_id', $teacher_id)
-                ->where('school_class_id', $school_class_id);
+            ->where('user_id', $teacher_id)
+            ->where('school_class_id', $school_class_id)->first();
 
-        if ($mentor->value('user_id') != NULL) {
+        if ($mentor) {
             $mentor->restore();
         } else {
-
-            $mentor = Mentor::create(['user_id' => $teacher_id, 'school_class_id' => $school_class_id]);
+            $mentor = Mentor::create([
+                'user_id'         => $teacher_id,
+                'school_class_id' => $school_class_id
+            ]);
         }
 
         return $mentor->value('user_id');
@@ -1000,16 +1167,17 @@ class RTTIImportHelper {
 
     /**
      *
-     * @param type $teacher_id
-     * @param type $school_class_id
+     * @param  type  $teacher_id
+     * @param  type  $school_class_id
      * @return boolean
      */
-    public function removeTeacherAsMentor($class_mentor_check) {
-
-        foreach ($class_mentor_check as $class_id =>$mentor_ids) {
+    public function removeTeacherAsMentor($class_mentor_check)
+    {
+        foreach ($class_mentor_check as $class_id => $mentor_ids) {
             Mentor::whereNotIn('user_id', array_unique($mentor_ids))
                 ->where('school_class_id', $class_id)
                 ->delete();
+//            $this->delete_tally['mentors']++;
         }
 
         return true;
@@ -1017,36 +1185,36 @@ class RTTIImportHelper {
 
     /**
      *
-     * @param type $school_location_id
-     * @param type $year
+     * @param  type  $school_location_id
+     * @param  type  $year
      * @return type
      */
-    public function getSchoolYearId($school_location_id, $year) {
-
+    public function getSchoolYearId($school_location_id, $year)
+    {
         return SchoolLocationSchoolYear::leftJoin('school_years as SY', 'id', '=', 'school_year_id')
-                        ->where('school_location_id', $school_location_id)
-                        ->where('SY.year', $year)
-                        ->whereNull('school_location_school_years.deleted_at')
-                        ->whereNull('SY.deleted_at')
-                        ->value('school_year_id');
+            ->where('school_location_id', $school_location_id)
+            ->where('SY.year', $year)
+            ->whereNull('school_location_school_years.deleted_at')
+            ->whereNull('SY.deleted_at')
+            ->value('school_year_id');
     }
 
     /**
      *
-     * @param type $file
+     * @param  type  $file
      * @return type
      */
-    public function getDataFromFile($file, $separator) {
-
+    public function getDataFromFile($file, $separator)
+    {
         $rows = [];
 
         if (!in_array($separator, [';', ','])) {
-            throw new \Exception('Scheidingsteken ' . $separator . ' is incorrect');
+            throw new \Exception('Scheidingsteken '.$separator.' is incorrect');
         }
 
         // read csv and put into array
-        if (($handle = fopen($file, "r")) !== FALSE) {
-            while (($row = fgetcsv($handle, 1000, $separator)) !== FALSE) {
+        if (($handle = fopen($file, "r")) !== false) {
+            while (($row = fgetcsv($handle, 1000, $separator)) !== false) {
                 Request::filter($row);
                 $rows[] = $row;
                 if (count($row) == 1) {
@@ -1064,13 +1232,12 @@ class RTTIImportHelper {
     private function makeErrorsUnique()
     {
         $returnArray = [];
-        foreach ($this->errorMessages as $key => $value)
-        {
-            if(is_array($value)){
+        foreach ($this->errorMessages as $key => $value) {
+            if (is_array($value)) {
                 $returnArray[$key] = $value;
                 continue;
             }
-            if(!in_array($value,$returnArray)){
+            if (!in_array($value, $returnArray)) {
                 $returnArray[] = $value;
             }
         }

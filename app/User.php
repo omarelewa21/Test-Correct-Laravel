@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,7 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use tcCore\Lib\Repositories\SchoolYearRepository;
+use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -116,6 +118,27 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
      * @var
      */
     protected $profileImage;
+
+    public static function createTeacher($data)
+    {
+        if (!is_array($data)) {
+            throw new \Exception('Should provide an array with valid data');
+        }
+
+        if (!array_key_exists('user_roles', $data) || !is_array($data['user_roles'])){
+            $data['user_roles'] = [];
+        }
+
+        $data['user_roles'] = array_unique(
+            array_merge(
+                $data['user_roles'], [1]
+            )
+        );
+
+        $user = (new Factory(new self))->generate($data);
+        $user->save();
+        return $user;
+    }
 
     public function fill(array $attributes)
     {
@@ -273,10 +296,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getExternalIdAttribute()
     {
         if ($this->isA('Teacher')) {
-            return DB::table('school_location_user')
+            $value = DB::table('school_location_user')
                 ->where('school_location_id',$this->school_location_id)
                 ->where('user_id',$this->getKey())
                 ->value('external_id');
+            if ($value) {
+                return $value;
+            }
+
+            return array_key_exists('external_id', $this->attributes)? $this->attributes['external_id'] : '';
         }
         return $this->attributes['external_id'];
     }
