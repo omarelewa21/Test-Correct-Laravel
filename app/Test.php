@@ -102,7 +102,7 @@ class Test extends BaseModel
                         'education_level_year' => $test->education_level_year
                     ];
                     $requestController = new RequestController();
-                    $requestController->put('/api-c/test_question/'.$testQuestion->uuid,$params);
+                    $response = $requestController->put('/api-c/test_question/'.$testQuestion->uuid,$params);
                 }
             }
         });
