@@ -3804,6 +3804,21 @@ __webpack_require__(/*! alpinejs */ "./node_modules/alpinejs/dist/alpine.js");
 
 __webpack_require__(/*! livewire-sortable */ "./node_modules/livewire-sortable/dist/livewire-sortable.js");
 
+addIdsToQuestionHtml = function addIdsToQuestionHtml() {
+  var id = 1;
+  var questionContainers = document.querySelectorAll('[questionHtml]');
+  setTimeout(function () {
+    questionContainers.forEach(function (item) {
+      var decendents = item.querySelectorAll('*');
+      decendents.forEach(function (decendent) {
+        decendent.id = 'questionhtml_' + id;
+        decendent.setAttribute('wire:key', 'questionhtml_' + id);
+        id += 1;
+      });
+    });
+  }, 1);
+};
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":

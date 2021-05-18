@@ -18,37 +18,15 @@
 @livewireScripts
 <script>
     window.livewire.onError(statusCode => {
-
         if (statusCode === 406) {
-            console.log('in onError')
-            // var element = document.querySelector('[testtakemanager]');
-            // console.log(element)
-            // element.dispatchEvent(new CustomEvent('set-force-taken-away', {w: true}));
             Livewire.emit('set-force-taken-away');
-
             return false;
         }
         if (statusCode === 440) {
             location.href = '{{ config('app.url_login') }}';
-
             return false
         }
     })
-
-    function addIdsToQuestionHtml() {
-        let id = 1;
-        let questionContainers = document.querySelectorAll('[questionHtml]');
-
-        questionContainers.forEach(function (item) {
-            let decendents = item.querySelectorAll('*');
-            decendents.forEach(function (decendent) {
-                decendent.id = 'questionhtml_'+id;
-                id += 1;
-            })
-        })
-
-
-    }
 </script>
 <script src="{{ mix('/js/app.js') }}"></script>
 <script src="https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image"></script>
