@@ -145,6 +145,9 @@ class SchoolLocationReport extends Model
         return self::nrTestTakesByStatusIdLocationAndDays(6,$location, $days);
     }
 
+    /**
+     * there should nothing be left to check (in the frontend the normeren button should show)
+     */
     public static function nrTestsChecked($location, $days)
     {
 
