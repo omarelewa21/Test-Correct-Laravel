@@ -164,4 +164,32 @@ class UserTest extends TestCase
         );
         $response->assertStatus(200);
     }
+
+    /** @test */
+    public function an_external_id_of_a_teacher_comes_from_schoollocation_user()
+    {
+        $data =[
+            'school_location_id' => '2',
+            'name_first' => 'a',
+            'name_suffix' => '',
+            'name' => 'bc',
+            'abbreviation' => 'abcc',
+            'username' => 'abc@test-correct.nl',
+            'password' => 'aa',
+            'external_id' => 'abc',
+            'note' => '',
+            'user_roles' => [1],
+        ];
+
+        $response = $this->post(
+            'api-c/user',
+            static::getRttiSchoolbeheerderAuthRequestData($data)
+        );
+        $response->assertStatus(200);
+        $rData = $response->decodeResponseJson();
+        $this->assertTrue($rData['school_location']['id']==2);
+        DB::update('update school_location_user set external_id = ? where user_id = ?', ['joepie',$rData['id']]);
+        $user = User::where('id',$rData['id'])->first();
+        $this->assertEquals('joepie',$user->external_id);
+    }
 }
