@@ -11,6 +11,7 @@ namespace Tests\Unit;
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
 use tcCore\SchoolLocation;
+use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\User;
 use Tests\TestCase;
@@ -189,7 +190,10 @@ class UserTest extends TestCase
         $rData = $response->decodeResponseJson();
         $this->assertTrue($rData['school_location']['id']==2);
         DB::update('update school_location_user set external_id = ? where user_id = ?', ['joepie',$rData['id']]);
-        $user = User::where('id',$rData['id'])->first();
+        $test = Test::with('author')->where('author_id',$rData['id'])->first();
+        $this->assertEquals('joepie',$test->author->external_id);
+        $user = User::find($rData['id']);
         $this->assertEquals('joepie',$user->external_id);
+        $this->assertEquals('abc',$user->getUserTableExternalIdAttribute());
     }
 }
