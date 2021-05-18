@@ -192,6 +192,8 @@ class UserTest extends TestCase
         DB::update('update school_location_user set external_id = ? where user_id = ?', ['joepie',$rData['id']]);
         $test = Test::with('author')->where('author_id',$rData['id'])->first();
         $this->assertEquals('joepie',$test->author->external_id);
+        $testArray = $test->toArray();
+        $this->assertEquals('joepie',$test['author']['external_id']);
         $user = User::find($rData['id']);
         $this->assertEquals('joepie',$user->external_id);
         $this->assertEquals('abc',$user->getUserTableExternalIdAttribute());
