@@ -9,6 +9,7 @@ namespace tcCore\Http\Helpers;
  */
 
 use Illuminate\Support\Facades\Log;
+use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\User;
 use tcCore\Lib\User\Factory;
@@ -108,6 +109,10 @@ class RTTIImportHelper
      */
     public $can_create_users_for_teacher = false;
 
+    public $can_use_dummy_subject = false;
+
+    const DUMMY_SECTION_NAME = 'Magister sectie';
+
 
     /**
      *
@@ -124,6 +129,7 @@ class RTTIImportHelper
     {
         $instance = new self($email_domain);
         $instance->can_create_users_for_teacher = true;
+        $instance->can_use_dummy_subject = true;
 
         $instance->log_name = date("mdh_i_s");
 
@@ -435,10 +441,6 @@ class RTTIImportHelper
                             $user->save();
                             $this->update_tally['teachers']++;
                         }
-
-
-
-
 
                         $teacher_table_id = $this->getTeachersForClassSubject($teacher_id, $school_class_id,
                             $subject_id);
@@ -1062,6 +1064,26 @@ class RTTIImportHelper
         if (is_object($subject)) {
             return $subject->getKey();
         }
+
+        if ($this->can_use_dummy_subject) {
+            $magisterSection = SchoolLocation::find($school_location_id)->schoolLocationSections->first(function($school_location_section) {
+
+               return $school_location_section->section->name === self::DUMMY_SECTION_NAME;
+            });
+            if (!$magisterSection) {
+                $this->errorMessages[] = sprintf('Als u gebruik maakt van de uwlr import dient u een sectie in de school te hebben met de naam [%s]', self::DUMMY_SECTION_NAME);
+            }
+
+            $subject = Subject::firstOrCreate([
+                'section_id' => $magisterSection->section->getKey(),
+                'base_subject_id' => BaseSubject::where('name', DemoHelper::SUBJECTNAME)->first()->getKey(),
+                'abbreviation' => 'IMP',
+                'name' => self::DUMMY_SECTION_NAME,
+            ]);
+
+            return $subject->getKey();
+        }
+
         return null;
     }
 

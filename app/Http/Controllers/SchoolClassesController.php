@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use Composer\Package\Package;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use tcCore\EducationLevel;
@@ -146,4 +147,39 @@ class SchoolClassesController extends Controller
         return Response::make(Auth::user()->teacherSchoolClasses()->orderBy('name', 'asc')->pluck('name', 'id'));
     }
 
+    public function updateWithEducationLevelsForMainClasses(Request $request)
+    {
+        $updateCounter = 0;
+        if (is_array($request->get('class'))) {
+            collect($request->get('class'))->each(function($value, $schoolClassId) use (&$updateCounter) {
+                SchoolClass::where('id', $schoolClassId)
+                    ->where('is_main_school_class', 1)
+                    ->where('school_location_id', Auth::user()->school_location_id)
+                    ->update(['education_level_id'=> $value['education_level']]);
+
+                $updateCounter ++;
+            });
+        }
+
+        return JsonResource::make(['count'=>$updateCounter], 200);
+    }
+
+    public function updateWithEducationLevelsForClusterClasses(Request $request)
+    {
+        $updateCounter = 0;
+        if (is_array($request->get('class'))) {
+            collect($request->get('class'))->each(function($value, $schoolClassId) use (&$updateCounter) {
+                SchoolClass::where('id', $schoolClassId)
+                    ->where('is_main_school_class', 0)
+                    ->where('school_location_id', Auth::user()->school_location_id)
+                    ->update([
+                        'education_level_id'=> $value['education_level'],
+                        'education_level_year'=> $value['education_level_year']
+                        ]);
+
+                $updateCounter ++;
+            });
+        }
+        return JsonResource::make(['count'=>$updateCounter], 200);
+    }
 }

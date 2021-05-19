@@ -55,8 +55,7 @@ class UwlrGrid extends Component
             return false;
         }
 
-        $this->processingResult = $result;
-
+        $this->processingResult = collect($result)->join('<BR>');
     }
 
     public function newImport()
