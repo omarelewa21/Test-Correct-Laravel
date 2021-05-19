@@ -161,11 +161,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (array_key_exists('external_id', $attributes)) {
             $this->updateExternalId = $attributes['external_id'];
         }
-
         if (array_key_exists('school_location_id', $attributes)) {
             $this->updateSchoolLocationId = $attributes['school_location_id'];
-        } else if(null !== Auth::user() && Auth::user()->isA('school manager') && null !== Auth::user()->school_location_id){ // ingelogde gebruiker die het uitvoert, school beheerder en school location id
-            $this->updateSchoolLocationId = Auth::user()->school_location_id;
         }
 
         if (array_key_exists('student_school_classes', $attributes)) {
@@ -433,6 +430,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         static::updated(function (User $user) {
             if($user->isA('teacher')){
+                if(null === $user->updateSchoolLocationId){
+                    if(null !== Auth::user() && Auth::user()->isA('school manager')  && null !== Auth::user()->school_location_id){
+                        $user->updateSchoolLocationId = Auth::user()->school_location_id;
+                    }
+                }
                 if(null !== $user->updateExternalId && null !== $user->updateSchoolLocationId){
                     // if not existing, then there should have been another way this school location should be added
                     if($user->allowedSchoolLocations->contains($user->updateSchoolLocationId)) {
