@@ -67,7 +67,7 @@ class SchoolLocationReport extends Model
                     'nr_colearning_sessions_60' => self::nrColearningSessions($location, 60), // 3.a.1
                     'nr_colearning_sessions_90' => self::nrColearningSessions($location, 90), // 3.a.1
                     'total_colearning_sessions' => self::nrColearningSessions($location, 0), // 3.a.2
-                    'in_browser_tests_allowed' => (int) $location->allow_inbrowser_testing, // 3.a.2
+                    'in_browser_tests_allowed' => $location->allow_inbrowser_testing ? 1 : 0, // 3.a.2
                     'nr_active_teachers' => $location->count_active_teachers, // 3.a.2
         ]);
         
@@ -148,7 +148,6 @@ class SchoolLocationReport extends Model
     /**
      * there should nothing be left to check (in the frontend the normeren button should show)
      * participants => answer => needs rating
-     * tcCore\TestTake::join('test_participants','test_participants.id','=','test_takes.id')->join('answers','answers.test_participant_id','=','test_participants.id')->whereNotNull('answers.final_rating')->count('test_takes.id');
      */
     public static function nrTestsChecked($location, $days)
     {

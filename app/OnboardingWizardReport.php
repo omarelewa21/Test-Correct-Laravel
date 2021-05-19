@@ -328,7 +328,7 @@ ORDER BY t2.displayorder,
             $end_date = Carbon::now()->toDateTimeString();
             $start_date = Carbon::now()->subDays($days);
 
-            $builder->whereBetween('test_takes.created_at', [$start_date, $end_date]);
+            $builder->whereBetween('test_take_status_log.created_at', [$start_date, $end_date]);
         }
 
         return $builder->count();
