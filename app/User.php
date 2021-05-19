@@ -434,9 +434,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         static::updated(function (User $user) {
             if($user->isA('teacher')){
                 if(null !== $user->updateExternalId && null !== $user->updateSchoolLocationId){
-                    $user->allowedSchoolLocations()->updateExistingPivot($user->updateSchoolLocationId, [
-                        'external_id' => $user->updateExternalId,
-                    ]);
+                    // if not existing, then there should have been another way this school location should be added
+                    if($user->allowedSchoolLocations->contains($user->updateSchoolLocationId)) {
+                        $user->allowedSchoolLocations()->updateExistingPivot($user->updateSchoolLocationId, [
+                            'external_id' => $user->updateExternalId,
+                        ]);
+                    }
                     $user->updateExternalId = null;
                     $user->updateSchoolLocationId = null;
                 }
