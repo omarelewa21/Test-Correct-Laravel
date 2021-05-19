@@ -1,9 +1,9 @@
 <x-layouts.app>
-    <div class="w-full flex flex-col mb-5" >
+    <div class="w-full flex flex-col mb-5" selid="testtake-layout">
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
         <div>
             @foreach($data as  $key => $testQuestion)
-                <div>
+                <div selid="testtake-question">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1)
                         <livewire:question.multiple-select-question
                             :question="$testQuestion"
