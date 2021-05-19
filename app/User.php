@@ -388,6 +388,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 if ($user->user_table_external_id == $user->getOriginal('external_id')) {
                     return true;
                 }
+                if(Auth::user()->id==$user->id) {
+                    return true;
+                }
                 foreach ($user->allowedSchoolLocations as $schoolLocation) {
                     if($schoolLocation->id == Auth::user()->school_location_id){
                         $user->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id, [
