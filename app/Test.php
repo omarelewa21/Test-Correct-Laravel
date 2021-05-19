@@ -90,6 +90,7 @@ class Test extends BaseModel
                     ){
                         continue;
                     }
+                    $request  = new Request();
                     $params = [
                         'session_hash' => Auth::user()->session_hash,
                         'user'         => Auth::user()->username,
@@ -98,8 +99,8 @@ class Test extends BaseModel
                         'education_level_id' => $test->education_level_id,
                         'education_level_year' => $test->education_level_year
                     ];
-                    $requestController = new RequestController();
-                    $response = $requestController->put('/api-c/test_question/'.$testQuestion->uuid,$params);
+                    $request->merge($params);
+                    $response = (new TestQuestionsController())->updateFromWithin($testQuestion,  $request);
                 }
             }
         });
