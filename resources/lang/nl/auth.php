@@ -40,4 +40,12 @@ return [
     'last_name'                           => 'Achternaam',
     'send_email'                          => 'Verstuur e-mail',
     'test_code_invalid'                   => 'Toetscode is niet geldig',
+    'who_are_you'                         => 'Wie ben je?',
+    'cancel'                              => 'Annuleren',
+    'continue'                            => 'Ga verder',
+    'student_pupil'                       => 'Leerling/student',
+    'modal_student_text'                  => 'Als leerling/student maak je géén account aan. Wel kun je alvast de app downloaden',
+    'modal_teacher_text'                  => 'Als docent maak je een account aan om direct aan de slag te gaan met Test-Correct',
+    'back_to_login'                       => 'Terug naar inloggen',
+    'forgot_password_explain_text'        => 'We hebben we het e-mailadres nodig dat geassocieerd is met jouw account om een mail te kunnen sturen over het opnieuw instellen van het wachtwoord.',
 ];
