@@ -460,7 +460,8 @@ var App = function (prefix, width) {
 
     holder.appendChild(canvas.getCanvas());
 
-    window.ontouchmove = function (e) {
+    var drawingModalContainer = document.getElementById(prefix+'drawing-question-modal-container');
+    drawingModalContainer.ontouchmove = function (e) {
         e.preventDefault();
     };
 };
