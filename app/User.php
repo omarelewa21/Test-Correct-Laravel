@@ -310,7 +310,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->attributes['external_id'];
     }
 
-    public function getExternalIdAttribute($originalRecordExternalId)
+    public function getExternalIdAttribute()
     {
         if ($this->isA('Teacher')) {
             $value = DB::table('school_location_user')
@@ -320,11 +320,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if ($value) {
                 return $value;
             }
-                // if not found, just fall back to base
-//            return array_key_exists('external_id', $this->attributes)? $originalRecordExternalId : '';
         }
 
-        return $originalRecordExternalId;
+        return array_key_exists('external_id', $this->attributes)? $this->attributes['external_id'] : '';
     }
 
     public function eckidFromRelation()
