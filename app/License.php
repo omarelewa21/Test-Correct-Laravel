@@ -60,7 +60,8 @@ class License extends BaseModel {
             if ($license->getOriginal('amount') != $license->amount) {
                 LicenseLog::create([
                     'license_id' => $license->getKey(),
-                    'amount' => $license->amount
+                    'amount' => $license->amount,
+                    'amount_change' => (int) ($license->amount - $license->getOriginal('amount'))
                 ]);
             }
         });
