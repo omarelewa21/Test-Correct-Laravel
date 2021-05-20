@@ -53,7 +53,7 @@ class CreateUserRequest extends Request {
             $extra_rule['external_id'] = new SchoolLocationUserExternalId($this->schoolLocation,$data['username']);
         }
 		$rules = collect([
-			'username' => ['required|email|unique:users,username,NULL,'.(new User())->getKeyName().',deleted_at,NULL',new EmailDns],
+			'username' => ['required','email','unique:users,username,NULL,'.(new User())->getKeyName().',deleted_at,NULL',new EmailDns],
 			'name_first' => '',
 			'name_suffix' => '',
 			'name' => '',
