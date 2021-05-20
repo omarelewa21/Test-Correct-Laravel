@@ -8,12 +8,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Http\Requests\UpdateTestRequest;
 use tcCore\Jobs\CountTeacherTests;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
@@ -101,6 +103,24 @@ class Test extends BaseModel
                     ];
                     $request->merge($params);
                     $response = (new TestQuestionsController())->updateFromWithin($testQuestion,  $request);
+                    if($testQuestion->question->type=='GroupQuestion'){
+                        $testQuestion = $testQuestion->fresh();
+                        $groupQuestionQuestionsArray = [];
+                        $groupQuestionQuestionsArray[] = $testQuestion->uuid;
+                        foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
+                            $groupQuestionQuestionsArray[] = $groupQuestionQuestion->uuid;
+                        }
+                        $groupQuestionQuestionsUuidString = implode('.',$groupQuestionQuestionsArray);
+                        dump($groupQuestionQuestionsUuidString);
+                        $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($groupQuestionQuestionsUuidString);
+                        dump($groupQuestionQuestionManager);
+                        foreach($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
+                            $request  = new Request();
+                            $request->merge($params);
+                            $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager,$groupQuestionQuestion,  $request);
+                            dump($response->getContent());
+                        }
+                    }
                 }
             }
         });

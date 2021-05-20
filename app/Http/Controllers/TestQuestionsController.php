@@ -310,12 +310,12 @@ class TestQuestionsController extends Controller {
             $qHelper = new QuestionHelper();
             $questionData = [];
             $completionAnswerDirty = false;
-            if($question->getQuestionInstance()->type == 'CompletionQuestion') {
-                $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
-                $currentAnswers = $question->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
-                $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
-                $completionAnswerDirty = ( ($currentAnswers !== $futureAnswers));
-            }
+//            if($question->getQuestionInstance()->type == 'CompletionQuestion') {
+//                $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+//                $currentAnswers = $question->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
+//                $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
+//                $completionAnswerDirty = ( ($currentAnswers !== $futureAnswers));
+//            }
 
             $totalData = array_merge($request->all(),$questionData);
 
