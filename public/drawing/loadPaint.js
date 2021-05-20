@@ -26,6 +26,7 @@ var App = function (prefix, width) {
         // DOM and shit
         background = new Paint.Layer(),
         holder = document.getElementById(prefix + 'canvas-holder'),
+        drawingModalContainer = document.getElementById(prefix+'drawing-question-modal-container'),
         canvas = new Paint.Canvas({
             height: 481,
             width: width
@@ -460,7 +461,6 @@ var App = function (prefix, width) {
 
     holder.appendChild(canvas.getCanvas());
 
-    var drawingModalContainer = document.getElementById(prefix+'drawing-question-modal-container');
     drawingModalContainer.ontouchmove = function (e) {
         e.preventDefault();
     };
