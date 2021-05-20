@@ -18,6 +18,7 @@ class CreateLicenseLogsTable extends Migration
             $table->id();
             $table->integer('license_id');
             $table->integer('amount');
+            $table->integer('amount_change');
             $table->timestamps();
         });
 
@@ -25,6 +26,7 @@ class CreateLicenseLogsTable extends Migration
            \tcCore\LicenseLog::create([
               'license_id' => $l->getKey(),
               'amount' => $l->amount,
+               'amount_change' => $l->amount,
               'created_at' => $l->created_at,
               'updated_at' => $l->created_at
            ]);
