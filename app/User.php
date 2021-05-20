@@ -320,8 +320,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if ($value) {
                 return $value;
             }
-
-            return array_key_exists('external_id', $this->attributes)? $originalRecordExternalId : '';
+                // if not found, just fall back to base
+//            return array_key_exists('external_id', $this->attributes)? $originalRecordExternalId : '';
         }
 
         return $originalRecordExternalId;
