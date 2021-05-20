@@ -11,6 +11,10 @@
 
     @livewireStyles
     <link rel="stylesheet" href="{{ mix('/css/app.css') }}">
+    @if(config('bugsnag.browser_key') 1= '')
+        <script src="//d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js"></script>
+        <script>Bugsnag.start({ apiKey: '{{ config('bugsnag.browser_key') }}' })</script>
+    @endif
 </head>
 <body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
 {{ $slot }}
@@ -35,26 +39,6 @@
         }
     })
 
-    function addIdsToQuestionHtml() {
-        let id = 1;
-        let questionContainers = document.querySelectorAll('[questionHtml]');
-
-        questionContainers.forEach(function (item) {
-            let decendents = item.querySelectorAll('*');
-            decendents.forEach(function (decendent) {
-                decendent.id = 'questionhtml_'+id;
-                id += 1;
-            })
-        })
-
-
-    }
-    function addRelativePaddingToBody(elementId, extraPadding = 0) {
-        document.getElementById(elementId).style.paddingTop = (document.getElementById('header').offsetHeight + extraPadding) + 'px';
-    }
-    function makeHeaderMenuActive(elementId) {
-        document.getElementById(elementId).classList.add('active');
-    }
 </script>
 <script src="{{ mix('/js/app.js') }}"></script>
 <script src="https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image"></script>
