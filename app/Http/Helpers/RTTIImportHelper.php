@@ -136,7 +136,6 @@ class RTTIImportHelper
         $instance->csv_data = $data->toCVS();
 
         return $instance;
-
     }
 
 
@@ -190,7 +189,6 @@ class RTTIImportHelper
         $this->importLog('----- '.$this->csv_data_lines.' data lines in input file');
 
 
-        \DB::beginTransaction();
         try {
             foreach ($this->csv_data as $index => $row) {
                 if ($index == 0) {
@@ -211,7 +209,8 @@ class RTTIImportHelper
                     $student_name_suffix = $row[$column_index['leeTussenvoegsels']];
                     $student_name_last = $row[$column_index['leeAchternaam']];
 
-                    $student_email = array_key_exists('leeEmail', $column_index) ? $row[$column_index['leeEmail']]: null;
+                    $student_email = array_key_exists('leeEmail',
+                        $column_index) ? $row[$column_index['leeEmail']] : null;
 
                     $class_name = $row[$column_index['lesNaam']];
                     $subject_abbreviation = $row[$column_index['vakNaam']];
@@ -221,7 +220,8 @@ class RTTIImportHelper
                     $teacher_name_suffix = $row[$column_index['docTussenvoegsels']];
                     $teacher_name_last = $row[$column_index['docAchternaam']];
 
-                    $teacher_email = array_key_exists('docEmail', $column_index) ? $row[$column_index['docEmail']]: null;
+                    $teacher_email = array_key_exists('docEmail',
+                        $column_index) ? $row[$column_index['docEmail']] : null;
 
                     $teacher_is_mentor = $row[$column_index['IsMentor']];
 
@@ -286,8 +286,13 @@ class RTTIImportHelper
                         //throw new \Exception('De les jaar laag ' . $study_year_layer . ' is niet correct. De Studierichting (niveau) ' . $study_direction . ' kan maximaal ' . $education_level_max_years . ' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT');
                     }
 
-                    $school_class_id = $this->getSchoolClassId($class_name, $school_location_id, $study_year,
-                        $study_year_layer, $education_level_id);
+                    $school_class_id = $this->getSchoolClassId(
+                        $class_name,
+                        $school_location_id,
+                        $study_year,
+                        $study_year_layer,
+                        $education_level_id
+                    );
                     $teacher_id = $this->getUserIdForTeacherInLocation($teacher_external_code, $school_location_id);
                     $student_id = $this->getUserIdForLocation($student_external_code, $school_location_id);
                     $subject_id = $this->getSubjectId($subject_abbreviation, $school_location_id);
@@ -357,15 +362,14 @@ class RTTIImportHelper
 
                     // student is known
                     if ($student_id != null) {
-
                         if ($student = User::find($student_id)) {
-                                $student->name_first  = $student_name_first;
-                                $student->name_suffix = $student_name_suffix;
-                                $student->name        = $student_name_last;
-                                if ($student->isDirty()) {
-                                    $student->save();
-                                    $this->update_tally['students']++;
-                                }
+                            $student->name_first = $student_name_first;
+                            $student->name_suffix = $student_name_suffix;
+                            $student->name = $student_name_last;
+                            if ($student->isDirty()) {
+                                $student->save();
+                                $this->update_tally['students']++;
+                            }
                         }
 
                         // student not in class (always the case with a new class)
@@ -434,9 +438,9 @@ class RTTIImportHelper
 
                         $user = $user_collection->first();
 
-                        $user->name_first  = $teacher_name_first;
+                        $user->name_first = $teacher_name_first;
                         $user->name_suffix = $teacher_name_suffix;
-                        $user->name        = $teacher_name_last;
+                        $user->name = $teacher_name_last;
                         if ($user->isDirty()) {
                             $user->save();
                             $this->update_tally['teachers']++;
@@ -655,7 +659,13 @@ class RTTIImportHelper
                 return ['errors' => $uniqueErrors];
             }
             // MF merge the errorMessages of helper on the return to fix schoolyear error;
-            return ['errors' => array_merge([$e->getMessage()], $this->errorMessages)];
+            return [
+                'errors' => array_merge(
+                    [
+                        sprintf('[line:%d, file: %s] %s', $e->getLine(), $e->getFile(), $e->getMessage())
+                    ], $this->errorMessages
+                )
+            ];
         }
 
         \DB::commit();
@@ -720,7 +730,7 @@ class RTTIImportHelper
             $return .= sprintf('%s klassen. ', $this->update_tally['classes']);
         }
 
-        return  $return;
+        return $return;
     }
 
 
@@ -1066,19 +1076,22 @@ class RTTIImportHelper
         }
 
         if ($this->can_use_dummy_subject) {
-            $magisterSection = SchoolLocation::find($school_location_id)->schoolLocationSections->first(function($school_location_section) {
+            $magisterSection = SchoolLocation::find($school_location_id)->schoolLocationSections->first(function (
+                $school_location_section
+            ) {
 
-               return $school_location_section->section->name === self::DUMMY_SECTION_NAME;
+                return $school_location_section->section->name === self::DUMMY_SECTION_NAME;
             });
             if (!$magisterSection) {
-                $this->errorMessages[] = sprintf('Als u gebruik maakt van de uwlr import dient u een sectie in de school te hebben met de naam [%s]', self::DUMMY_SECTION_NAME);
+                $this->errorMessages[] = sprintf('Als u gebruik maakt van de uwlr import dient u een sectie in de school te hebben met de naam [%s]',
+                    self::DUMMY_SECTION_NAME);
             }
 
             $subject = Subject::firstOrCreate([
-                'section_id' => $magisterSection->section->getKey(),
+                'section_id'      => $magisterSection->section->getKey(),
                 'base_subject_id' => BaseSubject::where('name', DemoHelper::SUBJECTNAME)->first()->getKey(),
-                'abbreviation' => 'IMP',
-                'name' => self::DUMMY_SECTION_NAME,
+                'abbreviation'    => 'IMP',
+                'name'            => self::DUMMY_SECTION_NAME,
             ]);
 
             return $subject->getKey();

@@ -18,6 +18,8 @@ class UwlrGrid extends Component
     public $processingResult = '';
     public $processingResultErrors = [];
     public $processingResultId;
+    public $showErrorModal = false;
+    public $errorMessages = '';
 
     public function mount()
     {
@@ -30,6 +32,12 @@ class UwlrGrid extends Component
         $this->activeResult = UwlrSoapResult::find($id)->asData()->toArray();
 
         $this->showImportModal = true;
+    }
+
+    public function triggerErrorModal($id){
+        $this->errorMessages = UwlrSoapResult::find($id)->error_messages;
+
+        $this->showErrorModal = true;
     }
 
     public function processResult($id)

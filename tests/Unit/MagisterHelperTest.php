@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use tcCore\EducationLevel;
 use tcCore\Http\Helpers\DemoHelper;
@@ -34,7 +35,7 @@ use Tests\Unit\Http\Helpers\OnboardingTestHelper;
 
 class MagisterHelperTest extends TestCase
 {
-//    use DatabaseTransactions;
+   use DatabaseTransactions;
 
     /** @test */
     public function test_guzzle()
@@ -60,16 +61,53 @@ class MagisterHelperTest extends TestCase
     /** @test */
     public function FeedUwlrSoapResult()
     {
+
+        Auth::loginUsingId(755);
         (new MagisterHelper)
             ->parseResult()
             ->storeInDB();
 
         $result = UwlrSoapResult::first();
-
         $helper = RTTIImportHelper::initWithUwlrSoapResult($result, 'sobit.nl');
 
-        dd($helper->process());
+        $usersCountBefore = User::count();
+        $teacherCountBefore = Teacher::count();
+
+        $schoolLocation = SchoolLocation::where('external_main_code', '99DE')->first();
+
+
+        $processResult = $helper->process();
+        $this->assertStringContainsString(
+            'De import was succesvol.',
+            $processResult['data']
+        );
+
+//        $this->assertStringContainsString(
+//            'Er zijn 22 leerlingen aangemaakt, 5 docenten en 10 klassen.',
+//            $processResult['data']
+//        );
+
+        $this->assertEquals(28, $schoolLocation->users()->where('demo',0)->count());
+        // de import bevat 22 leerlingen
+        $this->assertEquals(22, $schoolLocation->users->filter(function ($user) {
+            return $user->isA('student') && $user->demo === 0;
+        })->count());
+        // de import bevat 6 leerkrachten;
+        $this->assertEquals(6, $schoolLocation->users->where('demo', 0)->filter(function ($user) {
+            return $user->isA('teacher') && $user->demo === 0;
+        })->count());
+dd($schoolLocation->schoolClasses->map(function($klas){
+    return $klas->name;
+}));
+        // de import bevat 10 groepen;
+        $this->assertEquals(10, $schoolLocation->schoolClasses()->count());
+        // de import bevat 4 samengestelde groepen
+        $this->assertEquals(4, $schoolLocation->schoolClasses()->where('is_main_school_class', 0)->count());
+        // de import bevat 6 groepen;
+        $this->assertEquals(6, $schoolLocation->schoolClasses()->where('is_main_school_class', 1)->count());
     }
+
+
     /** @test */
     public function uwlrSoapResultToCVs()
     {

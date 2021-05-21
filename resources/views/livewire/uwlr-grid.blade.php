@@ -48,6 +48,9 @@
                             <x-table.cell>
                                 <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Process</x-button.text-button>
                             </x-table.cell>
+                            <x-table.cell>
+                                <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">Error</x-button.text-button>
+                            </x-table.cell>
                         </x-table.row>
                     @endforeach
                 </x-slot>
@@ -138,6 +141,21 @@
             </div>
         </x-slot>
         <x-slot name="actionButton">me</x-slot>
+    </x-modal>
+
+    <x-modal wire:model="showErrorModal" maxWidth="7xl">
+        <x-slot name="title">Errors</x-slot>
+        <x-slot name="body">
+            <div class="sm:block">
+                <div class="border-b border-gray-200" id="melding">
+
+                    <PRE> {{ $this->errorMessages }}</PRE>
+                </div>
+
+
+            </div>
+        </x-slot>
+        <x-slot name="actionButton"></x-slot>
     </x-modal>
 </div>
 
