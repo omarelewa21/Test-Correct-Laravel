@@ -287,7 +287,7 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInLabel->isNotEmpty()) {
-            $this->errors[] = sprintf('no %sen found for group(s) [%s]', $label, $notInLabel->join(', '));
+            $this->errors[] = sprintf('no %sen found for group(s) [%s]', $label, $notInLabel->join(',\n '));
         }
 
         $notInGroups = $labelKeys->filter(function ($teacherKey) use ($keys) {
@@ -295,9 +295,8 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInGroups->isNotEmpty()) {
-            $this->errors[] = sprintf('found groep(s) in %s but not in groep %s', $label, $notInGroups->join(', '));
+            $this->errors[] = sprintf('found groep(s) in %s but not in groep %s', $label, $notInGroups->join(',\n '));
         };
-
     }
 
 
@@ -320,7 +319,7 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInLabel->isNotEmpty()) {
-            $this->errors[] = sprintf('no %sen found for samengestelde_group(s) [%s]', $label, $notInLabel->join(', '));
+            $this->errors[] = sprintf('no %sen found for samengestelde_group(s) [%s]', $label, $notInLabel->join(',\n '));
         }
 
         $notInGroups = $labelKeys->filter(function ($teacherKey) use ($keys) {
@@ -340,7 +339,7 @@ class UwlrSoapResult extends Model
                     return sprintf('%s: %s', now(), $error);
                 })->join(',');
             $this->save();
-            dd($this);
+
         }
        // parent::__destruct();
     }

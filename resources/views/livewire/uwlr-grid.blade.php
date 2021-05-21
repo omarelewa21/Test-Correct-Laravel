@@ -134,13 +134,17 @@
                             </div>
                         </div>
                     @endforeach
-                   {{ $this->processingResult }}
+                        <div wire:loading>
+                            <div wire:key="loading-text">Processing Result...</div>
+                            <div wire:key="hourglass" class="lds-hourglass"></div>
+                        </div>
+                        <div wire:key="processing-result">{{ $this->processingResult }}</div>
                 </div>
 
-                <button wire:click="startProcessingResult">Start</button>
+                <x-button.primary wire:click="startProcessingResult">Start</x-button.primary>
             </div>
         </x-slot>
-        <x-slot name="actionButton">me</x-slot>
+        <x-slot name="actionButton">&nbsp;</x-slot>
     </x-modal>
 
     <x-modal wire:model="showErrorModal" maxWidth="7xl">
@@ -157,6 +161,42 @@
         </x-slot>
         <x-slot name="actionButton"></x-slot>
     </x-modal>
+
+    <style>
+        .lds-hourglass {
+            display: inline-block;
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+
+        .lds-hourglass:after {
+            content: " ";
+            display: block;
+            border-radius: 50%;
+            width: 0;
+            height: 0;
+            margin: 8px;
+            box-sizing: border-box;
+            border: 12px solid #0000ff;
+            border-color: #0000ff transparent #0000ff transparent;
+            animation: lds-hourglass 1.2s infinite;
+        }
+
+        @keyframes lds-hourglass {
+            0% {
+                transform: rotate(0);
+                animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+            }
+            50% {
+                transform: rotate(900deg);
+                animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+            }
+            100% {
+                transform: rotate(1800deg);
+            }
+        }
+    </style>
 </div>
 
 
