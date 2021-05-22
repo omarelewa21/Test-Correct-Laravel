@@ -10,6 +10,7 @@ namespace Tests\Unit;
 
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
+use tcCore\EckidUser;
 use tcCore\SchoolLocation;
 use tcCore\TestTake;
 use tcCore\User;
@@ -163,5 +164,28 @@ class UserTest extends TestCase
             static::getRttiSchoolbeheerderAuthRequestData($data)
         );
         $response->assertStatus(200);
+    }
+
+    /** @test */
+    public function it_can_store_a_user_with_a_eckid()
+    {
+        $this->assertNull(EckidUser::firstWhere('eckid', 'ABCDEF'));
+        $user = factory(User::class)->create();
+        $user->eckId = 'ABCDEF';
+        $user->save();
+        $this->assertNotNull($model = EckidUser::firstWhere('eckid', 'ABCDEF'));
+        $this->assertTrue($model->user->is($user));
+    }
+
+    /** @test */
+    public function it_can_retrieve_a_user_by_eckId()
+    {
+        $this->assertNull(EckidUser::firstWhere('eckid', 'ABCDEF'));
+        $user = factory(User::class)->create();
+        $user->eckId = 'ABCDEF';
+        $user->save();
+
+        $userFromDB = User::findByEckId('ABCDEF')->first();
+        $this->assertTrue($user->is($userFromDB));
     }
 }
