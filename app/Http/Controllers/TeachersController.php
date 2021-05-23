@@ -2,6 +2,8 @@
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests;
@@ -182,6 +184,36 @@ class TeachersController extends Controller
             }
         }
         $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+    }
+
+    public function updateWithSubjectsForClusterClasses(Request $request)
+    {
+        $updateCounter = 0;
+        if (is_array($request->get('teacher'))) {
+            collect($request->get('teacher'))->each(function($subjectValue, $schoolClassId) use (&$updateCounter) {
+                logger(['value' =>$subjectValue, 'school_class_id' => $schoolClassId]);
+                if ($schoolClass = SchoolClass::find($schoolClassId))
+                    logger($schoolClass);
+                    if ($schoolClass->is_main_school_class == 1) {
+                        $allTeacherRecordsForThisTeacherAndClass = Teacher::where(['school_class_id' => $schoolClassId, 'user_id'=> Auth::id()]);
+                        //@ask Carlo can we delete all?
+                        //@ask Carlo is it a problem that different teachers give a different subject to a non mail_school_class?
+                        $allTeacherRecordsForThisTeacherAndClass->delete();
+
+                        foreach($subjectValue as $subjectId => $checkboxValue ) {
+                            Teacher::create(
+                                ['class_id' => $schoolClassId, 'subject_id' => $subjectId ]
+                            );
+                        }
+                    } else {
+                        Teacher::where(['class_id' => $schoolClassId, 'user_id' => Auth::id()])
+                            ->update(['subject_id' => array_key_first($subjectValue)]);
+                    }
+                $updateCounter ++;
+            });
+        }
+        return JsonResource::make(['count'=>$updateCounter], 200);
+
     }
 
 }

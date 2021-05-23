@@ -72,18 +72,19 @@ class MagisterHelperTest extends TestCase
     }
 
     /** @test */
-//    public function it_should_import_users_with_eckId()
-//    {
-//        User::byEckId(function($user){
-//            return $use
-//        })
-//
-//        list($schoolLocation, $processResult) = $this->runMagisterImport();
-//
-//
-//
-//
-//    }
+    public function it_should_import_users_with_eckId()
+    {
+        $this->assertNull(User::findByEckId('eckid_L1')->first());
+        $this->assertNull(User::findByEckId('eckid_T1')->first());
+
+        list($schoolLocation, $processResult) = $this->runMagisterImport();
+
+        $this->assertNotNull($student = User::findByEckId('eckid_L1')->first());
+        $this->assertTrue($student->isA('student'));
+
+        $this->assertNotNull($teacher = User::findByEckId('eckid_T1')->first());
+        $this->assertTrue($teacher->isA('teacher'));
+    }
 
 
     /** @test */

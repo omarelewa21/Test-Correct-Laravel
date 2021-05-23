@@ -71,6 +71,7 @@ class UwlrSoapResult extends Model
             'leeTussenvoegsels',
             'leeVoornaam',
             'leeEmail',
+            'leeEckid',
             'lesNaam',
             'vakNaam',
             'docStamNummer',
@@ -78,6 +79,7 @@ class UwlrSoapResult extends Model
             'docTussenvoegsels',
             'docVoornaam',
             'docEmail',
+            'docEckid',
             'IsMentor',
         ];
 
@@ -151,6 +153,7 @@ class UwlrSoapResult extends Model
             array_key_exists('tussenvoegsel', $leerling) ? $leerling['tussenvoegsel'] : '', //leeTussenvoegsels,
             $leerling['roepnaam'],//leeVoornaam,
             array_key_exists('email', $leerling) ? $leerling['email'] : '', //email student,
+            array_key_exists('eckid', $leerling) ? $leerling['eckid'] : '',
             $klasNaam,//lesNaam,
             '', //vakNaam,
             $leerkracht['key'],//docStamNummer,
@@ -158,6 +161,7 @@ class UwlrSoapResult extends Model
             array_key_exists('tussenvoegsel', $leerkracht) ? $leerkracht['tussenvoegsel'] : '',//docTussenvoegsels,
             array_key_exists('roepnaam', $leerkracht) ? $leerkracht['roepnaam'] : '', //docVoornaam,
             array_key_exists('email', $leerkracht) ? $leerkracht['email'] : '', //docEmail,
+            array_key_exists('eckid', $leerkracht) ? $leerkracht['eckid'] : '',
             $isMentorGroep,//IsMentor
         ];
     }

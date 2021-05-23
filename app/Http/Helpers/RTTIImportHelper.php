@@ -209,6 +209,8 @@ class RTTIImportHelper
                     $student_name_suffix = $row[$column_index['leeTussenvoegsels']];
                     $student_name_last = $row[$column_index['leeAchternaam']];
 
+                    $student_eckid = array_key_exists('leeEckid', $column_index) ?  $row[$column_index['leeEckid']] : null;
+
                     $student_email = array_key_exists('leeEmail',
                         $column_index) ? $row[$column_index['leeEmail']] : null;
 
@@ -219,6 +221,8 @@ class RTTIImportHelper
                     $teacher_name_first = $row[$column_index['docVoornaam']];
                     $teacher_name_suffix = $row[$column_index['docTussenvoegsels']];
                     $teacher_name_last = $row[$column_index['docAchternaam']];
+
+                    $teacher_eckid = array_key_exists('docEckid', $column_index) ?  $row[$column_index['docEckid']] : null;
 
                     $teacher_email = array_key_exists('docEmail',
                         $column_index) ? $row[$column_index['docEmail']] : null;
@@ -403,9 +407,11 @@ class RTTIImportHelper
                             'name_first'         => $student_name_first,
                             'name_suffix'        => $student_name_suffix,
                             'name'               => $student_name_last,
+                            'eckid'              => $student_eckid,
                             'username'           => $student_email, // moet email zijn?
                             'school_location_id' => $school_location_id,
                             'user_roles'         => [3],
+
                         ];
 
                         $user_id = $this->createOrRestoreUser($user_data);
@@ -469,6 +475,7 @@ class RTTIImportHelper
                         if ($this->can_create_users_for_teacher) {
                             $user_data = [
                                 'external_id'        => $teacher_external_code,
+                                'eckid'              => $teacher_eckid,
                                 'name_first'         => $teacher_name_first,
                                 'name_suffix'        => $teacher_name_suffix,
                                 'name'               => $teacher_name_last,
@@ -982,6 +989,12 @@ class RTTIImportHelper
 
             $userFactory = new Factory(new User());
             $user = $userFactory->generate($user_data);
+            if (array_key_exists('eckid', $user_data)) {
+                if ($user_data['eckid']) {
+                    $user->eckid = $user_data['eckid'];
+                    $user->save();
+                }
+            }
         }
 
         return $user->id;
