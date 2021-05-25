@@ -16,3 +16,11 @@ addIdsToQuestionHtml = function () {
         })
     }, 1);
 }
+
+
+addRelativePaddingToBody = function(elementId, extraPadding = 0) {
+    document.getElementById(elementId).style.paddingTop = (document.getElementById('header').offsetHeight + extraPadding) + 'px';
+}
+makeHeaderMenuActive = function(elementId) {
+    document.getElementById(elementId).classList.add('active');
+}

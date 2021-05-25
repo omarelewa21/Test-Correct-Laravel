@@ -14,11 +14,11 @@
     >
         <div class="flex">
             <div class="flex slider-buttons relative -top-px z-10" x-ref="sliderbuttons" x-show="showSlider">
-                <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
+                <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                         x-on:click="$refs.navscrollbar.scrollTo({left: 0,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.arrow-last/>
                 </button>
-                <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
+                <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                         x-on:click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft - scrollStep,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.chevron/>
                 </button>
@@ -76,11 +76,11 @@
 
             </div>
             <div class="flex slider-buttons relative -top-px z-10" x-ref="sliderbuttons" x-show="showSlider">
-                <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
+                <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                         x-on:click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft + scrollStep,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.chevron/>
                 </button>
-                <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
+                <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
                         x-on:click="$refs.navscrollbar.scrollTo({left: totalScrollWidth,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.arrow-last/>
                 </button>
