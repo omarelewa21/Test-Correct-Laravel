@@ -8,12 +8,12 @@
                 "
          x-on:resize.window.debounce.250ms="navigationResizer.resize($el.__x.$data);"
          x-on:current-updated.window="
-               if(typeof objectToObserve !== 'undefined') {
-                    myIntersectionObserver.unobserve(objectToObserve);
-               }
-                objectToObserve = document.getElementById('active');
-                myIntersectionObserver.observe(objectToObserve);
-                objectToObserve.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});
+{{--               if(typeof objectToObserve !== 'undefined') {--}}
+{{--                    myIntersectionObserver.unobserve(objectToObserve);--}}
+{{--               }--}}
+{{--                objectToObserve = document.getElementById('active');--}}
+{{--                myIntersectionObserver.observe(objectToObserve);--}}
+{{--                objectToObserve.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});--}}
             "
          x-cloak
     >
@@ -93,26 +93,26 @@
 
         @push('scripts')
         <script>
-            let timer
-            function callback(entries) {
-
-                for (const entry of entries) {
-                    if (!entry.isIntersecting) {
-                        timer = setTimeout(function () {
-                            entry.target.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});
-                        }, 5000)
-                    } else {
-                        clearTimeout(timer);
-                    }
-                }
-            }
-
-            const myIntersectionObserver = new IntersectionObserver(callback, {
-                root: document.getElementById('navscrollbar'),
-                rootMargin: '9999px 0px 9999px 0px',
-                threshold: 1
-            });
-
+            // let timer
+            // function callback(entries) {
+            //
+            //     for (const entry of entries) {
+            //         if (!entry.isIntersecting) {
+            //             timer = setTimeout(function () {
+            //                 entry.target.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});
+            //             }, 5000)
+            //         } else {
+            //             clearTimeout(timer);
+            //         }
+            //     }
+            // }
+            //
+            // const myIntersectionObserver = new IntersectionObserver(callback, {
+            //     root: document.getElementById('navscrollbar'),
+            //     rootMargin: '9999px 0px 9999px 0px',
+            //     threshold: 1
+            // });
+            //
             const navigationResizer = {
                 resize: function(object) {
                     object.scrollStep = window.innerWidth/10;
