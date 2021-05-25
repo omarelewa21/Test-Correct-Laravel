@@ -17,20 +17,23 @@ use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\CreateSchoolClassRequest;
 use tcCore\Http\Requests\UpdateSchoolClassRequest;
 use tcCore\Http\Helpers\SchoolHelper;
+use tcCore\SchoolClassImportLog;
 
 class SchoolClassesController extends Controller
 {
     /**
      * Display a listing of the school classes.
-     * @param SchoolLocation $schoolLocation
-     * @param Request $request
+     * @param  SchoolLocation  $schoolLocation
+     * @param  Request  $request
      * @return
      */
     public function index(Requests\IndexSchoolClassRequest $request)
     {
         SchoolHelper::denyIfTempTeacher();
 
-        $schoolClasses = SchoolClass::filtered($request->get('filter', []), $request->get('order', []))->with('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers', 'studentUsers', 'educationLevel', 'schoolYear');
+        $schoolClasses = SchoolClass::filtered($request->get('filter', []),
+            $request->get('order', []))->with('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers',
+            'studentUsers', 'educationLevel', 'schoolYear');
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 $schoolClasses = $schoolClasses->get();
@@ -38,6 +41,25 @@ class SchoolClassesController extends Controller
                     AverageRatingRepository::getCountAndAveragesForSchoolClasses($schoolClasses);
                 }
                 return Response::make($schoolClasses, 200);
+                break;
+            case 'import_data':
+                $schoolClasses = SchoolClass::filtered($request->get('filter', []),
+                    $request->get('order', []));
+
+                $schoolClasses
+                    ->leftJoin('school_class_import_logs as log', 'school_classes.id', 'class_id')
+                    ->select(
+                        'school_classes.id as id',
+                        'education_level_id',
+                        'school_year_id',
+                        'education_level_year',
+                        'name',
+                        'is_main_school_class',
+                        'log.checked_by_teacher as checked_by_teacher',
+                        'log.checked_by_admin as checked_by_admin');
+
+
+                return Response::make(['data' => $schoolClasses->get()->toArray()], 200);
                 break;
             case 'list':
                 return Response::make($schoolClasses->pluck('name', 'id'), 200);
@@ -59,18 +81,19 @@ class SchoolClassesController extends Controller
 
     /**
      * Store a newly created school class in storage.
-     * @param CreateSchoolClassRequest $request
+     * @param  CreateSchoolClassRequest  $request
      * @return
      */
-    public function store(CreateSchoolClassRequest $request) {
+    public function store(CreateSchoolClassRequest $request)
+    {
 
         $name_check = SchoolClass::select('name')
-                ->where('school_location_id',$request->school_location_id)
-                ->where( 'name', $request->name )
-                ->where( 'school_year_id', $request->school_year_id )
-                ->first();
+            ->where('school_location_id', $request->school_location_id)
+            ->where('name', $request->name)
+            ->where('school_year_id', $request->school_year_id)
+            ->first();
 
-        if ($name_check != NULL) {
+        if ($name_check != null) {
 
             return Response::make('This classname is already in use in this schoolyear', 500);
 
@@ -89,15 +112,16 @@ class SchoolClassesController extends Controller
 
     /**
      * Display the specified school class.
-     * @param SchoolClass $schoolClass
-     * @param Request $request
+     * @param  SchoolClass  $schoolClass
+     * @param  Request  $request
      * @return
      */
     public function show(SchoolClass $schoolClass, Request $request)
     {
         SchoolHelper::denyIfTempTeacher();
 
-        $schoolClass->load('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers', 'studentUsers', 'educationLevel', 'schoolYear', 'teacher', 'teacher.user', 'teacher.subject');
+        $schoolClass->load('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers', 'studentUsers',
+            'educationLevel', 'schoolYear', 'teacher', 'teacher.user', 'teacher.subject');
         if (is_array($request->get('with')) && in_array('schoolClassStats', $request->get('with'))) {
             AverageRatingRepository::getCountAndAveragesForSchoolClasses([$schoolClass]);
             SchoolClassRepository::getCompareSchoolClassToParallelSchoolClasses($schoolClass);
@@ -107,8 +131,8 @@ class SchoolClassesController extends Controller
 
     /**
      * Update the specified school class in storage.
-     * @param SchoolClass $schoolClass
-     * @param UpdateSchoolClassRequest $request
+     * @param  SchoolClass  $schoolClass
+     * @param  UpdateSchoolClassRequest  $request
      * @return
      */
     public function update(SchoolClass $schoolClass, UpdateSchoolClassRequest $request)
@@ -124,7 +148,7 @@ class SchoolClassesController extends Controller
 
     /**
      * Remove the specified school class from storage.
-     * @param SchoolClass $schoolClass
+     * @param  SchoolClass  $schoolClass
      * @return
      * @throws \Exception
      */
@@ -151,35 +175,66 @@ class SchoolClassesController extends Controller
     {
         $updateCounter = 0;
         if (is_array($request->get('class'))) {
-            collect($request->get('class'))->each(function($value, $schoolClassId) use (&$updateCounter) {
-                SchoolClass::where('id', $schoolClassId)
+            collect($request->get('class'))->each(function ($value, $schoolClassId) use (&$updateCounter) {
+                $schoolClass = SchoolClass::where('id', $schoolClassId)
                     ->where('is_main_school_class', 1)
                     ->where('school_location_id', Auth::user()->school_location_id)
-                    ->update(['education_level_id'=> $value['education_level']]);
+                    ->first();
+                    $schoolClass->education_level_id = $value['education_level'];
+                    $schoolClass->save();
 
-                $updateCounter ++;
+                $this->updateImportLog($value, $schoolClass);
+
+                $updateCounter++;
             });
         }
 
-        return JsonResource::make(['count'=>$updateCounter], 200);
+        return JsonResource::make(['count' => $updateCounter], 200);
     }
 
     public function updateWithEducationLevelsForClusterClasses(Request $request)
     {
         $updateCounter = 0;
         if (is_array($request->get('class'))) {
-            collect($request->get('class'))->each(function($value, $schoolClassId) use (&$updateCounter) {
-                SchoolClass::where('id', $schoolClassId)
+            collect($request->get('class'))->each(function ($value, $schoolClassId) use (&$updateCounter) {
+                $schoolClass = SchoolClass::where('id', $schoolClassId)
                     ->where('is_main_school_class', 0)
                     ->where('school_location_id', Auth::user()->school_location_id)
-                    ->update([
-                        'education_level_id'=> $value['education_level'],
-                        'education_level_year'=> $value['education_level_year']
-                        ]);
+                    ->first();
 
-                $updateCounter ++;
+                $schoolClass->education_level_id = $value['education_level'];
+                $schoolClass->education_level_year = $value['education_level_year'];
+                $schoolClass->save();
+                $this->updateImportLog($value, $schoolClass);
+
+                $updateCounter++;
             });
         }
-        return JsonResource::make(['count'=>$updateCounter], 200);
+        return JsonResource::make(['count' => $updateCounter], 200);
+    }
+
+    /**
+     * @param $value
+     * @param $schoolClass
+     */
+    private function updateImportLog($value, $schoolClass): void
+    {
+        if (array_key_exists('checked', $value) && $value['checked']) {
+
+            $importLog = $schoolClass->importLog;
+
+            if ($importLog == null) {
+                $importLog = new SchoolClassImportLog();
+            }
+
+            if (Auth::user()->isA('teacher') && is_null($importLog->checked_by_teacher)) {
+                $importLog->checked_by_teacher = now();
+            }
+
+            if (Auth::user()->isA('school manager') && is_null($importLog->checked_by_admin)) {
+                $importLog->checked_by_admin = now();
+            }
+            $schoolClass->importLog()->save($importLog);
+        }
     }
 }
