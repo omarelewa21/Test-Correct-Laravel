@@ -90,7 +90,7 @@ class SchoolLocationReport extends Model
                     'total_unique_students_taken_test' => $helper->nrUniqueStudentsTakenTest(0), // 4.a.10
 
                     'in_browser_tests_allowed' => $location->allow_inbrowser_testing ? 1 : 0, // 3.a.2
-                    'nr_active_teachers' => $location->count_active_teachers, // 3.a.2
+                    'nr_active_teachers' => $helper->nrActiveTeachers(4,60), // 3.a.2
         ]);
         
              

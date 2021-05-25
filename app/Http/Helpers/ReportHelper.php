@@ -7,9 +7,11 @@ namespace tcCore\Http\Helpers;
 use Carbon\Carbon;
 use tcCore\FileManagement;
 use tcCore\QuestionAuthor;
+use tcCore\Role;
 use tcCore\SchoolLocation;
 use tcCore\TestTake;
 use tcCore\User;
+use tcCore\UserRole;
 
 class ReportHelper
 {
@@ -24,8 +26,8 @@ class ReportHelper
     {
         // we only can have two different types of references: User or SchoolLocation
         $allowedClasses = [User::class, SchoolLocation::class];
-        if(!in_array(get_class($reference), $allowedClasses)){
-            throw new \Exception('Report does not accept a '.get_class($reference).' model');
+        if (!in_array(get_class($reference), $allowedClasses)) {
+            throw new \Exception('Report does not accept a ' . get_class($reference) . ' model');
         }
         $this->reference = $reference;
         $this->type = (get_class($reference) === User::class) ? self::USER : self::SCHOOLLOCATION;
@@ -33,24 +35,24 @@ class ReportHelper
 
     protected function attachReference($builder, $table)
     {
-        $tableColumn = sprintf('%s.%s',$table,$this->getColumn());
-        return $builder->where($tableColumn,$this->reference->getKey());
+        $tableColumn = sprintf('%s.%s', $table, $this->getColumn());
+        return $builder->where($tableColumn, $this->reference->getKey());
     }
 
     protected function getColumn()
     {
-        if($this->type === self::USER) {
+        if ($this->type === self::USER) {
             return 'user_id';
-        } else if($this->type === self::SCHOOLLOCATION){
+        } else if ($this->type === self::SCHOOLLOCATION) {
             return 'school_location_id';
         } else {
-            throw new \Exception('Unknown model '.get_class($this->reference));
+            throw new \Exception('Unknown model ' . get_class($this->reference));
         }
     }
 
     public function getActiveLicenses()
     {
-        if($this->type === self::SCHOOLLOCATION) {
+        if ($this->type === self::SCHOOLLOCATION) {
             $date = Carbon::now();
             return $this->reference->licenses()
                 ->where('start', '<=', $date->format('Y-m-d'))
@@ -64,30 +66,24 @@ class ReportHelper
 
     public function nrApprovedClassFiles($days)
     {
-        return $this->nrFileManagementByStatusIdTypeAndDays(7,'classupload',$days);
+        return $this->nrFileManagementByStatusIdTypeAndDays(7, 'classupload', $days);
     }
 
 
     public function nrApprovedTestFiles($days)
     {
-        return $this->nrFileManagementByStatusIdTypeAndDays(7,'testupload',$days);
+        return $this->nrFileManagementByStatusIdTypeAndDays(7, 'testupload', $days);
     }
 
-    protected function nrFileManagementByStatusIdTypeAndDays($statusId,$type,$days)
+    protected function nrFileManagementByStatusIdTypeAndDays($statusId, $type, $days)
     {
-        $builder = FileManagement::leftJoin('file_management_status_logs','file_management_status_logs.file_management_id','file_managements.id')
-            ->where('file_managements.type',$type)
+        $builder = FileManagement::leftJoin('file_management_status_logs', 'file_management_status_logs.file_management_id', 'file_managements.id')
+            ->where('file_managements.type', $type)
             ->where('file_management_status_logs.file_management_status_id', $statusId);
 
         $this->attachReference($builder, 'file_managements');
 
-        if ($days != 0) {
-
-            $end_date = Carbon::now()->toDateTimeString();
-            $start_date = Carbon::now()->subDays($days);
-
-            $builder->whereBetween('file_management_status_logs.created_at', [$start_date, $end_date]);
-        }
+        $this->addDaysConstraintToBuilder($builder, $days);
 
         return $builder->count();
     }
@@ -95,8 +91,8 @@ class ReportHelper
     public function nrAddedQuestionItems($days)
     {
 
-        if($this->type === self::USER) {
-            $builder = QuestionAuthor::where('user_id',$this->reference->getKey());
+        if ($this->type === self::USER) {
+            $builder = QuestionAuthor::where('user_id', $this->reference->getKey());
         } else {
             $builder = QuestionAuthor::leftJoin('users', function ($join) {
                 $join->on('question_authors.user_id', '=', 'users.id');
@@ -104,13 +100,7 @@ class ReportHelper
             $this->attachReference($builder, 'users');
         }
 
-        if ($days != 0) {
-
-            $end_date = Carbon::now()->toDateTimeString();
-            $start_date = Carbon::now()->subDays($days);
-
-            $builder->whereBetween('question_authors.created_at', [$start_date, $end_date]);
-        }
+        $this->addDaysConstraintToBuilder($builder, $days);
 
         return $builder->count();
     }
@@ -143,12 +133,12 @@ class ReportHelper
     public function nrTestsChecked($days)
     {
 
-        return $this->nrTestTakesByStatusIdAndDays(8,$days);
+        return $this->nrTestTakesByStatusIdAndDays(8, $days);
     }
 
     public function nrTestsRated($days)
     {
-        return $this->nrTestTakesByStatusIdAndDays(9,$days);
+        return $this->nrTestTakesByStatusIdAndDays(9, $days);
     }
 
     public function nrColearningSessions($days)
@@ -162,19 +152,13 @@ class ReportHelper
         $builder = \DB::table('test_participants')
             ->select('test_participants.user_id')
             ->distinct('test_participants.user_id')
-            ->leftJoin('test_takes','test_takes.id','test_participants.test_take_id')
+            ->leftJoin('test_takes', 'test_takes.id', 'test_participants.test_take_id')
             ->whereNull('test_takes.deleted_at')
             ->whereNull('test_participants.deleted_at');
 
-        $this->attachReference($builder,'test_takes');
+        $this->attachReference($builder, 'test_takes');
 
-        if ($days != 0) {
-
-            $end_date = Carbon::now()->format('Y-m-d 00:00:00');
-            $start_date = Carbon::now()->subDays($days)->format('Y-m-d 00:00:00');
-
-            $builder->whereBetween('test_takes.time_start', [$start_date, $end_date]);
-        }
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00');
 
         return $builder->count();
     }
@@ -182,19 +166,46 @@ class ReportHelper
     public function nrTestTakesByStatusIdAndDays($statusId, $days)
     {
 
-        $builder = TestTake::leftJoin('test_take_status_logs','test_take_status_logs.test_take_id','test_takes.id')
+        $builder = TestTake::leftJoin('test_take_status_logs', 'test_take_status_logs.test_take_id', 'test_takes.id')
             ->where('test_take_status_logs.test_take_status_id', $statusId);
 
-        $this->attachReference($builder,'test_takes');
+        $this->attachReference($builder, 'test_takes');
 
-        if ($days != 0) {
+        $this->addDaysConstraintToBuilder($builder, $days);
 
-            $end_date = Carbon::now()->toDateTimeString();
-            $start_date = Carbon::now()->subDays($days);
+        return $builder->count();
+    }
 
+    protected function addDaysConstraintToBuilder($builder, $days, $format = 'Y-m-d H:i:s')
+    {
+        if ($days > 0) {
+            $end_date = Carbon::now()->format($format);
+            $start_date = Carbon::now()->subDays((int) $days)->format($format);
             $builder->whereBetween('test_take_status_logs.created_at', [$start_date, $end_date]);
         }
+    }
 
+    /**
+     * active in this case is:
+     * in last 60 days
+     * at least 3 tests taken (so test_take_status_logs on status 3
+     */
+    public function nrActiveTeachers($minimalNrTestTakes, $days = 0)
+    {
+
+//        $count = $this->schoolLocation->users()->whereIn('id', function ($query) {
+//            $userRole = new UserRole();
+//            $query->select('user_id')->from($userRole->getTable())->whereIn('role_id', function ($query) {
+//                $role = new Role();
+//                $query->select($role->getKeyName())->from($role->getTable())->where('name', 'Teacher')->whereNull('deleted_at');
+//            })->whereNull('deleted_at');
+//        })->where('count_last_test_taken', '>=', $date->format('Y-m-d H:i:s'))->count();
+        $builder = User::where('school_location_id', $this->reference->getKey())
+            ->join('user_roles', 'user_roles.user_id', 'users.id')
+            ->where('user_roles.role_id', 1) // teacher
+            ->whereNull('user_roles.deleted_at')
+            ->whereIn('users.id', TestTake::groupBy('test_takes.user_id')->havingRaw('COUNT(test_takes.user_id) > '.(int) $minimalNrTestTakes)->select('test_takes.user_id'));
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00');
         return $builder->count();
     }
 }
