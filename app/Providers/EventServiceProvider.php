@@ -33,13 +33,15 @@ class EventServiceProvider extends ServiceProvider {
                 'assertion' => $user->getRawSamlAssertion()
             ];
             // find user by eckId
-            $user = User::findByEckId($userData['attributes']['eckId'][0])->first();
-            if ($user) {
+            $laravelUser = User::findByEckId($userData['attributes']['eckId'][0])->first();
+            if ($laravelUser) {
                 // update email adress user with the one posted from entree
                 // of alleen als t emailadres eindigt op test-correct.nl
                 // of alleen als die voldoet aan s_<userId>@test-correct.nl of t_<userId>@test-correct.nl
-                var_dump($user->redirectToCakeWithTemporaryLogin()); exit;
-                return $user->redirectToCakeWithTemporaryLogin();
+                var_dump($laravelUser->redirectToCakeWithTemporaryLogin()); exit;
+                $url = $laravelUser->getTemporaryCakeLoginUrl();
+                header("Location: $url");
+                exit;
 
             }
             var_dump($userData);

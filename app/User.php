@@ -1956,11 +1956,19 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function redirectToCakeWithTemporaryLogin()
     {
+        $redirectUrl = $this->getTemporaryCakeLoginUrl();
+
+        return redirect()->to($redirectUrl);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTemporaryCakeLoginUrl()
+    {
         $temporaryLogin = TemporaryLogin::create(
             ['user_id' => $this->getKey()]
         );
-        $redirectUrl = $temporaryLogin->createCakeUrl();
-
-        return redirect()->to($redirectUrl);
+        return $temporaryLogin->createCakeUrl();
     }
 }
