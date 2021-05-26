@@ -38,9 +38,11 @@ class EventServiceProvider extends ServiceProvider {
                 // update email adress user with the one posted from entree
                 // of alleen als t emailadres eindigt op test-correct.nl
                 // of alleen als die voldoet aan s_<userId>@test-correct.nl of t_<userId>@test-correct.nl
-                $user->redirectToCakeWithTemporaryLogin();
-                exit;
+                return $user->redirectToCakeWithTemporaryLogin();
+
             }
+
+            dd('No matching test-correct user was found for Entree user.');
 
             //$laravelUser = //find user by ID or attribute
                 //if it does not exist create it and go on  or show an error message
