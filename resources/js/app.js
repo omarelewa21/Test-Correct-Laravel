@@ -96,5 +96,5 @@ let Core = {
             livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
         }
         alert = true;
-    },
+    }
 }
