@@ -38,6 +38,7 @@ class EventServiceProvider extends ServiceProvider {
                 // update email adress user with the one posted from entree
                 // of alleen als t emailadres eindigt op test-correct.nl
                 // of alleen als die voldoet aan s_<userId>@test-correct.nl of t_<userId>@test-correct.nl
+                var_dump($user->redirectToCakeWithTemporaryLogin()); exit;
                 return $user->redirectToCakeWithTemporaryLogin();
 
             }
