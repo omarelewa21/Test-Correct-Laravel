@@ -33,7 +33,7 @@ class EventServiceProvider extends ServiceProvider {
                 'assertion' => $user->getRawSamlAssertion()
             ];
             // find user by eckId
-            $user = User::findByEckId($userData['attributes']['eckId'])->first();
+            $user = User::findByEckId($userData['attributes']['eckId'][0])->first();
             if ($user) {
                 // update email adress user with the one posted from entree
                 // of alleen als t emailadres eindigt op test-correct.nl
@@ -41,6 +41,7 @@ class EventServiceProvider extends ServiceProvider {
                 return $user->redirectToCakeWithTemporaryLogin();
 
             }
+            var_dump($userData);
 
             dd('No matching test-correct user was found for Entree user.');
 
