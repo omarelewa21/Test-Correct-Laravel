@@ -60,4 +60,8 @@ return [
     'no_upcoming_tests'                => 'You have no upcoming tests.',
     'test_already_taken'               => 'This test is taken and cannot be opened again.',
     'no_messages'                      => 'You have no recent messages.',
+    'invigilator_note'                 => 'Invigilator note',
+    'review_until'                     => 'Review until',
+    'no_test_takes_to_review'          => 'No tests to review',
+    'no_test_takes_to_discuss'         => 'No tests to discuss',
 ];

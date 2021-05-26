@@ -13,5 +13,15 @@ return [
     |
     */
 
-    'unavailable'                      => 'Niet beschikbaar',
+    'unavailable'    => 'Niet beschikbaar',
+    'status'         => 'Status',
+    'rated'          => 'Becijferd',
+    'discussed'      => 'Besproken',
+    'discussing'     => 'Bespreken',
+    'taken'          => 'Gemaakt',
+    'taken_away'     => 'Ingenomen',
+    'handed_in'      => 'Ingeleverd',
+    'taking_test'    => 'Toets maken',
+    'test_not_taken' => 'Toets niet gemaakt',
+    'planned'        => 'Gepland',
 ];

@@ -5,6 +5,7 @@ namespace tcCore\Http\Traits;
 
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use tcCore\TestParticipant;
 use tcCore\TestTakeStatus;
 use tcCore\TestTake;
@@ -76,4 +77,14 @@ trait WithStudentTestTakes
         return redirect(route('student.waiting-room', ['take' => $testTakeUuid]));
     }
 
+    public function getTestTakeStatusTranslationString($testTake)
+    {
+        $statusName = strtolower($testTake->status_name);
+
+        if (Str::contains($testTake->status_name, ' ')) {
+            $statusName = preg_replace($testTake->status_name, '_', ' ');
+        }
+
+        return sprintf('general.%s', $statusName);
+    }
 }

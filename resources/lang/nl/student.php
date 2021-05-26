@@ -60,4 +60,8 @@ return [
     'no_upcoming_tests'                => 'Je hebt geen binnenkort geplande toetsen.',
     'test_already_taken'               => 'Deze toets is afgerond en kan niet meer worden geopend.',
     'no_messages'                      => 'Je hebt geen recente berichten',
+    'invigilator_note'                 => 'Surveillanten opmerking',
+    'review_until'                     => 'Inzien tot',
+    'no_test_takes_to_review'          => 'Er zijn geen toetsen om in te zien',
+    'no_test_takes_to_discuss'         => 'Er zijn geen toetsen om te bespreken',
 ];

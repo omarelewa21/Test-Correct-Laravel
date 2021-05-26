@@ -13,5 +13,15 @@ return [
     |
     */
 
-    'unavailable'                      => 'Unavailable',
+    'unavailable'    => 'Unavailable',
+    'status'         => 'Status',
+    'rated'         => 'Rated',
+    'discussed'      => 'Discussed',
+    'discussing'     => 'Discussing',
+    'taken'          => 'Taken',
+    'taken_away'     => 'Taken away',
+    'handed_in'      => 'Handed in',
+    'taking_test'    => 'Taking test',
+    'test_not_taken' => 'Test not taken',
+    'planned'        => 'Planned',
 ];
