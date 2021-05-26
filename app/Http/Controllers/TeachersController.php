@@ -15,6 +15,7 @@ use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
 use tcCore\Http\Requests\UpdateTeacherRequest;
+use tcCore\TeacherImportLog;
 use tcCore\User;
 
 class TeachersController extends Controller
@@ -32,6 +33,19 @@ class TeachersController extends Controller
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 return Response::make($teachers->get(['teachers.*']), 200);
+                break;
+            case 'import_data':
+                return Response::make(
+                    $teachers
+                        ->leftJoin('teacher_import_logs as log', 'teachers.id', 'teacher_id')
+                        ->select(
+                            'teachers.*',
+                            'log.checked_by_teacher as checked_by_teacher'
+                        )
+                        ->where('teachers.user_id', Auth::id())
+                        ->get()
+                        ->toArray()
+                );
                 break;
             case 'paginate':
             default:
@@ -201,17 +215,22 @@ class TeachersController extends Controller
                         $allTeacherRecordsForThisTeacherAndClass->each->forceDelete();
 
                         foreach ($subjectValue as $subjectId => $checkboxValue) {
-                            Teacher::create([
+                            $teacher = Teacher::create([
                                 'class_id'   => $schoolClassId,
                                 'subject_id' => $subjectId,
                                 'user_id'    => Auth::id(),
                             ]);
+                            $this->updateImportLog($subjectValue, $teacher);
                             $updateCounter++;
                         }
                     } else {
-
-                        Teacher::where(['class_id' => $schoolClassId, 'user_id' => Auth::id()])
-                            ->update(['subject_id' => $subjectValue]);
+                        $teacher = Teacher::where([
+                            'class_id' => $schoolClassId,
+                            'user_id'  => Auth::id()
+                        ])->first();
+                        $teacher->subject_id = $subjectValue;
+                        $teacher->save();
+                        $this->updateImportLog($subjectValue, $teacher);
                         $updateCounter++;
                     }
                 }
@@ -219,6 +238,28 @@ class TeachersController extends Controller
         }
 
         return JsonResource::make(['count' => $updateCounter], 200);
+    }
+
+    /**
+     * @param $value
+     * @param $schoolClass
+     */
+    private function updateImportLog($value, Teacher $teacher): void
+    {
+        if (array_key_exists('checked', $value) && $value['checked']) {
+
+            $importLog = $teacher->importLog;
+
+            if ($importLog == null) {
+                $importLog = new TeacherImportLog();
+            }
+
+            if (Auth::user()->isA('teacher') && is_null($importLog->checked_by_teacher)) {
+                $importLog->checked_by_teacher = now();
+            }
+
+            $teacher->importLog()->save($importLog);
+        }
     }
 
 }
