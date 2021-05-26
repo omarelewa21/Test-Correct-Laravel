@@ -40,4 +40,12 @@ return [
     'last_name'                           => 'Last name',
     'send_email'                          => 'Send e-mail',
     'test_code_invalid'                   => 'Test code is invalid',
+    'who_are_you'                         => 'Who are you?',
+    'cancel'                              => 'Cancel',
+    'continue'                            => 'Continue',
+    'student_pupil'                       => 'Student',
+    'modal_student_text'                  => 'As a student you don\'t create your own account. You could download the app already',
+    'modal_teacher_text'                  => 'As a teacher you make an account and directly start with Test-Correct',
+    'back_to_login'                       => 'Back to login',
+    'forgot_password_explain_text'        => 'We need the e-mail address associated with your account to send the instructions to reset your password.',
 ];

@@ -145,7 +145,7 @@
 }
 
 .ranking .drag-item.draggable-mirror {
-    width: 100%;
+    /*width: 100%;*/
 }
 
 .matching-question .startGroup .drag-item {
@@ -164,8 +164,11 @@
 .slider-buttons {
     box-shadow: 0 0 5px 10px var(--light-grey);
 }
-.slider-buttons button:hover {
-    color: var(--primary);
+@media (hover: hover) {
+    .slider-buttons button:hover {
+        color: var(--primary);
+        background-color: white;
+    }
 }
 
 #navscrollbar {

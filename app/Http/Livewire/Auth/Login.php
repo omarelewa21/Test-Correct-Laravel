@@ -30,6 +30,13 @@ class Login extends Component
     public $guestLoginButtonDisabled = true;
     public $forgotPasswordButtonDisabled = true;
 
+    public $showAuthModal = false;
+    public $authModalRoleType;
+
+    public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
+
+    protected $listeners = ['open-auth-modal' => 'openAuthModal'];
+
     protected $rules = [
         'username' => 'required|email',
         'password' => 'required',
@@ -174,5 +181,27 @@ class Login extends Component
             }
         }
         return true;
+    }
+
+    public function openAuthModal()
+    {
+        $this->showAuthModal = true;
+    }
+
+    public function setAuthModalRoleType($value)
+    {
+        $this->authModalRoleType = $value;
+    }
+
+    public function createAccountRedirect()
+    {
+        if (blank($this->authModalRoleType)) {
+            return;
+        }
+
+        if ($this->authModalRoleType === 'student') {
+            return redirect($this->studentDownloadUrl);
+        }
+        return redirect(route('onboarding.welcome'));
     }
 }

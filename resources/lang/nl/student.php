@@ -59,4 +59,5 @@ return [
     'no_recent_grades'                 => 'Je hebt geen laatst behaalde cijfers',
     'no_upcoming_tests'                => 'Je hebt geen binnenkort geplande toetsen.',
     'test_already_taken'               => 'Deze toets is afgerond en kan niet meer worden geopend.',
+    'no_messages'                      => 'Je hebt geen recente berichten',
 ];

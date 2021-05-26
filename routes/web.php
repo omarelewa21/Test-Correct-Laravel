@@ -23,6 +23,11 @@ Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('
 
 if(!tcCore\Http\Helpers\BaseHelper::onProduction()) {
     Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
+
+    Route::get('/magister', [\tcCore\Http\Controllers\MagisterController::class, 'index']);
+    Route::get('/somtoday', [\tcCore\Http\Controllers\SomeTodayController::class, 'index']);
+    Route::get('/uwlr/fetcher', tcCore\Http\Livewire\UwlrFetcher::class)->name('uwlr.fetcher');
+    Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
 }
 
 Route::middleware(['auth.temp'])->group(function () {
@@ -54,4 +59,3 @@ Route::middleware(['guest', 'auth.temp'])->group(function () {
     Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview' ])->name('auth.teacher.show-test-with-short-code');
     Route::get('/start-test-take-with-temporary-login/{test_take}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'studentPlayer'])->name('auth.login_test_take_with_short_code');
 });
-

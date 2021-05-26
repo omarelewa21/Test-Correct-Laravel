@@ -55,6 +55,15 @@ class License extends BaseModel {
         static::saved(function(License $license)
         {
             $license->dispatchJobs();
+
+            // logging amount difference if changed
+            if ($license->getOriginal('amount') != $license->amount) {
+                LicenseLog::create([
+                    'license_id' => $license->getKey(),
+                    'amount' => $license->amount,
+                    'amount_change' => (int) ($license->amount - $license->getOriginal('amount'))
+                ]);
+            }
         });
 
         static::deleted(function(License $license)

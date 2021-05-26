@@ -219,15 +219,14 @@
                         </div>
                     </div>
                     <div class="flex flex-col flex-1 h-full">
-                        <p class="mb-6">We hebben we het e-mailadres nodig dat geassocieerd is met jouw account om een
-                            mail te kunnen sturen over het opnieuw instellen van het wachtwoord.</p>
+                        <p class="mb-6">{{ __('auth.forgot_password_explain_text') }}</p>
                         <x-input.group label="E-mailadres">
                             <x-input.text wire:model.debounce.300ms="forgotPasswordEmail"/>
                         </x-input.group>
                         <div class="mt-auto flex w-full">
                             <x-button.text-button class="rotate-svg-180" wire:click.prevent="$set('loginTab', true)">
                                 <x-icon.arrow/>
-                                <span class="text-base">Terug naar inloggen</span>
+                                <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>
                             @if($forgotPasswordButtonDisabled)
                                 <x-button.cta class="ml-auto" size="md" disabled>
@@ -244,7 +243,7 @@
             </div>
         @endif
         <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4">
-            <x-button.primary type="link" href="https://www.test-correct.nl/student/">
+            <x-button.primary type="link" href="{{ $this->studentDownloadUrl }}">
                 <x-icon.download/>
                 <span>{{__('auth.download_student_app')}}</span>
             </x-button.primary>
@@ -255,4 +254,6 @@
             </x-button.text-button>
         </div>
     </div>
+
+    <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>
 </div>

@@ -51,9 +51,10 @@ class RankingQuestion extends Component
         return view('livewire.preview.ranking-question');
     }
 
-    public function updateOrder()
+    public function updateOrder($value)
     {
-
+        $this->answerStruct = $value;
+        $this->createAnswerStruct();
     }
 
     public function createAnswerStruct()

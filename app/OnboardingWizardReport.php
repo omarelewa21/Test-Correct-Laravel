@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use tcCore\Http\Helpers\ReportHelper;
 
 set_time_limit(300);
 
@@ -16,7 +17,8 @@ class OnboardingWizardReport extends Model
 
     public static function updateForUser(User $user)
     {
-        
+        $helper = new ReportHelper($user);
+
         $wizardData = self::getStepsCollection($user);
         
         $updated_data_array = [
@@ -62,36 +64,48 @@ class OnboardingWizardReport extends Model
             'invited_users_amount'                        => self::invitedUsersAmount($user),
             'invited_users'                               => self::invitedUsers($user),
             'account_verified'                            => $user->account_verified,
-            'nr_approved_test_files_7'                       => self::nrApprovedTestFiles($user, 7),
-            'nr_approved_test_files_30'                      => self::nrApprovedTestFiles($user, 30),
-            'nr_approved_test_files_60'                      => self::nrApprovedTestFiles($user, 60),
-            'nr_approved_test_files_90'                      => self::nrApprovedTestFiles($user, 90),
-            'nr_approved_test_files_total'                   => self::nrapprovedTestFiles($user, 0),
-            'nr_added_question_items_7'                   => self::nrAddedQuestionItems($user, 7),
-            'nr_added_question_items_30'                  => self::nrAddedQuestionItems($user, 30),
-            'nr_added_question_items_60'                  => self::nrAddedQuestionItems($user, 60),
-            'nr_added_question_items_90'                  => self::nrAddedQuestionItems($user, 90),
-            'nr_added_question_items_total'               => self::nrAddedQuestionItems($user, 0),
-            'nr_tests_taken_7'                            => self::nrTestsTaken($user, 7), // 3.a.1
-            'nr_tests_taken_30'                           => self::nrTestsTaken($user, 30), // 3.a.1
-            'nr_tests_taken_60'                           => self::nrTestsTaken($user, 60), // 3.a.1
-            'nr_tests_taken_90'                           => self::nrTestsTaken($user, 90), // 3.a.1
-            'nr_test_taken_total'                         => self::nrTestsTaken($user, 0), // 3.a.2
-            'nr_tests_checked_7'                          => self::nrTestsChecked($user, 7), // 3.a.1
-            'nr_tests_checked_30'                         => self::nrTestsChecked($user, 30), // 3.a.1
-            'nr_tests_checked_60'                         => self::nrTestsChecked($user, 60), // 3.a.1
-            'nr_tests_checked_90'                         => self::nrTestsChecked($user, 90), // 3.a.1
-            'nr_tests_checked_total'                      => self::nrTestsChecked($user, 0), // 3.a.2
-            'nr_tests_rated_7'                            => self::nrTestsRated($user, 7), // 3.a.1
-            'nr_tests_rated_30'                           => self::nrTestsRated($user, 30), // 3.a.1
-            'nr_tests_rated_60'                           => self::nrTestsRated($user, 60), // 3.a.1
-            'nr_tests_rated_90'                           => self::nrTestsRated($user, 90), // 3.a.1
-            'nr_tests_rated_total'                        => self::nrTestsRated($user, 0), // 3.a.2
-            'nr_colearning_sessions_7'                    => self::nrColearningSessions($user, 7), // 3.a.1
-            'nr_colearning_sessions_30'                   => self::nrColearningSessions($user, 30), // 3.a.1
-            'nr_colearning_sessions_60'                   => self::nrColearningSessions($user, 60), // 3.a.1
-            'nr_colearning_sessions_90'                   => self::nrColearningSessions($user, 90), // 3.a.1
-            'nr_colearning_sessions_total'                => self::nrColearningSessions($user, 0), // 3.a.2
+            'nr_approved_test_files_7'                    => $helper->nrApprovedTestFiles(7),
+            'nr_approved_test_files_30'                   => $helper->nrApprovedTestFiles(30),
+            'nr_approved_test_files_60'                   => $helper->nrApprovedTestFiles(60),
+            'nr_approved_test_files_90'                   => $helper->nrApprovedTestFiles(90),
+            'nr_approved_test_files_365'                   => $helper->nrApprovedTestFiles(365),
+            'nr_approved_test_files_total'                => $helper->nrApprovedTestFiles(0),
+            'nr_added_question_items_7'                   => $helper->nrAddedQuestionItems(7),
+            'nr_added_question_items_30'                  => $helper->nrAddedQuestionItems(30),
+            'nr_added_question_items_60'                  => $helper->nrAddedQuestionItems(60),
+            'nr_added_question_items_90'                  => $helper->nrAddedQuestionItems(90),
+            'nr_added_question_items_365'                  => $helper->nrAddedQuestionItems(365),
+            'nr_added_question_items_total'               => $helper->nrAddedQuestionItems(0),
+            'nr_approved_classes_7'                       => $helper->nrApprovedClassFiles(7),
+            'nr_approved_classes_30'                      => $helper->nrApprovedClassFiles(30),
+            'nr_approved_classes_60'                       => $helper->nrApprovedClassFiles(60),
+            'nr_approved_classes_90'                      => $helper->nrApprovedClassFiles(90),
+            'nr_approved_classes_365'                      => $helper->nrApprovedClassFiles(365),
+            'nr_approved_classes_total'                   => $helper->nrApprovedClassFiles(0),
+            'nr_tests_taken_7'                            => $helper->nrTestsTaken(7), // 3.a.1
+            'nr_tests_taken_30'                           => $helper->nrTestsTaken(30), // 3.a.1
+            'nr_tests_taken_60'                           => $helper->nrTestsTaken(60), // 3.a.1
+            'nr_tests_taken_90'                           => $helper->nrTestsTaken(90), // 3.a.1
+            'nr_tests_taken_365'                           => $helper->nrTestsTaken(365), // 3.a.1
+            'nr_test_taken_total'                         => $helper->nrTestsTaken(0), // 3.a.2
+            'nr_tests_checked_7'                          => $helper->nrTestsChecked(7), // 3.a.1
+            'nr_tests_checked_30'                         => $helper->nrTestsChecked(30), // 3.a.1
+            'nr_tests_checked_60'                         => $helper->nrTestsChecked(60), // 3.a.1
+            'nr_tests_checked_90'                         => $helper->nrTestsChecked(90), // 3.a.1
+            'nr_tests_checked_365'                         => $helper->nrTestsChecked(365), // 3.a.1
+            'nr_tests_checked_total'                      => $helper->nrTestsChecked(0), // 3.a.2
+            'nr_tests_rated_7'                            => $helper->nrTestsRated(7), // 3.a.1
+            'nr_tests_rated_30'                           => $helper->nrTestsRated(30), // 3.a.1
+            'nr_tests_rated_60'                           => $helper->nrTestsRated(60), // 3.a.1
+            'nr_tests_rated_90'                           => $helper->nrTestsRated(90), // 3.a.1
+            'nr_tests_rated_365'                           => $helper->nrTestsRated(365), // 3.a.1
+            'nr_tests_rated_total'                        => $helper->nrTestsRated(0), // 3.a.2
+            'nr_colearning_sessions_7'                    => $helper->nrColearningSessions( 7), // 3.a.1
+            'nr_colearning_sessions_30'                   => $helper->nrColearningSessions(30), // 3.a.1
+            'nr_colearning_sessions_60'                   => $helper->nrColearningSessions(60), // 3.a.1
+            'nr_colearning_sessions_90'                   => $helper->nrColearningSessions(90), // 3.a.1
+            'nr_colearning_sessions_365'                   => $helper->nrColearningSessions(365), // 3.a.1
+            'nr_colearning_sessions_total'                => $helper->nrColearningSessions(0), // 3.a.2
         ];
         
         self::updateOrCreate([
@@ -200,7 +214,7 @@ ORDER BY t2.displayorder,
 
     public static function updateForAllTeachers($shouldTruncate = true)
     {
-        
+
         if($shouldTruncate) {
             OnboardingWizardReport::truncate();
         }
@@ -259,82 +273,6 @@ ORDER BY t2.displayorder,
         ];
     }
 
-    public static function nrApprovedTestFiles($user, $days)
-    {
-
-        $builder = Test::where('tests.author_id', $user->id)
-            ->whereNull('tests.system_test_id');
-
-        if ($days != 0) {
-
-            $end_date = Carbon::now()->toDateTimeString();
-            $start_date = Carbon::now()->subDays($days);
-
-
-            $builder->whereBetween('tests.created_at', [$start_date, $end_date]);
-        }
-
-        return $builder->count();
-    }
-
-    public static function nrAddedQuestionItems($user, $days)
-    {
-
-        $builder = QuestionAuthor::where('question_authors.user_id',$user->id);
-
-        if ($days != 0) {
-
-            $end_date = Carbon::now()->toDateTimeString();
-            $start_date = Carbon::now()->subDays($days);
-
-
-            $builder->whereBetween('question_authors.created_at', [$start_date, $end_date]);
-        }
-
-        return $builder->count();
-    }
-
-    public static function nrTestsTaken($user, $days)
-    {
-        return self::nrTestTakesByStatusIdUserAndNumberOfDays(6,$user, $days);
-    }
-
-    public static function nrTestsChecked($user, $days)
-    {
-
-        return self::nrTestTakesByStatusIdUserAndNumberOfDays(8,$user, $days);
-    }
-
-    public static function nrTestsRated($user, $days)
-    {
-        return self::nrTestTakesByStatusIdUserAndNumberOfDays(9,$user, $days);
-    }
-
-    public static function nrColearningSessions($user, $days)
-    {
-        return self::nrTestTakesByStatusIdUserAndNumberOfDays(7,$user, $days);
-    }   
-
-    public static function nrTestTakesByStatusIdUserAndNumberOfDays($statusId, $user, $days)
-    {
-
-        $builder = TestTake::where('test_takes.user_id', $user->getKey())
-            ->leftJoin('test_take_status_logs','test_takes.id','=','test_take_status_logs.test_take_id')
-            ->where('test_take_status_logs.test_take_status_id',$statusId)
-            ->groupBy('test_take_id');
-
-        if ($days != 0) {
-
-            $end_date = Carbon::now()->toDateTimeString();
-            $start_date = Carbon::now()->subDays($days);
-
-            $builder->whereBetween('test_takes.created_at', [$start_date, $end_date]);
-        }
-
-        return $builder->count();
-               
-    }
-    
     /**
      * @param User $user
      * @return mixed

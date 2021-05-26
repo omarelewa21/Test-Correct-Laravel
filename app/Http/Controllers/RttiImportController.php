@@ -87,8 +87,8 @@ class RttiImportController extends Controller {
             } else {
                 $errorsHtml = $this->getErrorsHtml($return['errors']);
                 $error_message = 'Versie 0.1 We hebben helaas een aantal fouten geconstateerd waardoor we de import niet goed '
-                        . 'konden afronden<br />Je kunt hiervoor contact opnemen met de Teach & Learn Company en daarbij '
-                        . 'als referentie <br><br>rtti_import/' . $this->startDir . ' mee geven<br /><br>' . $errorsHtml;
+                    . 'konden afronden<br />Je kunt hiervoor contact opnemen met de Teach & Learn Company en daarbij '
+                    . 'als referentie <br><br>rtti_import/' . $this->startDir . ' mee geven<br /><br>' . $errorsHtml;
                 return response()->json(['error' => $error_message], 200);
             }
         } catch (\Exception $e) {
@@ -98,8 +98,8 @@ class RttiImportController extends Controller {
             } else {
 
                 $error_message = 'Versie 0.1 We hebben helaas een aantal fouten geconstateerd waardoor we de import niet goed '
-                        . 'konden afronden<br />Je kunt hiervoor contact opnemen met de Teach & Learn Company en daarbij '
-                        . 'als referentie <br><br>rtti_import/' . $this->startDir . ' mee geven<br /><br>' . $e->getMessage();
+                    . 'konden afronden<br />Je kunt hiervoor contact opnemen met de Teach & Learn Company en daarbij '
+                    . 'als referentie <br><br>rtti_import/' . $this->startDir . ' mee geven<br /><br>' . $e->getMessage();
                 return response()->json(['error' => $error_message], 200);
             }
 
@@ -134,7 +134,7 @@ class RttiImportController extends Controller {
             if($key==='missing_teachers'&&is_array($error)){
                 $returnHtml .= '<p>Voor de onderstaande docenten bestaat nog geen account. Maak die eerst aan voordat u de RTTI importer draait:</p>';
                 foreach ($error as $account){
-                     $returnHtml .= sprintf('<p>%s  %s  %s</p>',$account[0],$account[1],$account[2]);
+                    $returnHtml .= sprintf('<p>%s  %s  %s</p>',$account[0],$account[1],$account[2]);
                 }
                 continue;
             }
