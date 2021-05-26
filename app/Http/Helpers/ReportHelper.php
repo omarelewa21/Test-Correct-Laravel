@@ -50,18 +50,16 @@ class ReportHelper
         }
     }
 
-    public function getActiveLicenses()
+    public function nrLicenses($days)
     {
         if ($this->type === self::SCHOOLLOCATION) {
-            $date = Carbon::now();
-            return $this->reference->licenses()
-                ->where('start', '<=', $date->format('Y-m-d'))
-                ->where(function ($query) use ($date) {
-                    $query->whereNull('end')
-                        ->orWhere('end', '>=', $date->format('Y-m-d'));
-                })
-                ->sum('amount');
+            $builder = \DB::table('license_logs')
+                            ->leftJoin('licenses','licenses.id','license_logs.license_id');
+            $this->attachReference($builder,'licenses');
+            $this->addDaysConstraintToBuilder($builder,$days,'Y-m-d H:i:s','license_logs.created_at');
+            return (int) $builder->sum('license_logs.amount');
         }
+        throw new \Exception('Nr of licenses should not be called for a user');
     }
 
     public function nrApprovedClassFiles($days)
@@ -83,7 +81,7 @@ class ReportHelper
 
         $this->attachReference($builder, 'file_managements');
 
-        $this->addDaysConstraintToBuilder($builder, $days);
+        $this->addDaysConstraintToBuilder($builder, $days,'Y-m-d H:i:s','file_management_status_logs.created_at');
 
         return $builder->count();
     }
@@ -100,7 +98,7 @@ class ReportHelper
             $this->attachReference($builder, 'users');
         }
 
-        $this->addDaysConstraintToBuilder($builder, $days);
+        $this->addDaysConstraintToBuilder($builder, $days,'Y-m-d H:i:s','question_authors.created_at');
 
         return $builder->count();
     }
@@ -158,7 +156,7 @@ class ReportHelper
 
         $this->attachReference($builder, 'test_takes');
 
-        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00');
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00','test_takes.time_start');
 
         return $builder->count();
     }
@@ -176,12 +174,12 @@ class ReportHelper
         return $builder->count();
     }
 
-    protected function addDaysConstraintToBuilder($builder, $days, $format = 'Y-m-d H:i:s')
+    protected function addDaysConstraintToBuilder($builder, $days, $format = 'Y-m-d H:i:s', $column = 'test_take_status_logs.created_at')
     {
         if ($days > 0) {
             $end_date = Carbon::now()->format($format);
             $start_date = Carbon::now()->subDays((int) $days)->format($format);
-            $builder->whereBetween('test_take_status_logs.created_at', [$start_date, $end_date]);
+            $builder->whereBetween($column, [$start_date, $end_date]);
         }
     }
 
@@ -200,12 +198,29 @@ class ReportHelper
 //                $query->select($role->getKeyName())->from($role->getTable())->where('name', 'Teacher')->whereNull('deleted_at');
 //            })->whereNull('deleted_at');
 //        })->where('count_last_test_taken', '>=', $date->format('Y-m-d H:i:s'))->count();
+        $builder2 = TestTake::groupBy('test_takes.user_id')->havingRaw('COUNT(test_takes.user_id) > '.(int) $minimalNrTestTakes)->select('test_takes.user_id');
+        $this->addDaysConstraintToBuilder($builder2, $days, 'Y-m-d 00:00:00','test_takes.time_start');
         $builder = User::where('school_location_id', $this->reference->getKey())
             ->join('user_roles', 'user_roles.user_id', 'users.id')
             ->where('user_roles.role_id', 1) // teacher
             ->whereNull('user_roles.deleted_at')
-            ->whereIn('users.id', TestTake::groupBy('test_takes.user_id')->havingRaw('COUNT(test_takes.user_id) > '.(int) $minimalNrTestTakes)->select('test_takes.user_id'));
-        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00');
+            ->whereIn('users.id', $builder2);
+
+        return $builder->count();
+    }
+
+    public function nrActivatedAccounts($days)
+    {
+
+        $builder = \DB::table('login_logs')
+            ->distinct('login_logs.user_id')
+            ->leftJoin('users', 'users.id', 'login_logs.user_id')
+            ->whereNull('users.deleted_at');
+
+        $this->attachReference($builder, 'users');
+
+        $this->addDaysConstraintToBuilder($builder, $days,'Y-m-d H:i:s','login_logs.created_at');
+
         return $builder->count();
     }
 }
