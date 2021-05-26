@@ -34,6 +34,6 @@ class Graded extends Component
 
     public function getTeacherNameForRating($userId)
     {
-        return User::find($userId)->getFullNameWithAbbreviatedFirstName();
+        return User::withTrashed()->find($userId)->getFullNameWithAbbreviatedFirstName();
     }
 }
