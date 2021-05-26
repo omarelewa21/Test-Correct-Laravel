@@ -26,6 +26,7 @@ trait TestTrait
             'is_open_source_content' => '1',
             'introduction'           => 'Hello this is the intro txt',
             "school_classes"         => ["1"],
+            'subject_id'             => '1',
         ], $overrides);
     }
 

@@ -105,20 +105,17 @@ class Test extends BaseModel
                     $response = (new TestQuestionsController())->updateFromWithin($testQuestion,  $request);
                     if($testQuestion->question->type=='GroupQuestion'){
                         $testQuestion = $testQuestion->fresh();
-                        $groupQuestionQuestionsArray = [];
-                        $groupQuestionQuestionsArray[] = $testQuestion->uuid;
-                        foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
-                            $groupQuestionQuestionsArray[] = $groupQuestionQuestion->uuid;
-                        }
-                        $groupQuestionQuestionsUuidString = implode('.',$groupQuestionQuestionsArray);
-                        dump($groupQuestionQuestionsUuidString);
-                        $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($groupQuestionQuestionsUuidString);
-                        dump($groupQuestionQuestionManager);
+//                        $groupQuestionQuestionsArray = [];
+//                        $groupQuestionQuestionsArray[] = $testQuestion->uuid;
+//                        foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
+//                            $groupQuestionQuestionsArray[] = $groupQuestionQuestion->uuid;
+//                        }
+//                        $groupQuestionQuestionsUuidString = implode('.',$groupQuestionQuestionsArray);
+                        $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
                         foreach($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
                             $request  = new Request();
                             $request->merge($params);
                             $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager,$groupQuestionQuestion,  $request);
-                            dump($response->getContent());
                         }
                     }
                 }

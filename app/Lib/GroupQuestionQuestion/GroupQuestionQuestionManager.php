@@ -41,7 +41,6 @@ class GroupQuestionQuestionManager {
     }
 
     public static function getInstanceWithUuid($group_question_question_path) {
-
         $group_question_question_path_parts = explode('.', $group_question_question_path);
         $testQuestionId = array_shift($group_question_question_path_parts);
         $groupQuestionQuestionIds = $group_question_question_path_parts;
@@ -175,7 +174,6 @@ class GroupQuestionQuestionManager {
     }
 
     public function isChild($child) {
-        //return $child->getAttribute('group_question_id') == $this->getQuestionLink()->getAttribute('question_id');
-        return $child->getAttribute('group_question_id') == $this->testQuestion->getAttribute('question_id');
+        return $child->getAttribute('group_question_id') == $this->getQuestionLink()->getAttribute('question_id');
     }
 }
