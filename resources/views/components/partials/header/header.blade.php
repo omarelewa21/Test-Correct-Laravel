@@ -1,4 +1,4 @@
-<header class="header flex flex-wrap content-center">
+<header id="header" class="header flex flex-wrap content-center">
     <a class="mr-4" href="{{config('app.url_login')}}">
         <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
              alt="Test-Correct">

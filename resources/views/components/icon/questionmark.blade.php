@@ -1,4 +1,4 @@
-<svg width="8" height="14" xmlns="http://www.w3.org/2000/svg">
+<svg {{ $attributes }} width="8" height="14" xmlns="http://www.w3.org/2000/svg">
     <g transform="translate(1 1)" fill="none" fill-rule="evenodd">
         <path class="stroke-current" d="M2.5 8V6.6c0-.6 1.541-1.468 2.021-1.907A2.7 2.7 0 100 2.7" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round"/>

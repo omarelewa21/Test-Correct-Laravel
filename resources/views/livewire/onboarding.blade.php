@@ -107,7 +107,7 @@
                                                 <button wire:key="registration_male" type="button"
                                                         wire:click="$set('registration.gender', 'male')"
                                                         class="relative inline-flex w-full items-center p-4 select-button btn-active">
-                                                    <x-icon.gender-man></x-icon.gender-man>
+                                                    <x-icon.onboarding-gender-man></x-icon.onboarding-gender-man>
                                                     <x-icon.checkmark-circle></x-icon.checkmark-circle>
                                                     {{ __("onboarding.Meneer") }}
                                                 </button>
@@ -115,7 +115,7 @@
                                                 <button wire:key="registration_male"
                                                         wire:click="$set('registration.gender', 'male')" type="button"
                                                         class="inline-flex w-full items-center p-4 select-button ">
-                                                    <x-icon.gender-man></x-icon.gender-man>
+                                                    <x-icon.onboarding-gender-man></x-icon.onboarding-gender-man>
                                                     {{ __("onboarding.Meneer") }}
                                                 </button>
                                             @endif
@@ -128,14 +128,14 @@
                                             @if($this->registration->gender === 'female')
                                                 <button type="button" wire:click="$set('registration.gender', 'female')"
                                                         class="relative inline-flex w-full items-center select-button  btn-active">
-                                                    <x-icon.gender-woman></x-icon.gender-woman>
+                                                    <x-icon.onboarding-gender-woman></x-icon.onboarding-gender-woman>
                                                     <x-icon.checkmark-circle></x-icon.checkmark-circle>
                                                     {{ __("onboarding.Mevrouw") }}
                                                 </button>
                                             @else
                                                 <button wire:click="$set('registration.gender', 'female')" type="button"
                                                         class="inline-flex w-full items-center select-button ">
-                                                    <x-icon.gender-woman></x-icon.gender-woman>
+                                                    <x-icon.onboarding-gender-woman></x-icon.onboarding-gender-woman>
                                                     {{ __("onboarding.Mevrouw") }}
                                                 </button>
                                             @endif
@@ -149,7 +149,7 @@
                                                         wire:click="$set('registration.gender', 'different')"
                                                         class="relative inline-flex items-center p-4 w-full select-button  btn-active">
                                                     <div class="inline-block w-full text-left">
-                                                        <x-icon.gender-other></x-icon.gender-other>
+                                                        <x-icon.onboarding-gender-other></x-icon.onboarding-gender-other>
                                                         <x-icon.checkmark-circle></x-icon.checkmark-circle>
                                                         <div class="inline-block">
                                                             <span>{{ __("onboarding.Anders") }}: </span>
@@ -164,7 +164,7 @@
                                                         type="button"
                                                         class="inline-flex items-center p-4 w-full select-button ">
                                                     <div class="inline-block w-full text-left">
-                                                        <x-icon.gender-other></x-icon.gender-other>
+                                                        <x-icon.onboarding-gender-other></x-icon.onboarding-gender-other>
                                                         <div class="inline-block">
                                                             <span>{{ __("onboarding.Anders") }}: </span>
                                                             <input id="gender_different"

@@ -196,7 +196,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     }
 
     public function students() {
-        return $this->hasMany('tcCore\Student');
+        return $this->hasMany('tcCore\Student', 'class_id');
     }
 
     public function studentUsers() {

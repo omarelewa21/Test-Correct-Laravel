@@ -13,6 +13,11 @@ class BaseHelper
 {
     protected $errors = [];
 
+    public static function onProduction(): bool
+    {
+        return request()->getHost() === 'welcome.test-correct.nl';
+    }
+
     public function addError($error)
     {
         $this->errors[] = $error;

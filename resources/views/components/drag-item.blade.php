@@ -19,5 +19,4 @@
     <div id="icon_{{ $attributes->get('id') }}" class="w-4">
         <x-icon.grab id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.grab>
     </div>
-
 </div>

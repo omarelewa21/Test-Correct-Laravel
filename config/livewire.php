@@ -55,7 +55,7 @@ return [
     |
     */
 
-    'middleware_group'  => ['web', 'dll'],
+    'middleware_group'  => ['web', 'dll', 'forceTaken'],
 
     /*
     |--------------------------------------------------------------------------

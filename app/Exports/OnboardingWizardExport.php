@@ -8,14 +8,17 @@
 
 namespace tcCore\Exports;
 
-
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Events\BeforeExport;
 use tcCore\OnboardingWizardReport;
 
-class OnboardingWizardExport implements WithEvents, FromCollection, WithHeadings
+class OnboardingWizardExport implements WithEvents, FromCollection, WithHeadings ,WithColumnFormatting
 {
 
     public function headings(): array
@@ -23,6 +26,7 @@ class OnboardingWizardExport implements WithEvents, FromCollection, WithHeadings
         return array_keys(OnboardingWizardReport::first()->toArray());
     }
 
+ 
     public function collection()
     {
         return OnboardingWizardReport::all();
@@ -42,5 +46,18 @@ class OnboardingWizardExport implements WithEvents, FromCollection, WithHeadings
 
         ];
     }
+
+    /**
+     * @return array
+     */
+    
+    public function columnFormats(): array
+    {
+        return [
+            'AL' => NumberFormat::FORMAT_DATE_DATETIME,
+            'AM' => NumberFormat::FORMAT_DATE_DATETIME,
+        ];
+    }
+    
 
 }

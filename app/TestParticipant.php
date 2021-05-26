@@ -344,7 +344,7 @@ class TestParticipant extends BaseModel
         return $this->user->intense && $this->user->schoolLocation->intense;
     }
 
-    private function canStartTestTake()
+    public function canStartTestTake()
     {
         return $this->test_take_status_id <= TestTakeStatus::STATUS_TAKING_TEST;
     }

@@ -25,7 +25,7 @@ class TeachersController extends Controller
      */
     public function index(Request $request)
     {
-        $teachers = Teacher::filtered($request->get('filter', []), $request->get('order', []));
+        $teachers = Teacher::filtered($request->get('filter', []), $request->get('order', []))->scopeCurrentSchoolLocation();
 
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
@@ -126,13 +126,12 @@ class TeachersController extends Controller
         try {
             $teachers = collect($request->all()['data'])->map(function ($row) use ($defaultData) {
                 $attributes = array_merge($row, $defaultData);
-                logger($attributes);
-
+                $exists = false;
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
+                    $exists = true;
                     if ($user->isA('teacher')) {
                         $this->handleExternalId($user,$attributes);
-                        return $user;
                     }else {
                         throw new \Exception('conflict: exists but not teacher');
                     }
@@ -145,7 +144,10 @@ class TeachersController extends Controller
                         )
                     );
                 }
-                $user->save();
+                if(!$exists){
+                    $user->save();
+                }
+
 
                 $teacher = Teacher::withTrashed()
                     ->firstOrNew(([
@@ -175,13 +177,17 @@ class TeachersController extends Controller
         if(!array_key_exists('school_location_id',$attributes)){
             return;
         }
-        $schoolLocations = $user->schoolLocations;
+        $schoolLocations = $user->allowedSchoolLocations;
+        if(is_null($schoolLocations)){
+            $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+            return;
+        }
         foreach ($schoolLocations as $schoolLocation){
             if($schoolLocation->pivot->external_id == $attributes['external_id']&&$attributes['school_location_id']==$schoolLocation->id){
                 return;
             }
         }
-        $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+        $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
     }
 
 }

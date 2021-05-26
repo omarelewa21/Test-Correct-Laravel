@@ -8,6 +8,6 @@
 -- Purchase here: https://tailwindui.com/
 --}}
 
-<tr {{ $attributes->merge(['class' => 'test-row']) }}>
+<tr {{ $attributes->merge(['class' => 'test-row transition duration-200']) }}>
     {{ $slot }}
 </tr>

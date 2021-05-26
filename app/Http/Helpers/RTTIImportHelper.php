@@ -315,7 +315,7 @@ class RTTIImportHelper {
                         }
 
                         $user = User::where('external_id', $student_external_code)
-                                ->where('school_location_id', $school_location_id);
+                            ->where('school_location_id', $school_location_id);
 
 
                         if ($user->count() > 1) {
@@ -447,12 +447,12 @@ class RTTIImportHelper {
                             $this->importLog('Students in class ' . $class_id . ' ' . implode(',', $students));
 
                             $this->delete_tally['students'] += Student::whereNotIn('user_id', $students)
-                                    ->where('class_id', $class_id)
-                                    ->count();
+                                ->where('class_id', $class_id)
+                                ->count();
 
                             Student::whereNotIn('user_id', $students)
-                                    ->where('class_id', $class_id)
-                                    ->delete();
+                                ->where('class_id', $class_id)
+                                ->delete();
 
                             $this->importLog("Deleted students from class " . $class_id);
                         }
@@ -474,16 +474,16 @@ class RTTIImportHelper {
                             foreach ($subject_teachers as $subject => $teachers) {
 
                                 $this->delete_tally['teachers'] += Teacher::whereNotIn('user_id', $teachers)
-                                        ->where('class_id', $class)
-                                        ->where('subject_id', $subject)
-                                        ->count();
+                                    ->where('class_id', $class)
+                                    ->where('subject_id', $subject)
+                                    ->count();
 
                                 // @TODO er kunnen meerdere docenten hetzelfde vak geven aan dezelfde klas, dus er moet iets anders bedacht worden
                                 // voor het verwijderen van docenten die ECHT NIET MEER gekoppeld zijn aan deze klas met dit vak
                                 Teacher::whereNotIn('user_id', $teachers)
-                                        ->where('class_id', $class)
-                                        ->where('subject_id', $subject)
-                                        ->delete();
+                                    ->where('class_id', $class)
+                                    ->where('subject_id', $subject)
+                                    ->delete();
 
                                 $this->importLog('deleting other teachers from class ' . $class_subject_tuple['class_id'] . ' and subject ' . $class_subject_tuple['subject_id']);
                             }
@@ -523,10 +523,10 @@ class RTTIImportHelper {
 
                             // delete teachers where the subject is not in the import for the class
                             $deleted_teachers = Teacher::leftjoin('school_classes', 'school_classes.id', '=', 'teachers.class_id')
-                                    ->where('school_classes.do_not_overwrite_from_interface', 0)
-                                    ->where('teachers.class_id', $class_id)
-                                    ->whereNotIn('teachers.subject_id', $subject_ids)
-                                    ->delete();
+                                ->where('school_classes.do_not_overwrite_from_interface', 0)
+                                ->where('teachers.class_id', $class_id)
+                                ->whereNotIn('teachers.subject_id', $subject_ids)
+                                ->delete();
                         }
 
                         $this->importLog('teachers deleted due to subject not in import ' . $deleted_teachers);
@@ -536,12 +536,12 @@ class RTTIImportHelper {
                         foreach ($allClasses as $school_location_id => $data) {
 
                             $ids = SchoolClass::select('id')
-                                    ->where('school_location_id', $school_location_id)
-                                    ->where('do_not_overwrite_from_interface', 0)
-                                    ->where('school_year_id', $data['school_year_id'])
-                                    ->whereNotIn('id', array_unique($class_ids))
-                                    ->get()
-                                    ->toArray();
+                                ->where('school_location_id', $school_location_id)
+                                ->where('do_not_overwrite_from_interface', 0)
+                                ->where('school_year_id', $data['school_year_id'])
+                                ->whereNotIn('id', array_unique($class_ids))
+                                ->get()
+                                ->toArray();
 
                             foreach ($ids as $id) {
 
@@ -739,9 +739,9 @@ class RTTIImportHelper {
     public function getSchoolLocationId($external_sub_code, $external_main_code)
     {
         return SchoolLocation::select('id')
-                        ->where('external_sub_code', $external_sub_code)
-                        ->where('external_main_code', $external_main_code)
-                        ->value('id');
+            ->where('external_sub_code', $external_sub_code)
+            ->where('external_main_code', $external_main_code)
+            ->value('id');
     }
 
     /**
@@ -756,21 +756,21 @@ class RTTIImportHelper {
     public function getSchoolClassId($class_name, $school_location_id, $year, $education_level_year, $education_level_id) {
 
         $school_year_id = SchoolLocationSchoolYear::select('school_year_id')
-                ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
-                ->whereNull('school_location_school_years.deleted_at')
-                ->where('school_location_school_years.school_location_id', '=', $school_location_id)
-                ->where('school_years.year', $year)
-                ->value('school_year_id');
+            ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
+            ->whereNull('school_location_school_years.deleted_at')
+            ->where('school_location_school_years.school_location_id', '=', $school_location_id)
+            ->where('school_years.year', $year)
+            ->value('school_year_id');
 
         if ($school_year_id != NULL) {
 
             return SchoolClass::where('name', $class_name)
-                            ->where('school_location_id', $school_location_id)
-                            ->where('school_year_id', $school_year_id)
-                            ->where('education_level_year', $education_level_year)
-                            ->where('education_level_id', $education_level_id)
-                            ->whereNull('school_classes.deleted_at')
-                            ->value('id');
+                ->where('school_location_id', $school_location_id)
+                ->where('school_year_id', $school_year_id)
+                ->where('education_level_year', $education_level_year)
+                ->where('education_level_id', $education_level_id)
+                ->whereNull('school_classes.deleted_at')
+                ->value('id');
         } else {
             return NULL;
         }
@@ -784,9 +784,9 @@ class RTTIImportHelper {
     public function createOrRestoreUser($user_data) {
 
         $user = User::withTrashed()
-                ->where('external_id', $user_data['external_id'])
-                ->where('school_location_id', $user_data['school_location_id'])
-                ->first();
+            ->where('external_id', $user_data['external_id'])
+            ->where('school_location_id', $user_data['school_location_id'])
+            ->first();
 
         if ($user != NULL) {
 
@@ -808,10 +808,10 @@ class RTTIImportHelper {
     public function createOrRestoreTeacher($teacher_data) {
 
         $teacher = Teacher::withTrashed()
-                ->where('class_id', $teacher_data['class_id'])
-                ->where('user_id', $teacher_data['user_id'])
-                ->where('subject_id', $teacher_data['subject_id'])
-                ->first();
+            ->where('class_id', $teacher_data['class_id'])
+            ->where('user_id', $teacher_data['user_id'])
+            ->where('subject_id', $teacher_data['subject_id'])
+            ->first();
 
         if ($teacher != NULL) {
 
@@ -832,9 +832,9 @@ class RTTIImportHelper {
     public function createOrRestoreStudent($student_data) {
 
         $student = Student::withTrashed()
-                ->where('class_id', $student_data['class_id'])
-                ->where('user_id', $student_data['user_id'])
-                ->first();
+            ->where('class_id', $student_data['class_id'])
+            ->where('user_id', $student_data['user_id'])
+            ->first();
 
         if ($student != NULL) {
 
@@ -855,12 +855,12 @@ class RTTIImportHelper {
     public function createOrRestoreSchoolClass($data) {
 
         $schoolclass = SchoolClass::withTrashed()
-                ->where('school_location_id', $data['school_location_id'])
-                ->where('education_level_id', $data['education_level_id'])
-                ->where('school_year_id', $data['school_year_id'])
-                ->where('name', $data['name'])
-                ->where('education_level_year', $data['education_level_year'])
-                ->first();
+            ->where('school_location_id', $data['school_location_id'])
+            ->where('education_level_id', $data['education_level_id'])
+            ->where('school_year_id', $data['school_year_id'])
+            ->where('name', $data['name'])
+            ->where('education_level_year', $data['education_level_year'])
+            ->first();
 
         if ($schoolclass !== NULL) {
             $schoolclass->restore();
@@ -880,14 +880,14 @@ class RTTIImportHelper {
     public function getSubjectId($abbreviation, $school_location_id) {
 
         $result = Subject::select('subjects.id as id')
-                ->join('sections as SEC', 'SEC.id', '=', 'subjects.section_id')
-                ->join('school_location_sections as SLS', 'SLS.section_id', '=', 'SEC.id')
-                ->where('subjects.abbreviation', $abbreviation)
-                ->where('SLS.school_location_id', $school_location_id)
-                ->whereNull('SEC.deleted_at')
-                ->whereNull('SLS.deleted_at')
-                ->whereNull('subjects.deleted_at')
-                ->first();
+            ->join('sections as SEC', 'SEC.id', '=', 'subjects.section_id')
+            ->join('school_location_sections as SLS', 'SLS.section_id', '=', 'SEC.id')
+            ->where('subjects.abbreviation', $abbreviation)
+            ->where('SLS.school_location_id', $school_location_id)
+            ->whereNull('SEC.deleted_at')
+            ->whereNull('SLS.deleted_at')
+            ->whereNull('subjects.deleted_at')
+            ->first();
 
         if (is_object($result)) {
             return $result->getKey();
@@ -906,7 +906,7 @@ class RTTIImportHelper {
         $translated_name = $this->translateStudyDirectionName($name);
 
         return EducationLevel::where('name', $translated_name)
-                        ->value('id');
+            ->value('id');
     }
 
     /**
@@ -928,8 +928,8 @@ class RTTIImportHelper {
     public function getUserIdForLocation($external_id, $school_location_id) {
 
         return User::where('external_id', $external_id)
-                        ->where('school_location_id', $school_location_id)
-                        ->value('id');
+            ->where('school_location_id', $school_location_id)
+            ->value('id');
     }
 
     /**
@@ -954,8 +954,8 @@ class RTTIImportHelper {
     public function getStudentIdForClass($user_id, $class_id) {
 
         return Student::where('user_id', $user_id)
-                        ->where('class_id', $class_id)
-                        ->value('user_id');
+            ->where('class_id', $class_id)
+            ->value('user_id');
     }
 
     /**
@@ -968,9 +968,9 @@ class RTTIImportHelper {
     public function getTeachersForClassSubject($user_id, $class_id, $subject_id) {
 
         return Teacher::where('user_id', $user_id)
-                        ->where('class_id', $class_id)
-                        ->where('subject_id', $subject_id)
-                        ->value('user_id');
+            ->where('class_id', $class_id)
+            ->where('subject_id', $subject_id)
+            ->value('user_id');
     }
 
     /**
@@ -985,8 +985,8 @@ class RTTIImportHelper {
 
 
         $mentor = Mentor::withTrashed()
-                ->where('user_id', $teacher_id)
-                ->where('school_class_id', $school_class_id);
+            ->where('user_id', $teacher_id)
+            ->where('school_class_id', $school_class_id);
 
         if ($mentor->value('user_id') != NULL) {
             $mentor->restore();
@@ -1024,11 +1024,11 @@ class RTTIImportHelper {
     public function getSchoolYearId($school_location_id, $year) {
 
         return SchoolLocationSchoolYear::leftJoin('school_years as SY', 'id', '=', 'school_year_id')
-                        ->where('school_location_id', $school_location_id)
-                        ->where('SY.year', $year)
-                        ->whereNull('school_location_school_years.deleted_at')
-                        ->whereNull('SY.deleted_at')
-                        ->value('school_year_id');
+            ->where('school_location_id', $school_location_id)
+            ->where('SY.year', $year)
+            ->whereNull('school_location_school_years.deleted_at')
+            ->whereNull('SY.deleted_at')
+            ->value('school_year_id');
     }
 
     /**
