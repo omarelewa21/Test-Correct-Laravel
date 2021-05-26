@@ -288,22 +288,30 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getEckidAttribute()
     {
-        $passphrase = config('custom.encrypt.eck_id_passphrase');
-        $iv = config('custom.encrypt.eck_id_iv');
-        $method = 'aes-256-cbc';
+//        $passphrase = config('custom.encrypt.eck_id_passphrase');
+//        $iv = config('custom.encrypt.eck_id_iv');
+//        $method = 'aes-256-cbc';
         $eckid = '';
         if(!is_null($this->eckidFromRelation)){
             $eckid = $this->eckidFromRelation->eckid;
         }
-        return openssl_decrypt(base64_decode($eckid), $method, $passphrase, OPENSSL_RAW_DATA, $iv);
+        return $eckid;
+//        return openssl_decrypt(base64_decode($eckid), $method, $passphrase, OPENSSL_RAW_DATA, $iv);
     }
 
     public function setEckidAttribute($eckid)
     {
-        $passphrase = config('custom.encrypt.eck_id_passphrase');
-        $iv = config('custom.encrypt.eck_id_iv');
-        $method = 'aes-256-cbc';
-        $this->attributes['eckid'] = base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
+        //        $passphrase = config('custom.encrypt.eck_id_passphrase');
+//        $iv = config('custom.encrypt.eck_id_iv');
+//        $method = 'aes-256-cbc';
+//        $this->attributes['eckid'] = base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
+        $eckIdUser = $this->eckidFromRelation ?: new EckIdUser;
+        $eckIdUser->eckid = $eckid;
+        $this->eckidFromRelation()->save($eckIdUser);
+    }
+
+    public function scopeFindByEckid($query, $eckid){
+        return $query->select('users.*')->leftJoin('eckid_user', 'users.id', '=', 'eckid_user.user_id')->where('eckid', $eckid);
     }
 
     public function getIsTempTeacher()

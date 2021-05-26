@@ -31,10 +31,18 @@ class EventServiceProvider extends ServiceProvider {
                 'attributes' => $user->getAttributes(),
                 'assertion' => $user->getRawSamlAssertion()
             ];
-            dd($userData);
+            // find user by eckId
+            $user = User::findByEckId($userData['attributes']['eckId'])->first();
+            if ($user) {
+                // update email adress user with the one posted from entree
+                // of alleen als t emailadres eindigt op test-correct.nl
+                // of alleen als die voldoet aan s_<userId>@test-correct.nl of t_<userId>@test-correct.nl
+                $user->redirectToCakeWithTemporaryLogin();
+                exit;
+            }
+
             //$laravelUser = //find user by ID or attribute
                 //if it does not exist create it and go on  or show an error message
-                Auth::login($laravelUser);
         });
     }
 
