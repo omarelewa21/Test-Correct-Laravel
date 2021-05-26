@@ -4,6 +4,7 @@ use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use tcCore\User;
 
 class EventServiceProvider extends ServiceProvider {
 
