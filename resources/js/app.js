@@ -44,8 +44,6 @@ function runCheckFocus() {
     }
 }
 
-runCheckFocus();
-
 function checkPageFocus() {
     if (!parent.skip) {
         if (!document.hasFocus()) {
