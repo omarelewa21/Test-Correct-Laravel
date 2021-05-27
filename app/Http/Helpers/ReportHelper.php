@@ -6,10 +6,14 @@ namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
 use tcCore\FileManagement;
+use tcCore\FileManagementStatusLog;
 use tcCore\QuestionAuthor;
 use tcCore\Role;
 use tcCore\SchoolLocation;
+use tcCore\Scopes\ArchivedScope;
 use tcCore\TestTake;
+use tcCore\TestTakeStatus;
+use tcCore\TestTakeStatusLog;
 use tcCore\User;
 use tcCore\UserRole;
 
@@ -31,6 +35,8 @@ class ReportHelper
         }
         $this->reference = $reference;
         $this->type = (get_class($reference) === User::class) ? self::USER : self::SCHOOLLOCATION;
+
+
     }
 
     protected function attachReference($builder, $table)
@@ -75,8 +81,10 @@ class ReportHelper
 
     protected function nrFileManagementByStatusIdTypeAndDays($statusId, $type, $days)
     {
-        $builder = FileManagement::leftJoin('file_management_status_logs', 'file_management_status_logs.file_management_id', 'file_managements.id')
+        $builder = \DB::table('file_management_status_logs')
+            ->leftJoin('file_managements', 'file_managements.id', 'file_management_status_logs.file_management_id')
             ->where('file_managements.type', $type)
+            ->whereNotNull('file_management_status_logs.file_management_status_id')
             ->where('file_management_status_logs.file_management_status_id', $statusId);
 
         $this->attachReference($builder, 'file_managements');
@@ -164,8 +172,10 @@ class ReportHelper
     public function nrTestTakesByStatusIdAndDays($statusId, $days)
     {
 
-        $builder = TestTake::leftJoin('test_take_status_logs', 'test_take_status_logs.test_take_id', 'test_takes.id')
+        $builder = TestTakeStatusLog::leftJoin('test_takes', 'test_takes.id','test_take_status_logs.test_take_id')
+            ->whereNotNull('test_take_status_logs.test_take_status_id')
             ->where('test_take_status_logs.test_take_status_id', $statusId);
+
 
         $this->attachReference($builder, 'test_takes');
 
@@ -198,7 +208,7 @@ class ReportHelper
 //                $query->select($role->getKeyName())->from($role->getTable())->where('name', 'Teacher')->whereNull('deleted_at');
 //            })->whereNull('deleted_at');
 //        })->where('count_last_test_taken', '>=', $date->format('Y-m-d H:i:s'))->count();
-        $builder2 = TestTake::groupBy('test_takes.user_id')->havingRaw('COUNT(test_takes.user_id) > '.(int) $minimalNrTestTakes)->select('test_takes.user_id');
+        $builder2 = TestTake::withoutGlobalScope(new ArchivedScope)->groupBy('test_takes.user_id')->havingRaw('COUNT(test_takes.user_id) > '.(int) $minimalNrTestTakes)->select('test_takes.user_id');
         $this->addDaysConstraintToBuilder($builder2, $days, 'Y-m-d 00:00:00','test_takes.time_start');
         $builder = User::where('school_location_id', $this->reference->getKey())
             ->join('user_roles', 'user_roles.user_id', 'users.id')
