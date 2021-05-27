@@ -41,6 +41,9 @@ return [
     'teacher'                          => 'Docent',
     'start_test'                       => 'Start test',
     'wait_for_test_take'               => 'Wait for the test to start',
+    'wait_for_test_take_discuss'       => 'Wait for discussing to start',
+    'wait_for_test_take_review'        => 'Wait for reviewing to start',
+    'cannot_review_test'               => 'Test no longer open to review',
     'teacher_introduction_title'       => 'Teacher introduction',
     'teacher_introduction_long'        => 'Teacher introduction will become visible when the test is ready to be taken. Wait for the teacher.',
     'teacher_introduction_unavailable' => 'The teacher did not leave an introduction.',
@@ -64,4 +67,6 @@ return [
     'review_until'                     => 'Review until',
     'no_test_takes_to_review'          => 'No tests to review',
     'no_test_takes_to_discuss'         => 'No tests to discuss',
+    'planned_test'                     => 'Planned test',
+    'test_starts_in'                   => 'Test starts in',
 ];

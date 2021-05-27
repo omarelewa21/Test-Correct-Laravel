@@ -28,14 +28,15 @@
                                          textAlign="right">
                             {{ __('student.take_date') }}
                         </x-table.heading>
-                        <x-table.heading width="200px" textAlign="right">{{ __('student.review_until') }}</x-table.heading>
+                        <x-table.heading width="200px"
+                                         textAlign="right">{{ __('student.review_until') }}</x-table.heading>
                         <x-table.heading width="125px"></x-table.heading>
                     </x-slot>
                     <x-slot name="body">
                         @foreach($testTakes as $testTake)
 
                             <x-table.row class="cursor-pointer"
-                                    {{--                                         wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')"--}}
+                                         wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')"
                             >
                                 <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
                                 <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
@@ -54,7 +55,7 @@
                                     <span>{{ \Carbon\Carbon::parse($testTake->show_results)->format('d-m-Y H:i') }}</span>
                                 </x-table.cell>
                                 <x-table.cell buttonCell class="text-right">
-                                        <x-button.cta>{{ __('student.review') }}</x-button.cta>
+                                    <x-button.cta>{{ __('student.review') }}</x-button.cta>
                                 </x-table.cell>
                             </x-table.row>
                         @endforeach

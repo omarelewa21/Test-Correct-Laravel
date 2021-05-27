@@ -4,7 +4,7 @@
     </div>
     <div class="content-section p-8" wire:init="loadRatings">
         @if($readyToLoad)
-            @if($ratings->count() == 0)
+            @if($testParticipants->count() == 0)
                 <p>{{ __('student.no_recent_grades') }}</p>
             @else
                 <x-table>
@@ -35,24 +35,26 @@
                         <x-table.heading width="70px">{{ __('student.grade') }}</x-table.heading>
                     </x-slot>
                     <x-slot name="body">
-                        @foreach($ratings as $rating)
-                            <x-table.row>
-                                <x-table.cell>{!! $rating->name !!}</x-table.cell>
-                                <x-table.cell>{!! $rating->subject_name !!}</x-table.cell>
-                                <x-table.cell>{!! $this->getTeacherNameForRating($rating->user_id) !!}</x-table.cell>
+                        @foreach($testParticipants as $testParticipant)
+                            <x-table.row class="cursor-pointer"
+                                         wire:click="redirectToWaitingRoom('{!!$testParticipant->test_take_uuid !!}')"
+                            >
+                                <x-table.cell>{!! $testParticipant->name !!}</x-table.cell>
+                                <x-table.cell>{!! $testParticipant->subject_name !!}</x-table.cell>
+                                <x-table.cell>{!! $this->getTeacherNameForRating($testParticipant->user_id) !!}</x-table.cell>
                                 <x-table.cell class="text-right">
-                                    @if($rating->time_start == \Carbon\Carbon::today())
+                                    @if($testParticipant->time_start == \Carbon\Carbon::today())
                                         <span class="capitalize">{{ __('student.today') }}</span>
                                     @else
-                                        <span>{{ \Carbon\Carbon::parse($rating->time_start)->format('d-m-Y') }}</span>
+                                        <span>{{ \Carbon\Carbon::parse($testParticipant->time_start)->format('d-m-Y') }}</span>
                                     @endif
                                 </x-table.cell>
                                 <x-table.cell>
-                                    <x-partials.test-take-type-label type="{{ $rating->retake }}"/>
+                                    <x-partials.test-take-type-label type="{{ $testParticipant->retake }}"/>
                                 </x-table.cell>
                                 <x-table.cell class="text-right">
-                                        <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForRating($rating->rating) !!}">
-                                            {!! str_replace('.',',',round($rating->rating, 1))!!}
+                                        <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testParticipant)) !!}">
+                                            {!! str_replace('.',',',round($this->getRatingToDisplay($testParticipant), 1))!!}
                                         </span>
                                 </x-table.cell>
                             </x-table.row>
@@ -64,7 +66,7 @@
     </div>
     <div>
         @if($readyToLoad)
-            {{ $ratings->links('components.partials.tc-paginator') }}
+            {{ $testParticipants->links('components.partials.tc-paginator') }}
         @endif
     </div>
 </div>

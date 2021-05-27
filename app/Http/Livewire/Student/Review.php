@@ -43,6 +43,7 @@ class Review extends Component
             ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
             ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name', 'test_participants.invigilator_note as participant_invigilator_note')
             ->where('test_participants.user_id', Auth::id())
+            ->where('test_takes.test_take_status_id', TestTakeStatus::STATUS_DISCUSSED)
             ->where('test_takes.show_results', '>=', Carbon::now())
             ->orderBy($orderColumn, $orderDirection)
             ->paginate($this->paginateBy);

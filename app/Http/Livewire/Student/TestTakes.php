@@ -32,6 +32,7 @@ class TestTakes extends Component
     {
         $this->tab = $tab;
         $this->resetPage();
+
     }
 
     private function goToTab()

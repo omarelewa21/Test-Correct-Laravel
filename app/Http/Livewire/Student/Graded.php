@@ -23,7 +23,7 @@ class Graded extends Component
     public function render()
     {
         return view('livewire.student.graded', [
-            'ratings' => $this->readyToLoad ? $this->getRatingsForStudent(null, 10, $this->sortField, $this->sortDirection) : collect()
+            'testParticipants' => $this->readyToLoad ? $this->getRatingsForStudent(null, 10, $this->sortField, $this->sortDirection) : collect()
         ]);
     }
 

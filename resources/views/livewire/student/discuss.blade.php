@@ -38,7 +38,7 @@
                         @foreach($testTakes as $testTake)
 
                             <x-table.row class="cursor-pointer"
-                                    {{--                                         wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')"--}}
+                                         wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')"
                             >
                                 <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
                                 <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>

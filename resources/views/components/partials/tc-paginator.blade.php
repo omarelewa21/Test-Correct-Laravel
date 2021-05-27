@@ -95,6 +95,10 @@
                                     <span>{{ __('pagination.next') }}</span>
                                     <x-icon.chevron/>
                                 </x-button.text-button>
+{{--                                <x-button.text-button wire:click="gotoPage({{ ceil($paginator->total() / $paginator->perPage()) }})" aria-label="{{ __('pagination.next') }}">--}}
+{{--                                    <span>Laatste</span>--}}
+{{--                                    <x-icon.arrow/>--}}
+{{--                                </x-button.text-button>--}}
                             @else
                                 <span aria-disabled="true" aria-label="{{ __('pagination.next') }}">
                                     <x-button.text-button class="invisible">
