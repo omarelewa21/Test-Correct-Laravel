@@ -47,7 +47,7 @@ class SchoolLocationReport extends Model
                     'nr_activated_licenses' => $helper->nrActivatedAccounts(0),//$helper->getActiveLicenses(),
                     'nr_activated_licenses_90' => $helper->nrActivatedAccounts(90),
                     'nr_activated_licenses_365' => $helper->nrActivatedAccounts(365),
-                    'nr_browsealoud_licenses' => $location->count_text2speech,
+                    'nr_browsealoud_licenses' => $location->count_text2speech, // @TODO needs attention, needs to be related to current school year
                     'nr_approved_test_files_7' => $helper->nrApprovedTestFiles(7),
                     'nr_approved_test_files_30' => $helper->nrApprovedTestFiles(30),
                     'nr_approved_test_files_60' => $helper->nrApprovedTestFiles( 60),

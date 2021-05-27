@@ -56,6 +56,9 @@ class ReportHelper
         }
     }
 
+    /**
+     * @TODO limit to period
+     */
     public function nrLicenses($days)
     {
         if ($this->type === self::SCHOOLLOCATION) {
@@ -74,6 +77,9 @@ class ReportHelper
     }
 
 
+    /*
+     * file management logs not correctly saved
+     */
     public function nrApprovedTestFiles($days)
     {
         return $this->nrFileManagementByStatusIdTypeAndDays(7, 'testupload', $days);
@@ -219,6 +225,12 @@ class ReportHelper
         return $builder->count();
     }
 
+    /**
+     * @TODO limit on students
+     * @TODO remove @test-correct.nl domain users
+     * @TODO what is activated in last 90 days. only logged in or not logged in earlier??
+     * @TODO limit to this school year
+     */
     public function nrActivatedAccounts($days)
     {
 
