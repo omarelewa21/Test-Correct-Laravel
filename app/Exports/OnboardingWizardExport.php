@@ -18,7 +18,7 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Events\BeforeExport;
 use tcCore\OnboardingWizardReport;
 
-class OnboardingWizardExport implements WithEvents, FromCollection, WithHeadings ,WithColumnFormatting
+class OnboardingWizardExport implements WithEvents, FromCollection, WithHeadings
 {
 
     public function headings(): array
@@ -46,18 +46,4 @@ class OnboardingWizardExport implements WithEvents, FromCollection, WithHeadings
 
         ];
     }
-
-    /**
-     * @return array
-     */
-    
-    public function columnFormats(): array
-    {
-        return [
-            'AL' => NumberFormat::FORMAT_DATE_DATETIME,
-            'AM' => NumberFormat::FORMAT_DATE_DATETIME,
-        ];
-    }
-    
-
 }
