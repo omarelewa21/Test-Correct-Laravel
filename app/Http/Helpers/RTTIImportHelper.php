@@ -109,6 +109,8 @@ class RTTIImportHelper
      */
     public $can_create_users_for_teacher = false;
 
+    public $should_use_import_email_pattern = false;
+
     public $can_use_dummy_subject = false;
 
     const DUMMY_SECTION_NAME = 'Magister sectie';
@@ -129,6 +131,7 @@ class RTTIImportHelper
     {
         $instance = new self($email_domain);
         $instance->can_create_users_for_teacher = true;
+        $instance->should_use_import_email_pattern = true;
         $instance->can_use_dummy_subject = true;
 
         $instance->log_name = date("mdh_i_s");
@@ -209,7 +212,8 @@ class RTTIImportHelper
                     $student_name_suffix = $row[$column_index['leeTussenvoegsels']];
                     $student_name_last = $row[$column_index['leeAchternaam']];
 
-                    $student_eckid = array_key_exists('leeEckid', $column_index) ?  $row[$column_index['leeEckid']] : null;
+                    $student_eckid = array_key_exists('leeEckid',
+                        $column_index) ? $row[$column_index['leeEckid']] : null;
 
                     $student_email = array_key_exists('leeEmail',
                         $column_index) ? $row[$column_index['leeEmail']] : null;
@@ -222,7 +226,8 @@ class RTTIImportHelper
                     $teacher_name_suffix = $row[$column_index['docTussenvoegsels']];
                     $teacher_name_last = $row[$column_index['docAchternaam']];
 
-                    $teacher_eckid = array_key_exists('docEckid', $column_index) ?  $row[$column_index['docEckid']] : null;
+                    $teacher_eckid = array_key_exists('docEckid',
+                        $column_index) ? $row[$column_index['docEckid']] : null;
 
                     $teacher_email = array_key_exists('docEmail',
                         $column_index) ? $row[$column_index['docEmail']] : null;
@@ -414,7 +419,7 @@ class RTTIImportHelper
 
                         ];
 
-                        $user_id = $this->createOrRestoreUser($user_data);
+                        $user_id = $this->createOrRestoreUser($user_data, 'student');
 
                         $this->importLog('User created for student with id '.$user_id.' and external code '.$student_external_code);
 
@@ -484,7 +489,7 @@ class RTTIImportHelper
                                 'user_roles'         => [1]
                             ];
 
-                            $user_id = $this->createOrRestoreUser($user_data);
+                            $user_id = $this->createOrRestoreUser($user_data, 'teacher');
 
                             $this->importLog('Teacher user created with id '.$user_id);
                             if ($subject_id !== null) {
@@ -974,7 +979,7 @@ class RTTIImportHelper
      * @param  type  $user_data
      * @return type
      */
-    public function createOrRestoreUser($user_data)
+    public function createOrRestoreUser($user_data, $forRole = 'student')
     {
 
         $user = User::withTrashed()
@@ -992,9 +997,16 @@ class RTTIImportHelper
             if (array_key_exists('eckid', $user_data)) {
                 if ($user_data['eckid']) {
                     $user->eckid = $user_data['eckid'];
-                    $user->save();
+
                 }
             }
+            $user->save();
+            if ($this->should_use_import_email_pattern) {
+                $pattern = ($forRole === 'teacher') ? User::TEACHER_IMPORT_EMAIL_PATTERN : User::STUDENT_IMPORT_EMAIL_PATTERN;
+                $user->username = sprintf($pattern, $user->id);
+                $user->save();
+            }
+
         }
 
         return $user->id;

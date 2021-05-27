@@ -64,6 +64,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     protected $appends = ['has_text2speech', 'active_text2speech'];
 
+    const STUDENT_IMPORT_EMAIL_PATTERN = 's_%d@test-correct.nl';
+    const TEACHER_IMPORT_EMAIL_PATTERN = 't_%d@test-correct.nl';
+
     /**
      * The attributes that are mass assignable.
      *

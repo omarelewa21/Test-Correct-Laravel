@@ -72,7 +72,7 @@ class MagisterHelperTest extends TestCase
     }
 
     /** @test */
-    public function it_should_import_users_with_eckId()
+    public function it_should_import_users_with_eckId_and_add_email_addresses()
     {
         $this->assertNull(User::findByEckId('eckid_L1')->first());
         $this->assertNull(User::findByEckId('eckid_T1')->first());
@@ -81,10 +81,19 @@ class MagisterHelperTest extends TestCase
 
         $this->assertNotNull($student = User::findByEckId('eckid_L1')->first());
         $this->assertTrue($student->isA('student'));
+        $this->assertEquals(
+            sprintf(User::STUDENT_IMPORT_EMAIL_PATTERN, $student->id),
+            $student->username
+        );
 
         $this->assertNotNull($teacher = User::findByEckId('eckid_T1')->first());
         $this->assertTrue($teacher->isA('teacher'));
+        $this->assertEquals(
+            sprintf(User::TEACHER_IMPORT_EMAIL_PATTERN, $teacher->id),
+            $teacher->username
+        );
     }
+
 
 
     /** @test */
