@@ -112,8 +112,9 @@ class Test extends BaseModel
      */
     public function author()
     {
-        return $this->belongsTo('tcCore\User');
+        return $this->belongsTo('tcCore\User')->withTrashed();
     }
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

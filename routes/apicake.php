@@ -47,6 +47,7 @@ Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceC
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 
+    Route::get('authors',['as' => 'authors','uses' => 'AuthorsController@index']);
     Route::get('/deployment',['uses' => 'DeploymentController@index']);
     Route::get('/deployment/{deployment}',['uses' => 'DeploymentController@show']);
     Route::post('/deployment',['uses' => 'DeploymentController@create']);
