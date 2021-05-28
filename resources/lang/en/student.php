@@ -69,4 +69,5 @@ return [
     'no_test_takes_to_discuss'         => 'No tests to discuss',
     'planned_test'                     => 'Planned test',
     'test_starts_in'                   => 'Test starts in',
+    'fill_in_test_code_from_teacher'   => 'Fill in the test code the teacher is showing on the screen',
 ];

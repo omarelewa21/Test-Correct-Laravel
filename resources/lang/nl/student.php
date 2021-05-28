@@ -71,4 +71,5 @@ return [
     'no_test_takes_to_discuss'         => 'Er zijn geen toetsen om te bespreken',
     'planned_test'                     => 'Geplande toets',
     'test_starts_in'                   => 'Toets maken start in',
+    'fill_in_test_code_from_teacher'   => 'Voer de toetscode in die de docent toont op het scherm',
 ];
