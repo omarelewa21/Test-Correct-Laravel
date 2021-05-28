@@ -14,7 +14,7 @@
                     <x-icon.close class="text-white"/>
                 </x-button.primary>
             </div>
-            <div class="flex w-full h-full rounded-10">
+            <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper">
                 @if($attachment->type == 'video')
                     <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
                 @elseif($attachment->file_mime_type == 'application/pdf')
