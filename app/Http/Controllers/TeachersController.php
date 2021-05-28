@@ -220,6 +220,7 @@ class TeachersController extends Controller
                                 'subject_id' => $subjectId,
                                 'user_id'    => Auth::id(),
                             ]);
+                            logger('checkox'. print_r($subjectValue, true));
                             $this->updateImportLog($subjectValue, $teacher);
                             $updateCounter++;
                         }
@@ -230,7 +231,7 @@ class TeachersController extends Controller
                         ])->first();
                         $teacher->subject_id = $subjectValue;
                         $teacher->save();
-                        $this->updateImportLog($subjectValue, $teacher);
+                        $this->updateImportLog(['checked' => 'on'], $teacher);
                         $updateCounter++;
                     }
                 }
@@ -251,7 +252,7 @@ class TeachersController extends Controller
             $importLog = $teacher->importLog;
 
             if ($importLog == null) {
-                $importLog = new TeacherImportLog();
+                $importLog = new TeacherImportLog;
             }
 
             if (Auth::user()->isA('teacher') && is_null($importLog->checked_by_teacher)) {

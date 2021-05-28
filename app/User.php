@@ -67,6 +67,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     const STUDENT_IMPORT_EMAIL_PATTERN = 's_%d@test-correct.nl';
     const TEACHER_IMPORT_EMAIL_PATTERN = 't_%d@test-correct.nl';
 
+    const STUDENT_IMPORT_PASSWORD_PATTERN = 'S%dTC#2014';
+    const TEACHER_IMPORT_PASSWORD_PATTERN = 'T%dTC#2014';
+
     /**
      * The attributes that are mass assignable.
      *

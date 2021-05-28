@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use tcCore\Http\Helpers\MagisterHelper;
 use tcCore\Http\Helpers\RTTIImportHelper;
 use tcCore\SchoolLocation;
@@ -53,7 +54,7 @@ class MagisterHelperTest extends TestCase
 //            $processResult['data']
 //        );
 
-        $this->assertEquals(28, $schoolLocation->users()->where('demo',0)->count());
+        $this->assertEquals(28, $schoolLocation->users()->where('demo', 0)->count());
         // de import bevat 22 leerlingen
         $this->assertEquals(22, $schoolLocation->users->filter(function ($user) {
             return $user->isA('student') && $user->demo === 0;
@@ -94,6 +95,29 @@ class MagisterHelperTest extends TestCase
         );
     }
 
+    /** @test */
+    public function it_should_import_users_with_password_when_not_on_production()
+    {
+        list($schoolLocation, $processResult) = $this->runMagisterImport();
+
+        $this->assertNotNull($student = User::findByEckId('eckid_L1')->first());
+        $this->assertTrue($student->isA('student'));
+        $this->assertTrue(
+            Hash::check(
+                sprintf(User::STUDENT_IMPORT_PASSWORD_PATTERN, $student->id),
+                $student->password
+            )
+        );
+
+        $this->assertNotNull($teacher = User::findByEckId('eckid_T1')->first());
+        $this->assertTrue($teacher->isA('teacher'));
+        $this->assertTrue(
+            Hash::check(
+                sprintf(User::TEACHER_IMPORT_PASSWORD_PATTERN, $teacher->id),
+                $teacher->password
+            )
+        );
+    }
 
 
     /** @test */

@@ -8,6 +8,8 @@ namespace tcCore\Http\Helpers;
  * and open the template in the editor.
  */
 
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
@@ -111,6 +113,8 @@ class RTTIImportHelper
 
     public $should_use_import_email_pattern = false;
 
+    public $should_use_import_password_pattern = false;
+
     public $can_use_dummy_subject = false;
 
     const DUMMY_SECTION_NAME = 'Magister sectie';
@@ -132,6 +136,10 @@ class RTTIImportHelper
         $instance = new self($email_domain);
         $instance->can_create_users_for_teacher = true;
         $instance->should_use_import_email_pattern = true;
+        if (App::environment(['testing', 'local'])) {
+            $instance->should_use_import_password_pattern = true;
+        }
+
         $instance->can_use_dummy_subject = true;
 
         $instance->log_name = date("mdh_i_s");
@@ -1004,6 +1012,14 @@ class RTTIImportHelper
             if ($this->should_use_import_email_pattern) {
                 $pattern = ($forRole === 'teacher') ? User::TEACHER_IMPORT_EMAIL_PATTERN : User::STUDENT_IMPORT_EMAIL_PATTERN;
                 $user->username = sprintf($pattern, $user->id);
+            }
+
+            if ($this->should_use_import_password_pattern) {
+                $pattern = ($forRole === 'teacher') ? User::TEACHER_IMPORT_PASSWORD_PATTERN : User::STUDENT_IMPORT_PASSWORD_PATTERN;
+                $user->password = Hash::make(sprintf($pattern, $user->id));
+            }
+
+            if ($user->isDirty()) {
                 $user->save();
             }
 
