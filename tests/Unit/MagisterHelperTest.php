@@ -117,25 +117,27 @@ class MagisterHelperTest extends TestCase
                 $teacher->password
             )
         );
+
+
     }
 
 
     /** @test */
-    public function uwlrSoapResultToCVs()
-    {
-        $helper = (new MagisterHelper)
-            ->parseResult()
-            ->storeInDB();
+//    public function uwlrSoapResultToCVs()
+//    {
+//        $helper = (new MagisterHelper)
+//            ->parseResult()
+//            ->storeInDB();
+//
+//        UwlrSoapResult::first()->toCVS();
+//    }
 
-        UwlrSoapResult::first()->toCVS();
-    }
-
-    /** @test */
-    public function test_service()
-    {
-        dd(MagisterHelper::guzzle());
-
-    }
+//    /** @test */
+//    public function test_service()
+//    {
+//        dd(MagisterHelper::guzzle());
+//
+//    }
 
     /**
      * @return array
@@ -158,6 +160,13 @@ class MagisterHelperTest extends TestCase
 
         $processResult = $helper->process();
         return array($schoolLocation, $processResult);
+    }
+
+
+    protected function tearDown(): void
+    {
+        UwlrSoapEntry::deleteMagisterData();
+        parent::tearDown();
     }
 
 

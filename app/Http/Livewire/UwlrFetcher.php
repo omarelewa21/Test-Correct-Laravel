@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Http\Helpers\MagisterHelper;
 use tcCore\Http\Helpers\SomeTodayHelper;
+use tcCore\UwlrSoapEntry;
 
 class UwlrFetcher extends Component
 {
@@ -24,30 +25,14 @@ class UwlrFetcher extends Component
 
     public $currentSource = 0;
 
-    public $uwlrDatasource = [
-        [
-            'name'            => 'Magister TestService',
-            'client_code'     => 'OV',
-            'client_name' => 'overig',
-            'school_year'     => '2019-2020',
-            'brin_code'       => '99DE',
-            'dependance_code' => '00',
-        ], [
-            'name'            => 'SomeToday TestService',
-            'client_code'     => 'OV',
-            'client_name'     => 'overige',
-            'school_year'     => '2019-2020',
-            'brin_code'       => '06SS',
-            'dependance_code' => '00',
-        ],
-    ];
+    public $uwlrDatasource = [ ];
 
     private $report;
 
     public function mount()
     {
-        Auth::loginUsingId(755);
         $this->setSearchFields();
+        $this->uwlrDatasource = UwlrSoapEntry::DATASOURCES;
     }
 
     public function updatedCurrentSource()

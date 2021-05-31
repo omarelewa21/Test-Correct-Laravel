@@ -5,11 +5,16 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Http\Helpers\RTTIImportHelper;
+use tcCore\SchoolClass;
+use tcCore\SchoolLocation;
+use tcCore\User;
 use tcCore\UwlrSoapEntry;
 use tcCore\UwlrSoapResult;
 
 class UwlrGrid extends Component
 {
+    public $showSuccessDialog = false;
+    public $successDialogMessage = '';
     public $showImportModal = false;
     public $showProcessResultModal = false;
     public $resultSets;
@@ -21,23 +26,32 @@ class UwlrGrid extends Component
     public $showErrorModal = false;
     public $errorMessages = '';
 
+
     public function mount()
     {
-        Auth::loginUsingId(755);
         $this->resultSets = UwlrSoapResult::orderBy('created_at', 'desc')->with('entries')->get();
     }
 
-    public function activateResult($id) {
+    public function activateResult($id)
+    {
 
         $this->activeResult = UwlrSoapResult::find($id)->asData()->toArray();
 
         $this->showImportModal = true;
     }
 
-    public function triggerErrorModal($id){
+    public function triggerErrorModal($id)
+    {
         $this->errorMessages = UwlrSoapResult::find($id)->error_messages;
 
         $this->showErrorModal = true;
+    }
+
+    public function deleteMagister()
+    {
+        UwlrSoapEntry::deleteMagisterData();
+        $this->successDialogMessage = 'Magister data succesvol verwijderd';
+        $this->showSuccessDialog = true;
     }
 
     public function processResult($id)
@@ -48,18 +62,19 @@ class UwlrGrid extends Component
         $this->processingResultErrors = [];
     }
 
-    public function startProcessingResult(){
+    public function startProcessingResult()
+    {
         $helper = RTTIImportHelper::initWithUwlrSoapResult(
             UwlrSoapResult::find($this->processingResultId),
             'sobit.nl'
         );
 
         $result = $helper->process();
-        if (array_key_exists('errors', $result)){
+        if (array_key_exists('errors', $result)) {
             if (!is_array($result['errors'])) {
                 $result['errors'] = [$result['errors']];
             }
-            $this->processingResultErrors =  $result['errors'];
+            $this->processingResultErrors = $result['errors'];
             return false;
         }
 
@@ -71,17 +86,20 @@ class UwlrGrid extends Component
         return $this->redirect(route('uwlr.fetcher'));
     }
 
-    public function getModalActiveTabHtmlProperty(){
-        if (!$this->activeResult) return [];
+    public function getModalActiveTabHtmlProperty()
+    {
+        if (!$this->activeResult) {
+            return [];
+        }
 
-        $arr =$this->activeResult[$this->modalActiveTab];
-        foreach($arr as $key => $obj) {
+        $arr = $this->activeResult[$this->modalActiveTab];
+        foreach ($arr as $key => $obj) {
             $r = $obj;
             if (is_object($obj)) {
                 $r = (array) $obj;
             }
 
-            foreach($r as $k => $value) {
+            foreach ($r as $k => $value) {
                 if (in_array($k, ['groepen', 'groep', 'samengestelde_groepen'])) {
                     unset($r[$k]);
                 }
