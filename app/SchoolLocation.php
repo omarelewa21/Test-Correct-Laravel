@@ -551,7 +551,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
             });
         } elseif (!in_array('Administrator', $roles)) {
             $user = ActingAsHelper::getInstance()->getUser();
-            if ($user->getAttribute('school_id') !== null && $user->getAttribute('school_location_id') !== null) {
+        if ($user->getAttribute('school_id') !== null && $user->getAttribute('school_location_id') !== null) {
                 $query->where(function ($query) use ($user) {
                     $query->where('id', $user->getAttribute('school_location_id'))
                         ->orWhere('school_id', $user->getAttribute('school_id'));

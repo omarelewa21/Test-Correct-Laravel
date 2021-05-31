@@ -64,6 +64,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     protected $appends = ['has_text2speech', 'active_text2speech','external_id'];
 
+    const STUDENT_IMPORT_EMAIL_PATTERN = 's_%d@test-correct.nl';
+    const TEACHER_IMPORT_EMAIL_PATTERN = 't_%d@test-correct.nl';
+
+    const STUDENT_IMPORT_PASSWORD_PATTERN = 'S%dTC#2014';
+    const TEACHER_IMPORT_PASSWORD_PATTERN = 'T%dTC#2014';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -345,7 +351,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function setEckidAttribute($eckid)
     {
-        //        $passphrase = config('custom.encrypt.eck_id_passphrase');
+//        $passphrase = config('custom.encrypt.eck_id_passphrase');
 //        $iv = config('custom.encrypt.eck_id_iv');
 //        $method = 'aes-256-cbc';
 //        $this->attributes['eckid'] = base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv));

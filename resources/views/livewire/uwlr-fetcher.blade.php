@@ -8,6 +8,15 @@
 
     <div class="content-section p-8">
         <div class="flex space-x-4 mt-4">
+            <x-input.group label="DataSource" class="w-1/2">
+                <x-input.select wire:model="currentSource">
+                    @foreach($this->uwlrDatasource as $key => $source)
+                        <option value="{{ $key }}">{{ $source['name']  }}</option>
+                    @endforeach
+                </x-input.select>
+            </x-input.group>
+        </div>
+        <div class="flex space-x-4 mt-4">
             <x-input.group label="Klant code" class="w-1/2">
                 <x-input.text wire:model="clientCode"></x-input.text>
             </x-input.group>
