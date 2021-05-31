@@ -37,7 +37,6 @@
                                  class="question-number rounded-full text-center cursor-pointer flex items-center justify-center
                                     {!! $key === ($this->q - 1) ? 'active' : ''!!}"
                                  wire:click="goToQuestion({{ 1+$key}})"
-                                 x-on:current-question-answered.window="$wire.updateQuestionIndicatorColor()"
                         >
                             <span class="align-middle px-1.5">{{ ++$key }}</span>
                         </section>

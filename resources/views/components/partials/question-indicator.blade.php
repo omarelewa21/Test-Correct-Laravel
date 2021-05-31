@@ -3,7 +3,7 @@
          x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"
          x-ref="questionindicator"
          x-init="setTimeout(() => {
-                    $dispatch('current-updated', {'current': {{ $this->q }} });
+                    $dispatch('current-updated', {'current': activeQuestion });
                     navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});
                     }, 1);
                  totalScrollWidth = $refs.navscrollbar.offsetWidth;
@@ -49,7 +49,6 @@
                                          "
                                  id="nav_item_{{ 1+$key}}"
                                  wire:click="goToQuestion({{ 1+$key}})"
-                                 x-on:current-question-answered.window="$wire.updateQuestionIndicatorColor()"
                         >
                             <span id="nav_{{$q['id']}}" wire:key="nav_{{$q['id']}}"
                                   class="align-middle px-1.5">{{ ++$key }}</span>
