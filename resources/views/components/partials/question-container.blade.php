@@ -13,7 +13,7 @@
      x-transition:enter="transition duration-200"
      x-transition:enter-start="opacity-0 delay-200"
      x-transition:enter-end="opacity-100"
-     x-on:change="$dispatch('current-question-answered')"
+     x-on:change="Livewire.emit('current-question-answered', {{ $number }})"
      x-on:refresh-question.window="
         if ($event.detail.indexOf({{ $number }}) !== -1) {
                 $wire.set('closed', true);

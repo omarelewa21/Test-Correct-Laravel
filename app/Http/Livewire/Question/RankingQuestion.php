@@ -60,7 +60,7 @@ class RankingQuestion extends Component
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->createAnswerStruct();
-        $this->dispatchBrowserEvent('current-question-answered');
+        $this->emitTo('question.navigation','current-question-answered', $this->number);
     }
 
 

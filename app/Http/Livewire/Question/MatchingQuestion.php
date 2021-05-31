@@ -66,7 +66,7 @@ class MatchingQuestion extends Component
 
         $this->answerStruct = $dbstring;
 
-        $this->dispatchBrowserEvent('current-question-answered');
+        $this->emitTo('question.navigation','current-question-answered', $this->number);
     }
 
 

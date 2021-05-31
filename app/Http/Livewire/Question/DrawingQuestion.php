@@ -60,7 +60,7 @@ class DrawingQuestion extends Component
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->drawingModalOpened = false;
-        $this->dispatchBrowserEvent('current-question-answered');
+        $this->emitTo('question.navigation','current-question-answered', $this->number);
     }
 
     public function render()
