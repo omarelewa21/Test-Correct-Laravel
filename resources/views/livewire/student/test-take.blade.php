@@ -24,4 +24,35 @@
     </x-modal>
 
     <x-notification :notificationTimeout="$notificationTimeout"/>
+    @push('scripts')
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                document.renderCounter = 0;
+                renderMathML();
+                // Livewire.hook('component.initialized', (component) => {})
+                // Livewire.hook('element.initialized', (el, component) => {})
+                // Livewire.hook('element.updating', (fromEl, toEl, component) => {})
+                Livewire.hook('element.updated', (el, component) => {
+                    renderMathML()
+                });
+                // Livewire.hook('element.removed', (el, component) => {})
+                // Livewire.hook('message.sent', (message, component) => {})
+                // Livewire.hook('message.failed', (message, component) => {})
+                // Livewire.hook('message.received', (message, component) => {})
+                // Livewire.hook('message.processed', (message, component) => {})
+            });
+
+            function renderMathML() {
+                if ('com' in window && 'wiris' in window.com && 'js' in window.com.wiris && 'JsPluginViewer' in window.com.wiris.js) {
+                    com.wiris.js.JsPluginViewer.parseDocument();
+                } else {
+                    // try again in half a second but no more then for 5 seconds.
+                    if (document.renderCounter < 10) {
+                        document.renderCounter++;
+                        setTimeout(() => renderMathML(), 500);
+                    }
+                }
+            }
+        </script>
+    @endpush
 </div>
