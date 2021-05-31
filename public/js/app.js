@@ -3837,7 +3837,7 @@ var lastLostFocus = {
 };
 var alert = false;
 var checkFocusTimer = false;
-var Notify = {
+Notify = {
   notify: function notify(message, initialType) {
     var type = initialType ? initialType : 'info';
     window.dispatchEvent(new CustomEvent('notify', {
@@ -3849,13 +3849,11 @@ var Notify = {
   }
 };
 
-function runCheckFocus() {
+runCheckFocus = function runCheckFocus() {
   if (!checkFocusTimer) {
     checkFocusTimer = setInterval(checkPageFocus, 300);
   }
-}
-
-runCheckFocus();
+};
 
 function checkPageFocus() {
   if (!parent.skip) {
@@ -3897,7 +3895,7 @@ function shouldLostFocusBeReported(reason) {
   return false;
 }
 
-var Core = {
+Core = {
   lostFocus: function lostFocus(reason) {
     if (reason == "printscreen") {
       Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');

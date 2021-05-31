@@ -69,4 +69,7 @@ trait WithPreviewAttachments
             && ($this->attachment->audioHasCurrentTime()
                 || $this->pressedPlay);
     }
+
+    public function updateAnswerIdForTestParticipant()
+    {}
 }

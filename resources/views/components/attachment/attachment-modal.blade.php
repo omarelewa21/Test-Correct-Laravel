@@ -1,6 +1,6 @@
 @if($attachment)
     <div id="attachment"
-         class="absolute -top-28 left-20 z-30 w-4/6 shadow-lg border border-blue-grey rounded-10 bg-black" style="height: 600px">
+         class="fixed top-5 left-5 z-30 w-5/6 lg:w-4/6 h-[400px] lg:h-[500px] shadow-lg border border-blue-grey rounded-10 bg-black">
         <div class="flex-col relative h-full rounded-10">
             <div class="flex absolute top-0 right-0 justify-end space-x-2">
                 <x-button.secondary id="attachmentdrag" class="rotate-svg-45">
@@ -14,7 +14,7 @@
                     <x-icon.close class="text-white"/>
                 </x-button.primary>
             </div>
-            <div class="flex w-full h-full rounded-10">
+            <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper">
                 @if($attachment->type == 'video')
                     <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
                 @elseif($attachment->file_mime_type == 'application/pdf')

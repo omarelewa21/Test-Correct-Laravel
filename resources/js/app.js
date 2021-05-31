@@ -31,20 +31,18 @@ let lastLostFocus = {notification: false, delay: 3 * 60, reported: {}};
 let alert = false;
 let checkFocusTimer = false;
 
-let Notify = {
+Notify = {
     notify: function (message, initialType) {
         let type = initialType ? initialType : 'info';
         window.dispatchEvent(new CustomEvent('notify', {detail: {message, type}}))
     }
 }
 
-function runCheckFocus() {
+runCheckFocus = function() {
     if (!checkFocusTimer) {
         checkFocusTimer = setInterval(checkPageFocus, 300);
     }
 }
-
-runCheckFocus();
 
 function checkPageFocus() {
     if (!parent.skip) {
@@ -84,7 +82,7 @@ function shouldLostFocusBeReported(reason) {
     return false;
 }
 
-let Core = {
+Core = {
     lostFocus: function (reason) {
         if (reason == "printscreen") {
             Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
