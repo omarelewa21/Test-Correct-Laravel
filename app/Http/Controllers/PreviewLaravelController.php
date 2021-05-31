@@ -15,45 +15,11 @@ class PreviewLaravelController extends Controller
         $data = self::getData($test);
         $current = $request->get('q') ?: '1';
         $uuid = $test->uuid;
+        $testId = $test->getKey();
         $answers = $data;
         $nav = $data;
-//        $answers = self::getAnswers($data);
-//        $nav = $this->getNavigationData($data);
 
-        return view('test-preview', compact(['data', 'nav', 'uuid', 'answers', 'current']));
-    }
-
-    public function getAnswers($data): array
-    {
-        $result = [];
-
-        $testParticipant->answers->each(function ($answer) use ($testTake, &$result, $testQuestions) {
-                $question = $testQuestions->first(function ($question) use ($answer) {
-                    return $question->getKey() === $answer->question_id;
-                });
-
-                $groupId = 0;
-                $groupCloseable = 0;
-                if ($question->is_subquestion) {
-                    $groupQuestion = GroupQuestionQuestion::whereQuestionId($question->getKey())->whereIn('group_question_id', function ($query) use ($testTake) {
-                        $query->select('question_id')->from('test_questions')->where('test_id', $testTake->test_id);
-                    })->first();
-                    $groupId = $groupQuestion->group_question_id;
-                    $groupCloseable = $groupQuestion->groupQuestion->question->closeable;
-                }
-
-                $result[$question->uuid] = [
-                    'id'              => $answer->getKey(),
-                    'answer'          => $answer->json,
-                    'answered'        => $answer->is_answered,
-                    'closed'          => $answer->closed,
-                    'closed_group'    => $answer->closed_group,
-                    'group_id'        => $groupId,
-                    'group_closeable' => $groupCloseable
-                ];
-            });
-
-        return $result;
+        return view('test-preview', compact(['data', 'nav', 'uuid', 'answers', 'current', 'testId']));
     }
 
     public static function getData(Test $test)
@@ -74,35 +40,6 @@ class PreviewLaravelController extends Controller
             $testQuestion->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
 
             return collect([$testQuestion->question]);
-        });
-    }
-
-    /**
-     * @param $data
-     * @param $answers
-     * @return mixed
-     */
-    private function getNavigationData($data)
-    {
-        return $data->map(function ($question) {
-            $answer = $question->question->first(function ($answer, $questionUuid) use ($question) {
-
-                return $question->uuid == $questionUuid;
-            });
-
-            return [
-                'uuid'      => $question->uuid,
-                'id'        => $question->id,
-                'answer_id' => $answer['id'],
-                'answered'  => $answer['answered'],
-                'closeable' => $question->closeable,
-                'closed'    => $answer['closed'],
-                'group'     => [
-                    'id'        => $answer['group_id'],
-                    'closeable' => $answer['group_closeable'],
-                    'closed'    => $answer['closed_group'],
-                ],
-            ];
         });
     }
 }

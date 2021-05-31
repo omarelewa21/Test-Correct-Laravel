@@ -6,7 +6,9 @@
 	"type": "project",
 	"require": {
 		"php": "^7.2.5",
-		"artisaninweb/laravel-soap": "0.3.0.9",
+		"aacotroneo/laravel-saml2": "^2.1",
+		"artisaninweb/laravel-soap": "0.3.0.10",
+		"bonecms/laravel-captcha": "^2.2",
 		"bugsnag/bugsnag-laravel": "^2.0",
 		"doctrine/dbal": "^2.9",
 		"dyrynda/laravel-efficient-uuid": "^4.1",

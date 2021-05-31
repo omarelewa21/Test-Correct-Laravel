@@ -8,6 +8,10 @@
 -- Purchase here: https://tailwindui.com/
 --}}
 
-<td {{ $attributes->merge(['class' => 'px-3 py-4 whitespace-no-wrap text-sm leading-5 text-cool-gray-900']) }}>
-        {{ $slot }}
+@props(['buttonCell' => null])
+@php
+    $buttonCell = $buttonCell ? 'py-2' : 'py-5 overflow-ellipsis overflow-hidden';
+@endphp
+<td {{ $attributes->merge(['class' => 'px-4 whitespace-nowrap max-w-0 '.$buttonCell ]) }}>
+    {{ $slot }}
 </td>

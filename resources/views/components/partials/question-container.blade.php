@@ -4,6 +4,7 @@
 ])
 <div x-cloak
      x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0 }"
+     x-init="$watch('showMe', () => { if(showMe) { $dispatch('visible-component', {el: $el});} })"
      x-show="showMe"
      x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current);"
      x-transition:enter="transition duration-200"
@@ -80,7 +81,7 @@
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 @if($this->group)
-                    <div class="mb-5" wire:ignore>{!! $this->group->question->getQuestionHtml() !!}</div>
+                    <div class="mb-5" questionHtml wire:ignore>{!! $this->group->question->getQuestionHtml() !!}</div>
                 @endif
                 {{ $slot }}
             @else

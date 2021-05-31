@@ -4,10 +4,12 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Traits\WithUpdatingHandling;
 use tcCore\Question;
 
 class Navigation extends Component
 {
+    use WithUpdatingHandling;
     public $nav;
     public $testTakeUuid;
     public $q;

@@ -1,8 +1,9 @@
 <div class="question-indicator w-full">
     <div class="flex-col"
-         x-data="{ showSlider: false, scrollStep: 100 }"
+         x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0 }"
          x-ref="questionindicator"
          x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q }} })}, 1);
+                totalScrollWidth = $refs.navscrollbar.offsetWidth;
                 navigationResizer.resize($data);
                 "
          x-on:resize.window.debounce.250ms="navigationResizer.resize($el.__x.$data);"
@@ -18,11 +19,11 @@
     >
         <div class="flex">
             <div class="flex slider-buttons relative -top-px z-10" x-ref="sliderbuttons" x-show="showSlider">
-                <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110"
+                <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
                         @click="$refs.navscrollbar.scrollTo({left: 0,behavior: 'smooth'})">
                     <x-icon.arrow-last/>
                 </button>
-                <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110"
+                <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
                         @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft - scrollStep,behavior: 'smooth'});">
                     <x-icon.chevron/>
                 </button>
@@ -79,12 +80,12 @@
 
             </div>
             <div class="flex slider-buttons relative -top-px z-10" x-ref="sliderbuttons" x-show="showSlider">
-                <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110"
+                <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
                         @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft + scrollStep,behavior: 'smooth'})">
                     <x-icon.chevron/>
                 </button>
-                <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110"
-                        @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.offsetWidth,behavior: 'smooth'})">
+                <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
+                        @click="$refs.navscrollbar.scrollTo({left: totalScrollWidth,behavior: 'smooth'});">
                     <x-icon.arrow-last />
                 </button>
             </div>

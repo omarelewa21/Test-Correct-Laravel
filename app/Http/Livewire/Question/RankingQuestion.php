@@ -9,10 +9,11 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
+use tcCore\Http\Traits\WithUpdatingHandling;
 
 class RankingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
 
     public $uuid;
     public $answer;
@@ -65,6 +66,7 @@ class RankingQuestion extends Component
 
     public function render()
     {
+        $this->dispatchDragItemWidth();
         return view('livewire.question.ranking-question');
     }
 
@@ -82,5 +84,10 @@ class RankingQuestion extends Component
     public function hydrateAnswerStruct()
     {
         $this->createAnswerStruct();
+    }
+
+    public function dispatchDragItemWidth()
+    {
+        $this->dispatchBrowserEvent('add-width-to-drag-item');
     }
 }
