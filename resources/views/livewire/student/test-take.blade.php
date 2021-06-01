@@ -66,9 +66,9 @@
 
             function lostFocus(reason) {
                 if (reason == "printscreen") {
-                    Notify.notify('{{__(\'test-take.Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd\')}}', 'error');
+                    Notify.notify({{__('test-take.Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd')}}, 'error');
                 } else {
-                    Notify.notify('{{__(\'test-take.Het is niet toegestaan om uit de app te gaan\')}}', 'error');
+                    Notify.notify({{__('test-take.Het is niet toegestaan om uit de app te gaan')}}, 'error');
                 }
 
                 if (shouldLostFocusBeReported(reason)) {
