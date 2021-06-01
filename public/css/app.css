@@ -59,6 +59,10 @@
 .text-button > span {
     vertical-align: middle;
 }
+.text-button:disabled {
+    color: var(--mid-grey)!important;
+    cursor: default!important;
+}
 
 .cta-button {
     color: white;

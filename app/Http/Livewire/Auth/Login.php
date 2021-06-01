@@ -79,9 +79,10 @@ class Login extends Component
 
         $this->doLoginProcedure();
 
-        if (auth()->user()->isA('Student')) {
-            return redirect()->intended(route('student.dashboard'));
-        }
+        //Commented out Student check to redirect all users to Cake for now.
+//        if (auth()->user()->isA('Student')) {
+//            return redirect()->intended(route('student.dashboard'));
+//        }
         auth()->user()->redirectToCakeWithTemporaryLogin();
     }
 
@@ -135,18 +136,7 @@ class Login extends Component
 
     public function updated($name, $value)
     {
-        if ($this->couldBeEmail($this->username) && filled($this->password)) {
-            $this->loginButtonDisabled = false;
-
-            if ($this->showTestCode) {
-                $this->loginButtonDisabled = true;
-                if (count($this->testTakeCode) == 6) {
-                    $this->loginButtonDisabled = false;
-                }
-            }
-        } else {
-            $this->loginButtonDisabled = true;
-        }
+        $this->checkLoginFieldsForInput();
 
         $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
 
@@ -203,5 +193,21 @@ class Login extends Component
             return redirect($this->studentDownloadUrl);
         }
         return redirect(route('onboarding.welcome'));
+    }
+
+    public function checkLoginFieldsForInput()
+    {
+        if ($this->couldBeEmail($this->username) && filled($this->password)) {
+            $this->loginButtonDisabled = false;
+
+            if ($this->showTestCode) {
+                $this->loginButtonDisabled = true;
+                if (count($this->testTakeCode) == 6) {
+                    $this->loginButtonDisabled = false;
+                }
+            }
+        } else {
+            $this->loginButtonDisabled = true;
+        }
     }
 }
