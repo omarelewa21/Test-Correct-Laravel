@@ -115,6 +115,10 @@ class RTTIImportHelper
 
     public $should_use_import_password_pattern = false;
 
+    public $can_find_school_class_only_by_name = false;
+
+    public $can_find_teacher_only_by_class_id = false;
+
     public $can_use_dummy_subject = false;
 
     const DUMMY_SECTION_NAME = 'Magister sectie';
@@ -139,6 +143,9 @@ class RTTIImportHelper
         if (App::environment(['testing', 'local'])) {
             $instance->should_use_import_password_pattern = true;
         }
+
+        $instance->can_find_school_class_only_by_name = true;
+        $instance->can_find_teacher_only_by_class_id = true;
 
         $instance->can_use_dummy_subject = true;
 
@@ -1047,8 +1054,17 @@ class RTTIImportHelper
             $teacher->restore();
 
             return $teacher;
-        } else {
+        }
+        $teacher = Teacher::withTrashed()
+            ->where('class_id', $teacher_data['class_id'])
+            ->where('user_id', $teacher_data['user_id'])
+            ->first();
 
+        if ($this->can_find_teacher_only_by_class_id && $teacher != null) {
+            $teacher->restore();
+
+            return $teacher;
+        } else {
             return Teacher::Create($teacher_data);
         }
     }
@@ -1086,11 +1102,22 @@ class RTTIImportHelper
             ->where('education_level_year', $data['education_level_year'])
             ->first();
 
+
+        if($schoolclass === null && $this->can_find_school_class_only_by_name){
+            $schoolclass = SchoolClass::withTrashed()
+                ->where('school_location_id', $data['school_location_id'])
+                ->where('name', $data['name'])
+                ->first();
+        }
+
         if ($schoolclass) {
             $schoolclass->restore();
 
             return $schoolclass->getKey();
         }
+
+
+
         return SchoolClass::create($data)->getKey();
     }
 

@@ -220,8 +220,7 @@ class TeachersController extends Controller
                                 'subject_id' => $subjectId,
                                 'user_id'    => Auth::id(),
                             ]);
-                            logger('checkox'. print_r($subjectValue, true));
-                            $this->updateImportLog($subjectValue, $teacher);
+                            $this->updateImportLog(['checked' => 'on'], $teacher);
                             $updateCounter++;
                         }
                     } else {
