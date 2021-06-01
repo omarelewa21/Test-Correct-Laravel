@@ -31,8 +31,8 @@ class UwlrFetcher extends Component
 
     public function mount()
     {
-        $this->setSearchFields();
         $this->uwlrDatasource = UwlrSoapEntry::DATASOURCES;
+        $this->setSearchFields();
     }
 
     public function updatedCurrentSource()
