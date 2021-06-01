@@ -20,7 +20,7 @@
     </div>
     <div class="flex flex-col space-y-2">
         <span>{{ __('student.teacher') }}</span>
-        <h6>{{ $waitingTestTake->user->getFullNameWithAbbreviatedFirstName() }}</h6>
+        <h6>{{ $waitingTestTake->user()->withTrashed()->first()->getFullNameWithAbbreviatedFirstName() }}</h6>
     </div>
     <div class="flex flex-col space-y-2">
         <span>{{ __('student.invigilators') }}</span>

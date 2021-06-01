@@ -23,7 +23,7 @@ class Dashboard extends Component
     {
         return view('livewire.student.dashboard', [
             'testTakes' => $this->getSchedueledTestTakesForStudent(5),
-            'ratings'   => $this->getRatingsForStudent(5),
+            'testParticipants'   => $this->getRatingsForStudent(5),
             'messages' => $this->getMessages(),
         ])
             ->layout('layouts.student');

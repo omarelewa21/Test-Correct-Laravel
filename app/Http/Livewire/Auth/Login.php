@@ -54,9 +54,9 @@ class Login extends Component
 
     public function mount()
     {
-//        if (Auth::check()) {
-//            return redirect()->intended(route('student.dashboard'));
-//        }
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
     }
 
     public function login()

@@ -52,7 +52,7 @@
                                         :invigilators="$testTake->giveAbbreviatedInvigilatorNames()"/>
                             </x-table.cell>
                             <x-table.cell class="hidden xl:table-cell">
-                                {{ $testTake->user->getFullNameWithAbbreviatedFirstName() }}
+                                {{ $testTake->user()->withTrashed()->first()->getFullNameWithAbbreviatedFirstName() }}
                             </x-table.cell>
                             <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
                             <x-table.cell class="text-right">

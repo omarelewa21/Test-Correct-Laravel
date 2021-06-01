@@ -846,7 +846,7 @@ class TestTake extends BaseModel
 
     public function giveAbbreviatedInvigilatorNames()
     {
-        $invigilators = $this->invigilatorUsers->map(function ($invigilator) {
+        $invigilators = $this->invigilatorUsers()->withTrashed()->get()->map(function ($invigilator) {
             return $invigilator->getFullNameWithAbbreviatedFirstName();
         });
 

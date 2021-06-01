@@ -2,6 +2,8 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Carbon\Carbon;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
@@ -22,6 +24,7 @@ class WaitingRoom extends Component
     public $isTakeOpen;
     public $isTakeAlreadyTaken;
     public $countdownNumber = 3;
+    public $testTakeStatusStage;
 
     public function mount()
     {
@@ -30,6 +33,7 @@ class WaitingRoom extends Component
         }
         $this->waitingTestTake = $this->getWaitingRoomTestTake();
         $this->testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->first();
+        $this->testTakeStatusStage = $this->determineTestTakeStatusStage();
     }
 
     public function render()
@@ -45,19 +49,34 @@ class WaitingRoom extends Component
 
     public function isTestTakeOpen()
     {
+        $stage = $this->testTakeStatusStage;
         $testParticipantStatus = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->value('test_take_status_id');
         $testTakeStatus = TestTake::whereUuid($this->take)->value('test_take_status_id');
-
-        if ($testParticipantStatus > TestTakeStatus::STATUS_TAKING_TEST) {
-            $this->isTakeOpen = false;
-            $this->isTakeAlreadyTaken = true;
+        if ($stage === 'planned') {
+            if ($testParticipantStatus > TestTakeStatus::STATUS_TAKING_TEST) {
+                $this->isTakeOpen = false;
+                return;
+            }
+            $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_TAKING_TEST;
         }
 
-        $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_TAKING_TEST;
-        $this->isTakeAlreadyTaken = $testTakeStatus > TestTakeStatus::STATUS_TAKING_TEST;
+        if ($stage === 'discuss') {
+            $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSING;
+        }
+        if ($stage === 'review') {
+            $showResults = TestTake::whereUuid($this->take)->value('show_results');
+            if ($showResults->gt(Carbon::now())) {
+                $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSED;
+            } else {
+                $this->isTakeOpen = false;
+            }
+        }
+        if ($stage === 'graded') {
+
+        }
     }
 
-    public function getCountdownNumber()
+    public function getCountdownNumber(): int
     {
         return $this->countdownNumber;
     }
@@ -66,8 +85,23 @@ class WaitingRoom extends Component
     {
         return TestTake::select('test_takes.*', 'subjects.name as subject_name', 'tests.name as test_name')
             ->join('tests', 'test_takes.test_id', '=', 'tests.id')
-            ->join('subjects', 'tests.subject_id','=','subjects.id')
+            ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
             ->where('test_takes.id', TestTake::whereUuid($this->take)->value('id'))
             ->first();
+    }
+
+    private function determineTestTakeStatusStage(): string
+    {
+        $status = $this->waitingTestTake->test_take_status_id;
+
+        $planned = [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TEST_NOT_TAKEN, TestTakeStatus::STATUS_TAKING_TEST];
+        $discuss = [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING];
+        $review = [TestTakeStatus::STATUS_DISCUSSED];
+        $graded = [TestTakeStatus::STATUS_RATED];
+        
+        if (in_array($status, $planned)) return 'planned';
+        if (in_array($status, $discuss)) return 'discuss';
+        if (in_array($status, $review)) return 'review';
+        if (in_array($status, $graded)) return 'graded';
     }
 }

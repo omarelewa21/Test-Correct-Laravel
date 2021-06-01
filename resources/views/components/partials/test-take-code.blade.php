@@ -1,5 +1,5 @@
 <div class="flex flex-col space-y-2 pt-4 test-take-code-component">
-    <span x-ref="textCodeLabel">Voer de toetscode in die de docent toont op het scherm</span>
+    <span x-ref="textCodeLabel">{{ __('student.fill_in_test_code_from_teacher') }}</span>
     <div class="flex items-center space-x-2">
         <x-input.group>
             <x-input.text class="w-12 text-center disabled" disabled value="AA"/>

@@ -1955,7 +1955,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getFullNameWithAbbreviatedFirstName(): string
     {
         $letter = Str::substr($this->name_first, 0, 1);
-        !blank($this->name_suffix) ? $suffix = $this->name_suffix . ' ' : $suffix = '';
+        filled($this->name_suffix) ? $suffix = $this->name_suffix . ' ' : $suffix = '';
 
         return sprintf('%s. %s%s', $letter, $suffix, $this->name);
     }

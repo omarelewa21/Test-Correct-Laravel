@@ -10,23 +10,17 @@ class TestTakes extends Component
 {
     use WithPagination, WithStudentTestTakes;
 
-    public $plannedTab = 1;
-    public $discussTab = 2;
-    public $reviewTab = 3;
-    public $gradedTab = 4;
-    public $activeTab;
+    public $plannedTab = 'planned';
+    public $discussTab = 'discuss';
+    public $reviewTab = 'review';
+    public $gradedTab = 'graded';
 
-    protected $queryString = [
-        'tab'         => ['except' => ''],
-    ];
+    protected $queryString = ['tab'];
     public $tab;
 
     public function mount()
     {
-        $this->activeTab = $this->plannedTab;
-        if ($this->tab) {
-            $this->goToTab();
-        }
+        filled($this->tab) ? $this->changeActiveTab($this->tab) : $this->changeActiveTab($this->plannedTab);
     }
 
     public function render()
@@ -36,7 +30,9 @@ class TestTakes extends Component
 
     public function changeActiveTab($tab)
     {
-        $this->activeTab = $tab;
+        $this->tab = $tab;
+        $this->resetPage();
+
     }
 
     private function goToTab()
@@ -45,6 +41,6 @@ class TestTakes extends Component
         if($this->tab === 'discuss') $this->changeActiveTab($this->discussTab);
         if($this->tab === 'review') $this->changeActiveTab($this->reviewTab);
         if($this->tab === 'graded') $this->changeActiveTab($this->gradedTab);
-        $this->reset('tab');
+
     }
 }
