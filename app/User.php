@@ -51,7 +51,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     use UuidTrait;
 
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'    => EfficientUuid::class,
         'intense' => 'boolean',
     ];
 
@@ -310,7 +310,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getUserTableExternalIdAttribute()
     {
-        if(!array_key_exists('external_id',$this->attributes)){
+        if (!array_key_exists('external_id', $this->attributes)) {
             return null;
         }
         return $this->attributes['external_id'];
@@ -342,7 +342,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        $iv = config('custom.encrypt.eck_id_iv');
 //        $method = 'aes-256-cbc';
         $eckid = '';
-        if(!is_null($this->eckidFromRelation)){
+        if (!is_null($this->eckidFromRelation)) {
             $eckid = $this->eckidFromRelation->eckid;
         }
         return $eckid;
@@ -408,7 +408,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $helper->prepareDemoForNewTeacher($user->schoolLocation, $schoolYear, $user);
             }
 
-            if ($user->isA('teacher')&&!is_null($user->school_location_id)){
+            if ($user->isA('teacher') && !is_null($user->school_location_id)) {
                 if ($schoolLocation = SchoolLocation::find($user->school_location_id)) {
                     $user->addSchoolLocation($schoolLocation);
                 }
@@ -478,10 +478,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if ($user->getOriginal('demo') == true) {
                 return false;
             }
-            if ($user->allowedSchoolLocations->count() === 1){
+            if ($user->allowedSchoolLocations->count() === 1) {
                 $user->removeSchoolLocation($user->schoolLocation);
             }
-            if (static::isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation($user)){
+            if (static::isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation($user)) {
                 $user->removeSchoolLocation(Auth::user()->schoolLocation);
                 $user->removeSchoolLocationTeachers(Auth::user()->schoolLocation);
                 return false;
@@ -777,13 +777,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
      */
     private static function isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation(User $user)
     {
-        if($user->allowedSchoolLocations()->count() <= 1){
+        if ($user->allowedSchoolLocations()->count() <= 1) {
             return false;
         }
-        if(null === Auth::user()->schoolLocation){
+        if (null === Auth::user()->schoolLocation) {
             return false;
         }
-        if(!$user->allowedSchoolLocations->contains(Auth::user()->schoolLocation->getKey())){
+        if (!$user->allowedSchoolLocations->contains(Auth::user()->schoolLocation->getKey())) {
             return false;
         }
         return true;
@@ -858,7 +858,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasMany('tcCore\Mentor');
     }
 
-    public function temporaryLogin() {
+    public function temporaryLogin()
+    {
         return $this->belongsTo('tcCore\TemporaryLogin');
     }
 
@@ -1003,7 +1004,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query;
     }
 
-	public function subjectsIncludingShared($query = null)
+    public function subjectsIncludingShared($query = null)
     {
         $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
         $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();
@@ -1011,23 +1012,24 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $subjectIdsFromShared = collect([]);
 
         if (count($sharedSectionIds) > 0) {
-            $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique();
+            $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
+                $baseSubjectIds)->pluck('id')->unique();
         }
 
         $subjectIds = $subjectIdsFromShared->merge($this->subjects()->pluck('id')->unique());
 
-        if($query === null){
-            $query = Subject::whereIn('id',$subjectIds);
+        if ($query === null) {
+            $query = Subject::whereIn('id', $subjectIds);
         } else {
             $query->from(with(new Subject())->getTable())
                 ->where('deleted_at', null)
-                ->whereIn('id',$subjectIds);
+                ->whereIn('id', $subjectIds);
         }
 
         return $query;
     }
 
-    public function subjectsOnlyShared($query =  null)
+    public function subjectsOnlyShared($query = null)
     {
         $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
         $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();
@@ -1035,25 +1037,27 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $subjectIdsFromShared = collect([]);
 
         if (count($sharedSectionIds) > 0) {
-            $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique();
+            $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
+                $baseSubjectIds)->pluck('id')->unique();
         }
 
         $subjectIds = $subjectIdsFromShared;
 
-        if($query === null){
-            $query = Subject::whereIn('id',$subjectIds);
+        if ($query === null) {
+            $query = Subject::whereIn('id', $subjectIds);
         } else {
             $query->from(with(new Subject())->getTable())
                 ->where('deleted_at', null)
-                ->whereIn('id',$subjectIds);
+                ->whereIn('id', $subjectIds);
         }
 
         return $query;
 
     }
 
-	public function sections($query = null) {
-		$user = $this;
+    public function sections($query = null)
+    {
+        $user = $this;
 
         if ($query === null) {
             $query = Section::select();
@@ -1249,6 +1253,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
         return $result;
     }
+
     public function hasSharedSections()
     {
         return (bool) (null !== $this->schoolLocation && $this->schoolLocation->sharedSections()->count());
@@ -1797,7 +1802,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->username;
     }
 
-    public function hasAccessToTest(Test $test){
+    public function hasAccessToTest(Test $test)
+    {
         return (null !== $test->subject && $this->subjects()->pluck('id')->contains($test->subject->getKey()));
     }
 
@@ -1870,7 +1876,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function addSchoolLocation(SchoolLocation $schoolLocation)
     {
-        if(!$this->allowedSchoolLocations->contains($schoolLocation)) {
+        if (!$this->allowedSchoolLocations->contains($schoolLocation)) {
             $this->allowedSchoolLocations()
 //            ->syncWithoutDetaching([$schoolLocation->id,  ['external_id' =>  $this->external_id]]);
                 ->attach($schoolLocation->id, ['external_id' => $this->user_table_external_id]);
@@ -1899,17 +1905,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function removeSchoolLocationTeachers(SchoolLocation $schoolLocation)
     {
-        foreach($this->teacher as $teacher){
-            if(!$this->teacherBelongsToSchoolLocation($teacher,$schoolLocation)){
+        foreach ($this->teacher as $teacher) {
+            if (!$this->teacherBelongsToSchoolLocation($teacher, $schoolLocation)) {
                 continue;
             }
             $teacher->delete();
         }
     }
 
-    private function teacherBelongsToSchoolLocation(Teacher $teacher,SchoolLocation $schoolLocation)
+    private function teacherBelongsToSchoolLocation(Teacher $teacher, SchoolLocation $schoolLocation)
     {
-        if($teacher->schoolClass->schoolLocation->id == $schoolLocation->id){
+        if ($teacher->schoolClass->schoolLocation->id == $schoolLocation->id) {
             return true;
         }
         return false;
@@ -1933,8 +1939,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             );
     }
 
-    public function resendEmailVerificationMail() {
-       return Mail::to($this->username)->send(new SendOnboardingWelcomeMail($this));
+    public function resendEmailVerificationMail()
+    {
+        return Mail::to($this->username)->send(new SendOnboardingWelcomeMail($this));
     }
 
     public function toggleVerified()
@@ -1948,8 +1955,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this;
     }
 
-    public function scopeWithRoleTeacher($query){
-        return $query->join('user_roles', 'users.id', '=','user_roles.user_id')->where('user_roles.role_id', 1);
+    public function scopeWithRoleTeacher($query)
+    {
+        return $query->join('user_roles', 'users.id', '=', 'user_roles.user_id')->where('user_roles.role_id', 1);
     }
 
     public function getFullNameWithAbbreviatedFirstName(): string
@@ -1976,5 +1984,44 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             ['user_id' => $this->getKey()]
         );
         return $temporaryLogin->createCakeUrl();
+    }
+
+    public function handleEntreeAttributes($attr)
+    {
+        // update username with the emailaddress posted from entree
+        // only and only when it conforms to s_<userId>@test-correct.nl or t_<userId>@test-correct.nl
+        if ($this->username === $this->generateMissingEmailAddress()) {
+            if ($attr['mail']) {
+                $this->username = $attr['mail'];
+            }
+        }
+
+        // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
+        // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
+        if ($this->is('student') && $this->externalId == null) {
+            if ($attr['mail']) {
+                $parts = explode('@', $attr['mail'])[0];
+                if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
+                    $this->external_id = $parts[0];
+                }
+            }
+        }
+
+        if ($this->isDirty()){
+            $this->save();
+        }
+
+        return $this;
+    }
+
+    private function generateMissingEmailAddress()
+    {
+        if ($this->isA('student')) {
+            return sprintf(STUDENT_IMPORT_EMAIL_PATTERN, $this->getKey());
+        }
+        if ($this->isA('teacher')) {
+            return sprintf(TEACHER_IMPORT_EMAIL_PATTERN, $this->getKey());
+        }
+
     }
 }
