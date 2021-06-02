@@ -243,7 +243,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::put('/teacher/update_with_subjects_for_cluster_classes', 'TeachersController@updateWithSubjectsForClusterClasses')->name('teacher.update_with_subjects_for_cluster_classes');
 
+    Route::get('teacher/has_incomplete_import', 'TeachersController@hasIncompleteImport')->name('teacher.has_incomplete_import');
+    Route::get('account_manager/has_incomplete_import', 'TeachersController@hasIncompleteImport')->name('account_manager.has_incomplete_import');
     Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
+
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
 
     Route::post('/attainments/import','AttainmentImportController@import')->name('attainment.import');
