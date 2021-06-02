@@ -188,4 +188,11 @@ class UserTest extends TestCase
         $userFromDB = User::findByEckId('ABCDEF')->first();
         $this->assertTrue($user->is($userFromDB));
     }
+
+    /** @test */
+    public function when_a_user_is_a_teacher_and_not_all_classes_with_an_import_record_are_checked_it_should_return_false()
+    {
+        $teacherOne = User::where('username', 'd1@test-correct.nl')->first();
+        $this->assertFalse($teacherOne->hasIncompleteImport());
+    }
 }

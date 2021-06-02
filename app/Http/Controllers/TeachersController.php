@@ -262,4 +262,9 @@ class TeachersController extends Controller
         }
     }
 
+    public function hasIncompleteImport()
+    {
+        return Auth::user()->hasIncompleteImport();
+    }
+
 }
