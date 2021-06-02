@@ -227,7 +227,8 @@ class RttiImportTest extends TestCase
     /**
      * @test
      */
-    function the_user_properties_should_be_overwritten_for_the_student(){
+    function the_user_properties_should_be_overwritten_for_the_student()
+    {
         $user = User::createTeacher([
             'name_first'         => 'Mark',
             'name_suffix'        => '',
@@ -262,7 +263,8 @@ class RttiImportTest extends TestCase
     /**
      * @test
      */
-    function the_user_properties_should_be_overwritten_for_the_teacher(){
+    function the_user_properties_should_be_overwritten_for_the_teacher()
+    {
         $teacher = User::createTeacher([
             'name_first'         => 'Mark',
             'name_suffix'        => '',
@@ -275,7 +277,7 @@ class RttiImportTest extends TestCase
             ."RTTI School,".$this->brincode.",01,VWO,3,2020-2021,10001,achternaam_oud,tussenvoegsel_oud,voornaam_oud,FransTest,A&M,2002,achternaam_nieuw,tussenvoegsel_nieuw,voornaam_nieuw,0\n";
 
         $output = $this->upload_data($csv_file_content);
-       $this->assertStringContainsString('Er zijn 0 leerlingen geupdate, 1 docent en 0 klassen.', $output['data']);
+        $this->assertStringContainsString('Er zijn 0 leerlingen geupdate, 1 docent en 0 klassen.', $output['data']);
 
         $teacher->refresh();
         $this->assertEquals('voornaam_nieuw', $teacher->name_first);
@@ -318,15 +320,15 @@ class RttiImportTest extends TestCase
 
         $this->assertStringContainsString('Er is 1 leerling aangemaakt, 2 docenten en 1 klas.', $output['data']);
 
-        $classTeacherOne = $teacherOne->teacher->map(function(Teacher $teacher) {
+        $classTeacherOne = $teacherOne->teacher->map(function (Teacher $teacher) {
             return $teacher->schoolClass;
-        })->first(function(SchoolClass $class) {
+        })->first(function (SchoolClass $class) {
             return $class->demo == 0;
         });
 
-        $classTeacherTwo = $teacherOne->teacher->map(function(Teacher $teacher) {
+        $classTeacherTwo = $teacherOne->teacher->map(function (Teacher $teacher) {
             return $teacher->schoolClass;
-        })->first(function(SchoolClass $class) {
+        })->first(function (SchoolClass $class) {
             return $class->demo == 0;
         });
 
@@ -334,14 +336,16 @@ class RttiImportTest extends TestCase
         $this->assertTrue(
             $classTeacherOne->is($classTeacherTwo)
         );
-        // because teacher two is the mentor for this class it should be marced as is_main_school_class = 1 not 0
+        // because teacher two is the mentor for this class it should be marked as is_main_school_class = 1 not 0
         $this->assertEquals(1, $classTeacherOne->is_main_school_class);
 
     }
+
     /**
      * @test geen stamklas als beide docenten 0 hebben
      */
-    function when_no_teacher_is_marked_as_mentor_the_school_class_should_not_be_marked_as_main_school_class(){
+    function when_no_teacher_is_marked_as_mentor_the_school_class_should_not_be_marked_as_main_school_class()
+    {
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
         $teacherOne = User::createTeacher([
@@ -368,15 +372,15 @@ class RttiImportTest extends TestCase
 
         $this->assertStringContainsString('Er is 1 leerling aangemaakt, 2 docenten en 1 klas.', $output['data']);
 
-        $classTeacherOne = $teacherOne->teacher->map(function(Teacher $teacher) {
+        $classTeacherOne = $teacherOne->teacher->map(function (Teacher $teacher) {
             return $teacher->schoolClass;
-        })->first(function(SchoolClass $class) {
+        })->first(function (SchoolClass $class) {
             return $class->demo == 0;
         });
 
-        $classTeacherTwo = $teacherOne->teacher->map(function(Teacher $teacher) {
+        $classTeacherTwo = $teacherTwo->teacher->map(function (Teacher $teacher) {
             return $teacher->schoolClass;
-        })->first(function(SchoolClass $class) {
+        })->first(function (SchoolClass $class) {
             return $class->demo == 0;
         });
 
@@ -386,6 +390,36 @@ class RttiImportTest extends TestCase
         );
         // because both teachers are not a mentor for this class it should be marked as is_main_school_class = 0
         $this->assertEquals(0, $classTeacherOne->is_main_school_class);
+    }
+
+    /**
+     * @test
+     * Carlos test
+     */
+    public function carlo_s_test_for_not_main_school_class()
+    {
+        $teacherHerman = User::createTeacher([
+            'name_first'         => 'Herman777',
+            'name_suffix'        => 'von',
+            'name'               => 'Docent1-888801',
+            'external_id'        => '67798777',
+            'school_location_id' => $this->location_data['school_location_id'],
+        ]);
+
+        $csv_file_content = "Schoolnaam,Brincode,Locatiecode,Studierichting,lesJaarlaag,Schooljaar,leeStamNummer,leeAchternaam,leeTussenvoegsels,leeVoornaam,lesNaam,vakNaam,docStamNummer,docAchternaam,docTussenvoegsels,docVoornaam,IsMentor\n"
+            ."RTTI School,".$this->brincode.",01,VWO,2,2020-2021,18819777,Leerling1-888801777,,Test1,V2A,DTS,67798777,Docent1-888801,von,Herman777,0\n";
+
+        $output = $this->upload_data($csv_file_content);
+        dd($output);
+
+        $this->assertStringContainsString('Er is 1 leerling aangemaakt, 1 docenten en 1 klas.', $output['data']);
+
+        $class = $teacherHerman->teacher->map(function (Teacher $teacher) {
+            return $teacher->schoolClass;
+        })->first(function (SchoolClass $class) {
+            return $class->demo == 0;
+        });
+        $this->assertEquals(0, $class->is_main_school_class);
 
 
     }
@@ -793,7 +827,8 @@ class RttiImportTest extends TestCase
             ."RTTI School,".$this->brincode.",1,VWO,1,2020-2021,12008,02,,Berend,FransTest2,FRS,2002,Docent1,,Mark,1";
 
         $output = $this->upload_data($csv_file_content);
-        $this->assertStringContainsString('Versie 0.1. De import was succesvol. Er zijn 8 leerlingen aangemaakt, 5 docenten en 4 klassen.  Er zijn 0 leerlingen geupdate, 0 docenten en 0 klassen.  Er zijn 0 leerlingen verwijderd, 0 docenten en 0 klassen.', $output['data']);
+        $this->assertStringContainsString('Versie 0.1. De import was succesvol. Er zijn 8 leerlingen aangemaakt, 5 docenten en 4 klassen.  Er zijn 0 leerlingen geupdate, 0 docenten en 0 klassen.  Er zijn 0 leerlingen verwijderd, 0 docenten en 0 klassen.',
+            $output['data']);
         $class_id = SchoolClass::where('name', 'FransTest')
             ->value('id');
 
