@@ -37,7 +37,10 @@ class UsernameUniqueSchool implements Rule
                 throw new \Exception('schoolLocation not set');
             }
             $school = $schoolLocation->school;
-            $schoolLocations = $school->schoolLocations()->pluck('id')->toArray();
+            $schoolLocations = [$this->schoolLocationId];
+            if(null !== $school){
+                $schoolLocations = $school->schoolLocations()->pluck('id')->toArray();
+            }
             $user = User::where('username',$value)->whereNotIn('school_location_id',$schoolLocations )->first();
             if(!is_null($user)){
                 return false;
