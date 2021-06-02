@@ -123,7 +123,7 @@ class Navigation extends Component
         $questionUuid = $this->nav[$question - 1]['uuid'];
         if (Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
             $this->dispatchBrowserEvent('mark-infoscreen-as-seen', $questionUuid);
-            $this->updateQuestionIndicatorColor();
+            $this->updateQuestionIndicatorColor($question);
         }
     }
 
