@@ -2,10 +2,10 @@
     <div class="flex-col"
          x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"
          x-ref="questionindicator"
-         x-init="setTimeout(() => {
+         x-init="$nextTick(() => {
                     $dispatch('current-updated', {'current': activeQuestion });
                     navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});
-                    }, 1);
+                    });
                  totalScrollWidth = $refs.navscrollbar.offsetWidth;
                  navigationResizer.resize($data);
                  "
