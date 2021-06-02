@@ -6,11 +6,14 @@
      x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0 }"
      x-init="$watch('showMe', () => { if(showMe) { $dispatch('visible-component', {el: $el});} })"
      x-show="showMe"
-     x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current);"
+     x-on:current-updated.window="
+        showMe = ({{ $number }} == $event.detail.current);
+        if(showMe) {$wire.updateAnswerIdForTestParticipant();}
+        "
      x-transition:enter="transition duration-200"
      x-transition:enter-start="opacity-0 delay-200"
      x-transition:enter-end="opacity-100"
-     x-on:change="$dispatch('current-question-answered')"
+     x-on:change="Livewire.emit('current-question-answered', {{ $number }})"
      x-on:refresh-question.window="
         if ($event.detail.indexOf({{ $number }}) !== -1) {
                 $wire.set('closed', true);

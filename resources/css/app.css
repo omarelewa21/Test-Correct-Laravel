@@ -463,3 +463,8 @@ body.modal-open {
 .paginator-button:hover {
     background: var(--blue-grey);
 }
+
+.attachment-iframe-wrapper {
+    -webkit-overflow-scrolling: touch;
+    overflow: auto;
+}

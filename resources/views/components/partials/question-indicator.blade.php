@@ -1,30 +1,25 @@
 <div class="question-indicator w-full">
     <div class="flex-col"
-         x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0 }"
+         x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"
          x-ref="questionindicator"
-         x-init="setTimeout( function() { $dispatch('current-updated', {'current': {{ $this->q }} })}, 1);
-                totalScrollWidth = $refs.navscrollbar.offsetWidth;
-                navigationResizer.resize($data);
-                "
+         x-init="$nextTick(() => {
+                    $dispatch('current-updated', {'current': activeQuestion });
+                    navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});
+                    });
+                 totalScrollWidth = $refs.navscrollbar.offsetWidth;
+                 navigationResizer.resize($data);
+                 "
          x-on:resize.window.debounce.250ms="navigationResizer.resize($el.__x.$data);"
-         x-on:current-updated.window="
-               if(typeof objectToObserve !== 'undefined') {
-                    myIntersectionObserver.unobserve(objectToObserve);
-               }
-                objectToObserve = document.getElementById('active');
-                myIntersectionObserver.observe(objectToObserve);
-                objectToObserve.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});
-            "
          x-cloak
     >
         <div class="flex">
             <div class="flex slider-buttons relative -top-px z-10" x-ref="sliderbuttons" x-show="showSlider">
-                <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
-                        @click="$refs.navscrollbar.scrollTo({left: 0,behavior: 'smooth'})">
+                <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                        x-on:click="$refs.navscrollbar.scrollTo({left: 0,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.arrow-last/>
                 </button>
-                <button class="inline-flex base rotate-svg-180 w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
-                        @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft - scrollStep,behavior: 'smooth'});">
+                <button class="inline-flex base rotate-svg-180 w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                        x-on:click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft - scrollStep,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.chevron/>
                 </button>
             </div>
@@ -52,11 +47,11 @@
                                          complete
                                  @endif
                                          "
-                                 id="nav_item_{{$q['id']}}"
+                                 id="nav_item_{{ 1+$key}}"
                                  wire:click="goToQuestion({{ 1+$key}})"
-                                 x-on:current-question-answered.window="$wire.updateQuestionIndicatorColor()"
                         >
-                            <span id="nav_{{$q['id']}}" wire:key="nav_{{$q['id']}}" class="align-middle px-1.5">{{ ++$key }}</span>
+                            <span id="nav_{{$q['id']}}" wire:key="nav_{{$q['id']}}"
+                                  class="align-middle px-1.5">{{ ++$key }}</span>
                         </section>
                         <div class="max-h-4 flex justify-center -ml-2 mt-1">
                             @if($q['closeable'] && !$q['closed'])
@@ -80,47 +75,44 @@
 
             </div>
             <div class="flex slider-buttons relative -top-px z-10" x-ref="sliderbuttons" x-show="showSlider">
-                <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
-                        @click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft + scrollStep,behavior: 'smooth'})">
+                <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                        x-on:click="$refs.navscrollbar.scrollTo({left: $refs.navscrollbar.scrollLeft + scrollStep,behavior: 'smooth'});startIntersectionCountdown()">
                     <x-icon.chevron/>
                 </button>
-                <button class="inline-flex base w-8 h-8 hover:bg-white rounded-full transition items-center justify-center transform hover:scale-110 focus:outline-none"
-                        @click="$refs.navscrollbar.scrollTo({left: totalScrollWidth,behavior: 'smooth'});">
-                    <x-icon.arrow-last />
+                <button class="inline-flex base w-8 h-8 rounded-full transition items-center justify-center transform focus:outline-none"
+                        x-on:click="$refs.navscrollbar.scrollTo({left: totalScrollWidth,behavior: 'smooth'});startIntersectionCountdown()">
+                    <x-icon.arrow-last/>
                 </button>
             </div>
         </div>
 
         @push('scripts')
-        <script>
-            let timer
-            function callback(entries) {
+            <script>
+                let intersectionCountdown;
+                let navScrollBar = document.getElementById('navscrollbar');
+                let navScrollBarOffset = navScrollBar.getBoundingClientRect().left;
 
-                for (const entry of entries) {
-                    if (!entry.isIntersecting) {
-                        timer = setTimeout(function () {
-                            entry.target.scrollIntoView({behavior: 'smooth', block: 'end', inline: 'center'});
-                        }, 5000)
-                    } else {
-                        clearTimeout(timer);
+                function startIntersectionCountdown() {
+                    clearInterval(intersectionCountdown);
+                    let seconds = 0;
+                    intersectionCountdown = setInterval(function () {
+                        if (seconds === 5) {
+                            clearInterval(intersectionCountdown);
+                            let left = navScrollBar.querySelector('#active').offsetLeft;
+                            navScrollBar.scrollTo({left: left - navScrollBarOffset, behavior: 'smooth'});
+                        }
+                        seconds++;
+                    }, 1000)
+                }
+
+                const navigationResizer = {
+                    resize: function (object) {
+                        object.scrollStep = window.innerWidth / 10;
+                        var sliderButtons = object.$refs.sliderbuttons.offsetWidth * 2
+                        object.showSlider = (object.$refs.navscrollbar.offsetWidth + sliderButtons) >= object.$refs.questionindicator.offsetWidth;
                     }
                 }
-            }
-
-            const myIntersectionObserver = new IntersectionObserver(callback, {
-                root: document.getElementById('navscrollbar'),
-                rootMargin: '9999px 0px 9999px 0px',
-                threshold: 1
-            });
-
-            const navigationResizer = {
-                resize: function(object) {
-                    object.scrollStep = window.innerWidth/10;
-                    var sliderButtons = object.$refs.sliderbuttons.offsetWidth*2
-                    object.showSlider = (object.$refs.navscrollbar.offsetWidth + sliderButtons) >= object.$refs.questionindicator.offsetWidth;
-                }
-            }
-        </script>
+            </script>
         @endpush
 
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
@@ -142,73 +134,73 @@
 
     @if(Auth::user()->text2speech)
         @push('scripts')
-        <script>
-            function toggleBrowseAloud() {
-                if (typeof BrowseAloud == 'undefined') {
-                    var s = document.createElement('script');
-                    s.src = 'https://www.browsealoud.com/plus/scripts/3.1.0/ba.js';
-                    s.integrity = "sha256-VCrJcQdV3IbbIVjmUyF7DnCqBbWD1BcZ/1sda2KWeFc= sha384-k2OQFn+wNFrKjU9HiaHAcHlEvLbfsVfvOnpmKBGWVBrpmGaIleDNHnnCJO4z2Y2H sha512-gxDfysgvGhVPSHDTieJ/8AlcIEjFbF3MdUgZZL2M5GXXDdIXCcX0CpH7Dh6jsHLOLOjRzTFdXASWZtxO+eMgyQ=="
-                    s.crossOrigin = 'anonymous';
+            <script>
+                function toggleBrowseAloud() {
+                    if (typeof BrowseAloud == 'undefined') {
+                        var s = document.createElement('script');
+                        s.src = 'https://www.browsealoud.com/plus/scripts/3.1.0/ba.js';
+                        s.integrity = "sha256-VCrJcQdV3IbbIVjmUyF7DnCqBbWD1BcZ/1sda2KWeFc= sha384-k2OQFn+wNFrKjU9HiaHAcHlEvLbfsVfvOnpmKBGWVBrpmGaIleDNHnnCJO4z2Y2H sha512-gxDfysgvGhVPSHDTieJ/8AlcIEjFbF3MdUgZZL2M5GXXDdIXCcX0CpH7Dh6jsHLOLOjRzTFdXASWZtxO+eMgyQ=="
+                        s.crossOrigin = 'anonymous';
 
-                    document.getElementsByTagName('BODY')[0].appendChild(s);
-                    waitForBrowseAloudAndThenRun();
-                } else {
-                    _toggleBA();
-                }
-            }
-
-            function hideBrowseAloudButtons() {
-                var shadowRoot = document.querySelector('div#__bs_entryDiv').querySelector('div').shadowRoot;
-                var elementsToHide = ['th_translate', 'th_mp3Maker', 'ba-toggle-menu'];
-                elementsToHide.forEach(function (id) {
-                    var el = shadowRoot.getElementById(id);
-                    if (el !== null) {
-                        shadowRoot.getElementById(id).setAttribute('style', 'display:none');
-                    }
-                });
-
-                var toolbar = shadowRoot.getElementById('th_toolbar');
-                if (toolbar !== null) {
-                    toolbar.setAttribute('style', 'background-color: #fff');
-                }
-
-                [...shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function (item) {
-                    item.setAttribute('style', 'fill : #515151');
-                });
-            }
-
-            var _baTimer;
-            var tryIterator = 0;
-
-            function waitForBrowseAloudAndThenRun() {
-                if (typeof BrowseAloud == 'undefined' || BrowseAloud.panel == 'undefined' || typeof BrowseAloud.panel.toggleBar == 'undefined') {
-                    _baTimer = setTimeout(function () {
-                            waitForBrowseAloudAndThenRun();
-                        },
-                        150);
-                } else {
-                    clearTimeout(_baTimer);
-                    try {
+                        document.getElementsByTagName('BODY')[0].appendChild(s);
+                        waitForBrowseAloudAndThenRun();
+                    } else {
                         _toggleBA();
-                    } catch (e) {
-                        tryIterator++;
-                        if (tryIterator < 10) { // just stop when it still fails after 10 tries;
-                            setTimeout(function () {
-                                    waitForBrowseAloudAndThenRun();
-                                },
-                                150);
+                    }
+                }
+
+                function hideBrowseAloudButtons() {
+                    var shadowRoot = document.querySelector('div#__bs_entryDiv').querySelector('div').shadowRoot;
+                    var elementsToHide = ['th_translate', 'th_mp3Maker', 'ba-toggle-menu'];
+                    elementsToHide.forEach(function (id) {
+                        var el = shadowRoot.getElementById(id);
+                        if (el !== null) {
+                            shadowRoot.getElementById(id).setAttribute('style', 'display:none');
+                        }
+                    });
+
+                    var toolbar = shadowRoot.getElementById('th_toolbar');
+                    if (toolbar !== null) {
+                        toolbar.setAttribute('style', 'background-color: #fff');
+                    }
+
+                    [...shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function (item) {
+                        item.setAttribute('style', 'fill : #515151');
+                    });
+                }
+
+                var _baTimer;
+                var tryIterator = 0;
+
+                function waitForBrowseAloudAndThenRun() {
+                    if (typeof BrowseAloud == 'undefined' || BrowseAloud.panel == 'undefined' || typeof BrowseAloud.panel.toggleBar == 'undefined') {
+                        _baTimer = setTimeout(function () {
+                                waitForBrowseAloudAndThenRun();
+                            },
+                            150);
+                    } else {
+                        clearTimeout(_baTimer);
+                        try {
+                            _toggleBA();
+                        } catch (e) {
+                            tryIterator++;
+                            if (tryIterator < 10) { // just stop when it still fails after 10 tries;
+                                setTimeout(function () {
+                                        waitForBrowseAloudAndThenRun();
+                                    },
+                                    150);
+                            }
                         }
                     }
                 }
-            }
 
-            function _toggleBA() {
-                BrowseAloud.panel.toggleBar(!0);
-                setTimeout(function () {
-                    hideBrowseAloudButtons();
-                }, 1000);
-            }
-        </script>
+                function _toggleBA() {
+                    BrowseAloud.panel.toggleBar(!0);
+                    setTimeout(function () {
+                        hideBrowseAloudButtons();
+                    }, 1000);
+                }
+            </script>
         @endpush
     @endif
 </div>
