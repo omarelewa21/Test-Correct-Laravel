@@ -1928,7 +1928,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
         // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
-        if ($this->is('student') && $this->externalId == null) {
+        if ($this->isA('student') && $this->externalId == null) {
             if ($attr['mail']) {
                 $parts = explode('@', $attr['mail'])[0];
                 if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
