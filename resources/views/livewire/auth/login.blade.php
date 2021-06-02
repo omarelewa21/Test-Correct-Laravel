@@ -145,15 +145,9 @@
                             </div>
                             {{-- With forgot_password button, ml_auto can be switched justify-between on the parent --}}
                             <div class="flex mt-auto pt-4">
-                                @if($loginButtonDisabled)
-                                    <x-button.cta class="ml-auto disabled" size="md" disabled>
-                                        <span>{{ __('auth.log_in_verb') }}</span>
-                                    </x-button.cta>
-                                @else
-                                    <x-button.cta class="ml-auto" size="md">
-                                        <span>{{ __('auth.log_in_verb') }}</span>
-                                    </x-button.cta>
-                                @endif
+                                <x-button.cta class="ml-auto" size="md">
+                                    <span>{{ __('auth.log_in_verb') }}</span>
+                                </x-button.cta>
                                 <x-button.text-button class="hidden order-1" wire:click.prevent="$set('loginTab', false)">
                                     <span class="text-base">{{__('auth.forgot_password_long')}}</span>
                                     <x-icon.arrow/>
@@ -203,15 +197,9 @@
                             </div>
 
                             <div class="flex mt-auto pt-4">
-                                @if($guestLoginButtonDisabled)
-                                    <x-button.cta class="ml-auto" size="md" disabled>
-                                        <span>{{ __('auth.log_in_verb') }}</span>
-                                    </x-button.cta>
-                                @else
-                                    <x-button.cta class="ml-auto" size="md">
-                                        <span>{{ __('auth.log_in_verb') }}</span>
-                                    </x-button.cta>
-                                @endif
+                                <x-button.cta class="ml-auto" size="md">
+                                    <span>{{ __('auth.log_in_verb') }}</span>
+                                </x-button.cta>
                             </div>
                         </form>
                     </div>

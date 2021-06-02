@@ -443,8 +443,11 @@
 .slider-buttons {
     box-shadow: 0 0 5px 10px var(--light-grey);
 }
-.slider-buttons button:hover {
-    color: var(--primary);
+@media (hover: hover) {
+    .slider-buttons button:hover {
+        color: var(--primary);
+        background-color: white;
+    }
 }
 
 #navscrollbar {
@@ -1431,17 +1434,17 @@ video {
 .top-2{
 	top: 0.5rem;
 }
-.-top-28{
-	top: -7rem;
-}
-.left-20{
-	left: 5rem;
-}
 .top-5{
 	top: 1.25rem;
 }
 .left-5{
 	left: 1.25rem;
+}
+.-top-28{
+	top: -7rem;
+}
+.left-20{
+	left: 5rem;
 }
 .right-2{
 	right: 0.5rem;
@@ -1695,6 +1698,9 @@ video {
 .h-16{
 	height: 4rem;
 }
+.h-\[400px\]{
+	height: 400px;
+}
 .h-8{
 	height: 2rem;
 }
@@ -1763,6 +1769,9 @@ video {
 }
 .w-20{
 	width: 5rem;
+}
+.w-5\/6{
+	width: 83.333333%;
 }
 .w-4\/6{
 	width: 66.666667%;
@@ -3097,6 +3106,11 @@ body.modal-open {
     background: var(--blue-grey);
 }
 
+.attachment-iframe-wrapper {
+    -webkit-overflow-scrolling: touch;
+    overflow: auto;
+}
+
 .hover\:scale-110:hover{
 	--tw-scale-x: 1.1;
 	--tw-scale-y: 1.1;
@@ -3556,8 +3570,16 @@ body.modal-open {
 		display: none;
 	}
 
+	.lg\:h-\[500px\]{
+		height: 500px;
+	}
+
 	.lg\:h-auto{
 		height: auto;
+	}
+
+	.lg\:w-4\/6{
+		width: 66.666667%;
 	}
 
 	.lg\:w-auto{
