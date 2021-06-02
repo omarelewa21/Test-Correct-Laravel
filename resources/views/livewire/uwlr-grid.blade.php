@@ -26,6 +26,13 @@
                     <x-table.heading>
                         &nbsp;
                     </x-table.heading>
+                    <x-table.heading>
+                        &nbsp;
+                    </x-table.heading>
+                    <x-table.heading>
+                        &nbsp;
+                    </x-table.heading>
+
                 </x-slot>
                 <x-slot name="body">
 
