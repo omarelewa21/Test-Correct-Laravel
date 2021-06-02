@@ -2058,10 +2058,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     private function generateMissingEmailAddress()
     {
         if ($this->isA('student')) {
-            return sprintf(STUDENT_IMPORT_EMAIL_PATTERN, $this->getKey());
+            return sprintf(self::STUDENT_IMPORT_EMAIL_PATTERN, $this->getKey());
         }
         if ($this->isA('teacher')) {
-            return sprintf(TEACHER_IMPORT_EMAIL_PATTERN, $this->getKey());
+            return sprintf(self::TEACHER_IMPORT_EMAIL_PATTERN, $this->getKey());
         }
     }
 }
