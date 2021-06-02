@@ -79,10 +79,13 @@ class Login extends Component
 
         $this->doLoginProcedure();
 
-        //Commented out Student check to redirect all users to Cake for now.
-//        if (auth()->user()->isA('Student')) {
-//            return redirect()->intended(route('student.dashboard'));
-//        }
+        if (auth()->user()->isA('Student')) {
+            return redirect()->intended(route('student.dashboard'));
+        }
+        if (auth()->user()->isA('Account manager')) {
+            return redirect()->intended(route('uwlr.grid'));
+        }
+
         auth()->user()->redirectToCakeWithTemporaryLogin();
     }
 
