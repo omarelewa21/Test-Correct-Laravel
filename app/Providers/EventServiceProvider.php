@@ -36,11 +36,8 @@ class EventServiceProvider extends ServiceProvider {
             if (array_key_exists('eckId', $userData['attributes']) && ! empty($userData['attributes']['eckId'][0])) {
                 $laravelUser = User::findByEckId($userData['attributes']['eckId'][0])->first();
                 if ($laravelUser) {
-                    // update email adress user with the one posted from entree
-                    // of alleen als t emailadres eindigt op test-correct.nl
-                    // of alleen als die voldoet aan s_<userId>@test-correct.nl of t_<userId>@test-correct.nl
-                    // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
-                    // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
+                    $laravelUser->handleEntreeAttributes($userData['attributes']);
+
                     $url = $laravelUser->getTemporaryCakeLoginUrl();
                     header("Location: $url");
                     exit;
