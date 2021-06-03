@@ -63,18 +63,24 @@ class Login extends Component
     {
         $this->resetErrorBag();
 
-        $credentials = $this->validate();
-
         if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
-            return $this->requireCaptcha = true;
+            $this->requireCaptcha = true;
+            return;
         }
-        if ($this->captcha) {
-            $this->validateCaptcha();
+        if ($this->captcha && !$this->validateCaptcha()) {
+            return;
         }
 
+        $credentials = $this->validate();
         if (!auth()->attempt($credentials)) {
+            if($this->requireCaptcha) {
+                $this->reset('captcha');
+                $this->emit('refresh-captcha');
+                return;
+            }
             $this->createFailedLogin();
-            return $this->addError('invalid_user', __('auth.failed'));
+            $this->addError('invalid_user', __('auth.failed'));
+            return;
         }
 
         $this->doLoginProcedure();
@@ -121,17 +127,20 @@ class Login extends Component
         ]);
     }
 
-    private function validateCaptcha(): void
+    private function validateCaptcha(): bool
     {
         $validateCaptcha = Validator::make(['captcha' => $this->captcha], ['captcha' => 'required|captcha']);
 
         if ($validateCaptcha->fails()) {
             $this->reset('captcha');
-            $this->dispatchBrowserEvent('refresh-captcha');
+            $this->addError('captcha', __('auth.incorrect_captcha'));
+            $this->emit('refresh-captcha');
+            return false;
         }
 
         $rulesWithCaptcha = array_merge($this->rules, ['captcha' => 'required|captcha']);
         $this->validate($rulesWithCaptcha);
+        return true;
     }
 
     public function updated($name, $value)

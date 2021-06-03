@@ -115,7 +115,7 @@
                                 </div>
                                 @enderror
                                 @if($requireCaptcha)
-                                    <div x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
+                                    <div>
                                         <div class="notification error stretched mt-4">
                                             <div class="flex items-center space-x-3">
                                                 <x-icon.exclamation/>
@@ -124,7 +124,7 @@
                                             <span class="body">{{ __('auth.require_captcha_long') }}</span>
                                         </div>
                                         <div class="mt-2 inline-flex flex-col items-center space-y-1">
-                                            <div x-ref="captcha" wire:ignore>
+                                            <div id="captcha-image" x-ref="captcha" wire:ignore>
                                                 @captcha
                                             </div>
                                             <input type="text" id="captcha"
@@ -135,7 +135,7 @@
                                     </div>
                                 @endif
                                 @error('captcha')
-                                <span class="text-sm all-red">{{ __('auth.incorrect_captcha') }}</span>
+                                <span class="text-sm all-red">{{ $message }}</span>
                                 @enderror
                                 @error('invalid_test_code')
                                 <div class="notification error stretched mt-4">
@@ -255,4 +255,12 @@
     </div>
 
     <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>
+
+    @push('scripts')
+        <script>
+            Livewire.on('refresh-captcha', function() {
+                document.querySelector('#captcha-image').firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());
+            });
+        </script>
+    @endpush
 </div>
