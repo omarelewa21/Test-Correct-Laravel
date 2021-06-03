@@ -410,9 +410,9 @@ class RttiImportTest extends TestCase
             ."RTTI School,".$this->brincode.",01,VWO,2,2020-2021,18819777,Leerling1-888801777,,Test1,V2A,DTS,67798777,Docent1-888801,von,Herman777,0\n";
 
         $output = $this->upload_data($csv_file_content);
-        dd($output);
 
-        $this->assertStringContainsString('Er is 1 leerling aangemaakt, 1 docenten en 1 klas.', $output['data']);
+
+        $this->assertStringContainsString('Er is 1 leerling aangemaakt, 1 docent en 1 klas.', $output['data']);
 
         $class = $teacherHerman->teacher->map(function (Teacher $teacher) {
             return $teacher->schoolClass;
