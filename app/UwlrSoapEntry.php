@@ -45,7 +45,10 @@ class UwlrSoapEntry extends Model
             $schoolClass->forceDelete();
         });
 
-        User::whereSchoolLocationId($schoolLocation->getKey())->forceDelete();
+        User::whereSchoolLocationId($schoolLocation->getKey())->each(function($user) {
+            $user->eckidFromRelation()->forceDelete();
+            $user->forceDelete();
+        });
         UwlrSoapResult::all()->each->forceDelete();
         UwlrSoapEntry::all()->each->forceDelete();
     }
