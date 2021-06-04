@@ -7,9 +7,12 @@ namespace tcCore\Http\Helpers;
 use Carbon\Carbon;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatusLog;
+use tcCore\Period;
+use tcCore\Question;
 use tcCore\QuestionAuthor;
 use tcCore\Role;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationSchoolYear;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -22,6 +25,7 @@ class ReportHelper
 
     protected $reference;
     protected $type;
+    protected $period;
 
     const SCHOOLLOCATION = 'schoolLocation';
     const USER = 'user';
@@ -35,8 +39,44 @@ class ReportHelper
         }
         $this->reference = $reference;
         $this->type = (get_class($reference) === User::class) ? self::USER : self::SCHOOLLOCATION;
+        if($this->type === self::SCHOOLLOCATION){
+            $this->setCurrentPeriod();
+        }
 
+    }
 
+    protected function setCurrentPeriod()
+    {
+        $this->period = null;
+        $this->reference->schoolLocationSchoolYears()->with('schoolYear','schoolYear.periods')->get()->each(function(SchoolLocationSchoolYear $y){
+            if(null !== $y->schoolYear && null !== $y->schoolYear->periods){
+                $y->schoolYear->periods->each(function(Period $p){
+                   if($p->isActual()){
+                       if($this->hasCurrentPeriod()){
+                        // we check if we need to expand the current period in rare case there are more than 1 current periods
+                           if($p->start_date <
+                               $this->period->start_date){
+                               $this->period->start_date = $p->start_date;
+                           }
+                           if($p->end_date >
+                               $this->period->end_date){
+                               $this->period->end_date = $p->end_date;
+                           }
+                       } else {
+                           $this->period = $p;
+                       }
+                   }
+                });
+            }
+        });
+        if(null === $this->period){
+            logger(sprintf('no current period found for school location %s (%d)',$this->reference->name, $this->reference->getKey()));
+        }
+    }
+
+    protected function hasCurrentPeriod()
+    {
+        return (bool) $this->period != null;
     }
 
     protected function attachReference($builder, $table)
@@ -71,18 +111,18 @@ class ReportHelper
         throw new \Exception('Nr of licenses should not be called for a user');
     }
 
-    public function nrApprovedClassFiles($days)
+    public function nrUploadedClassFiles($days)
     {
-        return $this->nrFileManagementByStatusIdTypeAndDays(7, 'classupload', $days);
+        return $this->nrFileManagementByStatusIdTypeAndDays(1, 'classupload', $days);
     }
 
 
     /*
      * file management logs not correctly saved
      */
-    public function nrApprovedTestFiles($days)
+    public function nrUploadedTestFiles($days)
     {
-        return $this->nrFileManagementByStatusIdTypeAndDays(7, 'testupload', $days);
+        return $this->nrFileManagementByStatusIdTypeAndDays(1, 'testupload', $days);
     }
 
     protected function nrFileManagementByStatusIdTypeAndDays($statusId, $type, $days)
@@ -111,7 +151,6 @@ class ReportHelper
             });
             $this->attachReference($builder, 'users');
         }
-
         $this->addDaysConstraintToBuilder($builder, $days,'Y-m-d H:i:s','question_authors.created_at');
 
         return $builder->count();
@@ -138,16 +177,6 @@ class ReportHelper
         return $this->nrTestTakesByStatusIdAndDays(6, $days);
     }
 
-    /**
-     * there should nothing be left to check (in the frontend the normeren button should show)
-     * participants => answer => needs rating
-     */
-    public function nrTestsChecked($days)
-    {
-
-        return $this->nrTestTakesByStatusIdAndDays(8, $days);
-    }
-
     public function nrTestsRated($days)
     {
         return $this->nrTestTakesByStatusIdAndDays(9, $days);
@@ -157,6 +186,22 @@ class ReportHelper
     {
         return $this->nrTestTakesByStatusIdAndDays(7, $days);
     }
+
+    public function nrParticipantsTakenTest($days)
+    {
+
+        $builder = \DB::table('test_participants')
+            ->leftJoin('test_takes', 'test_takes.id', 'test_participants.test_take_id')
+            ->whereNull('test_takes.deleted_at')
+            ->whereNull('test_participants.deleted_at');
+
+        $this->attachReference($builder, 'test_takes');
+
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00','test_takes.time_start');
+
+        return $builder->count();
+    }
+
 
     public function nrUniqueStudentsTakenTest($days)
     {
@@ -199,6 +244,15 @@ class ReportHelper
         }
     }
 
+    protected function addPeriodConstraintToBuilder($builder, $format = 'Y-m-d H:i:s', $column = 'test_take_status_logs.created_at')
+    {
+        if($this->hasCurrentPeriod()) {
+            $end_date = Carbon::createFromFormat('Y-m-d', $this->period->end_date)->format($format);
+            $start_date = Carbon::createFromFormat('Y-m-d', $this->period->start_date)->format($format);
+            $builder->whereBetween($column, [$start_date, $end_date]);
+        }
+    }
+
     /**
      * active in this case is:
      * in last 60 days
@@ -206,6 +260,9 @@ class ReportHelper
      */
     public function nrActiveTeachers($minimalNrTestTakes, $days = 0)
     {
+        if(!$this->hasCurrentPeriod()){
+            return -1;
+        }
 
 //        $count = $this->schoolLocation->users()->whereIn('id', function ($query) {
 //            $userRole = new UserRole();
@@ -226,22 +283,50 @@ class ReportHelper
     }
 
     /**
-     * @TODO limit on students
-     * @TODO remove @test-correct.nl domain users
-     * @TODO what is activated in last 90 days. only logged in or not logged in earlier??
-     * @TODO limit to this school year
+     * limit on students
+     * remove @test-correct.nl domain users
+     * first time login in this school year
      */
     public function nrActivatedAccounts($days)
     {
 
+        if(!$this->hasCurrentPeriod()){
+            return -1;
+        }
+
         $builder = \DB::table('login_logs')
             ->distinct('login_logs.user_id')
             ->leftJoin('users', 'users.id', 'login_logs.user_id')
-            ->whereNull('users.deleted_at');
+            ->whereNull('users.deleted_at')
+            ->join('user_roles', 'user_roles.user_id', 'users.id')
+            ->where('user_roles.role_id', 3) // student
+            ->whereNull('user_roles.deleted_at');
 
         $this->attachReference($builder, 'users');
 
-        $this->addDaysConstraintToBuilder($builder, $days,'Y-m-d H:i:s','login_logs.created_at');
+        $builder2 = \DB::table('login_logs')
+            ->distinct('login_logs.user_id')
+            ->leftJoin('users', 'users.id', 'login_logs.user_id')
+            ->whereNull('users.deleted_at')
+            ->join('user_roles', 'user_roles.user_id', 'users.id')
+            ->where('user_roles.role_id', 3) // student
+            ->whereNull('user_roles.deleted_at')
+            ->select('login_logs.user_id');
+
+        $this->attachReference($builder, 'users');
+
+        $format = 'Y-m-d H:i:s';
+        $column = 'login_logs.created_at';
+
+        if($days > 0){
+            $start_date = Carbon::createFromFormat('Y-m-d', $this->period->start_date)->format($format);
+            $end_date = Carbon::now()->subDays((int) $days)->format($format);
+            $builder2->whereBetween($column, [$start_date, $end_date]);
+            $builder->whereNotIn('login_logs.user_id',$builder2);
+        }
+
+        $this->addDaysConstraintToBuilder($builder, $days,$format,'login_logs.created_at');
+        $this->addPeriodConstraintToBuilder($builder, $format,'login_logs.created_at');
 
         return $builder->count();
     }
