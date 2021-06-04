@@ -2021,6 +2021,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         // update username with the emailaddress posted from entree
         // only and only when it conforms to s_<userId>@test-correct.nl or t_<userId>@test-correct.nl
+
+        dd($attr);
         if ($this->username === $this->generateMissingEmailAddress()) {
             if ($attr['mail']) {
                 $this->username = $attr['mail'];
