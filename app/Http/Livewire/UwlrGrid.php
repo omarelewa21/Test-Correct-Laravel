@@ -4,7 +4,7 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use tcCore\Http\Helpers\RTTIImportHelper;
+use tcCore\Http\Helpers\ImportHelper;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\User;
@@ -64,7 +64,7 @@ class UwlrGrid extends Component
 
     public function startProcessingResult()
     {
-        $helper = RTTIImportHelper::initWithUwlrSoapResult(
+        $helper = ImportHelper::initWithUwlrSoapResult(
             UwlrSoapResult::find($this->processingResultId),
             'sobit.nl'
         );

@@ -26,7 +26,7 @@ use Carbon\Carbon;
 use tcCore\Http\Requests\Request;
 use tcCore\UwlrSoapResult;
 
-class RTTIImportHelper
+class ImportHelper
 {
 
     /**
@@ -222,7 +222,7 @@ class RTTIImportHelper
                     $study_year_layer = $row[$column_index['lesJaarlaag']];
                     $study_year = substr($row[$column_index['Schooljaar']], 0, 4);
 
-                    $student_external_code = $row[$column_index['leeStamNummer']];
+                    $student_external_code = array_key_exists('leeStamNummer', $column_index) ? $row[$column_index['leeStamNummer']]: null;
                     $student_name_first = $row[$column_index['leeVoornaam']];
                     $student_name_suffix = $row[$column_index['leeTussenvoegsels']];
                     $student_name_last = $row[$column_index['leeAchternaam']];
@@ -236,7 +236,7 @@ class RTTIImportHelper
                     $class_name = $row[$column_index['lesNaam']];
                     $subject_abbreviation = $row[$column_index['vakNaam']];
 
-                    $teacher_external_code = $row[$column_index['docStamNummer']];
+                    $teacher_external_code = array_key_exists('docStamNummer', $column_index)? $row[$column_index['docStamNummer']]: null;
                     $teacher_name_first = $row[$column_index['docVoornaam']];
                     $teacher_name_suffix = $row[$column_index['docTussenvoegsels']];
                     $teacher_name_last = $row[$column_index['docAchternaam']];
@@ -263,10 +263,10 @@ class RTTIImportHelper
                     }
 
 
-                    $student_email = sprintf('%s@%s', $student_external_code, $this->email_domain);
+                    $student_email = $this->generateEmailAddress($student_external_code, $student_eckid);
 
 ////                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
-                    $teacher_email = 'rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code.'@'.$this->email_domain;
+                    $teacher_email = $this->generateEmailAddress('rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code, $teacher_eckid);
 
 
                     if (!in_array($study_year, range((now()->year - 10), (now()->year + 10)))) {
@@ -317,9 +317,9 @@ class RTTIImportHelper
                         $study_year_layer,
                         $education_level_id
                     );
-                    $teacher_id = $this->getUserIdForTeacherInLocation($teacher_external_code, $school_location_id);
-                    $student_id = $this->getUserIdForLocation($student_external_code, $school_location_id);
-                    $subject_id = $this->getSubjectId($subject_abbreviation, $school_location_id);
+                    $teacher_id = $this->getUserIdForTeacherInLocation($teacher_external_code, $school_location_id, $teacher_eckid);
+                    $student_id = $this->getUserIdForLocation($student_external_code, $school_location_id, $student_eckid);
+                    $subject_id = $this->getSubjectId($subject_abbreviation, $school_location_id, $teacher_eckid);
 
                     $this->importLog("subject id is ".$subject_id." for abbreviation ".$subject_abbreviation." and location ".$school_location_id);
 
@@ -410,14 +410,8 @@ class RTTIImportHelper
                             $this->importLog('Student with id '.$student_id.' exists in class '.$school_class_id);
                         }
 
-                        $user = User::where('external_id', $student_external_code)
-                            ->where('school_location_id', $school_location_id);
 
-
-                        if ($user->count() > 1) {
-                            $this->errorMessages[] = 'Dubbele externe id voor dezelfde gebruiker '.$student_external_code;
-                            //throw new \Exception('Dubbele externe id voor dezelfde gebruiker ' . $student_external_code);
-                        }
+                        $this->raiseDoubleEntryError($student_eckid, $student_external_code, $school_location_id);
                     } else {
 
                         $this->importLog("Create student with external code ".$student_external_code);
@@ -451,18 +445,29 @@ class RTTIImportHelper
                     $studentsPerClass[$school_class_id][] = $student_id;
 
                     if ($teacher_id != null) {
-                        $user_collection = User::join('school_location_user', 'users.id', '=',
-                            'school_location_user.user_id')
-                            ->where('school_location_user.school_location_id', $school_location_id)
-                            ->where('school_location_user.external_id', $teacher_external_code)
-                            ->get();
 
-                        if ($user_collection->count() > 1) {
+                        $user = null;
+                        if ($teacher_external_code) {
+                            $user_collection = User::join('school_location_user', 'users.id', '=',
+                                'school_location_user.user_id')
+                                ->where('school_location_user.school_location_id', $school_location_id)
+                                ->where('school_location_user.external_id', $teacher_external_code)
+                                ->get();
 
-                            throw new \Exception('Dubbele externe id voor leraar met externe code '.$teacher_external_code);
+                            if ($user_collection->count() > 1) {
+
+                                throw new \Exception('Dubbele externe id voor leraar met externe code '.$teacher_external_code);
+                            }
+                            $user = $user_collection->first();
+                        }
+                        if ($user == null && $teacher_eckid) {
+                            $user = User::findByEckId($teacher_eckid)->first();
                         }
 
-                        $user = $user_collection->first();
+                        if ($user === null) {
+                            throw new \Exception('User niet gevonden blijkbaar gaat er hier iets mis');
+                        }
+
 
                         $user->name_first = $teacher_name_first;
                         $user->name_suffix = $teacher_name_suffix;
@@ -997,10 +1002,17 @@ class RTTIImportHelper
     public function createOrRestoreUser($user_data, $forRole = 'student')
     {
 
-        $user = User::withTrashed()
-            ->where('external_id', $user_data['external_id'])
-            ->where('school_location_id', $user_data['school_location_id'])
-            ->first();
+        if (!empty($user_data['eckid'])) {
+            $user = User::withTrashed()->findByEckid($user_data['eckid'])->first();
+        }
+
+        if ($user == null && $user_data['external_id']) {
+            $user = User::withTrashed()
+                ->where('external_id', $user_data['external_id'])
+                ->where('school_location_id', $user_data['school_location_id'])
+                ->first();
+        }
+
 
         if ($user != null) {
 
@@ -1194,11 +1206,19 @@ class RTTIImportHelper
      * @param  type  $school_location_id
      * @return type int
      */
-    public function getUserIdForLocation($external_id, $school_location_id)
+    public function getUserIdForLocation($external_id, $school_location_id, $eckId = null)
     {
-        return User::where('external_id', $external_id)
-            ->where('school_location_id', $school_location_id)
-            ->value('id');
+        if ($eckId) {
+            return User::findByEckid($eckId)->value('id');
+        }
+
+        if ($external_id) {
+            return User::where('external_id', $external_id)
+                ->where('school_location_id', $school_location_id)
+                ->value('id');
+        }
+
+        return null;
     }
 
     /**
@@ -1207,12 +1227,18 @@ class RTTIImportHelper
      * @param  type  $school_location_id
      * @return type int
      */
-    public function getUserIdForTeacherInLocation($external_id, $school_location_id)
+    public function getUserIdForTeacherInLocation($external_id, $school_location_id, $eckId = null)
     {
-        return User::join('school_location_user', 'users.id', '=', 'school_location_user.user_id')
-            ->where('school_location_user.school_location_id', $school_location_id)
-            ->where('school_location_user.external_id', $external_id)
-            ->value('id');
+        if ($eckId) {
+            return User::findByEckid($eckId)->value('id');
+        }
+        if ($external_id) {
+            return User::join('school_location_user', 'users.id', '=', 'school_location_user.user_id')
+                ->where('school_location_user.school_location_id', $school_location_id)
+                ->where('school_location_user.external_id', $external_id)
+                ->value('id');
+        }
+        return null;
     }
 
     /**
@@ -1345,5 +1371,28 @@ class RTTIImportHelper
             }
         }
         return $returnArray;
+    }
+
+    private function generateEmailAddress($pattern, $eckId = null)
+    {
+        if (!empty($eckId)) {
+            $pattern = $eckId;
+        }
+
+        return sprintf('%s@%s', $pattern, $this->email_domain);
+    }
+
+    /**
+     * @param $student_eckid
+     * @param $student_external_code
+     * @param  $school_location_id
+     */
+    public function raiseDoubleEntryError($student_eckid, $student_external_code, $school_location_id): void
+    {
+        if (!$student_eckid && User::where('external_id', $student_external_code)
+                ->where('school_location_id', $school_location_id)->count() > 1) {
+            $this->errorMessages[] = 'Dubbele externe id voor dezelfde gebruiker '.$student_external_code;
+            //throw new \Exception('Dubbele externe id voor dezelfde gebruiker ' . $student_external_code);
+        }
     }
 }

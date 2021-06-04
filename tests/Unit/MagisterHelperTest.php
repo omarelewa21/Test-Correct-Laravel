@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use tcCore\Http\Helpers\MagisterHelper;
-use tcCore\Http\Helpers\RTTIImportHelper;
+use tcCore\Http\Helpers\ImportHelper;
 use tcCore\SchoolLocation;
 use tcCore\Teacher;
 use tcCore\User;
@@ -46,7 +46,7 @@ class MagisterHelperTest extends TestCase
             'De import was succesvol.',
             $processResult['data']
         );
-
+dd($processResult);
         // letop 10 docenten betekend 10 teacher records.
         // In de uwlr Magister set zitten 5 klassen die geen leerlingen/docenten bevatten deze worden ook niet aangemaakt;
 //        $this->assertStringContainsString(
@@ -151,7 +151,7 @@ class MagisterHelperTest extends TestCase
             ->storeInDB();
 
         $result = UwlrSoapResult::first();
-        $helper = RTTIImportHelper::initWithUwlrSoapResult($result, 'sobit.nl');
+        $helper = ImportHelper::initWithUwlrSoapResult($result, 'sobit.nl');
 
         $usersCountBefore = User::count();
         $teacherCountBefore = Teacher::count();
