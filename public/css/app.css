@@ -431,9 +431,8 @@
     max-width: -moz-fit-content;
     max-width: fit-content;
 }
-.matching-question .classify .drag-item {
-    margin-bottom: 4px;
-    margin-right: 4px;
+.matching-question .classify .dropzone-height .drag-item {
+    margin: 4px;
 }
 
 .matching-question .matching-dropzone .drag-item {
@@ -2098,6 +2097,9 @@ video {
 .rounded-\[4px\]{
 	border-radius: 4px;
 }
+.rounded-2xl{
+	border-radius: 1rem;
+}
 .rounded-l-md{
 	border-top-left-radius: 0.375rem;
 	border-bottom-left-radius: 0.375rem;
@@ -2242,6 +2244,9 @@ video {
 }
 .p-6{
 	padding: 1.5rem;
+}
+.p-1{
+	padding: 0.25rem;
 }
 .py-5{
 	padding-top: 1.25rem;

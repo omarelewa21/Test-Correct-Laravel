@@ -152,9 +152,8 @@
     margin-bottom: 4px;
     max-width: fit-content;
 }
-.matching-question .classify .drag-item {
-    margin-bottom: 4px;
-    margin-right: 4px;
+.matching-question .classify .dropzone-height .drag-item {
+    margin: 4px;
 }
 
 .matching-question .matching-dropzone .drag-item {

@@ -18,6 +18,7 @@ return [
     'log_in_verb'                         => 'Inloggen',
     'log_in_with_temporary_student_login' => 'Inloggen met tijdelijk studentprofiel',
     'log_in_with_student_account'         => 'Log in met je student account',
+    'log_in_to_test_correct'              => 'Log in op Test-Correct',
     'emailaddress'                        => 'E-mailadres',
     'password'                            => 'Wachtwoord',
     'forgot_password_long'                => 'Ben je jouw wachtwoord vergeten?',

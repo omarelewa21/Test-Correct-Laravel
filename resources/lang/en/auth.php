@@ -18,6 +18,7 @@ return [
     'log_in_verb'                         => 'Log in',
     'log_in_with_temporary_student_login' => 'Log in with temporary account',
     'log_in_with_student_account'         => 'Log in with your student account',
+    'log_in_to_test_correct'              => 'Log in to Test-Correct',
     'emailaddress'                        => 'E-mail address',
     'password'                            => 'Password',
     'forgot_password_long'                => 'Did you forget your password?',

@@ -15,7 +15,7 @@
                         <x-stickers.login/>
                     </div>
                     <div>
-                        <h1>{{ __('auth.log_in_verb') }}</h1>
+                        <h1>{{ __('auth.log_in_to_test_correct') }}</h1>
                     </div>
 
                 </div>
