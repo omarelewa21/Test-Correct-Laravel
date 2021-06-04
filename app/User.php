@@ -1968,16 +1968,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return sprintf('%s. %s%s', $letter, $suffix, $this->name);
     }
 
-    public function redirectToCakeWithTemporaryLogin()
-    {
-        $temporaryLogin = TemporaryLogin::create(
-            ['user_id' => $this->getKey()]
-        );
-        $redirectUrl = $temporaryLogin->createCakeUrl();
-
-        return redirect()->to($redirectUrl);
-    }
-
     public function hasIncompleteImport()
     {
         if ($this->isA('teacher')) {
@@ -2064,4 +2054,23 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return sprintf(self::TEACHER_IMPORT_EMAIL_PATTERN, $this->getKey());
         }
     }
+
+    public function redirectToCakeWithTemporaryLogin()
+    {
+        $redirectUrl = $this->getTemporaryCakeLoginUrl();
+
+        return redirect()->to($redirectUrl);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTemporaryCakeLoginUrl()
+    {
+        $temporaryLogin = TemporaryLogin::create(
+            ['user_id' => $this->getKey()]
+        );
+        return $temporaryLogin->createCakeUrl();
+    }
+
 }
