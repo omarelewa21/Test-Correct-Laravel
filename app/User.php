@@ -360,8 +360,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->eckidFromRelation()->save($eckIdUser);
     }
 
-    public function scopeFindByEckid($query, $eckid){
-        return $query->select('users.*')->leftJoin('eckid_user', 'users.id', '=', 'eckid_user.user_id')->where('eckid', $eckid);
+    public function scopeFindByEckid($query, $eckid)
+    {
+        return $query->select('users.*')->leftJoin('eckid_user', 'users.id', '=', 'eckid_user.user_id')->where('eckid',
+            $eckid);
     }
 
     public function getIsTempTeacher()
@@ -1963,7 +1965,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getFullNameWithAbbreviatedFirstName(): string
     {
         $letter = Str::substr($this->name_first, 0, 1);
-        filled($this->name_suffix) ? $suffix = $this->name_suffix . ' ' : $suffix = '';
+        filled($this->name_suffix) ? $suffix = $this->name_suffix.' ' : $suffix = '';
 
         return sprintf('%s. %s%s', $letter, $suffix, $this->name);
     }
@@ -2000,7 +2002,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         ->whereNotNull('school_class_import_logs.id');
 
                 })->value('cnt');
-            return  ($classRecords + $teacherRecords) > 0;
+            return ($classRecords + $teacherRecords) > 0;
         }
 
         if ($this->isA('account manager')) {
@@ -2021,28 +2023,26 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         // update username with the emailaddress posted from entree
         // only and only when it conforms to s_<userId>@test-correct.nl or t_<userId>@test-correct.nl
+        $emailFromEntree = false;
+        if (array_key_exists('mail', $attr) && is_array($attr['mail'])) {
+            $emailFromEntree = array_pop($attr['mail']);
+        }
 
-        dd($attr);
-        if ($this->username === $this->generateMissingEmailAddress()) {
-            if ($attr['mail']) {
-                $this->username = $attr['mail'];
-            }
+
+        if ($emailFromEntree && $this->username === $this->generateMissingEmailAddress()) {
+            $this->username = $emailFromEntree;
         }
 
         // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
         // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
-        if ($this->isA('student') && $this->externalId == null) {
-            if ($attr['mail']) {
-                $parts = explode('@', $attr['mail'])[0];
-                if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
-                    $this->external_id = $parts[0];
-                }
+        if ($emailFromEntree && $this->isA('student') && $this->externalId == null) {
+            $parts = explode('@', $emailFromEntree)[0];
+            if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
+                $this->external_id = $parts[0];
             }
         }
 
-        if ($this->isDirty()){
-            $this->save();
-        }
+        $this->save();
 
         return $this;
     }
