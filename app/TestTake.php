@@ -74,6 +74,8 @@ class TestTake extends BaseModel
      */
     protected $schoolClasses;
 
+    protected $appends = ['exported_to_rtti_formated'];
+
     public static function boot()
     {
         parent::boot();
@@ -849,5 +851,10 @@ class TestTake extends BaseModel
         });
 
         return collect($invigilators);
+    }
+
+    public function getExportedToRttiFormatedAttribute()
+    {
+        return $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 }

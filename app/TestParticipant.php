@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -154,7 +155,18 @@ class TestParticipant extends BaseModel
                     $order++;
                 }
             }
-            $this->answers()->saveMany($answers);
+            foreach($answers as $answer){
+                try {
+                    $this->answers()->save($answer);
+                } catch (\Throwable $e){
+                    // we have an exception probably because of double adding same answer.
+                    // so we only are going to send a notification to bugsnag, but won't hold.
+                    $body = sprintf('Notice: Error while adding empty answer records for the participant for participant (%d) and question (%d) with error %s',$this->getKey(),$answer->question_id,$e->getMessage());
+
+                    Bugsnag::notifyException(new \LogicException($body));
+                }
+            }
+//            $this->answers()->saveMany($answers);
 
             (new AnswerParentQuestionsHelper())->fixAnswerParentQuestionsPerTestParticipant($this);
         }

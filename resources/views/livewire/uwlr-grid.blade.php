@@ -2,6 +2,7 @@
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
         <div class="flex-shrink-0">
+            <x-button.cta class="" wire:click="deleteMagister">Delete Magister</x-button.cta>
             <x-button.primary class="" wire:click="newImport">Import</x-button.primary>
         </div>
     </div>
@@ -25,6 +26,13 @@
                     <x-table.heading>
                         &nbsp;
                     </x-table.heading>
+                    <x-table.heading>
+                        &nbsp;
+                    </x-table.heading>
+                    <x-table.heading>
+                        &nbsp;
+                    </x-table.heading>
+
                 </x-slot>
                 <x-slot name="body">
 
@@ -47,6 +55,9 @@
                             </x-table.cell>
                             <x-table.cell>
                                 <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Process</x-button.text-button>
+                            </x-table.cell>
+                            <x-table.cell>
+                                <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">Error</x-button.text-button>
                             </x-table.cell>
                         </x-table.row>
                     @endforeach
@@ -131,14 +142,85 @@
                             </div>
                         </div>
                     @endforeach
-                   {{ $this->processingResult }}
+                        <div wire:loading>
+                            <div wire:key="loading-text">Processing Result...</div>
+                            <div wire:key="hourglass" class="lds-hourglass"></div>
+                        </div>
+                        <div wire:key="processing-result">{{ $this->processingResult }}</div>
                 </div>
 
-                <button wire:click="startProcessingResult">Start</button>
+                <x-button.primary wire:click="startProcessingResult">Start</x-button.primary>
             </div>
         </x-slot>
-        <x-slot name="actionButton">me</x-slot>
+        <x-slot name="actionButton">&nbsp;</x-slot>
     </x-modal>
+
+    <x-modal wire:model="showErrorModal" maxWidth="7xl">
+        <x-slot name="title">Errors</x-slot>
+        <x-slot name="body">
+            <div class="sm:block">
+                <div class="border-b border-gray-200" id="melding">
+
+                    <PRE> {{ $this->errorMessages }}</PRE>
+                </div>
+
+
+            </div>
+        </x-slot>
+        <x-slot name="actionButton"></x-slot>
+    </x-modal>
+
+    <x-modal wire:model="showSuccessDialog" maxWidth="7xl">
+        <x-slot name="title">Success</x-slot>
+        <x-slot name="body">
+            <div class="sm:block">
+                <div class="border-b border-gray-200" id="melding">
+
+                    <PRE> {{ $this->successDialogMessage }}</PRE>
+                </div>
+
+
+            </div>
+        </x-slot>
+        <x-slot name="actionButton" ></x-slot>
+    </x-modal>
+
+
+    <style>
+        .lds-hourglass {
+            display: inline-block;
+            position: relative;
+            width: 40px;
+            height: 40px;
+        }
+
+        .lds-hourglass:after {
+            content: " ";
+            display: block;
+            border-radius: 50%;
+            width: 0;
+            height: 0;
+            margin: 8px;
+            box-sizing: border-box;
+            border: 12px solid #0000ff;
+            border-color: #0000ff transparent #0000ff transparent;
+            animation: lds-hourglass 1.2s infinite;
+        }
+
+        @keyframes lds-hourglass {
+            0% {
+                transform: rotate(0);
+                animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+            }
+            50% {
+                transform: rotate(900deg);
+                animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+            }
+            100% {
+                transform: rotate(1800deg);
+            }
+        }
+    </style>
 </div>
 
 

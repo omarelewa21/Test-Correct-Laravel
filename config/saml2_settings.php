@@ -7,7 +7,7 @@ return $settings = array(
      * Separate routes will be automatically registered for each IDP specified with IDP name as prefix
      * Separate config file saml2/<idpName>_idp_settings.php should be added & configured accordingly
      */
-    'idpNames' => ['entree','test'],
+    'idpNames' => ['entree'],
 
     /**
      * If 'useRoutes' is set to true, the package defines five new routes for reach entry in idpNames:
@@ -67,5 +67,5 @@ return $settings = array(
      * a `$returnTo` argument), this value allows you to pass your own controller, and have
      * it used in the routes definition.
      */
-     // 'saml2_controller' => '',
+      'saml2_controller' => \tcCore\Http\Controllers\Saml2Controller::class,
 );
