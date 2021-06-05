@@ -700,7 +700,9 @@ class ImportHelper
             ];
         }
 
-//        \DB::commit();
+        if (!App::runningUnitTests()){
+            \DB::commit();
+        }
 
         $this->importLog('import done');
 
