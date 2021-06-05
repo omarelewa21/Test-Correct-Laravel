@@ -46,30 +46,30 @@ class MagisterHelperTest extends TestCase
             'De import was succesvol.',
             $processResult['data']
         );
-dd($processResult);
+//dd($processResult);
         // letop 10 docenten betekend 10 teacher records.
         // In de uwlr Magister set zitten 5 klassen die geen leerlingen/docenten bevatten deze worden ook niet aangemaakt;
-//        $this->assertStringContainsString(
-//            'Er zijn 22 leerlingen aangemaakt, 10 docenten en 5 klassen.',
-//            $processResult['data']
-//        );
-//
-//        $this->assertEquals(28, $schoolLocation->users()->where('demo', 0)->count());
-//        // de import bevat 22 leerlingen
-//        $this->assertEquals(22, $schoolLocation->users->filter(function ($user) {
-//            return $user->isA('student') && $user->demo === 0;
-//        })->count());
-//        // de import bevat 6 leerkrachten;
-//        $this->assertEquals(6, $schoolLocation->users->where('demo', 0)->filter(function ($user) {
-//            return $user->isA('teacher') && $user->demo === 0;
-//        })->count());
-//
-//        // de import bevat 10 groepen; maar slechts 6 daarvan komen voor bij zowel leerlingen als docenten.
-//        $this->assertEquals(6, $schoolLocation->schoolClasses()->count());
-//        // de import bevat 4 samengestelde groepen maar slecht 3 bevatten leerlingen en docenten
-//        $this->assertEquals(3, $schoolLocation->schoolClasses()->where('is_main_school_class', 0)->count());
-//        // de import bevat 6 groepen maar slechts 3 bevatten leerlingen en docenten.
-//        $this->assertEquals(3, $schoolLocation->schoolClasses()->where('is_main_school_class', 1)->count());
+        $this->assertStringContainsString(
+            'Er zijn 22 leerlingen aangemaakt, 10 docenten en 5 klassen.',
+            $processResult['data']
+        );
+
+        $this->assertEquals(28, $schoolLocation->users()->where('demo', 0)->count());
+        // de import bevat 22 leerlingen
+        $this->assertEquals(22, $schoolLocation->users->filter(function ($user) {
+            return $user->isA('student') && $user->demo === 0;
+        })->count());
+        // de import bevat 6 leerkrachten;
+        $this->assertEquals(6, $schoolLocation->users->where('demo', 0)->filter(function ($user) {
+            return $user->isA('teacher') && $user->demo === 0;
+        })->count());
+
+        // de import bevat 10 groepen; maar slechts 6 daarvan komen voor bij zowel leerlingen als docenten.
+        $this->assertEquals(6, $schoolLocation->schoolClasses()->count());
+        // de import bevat 4 samengestelde groepen maar slecht 3 bevatten leerlingen en docenten
+        $this->assertEquals(3, $schoolLocation->schoolClasses()->where('is_main_school_class', 0)->count());
+        // de import bevat 6 groepen maar slechts 3 bevatten leerlingen en docenten.
+        $this->assertEquals(3, $schoolLocation->schoolClasses()->where('is_main_school_class', 1)->count());
     }
 
     /** @test */

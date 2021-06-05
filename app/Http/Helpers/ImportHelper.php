@@ -700,7 +700,7 @@ class ImportHelper
             ];
         }
 
-        \DB::commit();
+//        \DB::commit();
 
         $this->importLog('import done');
 
@@ -1001,6 +1001,7 @@ class ImportHelper
      */
     public function createOrRestoreUser($user_data, $forRole = 'student')
     {
+$user = null;
 
         if (!empty($user_data['eckid'])) {
             $user = User::withTrashed()->findByEckid($user_data['eckid'])->first();
