@@ -10,6 +10,7 @@ use tcCore\Question;
 class Navigation extends Component
 {
     use WithUpdatingHandling;
+
     public $nav;
     public $testTakeUuid;
     public $q;
@@ -24,6 +25,7 @@ class Navigation extends Component
         'redirect-from-closing-a-group'    => 'redirectFromClosedGroup',
         'update-nav-with-closed-question'  => 'updateNavWithClosedQuestion',
         'update-nav-with-closed-group'     => 'updateNavWithClosedGroup',
+        'current-question-answered'        => 'updateQuestionIndicatorColor',
     ];
 
     public function mount()
@@ -88,7 +90,7 @@ class Navigation extends Component
         }
         $this->dispatchBrowserEvent('update-footer-navigation', $details);
     }
-    
+
     public function toOverview($currentQuestion)
     {
         $this->checkIfCurrentQuestionIsInfoscreen($this->q);
@@ -104,11 +106,10 @@ class Navigation extends Component
         }
     }
 
-    public function updateQuestionIndicatorColor()
+    public function updateQuestionIndicatorColor($questionNumber)
     {
-        $newNav = $this->nav->map(function (&$item, $key) {
-            $q = $this->q;
-            if ($key == --$q) {
+        $newNav = $this->nav->map(function (&$item, $key) use ($questionNumber) {
+            if ($key + 1 == $questionNumber) {
                 $item['answered'] = true;
                 return $item;
             }
@@ -122,13 +123,13 @@ class Navigation extends Component
         $questionUuid = $this->nav[$question - 1]['uuid'];
         if (Question::whereUuid($questionUuid)->first()->type === 'InfoscreenQuestion') {
             $this->dispatchBrowserEvent('mark-infoscreen-as-seen', $questionUuid);
-            $this->updateQuestionIndicatorColor();
+            $this->updateQuestionIndicatorColor($question);
         }
     }
 
     public function goToQuestion($nextQuestion)
     {
-        if (!$this->nav->has($nextQuestion-1)) {
+        if (!$this->nav->has($nextQuestion - 1)) {
             return;
         }
 

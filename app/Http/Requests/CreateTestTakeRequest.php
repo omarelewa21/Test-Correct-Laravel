@@ -35,7 +35,8 @@ class CreateTestTakeRequest extends Request
             'location'                => '',
             'weight'                  => '',
             'note'                    => '',
-            'allow_inbrowser_testing' => ''
+            'allow_inbrowser_testing' => '',
+            'exported_to_rtti'        => ''
         ];
     }
 
@@ -46,7 +47,7 @@ class CreateTestTakeRequest extends Request
         $data = ($this->all());
 
         if (isset($data["retake_test_take_id"]) && Uuid::isValid($data['retake_test_take_id'])) {
-            $educationLevel = TestTake::whereUuid($data['retake_test_take_id'])->first();
+            $educationLevel = TestTake::whereUuid($data['retake_test_take_git id'])->first();
             if (!$educationLevel) {
                 $this->addPrepareForValidationError('retake_test_take_id', 'Deze afname toets kon helaas niet terug gevonden worden.');
             } else {

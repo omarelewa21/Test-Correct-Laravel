@@ -1,6 +1,9 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
      x-data="{ openTab: 1, showPassword: false }"
-     x-init="addRelativePaddingToBody('login-body', 10)"
+     x-init="
+            addRelativePaddingToBody('login-body', 10);
+            setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
+            "
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
      wire:ignore.self
 >
@@ -12,7 +15,7 @@
                         <x-stickers.login/>
                     </div>
                     <div>
-                        <h1>{{ __('auth.login_as_student') }}</h1>
+                        <h1>{{ __('auth.log_in_verb') }}</h1>
                     </div>
 
                 </div>
@@ -21,11 +24,18 @@
                     <div class="flex w-full space-x-6 mb-5 border-b border-light-grey">
                         <div :class="{'border-b-2 border-primary -mb-px' : openTab === 1}">
                             <x-button.text-button class="primary"
-                                                  @click="openTab = 1">{{ __('auth.log_in_verb') }}</x-button.text-button>
+{{--                                                  @click="openTab = 1"--}}
+                            >
+                                {{ __('auth.log_in_verb') }}
+                            </x-button.text-button>
                         </div>
-                        <div class="" :class="{'border-b-2 border-primary -mb-px' : openTab === 2}">
-                            <x-button.text-button class="primary"
-                                                  @click="openTab = 2;">{{ __('auth.log_in_with_temporary_student_login') }}</x-button.text-button>
+{{--                        <div class="" :class="{'border-b-2 border-primary -mb-px' : openTab === 2}">--}}
+                        <div>
+                            <x-button.text-button class="disabled" disabled
+{{--                                                  @click="openTab = 2;"--}}
+                            >
+                                {{ __('auth.log_in_with_temporary_student_login') }}
+                            </x-button.text-button>
                         </div>
                     </div>
 
@@ -46,7 +56,7 @@
                                 </x-input.group>
                             </div>
 
-                            <div class="">
+                            <div class="hidden">
                                 <div class="mx-auto mt-4 flex flex-col items-center"
                                      x-data="{showCode: @entangle('showTestCode'), tooltip: false}">
                                     <div class="w-full flex items-center">
@@ -133,17 +143,12 @@
                                 </div>
                                 @enderror
                             </div>
-                            <div class="flex mt-auto pt-4 justify-between">
-                                @if($loginButtonDisabled)
-                                    <x-button.cta class="order-2 disabled" size="md" disabled>
-                                        <span>{{ __('auth.log_in_verb') }}</span>
-                                    </x-button.cta>
-                                @else
-                                    <x-button.cta class="order-2" size="md">
-                                        <span>{{ __('auth.log_in_verb') }}</span>
-                                    </x-button.cta>
-                                @endif
-                                <x-button.text-button class="order-1" wire:click.prevent="$set('loginTab', false)">
+                            {{-- With forgot_password button, ml_auto can be switched justify-between on the parent --}}
+                            <div class="flex mt-auto pt-4">
+                                <x-button.cta class="ml-auto" size="md">
+                                    <span>{{ __('auth.log_in_verb') }}</span>
+                                </x-button.cta>
+                                <x-button.text-button class="hidden order-1" wire:click.prevent="$set('loginTab', false)">
                                     <span class="text-base">{{__('auth.forgot_password_long')}}</span>
                                     <x-icon.arrow/>
                                 </x-button.text-button>
@@ -151,7 +156,7 @@
                         </form>
                     </div>
 
-                    <div class="flex flex-col flex-1" x-show="openTab === 2" x-cloak>
+                    <div class="hidden flex flex-col flex-1" x-show="openTab === 2" x-cloak>
 
                         <form wire:submit.prevent="guestLogin" action="#" method="POST" class="flex-col flex flex-1">
                             <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
@@ -192,15 +197,9 @@
                             </div>
 
                             <div class="flex mt-auto pt-4">
-                                @if($guestLoginButtonDisabled)
-                                    <x-button.cta class="ml-auto" size="md" disabled>
-                                        <span>{{ __('auth.log_in_verb') }}</span>
-                                    </x-button.cta>
-                                @else
-                                    <x-button.cta class="ml-auto" size="md">
-                                        <span>{{ __('auth.log_in_verb') }}</span>
-                                    </x-button.cta>
-                                @endif
+                                <x-button.cta class="ml-auto" size="md">
+                                    <span>{{ __('auth.log_in_verb') }}</span>
+                                </x-button.cta>
                             </div>
                         </form>
                     </div>

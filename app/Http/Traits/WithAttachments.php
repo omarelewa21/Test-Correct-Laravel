@@ -4,13 +4,8 @@
 namespace tcCore\Http\Traits;
 
 
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cookie;
-use PhpParser\Node\Stmt\Throw_;
 use tcCore\Answer;
 use tcCore\Attachment;
-use tcCore\Exceptions\LivewireTestTakeClosedException;
-use tcCore\Http\Requests\Request;
 
 trait WithAttachments
 {

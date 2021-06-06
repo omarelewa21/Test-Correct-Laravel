@@ -74,6 +74,8 @@ class TestTake extends BaseModel
      */
     protected $schoolClasses;
 
+    protected $appends = ['exported_to_rtti_formated'];
+
     public static function boot()
     {
         parent::boot();
@@ -844,10 +846,15 @@ class TestTake extends BaseModel
 
     public function giveAbbreviatedInvigilatorNames()
     {
-        $invigilators = $this->invigilatorUsers->map(function ($invigilator) {
+        $invigilators = $this->invigilatorUsers()->withTrashed()->get()->map(function ($invigilator) {
             return $invigilator->getFullNameWithAbbreviatedFirstName();
         });
 
         return collect($invigilators);
+    }
+
+    public function getExportedToRttiFormatedAttribute()
+    {
+        return $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 }

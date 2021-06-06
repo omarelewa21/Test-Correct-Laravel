@@ -145,5 +145,8 @@ class Teacher extends BaseModel {
         }
     }
 
-
+    public function importLog()
+    {
+        return $this->hasOne(TeacherImportLog::class, 'teacher_id', 'id');
+    }
 }

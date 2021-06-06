@@ -246,6 +246,10 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         return $this->hasMany('tcCore\AverageRating');
     }
 
+    public function importLog() {
+        return $this->hasOne('tcCore\SchoolClassImportLog', 'class_id', 'id');
+    }
+
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();
@@ -261,25 +265,25 @@ class SchoolClass extends BaseModel implements AccessCheckable {
                 }
 
                 if (in_array('Teacher', $roles)) {
-                    $query->orWhereIn('id', function ($query) use ($userId) {
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
                         $query->select('class_id')->from(with(new Teacher())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
                     });
                 }
 
                 if (in_array('Mentor', $roles)) {
-                    $query->orWhereIn('id', function ($query) use ($userId) {
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
                         $query->select('school_class_id')->from(with(new Mentor())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
                     });
                 }
 
                 if (in_array('School management', $roles)) {
-                    $query->orWhereIn('id', function ($query) use ($userId) {
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
                         $query->select('school_class_id')->from(with(new Manager())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
                     });
                 }
 
                 if (in_array('Student', $roles)) {
-                    $query->orWhereIn('id', function ($query) use ($userId) {
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
                         $query->select('class_id')->from(with(new Student())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
                     });
                 }

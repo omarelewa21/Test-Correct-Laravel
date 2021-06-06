@@ -10,8 +10,8 @@ namespace Tests\Unit;
 
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
+use tcCore\EckidUser;
 use tcCore\SchoolLocation;
-use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\User;
 use Tests\TestCase;
@@ -167,35 +167,32 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function an_external_id_of_a_teacher_comes_from_schoollocation_user()
+    public function it_can_store_a_user_with_a_eckid()
     {
-        $data =[
-            'school_location_id' => '2',
-            'name_first' => 'a',
-            'name_suffix' => '',
-            'name' => 'bc',
-            'abbreviation' => 'abcc',
-            'username' => 'abc@test-correct.nl',
-            'password' => 'aa',
-            'external_id' => 'abc',
-            'note' => '',
-            'user_roles' => [1],
-        ];
+        $this->assertNull(EckidUser::firstWhere('eckid', 'ABCDEF'));
+        $user = factory(User::class)->create();
+        $user->eckId = 'ABCDEF';
+        $user->save();
+        $this->assertNotNull($model = EckidUser::firstWhere('eckid', 'ABCDEF'));
+        $this->assertTrue($model->user->is($user));
+    }
 
-        $response = $this->post(
-            'api-c/user',
-            static::getRttiSchoolbeheerderAuthRequestData($data)
-        );
-        $response->assertStatus(200);
-        $rData = $response->decodeResponseJson();
-        $this->assertTrue($rData['school_location']['id']==2);
-        DB::update('update school_location_user set external_id = ? where user_id = ?', ['joepie',$rData['id']]);
-        $test = Test::with('author')->where('author_id',$rData['id'])->first();
-        $this->assertEquals('joepie',$test->author->external_id);
-        $testArray = $test->toArray();
-        $this->assertEquals('joepie',$test['author']['external_id']);
-        $user = User::find($rData['id']);
-        $this->assertEquals('joepie',$user->external_id);
-        $this->assertEquals('abc',$user->getUserTableExternalIdAttribute());
+    /** @test */
+    public function it_can_retrieve_a_user_by_eckId()
+    {
+        $this->assertNull(EckidUser::firstWhere('eckid', 'ABCDEF'));
+        $user = factory(User::class)->create();
+        $user->eckId = 'ABCDEF';
+        $user->save();
+
+        $userFromDB = User::findByEckId('ABCDEF')->first();
+        $this->assertTrue($user->is($userFromDB));
+    }
+
+    /** @test */
+    public function when_a_user_is_a_teacher_and_not_all_classes_with_an_import_record_are_checked_it_should_return_false()
+    {
+        $teacherOne = User::where('username', 'd1@test-correct.nl')->first();
+        $this->assertFalse($teacherOne->hasIncompleteImport());
     }
 }

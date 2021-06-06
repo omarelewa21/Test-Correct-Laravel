@@ -63,7 +63,7 @@
                             {{-- "Three Dots" Separator --}}
                             @if (is_string($element))
                                 <span aria-disabled="true">
-                                    <span class="relative inline-flex items-center px-4 py-2 -ml-px text-sm font-medium text-gray-700 bg-white border border-gray-300 cursor-default leading-5">{{ $element }}</span>
+                                    <span class="relative px-2">{{ $element }}</span>
                                 </span>
                             @endif
 
@@ -95,6 +95,10 @@
                                     <span>{{ __('pagination.next') }}</span>
                                     <x-icon.chevron/>
                                 </x-button.text-button>
+{{--                                <x-button.text-button wire:click="gotoPage({{ ceil($paginator->total() / $paginator->perPage()) }})" aria-label="{{ __('pagination.next') }}">--}}
+{{--                                    <span>Laatste</span>--}}
+{{--                                    <x-icon.arrow/>--}}
+{{--                                </x-button.text-button>--}}
                             @else
                                 <span aria-disabled="true" aria-label="{{ __('pagination.next') }}">
                                     <x-button.text-button class="invisible">
