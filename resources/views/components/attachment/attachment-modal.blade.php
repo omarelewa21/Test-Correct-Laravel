@@ -1,6 +1,6 @@
 @if($attachment)
     <div id="attachment"
-         class="fixed top-5 left-5 z-30 shadow-lg border border-blue-grey rounded-10 bg-black {{ $this->getAttachmentModalSize() }}"
+         class="fixed top-5 left-5 z-30 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation {{ $this->getAttachmentModalSize() }}"
     >
         <div class="hidden h-[45vw] w-3/4 h-1/2 w-5/6 lg:w-4/6 h-[80vh] w-[80vw] h-[45vw]"></div>
         <div class="flex-col relative h-full rounded-10">

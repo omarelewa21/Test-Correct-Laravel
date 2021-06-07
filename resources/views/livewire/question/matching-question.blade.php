@@ -11,7 +11,7 @@
             <div id="matching-container{{$question->getKey()}}" class="flex flex-col classify"
                  wire:sortable-group="updateOrder">
                 <div class="flex">
-                    <x-dropzone wire:key="group-start" startGroup="true">
+                    <x-dropzone id="startGroep-{{$question->getKey()}}" wire:key="group-start" startGroup="true">
                         <div class="h-full space-x-1 focus:outline-none start-group"
                              wire:sortable-group.item-group="startGroep">
                             @foreach($shuffledAnswers as $option)
