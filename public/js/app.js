@@ -3962,6 +3962,8 @@ var touchstartX = 0;
 var touchstartY = 0;
 var touchendX = 0;
 var touchendY = 0;
+var disableSwipeForElements = ['.disable-swipe-navigation', '#navigation-container', '.ranking', '.classify', '.matching'];
+var swipeAccuracyDefer = 100;
 var gestureZone = document.getElementById('body');
 gestureZone.addEventListener('touchstart', function (event) {
   touchstartX = event.changedTouches[0].screenX;
@@ -3973,25 +3975,23 @@ gestureZone.addEventListener('touchend', function (event) {
 }, false);
 
 handleGesture = function handleGesture(target) {
-  if (target.closest('#navigation-container') !== null) {
-    return;
-  }
+  if (!shouldSwipeDirectionBeReturned(target)) return;
 
-  if (diff(touchendY, touchstartY) > 50 && touchendY < touchstartY) {
+  if (diff(touchendY, touchstartY) > swipeAccuracyDefer && touchendY < touchstartY) {
     return 'down';
   }
 
-  if (diff(touchendY, touchstartY) > 50 && touchendY > touchstartY) {
+  if (diff(touchendY, touchstartY) > swipeAccuracyDefer && touchendY > touchstartY) {
     //Swipe up
     return 'up';
   }
 
-  if (diff(touchendX, touchstartX) > 50 && touchendX < touchstartX) {
+  if (diff(touchendX, touchstartX) > swipeAccuracyDefer && touchendX < touchstartX) {
     //Swipe left
     return 'left';
   }
 
-  if (diff(touchendX, touchstartX) > 50 && touchendX > touchstartX) {
+  if (diff(touchendX, touchstartX) > swipeAccuracyDefer && touchendX > touchstartX) {
     //Swipe right
     return 'right';
   }
@@ -4004,6 +4004,16 @@ handleGesture = function handleGesture(target) {
 
 function diff(a, b) {
   return Math.abs(a - b);
+}
+
+function shouldSwipeDirectionBeReturned(target) {
+  var returnDirection = true;
+  disableSwipeForElements.forEach(function (el) {
+    if (target.closest(el) !== null) {
+      returnDirection = false;
+    }
+  });
+  return returnDirection;
 }
 
 /***/ }),

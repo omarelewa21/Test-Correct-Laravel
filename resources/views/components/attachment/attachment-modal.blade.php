@@ -1,6 +1,6 @@
 @if($attachment)
     <div id="attachment"
-         class="fixed top-5 left-5 z-30 w-5/6 lg:w-4/6 h-[400px] lg:h-[500px] shadow-lg border border-blue-grey rounded-10 bg-black">
+         class="fixed top-5 left-5 z-30 w-5/6 lg:w-4/6 h-[400px] lg:h-[500px] shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation">
         <div class="flex-col relative h-full rounded-10">
             <div class="flex absolute top-0 right-0 justify-end space-x-2 z-10" style="-webkit-transform: translateZ(10px);">
                 <x-button.secondary id="attachmentdrag" class="rotate-svg-45">

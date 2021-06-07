@@ -1,4 +1,4 @@
-<div class="overflow-auto flex flex-col pb-4">
+<div class="overflow-auto flex flex-col pb-4 disable-swipe-navigation">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link href="/drawing/buttons.css" rel="stylesheet" type="text/css"/>
     <link href="/drawing/spacing.css" rel="stylesheet" type="text/css"/>
