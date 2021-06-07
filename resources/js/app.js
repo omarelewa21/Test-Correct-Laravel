@@ -1,6 +1,7 @@
 require('./bootstrap');
 require('alpinejs');
 require('livewire-sortable');
+require('./swipe');
 
 addIdsToQuestionHtml = function () {
     let id = 1;
@@ -95,4 +96,8 @@ Core = {
         }
         alert = true;
     }
+}
+
+isInputElement = function(target) {
+    return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
 }

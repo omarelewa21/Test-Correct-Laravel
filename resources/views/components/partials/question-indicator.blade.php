@@ -1,4 +1,4 @@
-<div class="question-indicator w-full">
+<div class="question-indicator w-full" id="navigation-container">
     <div class="flex-col"
          x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"
          x-ref="questionindicator"
