@@ -19,9 +19,8 @@ class OpenQuestionTest extends TestCase
     public function a_teacher_can_add_a_open_question_to_a_test_o()
     {
         $test = $this->createNewTest();
-
         $response = $this->post(
-            '/test_question',
+            '/api-c/test_question',
             static::getTeacherOneAuthRequestData([
                 'question'               => '<p>aa</p>',
                 'answer'                 => '<p>bb</p>',
@@ -39,6 +38,7 @@ class OpenQuestionTest extends TestCase
                 'tags'                   => [],
                 'rtti'                   => 'R',
                 'test_id'                => $test['id'],
+                'closeable'=> 0,
             ])
         );
         $response->assertStatus(200);
@@ -51,7 +51,7 @@ class OpenQuestionTest extends TestCase
         $test = $this->createNewTest();
 
         $response = $this->post(
-            '/test_question',
+            'api-c/test_question',
             static::getTeacherOneAuthRequestData([
                 'question'               => '<p>aa</p>',
                 'answer'                 => '<p>bb</p>',
@@ -69,6 +69,7 @@ class OpenQuestionTest extends TestCase
                 'tags'                   => [],
                 'rtti'                   => null,
                 'test_id'                => $test['id'],
+                'closeable'=> 0,
             ])
         );
 //        print_r($response->decodeResponseJson());die;
@@ -83,7 +84,7 @@ class OpenQuestionTest extends TestCase
         $test = $this->createNewTest();
 
         $response = $this->post(
-            '/test_question',
+            'api-c/test_question',
             static::getTeacherOneAuthRequestData([
                 'question'               => '<p>aa</p>',
                 'answer'                 => '<p>bb</p>',
@@ -101,6 +102,7 @@ class OpenQuestionTest extends TestCase
                 'tags'                   => [],
                 'rtti'                   => 'invalid',
                 'test_id'                => $test['id'],
+                'closeable'=> 0,
             ])
         );
 
@@ -113,7 +115,7 @@ class OpenQuestionTest extends TestCase
     {
         $test = $this->createNewTest();
         $response = $this->post(
-            '/test_question',
+            'api-c/test_question',
             static::getTeacherOneAuthRequestData([
                 'question'               => '<p>aa</p>',
                 'answer'                 => '<p>bb</p>',
@@ -131,9 +133,9 @@ class OpenQuestionTest extends TestCase
                 'tags'                   => [],
                 'rtti'                   => '',
                 'test_id'                => $test['id'],
+                'closeable'=> 0,
             ])
         );
-
         $response->assertStatus(200);
         $this->deleteTest($test);
     }
@@ -156,7 +158,7 @@ class OpenQuestionTest extends TestCase
         ], $overrides);
 
         $response = $this->post(
-            '/test',
+            'api-c/test',
             static::getTeacherOneAuthRequestData($attributes)
         );
 

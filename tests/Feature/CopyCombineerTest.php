@@ -69,10 +69,8 @@ class CopyCombineerTest extends TestCase
 
         $attributes = $this->getAttributesForEditCopyQuestion10($this->originalTestId);
         $copyQuestion = Test::find($this->copyTestId)->testQuestions->first();
-        
         $this->editMatchingQuestion($copyQuestion->uuid,$attributes);
         $this->checkCopyQuestionsAfterEdit($this->copyTestId,$originalQuestionArray);
-
         $originalQuestions = Test::find($this->originalTestId)->testQuestions;
         $this->assertTrue(count($originalQuestions)==1);
 
@@ -301,7 +299,8 @@ class CopyCombineerTest extends TestCase
                     'miller'=> null,
                     'test_id'=> $testId,
                     'session_hash'=> 'FE9rzeTbhOWPs4XUyeg48Z6QgIXaaGTYnChLTRZWvY9E218GZgCYpAXezrNbYDJrzL9e437MJlksLKu9eD0591486',
-                    'user'=> 'd1@test-correct.nl'
+                    'user'=> 'd1@test-correct.nl',
+                    'closeable'=> 0,
 				];
     }
 

@@ -23,6 +23,7 @@ trait DrawingQuestionTrait
             )
         );
         $response->assertStatus(200);
+
         $testQuestionId = $response->decodeResponseJson()['id'];
         $this->originalQuestionId = $testQuestionId;
         return $testQuestionId;

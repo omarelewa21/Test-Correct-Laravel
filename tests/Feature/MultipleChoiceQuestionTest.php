@@ -14,7 +14,7 @@ use Tests\Traits\TestTrait;
 use Tests\Traits\MultipleChoiceQuestionTrait;
 use Illuminate\Support\Facades\DB;
 
-class MulipleChoiceQuestionTest extends TestCase
+class MultipleChoiceQuestionTest extends TestCase
 {
     use DatabaseTransactions;
     use TestTrait;
@@ -227,6 +227,7 @@ class MulipleChoiceQuestionTest extends TestCase
                     "bloom"=> "Onthouden",
                     "miller"=> "Weten",
                     "test_id"=> $testId,
+                    'closeable'=> 0,
                 ];
     }
 
@@ -268,6 +269,7 @@ class MulipleChoiceQuestionTest extends TestCase
                     "bloom"=> "Onthouden",
                     "miller"=> "Weten",
                     "test_id"=> $testId,
+                    'closeable'=> 0,
                 ];
     }
 
@@ -309,6 +311,7 @@ class MulipleChoiceQuestionTest extends TestCase
                     "bloom"=> "Onthouden",
                     "miller"=> "Weten",
                     "test_id"=> $testId,
+                    'closeable'=> 0,
                 ];
     }
 

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -235,6 +236,5 @@ class TestQuestion extends BaseModel {
 
         return $query;
     }
-
 
 }

@@ -201,86 +201,23 @@ class TestQuestionsController extends Controller {
      * @param UpdateTestQuestionRequest $request
      * @return Response
      */
-    // UpdateTestQuestionRequest
+
     public function update(TestQuestion $testQuestion,  UpdateTestQuestionRequest $request)
     {
-        // Fill and check if question is modified
+
         $question = $testQuestion->question;
         DB::beginTransaction();
         try {
-            $qHelper = new QuestionHelper();
-            $questionData = [];
-            $completionAnswerDirty = false;
-            if($question->getQuestionInstance()->type == 'CompletionQuestion') {
-                $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
-                $currentAnswers = $question->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
-                $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
-                $completionAnswerDirty = ( ($currentAnswers !== $futureAnswers));
-            }
-
-            $totalData = array_merge($request->all(),$questionData);
-
+            $totalData = $question->getTotalDataForTestQuestionUpdate($request);
             $question->fill($totalData);
-
-            $questionInstance = $question->getQuestionInstance();
             $testQuestion->fill($request->all());
-
-// this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
-            if (!$completionAnswerDirty
-                && !$question->isDirty()
-                && $questionInstance->isDirty()
-                && !$questionInstance->isDirtyAttainments()
-                && !$questionInstance->isDirtyTags()
-                && ! ($question instanceof DrawingQuestion && $question->isDirtyFile())
-                && (array_key_exists('add_to_database', $questionInstance->getDirty()) && count($questionInstance->getDirty()) === 1)
-            ) {
-                if (!$questionInstance->save()) {
-                    throw new QuestionException('Failed to save question');
-                }
-
-                // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            } elseif ($completionAnswerDirty
-                || $question->isDirty()
-                || $questionInstance->isDirty()
-                || $questionInstance->isDirtyAttainments()
-                || $questionInstance->isDirtyTags()
-                || $questionInstance->isDirtyAnswerOptions($totalData)
-                || ($question instanceof DrawingQuestion && $question->isDirtyFile()))
-            {
-
-                if ($question->isUsed($testQuestion)) {
-
-                    $question = $question->duplicate(array_merge($request->all(),$questionData));
-                    //$question = $question->duplicate($request->all());
-                    if ($question === false) {
-                        throw new QuestionException('Failed to duplicate question');
-                    }
-
-                    $testQuestion->setAttribute('question_id', $question->getKey());
-                } elseif (!$questionInstance->save() || !$question->save()) {
-                    throw new QuestionException('Failed to save question');
-                }
-
-                if (!QuestionAuthor::addAuthorToQuestion($question)) {
-                    throw new QuestionException('Failed to attach author to question');
-                }
-            }
-
-
-
-//            Log::debug($testQuestion->toSql());
-//            DB::enableQueryLog();
-            // Save the link
+            $question->handleOnlyAddToDatabaseFieldIsModified($request);
+            $question->handleAnyOtherFieldsAreModified($testQuestion,$request);
+            $testQuestion->setAttribute('question_id', $question->getKeyAfterPossibleDuplicate());
             if ($testQuestion->save()) {
-                if(Question::usesDeleteAndAddAnswersMethods($questionInstance->type)){
-                    // delete old answers
-                    $question->deleteAnswers($question);
-
-                    // add new answers
-                    $question->addAnswers($testQuestion,$totalData['answers']);
-                }
-//                Log::debug(DB::getQueryLog());
-//                return Response::make($testQuestion, 200);
+                $testQuestion->refresh();
+                $question = $testQuestion->question;
+                $question->handleAnswersAfterTestQuestionUpdate($testQuestion,$request);
             } else {
                 throw new QuestionException('Failed to update test question');
             }

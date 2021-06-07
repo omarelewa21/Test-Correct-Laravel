@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -184,5 +185,11 @@ class DrawingQuestion extends Question implements QuestionInterface {
         return false;
     }
 
-
+    protected function needsToBeUpdated(UpdateTestQuestionRequest $request)
+    {
+        if($this->isDirtyFile()){
+            return true;
+        }
+        return parent::needsToBeUpdated($request);
+    }
 }

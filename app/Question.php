@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\MtiBaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -64,6 +66,10 @@ class Question extends MtiBaseModel {
     protected $attainments = null;
 
     protected $tags = null;
+
+    protected $baseModelIsSaved = false;
+
+    protected $duplicateQuestionKey = false;
 
     public static function usesDeleteAndAddAnswersMethods($questionType)
     {
@@ -1090,5 +1096,120 @@ class Question extends MtiBaseModel {
                 ->getKey();
         }
         return $groupQuestions->first()->groupQuestion->getKey();
+    }
+
+    public function getTotalDataForTestQuestionUpdate(UpdateTestQuestionRequest $request)
+    {
+        return $request->all();
+    }
+
+    public function getCompletionAnswerDirty(UpdateTestQuestionRequest $request)
+    {
+        return false;
+    }
+
+    public function getQuestionData(UpdateTestQuestionRequest $request)
+    {
+        return [];
+    }
+
+    public function handleOnlyAddToDatabaseFieldIsModified(UpdateTestQuestionRequest $request)
+    {
+         $baseModel = $this->getQuestionInstance();
+        if ($this->onlyAddToDatabaseFieldNeedsToBeUpdated($request)) {
+            if (!$baseModel->save()) {
+                throw new QuestionException('Failed to save question');
+            }
+            $this->baseModelIsSaved = true;
+        }
+    }
+
+    public function handleAnyOtherFieldsAreModified(TestQuestion $testQuestion,UpdateTestQuestionRequest $request)
+    {
+        if(!$this->needsToBeUpdated($request)){
+           return;
+        }
+        if ($this->isUsed($testQuestion)) {
+            $this->handleDuplication($request);
+            return;
+        }
+        $baseModel = $this->getQuestionInstance();
+        $var = $baseModel->save();
+        if($var){
+            $var = $this->save();
+        }
+        if (!$var) {
+            throw new QuestionException('Failed to save question');
+        }
+        $this->addQuestionToAuthor($this);
+    }
+
+    public function getKeyAfterPossibleDuplicate()
+    {
+        if(!$this->duplicateQuestionKey){
+            return $this->getKey();
+        }
+        return $this->duplicateQuestionKey;
+    }
+
+    public function handleAnswersAfterTestQuestionUpdate(TestQuestion $testQuestion,UpdateTestQuestionRequest $request){
+        $baseModel = $this->getQuestionInstance();
+        if(self::usesDeleteAndAddAnswersMethods($baseModel->type)){
+            $this->deleteAnswers($this);
+            $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+            $this->addAnswers($testQuestion,$totalData['answers']);
+        }
+    }
+
+    protected function handleDuplication(UpdateTestQuestionRequest $request)
+    {
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        $question = $this->duplicate($totalData);
+        if ($question === false) {
+            throw new QuestionException('Failed to duplicate question');
+        }
+        $this->duplicateQuestionKey = $question->getKey();
+        $this->addQuestionToAuthor($question);
+    }
+
+    protected function onlyAddToDatabaseFieldNeedsToBeUpdated(UpdateTestQuestionRequest $request)
+    {
+        $baseModel = $this->getQuestionInstance($request);
+        if($this->needsToBeUpdated($request) && (get_class($this) !== 'tcCore\Question')){
+            return false;
+        }
+        if(!$baseModel->needsToBeUpdated($request)){
+            return false;
+        }
+        if(!array_key_exists('add_to_database', $baseModel->getDirty())){
+            return false;
+        }
+        if(count($baseModel->getDirty()) === 1){
+            return true;
+        }
+        return false;
+    }
+
+    protected function needsToBeUpdated(UpdateTestQuestionRequest $request)
+    {
+        if($this->isDirty()){
+            return true;
+        }
+        $baseModel = $this->getQuestionInstance();
+        if($baseModel->isDirtyAttainments()){
+            return true;
+        }
+        if($baseModel->isDirtyTags()){
+            return true;
+        }
+        return false;
+    }
+
+    protected function addQuestionToAuthor($question)
+    {
+        $var = QuestionAuthor::addAuthorToQuestion($question);
+        if (!$var) {
+            throw new QuestionException('Failed to attach author to question');
+        }
     }
 }
