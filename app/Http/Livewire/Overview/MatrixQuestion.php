@@ -42,4 +42,9 @@ class MatrixQuestion extends Component
     {
         return view('livewire.overview.matrix-question');
     }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        return true;
+    }
 }

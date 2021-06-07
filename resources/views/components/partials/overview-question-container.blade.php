@@ -19,9 +19,13 @@
         <h1 class="inline-block ml-2 mr-6"> {!! __($question->caption) !!} </h1>
         <h4 class="inline-block">{{ $question->score }} pt</h4>
         @if ($this->answered)
-            <x-answered></x-answered>
+            @if($this->isQuestionFullyAnswered())
+                <x-answered/>
+            @else
+                <x-partly-answered/>
+            @endif
         @else
-            <x-not-answered></x-not-answered>
+            <x-not-answered/>
         @endif
     </div>
     <div class="flex flex-1 overview">

@@ -50,4 +50,10 @@ class MatchingQuestion extends Component
         return view('livewire.overview.matching-question');
     }
 
+    public function isQuestionFullyAnswered(): bool
+    {
+        $givedAnswers = count(array_filter($this->answerStruct));
+        $options = count($this->answerStruct);
+        return $options === $givedAnswers;
+    }
 }

@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Question;
 
 class CompletionQuestion extends Component
 {
@@ -19,6 +18,7 @@ class CompletionQuestion extends Component
     public $answers;
 
     public $number;
+    public $searchPattern = "/\[([0-9]+)\]/i";
 
     public function mount()
     {
@@ -32,7 +32,6 @@ class CompletionQuestion extends Component
 
         $question_text = $question->getQuestionHTML();
 
-        $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
@@ -43,7 +42,7 @@ class CompletionQuestion extends Component
             );
         };
 
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+        return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);
     }
 
     private function multiHelper($question)
@@ -63,7 +62,7 @@ class CompletionQuestion extends Component
         $isCitoQuestion = $question->isCitoQuestion();
 
         $question_text = preg_replace_callback(
-            '/\[([0-9]+)\]/i',
+            $this->searchPattern,
             function ($matches) use ($tags, $isCitoQuestion) {
 
                 $answers = $tags[$matches[1]];
@@ -109,5 +108,10 @@ class CompletionQuestion extends Component
         }
 
         return view('livewire.overview.completion-question', ['html' => $html]);
+    }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        return $this->question->completionQuestionAnswers->count() === count($this->answer);
     }
 }
