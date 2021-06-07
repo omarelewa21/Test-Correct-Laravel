@@ -105,7 +105,37 @@ class ReportHelper
             $builder = \DB::table('license_logs')
                             ->leftJoin('licenses','licenses.id','license_logs.license_id');
             $this->attachReference($builder,'licenses');
-            $this->addDaysConstraintToBuilder($builder,$days,'Y-m-d H:i:s','license_logs.created_at');
+            if($days > 0) {
+                $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'license_logs.created_at');
+            } else {
+                $builder->where(function($q){
+                   $q->where(function($q1){
+                       // license starts earlier and ends later than current period
+                       $q1->where('licenses.start','<=',$this->period->start_date);
+                       $q1->where('licenses.end','>=',$this->period->end_date);
+                   });
+                   $q->orWhere(function($q2){
+                        // license starts after en ends earlier than current period
+                       $q2->where('licenses.start','>',$this->period->start_date);
+                       $q2->where('licenses.end','<',$this->period->end_date);
+                   });
+                    $q->orWhere(function($q3){
+                        // license starts earlier than current period start and ends earlier then current period end
+                        $q3->where('licenses.start','<=',$this->period->start_date);
+                        $q3->where('licenses.end','>=',$this->period->start_date);
+                        $q3->where('licenses.end','<=',$this->period->end_date);
+                    });
+                    $q->orWhere(function($q4){
+                        // license starts later than current period start and ends later then current period end
+                        $q4->where('licenses.start','>=',$this->period->start_date);
+                        $q4->where('licenses.start','<=',$this->period->end_date);
+                        $q4->where('licenses.end','>=',$this->period->end_date);
+                    });
+
+                });
+
+
+            }
             return (int) $builder->sum('license_logs.amount');
         }
         throw new \Exception('Nr of licenses should not be called for a user');
