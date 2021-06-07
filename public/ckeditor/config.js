@@ -8,7 +8,7 @@ CKEDITOR.plugins.addExternal('ckeditor_wiris', 'plugins/@wiris/mathtype-ckeditor
 
 
 CKEDITOR.editorConfig = function( config ) {
-    config.extraPlugins = 'clipboard,pastefromword,advanced,simpleuploads,quicktable,panelbutton,button,floatpanel,panel,ckeditor_wiris';
+    config.extraPlugins = 'clipboard,pastefromword,advanced,simpleuploads,quicktable,panelbutton,button,floatpanel,panel,ckeditor_wiris,autogrow';
     config.allowedContent = true;
     config.disableNativeSpellChecker = true;
 
@@ -83,6 +83,9 @@ CKEDITOR.editorConfig = function( config ) {
         { name: 'Borderless Table', element: 'table', styles: { 'border-style': 'hidden', 'background-color': '#E6E6FA' } },
         { name: 'Square Bulleted List', element: 'ul', styles: { 'list-style-type': 'square' } }
     ];
+    config.autoGrow_minHeight = 250;
+    config.autoGrow_maxHeight = 600;
+    config.autoGrow_onStartup = true;
 };
 
 
