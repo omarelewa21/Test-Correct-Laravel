@@ -116,6 +116,7 @@
             </div>
         @endif
     </div>
+    @if(!$this->closed)
     @push('scripts')
         <script>
             var draggableElementWidth;
@@ -130,6 +131,7 @@
             }, 100);
         </script>
     @endpush
+    @endif
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad"/>
 </x-partials.question-container>

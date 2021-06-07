@@ -90,6 +90,7 @@
 
     <script src="/drawing/paint.js"></script>
     <script src="/drawing/loadPaint.js"></script>
+    @if(!$this->closed)
     <script>
         let holder{{$this->playerInstance}} = document.getElementById('{{ $this->playerInstance }}canvas-holder');
         var {{ $this->playerInstance }} =
@@ -100,5 +101,6 @@
             {{ $this->playerInstance }}.rerender(holder.offsetWidth);
         }
     </script>
+    @endif
     @endpush
 </div>
