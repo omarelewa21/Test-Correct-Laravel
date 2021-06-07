@@ -3917,6 +3917,14 @@ isInputElement = function isInputElement(target) {
   return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
 };
 
+handleScrollNavigation = function handleScrollNavigation(evt) {
+  if (evt.target.closest('#navigation-container') !== null) {
+    return false;
+  }
+
+  return evt.shiftKey;
+};
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":

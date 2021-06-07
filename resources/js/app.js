@@ -101,3 +101,10 @@ Core = {
 isInputElement = function(target) {
     return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
 }
+
+handleScrollNavigation = function (evt) {
+    if(evt.target.closest('#navigation-container') !== null) {
+        return false;
+    }
+    return evt.shiftKey;
+}

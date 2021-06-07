@@ -8,6 +8,15 @@
         if(handleGesture($event.target) === 'right') $wire.previousQuestion();
         if(handleGesture($event.target) === 'left') $wire.nextQuestion();
      "
+     x-on:wheel.window="
+        if(handleScrollNavigation($event)) {
+            if($event.wheelDelta > 0) {
+                $wire.nextQuestion()
+            } else {
+                $wire.previousQuestion()
+            }
+        }
+     "
 >
     <x-partials.question-indicator wire:key="navi" :nav="$nav" :isOverview="$isOverview"/>
 

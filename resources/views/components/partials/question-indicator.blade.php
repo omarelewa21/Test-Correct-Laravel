@@ -10,6 +10,7 @@
                  navigationResizer.resize($data);
                  "
          x-on:resize.window.debounce.250ms="navigationResizer.resize($el.__x.$data);"
+         x-on:current-updated.window="navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});"
          x-cloak
     >
         <div class="flex">
