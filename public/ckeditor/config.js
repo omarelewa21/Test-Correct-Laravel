@@ -83,9 +83,11 @@ CKEDITOR.editorConfig = function( config ) {
         { name: 'Borderless Table', element: 'table', styles: { 'border-style': 'hidden', 'background-color': '#E6E6FA' } },
         { name: 'Square Bulleted List', element: 'ul', styles: { 'list-style-type': 'square' } }
     ];
+
     config.autoGrow_minHeight = 250;
     config.autoGrow_maxHeight = 600;
     config.autoGrow_onStartup = true;
+    config.autoGrow_bottomSpace = 50;
 };
 
 
