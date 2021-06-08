@@ -1,6 +1,7 @@
 <div class="flex flex-col pt-6 pb-4 space-y-10"
      test-take-player
      wire:key="navigation"
+     @if(!$isOverview)
      x-data="{}"
      x-on:keydown.arrow-right.window="if(!isInputElement($event.target)) {$wire.nextQuestion()}"
      x-on:keydown.arrow-left.window="if(!isInputElement($event.target)) {$wire.previousQuestion()}"
@@ -17,6 +18,7 @@
             }
         }
      "
+     @endif
 >
     <x-partials.question-indicator wire:key="navi" :nav="$nav" :isOverview="$isOverview"/>
 
