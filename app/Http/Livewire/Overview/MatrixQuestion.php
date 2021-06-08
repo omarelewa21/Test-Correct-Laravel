@@ -45,6 +45,7 @@ class MatrixQuestion extends Component
 
     public function isQuestionFullyAnswered(): bool
     {
-        return true;
+        $selectedAnswers = count(array_filter($this->answerStruct));
+        return $this->subQuestions->count() === $selectedAnswers;
     }
 }
