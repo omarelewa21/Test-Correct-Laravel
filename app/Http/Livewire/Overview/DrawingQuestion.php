@@ -46,4 +46,8 @@ class DrawingQuestion extends Component
         return view('livewire.overview.drawing-question');
     }
 
+    public function isQuestionFullyAnswered(): bool
+    {
+        return true;
+    }
 }

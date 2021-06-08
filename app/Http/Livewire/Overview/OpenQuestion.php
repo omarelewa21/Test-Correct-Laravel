@@ -39,4 +39,9 @@ class OpenQuestion extends Component
 
         return view('livewire.overview.open-medium-question');
     }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        return true;
+    }
 }

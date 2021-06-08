@@ -89,4 +89,9 @@ class MultipleChoiceQuestion extends Component
 
         return view('livewire.overview.multiple-choice-question');
     }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        return true;
+    }
 }
