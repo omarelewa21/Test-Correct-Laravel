@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace tcCore\Http\Controllers\Cito;
 
@@ -12,7 +12,7 @@ use tcCore\Http\Requests\UpdateSubjectRequest;
 
 class SubjectsController extends Controller {
 
-// 	
+//
 	/**
 	 * Display a listing of the subjects.
 	 *

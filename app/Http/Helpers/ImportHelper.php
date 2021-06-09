@@ -206,7 +206,6 @@ class ImportHelper
 
         $this->importLog('----- '.$this->csv_data_lines.' data lines in input file');
 
-
         try {
             foreach ($this->csv_data as $index => $row) {
                 if ($index == 0) {
@@ -296,6 +295,7 @@ class ImportHelper
                     }
 
                     $education_level_id = $this->getStudyDirectionId($study_direction);
+
                     if (!$education_level_id) {
                         $this->errorMessages[] = 'Onbekende studierichting '.$study_direction;
                         throw new \Exception('Onbekende studierichting '.$study_direction);
@@ -350,7 +350,6 @@ class ImportHelper
                     // class doesnt exist, create it else use it
                     if ($school_class_id == null) {
                         $this->importLog('Restoring school class');
-
 
                         $school_class_id = $this->createOrRestoreSchoolClass([
                             'school_location_id'              => $school_location_id,
@@ -1121,6 +1120,7 @@ $user = null;
         if($schoolclass === null && $this->can_find_school_class_only_by_name){
             $schoolclass = SchoolClass::withTrashed()
                 ->where('school_location_id', $data['school_location_id'])
+                ->where('school_year_id', $data['school_year_id'])
                 ->where('name', $data['name'])
                 ->first();
         }

@@ -1975,6 +1975,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if ($this->isA('teacher')) {
             $teacherRecords = Teacher::selectRaw('count(*) as cnt')
                 ->leftJoin('teacher_import_logs', 'teachers.id', 'teacher_import_logs.teacher_id')
+                ->leftJoin('school_classes', 'teachers.class_id', 'school_classes.id')
                 ->where(function ($query) {
                     $query->whereIn('teachers.subject_id', function ($query) {
                         $query->select('id')
@@ -1984,22 +1985,23 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     })
                         ->orWhere(function ($query) {
                             $query->whereNull('teacher_import_logs.checked_by_teacher')
-                                ->whereNotNull('teacher_import_logs.id');
+                                ->orWhereNull('teacher_import_logs.id');
                         });
                 })
                 ->where('teachers.user_id', $this->getKey())
+                ->where('school_classes.demo', 0)
                 ->value('cnt');
 
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->whereIn('school_classes.id', function ($query) {
-                    $query->select('id')
+                    $query->select('class_id')
                         ->from('teachers')
                         ->where('user_id', $this->getKey());
                 })
                 ->where(function ($query) {
                     $query->whereNull('school_class_import_logs.checked_by_teacher')
-                        ->whereNotNull('school_class_import_logs.id');
+                        ->orWhereNull('school_class_import_logs.id');
 
                 })->value('cnt');
             return ($classRecords + $teacherRecords) > 0;

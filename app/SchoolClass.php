@@ -334,6 +334,9 @@ class SchoolClass extends BaseModel implements AccessCheckable {
                 case 'is_main_school_class':
                     $query->where('is_main_school_class', '=', $value);
                     break;
+                case 'demo':
+                    $query->where('demo', '=', $value);
+                    break;
                 default:
                     break;
             }
