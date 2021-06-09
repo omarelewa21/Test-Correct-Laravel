@@ -1440,12 +1440,6 @@ video {
 .left-5{
 	left: 1.25rem;
 }
-.-top-28{
-	top: -7rem;
-}
-.left-20{
-	left: 5rem;
-}
 .right-2{
 	right: 0.5rem;
 }
@@ -1787,9 +1781,6 @@ video {
 }
 .w-\[80vw\]{
 	width: 80vw;
-}
-.w-4\/6{
-	width: 66.666667%;
 }
 .w-8{
 	width: 2rem;
