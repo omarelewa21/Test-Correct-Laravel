@@ -105,6 +105,9 @@ class Subject extends BaseModel implements AccessCheckable {
                         }
                     });
                     break;
+                case 'demo' :
+                    $query->where('demo', $value);
+                    break;
                 case 'user_current':
                     $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
                     $query->whereIn('id', function ($query) use ($value, $schoolYear) {

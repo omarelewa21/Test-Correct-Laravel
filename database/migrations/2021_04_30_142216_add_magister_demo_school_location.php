@@ -73,6 +73,9 @@ class AddMagisterDemoSchoolLocation extends Migration
                 'start_date'         => \Carbon\Carbon::now()->subMonths(6),
                 'end_date'           => \Carbon\Carbon::now()->addMonths(6),
             ]);
+
+
+
             $periodLocation->save();
 
         }

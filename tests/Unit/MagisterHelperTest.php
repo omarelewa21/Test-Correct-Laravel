@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use tcCore\Http\Helpers\MagisterHelper;
 use tcCore\Http\Helpers\ImportHelper;
+use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\Teacher;
 use tcCore\User;
@@ -121,8 +122,19 @@ class MagisterHelperTest extends TestCase
 
     }
 
-
     /** @test */
+    public function it_should_import_classes_without_an_education_level_id()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->first();
+        $this->assertCount(0, SchoolClass::where('school_location_id', $location->getKey())->get());
+        list($schoolLocation, $processResult) = $this->runMagisterImport();
+        $importedClasses = SchoolClass::where('school_location_id', $location->getKey())->get();
+        $this->assertEquals(1, $importedClasses->first()->education_level_id); // is vwo;
+        $this->assertEquals(1, $importedClasses->first()->education_level_year);
+    }
+
+
+        /** @test */
 //    public function uwlrSoapResultToCVs()
 //    {
 //        $helper = (new MagisterHelper)
