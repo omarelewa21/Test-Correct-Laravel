@@ -2032,10 +2032,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if ($emailFromEntree && $this->username === $this->generateMissingEmailAddress()) {
             $this->username = $emailFromEntree;
         }
+        $this->save();
 
         // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
         // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
-        if ($emailFromEntree && $this->isA('student') && $this->externalId == null) {
+        if ($emailFromEntree && $this->isA('student') && empty($this->externalId)) {
             $parts = explode('@', $emailFromEntree)[0];
             if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
                 $this->external_id = $parts[0];

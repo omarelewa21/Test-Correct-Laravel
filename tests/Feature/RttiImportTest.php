@@ -6,7 +6,7 @@ namespace Tests\Feature;
 use Illuminate\Database\Eloquent\Model;
 use tcCore\Http\Helpers\ActingAsHelper;
 use Tests\TestCase;
-use tcCore\Http\Helpers\RTTIImportHelper;
+use tcCore\Http\Helpers\ImportHelper;
 use tcCore\SchoolLocationSection;
 use tcCore\SchoolLocation;
 use tcCore\SchoolClass;
@@ -58,7 +58,7 @@ class RttiImportTest extends TestCase
     public function setup_location()
     {
 
-        $this->RTTIImportHelper = RTTIImportHelper::initWithCVS();
+        $this->RTTIImportHelper = ImportHelper::initWithCVS();
 
         $this->brincode = 8888;
 
@@ -573,7 +573,7 @@ class RttiImportTest extends TestCase
     public function rtti_import_test_subject_lookup()
     {
 
-        $helper = RTTIImportHelper::initWithCVS();
+        $helper = ImportHelper::initWithCVS();
 
         $output = $helper->getSubjectId('NED', 1);
 
@@ -593,7 +593,7 @@ class RttiImportTest extends TestCase
 
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
-        $helper = RTTIImportHelper::initWithCVS();
+        $helper = ImportHelper::initWithCVS();
 
         $output = $helper->getSubjectId('XXX', 4);
 
