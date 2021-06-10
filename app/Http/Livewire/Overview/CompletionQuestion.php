@@ -22,7 +22,7 @@ class CompletionQuestion extends Component
 
     public function mount()
     {
-        $this->answer = (array) json_decode($this->answers[$this->question->uuid]['answer']);
+        $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
         $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
@@ -38,7 +38,7 @@ class CompletionQuestion extends Component
             return sprintf(
                 '<input wire:model="answer.%d" class="form-input mb-2 disabled truncate" type="text" id="%s" style="width: 100px" disabled/>',
                 $tag_id,
-                'answer_'.$tag_id
+                'answer_' . $tag_id
             );
         };
 
@@ -112,6 +112,10 @@ class CompletionQuestion extends Component
 
     public function isQuestionFullyAnswered(): bool
     {
-        return $this->question->completionQuestionAnswers->count() === count($this->answer);
+        $tags = [];
+        $this->question->completionQuestionAnswers->each(function ($answer) use (&$tags) {
+            $tags[$answer->tag] = true;
+        });
+        return count($tags) === count(array_filter($this->answer));
     }
 }
