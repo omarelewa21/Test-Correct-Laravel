@@ -2,12 +2,16 @@
 
 namespace tcCore\Http\Livewire\Auth;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
-use tcCore\TemporaryLogin;
+use tcCore\Jobs\SendForgotPasswordMail;
+use tcCore\User;
 
 class Login extends Component
 {
@@ -20,18 +24,25 @@ class Login extends Component
     public $lastName = '';
 
     public $forgotPasswordEmail = '';
+    public $entreeEmail = '';
+    public $entreePassword = '';
 
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
     public $loginTab = true;
+    public $forgotPasswordTab = false;
+    public $entreeTab = false;
+
     public $showTestCode = false;
     public $loginButtonDisabled = true;
     public $guestLoginButtonDisabled = true;
     public $forgotPasswordButtonDisabled = true;
+    public $connectEntreeButtonDisabled = true;
 
     public $showAuthModal = false;
     public $authModalRoleType;
+    public $showSendForgotPasswordNotification = false;
 
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
@@ -145,6 +156,10 @@ class Login extends Component
 
         $this->guestLoginButtonDisabled = !(filled($this->firstName) && filled($this->lastName) && count($this->testTakeCode) == 6);
 
+        if($this->couldBeEmail($this->entreeEmail) && filled($this->entreePassword)) {
+            $this->connectEntreeButtonDisabled = false;
+        }
+
     }
 
 
@@ -162,7 +177,20 @@ class Login extends Component
 
     public function sendForgotPasswordEmail()
     {
+        $user = User::whereUsername($this->forgotPasswordEmail)->first();
+        if ($user) {
+            $token = Password::getRepository()->create($user);
+            $url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
+            $urlLogin = route('auth.login');
 
+            try {
+                Mail::to($user->username)->send(new SendForgotPasswordMail($user,$token,$url,$urlLogin));
+            } catch (\Throwable $th) {
+                Bugsnag::notifyException($th);
+            }
+        }
+
+        $this->showSendForgotPasswordNotification = true;
     }
 
     private function isTestTakeCodeValid(): bool
@@ -212,5 +240,29 @@ class Login extends Component
         } else {
             $this->loginButtonDisabled = true;
         }
+    }
+
+    public function showLoginTab()
+    {
+        $this->entreeTab = false;
+        $this->forgotPasswordTab = false;
+        $this->loginTab = true;
+    }
+    public function showForgotPasswordTab()
+    {
+        $this->loginTab = false;
+        $this->entreeTab = false;
+        $this->forgotPasswordTab = true;
+    }
+    public function showEntreeTab()
+    {
+        $this->loginTab = false;
+        $this->forgotPasswordTab = false;
+        $this->entreeTab = true;
+    }
+
+    public function entreeForm()
+    {
+
     }
 }
