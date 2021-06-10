@@ -102,6 +102,9 @@ class ReportHelper
     public function nrLicenses($days)
     {
         if ($this->type === self::SCHOOLLOCATION) {
+            if(!$this->hasCurrentPeriod()){
+                return -1;
+            }
             $builder = \DB::table('license_logs')
                             ->leftJoin('licenses','licenses.id','license_logs.license_id');
             $this->attachReference($builder,'licenses');
