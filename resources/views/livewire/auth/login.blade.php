@@ -1,5 +1,5 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
-     x-data="{ openTab: 1, showPassword: false }"
+     x-data="{ openTab: 1, showPassword: false, showEntreePassword: false }"
      x-init="
             addRelativePaddingToBody('login-body', 10);
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
@@ -7,7 +7,7 @@
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
      wire:ignore.self
 >
-    <div class="w-full max-w-3xl space-y-4 mx-4 py-4">
+    <div class="w-full max-w-[800px] space-y-4 mx-4 py-4">
         @if($this->loginTab)
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <div class="flex items-center space-x-2.5">
@@ -144,11 +144,17 @@
                                 @enderror
                             </div>
                             {{-- With forgot_password button, ml_auto can be switched justify-between on the parent --}}
-                            <div class="flex mt-auto pt-4">
-                                <x-button.cta class="ml-auto" size="md">
-                                    <span>{{ __('auth.log_in_verb') }}</span>
-                                </x-button.cta>
-                                <x-button.text-button class="hidden order-1" wire:click.prevent="$set('loginTab', false)">
+                            <div class="flex mt-auto pt-4 justify-between">
+                                <div class="flex order-2 space-x-4">
+                                    <x-button.primary class="bg-[#2e3192]" size="md" wire:click.prevent="showEntreeTab()">
+                                        <x-icon.entreefederatie/>
+                                        <span>{{ __('auth.login_with_entree') }}</span>
+                                    </x-button.primary>
+                                    <x-button.cta class="" size="md">
+                                        <span>{{ __('auth.log_in_verb') }}</span>
+                                    </x-button.cta>
+                                </div>
+                                <x-button.text-button class="order-1" wire:click.prevent="showForgotPasswordTab()">
                                     <span class="text-base">{{__('auth.forgot_password_long')}}</span>
                                     <x-icon.arrow/>
                                 </x-button.text-button>
@@ -205,11 +211,11 @@
                     </div>
                 </div>
             </div>
-        @else
+        @elseif($forgotPasswordTab)
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <form wire:submit.prevent="sendForgotPasswordEmail" action="#" method="POST"
                       class="flex-col flex flex-1">
-                    <div class="flex items-center space-x-2.5 mb-4">
+                    <div class="flex items-center space-x-2.5 mb-5">
                         <div class="flex">
                             <x-stickers.login/>
                         </div>
@@ -218,23 +224,99 @@
                         </div>
                     </div>
                     <div class="flex flex-col flex-1 h-full">
-                        <p class="mb-6">{{ __('auth.forgot_password_explain_text') }}</p>
-                        <x-input.group label="E-mailadres">
+                        <p class="mb-4 body1">{{ __('auth.forgot_password_explain_text') }}</p>
+                        <x-input.group label="{{ __('auth.emailaddress') }}">
                             <x-input.text wire:model.debounce.300ms="forgotPasswordEmail"/>
                         </x-input.group>
+                        @if($showSendForgotPasswordNotification)
+                            <div class="flex flex-col notification info stretched mt-4 px-6">
+                                <div class="title flex items-center space-x-2">
+                                    <x-icon.arrow/>
+                                    <span>{{ __('auth.forgot_password_email_send') }}</span>
+                                </div>
+                                <div class="body">
+                                    <span>{{ __('auth.forgot_password_email_send_text') }}</span>
+                                    <div class="flex space-x-4">
+                                        <x-button.text-button class="text-sm primary space-x-1" wire:click.prevent="sendForgotPasswordEmail()">
+                                            <span>{{ __('auth.send_mail_again') }}</span>
+                                            <x-icon.arrow-small/>
+                                        </x-button.text-button>
+                                        <x-button.text-button class="text-sm primary space-x-1" type="link" href="https://test-correct.nl/support" target="_blank">
+                                            <span>{{ __('auth.find_support') }}</span>
+                                            <x-icon.arrow-small/>
+                                        </x-button.text-button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                         <div class="mt-auto flex w-full">
-                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="$set('loginTab', true)">
-                                <x-icon.arrow/>
-                                <span class="text-base">{{ __('auth.back_to_login') }}</span>
-                            </x-button.text-button>
                             @if($forgotPasswordButtonDisabled)
-                                <x-button.cta class="ml-auto" size="md" disabled>
+                                <x-button.cta class="order-2 ml-auto" size="md" disabled>
                                     <span>{{ __('auth.send_email') }}</span>
                                 </x-button.cta>
                             @else
-                                <x-button.cta class="ml-auto" size="md">
+                                <x-button.cta class="order-2 ml-auto" size="md">
                                     <span>{{ __('auth.send_email') }}</span>
                                 </x-button.cta>
+                            @endif
+                            <x-button.text-button class="order-1 rotate-svg-180" wire:click.prevent="showLoginTab()">
+                                <x-icon.arrow/>
+                                <span class="text-base">{{ __('auth.back_to_login') }}</span>
+                            </x-button.text-button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        @elseif($entreeTab)
+            <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
+                <form wire:submit.prevent="entreeForm" action="#" method="POST"
+                      class="flex-col flex flex-1">
+                    <div class="flex items-center space-x-2.5 mb-5">
+                        <div class="flex">
+                            <x-stickers.entreefederatie/>
+                        </div>
+                        <div>
+                            <h1>{{ __('auth.connect_entree') }}</h1>
+                        </div>
+                    </div>
+                    <div class="flex flex-col flex-1 h-full">
+                        <p class="mb-4 body1">{{ __('auth.connect_entree_text') }}</p>
+                        <div class="flex w-full space-x-4">
+                            <x-input.group label="{{ __('auth.emailaddress') }}" class="flex-1 relative">
+                                <x-input.text wire:model.lazy="entreeEmail"/>
+                            </x-input.group>
+                            <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
+                                <x-input.text wire:model.debounce.300ms="entreePassword"
+                                              x-bind:type="showEntreePassword ? 'text' : 'password'"
+                                              class="pr-12 overflow-ellipsis"
+                                >
+                                </x-input.text>
+                                <x-icon.preview class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
+                                                @click="showEntreePassword = !showEntreePassword"/>
+                            </x-input.group>
+                        </div>
+                        <div class="flex">
+                            <x-button.text-button wire:click.prevent="showForgotPasswordTab()">
+                                <span class="text-base">{{__('auth.forgot_password_long')}}</span>
+                                <x-icon.arrow/>
+                            </x-button.text-button>
+                        </div>
+
+                        <div class="mt-auto flex w-full">
+                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="showLoginTab()">
+                                <x-icon.arrow/>
+                                <span class="text-base">{{ __('auth.back_to_login') }}</span>
+                            </x-button.text-button>
+                            @if($connectEntreeButtonDisabled)
+                                <x-button.primary class="ml-auto" size="md" disabled>
+                                    <x-icon.entreefederatie/>
+                                    <span>{{ __('auth.make_connection') }}</span>
+                                </x-button.primary>
+                            @else
+                                <x-button.primary class="ml-auto bg-[#2e3192]" size="md">
+                                    <x-icon.entreefederatie/>
+                                    <span>{{ __('auth.make_connection') }}</span>
+                                </x-button.primary>
                             @endif
                         </div>
                     </div>
