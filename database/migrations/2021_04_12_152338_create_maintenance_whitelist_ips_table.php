@@ -42,7 +42,6 @@ class CreateMaintenanceWhitelistIpsTable extends Migration
                 $model->save();
             }
         });
-
     }
 
     /**

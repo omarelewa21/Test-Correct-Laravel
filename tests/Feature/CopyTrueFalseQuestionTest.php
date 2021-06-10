@@ -149,6 +149,7 @@ class CopyTrueFalseQuestionTest extends TestCase
                     "bloom"=> "Onthouden",
                     "miller"=> "Weten",
                     "test_id"=> $testId,
+                    "closeable"=> 0,
                 ];
     }
 

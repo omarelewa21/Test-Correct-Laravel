@@ -9,10 +9,11 @@ use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithUpdatingHandling;
 
 class DrawingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
 
     public $question;
 
@@ -59,7 +60,7 @@ class DrawingQuestion extends Component
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->drawingModalOpened = false;
-        $this->dispatchBrowserEvent('current-question-answered');
+        $this->emitTo('question.navigation','current-question-answered', $this->number);
     }
 
     public function render()

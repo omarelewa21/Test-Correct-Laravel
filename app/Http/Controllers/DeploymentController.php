@@ -29,10 +29,6 @@ class DeploymentController extends Controller
         $oldStatus = $deployment->status;
         $deployment->fill($request->validated());
         $deployment->save();
-        // if status = ACTIVE and was different
-        // set maintenance mode
-        // if status = DONE and was ACTIVE
-        // remove maintenance mode
         $deployment->handleIfNeeded($oldStatus);
         return Response::make($deployment,200);
     }
@@ -47,6 +43,7 @@ class DeploymentController extends Controller
     public function delete(DeleteDeploymentRequest $request, Deployment $deployment)
     {
         $deployment->delete();
+        $deployment->handleIfNeeded(null);
         return Response::make(true,200);
     }
 }

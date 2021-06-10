@@ -3,18 +3,19 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Livewire\Component;
-use tcCore\Answer;
 use tcCore\Question;
 
 class Navigation extends Component
 {
     public $nav;
-    public $testTakeUuid;
+    public $testId;
     public $q;
     public $queryString = ['q'];
     public $startTime;
 
     public $lastQuestionInGroup = [];
+    public $groupQuestionIdsForQuestions = [];
+    public $closeableGroups = [];
 
     protected $listeners = [
         'redirect-from-closing-a-question' => 'redirectFromClosedQuestion',
@@ -30,11 +31,16 @@ class Navigation extends Component
         }
         $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
 
-        foreach ($this->nav as $key => $q) {
-            if ($q['group']['closeable']) {
-                $this->lastQuestionInGroup[$q['group']['id']] = $key + 1;
+        foreach ($this->nav as $key => $question) {
+            $this->groupQuestionIdsForQuestions[$question->getKey()] = 0;
+            if($question['is_subquestion']) {
+                $groupId = $question->getGroupQuestionIdByTest($this->testId);
+                $this->groupQuestionIdsForQuestions[$question->getKey()] = $groupId;
+                $this->lastQuestionInGroup[$groupId] = $question->getKey();
+                $this->closeableGroups[$groupId] = (bool) Question::whereId($groupId)->value('closeable');
             }
         }
+
         $this->startTime = time();
     }
 
@@ -176,14 +182,4 @@ class Navigation extends Component
 
         $this->nav = $newNav;
     }
-
-    private function registerTimeForQuestion($question)
-    {
-        Answer::registerTime(
-            $question['answer_id'],
-            time() - $this->startTime
-        );
-        $this->startTime = time();
-    }
-
 }

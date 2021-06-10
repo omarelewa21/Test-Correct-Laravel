@@ -34,6 +34,9 @@ class Authenticate {
 	{
 		if ($this->auth->guest())
 		{
+            if (! $request->expectsJson()) {
+                return redirect()->away(config('app.url_login'));
+            }
 			return response('Unauthorized.', 401);
 		}
 

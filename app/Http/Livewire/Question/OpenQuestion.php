@@ -8,10 +8,11 @@ use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
+use tcCore\Http\Traits\WithUpdatingHandling;
 
 class OpenQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
 
     public $answer = '';
     public $question;
@@ -38,7 +39,7 @@ class OpenQuestion extends Component
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
-        $this->dispatchBrowserEvent('current-question-answered');
+        $this->emitTo('question.navigation','current-question-answered', $this->number);
     }
 
     public function render()

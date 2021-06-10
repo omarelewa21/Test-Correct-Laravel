@@ -2,6 +2,8 @@
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests;
@@ -13,6 +15,7 @@ use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
 use tcCore\Http\Requests\UpdateTeacherRequest;
+use tcCore\TeacherImportLog;
 use tcCore\User;
 
 class TeachersController extends Controller
@@ -31,6 +34,19 @@ class TeachersController extends Controller
             case 'all':
                 return Response::make($teachers->get(['teachers.*']), 200);
                 break;
+            case 'import_data':
+                return Response::make(
+                    $teachers
+                        ->leftJoin('teacher_import_logs as log', 'teachers.id', 'teacher_id')
+                        ->select(
+                            'teachers.*',
+                            'log.checked_by_teacher as checked_by_teacher'
+                        )
+                        ->where('teachers.user_id', Auth::id())
+                        ->get()
+                        ->toArray()
+                );
+                break;
             case 'paginate':
             default:
                 return Response::make($teachers->paginate(15, ['teachers.*']), 200);
@@ -41,7 +57,7 @@ class TeachersController extends Controller
     /**
      * Store a newly created teacher in storage.
      *
-     * @param CreateTeacherRequest $request
+     * @param  CreateTeacherRequest  $request
      * @return Response
      */
     public function store(CreateTeacherRequest $request)
@@ -50,7 +66,7 @@ class TeachersController extends Controller
          * @var Teacher $teacher
          */
         $request->merge([
-            'user_id' => User::whereUuid($request->get('user_id'))->first()->getKey(),
+            'user_id'  => User::whereUuid($request->get('user_id'))->first()->getKey(),
             'class_id' => SchoolClass::whereUuid($request->get('class_id'))->first()->getKey()
         ]);
 
@@ -72,7 +88,7 @@ class TeachersController extends Controller
 
     /**
      * Display the specified school class.
-     * @param Teacher $teacher
+     * @param  Teacher  $teacher
      * @return
      */
     public function show(Teacher $teacher)
@@ -85,8 +101,8 @@ class TeachersController extends Controller
     /**
      * Update the specified teacher in storage.
      *
-     * @param Teacher $teacher
-     * @param UpdateTeacherRequest $request
+     * @param  Teacher  $teacher
+     * @param  UpdateTeacherRequest  $request
      * @return Response
      */
     public function update(Teacher $teacher, UpdateTeacherRequest $request)
@@ -102,7 +118,7 @@ class TeachersController extends Controller
     /**
      * Remove the specified teacher from storage.
      *
-     * @param Teacher $teacher
+     * @param  Teacher  $teacher
      * @return Response
      */
     public function destroy(Teacher $teacher)
@@ -131,9 +147,9 @@ class TeachersController extends Controller
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
                     if ($user->isA('teacher')) {
-                        $this->handleExternalId($user,$attributes);
+                        $this->handleExternalId($user, $attributes);
                         return $user;
-                    }else {
+                    } else {
                         throw new \Exception('conflict: exists but not teacher');
                     }
                 } else {
@@ -159,29 +175,96 @@ class TeachersController extends Controller
             });
         } catch (\Exception $e) {
             DB::rollBack();
-            logger('Failed to import teachers' . $e);
-            return Response::make('Failed to import teachers' . print_r($e->getMessage(), true), 500);
+            logger('Failed to import teachers'.$e);
+            return Response::make('Failed to import teachers'.print_r($e->getMessage(), true), 500);
         }
         DB::commit();
 
         return Response::make($teachers, 200);
     }
 
-    protected function handleExternalId($user,$attributes)
+    protected function handleExternalId($user, $attributes)
     {
-        if(!array_key_exists('external_id',$attributes)){
+        if (!array_key_exists('external_id', $attributes)) {
             return;
         }
-        if(!array_key_exists('school_location_id',$attributes)){
+        if (!array_key_exists('school_location_id', $attributes)) {
             return;
         }
         $schoolLocations = $user->schoolLocations;
-        foreach ($schoolLocations as $schoolLocation){
-            if($schoolLocation->pivot->external_id == $attributes['external_id']&&$attributes['school_location_id']==$schoolLocation->id){
+        foreach ($schoolLocations as $schoolLocation) {
+            if ($schoolLocation->pivot->external_id == $attributes['external_id'] && $attributes['school_location_id'] == $schoolLocation->id) {
                 return;
             }
         }
         $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+    }
+
+    public function updateWithSubjectsForClusterClasses(Request $request)
+    {
+        $updateCounter = 0;
+        if (is_array($request->get('teacher'))) {
+            collect($request->get('teacher'))->each(function ($subjectValue, $schoolClassId) use (&$updateCounter) {
+                if ($schoolClass = SchoolClass::find($schoolClassId)) {
+                    if ($schoolClass->is_main_school_class == 1) {
+                        $allTeacherRecordsForThisTeacherAndClass = Teacher::where([
+                            'class_id' => $schoolClassId, 'user_id' => Auth::id()
+                        ])->get();
+                        //@ask Carlo is it a problem that different teachers give a different subject to a non main_school_class?
+                        // Wel toestaan. maar alwel voorstellen dat, en een melding geven dat een andere docent een andere keuze heeft gemaakt.
+                        $allTeacherRecordsForThisTeacherAndClass->each->forceDelete();
+
+                        foreach ($subjectValue as $subjectId => $checkboxValue) {
+                            $teacher = Teacher::create([
+                                'class_id'   => $schoolClassId,
+                                'subject_id' => $subjectId,
+                                'user_id'    => Auth::id(),
+                            ]);
+                            $this->updateImportLog(['checked' => 'on'], $teacher);
+                            $updateCounter++;
+                        }
+                    } else {
+                        $teacher = Teacher::where([
+                            'class_id' => $schoolClassId,
+                            'user_id'  => Auth::id()
+                        ])->first();
+                        $teacher->subject_id = $subjectValue;
+                        $teacher->save();
+                        $this->updateImportLog(['checked' => 'on'], $teacher);
+                        $updateCounter++;
+                    }
+                }
+            });
+        }
+
+        return JsonResource::make(['count' => $updateCounter], 200);
+    }
+
+    /**
+     * @param $value
+     * @param $schoolClass
+     */
+    private function updateImportLog($value, Teacher $teacher): void
+    {
+        if (array_key_exists('checked', $value) && $value['checked']) {
+
+            $importLog = $teacher->importLog;
+
+            if ($importLog == null) {
+                $importLog = new TeacherImportLog;
+            }
+
+            if (Auth::user()->isA('teacher') && is_null($importLog->checked_by_teacher)) {
+                $importLog->checked_by_teacher = now();
+            }
+
+            $teacher->importLog()->save($importLog);
+        }
+    }
+
+    public function hasIncompleteImport()
+    {
+        return Auth::user()->hasIncompleteImport();
     }
 
 }

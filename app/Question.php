@@ -1079,4 +1079,16 @@ class Question extends MtiBaseModel {
         return 1;
     }
 
+    public function getGroupQuestionIdByTest($testId)
+    {
+        $groupQuestions = GroupQuestionQuestion::whereQuestionId($this->getKey())->get();
+        if ($groupQuestions->count() > 1) {
+            return TestQuestion::whereTestId($testId)
+                ->whereIn('question_id', $groupQuestions->pluck('group_question_id'))
+                ->first()
+                ->question
+                ->getKey();
+        }
+        return $groupQuestions->first()->groupQuestion->getKey();
+    }
 }

@@ -9,11 +9,12 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
+use tcCore\Http\Traits\WithUpdatingHandling;
 use tcCore\Question;
 
 class MatchingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
 
     public $answer;
     public $question;
@@ -65,7 +66,7 @@ class MatchingQuestion extends Component
 
         $this->answerStruct = $dbstring;
 
-        $this->dispatchBrowserEvent('current-question-answered');
+        $this->emitTo('question.navigation','current-question-answered', $this->number);
     }
 
 
