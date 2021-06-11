@@ -270,7 +270,7 @@
         @elseif($entreeTab)
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <form wire:submit.prevent="entreeForm" action="#" method="POST"
-                      class="flex-col flex flex-1">
+                      class="flex-col flex flex-1" autocomplete="off">
                     <div class="flex items-center space-x-2.5 mb-5">
                         <div class="flex">
                             <x-stickers.entreefederatie/>
@@ -283,12 +283,12 @@
                         <p class="mb-4 body1">{{ __('auth.connect_entree_text') }}</p>
                         <div class="flex w-full space-x-4">
                             <x-input.group label="{{ __('auth.emailaddress') }}" class="flex-1 relative">
-                                <x-input.text wire:model.lazy="entreeEmail"/>
+                                <x-input.text wire:model.lazy="entreeEmail" autocomplete="off"/>
                             </x-input.group>
                             <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                 <x-input.text wire:model.debounce.300ms="entreePassword"
                                               x-bind:type="showEntreePassword ? 'text' : 'password'"
-                                              class="pr-12 overflow-ellipsis"
+                                              class="pr-12 overflow-ellipsis" autocomplete="off"
                                 >
                                 </x-input.text>
                                 <x-icon.preview class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
