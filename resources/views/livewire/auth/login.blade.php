@@ -283,12 +283,12 @@
                         <p class="mb-4 body1">{{ __('auth.connect_entree_text') }}</p>
                         <div class="flex w-full space-x-4">
                             <x-input.group label="{{ __('auth.emailaddress') }}" class="flex-1 relative">
-                                <x-input.text wire:model.lazy="entreeEmail" autocomplete="off"/>
+                                <x-input.text wire:model.lazy="entreeEmail" autocomplete="new-password"/>
                             </x-input.group>
                             <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                 <x-input.text wire:model.debounce.300ms="entreePassword"
-                                              x-bind:type="showEntreePassword ? 'text' : 'password'"
-                                              class="pr-12 overflow-ellipsis" autocomplete="off"
+                                              class="w-full pr-12 overflow-ellipsis transition-none" autocomplete="off"
+                                              x-bind:class="{'dotsfont' : !showEntreePassword}"
                                 >
                                 </x-input.text>
                                 <x-icon.preview class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
