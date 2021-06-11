@@ -132,6 +132,7 @@ class MagisterHelper
         $xml = new \SimpleXMLElement($response);
         $body = $xml->xpath('//SOAP-ENV:Body')[0];
         $array = json_decode(json_encode((array) $body), true);
+
         $categories = $array['leleerlinggegevens_antwoord']['leleerlinggegevens'];
 
         foreach ($categories as $category => $data) {
@@ -285,6 +286,14 @@ class MagisterHelper
                 if (array_key_exists('@attributes', $sGroep)) {
                     $sGroepen[] = $sGroep['@attributes']['key'];
                 }
+                // in case there are multiple samengestelde_groepen
+                if(is_array($sGroep)) {
+                    foreach ($sGroep as $mGroep) {
+                        if (is_array($mGroep) && array_key_exists('@attributes', $mGroep)) {
+                            $sGroepen[] = $mGroep['@attributes']['key'];
+                        }
+                    }
+                }
             }
             $obj['samengestelde_groepen'] = $sGroepen;
             $result[] = $obj;
@@ -303,7 +312,7 @@ class MagisterHelper
             $groepen = [];
             foreach ($obj['groepen']['legroep'] as $groep) {
                 if (array_key_exists('@attributes', $groep)) {
-                    $groepen[] = $groep['@attributes']['key'];
+                    $groepen[] = $groep['@attributes'];
                 }
             }
 
@@ -313,6 +322,14 @@ class MagisterHelper
             foreach ($obj['groepen']['lesamengestelde_groep'] as $sGroep) {
                 if (array_key_exists('key', $sGroep)) {
                     $sGroepen[] = $sGroep['key'];
+                }
+                // in case of multiple samengestelde groepen
+                if(is_array($sGroep)){
+                    foreach($sGroep as $mGroep){
+                        if (is_array($mGroep) && array_key_exists('key', $mGroep)) {
+                            $sGroepen[] = $mGroep['key'];
+                        }
+                    }
                 }
             }
             $obj['groepen'] = $groepen;
