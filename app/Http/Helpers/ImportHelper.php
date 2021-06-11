@@ -1029,6 +1029,10 @@ $user = null;
 
                 }
             }
+            if ($forRole == 'teacher') {
+                $user->account_verified = now();
+            }
+
             $user->save();
             if ($this->should_use_import_email_pattern) {
                 $pattern = ($forRole === 'teacher') ? User::TEACHER_IMPORT_EMAIL_PATTERN : User::STUDENT_IMPORT_EMAIL_PATTERN;

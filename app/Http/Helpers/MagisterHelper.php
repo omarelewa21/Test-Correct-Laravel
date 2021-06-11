@@ -164,12 +164,18 @@ class MagisterHelper
         return $out;
     }
 
-    public function storeInDB()
+    public function storeInDB($brinCode, $dependanceCode)
     {
         if (!$this->result) {
             throw new \Exception('no result to store');
         }
-        $this->resultSet = UwlrSoapResult::create($this->searchParams);
+        $this->resultSet = UwlrSoapResult::create(
+            array_merge(
+                $this->searchParams, [
+                    'brin_code'       => $brinCode,
+                    'dependance_code' => $dependanceCode,
+                ]
+            ));
 
         $this->resultIdentifier = $this->resultSet->getKey();
 

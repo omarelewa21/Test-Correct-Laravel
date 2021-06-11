@@ -30,11 +30,14 @@ class UwlrSoapResult extends Model
             return $group->count();
         });
     }
+    public function getSchoolNameAttribute() {
+        $location = SchoolLocation::firstWhere([['external_main_code', $this->brin_code],['external_sub_code', $this->dependance_code]]);
+        return optional($location)->name;
+    }
 
     public function asData()
     {
         return $this->entries->groupBy('key')->map(function ($group) {
-
             return $group->map(function ($item) {
                 return unserialize($item->object);
             });
