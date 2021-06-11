@@ -151,13 +151,13 @@ class ImportHelper
 
         $instance->log_name = date("mdh_i_s");
 
-        $instance->csv_data = $data->toCVS();
+        $instance->csv_data = $data->toCSV();
 
         return $instance;
     }
 
 
-    public static function initWithCVS($csv_file_path = "", $email_domain = "")
+    public static function initWithCSV($csv_file_path = "", $email_domain = "")
     {
         $instance = new self($email_domain);
 

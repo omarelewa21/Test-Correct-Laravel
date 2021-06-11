@@ -181,13 +181,13 @@ class MagisterHelperTest extends TestCase
 
 
     /** @test */
-//    public function uwlrSoapResultToCVs()
+//    public function uwlrSoapResultToCSV()
 //    {
 //        $helper = (new MagisterHelper)
 //            ->parseResult()
 //            ->storeInDB();
 //
-//        UwlrSoapResult::first()->toCVS();
+//        UwlrSoapResult::first()->toCSV();
 //    }
 
 //    /** @test */
