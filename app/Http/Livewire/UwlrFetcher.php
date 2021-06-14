@@ -63,7 +63,7 @@ class UwlrFetcher extends Component
         $helper = null;
         switch ($this->currentSource) {
             case 0:
-                $helper = MagisterHelper::guzzle($this->schoolYear,$this->brinCode, $this->dependanceCode)->parseResult()->storeInDB();
+                $helper = MagisterHelper::guzzle($this->schoolYear,$this->brinCode, $this->dependanceCode)->parseResult()->storeInDB($this->brinCode, $this->dependanceCode);
                 break;
             case 1:
                 $helper = (new SomeTodayHelper(new SoapWrapper()))->search(

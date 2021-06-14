@@ -15,6 +15,9 @@
                         Datum
                     </x-table.heading>
                     <x-table.heading>
+                        School
+                    </x-table.heading>
+                    <x-table.heading>
                         Brin
                     </x-table.heading>
                     <x-table.heading>
@@ -23,13 +26,13 @@
                     <x-table.heading>
                         Code
                     </x-table.heading>
-                    <x-table.heading>
+                    <x-table.heading width="120px">
                         &nbsp;
                     </x-table.heading>
-                    <x-table.heading>
+                    <x-table.heading width="120px">
                         &nbsp;
                     </x-table.heading>
-                    <x-table.heading>
+                    <x-table.heading width="120px">
                         &nbsp;
                     </x-table.heading>
 
@@ -42,7 +45,10 @@
                                 {{ $set->created_at->diffForHumans() }}
                             </x-table.cell>
                             <x-table.cell>
-                                {{ $set->brin_code }}
+                                {{ $set->school_name }}
+                            </x-table.cell>
+                            <x-table.cell>
+                                {{ $set->brin_code }} {{ $set->dependance_code  }}
                             </x-table.cell>
                             <x-table.cell>
                                 {{ $set->client_name }}
@@ -51,13 +57,18 @@
                                 {{ $set->client_code }}
                             </x-table.cell>
                             <x-table.cell>
-                                <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Modal</x-button.text-button>
+                                <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Bekijk details
+                                </x-button.text-button>
                             </x-table.cell>
                             <x-table.cell>
-                                <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Process</x-button.text-button>
+                                <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Verwerken
+                                </x-button.text-button>
                             </x-table.cell>
                             <x-table.cell>
-                                <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">Error</x-button.text-button>
+                                @if ($set->error_messages)
+                                    <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">Error
+                                    </x-button.text-button>
+                                @endif
                             </x-table.cell>
                         </x-table.row>
                     @endforeach
@@ -142,11 +153,11 @@
                             </div>
                         </div>
                     @endforeach
-                        <div wire:loading>
-                            <div wire:key="loading-text">Processing Result...</div>
-                            <div wire:key="hourglass" class="lds-hourglass"></div>
-                        </div>
-                        <div wire:key="processing-result">{{ $this->processingResult }}</div>
+                    <div wire:loading>
+                        <div wire:key="loading-text">Processing Result...</div>
+                        <div wire:key="hourglass" class="lds-hourglass"></div>
+                    </div>
+                    <div wire:key="processing-result">{{ $this->processingResult }}</div>
                 </div>
 
                 <x-button.primary wire:click="startProcessingResult">Start</x-button.primary>
@@ -182,7 +193,7 @@
 
             </div>
         </x-slot>
-        <x-slot name="actionButton" ></x-slot>
+        <x-slot name="actionButton"></x-slot>
     </x-modal>
 
 

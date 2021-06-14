@@ -58,7 +58,7 @@ class RttiImportTest extends TestCase
     public function setup_location()
     {
 
-        $this->RTTIImportHelper = ImportHelper::initWithCVS();
+        $this->RTTIImportHelper = ImportHelper::initWithCSV();
 
         $this->brincode = 8888;
 
@@ -573,7 +573,7 @@ class RttiImportTest extends TestCase
     public function rtti_import_test_subject_lookup()
     {
 
-        $helper = ImportHelper::initWithCVS();
+        $helper = ImportHelper::initWithCSV();
 
         $output = $helper->getSubjectId('NED', 1);
 
@@ -593,7 +593,7 @@ class RttiImportTest extends TestCase
 
         Auth::loginUsingId($this->location_data['schoolbeheerder_id']);
 
-        $helper = ImportHelper::initWithCVS();
+        $helper = ImportHelper::initWithCSV();
 
         $output = $helper->getSubjectId('XXX', 4);
 

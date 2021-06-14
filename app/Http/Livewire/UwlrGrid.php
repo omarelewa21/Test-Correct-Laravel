@@ -101,7 +101,35 @@ class UwlrGrid extends Component
 
             foreach ($r as $k => $value) {
                 if (in_array($k, ['groepen', 'groep', 'samengestelde_groepen'])) {
-                    unset($r[$k]);
+                    $groepCollection = collect($this->activeResult['groep']);
+                    $samengesteldeGroepCollection = collect($this->activeResult['samengestelde_groep']);
+                   if ($k == 'groep') {
+                       $currentGroepKey = $r[$k]['key'];
+                       $groep = $groepCollection->first(function($groep) use ($currentGroepKey) {
+                           return $groep['key'] === $currentGroepKey;
+                       });
+                       $r[$k] = $groep['naam'];
+                   }
+                    if ($k == 'samengestelde_groepen') {
+                        $samengesteldeGroepenKeys = $r[$k];
+                        $samengesteldeGroepen = $samengesteldeGroepCollection->filter(function($groep) use ($samengesteldeGroepenKeys) {
+                            return in_array($groep['key'],  $samengesteldeGroepenKeys);
+                        })->map(function($groep){
+                            return $groep['naam'];
+                        });
+                        $r[$k] = $samengesteldeGroepen->join(',');
+                    }
+                    if ($k == 'groepen') {
+                        $groepenKeys = $r[$k];
+                        $groepen = $groepCollection->filter(function($groep) use ($groepenKeys) {
+                            return in_array($groep['key'],  $groepenKeys);
+                        })->map(function($groep){
+                            return $groep['naam'];
+                        });
+
+                        $r[$k] = $groepen->join(',');
+                    }
+                    //unset($r[$k]);
                 }
             }
             $arr[$key] = $r;

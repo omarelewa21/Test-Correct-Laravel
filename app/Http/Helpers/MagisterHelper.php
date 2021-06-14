@@ -132,6 +132,7 @@ class MagisterHelper
         $xml = new \SimpleXMLElement($response);
         $body = $xml->xpath('//SOAP-ENV:Body')[0];
         $array = json_decode(json_encode((array) $body), true);
+
         $categories = $array['leleerlinggegevens_antwoord']['leleerlinggegevens'];
 
         foreach ($categories as $category => $data) {
@@ -164,12 +165,18 @@ class MagisterHelper
         return $out;
     }
 
-    public function storeInDB()
+    public function storeInDB($brinCode, $dependanceCode)
     {
         if (!$this->result) {
             throw new \Exception('no result to store');
         }
-        $this->resultSet = UwlrSoapResult::create($this->searchParams);
+        $this->resultSet = UwlrSoapResult::create(
+            array_merge(
+                $this->searchParams, [
+                    'brin_code'       => $brinCode,
+                    'dependance_code' => $dependanceCode,
+                ]
+            ));
 
         $this->resultIdentifier = $this->resultSet->getKey();
 
@@ -279,6 +286,14 @@ class MagisterHelper
                 if (array_key_exists('@attributes', $sGroep)) {
                     $sGroepen[] = $sGroep['@attributes']['key'];
                 }
+                // in case there are multiple samengestelde_groepen
+                if(is_array($sGroep)) {
+                    foreach ($sGroep as $mGroep) {
+                        if (is_array($mGroep) && array_key_exists('@attributes', $mGroep)) {
+                            $sGroepen[] = $mGroep['@attributes']['key'];
+                        }
+                    }
+                }
             }
             $obj['samengestelde_groepen'] = $sGroepen;
             $result[] = $obj;
@@ -307,6 +322,14 @@ class MagisterHelper
             foreach ($obj['groepen']['lesamengestelde_groep'] as $sGroep) {
                 if (array_key_exists('key', $sGroep)) {
                     $sGroepen[] = $sGroep['key'];
+                }
+                // in case of multiple samengestelde groepen
+                if(is_array($sGroep)){
+                    foreach($sGroep as $mGroep){
+                        if (is_array($mGroep) && array_key_exists('key', $mGroep)) {
+                            $sGroepen[] = $mGroep['key'];
+                        }
+                    }
                 }
             }
             $obj['groepen'] = $groepen;
