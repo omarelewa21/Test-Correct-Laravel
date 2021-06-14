@@ -860,6 +860,6 @@ class TestTake extends BaseModel
 
     public function getExportedToRttiFormatedAttribute()
     {
-        return $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
+        return $this->attributes['exported_to_rtti'] && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 }
