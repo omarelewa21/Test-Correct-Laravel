@@ -329,7 +329,7 @@ class TestTake extends BaseModel
             }
         });
     }
-    
+
     public function test()
     {
         return $this->belongsTo('tcCore\Test');
@@ -860,6 +860,6 @@ class TestTake extends BaseModel
 
     public function getExportedToRttiFormatedAttribute()
     {
-        return array_key_exists('exported_to_rtti',$this->attributes['exported_to_rtti']) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
+        return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 }
