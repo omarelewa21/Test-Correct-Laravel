@@ -30,18 +30,21 @@ class UwlrSoapResult extends Model
             return $group->count();
         });
     }
+    public function getSchoolNameAttribute() {
+        $location = SchoolLocation::firstWhere([['external_main_code', $this->brin_code],['external_sub_code', $this->dependance_code]]);
+        return optional($location)->name;
+    }
 
     public function asData()
     {
         return $this->entries->groupBy('key')->map(function ($group) {
-
             return $group->map(function ($item) {
                 return unserialize($item->object);
             });
         });
     }
 
-    public function toCVS()
+    public function toCSV()
     {
         $repo = $this->asData();
 
@@ -129,7 +132,7 @@ class UwlrSoapResult extends Model
      * @param $klasNaam
      * @param $leerkracht
      */
-    private function addCvsRow(
+    private function addCsvRow(
         $school,
         $leerling,
         $klasNaam,
@@ -139,6 +142,7 @@ class UwlrSoapResult extends Model
     ): void {
         $jaargroep = $this->normalizeJaarGroep($leerling['jaargroep']);
         /** @todo jaargroep uit klas halen als die niet in de leerling zit. */
+
 
         $this->csvArray[] = [
             $school['name'], //Schoolnaam,
@@ -181,11 +185,13 @@ class UwlrSoapResult extends Model
                 return $groepKey === $groep['key'];
             });
 
+
             $leerkracht = $repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
                 return collect($teacher['groepen'])->contains($groepKey);
             });
 
-            $this->addCvsRow($school, $leerling, $klas['naam'], $leerkracht, 1);
+
+            $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
         });
     }
 
@@ -208,7 +214,7 @@ class UwlrSoapResult extends Model
             });
 
 
-            $this->addCvsRow($school, $leerling, $klas['naam'], $leerkracht, 0);
+            $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
         });
     }
 
@@ -231,7 +237,7 @@ class UwlrSoapResult extends Model
                 return collect($leerling['groep'])->contains($groepKey);
             });
             if ($leerling) {
-                $this->addCvsRow($school, $leerling, $klas['naam'], $leerkracht, 1);
+                $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
             } else {
                 $this->errors[] = sprintf('kan geen leering vinden voor klas %s', $klas['naam']);
             }
@@ -262,7 +268,7 @@ class UwlrSoapResult extends Model
             });
 
             if ($leerling) {
-                $this->addCvsRow($school, $leerling, $klas['naam'], $leerkracht, 0);
+                $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
             } else {
                 $this->errors[] = $this->errors[] = sprintf('kan geen leerling vinden voor klas %s', $klas['naam']);
             }

@@ -119,6 +119,8 @@ class ImportHelper
 
     public $can_find_teacher_only_by_class_id = false;
 
+    public $skip_mentor_creation = false;
+
     public $can_use_dummy_subject = false;
 
     const DUMMY_SECTION_NAME = 'Magister sectie';
@@ -139,6 +141,7 @@ class ImportHelper
     {
         $instance = new self($email_domain);
         $instance->can_create_users_for_teacher = true;
+        $instance->skip_mentor_creation = true;
         $instance->should_use_import_email_pattern = true;
         if (App::environment(['testing', 'local'])) {
             $instance->should_use_import_password_pattern = true;
@@ -151,13 +154,13 @@ class ImportHelper
 
         $instance->log_name = date("mdh_i_s");
 
-        $instance->csv_data = $data->toCVS();
+        $instance->csv_data = $data->toCSV();
 
         return $instance;
     }
 
 
-    public static function initWithCVS($csv_file_path = "", $email_domain = "")
+    public static function initWithCSV($csv_file_path = "", $email_domain = "")
     {
         $instance = new self($email_domain);
 
@@ -357,6 +360,7 @@ class ImportHelper
                             'school_year_id'                  => $school_year_id,
                             'name'                            => $class_name,
                             'education_level_year'            => $study_year_layer,
+
                             'is_main_school_class'            => $teacher_is_mentor,
                             'do_not_overwrite_from_interface' => 0
                         ]);
@@ -565,7 +569,7 @@ class ImportHelper
                     }
 
                     // set mentor state
-                    if ($teacher_is_mentor && $teacher_id) {
+                    if ($this->skip_mentor_creation === false && $teacher_is_mentor && $teacher_id) {
 
                         $classMentorCheck[$school_class_id][] = $teacher_id;
 
@@ -1029,6 +1033,10 @@ $user = null;
 
                 }
             }
+            if ($forRole == 'teacher') {
+                $user->account_verified = now();
+            }
+
             $user->save();
             if ($this->should_use_import_email_pattern) {
                 $pattern = ($forRole === 'teacher') ? User::TEACHER_IMPORT_EMAIL_PATTERN : User::STUDENT_IMPORT_EMAIL_PATTERN;
@@ -1305,11 +1313,13 @@ $user = null;
      */
     public function removeTeacherAsMentor($class_mentor_check)
     {
-        foreach ($class_mentor_check as $class_id => $mentor_ids) {
-            Mentor::whereNotIn('user_id', array_unique($mentor_ids))
-                ->where('school_class_id', $class_id)
-                ->delete();
+        if ($this->skip_mentor_creation === false) {
+            foreach ($class_mentor_check as $class_id => $mentor_ids) {
+                Mentor::whereNotIn('user_id', array_unique($mentor_ids))
+                    ->where('school_class_id', $class_id)
+                    ->delete();
 //            $this->delete_tally['mentors']++;
+            }
         }
 
         return true;
