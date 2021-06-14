@@ -127,7 +127,7 @@
                                             @if( is_array($value))
                                                 <x-table.cell>{!! collect($value).join([',']) !!}</x-table.cell>
                                             @else
-                                                <x-table.cell>{!!  substr( $value, 0, 20) !!}</x-table.cell>
+                                                <x-table.cell>{!! $value !!}</x-table.cell>
                                             @endif
                                         @endforeach
                                     </x-table.row>

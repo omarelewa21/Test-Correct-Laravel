@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\TeachersImportRequest;
+use tcCore\Http\Requests\UpdateWithSubjectsForClusterClassesRequest;
 use tcCore\Lib\User\Factory;
 use tcCore\SchoolClass;
 use tcCore\Subject;
@@ -200,7 +201,7 @@ class TeachersController extends Controller
         $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
     }
 
-    public function updateWithSubjectsForClusterClasses(Request $request)
+    public function updateWithSubjectsForClusterClasses(UpdateWithSubjectsForClusterClassesRequest $request)
     {
         $updateCounter = 0;
         if (is_array($request->get('teacher'))) {

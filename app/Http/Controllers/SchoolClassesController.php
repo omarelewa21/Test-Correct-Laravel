@@ -6,9 +6,12 @@ use Composer\Package\Package;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use tcCore\EducationLevel;
 use tcCore\Http\Requests;
+use tcCore\Http\Requests\UpdateWithEducationLevelsForClusterClassesRequest;
+use tcCore\Http\Requests\UpdateWithEducationLevelsForMainClassesRequest;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
 use tcCore\School;
@@ -49,14 +52,17 @@ class SchoolClassesController extends Controller
                 $schoolClasses
                     ->leftJoin('school_class_import_logs as log', 'school_classes.id', 'class_id')
                     ->select(
-                        'school_classes.id as id',
-                        'education_level_id',
-                        'school_year_id',
-                        'education_level_year',
-                        'name',
-                        'is_main_school_class',
-                        'log.checked_by_teacher as checked_by_teacher',
-                        'log.checked_by_admin as checked_by_admin');
+                        DB::raw(
+                            'school_classes.id as id,
+                        if(log.id, education_level_id, null) as education_level_id,
+                        school_year_id,
+                        if(log.id, education_level_year, null) as education_level_year,
+                        name,
+                        is_main_school_class,
+                        log.checked_by_teacher as checked_by_teacher,
+                        log.checked_by_admin as checked_by_admin'
+                        )
+                    );
 
 
                 return Response::make(['data' => $schoolClasses->get()->toArray()], 200);
@@ -171,7 +177,7 @@ class SchoolClassesController extends Controller
         return Response::make(Auth::user()->teacherSchoolClasses()->orderBy('name', 'asc')->pluck('name', 'id'));
     }
 
-    public function updateWithEducationLevelsForMainClasses(Request $request)
+    public function updateWithEducationLevelsForMainClasses(UpdateWithEducationLevelsForMainClassesRequest $request)
     {
         $updateCounter = 0;
         if (is_array($request->get('class'))) {
@@ -180,8 +186,8 @@ class SchoolClassesController extends Controller
                     ->where('is_main_school_class', 1)
                     ->where('school_location_id', Auth::user()->school_location_id)
                     ->first();
-                    $schoolClass->education_level_id = $value['education_level'];
-                    $schoolClass->save();
+                $schoolClass->education_level_id = $value['education_level'];
+                $schoolClass->save();
 
                 $this->updateImportLog($value, $schoolClass);
 
@@ -192,7 +198,7 @@ class SchoolClassesController extends Controller
         return JsonResource::make(['count' => $updateCounter], 200);
     }
 
-    public function updateWithEducationLevelsForClusterClasses(Request $request)
+    public function updateWithEducationLevelsForClusterClasses(UpdateWithEducationLevelsForClusterClassesRequest $request)
     {
         $updateCounter = 0;
         if (is_array($request->get('class'))) {
