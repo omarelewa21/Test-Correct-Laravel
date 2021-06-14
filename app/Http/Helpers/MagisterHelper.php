@@ -312,7 +312,7 @@ class MagisterHelper
             $groepen = [];
             foreach ($obj['groepen']['legroep'] as $groep) {
                 if (array_key_exists('@attributes', $groep)) {
-                    $groepen[] = $groep['@attributes'];
+                    $groepen[] = $groep['@attributes']['key'];
                 }
             }
 

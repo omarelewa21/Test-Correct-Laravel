@@ -51,7 +51,7 @@ class MagisterHelperTest extends TestCase
         // letop 10 docenten betekend 10 teacher records.
         // In de uwlr Magister set zitten 5 klassen die geen leerlingen/docenten bevatten deze worden ook niet aangemaakt;
         $this->assertStringContainsString(
-            'Er zijn 22 leerlingen aangemaakt, 10 docenten en 5 klassen.',
+            'Er zijn 22 leerlingen aangemaakt, 12 docenten en 5 klassen.',
             $processResult['data']
         );
 
@@ -165,7 +165,6 @@ class MagisterHelperTest extends TestCase
 //
 //    }
 
-    /** @test */
     public function is_should_be_able_to_add_multiple_samengestelde_groepen_als_klassen_aan_leerlingen()
     {
         //Leerling Demo10 zit in H1C, H1Sport en H1Muziek in de XML,

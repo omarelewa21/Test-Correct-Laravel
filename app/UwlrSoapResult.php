@@ -143,6 +143,7 @@ class UwlrSoapResult extends Model
         $jaargroep = $this->normalizeJaarGroep($leerling['jaargroep']);
         /** @todo jaargroep uit klas halen als die niet in de leerling zit. */
 
+
         $this->csvArray[] = [
             $school['name'], //Schoolnaam,
             $school['brincode'], //Brincode,
@@ -184,9 +185,11 @@ class UwlrSoapResult extends Model
                 return $groepKey === $groep['key'];
             });
 
+
             $leerkracht = $repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
                 return collect($teacher['groepen'])->contains($groepKey);
             });
+
 
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
         });
