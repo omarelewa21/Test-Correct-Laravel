@@ -34,4 +34,9 @@ class BaseHelper
     {
         return (bool) count($this->errors);
     }
+
+    public static function notProduction()
+    {
+        return str_contains('testportal', config('app.url_login') && str_contains('.test', config('app.url_login')));
+    }
 }

@@ -1973,6 +1973,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function hasIncompleteImport()
     {
         if ($this->isA('teacher')) {
+            if ($this->schoolLocation->lvs === false) {
+                return false;
+            }
+            if ($this->schoolLocation->lvs_active === false) {
+                return false;
+            }
             $teacherRecords = Teacher::selectRaw('count(*) as cnt')
                 ->leftJoin('teacher_import_logs', 'teachers.id', 'teacher_import_logs.teacher_id')
                 ->leftJoin('school_classes', 'teachers.class_id', 'school_classes.id')

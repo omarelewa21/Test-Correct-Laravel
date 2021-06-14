@@ -13,7 +13,7 @@ class AddMagisterDemoSchoolLocation extends Migration
      */
     public function up()
     {
-        if (self::notProduction()) {
+        if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
 
             $location = \tcCore\SchoolLocation::create([
                 "name"                                   => "Magister schoollocatie",
@@ -99,9 +99,6 @@ class AddMagisterDemoSchoolLocation extends Migration
         }
     }
 
-    public static function notProduction()
-    {
-        return str_contains('testportal', config('app.url_login') && str_contains('.test', config('app.url_login')));
-    }
+
 
 }

@@ -12,7 +12,8 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
 use Illuminate\Support\Facades\Auth;
 
-class Subject extends BaseModel implements AccessCheckable {
+class Subject extends BaseModel implements AccessCheckable
+{
 
     use SoftDeletes;
     use UuidTrait;
@@ -40,7 +41,7 @@ class Subject extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['name', 'abbreviation', 'section_id', 'base_subject_id','demo'];
+    protected $fillable = ['name', 'abbreviation', 'section_id', 'base_subject_id', 'demo'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -51,31 +52,38 @@ class Subject extends BaseModel implements AccessCheckable {
 
     protected $schoolLocations;
 
-    public function baseSubject() {
+    public function baseSubject()
+    {
         return $this->belongsTo('tcCore\BaseSubject');
     }
 
-    public function section() {
+    public function section()
+    {
         return $this->belongsTo('tcCore\Section');
     }
 
-    public function teachers() {
+    public function teachers()
+    {
         return $this->hasMany('tcCore\Teacher');
     }
 
-    public function questions() {
+    public function questions()
+    {
         return $this->hasMany('tcCore\Question');
     }
 
-    public function pValue() {
+    public function pValue()
+    {
         return $this->hasMany('tcCore\PValue');
     }
 
-    public function ratings() {
+    public function ratings()
+    {
         return $this->hasMany('tcCore\Rating');
     }
 
-    public function averageRatings() {
+    public function averageRatings()
+    {
         return $this->hasMany('tcCore\AverageRating');
     }
 
@@ -91,8 +99,8 @@ class Subject extends BaseModel implements AccessCheckable {
             });
         }
 
-        foreach($filters as $key => $value) {
-            switch($key) {
+        foreach ($filters as $key => $value) {
+            switch ($key) {
                 case 'user_id':
                     $query->whereIn('id', function ($query) use ($value) {
                         $query->select('subject_id')
@@ -107,6 +115,11 @@ class Subject extends BaseModel implements AccessCheckable {
                     break;
                 case 'demo' :
                     $query->where('demo', $value);
+                    break;
+                case 'imp' :
+                    if ($value == 0) {
+                        $query->where('abbreviation', '<>', 'imp');
+                    }
                     break;
                 case 'user_current':
                     $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
@@ -127,7 +140,7 @@ class Subject extends BaseModel implements AccessCheckable {
         }
 
         //Todo: More sorting
-        foreach($sorting as $key => $value) {
+        foreach ($sorting as $key => $value) {
             switch (strtolower($value)) {
                 case 'id':
                 case 'name':
@@ -154,6 +167,7 @@ class Subject extends BaseModel implements AccessCheckable {
 
         return $query;
     }
+
     public function scopeCitoFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
@@ -183,7 +197,8 @@ class Subject extends BaseModel implements AccessCheckable {
         return Section::filtered(['id' => $this->getAttribute('section_id')])->count() > 0;
     }
 
-    public function canAccessBoundResource($request, Closure $next) {
+    public function canAccessBoundResource($request, Closure $next)
+    {
         return $this->canAccess();
     }
 
@@ -197,11 +212,15 @@ class Subject extends BaseModel implements AccessCheckable {
         parent::boot();
 
         static::updating(function (self $item) {
-            if ($item->getOriginal('demo') == true) return false;
+            if ($item->getOriginal('demo') == true) {
+                return false;
+            }
         });
 
         static::deleting(function (self $item) {
-            if ($item->getOriginal('demo') == true) return false;
+            if ($item->getOriginal('demo') == true) {
+                return false;
+            }
         });
     }
 

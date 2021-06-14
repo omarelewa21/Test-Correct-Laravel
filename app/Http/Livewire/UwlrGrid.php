@@ -93,11 +93,15 @@ class UwlrGrid extends Component
         }
 
         $arr = $this->activeResult[$this->modalActiveTab];
+        $result = [];
         foreach ($arr as $key => $obj) {
+
+            // is een teacher
             $r = $obj;
             if (is_object($obj)) {
                 $r = (array) $obj;
             }
+
 
             foreach ($r as $k => $value) {
                 if (in_array($k, ['groepen', 'groep', 'samengestelde_groepen'])) {
@@ -112,11 +116,13 @@ class UwlrGrid extends Component
                    }
                     if ($k == 'samengestelde_groepen') {
                         $samengesteldeGroepenKeys = $r[$k];
+
                         $samengesteldeGroepen = $samengesteldeGroepCollection->filter(function($groep) use ($samengesteldeGroepenKeys) {
                             return in_array($groep['key'],  $samengesteldeGroepenKeys);
                         })->map(function($groep){
                             return $groep['naam'];
                         });
+
                         $r[$k] = $samengesteldeGroepen->join(',');
                     }
                     if ($k == 'groepen') {
