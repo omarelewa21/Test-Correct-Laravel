@@ -5,6 +5,7 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
+use tcCore\SamlMessage;
 use tcCore\User;
 
 class EventServiceProvider extends ServiceProvider {
