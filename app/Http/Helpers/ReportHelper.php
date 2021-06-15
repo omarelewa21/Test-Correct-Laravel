@@ -249,7 +249,7 @@ class ReportHelper
             ->whereNull('test_participants.deleted_at')
             ->where('test_takes.demo', 0)
             ->where('test_participants.test_take_status_id','>',2)
-            ->leftJoin('users','users.id','test_participants.user_id    ')
+            ->leftJoin('users','users.id','test_participants.user_id')
             ->where('users.demo',0);
 
         $this->attachReference($builder, 'users');
