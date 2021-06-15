@@ -74,7 +74,7 @@ class Login extends Component
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
-        Session::set('saml_attributes', $samlAttr);
+        Session::put('saml_attributes', $samlAttr);
     }
 
     public function login()
