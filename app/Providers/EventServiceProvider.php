@@ -27,7 +27,19 @@ class EventServiceProvider extends ServiceProvider {
             $messageId = $event->getSaml2Auth()->getLastMessageId();
             // Add your own code preventing reuse of a $messageId to stop replay attacks
 
+            $message = SamlMessage::whereMessageId($messageId)->first();
+            if ($message) {
+                dd('preventing reuse of messageId');
+            }
+
             $user = $event->getSaml2User();
+
+            $samlMessage = SamlMessage::create([
+                'message_id' => $messageId,
+                'eckid' => $user['eckId'][0],
+                'email' => $user['mail'][0],
+            ]);
+
             $userData = [
                 'id' => $user->getUserId(),
                 'attributes' => $user->getAttributes(),
@@ -43,12 +55,7 @@ class EventServiceProvider extends ServiceProvider {
                     header("Location: $url");
                     exit;
                 } else {
-                    Session::put('saml_attributes', $userData);
-                    Session::save();
-                    dd($userData);
-
-                    header("Location: /login?tab=entree");
-                    exit;
+                    return redirect(route('auth.login', ['tab' => 'entree', 'id' => $samlMessage->uuid]));
                 }
             }
 

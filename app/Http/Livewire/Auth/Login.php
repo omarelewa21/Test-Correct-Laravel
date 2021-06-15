@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
 use tcCore\Jobs\SendForgotPasswordMail;
+use tcCore\SamlMessage;
 use tcCore\User;
 
 class Login extends Component
@@ -31,9 +32,11 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab'];
+    protected $queryString = ['tab', 'id'];
 
     public $tab = 'login';
+
+    public $id = '';
 
 //    public $loginTab = true;
 //    public $forgotPasswordTab = false;
@@ -70,13 +73,9 @@ class Login extends Component
 
     public function mount()
     {
-        $samlAttr = Session::get('saml_attributes');
-        dd($samlAttr);
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
-        Session::put('saml_attributes', $samlAttr);
-        Session::save();
     }
 
     public function login()
@@ -268,9 +267,9 @@ class Login extends Component
             'password' => $this->entreePassword,
         ];
 
-        dump(Session::all());
+        $message = SamlMessage::whereUuid($this->id)->first();
 
-        if (!Session::has('saml_attributes')) {
+        if ($message == null) {
             return $this->addError('invalid_user_pfff', __('auth.failed'));
         }
 
@@ -284,7 +283,7 @@ class Login extends Component
             return $this->addError('some_field', 'some error where we already have a matching eckid');
         }
 
-        $user->eckId = Session::get('saml_attributes')['eckId'][0];
+        $user->eckId = $message->eckid;
         $user->save();
         $user->redirectToCakeWithTemporaryLogin();
     }
