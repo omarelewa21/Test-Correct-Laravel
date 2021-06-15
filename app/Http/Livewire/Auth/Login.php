@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
 use tcCore\Jobs\SendForgotPasswordMail;
+use tcCore\SamlMessage;
 use tcCore\User;
 
 class Login extends Component
@@ -31,9 +32,11 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab'];
+    protected $queryString = ['tab', 'id'];
 
     public $tab = 'login';
+
+    public $id = '';
 
 //    public $loginTab = true;
 //    public $forgotPasswordTab = false;
@@ -70,7 +73,6 @@ class Login extends Component
 
     public function mount()
     {
-        Session::flash('saml_attributes', Session::get('saml_attributes'));
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
@@ -156,8 +158,6 @@ class Login extends Component
 
     public function updated($name, $value)
     {
-        Session::flash('saml_attributes', Session::get('saml_attributes'));
-
         $this->checkLoginFieldsForInput();
 
         $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
@@ -258,12 +258,13 @@ class Login extends Component
             'password' => $this->entreePassword,
         ];
 
-        if (!Session::has('saml_attributes')) {
+        $message = SamlMessage::whereUuid($this->id)->first();
+
+        if ($message == null) {
             return $this->addError('invalid_user_pfff', __('auth.failed'));
         }
 
         if (!auth()->attempt($credentials)) {
-            Session::flash('saml_attributes', Session::get('saml_attributes'));
             $this->createFailedLogin();
             return $this->addError('invalid_user', __('auth.failed'));
         }
@@ -273,7 +274,7 @@ class Login extends Component
             return $this->addError('some_field', 'some error where we already have a matching eckid');
         }
 
-        $user->eckId = Session::get('saml_attributes')['eckId'];
+        $user->eckId = $message->eckid;
         $user->save();
         $user->redirectToCakeWithTemporaryLogin();
     }
