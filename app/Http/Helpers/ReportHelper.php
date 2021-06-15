@@ -39,7 +39,7 @@ class ReportHelper
         }
         $this->reference = $reference;
         $this->type = (get_class($reference) === User::class) ? self::USER : self::SCHOOLLOCATION;
-        if($this->type === self::SCHOOLLOCATION){
+        if ($this->type === self::SCHOOLLOCATION) {
             $this->setCurrentPeriod();
         }
 
@@ -48,35 +48,35 @@ class ReportHelper
     protected function setCurrentPeriod()
     {
         $this->period = null;
-        $this->reference->schoolLocationSchoolYears()->with('schoolYear','schoolYear.periods')->get()->each(function(SchoolLocationSchoolYear $y){
-            if(null !== $y->schoolYear && null !== $y->schoolYear->periods){
-                $y->schoolYear->periods->each(function(Period $p){
-                   if($p->isActual()){
-                       if($this->hasCurrentPeriod()){
-                        // we check if we need to expand the current period in rare case there are more than 1 current periods
-                           if($p->start_date <
-                               $this->period->start_date){
-                               $this->period->start_date = $p->start_date;
-                           }
-                           if($p->end_date >
-                               $this->period->end_date){
-                               $this->period->end_date = $p->end_date;
-                           }
-                       } else {
-                           $this->period = $p;
-                       }
-                   }
+        $this->reference->schoolLocationSchoolYears()->with('schoolYear', 'schoolYear.periods')->get()->each(function (SchoolLocationSchoolYear $y) {
+            if (null !== $y->schoolYear && null !== $y->schoolYear->periods) {
+                $y->schoolYear->periods->each(function (Period $p) {
+                    if ($p->isActual()) {
+                        if ($this->hasCurrentPeriod()) {
+                            // we check if we need to expand the current period in rare case there are more than 1 current periods
+                            if ($p->start_date <
+                                $this->period->start_date) {
+                                $this->period->start_date = $p->start_date;
+                            }
+                            if ($p->end_date >
+                                $this->period->end_date) {
+                                $this->period->end_date = $p->end_date;
+                            }
+                        } else {
+                            $this->period = $p;
+                        }
+                    }
                 });
             }
         });
-        if(null === $this->period){
-            logger(sprintf('no current period found for school location %s (%d)',$this->reference->name, $this->reference->getKey()));
+        if (null === $this->period) {
+            logger(sprintf('no current period found for school location %s (%d)', $this->reference->name, $this->reference->getKey()));
         }
     }
 
     protected function hasCurrentPeriod()
     {
-        return (bool) $this->period != null;
+        return (bool)$this->period != null;
     }
 
     protected function attachReference($builder, $table)
@@ -102,44 +102,44 @@ class ReportHelper
     public function nrLicenses($days)
     {
         if ($this->type === self::SCHOOLLOCATION) {
-            if(!$this->hasCurrentPeriod()){
+            if (!$this->hasCurrentPeriod()) {
                 return -1;
             }
             $builder = \DB::table('license_logs')
-                            ->leftJoin('licenses','licenses.id','license_logs.license_id');
-            $this->attachReference($builder,'licenses');
-            if($days > 0) {
+                ->leftJoin('licenses', 'licenses.id', 'license_logs.license_id');
+            $this->attachReference($builder, 'licenses');
+            if ($days > 0) {
                 $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'license_logs.created_at');
             } else {
-                $builder->where(function($q){
-                   $q->where(function($q1){
-                       // license starts earlier and ends later than current period
-                       $q1->where('licenses.start','<=',$this->period->start_date);
-                       $q1->where('licenses.end','>=',$this->period->end_date);
-                   });
-                   $q->orWhere(function($q2){
-                        // license starts after en ends earlier than current period
-                       $q2->where('licenses.start','>',$this->period->start_date);
-                       $q2->where('licenses.end','<',$this->period->end_date);
-                   });
-                    $q->orWhere(function($q3){
-                        // license starts earlier than current period start and ends earlier then current period end
-                        $q3->where('licenses.start','<=',$this->period->start_date);
-                        $q3->where('licenses.end','>=',$this->period->start_date);
-                        $q3->where('licenses.end','<=',$this->period->end_date);
+                $builder->where(function ($q) {
+                    $q->where(function ($q1) {
+                        // license starts earlier and ends later than current period
+                        $q1->where('licenses.start', '<=', $this->period->start_date);
+                        $q1->where('licenses.end', '>=', $this->period->end_date);
                     });
-                    $q->orWhere(function($q4){
+                    $q->orWhere(function ($q2) {
+                        // license starts after en ends earlier than current period
+                        $q2->where('licenses.start', '>', $this->period->start_date);
+                        $q2->where('licenses.end', '<', $this->period->end_date);
+                    });
+                    $q->orWhere(function ($q3) {
+                        // license starts earlier than current period start and ends earlier then current period end
+                        $q3->where('licenses.start', '<=', $this->period->start_date);
+                        $q3->where('licenses.end', '>=', $this->period->start_date);
+                        $q3->where('licenses.end', '<=', $this->period->end_date);
+                    });
+                    $q->orWhere(function ($q4) {
                         // license starts later than current period start and ends later then current period end
-                        $q4->where('licenses.start','>=',$this->period->start_date);
-                        $q4->where('licenses.start','<=',$this->period->end_date);
-                        $q4->where('licenses.end','>=',$this->period->end_date);
+                        $q4->where('licenses.start', '>=', $this->period->start_date);
+                        $q4->where('licenses.start', '<=', $this->period->end_date);
+                        $q4->where('licenses.end', '>=', $this->period->end_date);
                     });
 
                 });
 
 
             }
-            return (int) $builder->sum('license_logs.amount');
+            return (int)$builder->sum('license_logs.amount');
         }
         throw new \Exception('Nr of licenses should not be called for a user');
     }
@@ -168,7 +168,7 @@ class ReportHelper
 
         $this->attachReference($builder, 'file_managements');
 
-        $this->addDaysConstraintToBuilder($builder, $days,'Y-m-d H:i:s','file_management_status_logs.created_at');
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'file_management_status_logs.created_at');
 
         return $builder->count();
     }
@@ -181,10 +181,12 @@ class ReportHelper
         } else {
             $builder = QuestionAuthor::leftJoin('users', function ($join) {
                 $join->on('question_authors.user_id', '=', 'users.id');
-            });
+            })
+            ->whereNull('users.deleted_at')
+            ->where('users.demo',0);
             $this->attachReference($builder, 'users');
         }
-        $this->addDaysConstraintToBuilder($builder, $days,'Y-m-d H:i:s','question_authors.created_at');
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'question_authors.created_at');
 
         return $builder->count();
     }
@@ -225,12 +227,13 @@ class ReportHelper
 
         $builder = \DB::table('test_participants')
             ->leftJoin('test_takes', 'test_takes.id', 'test_participants.test_take_id')
+            ->where('test_takes.demo', 0)
             ->whereNull('test_takes.deleted_at')
             ->whereNull('test_participants.deleted_at');
 
         $this->attachReference($builder, 'test_takes');
 
-        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00','test_takes.time_start');
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00', 'test_takes.time_start');
 
         return $builder->count();
     }
@@ -244,11 +247,12 @@ class ReportHelper
             ->distinct('test_participants.user_id')
             ->leftJoin('test_takes', 'test_takes.id', 'test_participants.test_take_id')
             ->whereNull('test_takes.deleted_at')
-            ->whereNull('test_participants.deleted_at');
+            ->whereNull('test_participants.deleted_at')
+            ->where('test_takes.demo', 0);
 
         $this->attachReference($builder, 'test_takes');
 
-        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00','test_takes.time_start');
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00', 'test_takes.time_start');
 
         return $builder->count();
     }
@@ -256,9 +260,11 @@ class ReportHelper
     public function nrTestTakesByStatusIdAndDays($statusId, $days)
     {
 
-        $builder = TestTakeStatusLog::leftJoin('test_takes', 'test_takes.id','test_take_status_logs.test_take_id')
+        $builder = TestTakeStatusLog::leftJoin('test_takes', 'test_takes.id', 'test_take_status_logs.test_take_id')
             ->whereNotNull('test_take_status_logs.test_take_status_id')
-            ->where('test_take_status_logs.test_take_status_id', $statusId);
+            ->where('test_take_status_logs.test_take_status_id', $statusId)
+            ->whereNull('test_takes.deleted_at')
+            ->where('test_takes.demo', 0);
 
 
         $this->attachReference($builder, 'test_takes');
@@ -272,14 +278,14 @@ class ReportHelper
     {
         if ($days > 0) {
             $end_date = Carbon::now()->format($format);
-            $start_date = Carbon::now()->subDays((int) $days)->format($format);
+            $start_date = Carbon::now()->subDays((int)$days)->format($format);
             $builder->whereBetween($column, [$start_date, $end_date]);
         }
     }
 
     protected function addPeriodConstraintToBuilder($builder, $format = 'Y-m-d H:i:s', $column = 'test_take_status_logs.created_at')
     {
-        if($this->hasCurrentPeriod()) {
+        if ($this->hasCurrentPeriod()) {
             $end_date = Carbon::createFromFormat('Y-m-d', $this->period->end_date)->format($format);
             $start_date = Carbon::createFromFormat('Y-m-d', $this->period->start_date)->format($format);
             $builder->whereBetween($column, [$start_date, $end_date]);
@@ -293,7 +299,7 @@ class ReportHelper
      */
     public function nrActiveTeachers($minimalNrTestTakes, $days = 0)
     {
-        if(!$this->hasCurrentPeriod()){
+        if (!$this->hasCurrentPeriod()) {
             return -1;
         }
 
@@ -304,8 +310,8 @@ class ReportHelper
 //                $query->select($role->getKeyName())->from($role->getTable())->where('name', 'Teacher')->whereNull('deleted_at');
 //            })->whereNull('deleted_at');
 //        })->where('count_last_test_taken', '>=', $date->format('Y-m-d H:i:s'))->count();
-        $builder2 = TestTake::withoutGlobalScope(new ArchivedScope)->groupBy('test_takes.user_id')->havingRaw('COUNT(test_takes.user_id) > '.(int) $minimalNrTestTakes)->select('test_takes.user_id');
-        $this->addDaysConstraintToBuilder($builder2, $days, 'Y-m-d 00:00:00','test_takes.time_start');
+        $builder2 = TestTake::withoutGlobalScope(new ArchivedScope)->groupBy('test_takes.user_id')->havingRaw('COUNT(test_takes.user_id) > ' . (int)$minimalNrTestTakes)->select('test_takes.user_id');
+        $this->addDaysConstraintToBuilder($builder2, $days, 'Y-m-d 00:00:00', 'test_takes.time_start');
         $builder = User::where('school_location_id', $this->reference->getKey())
             ->join('user_roles', 'user_roles.user_id', 'users.id')
             ->where('user_roles.role_id', 1) // teacher
@@ -323,7 +329,7 @@ class ReportHelper
     public function nrActivatedAccounts($days)
     {
 
-        if(!$this->hasCurrentPeriod()){
+        if (!$this->hasCurrentPeriod()) {
             return -1;
         }
 
@@ -351,15 +357,15 @@ class ReportHelper
         $format = 'Y-m-d H:i:s';
         $column = 'login_logs.created_at';
 
-        if($days > 0){
+        if ($days > 0) {
             $start_date = Carbon::createFromFormat('Y-m-d', $this->period->start_date)->format($format);
-            $end_date = Carbon::now()->subDays((int) $days)->format($format);
+            $end_date = Carbon::now()->subDays((int)$days)->format($format);
             $builder2->whereBetween($column, [$start_date, $end_date]);
-            $builder->whereNotIn('login_logs.user_id',$builder2);
+            $builder->whereNotIn('login_logs.user_id', $builder2);
         }
 
-        $this->addDaysConstraintToBuilder($builder, $days,$format,'login_logs.created_at');
-        $this->addPeriodConstraintToBuilder($builder, $format,'login_logs.created_at');
+        $this->addDaysConstraintToBuilder($builder, $days, $format, 'login_logs.created_at');
+        $this->addPeriodConstraintToBuilder($builder, $format, 'login_logs.created_at');
 
         return $builder->count();
     }
