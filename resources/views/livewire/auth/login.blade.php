@@ -8,14 +8,14 @@
      wire:ignore.self
 >
     <div class="w-full max-w-[800px] space-y-4 mx-4 py-4">
-        @if($this->loginTab)
+        @if($tab == 'login')
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <div class="flex items-center space-x-2.5">
                     <div class="flex">
                         <x-stickers.login/>
                     </div>
                     <div>
-                        <h1>{{ __('auth.log_in_to_test_correct') }}</h1>
+                        <h1>{{ __('auth.log_in_verb') }}</h1>
                     </div>
 
                 </div>
@@ -115,7 +115,7 @@
                                 </div>
                                 @enderror
                                 @if($requireCaptcha)
-                                    <div>
+                                    <div x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
                                         <div class="notification error stretched mt-4">
                                             <div class="flex items-center space-x-3">
                                                 <x-icon.exclamation/>
@@ -124,7 +124,7 @@
                                             <span class="body">{{ __('auth.require_captcha_long') }}</span>
                                         </div>
                                         <div class="mt-2 inline-flex flex-col items-center space-y-1">
-                                            <div id="captcha-image" x-ref="captcha" wire:ignore>
+                                            <div x-ref="captcha" wire:ignore>
                                                 @captcha
                                             </div>
                                             <input type="text" id="captcha"
@@ -135,7 +135,7 @@
                                     </div>
                                 @endif
                                 @error('captcha')
-                                <span class="text-sm all-red">{{ $message }}</span>
+                                <span class="text-sm all-red">{{ __('auth.incorrect_captcha') }}</span>
                                 @enderror
                                 @error('invalid_test_code')
                                 <div class="notification error stretched mt-4">
@@ -146,7 +146,7 @@
                             {{-- With forgot_password button, ml_auto can be switched justify-between on the parent --}}
                             <div class="flex mt-auto pt-4 justify-between">
                                 <div class="flex order-2 space-x-4">
-                                    <x-button.primary class="bg-[#2e3192]" size="md" wire:click.prevent="showEntreeTab()">
+                                    <x-button.primary type="link" class="bg-[#2e3192]" size="md" href="{{ route('saml2_login', 'entree') }}">
                                         <x-icon.entreefederatie/>
                                         <span>{{ __('auth.login_with_entree') }}</span>
                                     </x-button.primary>
@@ -154,7 +154,7 @@
                                         <span>{{ __('auth.log_in_verb') }}</span>
                                     </x-button.cta>
                                 </div>
-                                <x-button.text-button class="order-1" wire:click.prevent="showForgotPasswordTab()">
+                                <x-button.text-button class="order-1" wire:click.prevent="$set('tab', 'forgotPassword')">
                                     <span class="text-base">{{__('auth.forgot_password_long')}}</span>
                                     <x-icon.arrow/>
                                 </x-button.text-button>
@@ -211,7 +211,7 @@
                     </div>
                 </div>
             </div>
-        @elseif($forgotPasswordTab)
+        @elseif($tab == 'forgotPassword')
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <form wire:submit.prevent="sendForgotPasswordEmail" action="#" method="POST"
                       class="flex-col flex flex-1">
@@ -259,7 +259,7 @@
                                     <span>{{ __('auth.send_email') }}</span>
                                 </x-button.cta>
                             @endif
-                            <x-button.text-button class="order-1 rotate-svg-180" wire:click.prevent="showLoginTab()">
+                            <x-button.text-button class="order-1 rotate-svg-180" wire:click.prevent="$set('tab', 'login')">
                                 <x-icon.arrow/>
                                 <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>
@@ -267,7 +267,7 @@
                     </div>
                 </form>
             </div>
-        @elseif($entreeTab)
+        @elseif($tab == 'entree')
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <form wire:submit.prevent="entreeForm" action="#" method="POST"
                       class="flex-col flex flex-1" autocomplete="off">
@@ -296,14 +296,14 @@
                             </x-input.group>
                         </div>
                         <div class="flex">
-                            <x-button.text-button wire:click.prevent="showForgotPasswordTab()">
+                            <x-button.text-button wire:click.prevent="$set('tab', 'forgotPassword')">
                                 <span class="text-base">{{__('auth.forgot_password_long')}}</span>
                                 <x-icon.arrow/>
                             </x-button.text-button>
                         </div>
 
                         <div class="mt-auto flex w-full">
-                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="showLoginTab()">
+                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="$set('tab', 'login')">
                                 <x-icon.arrow/>
                                 <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>
@@ -337,12 +337,4 @@
     </div>
 
     <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>
-
-    @push('scripts')
-        <script>
-            Livewire.on('refresh-captcha', function() {
-                document.querySelector('#captcha-image').firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());
-            });
-        </script>
-    @endpush
 </div>

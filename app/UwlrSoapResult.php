@@ -239,7 +239,7 @@ class UwlrSoapResult extends Model
             if ($leerling) {
                 $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
             } else {
-                $this->errors[] = sprintf('kan geen leering vinden voor klas %s', $klas['naam']);
+                $this->errors[] = sprintf('kan geen leerling vinden voor klas %s', $klas['naam']);
             }
         });
     }
@@ -297,7 +297,7 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInLabel->isNotEmpty()) {
-            $this->errors[] = sprintf('no %sen found for group(s) [%s]', $label, $notInLabel->join(',\n '));
+            $this->errors[] = sprintf('no %sen found for group(s) [%s]', $label, $notInLabel->join(', '));
         }
 
         $notInGroups = $labelKeys->filter(function ($teacherKey) use ($keys) {
@@ -305,7 +305,7 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInGroups->isNotEmpty()) {
-            $this->errors[] = sprintf('found groep(s) in %s but not in groep %s', $label, $notInGroups->join(',\n '));
+            $this->errors[] = sprintf('found groep(s) in %s but not in groep %s', $label, $notInGroups->join(', '));
         };
     }
 
@@ -329,7 +329,7 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInLabel->isNotEmpty()) {
-            $this->errors[] = sprintf('no %sen found for samengestelde_group(s) [%s]', $label, $notInLabel->join(',\n '));
+            $this->errors[] = sprintf('no %sen found for samengestelde_group(s) [%s]', $label, $notInLabel->join(', '));
         }
 
         $notInGroups = $labelKeys->filter(function ($teacherKey) use ($keys) {
@@ -337,7 +337,7 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInGroups->isNotEmpty()) {
-            $this->errors[] = sprintf('found groep(s) in %s but not in groep %s', $label, $notInGroups->join('\n '));
+            $this->errors[] = sprintf('found groep(s) in %s but not in groep %s', $label, $notInGroups->join(' '));
         };
     }
 
@@ -346,7 +346,7 @@ class UwlrSoapResult extends Model
         if ($this->errors) {
             $this->error_messages .= collect($this->errors)
                 ->map(function ($error) {
-                    return sprintf('%s: %s', now(), $error);
+                    return sprintf('%s: %s<BR>', now(), $error);
                 })->join(',');
             $this->save();
 

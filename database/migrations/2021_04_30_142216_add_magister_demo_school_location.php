@@ -3,6 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use tcCore\Lib\User\Factory;
+use tcCore\User;
 
 class AddMagisterDemoSchoolLocation extends Migration
 {
@@ -53,8 +55,20 @@ class AddMagisterDemoSchoolLocation extends Migration
                 'section_id'         => $section->getKey()
             ]);
 
-            Auth::loginUsingId(1486);
-            \tcCore\Http\Helpers\ActingAsHelper::getInstance()->setUser(tcCore\User::find(1486));
+            $userFactory = new Factory(new User());
+            $user = $userFactory->generate([
+                'name_first' => 'magister user',
+                'name' => 'magister user',
+                'external_id' => 'magister user',
+                'username' => 'magister user',
+                'password' => '',
+                'user_roles' => [3],
+                'school_location_id' => $location->getKey(),
+                'send_welcome_email' => 1,
+            ]);
+
+            Auth::loginUsingId($user->getKey());
+            \tcCore\Http\Helpers\ActingAsHelper::getInstance()->setUser($user);
             //  dd(\tcCore\Http\Helpers\ActingAsHelper::getInstance()->getUser()->getKey());
 
             // add a schoolYear for the current year;
@@ -77,7 +91,7 @@ class AddMagisterDemoSchoolLocation extends Migration
 
 
             $periodLocation->save();
-
+            $user->forceDelete();
         }
     }
 

@@ -1713,7 +1713,7 @@
                     "homepage": "https://github.com/mtdowling"
                 },
                 {
-                    "name": "Márk Sági-Kazár",
+                    "name": "MÃ¡rk SÃ¡gi-KazÃ¡r",
                     "email": "mark.sagikazar@gmail.com",
                     "homepage": "https://sagikazarmark.hu"
                 }
@@ -2626,7 +2626,7 @@
                     "email": "pabs@pablotron.org"
                 },
                 {
-                    "name": "Jonatan Männchen",
+                    "name": "Jonatan MÃ¤nnchen",
                     "email": "jonatan@maennchen.ch"
                 },
                 {
@@ -2634,7 +2634,7 @@
                     "email": "donatj@gmail.com"
                 },
                 {
-                    "name": "András Kolesár",
+                    "name": "AndrÃ¡s KolesÃ¡r",
                     "email": "kolesar@kolesar.hu"
                 }
             ],
@@ -2879,7 +2879,7 @@
             ],
             "authors": [
                 {
-                    "name": "Muharrem ERİN",
+                    "name": "Muharrem ERÄ°N",
                     "email": "me@mewebstudio.com",
                     "homepage": "https://github.com/mewebstudio",
                     "role": "Developer"
@@ -3797,7 +3797,7 @@
                     "role": "Developer"
                 },
                 {
-                    "name": "Hans-Jürgen Petrich",
+                    "name": "Hans-JÃ¼rgen Petrich",
                     "email": "petrich@tronic-media.com",
                     "role": "Developer"
                 },
@@ -4822,7 +4822,7 @@
                     "email": "fabien@symfony.com"
                 },
                 {
-                    "name": "Jean-François Simon",
+                    "name": "Jean-FranÃ§ois Simon",
                     "email": "jeanfrancois.simon@sensiolabs.com"
                 },
                 {
@@ -7386,7 +7386,7 @@
             ],
             "authors": [
                 {
-                    "name": "François Zaninotto"
+                    "name": "FranÃ§ois Zaninotto"
                 }
             ],
             "description": "Faker is a PHP library that generates fake data for you.",
@@ -7629,7 +7629,7 @@
             ],
             "authors": [
                 {
-                    "name": "Pádraic Brady",
+                    "name": "PÃ¡draic Brady",
                     "email": "padraic.brady@gmail.com",
                     "homepage": "http://blog.astrumfutura.com"
                 },
