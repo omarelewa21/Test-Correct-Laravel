@@ -41,7 +41,7 @@ class SchoolLocationReport extends Model
                     'school_location_id' => $location->getKey(),
                         ], [
                     'school_location_name' => $location->name,
-                    'nr_licenses' => $helper->nrLicenses(0),
+                    'nr_licenses' => $helper->nrLicenses(),
                     'total_activated_licenses' => $helper->nrActivatedAccounts(0),//$helper->getActiveLicenses(),
                     'nr_activated_licenses_30' => $helper->nrActivatedAccounts(30),
                     'nr_activated_licenses_60' => $helper->nrActivatedAccounts(60),

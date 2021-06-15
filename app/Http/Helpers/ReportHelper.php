@@ -97,49 +97,42 @@ class ReportHelper
     }
 
     /**
-     * @TODO limit to period
+     *
      */
-    public function nrLicenses($days)
+    public function nrLicenses()
     {
         if ($this->type === self::SCHOOLLOCATION) {
             if (!$this->hasCurrentPeriod()) {
                 return -1;
             }
-            $builder = \DB::table('license_logs')
-                ->leftJoin('licenses', 'licenses.id', 'license_logs.license_id');
+            $builder = \DB::table('licenses');
             $this->attachReference($builder, 'licenses');
-            if ($days > 0) {
-                $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'license_logs.created_at');
-            } else {
-                $builder->where(function ($q) {
-                    $q->where(function ($q1) {
-                        // license starts earlier and ends later than current period
-                        $q1->where('licenses.start', '<=', $this->period->start_date);
-                        $q1->where('licenses.end', '>=', $this->period->end_date);
-                    });
-                    $q->orWhere(function ($q2) {
-                        // license starts after en ends earlier than current period
-                        $q2->where('licenses.start', '>', $this->period->start_date);
-                        $q2->where('licenses.end', '<', $this->period->end_date);
-                    });
-                    $q->orWhere(function ($q3) {
-                        // license starts earlier than current period start and ends earlier then current period end
-                        $q3->where('licenses.start', '<=', $this->period->start_date);
-                        $q3->where('licenses.end', '>=', $this->period->start_date);
-                        $q3->where('licenses.end', '<=', $this->period->end_date);
-                    });
-                    $q->orWhere(function ($q4) {
-                        // license starts later than current period start and ends later then current period end
-                        $q4->where('licenses.start', '>=', $this->period->start_date);
-                        $q4->where('licenses.start', '<=', $this->period->end_date);
-                        $q4->where('licenses.end', '>=', $this->period->end_date);
-                    });
-
+            $builder->where(function ($q) {
+                $q->where(function ($q1) {
+                    // license starts earlier and ends later than current period
+                    $q1->where('licenses.start', '<=', $this->period->start_date);
+                    $q1->where('licenses.end', '>=', $this->period->end_date);
+                });
+                $q->orWhere(function ($q2) {
+                    // license starts after en ends earlier than current period
+                    $q2->where('licenses.start', '>', $this->period->start_date);
+                    $q2->where('licenses.end', '<', $this->period->end_date);
+                });
+                $q->orWhere(function ($q3) {
+                    // license starts earlier than current period start and ends earlier then current period end
+                    $q3->where('licenses.start', '<=', $this->period->start_date);
+                    $q3->where('licenses.end', '>=', $this->period->start_date);
+                    $q3->where('licenses.end', '<=', $this->period->end_date);
+                });
+                $q->orWhere(function ($q4) {
+                    // license starts later than current period start and ends later then current period end
+                    $q4->where('licenses.start', '>=', $this->period->start_date);
+                    $q4->where('licenses.start', '<=', $this->period->end_date);
+                    $q4->where('licenses.end', '>=', $this->period->end_date);
                 });
 
-
-            }
-            return (int)$builder->sum('license_logs.amount');
+            });
+            return (int) $builder->sum('licenses.amount');
         }
         throw new \Exception('Nr of licenses should not be called for a user');
     }
@@ -160,15 +153,13 @@ class ReportHelper
 
     protected function nrFileManagementByStatusIdTypeAndDays($statusId, $type, $days)
     {
-        $builder = \DB::table('file_management_status_logs')
-            ->leftJoin('file_managements', 'file_managements.id', 'file_management_status_logs.file_management_id')
+        $builder = \DB::table('file_managements')
             ->where('file_managements.type', $type)
-            ->whereNotNull('file_management_status_logs.file_management_status_id')
-            ->where('file_management_status_logs.file_management_status_id', $statusId);
+            ->whereNull('parent_id');
 
         $this->attachReference($builder, 'file_managements');
 
-        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'file_management_status_logs.created_at');
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'file_managements.created_at');
 
         return $builder->count();
     }
@@ -234,9 +225,12 @@ class ReportHelper
             ->leftJoin('test_takes', 'test_takes.id', 'test_participants.test_take_id')
             ->where('test_takes.demo', 0)
             ->whereNull('test_takes.deleted_at')
-            ->whereNull('test_participants.deleted_at');
+            ->whereNull('test_participants.deleted_at')
+            ->leftJoin('users','users.id','test_participants.user_id')
+            ->whereNull('users.deleted_at')
+            ->where('users.demo',0);
 
-        $this->attachReference($builder, 'test_takes');
+        $this->attachReference($builder, 'users');
 
         $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00', 'test_takes.time_start');
 
@@ -244,7 +238,7 @@ class ReportHelper
     }
 
 
-    public function nrUniqueStudentsTakenTest($days)
+    public function nrUniqueStudentsTakenTest($days, $returnBuilder = false)
     {
 
         $builder = \DB::table('test_participants')
@@ -253,18 +247,23 @@ class ReportHelper
             ->leftJoin('test_takes', 'test_takes.id', 'test_participants.test_take_id')
             ->whereNull('test_takes.deleted_at')
             ->whereNull('test_participants.deleted_at')
-            ->where('test_takes.demo', 0);
+            ->where('test_takes.demo', 0)
+            ->where('test_participants.test_take_status_id','>',2)
+            ->leftJoin('users','users.id','test_participants.user_id    ')
+            ->where('users.demo',0);
 
-        $this->attachReference($builder, 'test_takes');
+        $this->attachReference($builder, 'users');
 
         $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00', 'test_takes.time_start');
 
+        if($returnBuilder){
+            return $builder;
+        }
         return $builder->count();
     }
 
-    public function nrTestTakesByStatusIdAndDays($statusId, $days)
+    public function nrTestTakesByStatusIdAndDays($statusId, $days, $returnBuilder = false)
     {
-
         $builder = TestTakeStatusLog::leftJoin('test_takes', 'test_takes.id', 'test_take_status_logs.test_take_id')
             ->whereNotNull('test_take_status_logs.test_take_status_id')
             ->where('test_take_status_logs.test_take_status_id', $statusId)
@@ -276,6 +275,9 @@ class ReportHelper
 
         $this->addDaysConstraintToBuilder($builder, $days);
 
+        if($returnBuilder){
+            return $builder;
+        }
         return $builder->count();
     }
 
