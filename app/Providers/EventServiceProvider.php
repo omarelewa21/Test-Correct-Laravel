@@ -34,11 +34,12 @@ class EventServiceProvider extends ServiceProvider {
             }
 
             $user = $event->getSaml2User();
+            $attr = $user->getAttributes();
 
             $samlMessage = SamlMessage::create([
                 'message_id' => $messageId,
-                'eckid' => $user['eckId'][0],
-                'email' => $user['mail'][0],
+                'eckid' => $attr['eckId'][0],
+                'email' => $attr['mail'][0],
             ]);
 
             $userData = [
