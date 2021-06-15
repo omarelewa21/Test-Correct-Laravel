@@ -43,7 +43,8 @@ class EventServiceProvider extends ServiceProvider {
                     header("Location: $url");
                     exit;
                 } else {
-                    Session::put('saml_attributes', $user->getAttributes());
+                    Session::put('saml_attributes', $userData);
+
                     header("Location: /login?tab=entree");
                     exit;
                 }
