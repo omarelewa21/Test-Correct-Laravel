@@ -268,6 +268,8 @@ class Login extends Component
             'password' => $this->entreePassword,
         ];
 
+        dump(Session::all());
+
         if (!Session::has('saml_attributes')) {
             return $this->addError('invalid_user_pfff', __('auth.failed'));
         }
