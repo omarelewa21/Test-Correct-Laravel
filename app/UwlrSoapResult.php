@@ -239,7 +239,7 @@ class UwlrSoapResult extends Model
             if ($leerling) {
                 $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
             } else {
-                $this->errors[] = sprintf('kan geen leering vinden voor klas %s', $klas['naam']);
+                $this->errors[] = sprintf('kan geen leerling vinden voor klas %s', $klas['naam']);
             }
         });
     }
@@ -346,7 +346,7 @@ class UwlrSoapResult extends Model
         if ($this->errors) {
             $this->error_messages .= collect($this->errors)
                 ->map(function ($error) {
-                    return sprintf('%s: %s', now(), $error);
+                    return sprintf('%s: %s\n', now(), $error);
                 })->join(',');
             $this->save();
 

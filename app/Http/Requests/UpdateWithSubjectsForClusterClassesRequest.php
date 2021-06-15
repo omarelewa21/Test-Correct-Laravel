@@ -41,7 +41,6 @@ class UpdateWithSubjectsForClusterClassesRequest extends FormRequest
      */
     public function withValidator($validator)
     {
-
         $validator->after(function ($validator) {
             $teacher = $this->get('teacher', []);
             $checked = $this->get('class', []);

@@ -2009,7 +2009,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $query->whereNull('school_class_import_logs.checked_by_teacher')
                         ->orWhereNull('school_class_import_logs.id');
 
-                })->value('cnt');
+                })->where('demo',0)
+                ->value('cnt');
             return ($classRecords + $teacherRecords) > 0;
         }
 

@@ -172,7 +172,7 @@
             <div class="sm:block">
                 <div class="border-b border-gray-200" id="melding">
 
-                    <PRE> {{ $this->errorMessages }}</PRE>
+                    <PRE style="white-space: pre-wrap;"> {{ $this->errorMessages }}</PRE>
                 </div>
 
 
