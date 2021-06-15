@@ -185,7 +185,7 @@ class DrawingQuestion extends Question implements QuestionInterface {
         return false;
     }
 
-    protected function needsToBeUpdated(UpdateTestQuestionRequest $request)
+    public function needsToBeUpdated($request)
     {
         if($this->isDirtyFile()){
             return true;

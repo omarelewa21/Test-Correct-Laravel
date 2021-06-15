@@ -294,7 +294,7 @@ class MatchingQuestion extends Question implements QuestionInterface {
         return parent::getCaptionAttribute();
     }
 
-    protected function needsToBeUpdated(UpdateTestQuestionRequest $request)
+    public function needsToBeUpdated($request)
     {
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
         if($this->isDirtyAnswerOptions($totalData)){

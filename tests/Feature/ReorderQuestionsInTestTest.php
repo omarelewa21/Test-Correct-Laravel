@@ -75,7 +75,6 @@ class ReorderQuestionsInTestTest extends TestCase
                 "order"=> "1",
             ])
         );
-        dump($reorderResponse->decodeResponseJson());
 
         $reorderResponse->assertStatus(200);
 

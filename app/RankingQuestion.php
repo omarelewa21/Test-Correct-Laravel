@@ -224,7 +224,7 @@ class RankingQuestion extends Question implements QuestionInterface {
        return $score;
     }
 
-    protected function needsToBeUpdated(UpdateTestQuestionRequest $request)
+    public function needsToBeUpdated($request)
     {
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
         if($this->isDirtyAnswerOptions($totalData)){

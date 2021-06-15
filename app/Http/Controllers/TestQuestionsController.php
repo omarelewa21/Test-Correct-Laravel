@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -159,7 +160,6 @@ class TestQuestionsController extends Controller {
             $questionInstance = $question->getQuestionInstance();
 
             $testQuestion->fill($request->all());
-
             // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
             if (    $question->isDirty()
                     || $questionInstance->isDirty()
@@ -168,6 +168,8 @@ class TestQuestionsController extends Controller {
                     || ($question instanceof DrawingQuestion && $question->isDirtyFile()))
             {
                 if ($question->isUsed($testQuestion)) {
+                    $message = 'GM says at june 15th 2021: TestQuestionsController line 171. We will never get here. After three months, check bugsnack and than remove this code';
+                    Bugsnag::notifyException(new \Exception($message));
                     $question = $question->duplicate($request->all());
                     if ($question === false) {
                         throw new QuestionException('Failed to duplicate question');
@@ -208,16 +210,13 @@ class TestQuestionsController extends Controller {
         $question = $testQuestion->question;
         DB::beginTransaction();
         try {
-            $totalData = $question->getTotalDataForTestQuestionUpdate($request);
-            $question->fill($totalData);
             $testQuestion->fill($request->all());
-            $question->handleOnlyAddToDatabaseFieldIsModified($request);
-            $question->handleAnyOtherFieldsAreModified($testQuestion,$request);
+            $question->updateWithRequest($request,$testQuestion);
             $testQuestion->setAttribute('question_id', $question->getKeyAfterPossibleDuplicate());
             if ($testQuestion->save()) {
                 $testQuestion->refresh();
                 $question = $testQuestion->question;
-                $question->handleAnswersAfterTestQuestionUpdate($testQuestion,$request);
+                $question->handleAnswersAfterOwnerModelUpdate($testQuestion,$request);
             } else {
                 throw new QuestionException('Failed to update test question');
             }

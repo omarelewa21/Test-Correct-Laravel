@@ -256,7 +256,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
     }
 
-    protected function needsToBeUpdated(UpdateTestQuestionRequest $request)
+    public function needsToBeUpdated($request)
     {
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
         if($this->isDirtyAnswerOptions($totalData)){

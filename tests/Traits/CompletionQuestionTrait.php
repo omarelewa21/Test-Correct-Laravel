@@ -35,6 +35,31 @@ trait CompletionQuestionTrait
         $response->assertStatus(200);
     }
 
+    private function createCompletionQuestionInGroup($attributes,$groupQuestionUuid){
+        $url = 'api-c/group_question_question/'.$groupQuestionUuid;
+        $response = $this->post(
+            $url,
+            static::getTeacherOneAuthRequestData(
+                $attributes
+            )
+        );
+        $response->assertStatus(200);
+        $testQuestionId = $response->decodeResponseJson()['id'];
+        $this->originalQuestionId = $testQuestionId;
+        return $testQuestionId;
+    }
+
+    private function editCompletionQuestionInGroup($uuidGroupQuestion,$uuidGroupQuestionQuestion,$attributes){
+        $url = 'api-c/group_question_question/'.$uuidGroupQuestion.'/'.$uuidGroupQuestionQuestion;
+        $response = $this->put(
+            $url,
+            static::getTeacherOneAuthRequestData(
+                $attributes
+            )
+        );
+        $response->assertStatus(200);
+    }
+
     private function getCompletionQuestionAttributes(array $overrides = []): array
     {
         return array_merge([

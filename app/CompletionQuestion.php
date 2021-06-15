@@ -350,13 +350,13 @@ class CompletionQuestion extends Question implements QuestionInterface {
 //        }
 //    }
 
-    public function getTotalDataForTestQuestionUpdate(UpdateTestQuestionRequest $request)
+    public function getTotalDataForTestQuestionUpdate($request)
     {
         $questionData = $this->getQuestionData($request);
         return array_merge($request->all(),$questionData);
     }
 
-    public function getCompletionAnswerDirty(UpdateTestQuestionRequest $request)
+    public function getCompletionAnswerDirty($request)
     {
         $questionData = $this->getQuestionData($request);
         $currentAnswers = $this->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
@@ -364,7 +364,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
         return ( ($currentAnswers !== $futureAnswers));
     }
 
-    public function getQuestionData(UpdateTestQuestionRequest $request)
+    public function getQuestionData($request)
     {
         $qHelper = new QuestionHelper();
         if(!$this->questionData){
@@ -373,9 +373,8 @@ class CompletionQuestion extends Question implements QuestionInterface {
         return $this->questionData;
     }
 
-    protected function needsToBeUpdated(UpdateTestQuestionRequest $request)
+    public function needsToBeUpdated($request)
     {
-
         if($this->getCompletionAnswerDirty($request)){
             return true;
         }

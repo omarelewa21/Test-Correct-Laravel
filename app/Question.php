@@ -67,9 +67,11 @@ class Question extends MtiBaseModel {
 
     protected $tags = null;
 
-    protected $baseModelIsSaved = false;
+    protected $onlyAddToDatabaseFieldIsModified = false;
 
     protected $duplicateQuestionKey = false;
+
+    protected $groupQuestionPivot = false;
 
     public static function usesDeleteAndAddAnswersMethods($questionType)
     {
@@ -518,6 +520,17 @@ class Question extends MtiBaseModel {
         return $uses > 0;
     }
 
+
+    public function isUsedInGroupQuestion($groupQuestionQuestionManager,$groupQuestionPivot)
+    {
+        if($groupQuestionQuestionManager->isUsed()){
+            return true;
+        }
+        if($this->isUsed($groupQuestionPivot)){
+            return true;
+        }
+        return false;
+    }
 
     public function scopeOpensourceAndDemo($query, $filters = []){
         $roles = $this->getUserRoles();
@@ -1098,33 +1111,41 @@ class Question extends MtiBaseModel {
         return $groupQuestions->first()->groupQuestion->getKey();
     }
 
-    public function getTotalDataForTestQuestionUpdate(UpdateTestQuestionRequest $request)
+    public function getTotalDataForTestQuestionUpdate($request)
     {
         return $request->all();
     }
 
-    public function getCompletionAnswerDirty(UpdateTestQuestionRequest $request)
+    public function updateWithRequest($request,$testQuestion)
+    {
+        $this->fill($this->getTotalDataForTestQuestionUpdate($request));
+        $this->handleOnlyAddToDatabaseFieldIsModified($request);
+        $this->handleAnyOtherFieldsAreModified($testQuestion,$request);
+        return $this;
+    }
+
+    public function getCompletionAnswerDirty($request)
     {
         return false;
     }
 
-    public function getQuestionData(UpdateTestQuestionRequest $request)
+    public function getQuestionData($request)
     {
         return [];
     }
 
-    public function handleOnlyAddToDatabaseFieldIsModified(UpdateTestQuestionRequest $request)
+    public function handleOnlyAddToDatabaseFieldIsModified($request)
     {
-         $baseModel = $this->getQuestionInstance();
+        $baseModel = $this->getQuestionInstance();
         if ($this->onlyAddToDatabaseFieldNeedsToBeUpdated($request)) {
             if (!$baseModel->save()) {
                 throw new QuestionException('Failed to save question');
             }
-            $this->baseModelIsSaved = true;
+            $this->onlyAddToDatabaseFieldIsModified = true;
         }
     }
 
-    public function handleAnyOtherFieldsAreModified(TestQuestion $testQuestion,UpdateTestQuestionRequest $request)
+    public function handleAnyOtherFieldsAreModified(TestQuestion $testQuestion,$request)
     {
         if(!$this->needsToBeUpdated($request)){
            return;
@@ -1133,6 +1154,24 @@ class Question extends MtiBaseModel {
             $this->handleDuplication($request);
             return;
         }
+        $this->saveBothBaseModelAndQuestion();
+    }
+
+    public function handleAnyOtherFieldsAreModifiedWithinGroupQuestion($request,$groupQuestionPivot,$groupQuestionQuestionManager)
+    {
+        if(!$this->needsToBeUpdated($request)){
+            return;
+        }
+        if($this->isUsedInGroupQuestion($groupQuestionQuestionManager,$groupQuestionPivot)){
+            $this->handleDuplication($request);
+            return;
+        }
+        $this->saveBothBaseModelAndQuestion();
+
+    }
+
+    protected function saveBothBaseModelAndQuestion()
+    {
         $baseModel = $this->getQuestionInstance();
         $var = $baseModel->save();
         if($var){
@@ -1141,7 +1180,6 @@ class Question extends MtiBaseModel {
         if (!$var) {
             throw new QuestionException('Failed to save question');
         }
-        $this->addQuestionToAuthor($this);
     }
 
     public function getKeyAfterPossibleDuplicate()
@@ -1152,16 +1190,16 @@ class Question extends MtiBaseModel {
         return $this->duplicateQuestionKey;
     }
 
-    public function handleAnswersAfterTestQuestionUpdate(TestQuestion $testQuestion,UpdateTestQuestionRequest $request){
+    public function handleAnswersAfterOwnerModelUpdate($ownerModel,$request){
         $baseModel = $this->getQuestionInstance();
         if(self::usesDeleteAndAddAnswersMethods($baseModel->type)){
             $this->deleteAnswers($this);
             $totalData = $this->getTotalDataForTestQuestionUpdate($request);
-            $this->addAnswers($testQuestion,$totalData['answers']);
+            $this->addAnswers($ownerModel,$totalData['answers']);
         }
     }
 
-    protected function handleDuplication(UpdateTestQuestionRequest $request)
+    protected function handleDuplication($request)
     {
         $totalData = $this->getTotalDataForTestQuestionUpdate($request);
         $question = $this->duplicate($totalData);
@@ -1172,13 +1210,13 @@ class Question extends MtiBaseModel {
         $this->addQuestionToAuthor($question);
     }
 
-    protected function onlyAddToDatabaseFieldNeedsToBeUpdated(UpdateTestQuestionRequest $request)
+    public function onlyAddToDatabaseFieldNeedsToBeUpdated($request)
     {
         $baseModel = $this->getQuestionInstance($request);
-        if($this->needsToBeUpdated($request) && (get_class($this) !== 'tcCore\Question')){
+        if(!$this->needsToBeUpdated($request) ){
             return false;
         }
-        if(!$baseModel->needsToBeUpdated($request)){
+        if(count($this->getDirty()) > 0){
             return false;
         }
         if(!array_key_exists('add_to_database', $baseModel->getDirty())){
@@ -1190,12 +1228,18 @@ class Question extends MtiBaseModel {
         return false;
     }
 
-    protected function needsToBeUpdated(UpdateTestQuestionRequest $request)
+    public function needsToBeUpdated($request)
     {
+        if($this->onlyAddToDatabaseFieldIsModified){
+            return false;
+        }
         if($this->isDirty()){
             return true;
         }
         $baseModel = $this->getQuestionInstance();
+        if($baseModel->isDirty()){
+            return true;
+        }
         if($baseModel->isDirtyAttainments()){
             return true;
         }
@@ -1211,5 +1255,38 @@ class Question extends MtiBaseModel {
         if (!$var) {
             throw new QuestionException('Failed to attach author to question');
         }
+    }
+
+    public function handleGroupDuplication($request,$groupQuestionQuestionManager,$groupQuestionPivot)
+    {
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        $this->fill($totalData);
+        if(!$this->isUsedInGroupQuestion($groupQuestionQuestionManager,$groupQuestionPivot)){
+             return;
+        }
+        if(!$this->needsToBeUpdated($request)){
+            return;
+        }
+        $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionPivot);
+        $groupQuestionPivotCopy = $groupQuestionPivot->duplicate(
+            $groupQuestionQuestionManager->getQuestionLink()->question,
+            [
+                'group_question_id' => $groupQuestionQuestionManager->getQuestionLink()->getAttribute('group_question')
+            ]
+        );
+        $questionCopy = $groupQuestionPivotCopy->question;
+        $questionCopy->fill($totalData);
+//        $questionCopy->save();
+//        $groupQuestionPivotCopy->setAttribute('group_question_id', $testQuestion->getAttribute('question_id'));
+//        $groupQuestionPivotCopy->save();
+        $this->groupQuestionPivot = $groupQuestionPivotCopy;
+    }
+
+    public function getGroupQuestionPivotAfterPossibleDuplication($groupQuestionPivot)
+    {
+        if($this->groupQuestionPivot){
+            return $this->groupQuestionPivot;
+        }
+        return $groupQuestionPivot;
     }
 }
