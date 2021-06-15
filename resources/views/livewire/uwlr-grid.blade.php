@@ -157,7 +157,15 @@
                         <div wire:key="loading-text">Processing Result...</div>
                         <div wire:key="hourglass" class="lds-hourglass"></div>
                     </div>
-                    <div wire:key="processing-result">{{ $this->processingResult }}</div>
+                    <div wire:key="processing-result">
+                        {{ $this->processingResult }}
+                        @if ($this->displayGoToErrorsButton)
+                            <BR>
+                            <x-button.text-button wire:click="triggerErrorModal()">Toon errors
+                            </x-button.text-button>
+                        @endif
+
+                    </div>
                 </div>
 
                 <x-button.primary wire:click="startProcessingResult">Start</x-button.primary>
@@ -172,7 +180,7 @@
             <div class="sm:block">
                 <div class="border-b border-gray-200" id="melding">
 
-                    <PRE style="white-space: pre-wrap;"> {{ $this->errorMessages }}</PRE>
+                    <PRE style="white-space: pre-wrap;"> {!! $this->errorMessages !!}</PRE>
                 </div>
 
 

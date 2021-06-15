@@ -25,6 +25,7 @@ class UwlrGrid extends Component
     public $processingResultId;
     public $showErrorModal = false;
     public $errorMessages = '';
+    public $displayGoToErrorsButton = false;
 
 
     public function mount()
@@ -36,13 +37,19 @@ class UwlrGrid extends Component
     {
 
         $this->activeResult = UwlrSoapResult::find($id)->asData()->toArray();
+        $this->currentResultId = $id;
 
         $this->showImportModal = true;
     }
 
-    public function triggerErrorModal($id)
+    public function triggerErrorModal($id=null)
     {
-        $this->errorMessages = UwlrSoapResult::find($id)->error_messages;
+        $id = $id ?: $this->processingResultId;
+
+        $this->showImportModal = false;
+        if ($id) {
+            $this->errorMessages = UwlrSoapResult::find($id)->error_messages;
+        }
 
         $this->showErrorModal = true;
     }
@@ -58,6 +65,7 @@ class UwlrGrid extends Component
     {
         $this->processingResultId = $id;
         $this->showProcessResultModal = true;
+        $this->displayGoToErrorsButton = false;
         $this->processingResult = '';
         $this->processingResultErrors = [];
     }
@@ -79,6 +87,8 @@ class UwlrGrid extends Component
         }
 
         $this->processingResult = collect($result)->join('<BR>');
+        $this->displayGoToErrorsButton = !empty(UwlrSoapResult::find($this->processingResultId)->error_messages);
+
     }
 
     public function newImport()
