@@ -57,7 +57,7 @@ class EventServiceProvider extends ServiceProvider {
                     header("Location: $url");
                     exit;
                 } else {
-                    return redirect(route('auth.login', ['tab' => 'entree', 'id' => $samlMessage->uuid]));
+                    return redirect(route('auth.login', ['tab' => 'entree', 'uuid' => $samlMessage->uuid]));
                 }
             }
 
