@@ -70,10 +70,11 @@ class Login extends Component
 
     public function mount()
     {
-        Session::flash('saml_attributes', Session::get('saml_attributes'));
+        $samlAttr = Session::get('saml_attributes');
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
+        Session::flash('saml_attributes', $samlAttr);
     }
 
     public function login()

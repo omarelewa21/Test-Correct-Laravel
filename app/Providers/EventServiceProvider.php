@@ -44,12 +44,7 @@ class EventServiceProvider extends ServiceProvider {
                     exit;
                 } else {
                     Session::flash('saml_attributes', $user->getAttributes());
-                    dd([
-                        'saml' =>  $user->getAttributes(),
-                        'route' => route('auth.login', ['tab' => 'entree']),
-                    ]);
-
-                    return redirect(route('auth.login', ['tab' => 'entree']));
+                    return redirect('/login?tab=entree');
                 }
             }
 
