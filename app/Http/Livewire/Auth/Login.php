@@ -273,7 +273,6 @@ class Login extends Component
         }
 
         if (!auth()->attempt($credentials)) {
-            Session::flash('saml_attributes', Session::get('saml_attributes'));
             $this->createFailedLogin();
             return $this->addError('invalid_user', __('auth.failed'));
         }
