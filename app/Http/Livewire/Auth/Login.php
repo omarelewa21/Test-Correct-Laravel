@@ -71,6 +71,7 @@ class Login extends Component
     public function mount()
     {
         $samlAttr = Session::get('saml_attributes');
+        dd($samlAttr);
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
