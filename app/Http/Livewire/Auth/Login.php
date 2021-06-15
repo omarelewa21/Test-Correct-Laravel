@@ -274,7 +274,7 @@ class Login extends Component
             return $this->addError('some_field', 'some error where we already have a matching eckid');
         }
 
-        $user->eckId = $message->eckid;
+        $user->eckId = $message->eck_id;
         $user->save();
         $user->redirectToCakeWithTemporaryLogin();
     }

@@ -38,7 +38,7 @@ class EventServiceProvider extends ServiceProvider {
 
             $samlMessage = SamlMessage::create([
                 'message_id' => $messageId,
-                'eckid' => $attr['eckId'][0],
+                'eck_id' => $attr['eckId'][0],
                 'email' => $attr['mail'][0],
             ]);
 
