@@ -132,7 +132,7 @@ class ReportHelper
                 });
 
             });
-            return (int) $builder->sum('licenses.amount');
+            return (int)$builder->sum('licenses.amount');
         }
         throw new \Exception('Nr of licenses should not be called for a user');
     }
@@ -164,26 +164,32 @@ class ReportHelper
         return $builder->count();
     }
 
-    public function nrAddedQuestionItems($days)
+    public function nrAddedQuestionItems($days, $returnBuilder = false)
     {
 
         if ($this->type === self::USER) {
-            $builder = QuestionAuthor::where('user_id', $this->reference->getKey());
+            $builder = \DB::table('question_authors')
+                ->where('user_id', $this->reference->getKey());
         } else {
-            $builder = QuestionAuthor::leftJoin('users', function ($join) {
-                $join->on('question_authors.user_id', '=', 'users.id');
-            })
-            ->whereNull('users.deleted_at')
-            ->where('users.demo',0)
-            ->whereNull('question_authors.deleted_at');
+            $builder = \DB::table('question_authors')
+                ->leftJoin('users', function ($join) {
+                    $join->on('question_authors.user_id', '=', 'users.id');
+                })
+                ->whereNull('users.deleted_at')
+                ->where('users.demo', 0)
+                ->whereNull('question_authors.deleted_at');
             $this->attachReference($builder, 'users');
         }
-        $builder->leftJoin('questions','questions.id','question_authors.question_id')
+        $builder->whereNull('question_authors.deleted_at')
+            ->leftJoin('questions', 'questions.id', 'question_authors.question_id')
             ->whereNull('questions.deleted_at')
             ->select('question_authors.question_id')
             ->distinct('question_authors.question_id');
-        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'question_authors.created_at');
+        $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'questions.created_at');
 
+        if ($returnBuilder) {
+            return $builder;
+        }
         return $builder->count();
     }
 
@@ -226,9 +232,9 @@ class ReportHelper
             ->where('test_takes.demo', 0)
             ->whereNull('test_takes.deleted_at')
             ->whereNull('test_participants.deleted_at')
-            ->leftJoin('users','users.id','test_participants.user_id')
+            ->leftJoin('users', 'users.id', 'test_participants.user_id')
             ->whereNull('users.deleted_at')
-            ->where('users.demo',0);
+            ->where('users.demo', 0);
 
         $this->attachReference($builder, 'users');
 
@@ -248,15 +254,15 @@ class ReportHelper
             ->whereNull('test_takes.deleted_at')
             ->whereNull('test_participants.deleted_at')
             ->where('test_takes.demo', 0)
-            ->where('test_participants.test_take_status_id','>',2)
-            ->leftJoin('users','users.id','test_participants.user_id')
-            ->where('users.demo',0);
+            ->where('test_participants.test_take_status_id', '>', 2)
+            ->leftJoin('users', 'users.id', 'test_participants.user_id')
+            ->where('users.demo', 0);
 
         $this->attachReference($builder, 'users');
 
         $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d 00:00:00', 'test_takes.time_start');
 
-        if($returnBuilder){
+        if ($returnBuilder) {
             return $builder;
         }
         return $builder->count();
@@ -275,7 +281,7 @@ class ReportHelper
 
         $this->addDaysConstraintToBuilder($builder, $days);
 
-        if($returnBuilder){
+        if ($returnBuilder) {
             return $builder;
         }
         return $builder->count();
@@ -285,7 +291,7 @@ class ReportHelper
     {
         if ($days > 0) {
             $end_date = Carbon::now()->format($format);
-            $start_date = Carbon::now()->subDays((int)$days)->format($format);
+            $start_date = Carbon::now()->startOfDay()->subDays((int)$days)->format($format);
             $builder->whereBetween($column, [$start_date, $end_date]);
         }
     }
