@@ -17,6 +17,6 @@ class SamlMessage extends Model
     protected $fillable = [
         'message_id',
         'email',
-        'eckid'
+        'eck_id',
     ];
 }

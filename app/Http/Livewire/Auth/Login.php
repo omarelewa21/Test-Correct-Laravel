@@ -32,11 +32,11 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab', 'id'];
+    protected $queryString = ['tab', 'uuid'];
 
     public $tab = 'login';
 
-    public $id = '';
+    public $uuid = '';
 
 //    public $loginTab = true;
 //    public $forgotPasswordTab = false;
@@ -267,7 +267,7 @@ class Login extends Component
             'password' => $this->entreePassword,
         ];
 
-        $message = SamlMessage::whereUuid($this->id)->first();
+        $message = SamlMessage::whereUuid($this->uuid)->first();
 
         if ($message == null) {
             return $this->addError('invalid_user_pfff', __('auth.failed'));
