@@ -71,11 +71,10 @@ class Login extends Component
     public function mount()
     {
         $samlAttr = Session::get('saml_attributes');
-        dump($samlAttr);
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
-        Session::flash('saml_attributes', $samlAttr);
+        Session::set('saml_attributes', $samlAttr);
     }
 
     public function login()
@@ -167,8 +166,6 @@ class Login extends Component
 
     public function updated($name, $value)
     {
-        Session::flash('saml_attributes', Session::get('saml_attributes'));
-
         $this->checkLoginFieldsForInput();
 
         $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
