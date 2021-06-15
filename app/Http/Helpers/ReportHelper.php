@@ -183,9 +183,14 @@ class ReportHelper
                 $join->on('question_authors.user_id', '=', 'users.id');
             })
             ->whereNull('users.deleted_at')
-            ->where('users.demo',0);
+            ->where('users.demo',0)
+            ->whereNull('question_authors.deleted_at');
             $this->attachReference($builder, 'users');
         }
+        $builder->leftJoin('questions','questions.id','question_authors.question_id')
+            ->whereNull('questions.deleted_at')
+            ->select('question_authors.question_id')
+            ->distinct('question_authors.question_id');
         $this->addDaysConstraintToBuilder($builder, $days, 'Y-m-d H:i:s', 'question_authors.created_at');
 
         return $builder->count();
