@@ -4,6 +4,7 @@ use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Session;
 use tcCore\User;
 
 class EventServiceProvider extends ServiceProvider {
@@ -42,7 +43,8 @@ class EventServiceProvider extends ServiceProvider {
                     header("Location: $url");
                     exit;
                 } else {
-                    dd('show test-correct login screen no matching user found');
+                    Session::flash('saml_attributes', $user->getAttributes());
+                    return Redirect::route('auth.login', ['tab' => 'entree']);
                 }
             }
 

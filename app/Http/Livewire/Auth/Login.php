@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Auth;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -30,9 +31,13 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    public $loginTab = true;
-    public $forgotPasswordTab = false;
-    public $entreeTab = false;
+    protected $queryString = ['tab'];
+
+    public $tab = 'login';
+
+//    public $loginTab = true;
+//    public $forgotPasswordTab = false;
+//    public $entreeTab = false;
 
     public $showTestCode = false;
     public $loginButtonDisabled = true;
@@ -65,6 +70,7 @@ class Login extends Component
 
     public function mount()
     {
+        Session::flash('saml_attributes', Session::get('saml_attributes'));
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
@@ -150,6 +156,8 @@ class Login extends Component
 
     public function updated($name, $value)
     {
+        Session::flash('saml_attributes', Session::get('saml_attributes'));
+
         $this->checkLoginFieldsForInput();
 
         $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
@@ -242,27 +250,31 @@ class Login extends Component
         }
     }
 
-    public function showLoginTab()
-    {
-        $this->entreeTab = false;
-        $this->forgotPasswordTab = false;
-        $this->loginTab = true;
-    }
-    public function showForgotPasswordTab()
-    {
-        $this->loginTab = false;
-        $this->entreeTab = false;
-        $this->forgotPasswordTab = true;
-    }
-    public function showEntreeTab()
-    {
-        $this->loginTab = false;
-        $this->forgotPasswordTab = false;
-        $this->entreeTab = true;
-    }
 
     public function entreeForm()
     {
+        $credentials = [
+            'username' => $this->entreeEmail,
+            'password' => $this->entreePassword,
+        ];
 
+        if (!Session::has('saml_attributes')) {
+            return $this->addError('invalid_user_pfff', __('auth.failed'));
+        }
+
+        if (!auth()->attempt($credentials)) {
+            Session::flash('saml_attributes', Session::get('saml_attributes'));
+            $this->createFailedLogin();
+            return $this->addError('invalid_user', __('auth.failed'));
+        }
+        $user = auth::user();
+
+        if ($user->eckId !== null) {
+            return $this->addError('some_field', 'some error where we already have a matching eckid');
+        }
+
+        $user->eckId = Session::get('saml_attributes')['eckId'];
+        $user->save();
+        $user->redirectToCakeWithTemporaryLogin();
     }
 }
