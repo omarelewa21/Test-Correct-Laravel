@@ -44,6 +44,7 @@ class EventServiceProvider extends ServiceProvider {
                     exit;
                 } else {
                     Session::put('saml_attributes', $userData);
+                    Session::save();
 
                     header("Location: /login?tab=entree");
                     exit;
