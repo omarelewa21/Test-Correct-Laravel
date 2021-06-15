@@ -283,7 +283,7 @@ class Login extends Component
             return $this->addError('some_field', 'some error where we already have a matching eckid');
         }
 
-        $user->eckId = Session::get('saml_attributes')['eckId'];
+        $user->eckId = Session::get('saml_attributes')['eckId'][0];
         $user->save();
         $user->redirectToCakeWithTemporaryLogin();
     }

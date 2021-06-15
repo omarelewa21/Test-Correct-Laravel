@@ -44,7 +44,8 @@ class EventServiceProvider extends ServiceProvider {
                     exit;
                 } else {
                     Session::flash('saml_attributes', $user->getAttributes());
-                    return redirect('/login?tab=entree');
+                    header("Location: /login?tab=entree");
+                    exit;
                 }
             }
 
