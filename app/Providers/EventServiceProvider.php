@@ -36,9 +36,9 @@ class EventServiceProvider extends ServiceProvider {
 
             $user = $event->getSaml2User();
             $attr = $user->getAttributes();
-            dd($attr);
 
-            EntreeHelper::redirectIfBrinUnknown($attr['brincode'], $attr['vestingingscode']);
+
+            EntreeHelper::redirectIfBrinUnknown(EntreeHelper::getBrinZes($attr));
 
             $samlMessage = SamlMessage::create([
                 'message_id' => $messageId,

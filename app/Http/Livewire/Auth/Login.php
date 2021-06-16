@@ -33,11 +33,13 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab', 'uuid'];
+    protected $queryString = ['tab', 'uuid', 'message_brin'];
 
     public $tab = 'login';
 
     public $uuid = '';
+
+    public $message_brin = '';
 
 //    public $loginTab = true;
 //    public $forgotPasswordTab = false;
@@ -82,6 +84,7 @@ class Login extends Component
     public function login()
     {
         $this->resetErrorBag();
+        $this->message_brin = '';
 
         if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
             $this->requireCaptcha = true;
@@ -134,6 +137,7 @@ class Login extends Component
 
     public function goToPasswordReset()
     {
+        $this->message_brin = '';
         $this->redirect(route('password.reset'));
     }
 
@@ -199,6 +203,7 @@ class Login extends Component
 
     public function sendForgotPasswordEmail()
     {
+        $this->message_brin = '';
         $user = User::whereUsername($this->forgotPasswordEmail)->first();
         if ($user) {
             $token = Password::getRepository()->create($user);
@@ -267,6 +272,7 @@ class Login extends Component
 
     public function entreeForm()
     {
+        $this->message_brin = '';
         $credentials = [
             'username' => $this->entreeEmail,
             'password' => $this->entreePassword,
