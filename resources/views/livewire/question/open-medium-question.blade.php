@@ -11,7 +11,6 @@
 
 
         <script>
-
             (function() {
                 var editor = CKEDITOR.instances['{{ $editorId }}']
                 if (editor) {
