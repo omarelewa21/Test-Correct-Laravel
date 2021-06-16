@@ -9,7 +9,7 @@
 --}}
 
 <div class="align-middle min-w-full sm:rounded-lg">
-    <table class="min-w-full">
+    <table class="min-w-full" {{ $attributes }}>
         <thead class="border-b-2 border-system-base">
             <tr>
                 {{ $head }}
