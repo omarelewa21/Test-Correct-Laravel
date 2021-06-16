@@ -43,10 +43,10 @@
                         <form wire:submit.prevent="login" action="#" method="POST" class="flex-col flex flex-1">
                             <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                 <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                    <x-input.text wire:model.debounce.300ms="username" autofocus></x-input.text>
+                                    <x-input.text wire:model.lazy="username" autofocus></x-input.text>
                                 </x-input.group>
                                 <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
-                                    <x-input.text wire:model.debounce.300ms="password"
+                                    <x-input.text wire:model.lazy="password"
                                                   x-bind:type="showPassword ? 'text' : 'password'"
                                                   class="pr-12 overflow-ellipsis"
                                     >
@@ -114,6 +114,16 @@
                                     <span class="body">{{ __('auth.incorrect_credentials_long') }}</span>
                                 </div>
                                 @enderror
+                                @error('should_first_go_to_entree')
+                                <div class="notification error stretched mt-4">
+                                    <div class="flex items-center space-x-3">
+                                        <x-icon.exclamation/>
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+
+                                </div>
+                                @enderror
+
                                 @if($requireCaptcha)
                                     <div x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
                                         <div class="notification error stretched mt-4">

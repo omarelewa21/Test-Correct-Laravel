@@ -57,4 +57,5 @@ return [
     'forgot_password_email_send_text'     => 'Binnen enkele minuten ontvang je een e-mail met instructies om je wachtwoord opnieuw in te stellen. Vergeet niet je spamfolder te checken als je de e-mail niet binnenkrijgt.',
     'send_mail_again'                     => 'Stuur de e-mail nog een keer',
     'find_support'                        => 'Zoek ondersteuning',
+    'should_first_login_using_entree'     => 'Je gegevens zijn nog niet gecontroleerd log de eerste keer in via Entree',
 ];

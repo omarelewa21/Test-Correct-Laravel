@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
+use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\SamlMessage;
 use tcCore\User;
@@ -100,6 +101,10 @@ class Login extends Component
             $this->createFailedLogin();
             $this->addError('invalid_user', __('auth.failed'));
             return;
+        }
+        if(EntreeHelper::shouldPromptForEntree(auth()->user())) {
+            auth()->logout();
+            return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
 
         $this->doLoginProcedure();

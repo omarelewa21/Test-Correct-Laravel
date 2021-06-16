@@ -5,6 +5,7 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Session;
+use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\SamlMessage;
 use tcCore\User;
 
@@ -35,6 +36,9 @@ class EventServiceProvider extends ServiceProvider {
 
             $user = $event->getSaml2User();
             $attr = $user->getAttributes();
+            dd($attr);
+
+            EntreeHelper::redirectIfBrinUnknown($attr['brincode'], $attr['vestingingscode']);
 
             $samlMessage = SamlMessage::create([
                 'message_id' => $messageId,
@@ -52,7 +56,6 @@ class EventServiceProvider extends ServiceProvider {
                 $laravelUser = User::findByEckId($userData['attributes']['eckId'][0])->first();
                 if ($laravelUser) {
                     $laravelUser->handleEntreeAttributes($userData['attributes']);
-
                     $url = $laravelUser->getTemporaryCakeLoginUrl();
                     header("Location: $url");
                     exit;
