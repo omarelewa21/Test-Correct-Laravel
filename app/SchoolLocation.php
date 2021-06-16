@@ -31,15 +31,22 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
 
-class SchoolLocation extends BaseModel implements AccessCheckable {
+class SchoolLocation extends BaseModel implements AccessCheckable
+{
 
     use SoftDeletes;
     use UuidTrait;
 
+    const LVS_MAGISTER = ['Magister'];
+    const LVS_SOMTODAY = 'SOMTODAY';
+    const SSO_ENTREE = 'Entreefederatie';
+
     protected $casts = [
-        'uuid' => EfficientUuid::class,
+        'uuid'                    => EfficientUuid::class,
         'allow_inbrowser_testing' => 'boolean',
-        'intense' => 'boolean',
+        'intense'                 => 'boolean',
+        'lvs'                     => 'boolean',
+        'lvs_active'              => 'boolean',
     ];
 
     /**
@@ -61,11 +68,15 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['customer_code', 'name', 'school_id', 'grading_scale_id', 'user_id', 'number_of_students',
-        'number_of_teachers', 'activated', 'main_address', 'main_postal', 'main_city', 'main_country', 'invoice_address',
-        'invoice_postal', 'invoice_city', 'invoice_country', 'visit_address', 'visit_postal', 'visit_city', 'visit_country',
-        'is_rtti_school_location', 'external_main_code','external_sub_code','is_open_source_content_creator',
-        'is_allowed_to_view_open_source_content','allow_inbrowser_testing', 'allow_new_player_access'];
+    protected $fillable = [
+        'customer_code', 'name', 'school_id', 'grading_scale_id', 'user_id', 'number_of_students',
+        'number_of_teachers', 'activated', 'main_address', 'main_postal', 'main_city', 'main_country',
+        'invoice_address',
+        'invoice_postal', 'invoice_city', 'invoice_country', 'visit_address', 'visit_postal', 'visit_city',
+        'visit_country',
+        'is_rtti_school_location', 'external_main_code', 'external_sub_code', 'is_open_source_content_creator',
+        'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access', 'lvs_active', 'lvs_type'
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.

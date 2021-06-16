@@ -70,6 +70,10 @@ class SchoolLocationsController extends Controller {
     public function show(SchoolLocation $schoolLocation)
     {
         $schoolLocation->load('user', 'school', 'schoolLocationAddresses', 'schoolLocationAddresses.address', 'schoolLocationContacts', 'schoolLocationContacts.contact', 'licenses', 'educationLevels');
+        if(request()->has('withLvsAndSso')){
+            $schoolLocation['lvs_options'] = [SchoolLocation::LVS_MAGISTER, SchoolLocation::LVS_SOMTODAY];
+            $schoolLocation['sso_options'] = [SchoolLocation::SSO_ENTREE];
+        }
         return Response::make($schoolLocation, 200);
     }
 
