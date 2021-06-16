@@ -85,7 +85,7 @@ CKEDITOR.editorConfig = function( config ) {
     ];
 
     config.autoGrow_minHeight = 250;
-    config.autoGrow_maxHeight = 600;
+    config.autoGrow_maxHeight = getMaxHeightForEditor();
     config.autoGrow_onStartup = true;
     config.autoGrow_bottomSpace = 50;
 };
@@ -101,4 +101,22 @@ CKEDITOR.studentEditorConfig = {
         { name: 'styles', items: ['Font', 'FontSize' ] },
         { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
     ]
+}
+
+function getMaxHeightForEditor() {
+    var absoluteMaxHeight = 600;
+    var mininmalMaxHeight = 250;
+
+    var fixedElementsHeight = 70*2;
+    var virtualKeyboardHeight = 270;
+
+    if ((window.innerHeight - fixedElementsHeight - virtualKeyboardHeight) < mininmalMaxHeight ) {
+        return mininmalMaxHeight;
+    }
+
+    if((window.innerHeight - fixedElementsHeight - virtualKeyboardHeight) > absoluteMaxHeight) {
+        return absoluteMaxHeight;
+    }
+
+    return window.innerHeight - fixedElementsHeight - virtualKeyboardHeight;
 }
