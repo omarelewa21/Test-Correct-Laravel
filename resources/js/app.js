@@ -79,6 +79,8 @@ function shouldLostFocusBeReported(reason) {
         return true;
     }
 
+    window.Livewire.emit('checkConfirmedEvents', reason);
+
     return false;
 }
 
@@ -89,6 +91,8 @@ Core = {
         } else {
             Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
         }
+
+        window.Livewire.emit('setFraudDetected');
 
         if (shouldLostFocusBeReported(reason)) {
             livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
