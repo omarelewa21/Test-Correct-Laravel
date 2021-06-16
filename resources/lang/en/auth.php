@@ -56,4 +56,5 @@ return [
     'forgot_password_email_send_text'     => 'Within serveral minutes you will receive an e-mail with instructions about how to reset your password. Do\'t forget to check your spam folder if you have not received the e-mail yet',
     'send_mail_again'                     => 'Resend the e-mail',
     'find_support'                        => 'Find support',
+    'should_first_login_using_entree'     => 'Should login using Entee',
 ];
