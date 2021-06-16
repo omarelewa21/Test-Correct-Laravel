@@ -20,6 +20,21 @@
         <testsuite name="Qti">
             <directory suffix="Test.php">./tests/Unit/QtiV2dot2dot2</directory>
         </testsuite>
+
+        <testsuite name="TestQuestionUpdate">
+            <file>./tests/Feature/MultipleChoiceQuestionTest.php</file>
+            <file>./tests/Feature/CopyCombineerTest.php</file>
+            <file>./tests/Feature/OpenQuestionTest.php</file>
+            <file>./tests/Feature/CompletionQuestionTest.php</file>
+            <file>./tests/Feature/AddToDatabaseTest.php</file>
+        </testsuite>
+
+        <testsuite name="GroupTestQuestionUpdate">
+            <file>./tests/Feature/AddToDatabaseTest.php</file>
+            <file>./tests/Feature/OpenQuestionTest.php</file>
+            <file>./tests/Feature/MultipleChoiceQuestionTest.php</file>
+            <file>./tests/Feature/CompletionQuestionTest.php</file>
+        </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

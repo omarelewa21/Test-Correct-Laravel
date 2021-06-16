@@ -4,7 +4,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Models\MtiBaseModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -64,6 +66,12 @@ class Question extends MtiBaseModel {
     protected $attainments = null;
 
     protected $tags = null;
+
+    protected $onlyAddToDatabaseFieldIsModified = false;
+
+    protected $duplicateQuestionKey = false;
+
+    protected $groupQuestionPivot = false;
 
     public static function usesDeleteAndAddAnswersMethods($questionType)
     {
@@ -512,6 +520,17 @@ class Question extends MtiBaseModel {
         return $uses > 0;
     }
 
+
+    public function isUsedInGroupQuestion($groupQuestionQuestionManager,$groupQuestionPivot)
+    {
+        if($groupQuestionQuestionManager->isUsed()){
+            return true;
+        }
+        if($this->isUsed($groupQuestionPivot)){
+            return true;
+        }
+        return false;
+    }
 
     public function scopeOpensourceAndDemo($query, $filters = []){
         $roles = $this->getUserRoles();
@@ -1090,5 +1109,184 @@ class Question extends MtiBaseModel {
                 ->getKey();
         }
         return $groupQuestions->first()->groupQuestion->getKey();
+    }
+
+    public function getTotalDataForTestQuestionUpdate($request)
+    {
+        return $request->all();
+    }
+
+    public function updateWithRequest($request,$testQuestion)
+    {
+        $this->fill($this->getTotalDataForTestQuestionUpdate($request));
+        $this->handleOnlyAddToDatabaseFieldIsModified($request);
+        $this->handleAnyOtherFieldsAreModified($testQuestion,$request);
+        return $this;
+    }
+
+    public function getCompletionAnswerDirty($request)
+    {
+        return false;
+    }
+
+    public function getQuestionData($request)
+    {
+        return [];
+    }
+
+    public function handleOnlyAddToDatabaseFieldIsModified($request)
+    {
+        $baseModel = $this->getQuestionInstance();
+        if ($this->onlyAddToDatabaseFieldNeedsToBeUpdated($request)) {
+            if (!$baseModel->save()) {
+                throw new QuestionException('Failed to save question');
+            }
+            $this->onlyAddToDatabaseFieldIsModified = true;
+        }
+    }
+
+    public function handleAnyOtherFieldsAreModified(TestQuestion $testQuestion,$request)
+    {
+        if(!$this->needsToBeUpdated($request)){
+           return;
+        }
+        if ($this->isUsed($testQuestion)) {
+            $this->handleDuplication($request);
+            return;
+        }
+        $this->saveBothBaseModelAndQuestion();
+    }
+
+    public function handleAnyOtherFieldsAreModifiedWithinGroupQuestion($request,$groupQuestionPivot,$groupQuestionQuestionManager)
+    {
+        if(!$this->needsToBeUpdated($request)){
+            return;
+        }
+        if($this->isUsedInGroupQuestion($groupQuestionQuestionManager,$groupQuestionPivot)){
+            $this->handleDuplication($request);
+            return;
+        }
+        $this->saveBothBaseModelAndQuestion();
+
+    }
+
+    protected function saveBothBaseModelAndQuestion()
+    {
+        $baseModel = $this->getQuestionInstance();
+        $var = $baseModel->save();
+        if($var){
+            $var = $this->save();
+        }
+        if (!$var) {
+            throw new QuestionException('Failed to save question');
+        }
+    }
+
+    public function getKeyAfterPossibleDuplicate()
+    {
+        if(!$this->duplicateQuestionKey){
+            return $this->getKey();
+        }
+        return $this->duplicateQuestionKey;
+    }
+
+    public function handleAnswersAfterOwnerModelUpdate($ownerModel,$request){
+        $baseModel = $this->getQuestionInstance();
+        if(self::usesDeleteAndAddAnswersMethods($baseModel->type)){
+            $this->deleteAnswers($this);
+            $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+            $this->addAnswers($ownerModel,$totalData['answers']);
+        }
+    }
+
+    protected function handleDuplication($request)
+    {
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        $question = $this->duplicate($totalData);
+        if ($question === false) {
+            throw new QuestionException('Failed to duplicate question');
+        }
+        $this->duplicateQuestionKey = $question->getKey();
+        $this->addQuestionToAuthor($question);
+    }
+
+    public function onlyAddToDatabaseFieldNeedsToBeUpdated($request)
+    {
+        $baseModel = $this->getQuestionInstance($request);
+        if(!$this->needsToBeUpdated($request) ){
+            return false;
+        }
+        if(count($this->getDirty()) > 0){
+            return false;
+        }
+        if(!array_key_exists('add_to_database', $baseModel->getDirty())){
+            return false;
+        }
+        if(count($baseModel->getDirty()) === 1){
+            return true;
+        }
+        return false;
+    }
+
+    public function needsToBeUpdated($request)
+    {
+        if($this->onlyAddToDatabaseFieldIsModified){
+            return false;
+        }
+        if($this->isDirty()){
+            return true;
+        }
+        $baseModel = $this->getQuestionInstance();
+        if($baseModel->isDirty()){
+            return true;
+        }
+        if($baseModel->isDirtyAttainments()){
+            return true;
+        }
+        if($baseModel->isDirtyTags()){
+            return true;
+        }
+        return false;
+    }
+
+    protected function addQuestionToAuthor($question)
+    {
+        $var = QuestionAuthor::addAuthorToQuestion($question);
+        if (!$var) {
+            throw new QuestionException('Failed to attach author to question');
+        }
+    }
+
+    public function handleGroupDuplication($request,$groupQuestionQuestionManager,$groupQuestionPivot)
+    {
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        $this->fill($totalData);
+        if(!$this->isUsedInGroupQuestion($groupQuestionQuestionManager,$groupQuestionPivot)){
+             return;
+        }
+        if(!$this->needsToBeUpdated($request)){
+            return;
+        }
+        $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionPivot);
+        $groupQuestionPivotCopy = $groupQuestionPivot->duplicate(
+            $groupQuestionQuestionManager->getQuestionLink()->question,
+            [
+                'group_question_id' => $groupQuestionQuestionManager->getQuestionLink()->getAttribute('group_question')
+            ]
+        );
+        $questionCopy = $groupQuestionPivotCopy->question;
+        $questionCopy->fill($totalData);
+//        $questionCopy->save();
+//        $groupQuestionPivotCopy->setAttribute('group_question_id', $testQuestion->getAttribute('question_id'));
+//        $groupQuestionPivotCopy->save();
+        $this->groupQuestionPivot = $groupQuestionPivotCopy;
+    }
+
+    public function getGroupQuestionPivotAfterPossibleDuplication($groupQuestionPivot)
+    {
+        if($this->groupQuestionPivot){
+            return $this->groupQuestionPivot;
+        }
+        return $groupQuestionPivot;
     }
 }

@@ -1,5 +1,6 @@
 <?php namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -245,6 +246,8 @@ class GroupQuestionQuestionsController extends Controller
             {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
                 $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
+                $message = 'GM says at june 15th 2021: GroupQuestionQuestionsController line 249. We will never get here. After three months, check bugsnack and than remove this code';
+                Bugsnag::notifyException(new \Exception($message));
                 $groupQuestionQuestion = $groupQuestionQuestion->duplicate(
                     $groupQuestionQuestionManager->getQuestionLink()->question,
                     [
@@ -270,6 +273,8 @@ class GroupQuestionQuestionsController extends Controller
                 && ! ($question instanceof DrawingQuestion && $question->isDirtyFile())
                 && (array_key_exists('add_to_database', $questionInstance->getDirty()) && count($questionInstance->getDirty()) === 1)
             ) {
+                $message = 'GM says at june 15th 2021: GroupQuestionQuestionsController line 277. We will never get here. After three months, check bugsnack and than remove this code';
+                Bugsnag::notifyException(new \Exception($message));
                 if (!$questionInstance->save()) {
                     throw new QuestionException('Failed to save question');
                 }
@@ -282,6 +287,8 @@ class GroupQuestionQuestionsController extends Controller
                     || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
             {
                 if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
+                    $message = 'GM says at june 15th 2021: GroupQuestionQuestionsController line 290. We will never get here. After three months, check bugsnack and than remove this code';
+                    Bugsnag::notifyException(new \Exception($message));
                     $question = $question->duplicate($request->all());
                     if ($question === false) {
                         throw new QuestionException('Failed to duplicate question', 422);
@@ -291,6 +298,8 @@ class GroupQuestionQuestionsController extends Controller
                 } elseif (!$questionInstance->save() || !$question->save()) {
                     throw new QuestionException('Failed to save question', 422);
                 }
+                $message = 'GM says at june 15th 2021: GroupQuestionQuestionsController line 302. We will never get here. After three months, check bugsnack and than remove this code';
+                Bugsnag::notifyException(new \Exception($message));
             }
             // return Response::make(var_dump( $groupQuestionQuestionManager->getQuestionLink()->getAttribute('question_id') ), 500);
 
@@ -321,119 +330,26 @@ class GroupQuestionQuestionsController extends Controller
      */
     public function update(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id, UpdateGroupQuestionQuestionRequest $request)
     {
-
-        $groupQuestionQuestion = $group_question_question_id;
-        if (!$groupQuestionQuestionManager->isChild($groupQuestionQuestion)) {
+        $groupQuestionPivot = $group_question_question_id;
+        if (!$groupQuestionQuestionManager->isChild($groupQuestionPivot)) {
             return Response::make('Group question question not found', 404);
         }
-
-        // Fill and check if question is modified
-        $question = $groupQuestionQuestion->question;
+        $question = $groupQuestionPivot->question;
         DB::beginTransaction();
         try {
-            $qHelper = new QuestionHelper();
-            $questionData = [];
-            $completionAnswerDirty = false;
-            if($question->getQuestionInstance()->type == 'CompletionQuestion') {
-                $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
-                $currentAnswers = $question->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
-                $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
-                $completionAnswerDirty = ( ($currentAnswers !== $futureAnswers));
-            }
-
-
-            $totalData = array_merge($request->all(),$questionData);
-
+            $groupQuestionPivot->fill($request->all());
+            $question->handleGroupDuplication($request,$groupQuestionQuestionManager,$groupQuestionPivot);
+            $groupQuestionPivot = $question->getGroupQuestionPivotAfterPossibleDuplication($groupQuestionPivot);
+            $totalData = $question->getTotalDataForTestQuestionUpdate($request);
             $question->fill($totalData);
-
-            $questionInstance = $question->getQuestionInstance();
-
-            $groupQuestionQuestionOriginal = $groupQuestionQuestion;
-            $groupQuestionQuestion->fill($request->all());
-
-
-            if (
-                ($groupQuestionQuestionManager->isUsed()
-                    || $question->isUsed($groupQuestionQuestion)
-                )
-                &&
-                (   $completionAnswerDirty
-                    || $question->isDirty()
-                    || $questionInstance->isDirty()
-                    || $questionInstance->isDirtyAttainments()
-                    || $questionInstance->isDirtyTags()
-                    || $questionInstance->isDirtyAnswerOptions($totalData)
-                    || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) {
-                // return Response::make(var_dump($groupQuestionQuestionManager), 500);
-                $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
-                $groupQuestionQuestion = $groupQuestionQuestion->duplicate(
-                    $groupQuestionQuestionManager->getQuestionLink()->question,
-                    [
-                        'group_question_id' => $groupQuestionQuestionManager->getQuestionLink()->getAttribute('group_question')
-                    ]
-                );
-
-                $question = $groupQuestionQuestion->question;
-//                $question->fill($request->all());
-                $question->fill($totalData);
-                $questionInstance = $question->getQuestionInstance();
-
-                $groupQuestionQuestion->setAttribute('group_question_id', $testQuestion->getAttribute('question_id'));
-
-                // return Response::make(json_encode($testQuestion->getAttribute('question_id')), 500);
-            }
-            
-
-            // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            // this is horrible but if only the add_to_database attribute is dirty just update the questionInstance;
-            if (!$completionAnswerDirty
-                && !$question->isDirty()
-                && $questionInstance->isDirty()
-                && !$questionInstance->isDirtyAttainments()
-                && !$questionInstance->isDirtyTags()
-                && ! ($question instanceof DrawingQuestion && $question->isDirtyFile())
-                && (array_key_exists('add_to_database', $questionInstance->getDirty()) && count($questionInstance->getDirty()) === 1)
-            ) {
-                if (!$questionInstance->save()) {
-                    throw new QuestionException('Failed to save question');
-                }
-                // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            } elseif (    $completionAnswerDirty 
-                    || $question->isDirty() 
-                    || $questionInstance->isDirty() 
-                    || $questionInstance->isDirtyAttainments() 
-                    || $questionInstance->isDirtyTags()
-                    || $questionInstance->isDirtyAnswerOptions($totalData)
-                    || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
-            {
-                        if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
-                                //$question = $question->duplicate($request->all());
-                                $question = $question->duplicate($totalData);
-
-                                if ($question === false) {
-                                    throw new QuestionException('Failed to duplicate question', 422);
-                                }
-
-                            $groupQuestionQuestion->setAttribute('question_id', $question->getKey());
-                        } elseif (!$questionInstance->save() || !$question->save()) {
-                            throw new QuestionException('Failed to save question', 422);
-                        }
-            }
-            // return Response::make(var_dump( $groupQuestionQuestionManager->getQuestionLink()->getAttribute('question_id') ), 500);
-
-            // $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
-
-            // Save the link
-            if ($groupQuestionQuestion->save()) {
-                if (Question::usesDeleteAndAddAnswersMethods($questionInstance->type)){
-                    // delete old answers
-                    $question->deleteAnswers($question);
-
-                    // add new answers
-                    $question->addAnswers($groupQuestionQuestion, $totalData['answers']);
-                }
-                $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
-//                return Response::make($groupQuestionQuestion, 200);
+            $question->handleOnlyAddToDatabaseFieldIsModified($request);
+            $question->handleAnyOtherFieldsAreModifiedWithinGroupQuestion($request,$groupQuestionPivot,$groupQuestionQuestionManager);
+            $groupQuestionPivot->setAttribute('question_id', $question->getKeyAfterPossibleDuplicate());
+            if ($groupQuestionPivot->save()) {
+                $groupQuestionPivot->refresh();
+                $question = $groupQuestionPivot->question;
+                $question->handleAnswersAfterOwnerModelUpdate($groupQuestionPivot,$request);
+                $groupQuestionPivot->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
             } else {
                 throw new QuestionException('Failed to update group question question', 422);
             }
@@ -443,7 +359,7 @@ class GroupQuestionQuestionsController extends Controller
             return Response::make($e->getMessage(), 422);
         }
         DB::commit();
-        return Response::make($groupQuestionQuestion, 200);
+        return Response::make($groupQuestionPivot, 200);
     }
 
     /**
