@@ -57,4 +57,6 @@ return [
     'send_mail_again'                     => 'Stuur de e-mail nog een keer',
     'find_support'                        => 'Zoek ondersteuning',
     'should_first_login_using_entree'     => 'Je gegevens zijn nog niet gecontroleerd log de eerste keer in via Entree',
+    'brin_not_found_long'                 => 'Je school is niet aangesloten bij Test-Correct',
+    'brin_not_found'                      => 'Oops',
 ];

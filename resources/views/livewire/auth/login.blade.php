@@ -114,6 +114,15 @@
                                     <span class="body">{{ __('auth.incorrect_credentials_long') }}</span>
                                 </div>
                                 @enderror
+                                @if($this->message_brin == 'brin_not_found')
+                                    <div class="notification error stretched mt-4">
+                                        <div class="flex items-center space-x-3">
+                                            <x-icon.exclamation/>
+                                            <span class="title">{{ __('auth.brin_not_found') }}</span>
+                                        </div>
+                                        <span class="body">{{ __('auth.brin_not_found_long') }}</span>
+                                    </div>
+                                @endif
                                 @error('should_first_go_to_entree')
                                 <div class="notification error stretched mt-4">
                                     <div class="flex items-center space-x-3">
