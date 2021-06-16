@@ -107,8 +107,9 @@
                             @endforeach
                         @endif
                     </nav>
-                    <div class="mt-8 mb-8">
-                        <x-table>
+                    <div class="mt-8 mb-8" x-data="clipboard()">
+                        <button wire:key="copy-{{ $this->modalActiveTab }}"  x-on:click="copytable($event, 'table-{{ $this->modalActiveTab }}')">Copy to clipboard</button>
+                        <x-table id="table-{{ $this->modalActiveTab }}">
                             <x-slot name="head">
                                 @foreach($this->modalActiveTabHtml as $object)
                                     @if($loop->first)
@@ -133,7 +134,7 @@
                                     </x-table.row>
                                 @endforeach
                             </x-slot>
-                        </x-table>
+                            </x-table>
                     </div>
                 </div>
             </div>
@@ -240,6 +241,40 @@
             }
         }
     </style>
+    <script>
+        function clipboard() {
+            return {
+                copytable(event, selectorId) {
+                    event.target.innerHTML = 'Copied to clipboard'
+                    event.target.classList.add('cta-button')
+                    var body = document.body, range, sel;
+                    el = document.getElementById(selectorId)
+                    if (document.createRange && window.getSelection) {
+                        range = document.createRange();
+                        sel = window.getSelection();
+                        sel.removeAllRanges();
+                        try {
+                            range.selectNodeContents(el);
+                            sel.addRange(range);
+                        } catch (e) {
+                            range.selectNode(el);
+                            sel.addRange(range);
+                        }
+                    } else if (body.createTextRange) {
+                        range = body.createTextRange();
+                        range.moveToElementText(el);
+                        range.select();
+                    }
+                    document.execCommand('copy')
+                    setTimeout(() => {
+                        event.target.innerHTML = 'Copy to clipboard'
+                        event.target.classList.remove('cta-button')
+                    }, 3000);
+                }
+            }
+        }
+    </script>
+
 </div>
 
 

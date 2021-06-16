@@ -42,7 +42,7 @@ class EntreeHelper
 
     public static function shouldPromptForEntree(User $user)
     {
-        return ($user->schoolLocation->lvs_active && empty($user->eck_id));
+        return (optional($user->schoolLocation)->lvs_active && empty($user->eck_id));
     }
 
     public static function getBrinZes($attr) {
