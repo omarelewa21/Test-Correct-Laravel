@@ -155,7 +155,6 @@ class ImportHelper
         $instance->log_name = date("mdh_i_s");
 
         $instance->csv_data = $data->toCSV();
-        $instance->csv_data_lines = count($instance->csv_data)-1;// first row is header
 
         return $instance;
     }
@@ -198,6 +197,8 @@ class ImportHelper
 
     public function process()
     {
+
+        $this->csv_data_lines = count($this->csv_data)-1;// first row is header
 
         // Temporary datastore
         $studentsPerClass = [];
