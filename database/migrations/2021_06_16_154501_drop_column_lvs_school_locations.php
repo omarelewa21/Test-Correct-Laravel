@@ -27,7 +27,7 @@ class DropColumnLvsSchoolLocations extends Migration
     public function down()
     {
         Schema::table('school_locations', function (Blueprint $table) {
-            //
+            $table->boolean('lvs')->default(false);
         });
     }
 }

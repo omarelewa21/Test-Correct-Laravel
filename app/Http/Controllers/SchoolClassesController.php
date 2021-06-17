@@ -54,9 +54,9 @@ class SchoolClassesController extends Controller
                     ->select(
                         DB::raw(
                             'school_classes.id as id,
-                        if(log.id, education_level_id, null) as education_level_id,
+                        education_level_id,
                         school_year_id,
-                        if(log.id, education_level_year, null) as education_level_year,
+                        education_level_year,
                         name,
                         is_main_school_class,
                         log.checked_by_teacher as checked_by_teacher,
