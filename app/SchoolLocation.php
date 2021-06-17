@@ -47,6 +47,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'intense'                 => 'boolean',
         'lvs'                     => 'boolean',
         'lvs_active'              => 'boolean',
+        'sso'                     => 'boolean',
+        'sso_active'              => 'boolean',
     ];
 
     /**
@@ -75,7 +77,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'invoice_postal', 'invoice_city', 'invoice_country', 'visit_address', 'visit_postal', 'visit_city',
         'visit_country',
         'is_rtti_school_location', 'external_main_code', 'external_sub_code', 'is_open_source_content_creator',
-        'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access', 'lvs_active', 'lvs_type'
+        'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access', 'lvs_active', 'lvs_type',
+        'sso','sso_type', 'sso_active'
     ];
 
     /**
@@ -792,5 +795,15 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function hasRunManualImport(): bool
     {
         return UwlrSoapResult::schoolLocationHasRunImport($this);
+    }
+
+    public static function getLvsOptions()
+    {
+        return [SchoolLocation::LVS_MAGISTER, SchoolLocation::LVS_SOMTODAY];
+    }
+
+    public static function getSsoOptions()
+    {
+        return [SchoolLocation::SSO_ENTREE];
     }
 }
