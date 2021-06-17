@@ -28,43 +28,25 @@ class EventServiceProvider extends ServiceProvider {
         Event::listen('Aacotroneo\Saml2\Events\Saml2LoginEvent', function (Saml2LoginEvent $event) {
             $messageId = $event->getSaml2Auth()->getLastMessageId();
             // Add your own code preventing reuse of a $messageId to stop replay attacks
-
-            $message = SamlMessage::whereMessageId($messageId)->first();
-            if ($message) {
-                dd('preventing reuse of messageId');
-            }
-
             $user = $event->getSaml2User();
             $attr = $user->getAttributes();
 
+            $entreeHelper = new EntreeHelper($attr, $messageId);
 
-            EntreeHelper::redirectIfBrinUnknown(EntreeHelper::getBrinZes($attr));
+            $entreeHelper->blockIfReplayAttackDetected();
 
-            $samlMessage = SamlMessage::create([
-                'message_id' => $messageId,
-                'eck_id' => $attr['eckId'][0],
-                'email' => $attr['mail'][0],
-            ]);
+            $entreeHelper->redirectIfBrinUnknown();
+
+            $entreeHelper->redirectIfScenario5();
+
+            $entreeHelper->redirectIfEckIdNotKnown();
+
 
             $userData = [
                 'id' => $user->getUserId(),
                 'attributes' => $user->getAttributes(),
                 'assertion' => $user->getRawSamlAssertion()
             ];
-            // find user by eckId
-            if (array_key_exists('eckId', $userData['attributes']) && ! empty($userData['attributes']['eckId'][0])) {
-                $laravelUser = User::findByEckId($userData['attributes']['eckId'][0])->first();
-                if ($laravelUser) {
-                    $laravelUser->handleEntreeAttributes($userData['attributes']);
-                    $url = $laravelUser->getTemporaryCakeLoginUrl();
-                    header("Location: $url");
-                    exit;
-                } else {
-                    $url =  route('auth.login', ['tab' => 'entree', 'uuid' => $samlMessage->uuid]);
-                    header("Location: $url");
-                    exit;
-                }
-            }
 
 
 
