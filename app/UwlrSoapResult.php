@@ -348,5 +348,9 @@ class UwlrSoapResult extends Model
        // parent::__destruct();
     }
 
+    public static function schoolLocationHasRunImport(SchoolLocation $schoolLocation): bool
+    {
+        return UwlrSoapResult::where('brin_code', $schoolLocation->external_main_code)->where('dependance_code', $schoolLocation->external_sub_code)->count() > 0;
+    }
 
 }

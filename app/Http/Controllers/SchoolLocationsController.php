@@ -73,6 +73,7 @@ class SchoolLocationsController extends Controller {
         if(request()->has('withLvsAndSso')){
             $schoolLocation['lvs_options'] = [SchoolLocation::LVS_MAGISTER, SchoolLocation::LVS_SOMTODAY];
             $schoolLocation['sso_options'] = [SchoolLocation::SSO_ENTREE];
+            $schoolLocation['has_run_manual_import'] = $schoolLocation->hasRunManualImport();
         }
         return Response::make($schoolLocation, 200);
     }

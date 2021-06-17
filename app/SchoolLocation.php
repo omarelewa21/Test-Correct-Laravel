@@ -789,5 +789,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         }
     }
 
-
+    public function hasRunManualImport(): bool
+    {
+        return UwlrSoapResult::schoolLocationHasRunImport($this);
+    }
 }
