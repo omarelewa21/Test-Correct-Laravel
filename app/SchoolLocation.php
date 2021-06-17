@@ -37,7 +37,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     use SoftDeletes;
     use UuidTrait;
 
-    const LVS_MAGISTER = ['Magister'];
+    const LVS_MAGISTER = 'Magister';
     const LVS_SOMTODAY = 'SOMTODAY';
     const SSO_ENTREE = 'Entreefederatie';
 
