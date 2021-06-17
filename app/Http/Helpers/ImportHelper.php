@@ -301,15 +301,13 @@ class ImportHelper
 
                     $education_level_id = $this->getStudyDirectionId($study_direction);
 
-                    if (!$education_level_id) {
+                    if ($education_level_id === null) {
                         $this->errorMessages[] = 'Onbekende studierichting '.$study_direction;
                         throw new \Exception('Onbekende studierichting '.$study_direction);
                     }
 
                     // check if education level is allowed
-                    $education_level_max_years = Educationlevel::select('max_years')
-                        ->where('id', $education_level_id)
-                        ->value('max_years');
+                    $education_level_max_years = $this->getEducationLevelMaxYearsForEducationLevelId($education_level_id);
                     if ($study_year_layer > $education_level_max_years) {
                         $this->errorMessages[] = 'De les jaar laag '.$study_year_layer.' is niet correct. De Studierichting (niveau) '.$study_direction.' kan maximaal '.$education_level_max_years.' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT';
                         //throw new \Exception('De les jaar laag ' . $study_year_layer . ' is niet correct. De Studierichting (niveau) ' . $study_direction . ' kan maximaal ' . $education_level_max_years . ' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT');
@@ -1200,7 +1198,17 @@ $user = null;
      */
     public function getStudyDirectionId($name)
     {
+        if($name === 'uwlr_education_level'){
+            return 0;
+        }
         return EducationLevel::where('name', $this->translateStudyDirectionName($name))->value('id');
+    }
+
+    protected function getEducationLevelMaxYearsForEducationLevelId($education_level_id)
+    {
+        return Educationlevel::withTrashed()->select('max_years')
+            ->where('id', $education_level_id)
+            ->value('max_years');
     }
 
     /**

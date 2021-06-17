@@ -109,7 +109,7 @@ class UwlrSoapResult extends Model
     private function normalizeJaarGroep($jaargroep)
     {
         if (!$jaargroep) {
-            return 1;
+            return 0;
         }
 
         if ($jaargroep > 0 && $jaargroep < 7) {
@@ -138,7 +138,7 @@ class UwlrSoapResult extends Model
         $klasNaam,
         $leerkracht,
         $isMentorGroep = 1,
-        $studierichting = 'vwo'
+        $studierichting = 'uwlr_education_level'
     ): void {
         $jaargroep = $this->normalizeJaarGroep($leerling['jaargroep']);
         /** @todo jaargroep uit klas halen als die niet in de leerling zit. */
