@@ -23,6 +23,8 @@ class EntreeHelper
 
     private $location = null;
 
+    private $laravelUser = null;
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $attr;
@@ -31,6 +33,17 @@ class EntreeHelper
 
     public function redirectIfBrinUnknown()
     {
+        $this->setLocationWithSamlAttributes();
+        if ($this->location == null) {
+            $url = route('auth.login', ['tab' => 'login', 'message_brin' => 'brin_not_found']);
+            if (App::runningUnitTests()) {
+                return $url;
+            }
+        }
+        return $this->location;
+    }
+
+    private function setLocationWithSamlAttributes(){
         $brinZesCode = $this->getBrinFromAttributes();
 
         if (strlen($brinZesCode) === 6) {
@@ -41,13 +54,6 @@ class EntreeHelper
                 ->where('external_sub_code', $external_sub_code)
                 ->first();
         }
-        if ($this->location == null) {
-            $url = route('auth.login', ['tab' => 'login', 'message_brin' => 'brin_not_found']);
-            if (App::runningUnitTests()) {
-                return $url;
-            }
-        }
-        return $this->location;
     }
 
     public static function shouldPromptForEntree(User $user)
@@ -103,27 +109,71 @@ class EntreeHelper
         dd('not yet implemented scenario 5');
     }
 
-    public function redirectIfEckIdNotKnown()
+    public function redirectIfNoUserWasFoundForEckId()
     {
-        $samlMessage = $this->createSamlMessage();
+        $this->validateAttributes();
+        $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
 
-        $laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
-        if ($laravelUser) {
-            $laravelUser->handleEntreeAttributes($attr);
-            $url = $laravelUser->getTemporaryCakeLoginUrl();
-            if (App::runningUnitTests()) {
-                return $url;
-            }
-            header("Location: $url");
-            exit;
-        } else {
-            $url = route('auth.login', ['tab' => 'entree', 'uuid' => $samlMessage->uuid]);
-            if (App::runningUnitTests()) {
-                return $url;
-            }
-            header("Location: $url");
-            exit;
+        if ($this->laravelUser) {
+            return true;
         }
+
+        $url = route('auth.login',
+            ['tab' => 'entree', 'message' => __('auth.school_info_not_synced_with_test_correct')]);
+        if (App::runningUnitTests()) {
+            return $url;
+        }
+        header("Location: $url");
+        exit;
     }
+
+    public function redirectIfUserNotInSameSchool()
+    {
+        $this->validateAttributes();
+        if (null == $this->location) {
+            $this->setLocationWithSamlAttributes();
+        }
+        if(null == $this->laravelUser){
+            $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+        }
+        if ($this->location){
+            if($this->location->is($this->laravelUser->schoolLocation)){
+                return true;
+            }
+        }
+        $url = route('auth.login',['tab'=> 'entree', 'message'=>'oeps']);
+
+        if (App::runningUnitTests()){
+            return $url;
+        }
+
+        header("Location $url");
+
+
+
+    }
+
+//    public function redirectIfEckIdNotKnown()
+//    {
+//        $samlMessage = $this->createSamlMessage();
+//
+//
+//        if ($laravelUser) {
+//            $laravelUser->handleEntreeAttributes($attr);
+//            $url = $laravelUser->getTemporaryCakeLoginUrl();
+//            if (App::runningUnitTests()) {
+//                return $url;
+//            }
+//            header("Location: $url");
+//            exit;
+//        } else {
+//            $url = route('auth.login', ['tab' => 'entree', 'uuid' => $samlMessage->uuid]);
+//            if (App::runningUnitTests()) {
+//                return $url;
+//            }
+//            header("Location: $url");
+//            exit;
+//        }
+//    }
 
 }

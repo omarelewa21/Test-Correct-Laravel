@@ -39,7 +39,11 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->redirectIfScenario5();
 
+            $entreeHelper->redirectIfNoUserWasFoundForEckId();
+
             $entreeHelper->redirectIfEckIdNotKnown();
+
+            $entreeHelper->redirectIfUserNotInSameSchool();
 
 
             $userData = [

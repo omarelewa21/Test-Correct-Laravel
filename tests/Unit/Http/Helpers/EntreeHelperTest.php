@@ -4,12 +4,16 @@
 namespace Tests\Unit\Http\Helpers;
 
 
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\SchoolLocation;
+use tcCore\User;
 use Tests\TestCase;
 
 class EntreeHelperTest extends TestCase
 {
+    use DatabaseTransactions;
+
     /**
      * @test
      */
@@ -59,22 +63,20 @@ class EntreeHelperTest extends TestCase
     }
 
     /** @test */
-    public function it_should_redirect_if_eckId_not_known()
+    public function it_should_redirect_when_no_user_is_found_with_provided_eck_id()
     {
-        $helper = new EntreeHelper(
-            [
-                'nlEduPersonHomeOrganizationBranchId' => ['99DE00'],
-                'eckId'                               => ['eckId_L1'],
-                'mail'                                => ['martin@sobit.nl'],
-            ],
-            'abcd'
-        );
-        $helper->redirectIfBrinUnknown();
+        $helper = new EntreeHelper([
+            'nlEduPersonHomeOrganizationBranchId' => ['99DE00'],
+            'eckId'                               => ['eckId_L1'],
+            'mail'                                => ['martin@sobit.nl'],
+        ], 'abc');
 
         $this->assertStringContainsString(
-            'login?tab=entree&uuid=',
-            $helper->redirectIfEckIdNotKnown()
+            route('auth.login', ['tab' => 'entree', 'message' => '']),
+            $helper->redirectIfNoUserWasFoundForEckId()
         );
+
+
     }
 
     /**
@@ -91,7 +93,7 @@ class EntreeHelperTest extends TestCase
             'abcd'
         );
         $helper->redirectIfBrinUnknown();
-        $helper->redirectIfEckIdNotKnown();
+        $helper->redirectIfNoUserWasFoundForEckId();
     }
 
     /** @test */
@@ -106,8 +108,44 @@ class EntreeHelperTest extends TestCase
             'abcd'
         );
         $helper->redirectIfBrinUnknown();
-        $helper->redirectIfEckIdNotKnown();
+        $helper->redirectIfNoUserWasFoundForEckId();
     }
 
+    /** @test */
+    public function laravel_user_should_be_in_the_same_school_as_brin_provided()
+    {
+        dd(User::findByEckId('eckid_L1')->first());
+        $helper = new EntreeHelper(
+            [
+                'nlEduPersonHomeOrganizationBranchId' => ['99DE00'],
+                'mail'                                => ['martin@sobit.nl'],
+                'eckId'                               => ['eckid_L1'],
+            ],
+            'abcd'
+        );
 
+        $this->assertTrue($helper->redirectIfUserNotInSameSchool());
+
+    }
+
+    /** @test */
+    public function if_laravel_user_not_in_same_same_school_location_as_brin_provided_it_should_redirect()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
+
+        $student = $this->createStudent('meOkayOrso', $location, null , 'abcdefg');
+        $student->eckId = 'eckid_L1';
+        $student->save();
+
+        $helper = new EntreeHelper(
+            [
+                'nlEduPersonHomeOrganizationBranchId' => ['888800'],
+                'mail'                                => ['info+Magister schoollocatie-0@test-correct.nl'],
+                'eckId'                               => ['eckid_L1'],
+            ],
+            'abcd'
+        );
+
+        $this->assertTrue($helper->redirectIfUserNotInSameSchool());
+    }
 }
