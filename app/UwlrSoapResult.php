@@ -50,7 +50,7 @@ class UwlrSoapResult extends Model
 
         $students = $repo->get('leerling');
 
-        $school = $repo->get('school')->get(0);
+        $school = (array) $repo->get('school')->get(0);
 
         $schoolRecord = SchoolLocation::where('external_main_code', $school['brincode'])->where('external_sub_code',
             $school['dependancecode'])->first();
@@ -177,18 +177,26 @@ class UwlrSoapResult extends Model
      */
     private function transformGroep($leerling, $school, $repo): void
     {
+        $leerling = (array) $leerling;
         collect($leerling['groep'])->each(function ($groep) use ($leerling, $school, $repo) {
 
             $groepKey = $groep;
 
-            $klas = $repo->get('groep')->first(function ($groep) use ($groepKey) {
+            $klas = (array) $repo->get('groep')->first(function ($groep) use ($groepKey) {
+                $groep = (array) $groep;
                 return $groepKey === $groep['key'];
             });
 
 
             $leerkracht = $repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
+                $teacher = (array) $teacher;
                 return collect($teacher['groepen'])->contains($groepKey);
             });
+
+            if(!$leerkracht){
+                dump($repo->get('leerkracht'));
+                dd($groepKey);
+            }
 
 
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);

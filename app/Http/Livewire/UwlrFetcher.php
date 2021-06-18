@@ -6,7 +6,7 @@ use Artisaninweb\SoapWrapper\SoapWrapper;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Http\Helpers\MagisterHelper;
-use tcCore\Http\Helpers\SomeTodayHelper;
+use tcCore\Http\Helpers\SomTodayHelper;
 use tcCore\SchoolLocation;
 use tcCore\SchoolLocationSchoolYear;
 use tcCore\SchoolYear;
@@ -48,7 +48,7 @@ class UwlrFetcher extends Component
                'id'             => $l->getKey(),
                'name'            => $l->name,
                'client_code'     => $l->customer_code,
-               'client_name'     => $l->name,
+               'client_name'     => ($l->name == 'SOMToday schoollocatie') ? 'Overig' : $l->name,
                'brin_code'       => $l->external_main_code,
                'dependance_code' => $l->external_sub_code,
                'lvs_type'       => $l->lvs_type,
@@ -107,7 +107,7 @@ class UwlrFetcher extends Component
                 $helper = MagisterHelper::guzzle($this->schoolYear,$this->brinCode, $this->dependanceCode)->parseResult()->storeInDB($this->brinCode, $this->dependanceCode);
                 break;
             case SchoolLocation::LVS_SOMTODAY:
-                $helper = (new SomeTodayHelper(new SoapWrapper()))->search(
+                $helper = (new SomTodayHelper(new SoapWrapper()))->search(
                     $this->clientCode,
                     $this->clientName,
                     $this->schoolYear,

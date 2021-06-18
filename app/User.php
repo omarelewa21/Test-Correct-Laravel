@@ -2015,8 +2015,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return ($classRecords + $teacherRecords) > 0;
         }
 
-        // @TODO @Martin do we need the account manager as well?
-        if ($this->isA('account manager') || $this->isA('school manager')) {
+        if ($this->isA('school manager')) {
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->school_location->getKey())

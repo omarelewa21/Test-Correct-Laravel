@@ -26,7 +26,7 @@ if(!tcCore\Http\Helpers\BaseHelper::onProduction()) {
     Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
 
     Route::get('/magister', [\tcCore\Http\Controllers\MagisterController::class, 'index']);
-    Route::get('/somtoday', [\tcCore\Http\Controllers\SomeTodayController::class, 'index']);
+    Route::get('/somtoday', [\tcCore\Http\Controllers\SomTodayController::class, 'index']);
     Route::get('/uwlr/fetcher', tcCore\Http\Livewire\UwlrFetcher::class)->name('uwlr.fetcher');
     Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
 }

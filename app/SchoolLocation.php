@@ -74,7 +74,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'invoice_postal', 'invoice_city', 'invoice_country', 'visit_address', 'visit_postal', 'visit_city',
         'visit_country',
         'is_rtti_school_location', 'external_main_code', 'external_sub_code', 'is_open_source_content_creator',
-        'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access'
+        'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access',
+        'lvs_active','lvs_type'
     ];
 
     /**
