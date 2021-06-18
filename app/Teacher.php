@@ -173,5 +173,6 @@ class Teacher extends BaseModel {
                     })->toArray(),
                 ];
             });
+
     }
 }
