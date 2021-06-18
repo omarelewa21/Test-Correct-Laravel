@@ -43,7 +43,7 @@ class UwlrFetcher extends Component
 
     protected function getDataSource()
     {
-        return SchoolLocation::where('lvs_active',true)->whereNotNull('lvs_type')->get()->map(function(SchoolLocation $l){
+        return SchoolLocation::whereNotNull('lvs_type')->get()->map(function(SchoolLocation $l){ // where('lvs_active',true)-> not needed as we do it by hand. And if by hand then not needed to be active only by auto retrieval
            return [
                'id'             => $l->getKey(),
                'name'            => $l->name,
