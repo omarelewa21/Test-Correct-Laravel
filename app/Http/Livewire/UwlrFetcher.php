@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Http\Helpers\MagisterHelper;
 use tcCore\Http\Helpers\SomeTodayHelper;
+use tcCore\SchoolLocation;
+use tcCore\SchoolLocationSchoolYear;
+use tcCore\SchoolYear;
 use tcCore\UwlrSoapEntry;
 
 class UwlrFetcher extends Component
@@ -15,7 +18,9 @@ class UwlrFetcher extends Component
 
     public $clientName = 'Overig';
 
-    public $schoolYear = '2019-2020';
+    public $schoolYears = [];
+
+    public $schoolYear = '';
 
     public $brinCode = '06SS';
 
@@ -31,21 +36,57 @@ class UwlrFetcher extends Component
 
     public function mount()
     {
-        $this->uwlrDatasource = UwlrSoapEntry::DATASOURCES;
+        $this->uwlrDatasource = $this->getDataSource();
         $this->setSearchFields();
+        $this->setSchoolYears();
+    }
+
+    protected function getDataSource()
+    {
+        return SchoolLocation::where('lvs_active',true)->whereNotNull('lvs_type')->get()->map(function(SchoolLocation $l){
+           return [
+               'id'             => $l->getKey(),
+               'name'            => $l->name,
+               'client_code'     => $l->customer_code,
+               'client_name'     => $l->name,
+               'brin_code'       => $l->external_main_code,
+               'dependance_code' => $l->external_sub_code,
+               'lvs_type'       => $l->lvs_type,
+               'school_year'    => ''
+           ];
+        });
     }
 
     public function updatedCurrentSource()
     {
         $this->setSearchFields();
+        $this->setSchoolYears();
+
     }
 
+    protected function setSchoolYears()
+    {
+        $this->schoolYears = [];
+        $location = SchoolLocation::find($this->uwlrDatasource[$this->currentSource]['id']);
+        if($location) {
+            $years = $location->schoolLocationSchoolYears->map(function(SchoolLocationSchoolYear $slsy){
+               return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
+            });
+            $this->schoolYears = collect($years)->sortDesc();
+        }
+
+    }
+
+    public function updatedSchoolYear($data)
+    {
+        $this->setSearchFields();
+    }
 
     private function setSearchFields()
     {
         $this->clientCode = $this->uwlrDatasource[$this->currentSource]['client_code'];
         $this->clientName = $this->uwlrDatasource[$this->currentSource]['client_name'];
-        $this->schoolYear = $this->uwlrDatasource[$this->currentSource]['school_year'];
+        $this->schoolYear = $this->schoolYear;
         $this->brinCode = $this->uwlrDatasource[$this->currentSource]['brin_code'];
         $this->dependanceCode = $this->uwlrDatasource[$this->currentSource]['dependance_code'];
     }
@@ -61,11 +102,11 @@ class UwlrFetcher extends Component
     public function getHelper()
     {
         $helper = null;
-        switch ($this->currentSource) {
-            case 0:
+        switch ($this->uwlrDatasource[$this->currentSource]['lvs_type']) {
+            case SchoolLocation::LVS_MAGISTER:
                 $helper = MagisterHelper::guzzle($this->schoolYear,$this->brinCode, $this->dependanceCode)->parseResult()->storeInDB($this->brinCode, $this->dependanceCode);
                 break;
-            case 1:
+            case SchoolLocation::LVS_SOMTODAY:
                 $helper = (new SomeTodayHelper(new SoapWrapper()))->search(
                     $this->clientCode,
                     $this->clientName,
@@ -74,6 +115,8 @@ class UwlrFetcher extends Component
                     $this->dependanceCode
                 )->storeInDB();
                 break;
+            default:
+                throw new \Exception(sprintf('No valid lvs_type (%s)',$this->uwlrDatasource[$this->currentSource]['lvs_type']));
         }
         return $helper;
     }
