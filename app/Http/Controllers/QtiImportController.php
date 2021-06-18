@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
@@ -47,27 +48,7 @@ class QtiImportController extends Controller
      */
     public function data(QtiImportDataRequest $request)
     {
-        $teachers = Teacher::groupBy('user_id')
-            ->join('users', 'teachers.user_id', '=', 'users.id')
-            ->whereNotNull('users.id')
-            ->orderBy('users.name_first', 'asc')
-            ->get()
-            ->filter(function ($t) {
-                return ($t->user && $t->user->id > 0);
-            })
-            ->map(function ($t) {
-                return (object) [
-                    'id'                 => $t->user->id,
-                    'uuid'               => $t->user->uuid,
-                    'name'               => str_replace('  ', ' ',
-                        trim(sprintf('%s %s %s (%s)', $t->user->name_first, $t->user->name_suffix, $t->user->name,
-                            $t->user->abbreviation))),
-                    'school_location_id' => $t->user->schoolLocation->uuid,
-                    'subject_ids'        => $t->user->subjects()->get()->map(function ($s) {
-                        return $s->uuid;
-                    })->toArray(),
-                ];
-            });
+        $teachers = (new Teacher())->getUserObjectsForDistinctTeachers();
 
         return response()->json([
             'schoolLocations' => SchoolLocation::orderBy('name')->get(),
