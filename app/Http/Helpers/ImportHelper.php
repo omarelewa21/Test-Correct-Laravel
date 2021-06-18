@@ -125,6 +125,8 @@ class ImportHelper
 
     const DUMMY_SECTION_NAME = 'Magister sectie';
 
+    public $make_school_classes_visible = true;
+
 
     /**
      *
@@ -143,6 +145,7 @@ class ImportHelper
         $instance->can_create_users_for_teacher = true;
         $instance->skip_mentor_creation = true;
         $instance->should_use_import_email_pattern = true;
+        $instance->make_school_classes_visible = false;
         if (App::environment(['testing', 'local'])) {
             $instance->should_use_import_password_pattern = true;
         }
@@ -362,7 +365,8 @@ class ImportHelper
                             'education_level_year'            => $study_year_layer,
 
                             'is_main_school_class'            => $teacher_is_mentor,
-                            'do_not_overwrite_from_interface' => 0
+                            'do_not_overwrite_from_interface' => 0,
+                            'visible'                         => $this->make_school_classes_visible,
                         ]);
 
                         $this->create_tally['classes']++;

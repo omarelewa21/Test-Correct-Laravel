@@ -37,7 +37,8 @@ class SchoolClassesController extends Controller
 
         $schoolClasses = SchoolClass::filtered($request->get('filter', []),
             $request->get('order', []))->with('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers',
-            'studentUsers', 'educationLevel', 'schoolYear');
+            'studentUsers', 'educationLevel', 'schoolYear')
+            ->where('school_classes.visible',true);
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 $schoolClasses = $schoolClasses->get();

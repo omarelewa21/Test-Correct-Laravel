@@ -22,6 +22,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'visible' => 'boolean',
     ];
 
     /**
@@ -43,7 +44,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo'];
+    protected $fillable = ['school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo','visible'];
 
     /**
      * The attributes excluded from the model's JSON form.
