@@ -10,8 +10,10 @@ use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\TeachersImportRequest;
 use tcCore\Http\Requests\UpdateWithSubjectsForClusterClassesRequest;
+use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\User\Factory;
 use tcCore\SchoolClass;
+use tcCore\SchoolClassImportLog;
 use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
@@ -21,6 +23,8 @@ use tcCore\User;
 
 class TeachersController extends Controller
 {
+
+    use UwlrImportHandlingForController;
 
     /**
      * Display a listing of the teachers.
@@ -238,6 +242,10 @@ class TeachersController extends Controller
             });
         }
 
+        if(!Auth::user()->hasIncompleteImport(false)){
+            $this->setClassesVisible();
+        }
+
         return JsonResource::make(['count' => $updateCounter], 200);
     }
 
@@ -263,9 +271,10 @@ class TeachersController extends Controller
         }
     }
 
-    public function hasIncompleteImport()
+    public function hasIncompleteImport(Request $request)
     {
         return Auth::user()->hasIncompleteImport();
+
     }
 
 }

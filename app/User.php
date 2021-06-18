@@ -1970,7 +1970,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return sprintf('%s. %s%s', $letter, $suffix, $this->name);
     }
 
-    public function hasIncompleteImport()
+    public function hasIncompleteImport($withFinalizedCheck = true)
     {
         if ($this->isA('teacher')) {
             // does not exist anymore
@@ -1980,14 +1980,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if ($this->schoolLocation->lvs_active === false) {
                 return false;
             }
+            $baseSubjectId = BaseSubject::where('name','demovak')->value('id');
             $teacherRecords = Teacher::selectRaw('count(*) as cnt')
                 ->leftJoin('teacher_import_logs', 'teachers.id', 'teacher_import_logs.teacher_id')
                 ->leftJoin('school_classes', 'teachers.class_id', 'school_classes.id')
-                ->where(function ($query) {
-                    $query->whereIn('teachers.subject_id', function ($query) {
+                ->where(function ($query) use($baseSubjectId){
+                    $query->whereIn('teachers.subject_id', function ($query) use ($baseSubjectId){
                         $query->select('id')
                             ->from('subjects')
-                            ->where('name', 'Magister sectie')
+                            ->where('base_subject_id', $baseSubjectId)
                             ->where('abbreviation', 'IMP');
                     })
                         ->orWhere(function ($query) {
@@ -2000,23 +2001,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 ->value('cnt');
 
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
+                ->withoutGlobalScope('visibleOnly')
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->whereIn('school_classes.id', function ($query) {
                     $query->select('class_id')
                         ->from('teachers')
                         ->where('user_id', $this->getKey());
                 })
-                ->where(function ($query) {
-                    $query->whereNull('school_class_import_logs.checked_by_teacher')
-                        ->orWhereNull('school_class_import_logs.id');
-
+                ->where(function ($query) use ($withFinalizedCheck){
+                    if($withFinalizedCheck){
+                        $query->whereNull('school_class_import_logs.finalized');
+                    } else {
+                        $query->whereNull('checked_by_teacher');
+                    }
+                    $query->orWhereNull('school_class_import_logs.id');
                 })->where('demo',0)
+
                 ->value('cnt');
             return ($classRecords + $teacherRecords) > 0;
         }
 
         if ($this->isA('school manager')) {
-            $classRecords = SchoolClass::selectRaw('count(*) as cnt')
+            $classRecords = SchoolClass::selectRaw('count(*) as cnt')->withoutGlobalScope('visibleOnly')
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
                 ->where(function ($query) {

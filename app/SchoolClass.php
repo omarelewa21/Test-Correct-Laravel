@@ -1,6 +1,8 @@
 <?php namespace tcCore;
 
 use Closure;
+
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -114,6 +116,10 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     public static function boot()
     {
         parent::boot();
+
+        static::addGlobalScope('visibleOnly', function (Builder $builder) {
+            $builder->where('visible', 1);
+        });
 
         self::creating(function(SchoolClass $schoolClass){
             self::setDoNotOverwriteFromInterfaceOnDemoClass($schoolClass);

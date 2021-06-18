@@ -3,22 +3,17 @@
 
 namespace tcCore\Http\Traits;
 
-use tcCore\Answer;
-use tcCore\Http\Requests\Request;
-use tcCore\TestParticipant;
+use Illuminate\Support\Facades\Auth;
+use tcCore\SchoolClass;
+use tcCore\SchoolClassImportLog;
 
-trait WithUpdatingHandling
+trait UwlrImportHandlingForController
 {
 
-    public function updating(&$name, &$value)
+    protected function setClassesVisible()
     {
-        Request::filter($value);
-    }
-
-    public function updateAnswerIdForTestParticipant()
-    {
-        $answer = Answer::select('id','test_participant_id')->whereId($this->answers[$this->question->uuid]['id'])->first();
-
-        TestParticipant::whereId($answer->test_participant_id)->update(['answer_id' => $answer->getKey()]);
+        SchoolClass::withoutGlobalScope('visibleOnly')->whereIn('id', SchoolClassImportLog::whereNotNull('finalized')->where('checked_by_teacher_id', Auth::id())->pluck('class_id'))->update([
+            'visible' => true,
+        ]);
     }
 }
