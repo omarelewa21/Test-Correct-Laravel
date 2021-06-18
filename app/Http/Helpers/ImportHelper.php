@@ -1160,6 +1160,7 @@ $user = null;
             return SchoolClass::create($data)->getKey();
         }
         $schoolClass->name = $data['name']; // set the name the capitalized way we get it from the data array
+        $schoolClass->is_main_school_class = $data['is_main_school_class']; // the import is leading in telling whether this is a mainSchoolClass even if set differently earlier
         $schoolClass->save();
         $schoolClass->restore();
         return $schoolClass->getKey();
