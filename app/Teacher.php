@@ -149,4 +149,26 @@ class Teacher extends BaseModel {
     {
         return $this->hasOne(TeacherImportLog::class, 'teacher_id', 'id');
     }
+
+    public function getUserObjectsForDistinctTeachers()
+    {
+        $distinctTeachers = Teacher::select('user_id')->distinct();
+        return User::joinSub($distinctTeachers,'t1', function($join) {
+                        $join->on('users.id','=','t1.user_id');
+                    })
+                    ->whereNotNull('t1.user_id')
+                    ->orderBy('users.name_first', 'asc')
+                    ->get()
+                    ->map(function ($user) {
+                        return (object)[
+                            'id' => $user->id,
+                            'uuid' => $user->uuid,
+                            'name' => str_replace('  ', ' ', trim(sprintf('%s %s %s (%s)', $user->name_first, $user->name_suffix, $user->name, $user->abbreviation))),
+                            'school_location_id' => $user->schoolLocation->uuid,
+                            'subject_ids' => $user->subjects()->get()->map(function ($s) {
+                                return $s->uuid;
+                            })->toArray(),
+                        ];
+                    });
+    }
 }
