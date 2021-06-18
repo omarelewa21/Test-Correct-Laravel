@@ -1973,9 +1973,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function hasIncompleteImport()
     {
         if ($this->isA('teacher')) {
-            if ($this->schoolLocation->lvs === false) {
-                return false;
-            }
+            // does not exist anymore
+//            if ($this->schoolLocation->lvs === false) {
+//                return false;
+//            }
             if ($this->schoolLocation->lvs_active === false) {
                 return false;
             }
@@ -2014,7 +2015,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return ($classRecords + $teacherRecords) > 0;
         }
 
-        if ($this->isA('account manager')) {
+        // @TODO @Martin do we need the account manager as well?
+        if ($this->isA('account manager') || $this->isA('school manager')) {
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->school_location->getKey())
