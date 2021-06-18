@@ -54,10 +54,10 @@ class UwlrGrid extends Component
         $this->showErrorModal = true;
     }
 
-    public function deleteMagister()
+    public function deleteImportData()
     {
-        UwlrSoapEntry::deleteMagisterData();
-        $this->successDialogMessage = 'Magister data succesvol verwijderd';
+        UwlrSoapEntry::deleteImportData();
+        $this->successDialogMessage = 'Import data succesvol verwijderd';
         $this->showSuccessDialog = true;
     }
 

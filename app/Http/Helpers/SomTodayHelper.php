@@ -9,10 +9,10 @@ use Ramsey\Uuid\Guid\Guid;
 use tcCore\UwlrSoapEntry;
 use tcCore\UwlrSoapResult;
 
-class SomeTodayHelper
+class SomTodayHelper
 {
     const WSDL = 'https://oop.test.somtoday.nl/services/v2/leerlinggegevens?wsdl';
-    const SOURCE = 'SomeToDay';
+    const SOURCE = 'SomToDay';
     const XSD_VERSION = '2.2';
 
     /**
@@ -50,12 +50,13 @@ class SomeTodayHelper
             'xsdversie' => self::XSD_VERSION,
         ];
 
+
         $this->soapWrapper->add('leerlinggegevensServiceV2', function ($service) use ($klantcode, $klantnaam) {
             $service
                 ->wsdl(self::WSDL)
                 ->trace(true)
                 ->header('http://www.edustandaard.nl/leerresultaten/2/autorisatie', 'autorisatie', [
-                    'autorisatiesleutel' => 'pmjkO4VbG8uOGNS1T3Q3sHBnOxf/q76osIPUTCbXGQZcs9q5UlgnhUP8p6sUNzf1ZbhLPOfzk85y9OdD9Nz3Rw==',
+                    'autorisatiesleutel' => 'D2vB1aAS+MVcRkXJDMv2OfObjXphiykcR1Hg+nl/VpB6nR1uiTJfHSDkRuNZkfWElhLfw1gmP/HYsOrVqY6Mhg==',
                     'klantcode'          => $klantcode,
                     'klantnaam'          => $klantnaam,
                 ]);
@@ -79,7 +80,6 @@ class SomeTodayHelper
         if (!$this->result) {
             throw new \Exception('no result to store');
         }
-        dd($this->result);
 
         $this->resultSet = UwlrSoapResult::create($this->searchParams);
 
@@ -127,7 +127,7 @@ class SomeTodayHelper
                UwlrSoapEntry::create([
                    'uwlr_soap_result_id' => $this->resultIdentifier,
                    'key' => $prop,
-                   'object' => serialize($obj),
+                   'object' => serialize((array) $obj),
                ]);
            });
        });
@@ -139,7 +139,7 @@ class SomeTodayHelper
             UwlrSoapEntry::create([
                 'uwlr_soap_result_id' => $this->resultIdentifier,
                 'key' => 'leerling',
-                'object' => serialize($obj),
+                'object' => serialize((array) $obj),
             ]);
         });
 
@@ -151,7 +151,7 @@ class SomeTodayHelper
             UwlrSoapEntry::create([
                 'uwlr_soap_result_id' => $this->resultIdentifier,
                 'key' => 'leerkracht',
-                'object' => serialize($obj),
+                'object' => serialize((array) $obj),
             ]);
         });
     }

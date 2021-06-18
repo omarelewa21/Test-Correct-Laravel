@@ -13,8 +13,8 @@ use tcCore\UwlrSoapResult;
 
 class MagisterHelper
 {
-    const WSDL = 'https://oop.test.somtoday.nl/services/v2/leerlinggegevens?wsdl';
-    const SOURCE = 'SomeToDay';
+    const WSDL = '';
+    const SOURCE = 'Magister';
     const XSD_VERSION = '2.2';
 
     private $string = null;

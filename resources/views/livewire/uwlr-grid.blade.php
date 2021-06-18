@@ -2,7 +2,7 @@
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
         <div class="flex-shrink-0">
-            <x-button.cta class="" wire:click="deleteMagister">Delete Magister</x-button.cta>
+            <x-button.cta class="" wire:click="deleteImportData">Delete Import data</x-button.cta>
             <x-button.primary class="" wire:click="newImport">Import</x-button.primary>
         </div>
     </div>
