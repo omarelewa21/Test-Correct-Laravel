@@ -60,6 +60,7 @@ class SchoolClassesController extends Controller
                         name,
                         is_main_school_class,
                         log.checked_by_teacher as checked_by_teacher,
+                        log.checked_by_teacher_id as checked_by_teacher_id,
                         log.checked_by_admin as checked_by_admin'
                         )
                     );
@@ -235,6 +236,7 @@ class SchoolClassesController extends Controller
 
             if (Auth::user()->isA('teacher') && is_null($importLog->checked_by_teacher)) {
                 $importLog->checked_by_teacher = now();
+                $importLog->checked_by_teacher_id = Auth::id();
             }
 
             if (Auth::user()->isA('school manager') && is_null($importLog->checked_by_admin)) {

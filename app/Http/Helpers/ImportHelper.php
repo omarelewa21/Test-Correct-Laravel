@@ -69,7 +69,7 @@ class ImportHelper
      *
      * @var array
      */
-    private $studydirectionarray = [
+    private $educationLevelArray = [
         'b'   => 'Vmbo bb',
         'b/k' => 'Vmbo kb',
         'k'   => 'Vmbo kb',
@@ -299,7 +299,7 @@ class ImportHelper
 //                        . 'Neem contact op met de schoolbeheerder om het schooljaar te laten aanmaken.');
                     }
 
-                    $education_level_id = $this->getStudyDirectionId($study_direction);
+                    $education_level_id = $this->getEducationLevelId($study_direction);
 
                     if ($education_level_id === null) {
                         $this->errorMessages[] = 'Onbekende studierichting '.$study_direction;
@@ -1116,7 +1116,7 @@ $user = null;
      */
     public function createOrRestoreSchoolClass($data)
     {
-        $schoolclass = SchoolClass::withTrashed()
+        $schoolClass = SchoolClass::withTrashed()
             ->where('school_location_id', $data['school_location_id'])
             ->where('education_level_id', $data['education_level_id'])
             ->where('school_year_id', $data['school_year_id'])
@@ -1124,24 +1124,46 @@ $user = null;
             ->where('education_level_year', $data['education_level_year'])
             ->first();
 
-
-        if($schoolclass === null && $this->can_find_school_class_only_by_name){
-            $schoolclass = SchoolClass::withTrashed()
-                ->where('school_location_id', $data['school_location_id'])
-                ->where('school_year_id', $data['school_year_id'])
-                ->where('name', $data['name'])
-                ->first();
+        // uwlr
+        if($schoolClass === null && $this->can_find_school_class_only_by_name){
+            return $this->getOrCreateSchoolClassIfAllowedByName($data);
         }
 
-        if ($schoolclass) {
-            $schoolclass->restore();
+        if ($schoolClass) {
+            $schoolClass->restore();
 
-            return $schoolclass->getKey();
+            return $schoolClass->getKey();
         }
-
-
 
         return SchoolClass::create($data)->getKey();
+    }
+
+    protected function getOrCreateSchoolClassIfAllowedByName($data)
+    {
+        $schoolClass = SchoolClass::withTrashed()
+            ->where('school_location_id', $data['school_location_id'])
+            ->where('school_year_id', $data['school_year_id'])
+            ->where('name', $data['name'])
+            ->first();
+
+        if($schoolClass === null){
+            $oldSchoolClass = SchoolClass::withTrashed()
+                ->where('school_location_id', $data['school_location_id'])
+                ->where('name', $data['name'])
+                ->orderBy('created_at','desc')
+                ->first();
+
+            if($oldSchoolClass){
+                $data['education_level_id'] = $oldSchoolClass->education_level_id;
+                $data['education_level_year'] = $oldSchoolClass->education_level_year;
+            }
+            return SchoolClass::create($data)->getKey();
+        }
+        $schoolClass->name = $data['name']; // set the name the capitalized way we get it from the data array
+        $schoolClass->is_main_school_class = $data['is_main_school_class']; // the import is leading in telling whether this is a mainSchoolClass even if set differently earlier
+        $schoolClass->save();
+        $schoolClass->restore();
+        return $schoolClass->getKey();
     }
 
     /**
@@ -1178,12 +1200,16 @@ $user = null;
                     self::DUMMY_SECTION_NAME);
             }
 
-            $subject = Subject::firstOrCreate([
+            $subject = Subject::withTrashed()->firstOrCreate([
                 'section_id'      => $magisterSection->section->getKey(),
                 'base_subject_id' => BaseSubject::where('name', DemoHelper::SUBJECTNAME)->first()->getKey(),
                 'abbreviation'    => 'IMP',
                 'name'            => self::DUMMY_SECTION_NAME,
             ]);
+
+            if($subject && !$subject->trashed()){
+                $subject->delete();
+            }
 
             return $subject->getKey();
         }
@@ -1196,12 +1222,12 @@ $user = null;
      * @param  type  $name
      * @return type
      */
-    public function getStudyDirectionId($name)
+    public function getEducationLevelId($name)
     {
         if($name === 'uwlr_education_level'){
             return 0;
         }
-        return EducationLevel::where('name', $this->translateStudyDirectionName($name))->value('id');
+        return EducationLevel::where('name', $this->translateEducationLevelName($name))->value('id');
     }
 
     protected function getEducationLevelMaxYearsForEducationLevelId($education_level_id)
@@ -1216,9 +1242,9 @@ $user = null;
      * @param  type  $name
      * @return type string
      */
-    public function translateStudyDirectionName($name)
+    public function translateEducationLevelName($name)
     {
-        return array_key_exists($name, $this->studydirectionarray) ? $this->studydirectionarray[$name] : $name;
+        return array_key_exists($name, $this->educationLevelArray) ? $this->educationLevelArray[$name] : $name;
     }
 
     /**

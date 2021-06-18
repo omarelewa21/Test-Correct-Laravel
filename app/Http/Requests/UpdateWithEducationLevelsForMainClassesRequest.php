@@ -14,7 +14,8 @@ class UpdateWithEducationLevelsForMainClassesRequest extends FormRequest
      */
     public function authorize()
     {
-        return Auth::user()->isA('teacher') || Auth::user()->isA('Account manager');
+        // @TODO @martin do we need the account maanger here??
+        return Auth::user()->isA('teacher') || Auth::user()->isA('Account manager') || Auth::user()->isA('School manager');
     }
 
     /**
