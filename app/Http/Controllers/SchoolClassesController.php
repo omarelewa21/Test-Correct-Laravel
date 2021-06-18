@@ -13,6 +13,7 @@ use tcCore\EducationLevel;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\UpdateWithEducationLevelsForClusterClassesRequest;
 use tcCore\Http\Requests\UpdateWithEducationLevelsForMainClassesRequest;
+use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
 use tcCore\School;
@@ -25,10 +26,11 @@ use tcCore\SchoolClassImportLog;
 
 class SchoolClassesController extends Controller
 {
+    use UwlrImportHandlingForController;
     /**
      * Display a listing of the school classes.
-     * @param  SchoolLocation  $schoolLocation
-     * @param  Request  $request
+     * @param SchoolLocation $schoolLocation
+     * @param Request $request
      * @return
      */
     public function index(Requests\IndexSchoolClassRequest $request)
@@ -48,7 +50,8 @@ class SchoolClassesController extends Controller
                 break;
             case 'import_data':
                 $schoolClasses = SchoolClass::filtered($request->get('filter', []),
-                    $request->get('order', []));
+                    $request->get('order', []))
+                    ->withoutGlobalScope('visibleOnly');
 
                 $schoolClasses
                     ->leftJoin('school_class_import_logs as log', 'school_classes.id', 'class_id')
@@ -90,7 +93,7 @@ class SchoolClassesController extends Controller
 
     /**
      * Store a newly created school class in storage.
-     * @param  CreateSchoolClassRequest  $request
+     * @param CreateSchoolClassRequest $request
      * @return
      */
     public function store(CreateSchoolClassRequest $request)
@@ -121,8 +124,8 @@ class SchoolClassesController extends Controller
 
     /**
      * Display the specified school class.
-     * @param  SchoolClass  $schoolClass
-     * @param  Request  $request
+     * @param SchoolClass $schoolClass
+     * @param Request $request
      * @return
      */
     public function show(SchoolClass $schoolClass, Request $request)
@@ -140,8 +143,8 @@ class SchoolClassesController extends Controller
 
     /**
      * Update the specified school class in storage.
-     * @param  SchoolClass  $schoolClass
-     * @param  UpdateSchoolClassRequest  $request
+     * @param SchoolClass $schoolClass
+     * @param UpdateSchoolClassRequest $request
      * @return
      */
     public function update(SchoolClass $schoolClass, UpdateSchoolClassRequest $request)
@@ -157,7 +160,7 @@ class SchoolClassesController extends Controller
 
     /**
      * Remove the specified school class from storage.
-     * @param  SchoolClass  $schoolClass
+     * @param SchoolClass $schoolClass
      * @return
      * @throws \Exception
      */
@@ -186,6 +189,7 @@ class SchoolClassesController extends Controller
         if (is_array($request->get('class'))) {
             collect($request->get('class'))->each(function ($value, $schoolClassId) use (&$updateCounter) {
                 $schoolClass = SchoolClass::where('id', $schoolClassId)
+                    ->withoutGlobalScope('visibleOnly')
                     ->where('is_main_school_class', 1)
                     ->where('school_location_id', Auth::user()->school_location_id)
                     ->first();
@@ -196,10 +200,10 @@ class SchoolClassesController extends Controller
 
                 $updateCounter++;
             });
+        }
 
-            if(!Auth::user()->hasIncompleteImport()){
-                $this->finalizeImportLog();
-            }
+        if (!Auth::user()->hasIncompleteImport(false)) {
+            $this->finalizeImport();
         }
 
         return JsonResource::make(['count' => $updateCounter], 200);
@@ -211,6 +215,7 @@ class SchoolClassesController extends Controller
         if (is_array($request->get('class'))) {
             collect($request->get('class'))->each(function ($value, $schoolClassId) use (&$updateCounter) {
                 $schoolClass = SchoolClass::where('id', $schoolClassId)
+                    ->withoutGlobalScope('visibleOnly')
                     ->where('is_main_school_class', 0)
                     ->where('school_location_id', Auth::user()->school_location_id)
                     ->first();
@@ -223,18 +228,19 @@ class SchoolClassesController extends Controller
                 $updateCounter++;
             });
 
-            if(!Auth::user()->hasIncompleteImport()){
-                $this->finalizeImportLog();
-            }
+        }
+        if (!Auth::user()->hasIncompleteImport(false)) {
+            $this->finalizeImport();
         }
         return JsonResource::make(['count' => $updateCounter], 200);
     }
 
-    protected function finalizeImportLog()
+    protected function finalizeImport()
     {
-        SchoolClassImportLog::where('checked_by_teacher_id',Auth::id())->update([
-           'finalized' => Carbon::now()
+        SchoolClassImportLog::where('checked_by_teacher_id', Auth::id())->update([
+            'finalized' => Carbon::now()
         ]);
+        $this->setClassesVisible();
     }
 
     /**
