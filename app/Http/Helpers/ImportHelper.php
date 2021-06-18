@@ -1199,12 +1199,16 @@ $user = null;
                     self::DUMMY_SECTION_NAME);
             }
 
-            $subject = Subject::firstOrCreate([
+            $subject = Subject::withTrashed()->firstOrCreate([
                 'section_id'      => $magisterSection->section->getKey(),
                 'base_subject_id' => BaseSubject::where('name', DemoHelper::SUBJECTNAME)->first()->getKey(),
                 'abbreviation'    => 'IMP',
                 'name'            => self::DUMMY_SECTION_NAME,
             ]);
+
+            if($subject && !$subject->trashed()){
+                $subject->delete();
+            }
 
             return $subject->getKey();
         }
