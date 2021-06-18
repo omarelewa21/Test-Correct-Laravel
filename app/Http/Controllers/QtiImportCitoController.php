@@ -55,6 +55,7 @@ class QtiImportCitoController extends Controller
      */
     public function data(QtiImportCitoDataRequest $request)
     {
+        
         $teachers = (new Teacher())->getUserObjectsForDistinctTeachers();
 
         return response()->json([
