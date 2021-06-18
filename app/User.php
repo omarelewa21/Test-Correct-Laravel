@@ -2002,6 +2002,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->withoutGlobalScope('visibleOnly')
+                ->where('school_classes.visible',0)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->whereIn('school_classes.id', function ($query) {
                     $query->select('class_id')
@@ -2023,11 +2024,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if ($this->isA('school manager')) {
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')->withoutGlobalScope('visibleOnly')
+                ->where('school_classes.visible',0)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
                 ->where(function ($query) {
-                    $query->whereNull('school_class_import_logs.checked_by_admin')
-                        ->whereNotNull('school_class_import_logs.id');
+                    $query->where(function ($q) {
+                        $q->whereNull('school_class_import_logs.checked_by_admin')
+                            ->whereNull('school_class_import_logs.checked_by_teacher')
+                            ->whereNotNull('school_class_import_logs.id');
+                    });
+                    $query->orWhereNull('school_class_import_logs.id');
                 })->value('cnt');
             return $classRecords > 0;
         }
