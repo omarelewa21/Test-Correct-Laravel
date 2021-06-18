@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Carbon\Carbon;
 use Composer\Package\Package;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -59,6 +60,7 @@ class SchoolClassesController extends Controller
                         education_level_year,
                         name,
                         is_main_school_class,
+                        log.finalized as finalized,
                         log.checked_by_teacher as checked_by_teacher,
                         log.checked_by_teacher_id as checked_by_teacher_id,
                         log.checked_by_admin as checked_by_admin'
@@ -194,6 +196,10 @@ class SchoolClassesController extends Controller
 
                 $updateCounter++;
             });
+
+            if(!Auth::user()->hasIncompleteImport()){
+                $this->finalizeImportLog();
+            }
         }
 
         return JsonResource::make(['count' => $updateCounter], 200);
@@ -216,8 +222,19 @@ class SchoolClassesController extends Controller
 
                 $updateCounter++;
             });
+
+            if(!Auth::user()->hasIncompleteImport()){
+                $this->finalizeImportLog();
+            }
         }
         return JsonResource::make(['count' => $updateCounter], 200);
+    }
+
+    protected function finalizeImportLog()
+    {
+        SchoolClassImportLog::where('checked_by_teacher_id',Auth::id())->update([
+           'finalized' => Carbon::now()
+        ]);
     }
 
     /**
