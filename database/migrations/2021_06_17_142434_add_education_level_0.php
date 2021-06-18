@@ -16,12 +16,12 @@ class AddEducationLevel0 extends Migration
     public function up()
     {
         $el = EducationLevel::create([
-           'deleted_at' => Carbon::now(),
             'name' => 'uwlr_education_level',
             'max_years' => 8
         ]);
         $el->id = 0;
         $el->save();
+        $el->delete();
     }
 
     /**
