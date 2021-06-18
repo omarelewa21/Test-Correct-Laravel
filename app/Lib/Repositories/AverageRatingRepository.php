@@ -91,7 +91,7 @@ class AverageRatingRepository {
         }
 
         $subjectIds = array_unique($subjectIds);
-        $subjects = Subject::whereIn('id', $subjectIds)->get()->keyBy('id');
+        $subjects = Subject::withTrashed()->whereIn('id', $subjectIds)->get()->keyBy('id');
         foreach($schoolClasses as $schoolClass) {
             $subjectIds = array();
 
@@ -366,9 +366,14 @@ class AverageRatingRepository {
             return;
         }
 
-        $students->load(['averageRatings' => function ($query) use ($schoolClasses) {
-            $query->where('school_class_id', array_keys($schoolClasses));
-        }, 'averageRatings.subject']);
+        $students->load([
+            'averageRatings' => function ($query) use ($schoolClasses) {
+                $query->where('school_class_id', array_keys($schoolClasses));
+            },
+            'averageRatings.subject'       => function ($query) {
+                $query->withTrashed();
+            }
+        ]);
 
         $schoolClasses = static::getCountAndAveragesForSchoolClasses($schoolClasses);
 

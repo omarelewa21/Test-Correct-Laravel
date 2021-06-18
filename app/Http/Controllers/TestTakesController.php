@@ -3,6 +3,7 @@
 namespace tcCore\Http\Controllers;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,6 +21,7 @@ use tcCore\Lib\Question\QuestionGatherer;
 use tcCore\Question;
 use tcCore\SchoolClass;
 use tcCore\Shortcode;
+use tcCore\Subject;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestTake;
@@ -38,7 +40,18 @@ class TestTakesController extends Controller {
      * @return Response
      */
     public function index(Request $request) {
-        $testTakes = TestTake::filtered($request->get('filter', []), $request->get('order', []))->with('test', 'test.subject', 'test.author', 'retakeTestTake', 'user', 'testTakeStatus', 'invigilatorUsers');
+        $testTakes = TestTake::filtered($request->get('filter', []), $request->get('order', []))
+            ->with([
+                'test',
+                'test.subject' => function ($query) {
+                    $query->withTrashed();
+                },
+                'test.author',
+                'retakeTestTake',
+                'user',
+                'testTakeStatus',
+                'invigilatorUsers'
+            ]);
 
         $testTakes->filterByArchived(request('filter'));
 
@@ -166,7 +179,18 @@ class TestTakesController extends Controller {
      * @return Response
      */
     public function show(TestTake $testTake, Request $request) {
-        $testTake->load('test', 'test.subject', 'test.author', 'retakeTestTake', 'user', 'testTakeStatus', 'invigilatorUsers', 'testParticipants');
+        $testTake->load([
+            'test',
+            'test.subject' => function ($query) {
+                $query->withTrashed();
+            },
+            'test.author',
+            'retakeTestTake',
+            'user',
+            'testTakeStatus',
+            'invigilatorUsers',
+            'testParticipants'
+        ]);
 
         $isInvigilator = false;
         $roles = $this->getUserRoles();
