@@ -101,8 +101,8 @@ class DrawingQuestion extends Question implements QuestionInterface {
      */
     public function fill(array $attributes)
     {
-        parent::fill($attributes);
 
+        parent::fill($attributes);
         if (is_array($attributes) && array_key_exists('bg', $attributes) && $attributes['bg'] instanceof UploadedFile) {
             $this->fillFileBg($attributes['bg']);
         }
@@ -122,6 +122,15 @@ class DrawingQuestion extends Question implements QuestionInterface {
     }
 
     public function isDirtyFile() {
+        if(!file_exists($this->file->getPath())&&!file_exists($this->getOriginalBgPath())){
+            return false;
+        }
+        if(file_exists($this->file->getPath())&&!file_exists($this->getOriginalBgPath())){
+            return false;
+        }
+        if(!file_exists($this->file->getPath())&&file_exists($this->getOriginalBgPath())){
+            return false;
+        }
         if ($this->file instanceof UploadedFile) {
             return $this->fileDiff($this->file->getPath(), $this->getOriginalBgPath());
         } else {

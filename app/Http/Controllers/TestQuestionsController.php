@@ -206,7 +206,6 @@ class TestQuestionsController extends Controller {
 
     public function update(TestQuestion $testQuestion,  UpdateTestQuestionRequest $request)
     {
-
         $question = $testQuestion->question;
         DB::beginTransaction();
         try {
