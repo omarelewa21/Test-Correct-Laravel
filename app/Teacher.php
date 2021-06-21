@@ -162,6 +162,9 @@ class Teacher extends BaseModel {
             ->whereNotNull('users.school_location_id')
             ->orderBy('users.name_first', 'asc')
             ->get()
+            ->filter(function ($user) {
+                return $user->schoolLocation;
+            })
             ->map(function ($user) {
                 return (object)[
                     'id'                 => $user->id,
