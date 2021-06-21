@@ -292,7 +292,7 @@ class ReportHelper
         if ($days > 0) {
             $end_date = Carbon::now()->format($format);
             $start_date = Carbon::now()->startOfDay()->subDays((int)$days)->format($format);
-            $builder->where($column,'<=',$end_date)->where($column,'>=',$start_date); // used to be between, but then we miss the day itself
+            $builder->whereBetween($column, [$start_date, $end_date]);
         }
     }
 
@@ -301,7 +301,7 @@ class ReportHelper
         if ($this->hasCurrentPeriod()) {
             $end_date = Carbon::createFromFormat('Y-m-d', $this->period->end_date)->format($format);
             $start_date = Carbon::createFromFormat('Y-m-d', $this->period->start_date)->format($format);
-            $builder->where($column,'<',$end_date)->where($column,'>=',$start_date); // used to be between, but then we miss the day itself, end date is not equal as we say it is the end date itself
+            $builder->whereBetween($column, [$start_date, $end_date]);
         }
     }
 
