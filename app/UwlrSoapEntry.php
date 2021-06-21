@@ -24,7 +24,7 @@ class UwlrSoapEntry extends Model
 
             User::whereSchoolLocationId($schoolLocation->getKey())->each(function($user) {
                 $user->eckidFromRelation()->forceDelete();
-                if(!$user->is('school manager')) {
+                if(!$user->isA('school manager')) {
                     $user->forceDelete();
                 }
             });
