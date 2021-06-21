@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Jobs\PValues\UpdatePValueSchoolClass;
 use tcCore\Jobs\Rating\UpdateRatingsSchoolClass;
 use tcCore\Lib\Models\AccessCheckable;
@@ -116,10 +117,12 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     public static function boot()
     {
         parent::boot();
-
-        static::addGlobalScope('visibleOnly', function (Builder $builder) {
-            $builder->where('visible', 1);
-        });
+// column for scope is not available before 19-6-2021 this is for now solved by not adding the scope for running migrations;
+        if (! BaseHelper::isRunningTestRefreshDb()) {
+            static::addGlobalScope('visibleOnly', function (Builder $builder) {
+                $builder->where('visible', 1);
+            });
+        }
 
         self::creating(function(SchoolClass $schoolClass){
             self::setDoNotOverwriteFromInterfaceOnDemoClass($schoolClass);

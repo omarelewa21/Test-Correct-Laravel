@@ -15,7 +15,8 @@ class FixAmpInSubjectsAndClassnames extends Migration
      */
     public function up()
     {
-        SchoolClass::where('name','like','%&%')->where('name','not like','%&amp;%')->get()->each(function(SchoolClass $sc){
+
+        SchoolClass::withoutGlobalScope('visibleOnly')->where('name','like','%&%')->where('name','not like','%&amp;%')->get()->each(function(SchoolClass $sc){
             $name = str_replace('&','&amp;',$sc->name);
 //            Request::filter($name);
             $sc->name = $name;

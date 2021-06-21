@@ -2098,6 +2098,23 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $temporaryLogin->createCakeUrl();
     }
 
+    public function inSchoolLocationAsUser(User $user) {
+        if (!$this->schoolLocation || ! $user->schoolLocation) {
+            return false;
+        }
 
+        if ($this->schoolLocation->is($user->schoolLocation)) {
+            return true;
+        }
 
+        if ($this->isAllowedToSwitchToSchoolLocation($user->schoolLocation)) {
+            return true;
+        }
+
+        if ($user->isAllowedToSwitchToSchoolLocation($user->schoolLocation)) {
+            return true;
+        }
+
+        return false;
+    }
 }

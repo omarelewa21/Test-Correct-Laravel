@@ -1,3 +1,24 @@
+<?php
+ $struct = [
+    'school'              => [
+        'dependancecode', 'brincode', 'schooljaar',  'xsdversie' ,
+    ],
+    'groep'               => [
+        'key', 'naam',  'mutatiedatum',
+    ],
+    'samengestelde_groep' => [
+        'key', 'naam',
+    ],
+    'leerling'            => [
+        'eckid', 'key', 'achternaam', 'roepnaam', 'geboortedatum',  'groep',
+        'samengestelde_groepen',
+    ],
+    'leerkracht'          => [
+        'key', 'roepnaam', 'emailadres',  'groepen', 'achternaam', 'samengestelde_groepen',
+    ],
+];
+ ?>
+
 <div class="mt-10 flex-1 p-8">
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
@@ -108,12 +129,15 @@
                         @endif
                     </nav>
                     <div class="mt-8 mb-8" x-data="clipboard()">
-                        <button wire:key="copy-{{ $this->modalActiveTab }}"  x-on:click="copytable($event, 'table-{{ $this->modalActiveTab }}')">Copy to clipboard</button>
+                        <button wire:key="copy-{{ $this->modalActiveTab }}"
+                                x-on:click="copytable($event, 'table-{{ $this->modalActiveTab }}')">Copy to clipboard
+                        </button>
                         <x-table id="table-{{ $this->modalActiveTab }}">
                             <x-slot name="head">
                                 @foreach($this->modalActiveTabHtml as $object)
                                     @if($loop->first)
-                                        @foreach($object as $prop => $value)
+                                        @foreach($struct[$this->modalActiveTab] as $prop)
+{{--                                        @foreach($object as $prop => $value)--}}
                                             <x-table.heading>
                                                 {{ $prop }}
                                             </x-table.heading>
@@ -124,17 +148,19 @@
                             <x-slot name="body">
                                 @foreach($this->modalActiveTabHtml as $object)
                                     <x-table.row>
-                                        @foreach($object as $value)
-                                            @if( is_array($value))
-                                                <x-table.cell>{!! collect($value).join([',']) !!}</x-table.cell>
+                                        @foreach($struct[$this->modalActiveTab] as $prop)
+                                            @if (!array_key_exists($prop, $object))
+                                                <x-table.cell>&nbsp;</x-table.cell>
+                                            @elseif( is_array($object[$prop]))
+                                                <x-table.cell>{!! collect($object[$prop]).join([',']) !!}</x-table.cell>
                                             @else
-                                                <x-table.cell>{!! $value !!}</x-table.cell>
+                                                <x-table.cell>{!! $object[$prop] !!}</x-table.cell>
                                             @endif
                                         @endforeach
                                     </x-table.row>
                                 @endforeach
                             </x-slot>
-                            </x-table>
+                        </x-table>
                     </div>
                 </div>
             </div>

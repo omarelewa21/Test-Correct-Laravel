@@ -56,7 +56,7 @@ class SomTodayHelper
                 ->wsdl(self::WSDL)
                 ->trace(true)
                 ->header('http://www.edustandaard.nl/leerresultaten/2/autorisatie', 'autorisatie', [
-                    'autorisatiesleutel' => 'D2vB1aAS+MVcRkXJDMv2OfObjXphiykcR1Hg+nl/VpB6nR1uiTJfHSDkRuNZkfWElhLfw1gmP/HYsOrVqY6Mhg==',
+                    'autorisatiesleutel' => 'uuq21LVDJhvRHBOGwyvhFqrTaxkrhZVlEEmOuJNhRUdrlpIJvI+ISGkjS2PNQijqEaeqKTqCrl7s2GBOAtLkew==',
                     'klantcode'          => $klantcode,
                     'klantnaam'          => $klantnaam,
                 ]);
@@ -127,7 +127,7 @@ class SomTodayHelper
                UwlrSoapEntry::create([
                    'uwlr_soap_result_id' => $this->resultIdentifier,
                    'key' => $prop,
-                   'object' => serialize((array) $obj),
+                   'object' => serialize( $obj),
                ]);
            });
        });
@@ -139,7 +139,7 @@ class SomTodayHelper
             UwlrSoapEntry::create([
                 'uwlr_soap_result_id' => $this->resultIdentifier,
                 'key' => 'leerling',
-                'object' => serialize((array) $obj),
+                'object' => serialize( $obj),
             ]);
         });
 
@@ -151,7 +151,7 @@ class SomTodayHelper
             UwlrSoapEntry::create([
                 'uwlr_soap_result_id' => $this->resultIdentifier,
                 'key' => 'leerkracht',
-                'object' => serialize((array) $obj),
+                'object' => serialize( $obj),
             ]);
         });
     }

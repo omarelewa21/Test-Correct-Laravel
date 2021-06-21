@@ -15,7 +15,7 @@ class UwlrSoapEntry extends Model
 
     public static function deleteImportData()
     {
-        SchoolLocation::where('name','Magister Testservice')->orWhere('name','somtoday testservice')->get()->each(function(SchoolLocation $schoolLocation){
+        SchoolLocation::where('name','Magister Schoollocatie')->orWhere('name','somtoday Schoollocatie')->get()->each(function(SchoolLocation $schoolLocation){
             SchoolClass::whereSchoolLocationId($schoolLocation->getKey())->each(function ($schoolClass) {
                 $schoolClass->teacher()->forceDelete();
                 $schoolClass->students()->forceDelete();
@@ -24,7 +24,9 @@ class UwlrSoapEntry extends Model
 
             User::whereSchoolLocationId($schoolLocation->getKey())->each(function($user) {
                 $user->eckidFromRelation()->forceDelete();
-                $user->forceDelete();
+                if(!$user->is('school manager')) {
+                    $user->forceDelete();
+                }
             });
         });
 

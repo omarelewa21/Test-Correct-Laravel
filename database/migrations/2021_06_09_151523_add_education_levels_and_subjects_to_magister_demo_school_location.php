@@ -29,7 +29,7 @@ class AddEducationLevelsAndSubjectsToMagisterDemoSchoolLocation extends Migratio
                 );
             }
 
-            $magisterSection = tcCore\Section::firstwhere(['name' => 'Magister sectie']);
+            $magisterSection = tcCore\Section::firstwhere(['name' => \tcCore\Http\Helpers\ImportHelper::DUMMY_SECTION_NAME]);
             $baseSubjects = \tcCore\BaseSubject::where('id', '<', 5)->get();
 
             foreach ($baseSubjects as $baseSubject) {
