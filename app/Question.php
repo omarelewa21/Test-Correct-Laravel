@@ -1021,9 +1021,13 @@ class Question extends MtiBaseModel {
         return $returnArray;
     }
 
-    private function trimAnswerOptions($answers){
+    protected function trimAnswerOptions($answers){
         $returnArray = [];
         foreach ($answers as $key => $answer) {
+            if(!array_key_exists('answer',$answer)){
+                $returnArray[] = $answer;
+                continue;
+            }
             if($answer['answer']==''){
                 continue;
             }
