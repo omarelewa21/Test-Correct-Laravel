@@ -420,6 +420,9 @@ class Question extends MtiBaseModel {
     }
 
     public function isDirtyAnswerOptions($totalData){
+        if(!array_key_exists('answers',$totalData)){
+            return false;
+        }
         switch($this->type){
             case 'MatchingQuestion':
                 $requestAnswers = $this->convertMatchingAnswers($totalData['answers']);
@@ -1196,11 +1199,15 @@ class Question extends MtiBaseModel {
 
     public function handleAnswersAfterOwnerModelUpdate($ownerModel,$request){
         $baseModel = $this->getQuestionInstance();
-        if(self::usesDeleteAndAddAnswersMethods($baseModel->type)){
-            $this->deleteAnswers($this);
-            $totalData = $this->getTotalDataForTestQuestionUpdate($request);
-            $this->addAnswers($ownerModel,$totalData['answers']);
+        if(!self::usesDeleteAndAddAnswersMethods($baseModel->type)){
+            return;
         }
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        if(!array_key_exists('answers',$totalData)){
+            return;
+        }
+        $this->deleteAnswers($this);
+        $this->addAnswers($ownerModel,$totalData['answers']);
     }
 
     protected function handleDuplication($request)

@@ -229,6 +229,109 @@ class TestQuestionsController extends Controller {
         return Response::make($testQuestion, 200);
     }
 
+//    public function updateFromWithin(TestQuestion $testQuestion,  Request $request)
+//    {
+//        $question = $testQuestion->question;
+//        DB::beginTransaction();
+//        try {
+//            $qHelper = new QuestionHelper();
+//            $questionData = [];
+//            $completionAnswerDirty = false;
+////            if($question->getQuestionInstance()->type == 'CompletionQuestion') {
+////                $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+////                $currentAnswers = $question->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
+////                $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
+////                $completionAnswerDirty = ( ($currentAnswers !== $futureAnswers));
+////            }
+//
+//            $totalData = array_merge($request->all(),$questionData);
+//
+//            $question->fill($totalData);
+//
+//            $questionInstance = $question->getQuestionInstance();
+//            $testQuestion->fill($request->all());
+//
+//            if (!$completionAnswerDirty
+//                && !$question->isDirty()
+//                && $questionInstance->isDirty()
+//                && !$questionInstance->isDirtyAttainments()
+//                && !$questionInstance->isDirtyTags()
+//                && ! ($question instanceof DrawingQuestion && $question->isDirtyFile())
+//                && (array_key_exists('add_to_database', $questionInstance->getDirty()) && count($questionInstance->getDirty()) === 1)
+//            ) {
+//                if (!$questionInstance->save()) {
+//                    throw new QuestionException('Failed to save question');
+//                }
+//            } elseif ($completionAnswerDirty
+//                || $question->isDirty()
+//                || $questionInstance->isDirty()
+//                || $questionInstance->isDirtyAttainments()
+//                || $questionInstance->isDirtyTags()
+//                || $questionInstance->isDirtyAnswerOptions($totalData)
+//                || ($question instanceof DrawingQuestion && $question->isDirtyFile()))
+//            {
+//                if ($question->isUsed($testQuestion)) {
+//                    $question = $question->duplicate(array_merge($request->all(),$questionData));
+//                    if ($question === false) {
+//                        throw new QuestionException('Failed to duplicate question');
+//                    }
+//                    $testQuestion->setAttribute('question_id', $question->getKey());
+//                } elseif (!$questionInstance->save() || !$question->save()) {
+//                    throw new QuestionException('Failed to save question');
+//                }
+//                if (!QuestionAuthor::addAuthorToQuestion($question)) {
+//                    throw new QuestionException('Failed to attach author to question');
+//                }
+//            }
+//
+//            if ($testQuestion->save()) {
+//                if(Question::usesDeleteAndAddAnswersMethods($questionInstance->type)&&array_key_exists('answers',$totalData)){
+//                    $question->deleteAnswers($question);
+//                    $question->addAnswers($testQuestion,$totalData['answers']);
+//                }
+//            } else {
+//                throw new QuestionException('Failed to update test question');
+//            }
+//        }
+//        catch(QuestionException $e){
+//            DB::rollback();
+//            $e->sendExceptionMail();
+//            return Response::make($e->getMessage(),422);
+//        }
+//        DB::commit();
+//        return Response::make($testQuestion, 200);
+//    }
+
+    public function updateFromWithin(TestQuestion $testQuestion,  Request $request)
+    {
+        return $this->updateGeneric($testQuestion, $request);
+    }
+
+    protected function updateGeneric(TestQuestion $testQuestion, $request)
+    {
+        $question = $testQuestion->question;
+        DB::beginTransaction();
+        try {
+            $testQuestion->fill($request->all());
+            $question->updateWithRequest($request,$testQuestion);
+            $testQuestion->setAttribute('question_id', $question->getKeyAfterPossibleDuplicate());
+            if ($testQuestion->save()) {
+                $testQuestion->refresh();
+                $question = $testQuestion->question;
+                $question->handleAnswersAfterOwnerModelUpdate($testQuestion,$request);
+            } else {
+                throw new QuestionException('Failed to update test question');
+            }
+        }
+        catch(QuestionException $e){
+            DB::rollback();
+            $e->sendExceptionMail();
+            return Response::make($e->getMessage(),422);
+        }
+        DB::commit();
+        return Response::make($testQuestion, 200);
+    }
+
     /**
      * Remove the specified question from storage.
      *

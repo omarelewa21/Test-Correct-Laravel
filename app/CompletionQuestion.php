@@ -359,6 +359,9 @@ class CompletionQuestion extends Question implements QuestionInterface {
     public function getCompletionAnswerDirty($request)
     {
         $questionData = $this->getQuestionData($request);
+        if(!array_key_exists('answers',$questionData)){
+            return false;
+        }
         $currentAnswers = $this->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
         $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
         return ( ($currentAnswers !== $futureAnswers));
