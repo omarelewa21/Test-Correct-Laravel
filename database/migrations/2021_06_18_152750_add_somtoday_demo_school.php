@@ -49,7 +49,7 @@ class AddSomtodayDemoSchool extends Migration
             ]);
 
             $section = \tcCore\Section::create([
-                'name' => 'SOMTODAY sectie',
+                'name' => \tcCore\Http\Helpers\ImportHelper::DUMMY_SECTION_NAME,
                 'demo' => false,
             ]);
 

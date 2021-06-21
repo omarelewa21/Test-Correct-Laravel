@@ -37,6 +37,7 @@ class UwlrGrid extends Component
     {
 
         $this->activeResult = UwlrSoapResult::find($id)->asData()->toArray();
+//        dd($this->activeResult);
         $this->currentResultId = $id;
 
         $this->showImportModal = true;

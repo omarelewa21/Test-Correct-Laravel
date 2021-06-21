@@ -123,7 +123,7 @@ class ImportHelper
 
     public $can_use_dummy_subject = false;
 
-    const DUMMY_SECTION_NAME = 'Magister sectie';
+    const DUMMY_SECTION_NAME = 'lvs import sectie';
 
     public $make_school_classes_visible = true;
 

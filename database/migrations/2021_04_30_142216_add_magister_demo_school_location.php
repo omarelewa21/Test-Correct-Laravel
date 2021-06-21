@@ -16,6 +16,10 @@ class AddMagisterDemoSchoolLocation extends Migration
      */
     public function up()
     {
+        User::withoutGlobalScopes([
+
+        ])->get();
+
         if (\tcCore\Http\Helpers\BaseHelper::notProduction()) {
 
             $location = \tcCore\SchoolLocation::create([
@@ -47,7 +51,7 @@ class AddMagisterDemoSchoolLocation extends Migration
             ]);
 
             $section = \tcCore\Section::create([
-                'name' => 'Magister sectie',
+                'name' => \tcCore\Http\Helpers\ImportHelper::DUMMY_SECTION_NAME,
                 'demo' => false,
             ]);
 
@@ -108,7 +112,7 @@ class AddMagisterDemoSchoolLocation extends Migration
         if ($schoolLocation) {
             $slSection = tcCore\SchoolLocationSection::where('school_location_id', $schoolLocation->getKey())->first();
             if ($slSection) {
-                optional(\tcCore\Section::where('name', 'Magister sectie')->where('id', $slSection->section_id))->forceDelete();
+                optional(\tcCore\Section::where('name', \tcCore\Http\Helpers\ImportHelper::DUMMY_SECTION_NAME)->where('id', $slSection->section_id))->forceDelete();
                 $slSection->forceDelete();
             }
             $schoolLocation->forceDelete();
