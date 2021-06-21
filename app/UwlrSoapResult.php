@@ -88,6 +88,7 @@ class UwlrSoapResult extends Model
             'docEmail',
             'docEckid',
             'IsMentor',
+            'isNullTeacher',
         ];
 
         $students->each(function ($leerling) use ($school, $repo) {
@@ -140,7 +141,7 @@ class UwlrSoapResult extends Model
         $school,
         $leerling,
         $klasNaam,
-        $leerkracht,
+        $leerkracht = null,// a null record for teacher is a (temporary) measure because uwlr of somToday does not contain groep info.
         $isMentorGroep = 1,
         $studierichting = 'uwlr_education_level'
     ): void {
@@ -165,12 +166,13 @@ class UwlrSoapResult extends Model
             $klasNaam,//lesNaam,
             '', //vakNaam,
 //            $leerkracht['key'],//docStamNummer,
-            array_key_exists('achternaam', $leerkracht) ? $leerkracht['achternaam'] : '', //docAchternaam,
-            array_key_exists('tussenvoegsel', $leerkracht) ? $leerkracht['tussenvoegsel'] : '',//docTussenvoegsels,
-            array_key_exists('roepnaam', $leerkracht) ? $leerkracht['roepnaam'] : '', //docVoornaam,
-            array_key_exists('email', $leerkracht) ? $leerkracht['email'] : '', //docEmail,
-            array_key_exists('eckid', $leerkracht) ? $leerkracht['eckid'] : '',
+            is_null($leerkracht)? '' : array_key_exists('achternaam', $leerkracht) ? $leerkracht['achternaam'] : '', //docAchternaam,
+            is_null($leerkracht)? '' :array_key_exists('tussenvoegsel', $leerkracht) ? $leerkracht['tussenvoegsel'] : '',//docTussenvoegsels,
+            is_null($leerkracht)? '' :array_key_exists('roepnaam', $leerkracht) ? $leerkracht['roepnaam'] : '', //docVoornaam,
+            is_null($leerkracht)? '' :array_key_exists('email', $leerkracht) ? $leerkracht['email'] : '', //docEmail,
+            is_null($leerkracht)? '' :array_key_exists('eckid', $leerkracht) ? $leerkracht['eckid'] : '',
             $isMentorGroep,//IsMentor
+            is_null($leerkracht)? 1: 0, // isNullTeacher
         ];
     }
 
@@ -198,10 +200,12 @@ class UwlrSoapResult extends Model
             });
 
             if (!$leerkracht) {
+                $leerkracht = null;
                 $this->errors[] = sprintf('kan geen leerkracht vinden voor klas %s', $klas['naam']);
-            } else {
-                $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
             }
+
+            $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
+
         });
     }
 
@@ -284,9 +288,7 @@ class UwlrSoapResult extends Model
             $groep = (array) $groep;
             return $groepKey === $groep['key'];
         });
-        if (empty($klas)) {
-            dd($groepKey);
-        }
+
 
         $leerling = (array) $repo->get('leerling')->first(function ($l) use ($groepKey) {
             $l = (array) $l;
@@ -295,7 +297,7 @@ class UwlrSoapResult extends Model
         if ($leerling) {
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
         } else {
-            $this->errors[] = sprintf('kan geen leerkracht niet vinden voor klas %s', $klas['naam']);
+            $this->errors[] = sprintf('kan geen leerling niet vinden voor klas %s', $klas['naam']);
         }
     }
 
