@@ -36,7 +36,7 @@ class CompletionQuestion extends Component
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input wire:model="answer.%d" class="form-input mb-2 disabled truncate" type="text" id="%s" style="width: 100px" disabled/>',
+                '<input wire:model="answer.%d" class="form-input mb-2 disabled truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 100px" disabled/>',
                 $tag_id,
                 'answer_' . $tag_id
             );
@@ -79,7 +79,7 @@ class CompletionQuestion extends Component
 
                 $answers = $random;
 
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base disabled" disabled>%s</select>', $matches[1],
+                return sprintf('<select wire:model="answer.%s" class="form-input text-base disabled max-w-full overflow-ellipsis" disabled>%s</select>', $matches[1],
                     $this->getOptions($answers));
 
 //                return $this->Form->input('Answer.'.$tag_id ,['id' => 'answer_' . $tag_id, 'class' => 'multi_selection_answer', 'onchange' => 'Answer.answerChanged = true', 'value' => $value, 'options' => $answers, 'label' => false, 'div' => false, 'style' => 'display:inline-block; width:150px']);
