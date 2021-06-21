@@ -187,7 +187,7 @@ class Login extends Component
         }
     }
 
-    private function couldBeEmail(string $email): bool
+    private function couldBeEmail($email): bool
     {
         return Str::of($email)->containsAll(['@', '.']);
     }
