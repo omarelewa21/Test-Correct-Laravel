@@ -4,18 +4,19 @@ namespace tcCore\Http\Livewire\Preview;
 
 use Livewire\Component;
 use tcCore\Answer;
-use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
+use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
 
 class RankingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
     public $uuid;
     public $answer;
     public $question;
+    public $testId;
     public $number;
     public $answers;
     public $answerStruct;
@@ -50,8 +51,9 @@ class RankingQuestion extends Component
         return view('livewire.preview.ranking-question');
     }
 
-    public function updateOrder()
+    public function updateOrder($value)
     {
+        $this->answerStruct = $value;
         $this->createAnswerStruct();
     }
 
@@ -64,5 +66,10 @@ class RankingQuestion extends Component
         })->toArray();
 
         $this->answerStruct = ($result);
+    }
+
+    public function hydrateAnswerStruct()
+    {
+        $this->createAnswerStruct();
     }
 }

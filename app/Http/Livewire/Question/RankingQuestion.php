@@ -9,10 +9,11 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
+use tcCore\Http\Traits\WithUpdatingHandling;
 
 class RankingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
 
     public $uuid;
     public $answer;
@@ -21,13 +22,6 @@ class RankingQuestion extends Component
     public $answers;
     public $answerStruct;
     public $answerText = [];
-
-    public function questionUpdated($uuid, $answer)
-    {
-        $this->uuid = $uuid;
-        $this->answer = $answer;
-
-    }
 
     public function mount()
     {
@@ -66,12 +60,13 @@ class RankingQuestion extends Component
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->createAnswerStruct();
-        $this->dispatchBrowserEvent('current-question-answered');
+        $this->emitTo('question.navigation','current-question-answered', $this->number);
     }
 
 
     public function render()
     {
+        $this->dispatchDragItemWidth();
         return view('livewire.question.ranking-question');
     }
 
@@ -84,5 +79,15 @@ class RankingQuestion extends Component
         })->toArray();
 
         $this->answerStruct = ($result);
+    }
+
+    public function hydrateAnswerStruct()
+    {
+        $this->createAnswerStruct();
+    }
+
+    public function dispatchDragItemWidth()
+    {
+        $this->dispatchBrowserEvent('add-width-to-drag-item');
     }
 }

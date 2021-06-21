@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
-        <div wire:ignore>{!! $question->getQuestionHtml()  !!}</div>
+        <div questionHtml wire:ignore>{!! $question->getQuestionHtml()  !!}</div>
         <div class="mt-4 space-y-2 w-1/2">
 
             @foreach( $this->shuffledKeys as $value)
@@ -19,9 +19,9 @@
                                 class="hidden"
                                 value="{{ $value }}"
                         >
-                        <div>{!! $this->answerText[$value] !!}</div>
-                        <div class="{!! ($this->answerStruct[$value] == 1) ? '' :'hidden' !!}">
-                            <x-icon.checkmark></x-icon.checkmark>
+                        <div id="mc_c_answertext_{{$value}}" wire:key="mc_c_answertext_{{$value}}">{!! $this->answerText[$value] !!}</div>
+                        <div id="mc_c_checkmark_{{$value}}" wire:key="mc_c_checkmark_{{$value}}" class="{!! ($this->answerStruct[$value] == 1) ? '' :'hidden' !!}">
+                            <x-icon.checkmark/>
                         </div>
                     </label>
                 </div>

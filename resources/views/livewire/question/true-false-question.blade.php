@@ -23,7 +23,7 @@
                     @endif
                 @endforeach
             </div>
-            <div wire:ignore>
+            <div questionHtml wire:ignore>
                 {!! $question->getQuestionHtml()  !!}
             </div>
         </div>

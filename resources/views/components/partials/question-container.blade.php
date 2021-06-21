@@ -4,12 +4,16 @@
 ])
 <div x-cloak
      x-data="{ showMe: false, progressBar: false, startTime: 0, endTime: 1, progress: 0 }"
+     x-init="$watch('showMe', () => { if(showMe) { $dispatch('visible-component', {el: $el});} })"
      x-show="showMe"
-     x-on:current-updated.window="showMe = ({{ $number }} == $event.detail.current);"
+     x-on:current-updated.window="
+        showMe = ({{ $number }} == $event.detail.current);
+        if(showMe) {$wire.updateAnswerIdForTestParticipant();}
+        "
      x-transition:enter="transition duration-200"
      x-transition:enter-start="opacity-0 delay-200"
      x-transition:enter-end="opacity-100"
-     x-on:change="$dispatch('current-question-answered')"
+     x-on:change="Livewire.emit('current-question-answered', {{ $number }})"
      x-on:refresh-question.window="
         if ($event.detail.indexOf({{ $number }}) !== -1) {
                 $wire.set('closed', true);
@@ -41,6 +45,7 @@
                     showMe ? $wire.closeQuestion({{ $number+1 }}) : $wire.closeQuestion();
                     clearInterval(timer);
                     progressBar = false;
+                    endTime = 1;
                 }
              }, 1000);
          "
@@ -79,7 +84,7 @@
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 @if($this->group)
-                    <div class="mb-5" wire:ignore>{!! $this->group->question->getQuestionHtml() !!}</div>
+                    <div class="mb-5" questionHtml wire:ignore>{!! $this->group->question->getQuestionHtml() !!}</div>
                 @endif
                 {{ $slot }}
             @else

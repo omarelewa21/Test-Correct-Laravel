@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
+use PHPUnit\Util\Exception;
 use tcCore\BaseSubject;
 use tcCore\EmailConfirmation;
 use tcCore\Http\Helpers\ActingAsHelper;
@@ -20,6 +21,7 @@ use tcCore\Http\Requests;
 use tcCore\Http\Requests\AllowOnlyAsTeacherRequest;
 use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
+use tcCore\Http\Requests\UserImportRequest;
 use tcCore\Http\Requests\UserMoveSchoolLocationRequest;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Jobs\SendWelcomeMail;
@@ -247,7 +249,19 @@ class UsersController extends Controller
      */
     public function show(User $user, Requests\ShowUserRequest $request)
     {
-        $user->load('roles', 'studentSchoolClasses', 'managerSchoolClasses', 'mentorSchoolClasses', 'teacher', 'teacher.schoolClass', 'teacher.subject', 'salesOrganization', 'school.schoolLocations', 'schoolLocation');
+        $user->load('roles',
+                            'studentSchoolClasses',
+                            'managerSchoolClasses',
+                            'mentorSchoolClasses',
+                            'ownTeachers',
+                            'ownTeachers.schoolClass',
+                            'ownTeachers.subject',
+                            'teacher.schoolClass',
+                            'teacher.subject',
+                            'salesOrganization',
+                            'school.schoolLocations',
+                            'schoolLocation'
+                    );
 
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
             AverageRatingRepository::getSubjectAveragesOfStudents(Collection::make([$user]));
@@ -303,6 +317,11 @@ class UsersController extends Controller
                 $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
             }]);
 
+        }
+
+        if($this->hasTeacherRole($user)){
+            $externalId = $this->getExternalIdForSchoolLocationOfLoggedInUser($user);
+            $user->teacher_external_id = $externalId;
         }
 
         return Response::make($user, 200);
@@ -393,7 +412,6 @@ class UsersController extends Controller
         // for safety now disabled
         // @TODO fix security issue with deletion of users (as well update/ add and such)
 //	    return Response::make($user,200);
-
         if ($user->delete()) {
             return Response::make($user, 200);
         } else {
@@ -470,5 +488,90 @@ class UsersController extends Controller
         }
 
         return new JsonResponse(['account_verified'=> '']);
+    }
+
+    public function import(UserImportRequest $request,$type)
+    {
+        $userRoles = [];
+        if($type=='teacher'){
+            $userRoles  = [1];
+        }
+        if($type=='student'){
+            $userRoles  = [3];
+        }
+        $defaultData = [
+            'user_roles'         => $userRoles,
+            'school_location_id' => auth()->user()->school_location_id,
+        ];
+
+        DB::beginTransaction();
+        try {
+            $users = collect($request->all()['data'])->map(function ($row) use ($defaultData,$type) {
+                $attributes = array_merge($row, $defaultData);
+                logger($attributes);
+
+                $user = User::where('username', $attributes['username'])->first();
+                if ($user) {
+                        if ($user->isA('teacher')&&$type=='teacher') {
+                            $this->handleExternalId($user,$attributes);
+                        }else {
+                            throw new \Exception('conflict: exists but not teacher');
+                        }
+                } else {
+                    $userFactory = new Factory(new User());
+                    $user = $userFactory->generate(
+                        array_merge(
+                            $attributes,
+                            ['account_verified' => Carbon::now()]
+                        )
+                    );
+                }
+                $user->save();
+                return $user;
+            });
+        } catch (\Exception $e) {
+            DB::rollBack();
+            logger('Failed to import teachers' . $e);
+            return Response::make('Failed to import teachers' . print_r($e->getMessage(), true), 500);
+        }
+        DB::commit();
+
+        return Response::make($users, 200);
+    }
+
+    protected function handleExternalId($user,$attributes)
+    {
+        if(!array_key_exists('external_id',$attributes)){
+            return;
+        }
+        if(!array_key_exists('school_location_id',$attributes)){
+            return;
+        }
+        $schoolLocations = $user->allowedSchoolLocations;
+        foreach ($schoolLocations as $schoolLocation){
+            if($schoolLocation->pivot->external_id == $attributes['external_id']&&$attributes['school_location_id']==$schoolLocation->id){
+                return;
+            }
+        }
+        $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+    }
+
+    protected function getExternalIdForSchoolLocationOfLoggedInUser(User $user)
+    {
+        $allowedSchoolLocation = $user->allowedSchoolLocations()->wherePivot('school_location_id',Auth::user()->school_location_id)->first();
+        if(is_null($allowedSchoolLocation)){
+            return $user->external_id;
+        }
+        return $allowedSchoolLocation->pivot->external_id;
+    }
+
+    public function hasTeacherRole($user)
+    {
+        foreach($user->roles as $role){
+            if($role->name=='Teacher'){
+                return true;
+            }
+        }
+        return false;
     }
 }

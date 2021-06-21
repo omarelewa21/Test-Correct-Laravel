@@ -4,6 +4,7 @@ use Closure;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\DemoHelper;
@@ -349,6 +350,19 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
                (new DemoHelper())->changeDemoUsersAsSchoolLocationCustomerCodeChanged($schoolLocation,$originalCustomerCode);
            }
         });
+
+        static::deleting(function(SchoolLocation $schoolLocation){
+            if(Str::lower($schoolLocation->getOriginal('customer_code')) === 'tc-tijdelijke-docentaccounts'){
+                return false;// the TC tijdelijke docentaccounts school location should not be deleted
+            }
+        });
+
+        static::updating(function(SchoolLocation $schoolLocation){
+            if(Str::lower($schoolLocation->getOriginal('customer_code')) === 'tc-tijdelijke-docentaccounts' &&
+                $schoolLocation->customer_code !== $schoolLocation->getOriginal('customer_code')){
+                return false;// the TC tijdelijke docentaccounts school location should not be changed
+            }
+        });
     }
 
     public function school() {
@@ -537,7 +551,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable {
             });
         } elseif (!in_array('Administrator', $roles)) {
             $user = ActingAsHelper::getInstance()->getUser();
-            if ($user->getAttribute('school_id') !== null && $user->getAttribute('school_location_id') !== null) {
+        if ($user->getAttribute('school_id') !== null && $user->getAttribute('school_location_id') !== null) {
                 $query->where(function ($query) use ($user) {
                     $query->where('id', $user->getAttribute('school_location_id'))
                         ->orWhere('school_id', $user->getAttribute('school_id'));

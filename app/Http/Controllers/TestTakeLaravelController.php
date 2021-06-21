@@ -4,15 +4,10 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use tcCore\Answer;
 use tcCore\GroupQuestionQuestion;
-use tcCore\OpenQuestion;
-use tcCore\Question;
-use tcCore\Scopes\RemoveUuidScope;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTake as Test;
-use tcCore\User;
 
 class TestTakeLaravelController extends Controller
 {
@@ -98,29 +93,16 @@ class TestTakeLaravelController extends Controller
 
     public static function getData($testParticipant)
     {
-//        $question = cache()->rememberForever('question', function () {
-//            Question::addGlobalScope(new RemoveUuidScope);
-//            OpenQuestion::addGlobalScope(new RemoveUuidScope);
-//
-//            $question = Question::first();
-//            return $question;
-//        });
-//        dd($question = Question::with(['questions' => function($query) {
-//            $query->select(['answer']);
-//        }])->first());
-        $cached = cache()->remember('data'.$testParticipant->getKey(), now()->addMinutes(60), function() use ($testParticipant) {
+        return cache()->remember('data'.$testParticipant->getKey(), now()->addMinutes(60), function() use ($testParticipant) {
             $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
 
-            return base64_encode($testParticipant->answers->flatMap(function ($answer) use ($visibleAttributes) {
+            return $testParticipant->answers->flatMap(function ($answer) use ($visibleAttributes) {
                 $hideAttributes = array_keys($answer->question->getAttributes());
                 $answer->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
 
                 return collect([$answer->question]);
-            }));
+            });
         });
-
-        dd(base64_decode($cached));
-        return base64_decode($cached);
     }
 
     /**

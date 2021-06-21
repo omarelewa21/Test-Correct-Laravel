@@ -9,11 +9,12 @@ use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
+use tcCore\Http\Traits\WithUpdatingHandling;
 use tcCore\Question;
 
 class MultipleSelectQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithAttachments, WithNotepad, withCloseable, WithGroups, WithUpdatingHandling;
 
     public $question;
 
@@ -41,8 +42,10 @@ class MultipleSelectQuestion extends Component
         }
 
         $this->shuffledKeys = array_keys($this->answerStruct);
-        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
-            shuffle($this->shuffledKeys);
+        if (!$this->question->isCitoQuestion()) {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+                shuffle($this->shuffledKeys);
+            }
         }
 
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {

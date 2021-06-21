@@ -54,6 +54,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
+
     protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing'];
 
     /**
@@ -72,6 +73,8 @@ class TestTake extends BaseModel
      * @var array Array with school class IDs, for saving
      */
     protected $schoolClasses;
+
+    protected $appends = ['exported_to_rtti_formated'];
 
     public static function boot()
     {
@@ -105,7 +108,16 @@ class TestTake extends BaseModel
         });
 
         static::saved(function (TestTake $testTake) {
+
             $originalTestTakeStatus = TestTakeStatus::find($testTake->getOriginal('test_take_status_id'));
+
+            // logging statuses if changed
+            if($testTake->getOriginal('test_take_status_id') != $testTake->test_take_status_id) {
+                TestTakeStatusLog::create([
+                    'test_take_id' => $testTake->getKey(),
+                    'test_take_status_id' => $testTake->test_take_status_id
+                ]);
+            }
 
             if ($testTake->invigilators !== null) {
                 $testTake->saveInvigilators();
@@ -312,7 +324,7 @@ class TestTake extends BaseModel
             }
         });
     }
-
+    
     public function test()
     {
         return $this->belongsTo('tcCore\Test');
@@ -830,5 +842,19 @@ class TestTake extends BaseModel
         )->where('groupquestion_type' ,'carousel')->count();
 
         return $countCarouselGroupsInTestTake > 0;
+    }
+
+    public function giveAbbreviatedInvigilatorNames()
+    {
+        $invigilators = $this->invigilatorUsers()->withTrashed()->get()->map(function ($invigilator) {
+            return $invigilator->getFullNameWithAbbreviatedFirstName();
+        });
+
+        return collect($invigilators);
+    }
+
+    public function getExportedToRttiFormatedAttribute()
+    {
+        return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 }

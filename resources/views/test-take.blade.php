@@ -1,6 +1,6 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5" >
-        <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"></livewire:question.navigation>
+        <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
         <div>
             @foreach($data as  $key => $testQuestion)
                 <div>
@@ -60,6 +60,13 @@
                             :answers="$answers"
                             wire:key="'q-'.$testQuestion->uuid"
                         />
+                    @elseif($testQuestion->type === 'MatrixQuestion')
+                        <livewire:question.matrix-question
+                            :question="$testQuestion"
+                            :number="++$key"
+                            :answers="$answers"
+                            wire:key="'q-'.$testQuestion->uuid"
+                        />
                     @endif
                 </div>
             @endforeach
@@ -86,7 +93,7 @@
             </div>
         </x-slot>
         <x-slot name="testTakeManager">
-            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipant="$testParticipant"/>
+            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()"/>
         </x-slot>
         <x-slot name="fraudDetection">
             <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()"/>

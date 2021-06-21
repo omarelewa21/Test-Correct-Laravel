@@ -12,16 +12,17 @@ use tcCore\TestTakeEventType;
 
 class TestTake extends Component
 {
+    const FALLBACK_EVENT_TYPE_ID = 3; //lost-focus
     public $testTakeUuid;
     public $showTurnInModal = false;
-    public $testParticipant;
+    public $testParticipantId;
     public $forceTakenAwayModal = false;
 
     /** @var int
      *  time in milliseconds a notification is shown
      */
     public $notificationTimeout = 5000;
-    protected $listeners = ['set_force_taken_away' => 'setForceTakenAway'];
+    protected $listeners = ['set-force-taken-away' => 'setForceTakenAway'];
 
     public function render()
     {
@@ -35,8 +36,7 @@ class TestTake extends Component
 
     public function TurnInTestTake()
     {
-        $testTake = \tcCore\TestTake::whereUuid($this->testTakeUuid)->first();
-        $testParticipant = TestParticipant::where('test_take_id', $testTake->id)->where('user_id', Auth::id())->first();
+        $testParticipant = TestParticipant::whereId($this->testParticipantId)->first();
 
         if (!$testParticipant->handInTestTake()) {
 //            @TODO make error handling on failed hand in
@@ -56,7 +56,7 @@ class TestTake extends Component
     {
         $eventType = $this->getEventType($event);
         $testTakeEvent = new TestTakeEvent([
-            'test_participant_id' => $this->testParticipant->getKey(),
+            'test_participant_id' => $this->testParticipantId,
             'test_take_event_type_id' => $eventType->getKey(),
         ]);
 
@@ -69,7 +69,11 @@ class TestTake extends Component
 
     private function getEventType($event)
     {
-        return TestTakeEventType::whereReason($event)->first();
+        $eventType = TestTakeEventType::whereReason($event)->first();
+        if ($eventType === null) {
+            return TestTakeEventType::find(self::FALLBACK_EVENT_TYPE_ID);
+        }
+        return $eventType;
     }
 
     public function setForceTakenAway()

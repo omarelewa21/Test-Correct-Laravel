@@ -6,18 +6,25 @@ use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use tcCore\Http\Helpers\ReportHelper;
+
+set_time_limit(300);
 
 class OnboardingWizardReport extends Model
 {
     protected $guarded = [];
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
+    ];
 
     public static function updateForUser(User $user)
     {
-        $wizardData = self::getStepsCollection($user);
+        $helper = new ReportHelper($user);
 
-        self::updateOrCreate([
-            'user_id' => $user->getKey(),
-        ], [
+        $wizardData = self::getStepsCollection($user);
+        
+        $updated_data_array = [
             'user_email'                                  => $user->username,
             'user_name_first'                             => $user->name_first,
             'user_name_suffix'                            => $user->name_suffix,
@@ -59,8 +66,54 @@ class OnboardingWizardReport extends Model
             'invited_by'                                  => self::invitedBy($user),
             'invited_users_amount'                        => self::invitedUsersAmount($user),
             'invited_users'                               => self::invitedUsers($user),
-            'account_verified'                            => $user->account_verified
-        ]);
+            'account_verified'                            => $user->account_verified,
+            'nr_approved_test_files_7'                    => $helper->nrApprovedTestFiles(7),
+            'nr_approved_test_files_30'                   => $helper->nrApprovedTestFiles(30),
+            'nr_approved_test_files_60'                   => $helper->nrApprovedTestFiles(60),
+            'nr_approved_test_files_90'                   => $helper->nrApprovedTestFiles(90),
+            'nr_approved_test_files_365'                   => $helper->nrApprovedTestFiles(365),
+            'nr_approved_test_files_total'                => $helper->nrApprovedTestFiles(0),
+            'nr_added_question_items_7'                   => $helper->nrAddedQuestionItems(7),
+            'nr_added_question_items_30'                  => $helper->nrAddedQuestionItems(30),
+            'nr_added_question_items_60'                  => $helper->nrAddedQuestionItems(60),
+            'nr_added_question_items_90'                  => $helper->nrAddedQuestionItems(90),
+            'nr_added_question_items_365'                  => $helper->nrAddedQuestionItems(365),
+            'nr_added_question_items_total'               => $helper->nrAddedQuestionItems(0),
+            'nr_approved_classes_7'                       => $helper->nrApprovedClassFiles(7),
+            'nr_approved_classes_30'                      => $helper->nrApprovedClassFiles(30),
+            'nr_approved_classes_60'                       => $helper->nrApprovedClassFiles(60),
+            'nr_approved_classes_90'                      => $helper->nrApprovedClassFiles(90),
+            'nr_approved_classes_365'                      => $helper->nrApprovedClassFiles(365),
+            'nr_approved_classes_total'                   => $helper->nrApprovedClassFiles(0),
+            'nr_tests_taken_7'                            => $helper->nrTestsTaken(7), // 3.a.1
+            'nr_tests_taken_30'                           => $helper->nrTestsTaken(30), // 3.a.1
+            'nr_tests_taken_60'                           => $helper->nrTestsTaken(60), // 3.a.1
+            'nr_tests_taken_90'                           => $helper->nrTestsTaken(90), // 3.a.1
+            'nr_tests_taken_365'                           => $helper->nrTestsTaken(365), // 3.a.1
+            'nr_test_taken_total'                         => $helper->nrTestsTaken(0), // 3.a.2
+            'nr_tests_checked_7'                          => $helper->nrTestsChecked(7), // 3.a.1
+            'nr_tests_checked_30'                         => $helper->nrTestsChecked(30), // 3.a.1
+            'nr_tests_checked_60'                         => $helper->nrTestsChecked(60), // 3.a.1
+            'nr_tests_checked_90'                         => $helper->nrTestsChecked(90), // 3.a.1
+            'nr_tests_checked_365'                         => $helper->nrTestsChecked(365), // 3.a.1
+            'nr_tests_checked_total'                      => $helper->nrTestsChecked(0), // 3.a.2
+            'nr_tests_rated_7'                            => $helper->nrTestsRated(7), // 3.a.1
+            'nr_tests_rated_30'                           => $helper->nrTestsRated(30), // 3.a.1
+            'nr_tests_rated_60'                           => $helper->nrTestsRated(60), // 3.a.1
+            'nr_tests_rated_90'                           => $helper->nrTestsRated(90), // 3.a.1
+            'nr_tests_rated_365'                           => $helper->nrTestsRated(365), // 3.a.1
+            'nr_tests_rated_total'                        => $helper->nrTestsRated(0), // 3.a.2
+            'nr_colearning_sessions_7'                    => $helper->nrColearningSessions( 7), // 3.a.1
+            'nr_colearning_sessions_30'                   => $helper->nrColearningSessions(30), // 3.a.1
+            'nr_colearning_sessions_60'                   => $helper->nrColearningSessions(60), // 3.a.1
+            'nr_colearning_sessions_90'                   => $helper->nrColearningSessions(90), // 3.a.1
+            'nr_colearning_sessions_365'                   => $helper->nrColearningSessions(365), // 3.a.1
+            'nr_colearning_sessions_total'                => $helper->nrColearningSessions(0), // 3.a.2
+        ];
+        
+        self::updateOrCreate([
+            'user_id' => $user->getKey(),
+        ], $updated_data_array);
     }
 
     public static function subStepsPercentage(User $user)
@@ -164,6 +217,7 @@ ORDER BY t2.displayorder,
 
     public static function updateForAllTeachers($shouldTruncate = true)
     {
+
         if($shouldTruncate) {
             OnboardingWizardReport::truncate();
         }
@@ -173,6 +227,7 @@ ORDER BY t2.displayorder,
             ->where('username', 'not like', '%@teachandlearncompany.com')
             ->where('username', 'not like', '%@test-correct.nl')
             ->each(function ($teacher) {
+                
                 if ($teacher->isA('teacher')) {
                     \tcCore\OnboardingWizardReport::updateForUser($teacher);
                 };
@@ -220,7 +275,6 @@ ORDER BY t2.displayorder,
             'active_step'          => $user->onboardingWizardUserState->active_step ?? 0,
         ];
     }
-    //
 
     /**
      * @param User $user

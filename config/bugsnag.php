@@ -1,5 +1,41 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
+
+if(!class_exists('AppVersionGetter')) {
+    class AppVersionGetter
+    {
+
+        public static $defaultFilters = [
+            'api_key', 'session_hash', 'main_address', 'main_city', 'main_country', 'main_postal',
+            'invoice_address', 'visit_address', 'visit_postal', 'visit_city', 'visit_country',
+            'username', 'name_first', 'name_suffix', 'abbreviation', 'password', 'wachtwoord',
+            'cakelaravelfilterkey', 'cookie', 'name', 'user'
+        ];
+
+        public static function configureAppversion()
+        {
+            $realPath = base_path();
+
+            $ar = explode(DIRECTORY_SEPARATOR,$realPath);
+            if(count($ar) === 0){
+                return "";
+            }
+            $version = end($ar);
+
+            if (!$version) {
+                return "";
+            }
+
+            return $version;
+        }
+    }
+}
+
+$appVersion = AppVersionGetter::configureAppversion();
+
+$filters = empty(env('BUGSNAG_FILTERS')) ? AppVersionGetter::$defaultFilters : array_merge(explode(',', str_replace(' ', '', env('BUGSNAG_FILTERS'))), AppVersionGetter::$defaultFilters);
+
 return [
 
     /*
@@ -13,6 +49,7 @@ return [
     | which should receive your application's uncaught exceptions.
     |
     */
+    'browser_key' => env('BUGSNAG_BROWSER_KEY',''),
 
     'api_key' => env('BUGSNAG_API_KEY', ''),
 
@@ -36,7 +73,7 @@ return [
     |
     */
 
-    'app_version' => env('BUGSNAG_APP_VERSION'),
+    'app_version' => $appVersion,
 
     /*
     |--------------------------------------------------------------------------
@@ -77,7 +114,7 @@ return [
     |
     */
 
-    'filters' => empty(env('BUGSNAG_FILTERS')) ? ['password'] : explode(',', str_replace(' ', '', env('BUGSNAG_FILTERS'))),
+    'filters' => $filters,
 
     /*
     |--------------------------------------------------------------------------
@@ -89,7 +126,7 @@ return [
     |
     */
 
-    'hostname' => env('BUGSNAG_HOSTNAME'),
+    'hostname' => php_uname('n'),
 
     /*
     |--------------------------------------------------------------------------
@@ -256,7 +293,7 @@ return [
     |
     */
 
-    'user' => env('BUGSNAG_USER', true),
+    'user' => env('BUGSNAG_USER', false),
 
     /*
     |--------------------------------------------------------------------------

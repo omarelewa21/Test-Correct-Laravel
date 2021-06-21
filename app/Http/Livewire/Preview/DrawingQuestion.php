@@ -5,16 +5,17 @@ namespace tcCore\Http\Livewire\Preview;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use tcCore\Answer;
-use tcCore\Http\Traits\WithAttachments;
+use tcCore\Http\Traits\WithPreviewAttachments;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Http\Traits\WithGroups;
+use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
 
 class DrawingQuestion extends Component
 {
-    use WithAttachments, WithNotepad, withCloseable, WithGroups;
+    use WithPreviewAttachments, WithNotepad, withCloseable, WithPreviewGroups;
 
     public $question;
+    public $testId;
 
     public $number;
 

@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use tcCore\Jobs\PValues\UpdatePValueUsers;
 use tcCore\Lib\Models\BaseModel;
@@ -8,10 +9,12 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use tcCore\Traits\UuidTrait;
 
+
 class Teacher extends BaseModel {
 
     use SoftDeletes;
     use UuidTrait;
+
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -49,6 +52,7 @@ class Teacher extends BaseModel {
     {
         parent::boot();
 
+
         static::created(function(Teacher $teacher) {
             Queue::push(new UpdatePValueUsers($teacher->getAttribute('class_id'), $teacher->getAttribute('subject_id'), $teacher->getAttribute('user_id'), null, null, null));
         });
@@ -79,6 +83,13 @@ class Teacher extends BaseModel {
     public function tests() {
         return $this->hasMany(Test::class,'author_id','user_id');
     }
+
+    public function scopeCurrentSchoolLocation($query)
+    {
+        $schoolClasses = SchoolClass::where('school_location_id',Auth::user()->school_location_id)->get()->pluck('id');
+        return $query->whereIn('class_id',$schoolClasses);
+    }
+
 
     public function scopeFiltered($query, $filters = [], $sorting = []) {
         foreach($filters as $key => $value) {
@@ -134,5 +145,8 @@ class Teacher extends BaseModel {
         }
     }
 
-
+    public function importLog()
+    {
+        return $this->hasOne(TeacherImportLog::class, 'teacher_id', 'id');
+    }
 }

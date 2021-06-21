@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
-        {!! $question->getQuestionHtml()  !!}
+        <div wire:ignore>{!! $question->getQuestionHtml()  !!}</div>
         <div class="mt-4 space-y-2 w-1/2">
             @foreach( $this->shuffledKeys as $value)
                 <div class="flex items-center mc-radio">
@@ -28,6 +28,6 @@
             @endforeach
         </div>
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
+    <x-attachment.preview-attachment-modal :attachment="$attachment" :questionId="$questionId"/>
     <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>

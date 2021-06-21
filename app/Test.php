@@ -1,10 +1,7 @@
 <?php namespace tcCore;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Jobs\CountTeacherTests;
@@ -12,15 +9,16 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
+
 
 class Test extends BaseModel
 {
 
     use SoftDeletes;
     use UuidTrait;
+
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -114,8 +112,9 @@ class Test extends BaseModel
      */
     public function author()
     {
-        return $this->belongsTo('tcCore\User');
+        return $this->belongsTo('tcCore\User')->withTrashed();
     }
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

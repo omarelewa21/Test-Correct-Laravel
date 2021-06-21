@@ -5,7 +5,7 @@
                 x-init="count = $refs.countme.value.length;"
                 class="relative"
         >
-            {!!   $question->getQuestionHtml() !!}
+            <div wire:ignore>{!!   $question->getQuestionHtml() !!}</div>
 
             <div class="flex-col relative mt-4">
                 <x-input.group for="me" label="{!! __('test_take.instruction_open_question') !!}"
@@ -41,7 +41,7 @@
         </script>
         @endpush
     </div>
-    <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
+    <x-attachment.preview-attachment-modal :attachment="$attachment" :questionId="$questionId"/>
     <x-question.notepad :showNotepad="$showNotepad" />
 </x-partials.question-container>
 

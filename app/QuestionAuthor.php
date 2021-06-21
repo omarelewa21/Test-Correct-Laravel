@@ -55,11 +55,17 @@ class QuestionAuthor extends CompositePrimaryKeyModel {
 
         static::saving(function(QuestionAuthor $questionAuthor)
         {
+            if(is_null($questionAuthor->user)){
+                return;
+            }
             Queue::push(new CountTeacherQuestions($questionAuthor->user));
         });
 
         static::deleted(function(QuestionAuthor $questionAuthor)
         {
+            if(is_null($questionAuthor->user)){
+                return;
+            }
             Queue::push(new CountTeacherQuestions($questionAuthor->user));
         });
     }

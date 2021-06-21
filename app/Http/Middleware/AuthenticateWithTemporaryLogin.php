@@ -3,9 +3,7 @@
 namespace tcCore\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 use tcCore\TemporaryLogin;
 
 class AuthenticateWithTemporaryLogin

@@ -41,7 +41,7 @@ class MultipleChoiceQuestion extends Component
     {
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-            $this->answer = 'answered';
+            $this->answer = array_keys($this->answerStruct, 1)[0];
         } else {
             $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
                 $this->answerStruct[$answers->id] = 0;
@@ -49,8 +49,10 @@ class MultipleChoiceQuestion extends Component
         }
 
         $this->shuffledKeys = array_keys($this->answerStruct);
-        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
-            shuffle($this->shuffledKeys);
+        if (!$this->question->isCitoQuestion()) {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+                shuffle($this->shuffledKeys);
+            }
         }
 
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {

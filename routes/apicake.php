@@ -43,7 +43,21 @@ Route::post('edu-ix/{ean}/{session_id}/{edu_ix_signature}', 'EduK\HomeController
 
 Route::get('temporary_login/{tlid}', ['as' => 'user.temporary_login', 'uses'=>'UsersController@temporaryLogin']);
 
+Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceController@checkForMaintenance']);
+
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
+
+    Route::get('authors',['as' => 'authors','uses' => 'AuthorsController@index']);
+    Route::get('/deployment',['uses' => 'DeploymentController@index']);
+    Route::get('/deployment/{deployment}',['uses' => 'DeploymentController@show']);
+    Route::post('/deployment',['uses' => 'DeploymentController@create']);
+    Route::put('/deployment/{deployment}',['uses' => 'DeploymentController@update']);
+
+    Route::get('/maintenance_whitelist_ip',['uses' => 'MaintenanceWhitelistIpController@index']);
+    Route::get('/maintenance_whitelist_ip/{maintenanceWhitelistIp}',['uses' => 'MaintenanceWhitelistIpController@show']);
+    Route::post('/maintenance_whitelist_ip',['uses' => 'MaintenanceWhitelistIpController@create']);
+    Route::put('/maintenance_whitelist_ip/{maintenanceWhitelistIp}',['uses' => 'MaintenanceWhitelistIpController@update']);
+    Route::delete('/maintenance_whitelist_ip/{maintenanceWhitelistIp}',['uses' => 'MaintenanceWhitelistIpController@delete']);
 
     // app_version_info
     Route::post('/app_version_info',['as' => 'app_version_info.store','uses' => 'AppVersionInfoController@store']);
@@ -189,7 +203,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Needed lookups
     Route::post('/school_class/importStudents/{schoolLocation}/{schoolClass}','SchoolClassesStudentImportController@store')->name('school_classes.import');
     Route::post('/school_class/importStudentsWithClasses/{schoolLocation}','SchoolClassesStudentImportController@store')->name('school_classes.import_with_classes');
-    
+    Route::put('/school_class/update_with_education_levels_for_main_classes', 'SchoolClassesController@updateWithEducationLevelsForMainClasses')->name('school_classes.update_with_education_levels_for_main_classes');
+    Route::put('/school_class/update_with_education_levels_for_cluster_classes', 'SchoolClassesController@updateWithEducationLevelsForClusterClasses')->name('school_classes.update_with_education_levels_for_cluster_classes');
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
@@ -218,7 +233,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
     Route::get('user/is_account_verified', ['as' => 'user.is_account_verified', 'uses' => 'UsersController@isAccountVerified']);
     Route::post('user/toggle_account_verified/{user}', ['as' => 'user.toggle_account_verified', 'uses' => 'UsersController@toggleAccountVerified']);
-
+    Route::post('/user/import/{type}','UsersController@import')->name('user.import');
 
 
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
@@ -226,7 +241,12 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('/tell_a_teacher', 'TellATeacherController@store')->name('tell_a_teacher.store');
 
     Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
-	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
+
+    Route::put('/teacher/update_with_subjects_for_cluster_classes', 'TeachersController@updateWithSubjectsForClusterClasses')->name('teacher.update_with_subjects_for_cluster_classes');
+
+    Route::get('teacher/has_incomplete_import', 'TeachersController@hasIncompleteImport')->name('teacher.has_incomplete_import');
+    Route::get('account_manager/has_incomplete_import', 'TeachersController@hasIncompleteImport')->name('account_manager.has_incomplete_import');
+    Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
 
@@ -291,8 +311,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     //Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
 
-    Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
-    Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
+    Route::post('marketing_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
+    Route::get('marketing_report', 'OnboardingWizardReportController@show');
+    Route::post('school_location_report', 'SchoolLocationReportController@store')->name('school_location_report.store');
+    Route::get('school_location_report', 'SchoolLocationReportController@show');
 
     Route::post('search_filter','SearchFiltersController@store')->name('search_filter.store');
     Route::put('search_filter/{uuid}','SearchFiltersController@update')->name('search_filter.update');

@@ -46,6 +46,6 @@ class SetPasswordsForSobit extends Command
             exit;
         }
 
-        \DB::table('users')->update(['password' => '$2y$10$rbpSHEmonMYM75Ymci5R4.XOEbBQwYVG03JTlyw2yyYxBCIzJbx7a']);
+        \DB::table('users')->update(['password' => '$2y$10$09COG9gAoSoOCG/PlzQw7ePKPX6xD6EkvOvz42H1vUiFAz5zXr.Aq']);
     }
 }

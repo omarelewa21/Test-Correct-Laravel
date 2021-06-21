@@ -5,6 +5,10 @@ use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Controllers\UsersController;
+use tcCore\Rules\EmailDns;
+use tcCore\Rules\SchoolLocationUserExternalId;
+use tcCore\Rules\SchoolLocationUserExternalIdUpdate;
 use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\User;
@@ -15,7 +19,7 @@ class UpdateUserRequest extends Request {
 	 * @var User
 	 */
 	private $user;
-
+    protected $schoolLocation;
 	/**
 	 *
 	 * @param Route $route
@@ -24,7 +28,7 @@ class UpdateUserRequest extends Request {
 	{
 //	    logger($route->parameter('user'));
 //	    logger(request('user'));
-
+        $this->schoolLocation = Auth::user()->school_location_id;
 	    $this->user = $route->parameter('user');
         $authUser = Auth::user();
         if($this->user == $authUser){
@@ -58,22 +62,38 @@ class UpdateUserRequest extends Request {
 	 */
 	public function rules()
 	{
-		$this->filterInput();
+        $this->filterInput();
+        $extra_rule = [];
+        $data = request()->all();
+        if(array_key_exists('username',$data)){
+            $extra_rule['username'] = ['required','email','unique:users,username,'.$this->user->getKey().','.$this->user->getKeyName().',deleted_at,NULL',new EmailDns()];
+        }
+        $userController = new UsersController();
+        if($userController->hasTeacherRole($this->user)){
+            $extra_rule['external_id'] = new SchoolLocationUserExternalIdUpdate($this->schoolLocation,$this->user);
+        }
 
-		return [
-			'username' => 'sometimes|required|email|unique:users,username,'.$this->user->getKey().','.$this->user->getKeyName().',deleted_at,NULL',
-			'name_first' => '',
-			'name_suffix' => '',
-			'name' => '',
-			'email' => '',
-			'old_password' => 'sometimes|required|old_password:'.$this->user->getAttribute('password'),
-			'password' => '',
-			'session_hash' => '',
-			'api_key' => '',
-			'external_id' => '',
-			'gender' => '',
-			'abbreviation' => ''
-		];
+
+        $rules = collect([
+            'username' => 'sometimes,required|email|unique:users,username,'.$this->user->getKey().','.$this->user->getKeyName().',deleted_at,NULL',
+            'name_first' => '',
+            'name_suffix' => '',
+            'name' => '',
+            'email' => '',
+            'old_password' => 'sometimes|required|old_password:'.$this->user->getAttribute('password'),
+            'password' => '',
+            'session_hash' => '',
+            'api_key' => '',
+            'external_id' => '',
+            'gender' => '',
+            'abbreviation' => ''
+        ]);
+
+        $mergedRules = $rules;
+        if ($extra_rule != []) {
+            $mergedRules = $rules->merge($extra_rule);
+        }
+        return $mergedRules->toArray();
 	}
 
 	public function getValidatorInstance()
@@ -89,6 +109,7 @@ class UpdateUserRequest extends Request {
 			$schoolId = $this->user->getAttribute('school_id');
 			return ((isset($input->school_id) && !empty($input->school_id)) || (!isset($input->school_id) && !empty($schoolId)));
 		});
+
 
 		return $validator;
 	}
