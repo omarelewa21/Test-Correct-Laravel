@@ -35,7 +35,7 @@ class OnboardingWizardReport extends Model
             'user_last_login'                             => $user->last_login,
             'school_location_name'                        => ($user->schoolLocation) ? $user->schoolLocation->name : sprintf('SCHOOLLOCATIE VERWIJDERD: %s',$user->schoolLocation()->withTrashed()->first()->name),
             'school_location_customer_code'               => ($user->schoolLocation) ? $user->schoolLocation->customer_code : sprintf('SCHOOLLOCATIE VERWIJDERD: %s',$user->schoolLocation()->withTrashed()->first()->customer_code),
-            'test_items_created_amount'                   => self::getTestItemsCreatedAmount($user),
+            'test_items_created_amount'                   => $helper->nrAddedQuestionItems(0),//self::getTestItemsCreatedAmount($user),
             'tests_created_amount'                        => self::getTestsCreatedAmount($user),
             'first_test_planned_date'                     => self::getFirstTestPlannedDate($user),
             'last_test_planned_date'                      => self::getLastTestPlannedDate($user),
