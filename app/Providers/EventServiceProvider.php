@@ -37,13 +37,19 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->redirectIfBrinUnknown();
 
+//            $entreeHelper->redirectIfEntreeSettingIsOffForBrin(); //Entree is niet gekoppeld aan deze school;
+
             $entreeHelper->redirectIfScenario5();
 
             $entreeHelper->redirectIfNoUserWasFoundForEckId();
 
-            $entreeHelper->redirectIfEckIdNotKnown();
-
             $entreeHelper->redirectIfUserNotInSameSchool();
+
+            $entreeHelper->redirectIfUserNotHasSameRole();
+
+            $entreeHelper->handleScenario2IfAddressIsKnownInOtherAccount();
+
+
 
 
             $userData = [

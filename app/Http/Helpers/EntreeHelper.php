@@ -43,7 +43,8 @@ class EntreeHelper
         return $this->location;
     }
 
-    private function setLocationWithSamlAttributes(){
+    private function setLocationWithSamlAttributes()
+    {
         $brinZesCode = $this->getBrinFromAttributes();
 
         if (strlen($brinZesCode) === 6) {
@@ -66,6 +67,24 @@ class EntreeHelper
         if (array_key_exists('nlEduPersonHomeOrganizationBranchId',
                 $this->attr) && $this->attr['nlEduPersonHomeOrganizationBranchId'][0]) {
             return $this->attr['nlEduPersonHomeOrganizationBranchId'][0];
+        }
+        return null;
+    }
+
+    private function getEmailFromAttributes()
+    {
+        if (array_key_exists('mail',
+                $this->attr) && $this->attr['mail'][0]) {
+            return $this->attr['mail'][0];
+        }
+        return null;
+    }
+
+    private function getRoleFromAttributes()
+    {
+        if (array_key_exists('eduPersonAffiliation',
+                $this->attr) && $this->attr['eduPersonAffiliation'][0]) {
+            return $this->attr['eduPersonAffiliation'][0];
         }
         return null;
     }
@@ -133,47 +152,79 @@ class EntreeHelper
         if (null == $this->location) {
             $this->setLocationWithSamlAttributes();
         }
-        if(null == $this->laravelUser){
+        if (null == $this->laravelUser) {
             $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
         }
-        if ($this->location){
-            if($this->location->is($this->laravelUser->schoolLocation)){
-                return true;
-            }
+        if ($this->location && $this->location->is(optional($this->laravelUser)->schoolLocation)) {
+            return true;
         }
-        $url = route('auth.login',['tab'=> 'entree', 'message'=>'oeps']);
 
-        if (App::runningUnitTests()){
+        $url = route('auth.login', ['tab' => 'entree', 'message' => 'oeps']);
+
+        if (App::runningUnitTests()) {
             return $url;
         }
 
-        header("Location $url");
-
-
-
+        header("Location: $url");
     }
 
-//    public function redirectIfEckIdNotKnown()
-//    {
-//        $samlMessage = $this->createSamlMessage();
-//
-//
-//        if ($laravelUser) {
-//            $laravelUser->handleEntreeAttributes($attr);
-//            $url = $laravelUser->getTemporaryCakeLoginUrl();
-//            if (App::runningUnitTests()) {
-//                return $url;
-//            }
-//            header("Location: $url");
-//            exit;
-//        } else {
-//            $url = route('auth.login', ['tab' => 'entree', 'uuid' => $samlMessage->uuid]);
-//            if (App::runningUnitTests()) {
-//                return $url;
-//            }
-//            header("Location: $url");
-//            exit;
-//        }
-//    }
+    public function redirectIfUserNotHasSameRole()
+    {
+        $this->validateAttributes();
+
+        if (null == $this->laravelUser) {
+            $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+        }
+        if ($this->laravelUser->isA($this->getRoleFromAttributes())) {
+            return true;
+        }
+
+        $url = route('auth.login', ['tab' => 'entree', 'message' => 'roles do not match up']);
+        if (App::runningUnitTests()) {
+            return $url;
+        }
+        header("Location: $url");
+    }
+
+    public function handleScenario2IfAddressIsKnownInOtherAccount()
+    {
+        $this->validateAttributes();
+
+        if (null == $this->laravelUser) {
+            $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+        }
+
+        $otherUserWithEmailAddress = User::where('username', $this->getEmailFromAttributes())
+            ->where('id', '<>',$this->laravelUser->id)
+            ->first();
+        if ($otherUserWithEmailAddress) {
+            if ($this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
+                return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress);
+
+            } elseif($this->laravelUser->isA('Teacher') && $otherUserWithEmailAddress->isA('Teacher')) {
+                if($this->laravelUser->inSameKoepelAsUser($otherUserWithEmailAddress)) {
+                    return $this->handleMatchingTeachersInKoepel($otherUserWithEmailAddress);
+                }
+            }
+            $url = route('auth.login', ['tab' => 'entree', 'message'=> 'ooooops']);
+
+            if (App::runningUnitTests()) {
+                return $url;
+            }
+            header('Location: $url');
+            exit;
+        }
+
+        return false;
+    }
+
+    private function handleMatchingWithinSchoolLocation(User $user){
+        return 'handleMatchingWithinSchoolLocation';
+    }
+
+    private function handleMatchingTeachersInKoepel(User $user) {
+       return 'handleMatchingTeachersInKoepel';
+    }
+
 
 }
