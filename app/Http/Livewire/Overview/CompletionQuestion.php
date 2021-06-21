@@ -80,7 +80,7 @@ class CompletionQuestion extends Component
 
                 $answers = $random;
 
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base disabled" disabled>%s</select>', $matches[1],
+                return sprintf('<select wire:model="answer.%s" class="form-input text-base disabled max-w-full overflow-ellipsis" disabled>%s</select>', $matches[1],
                     $this->getOptions($answers));
 
 //                return $this->Form->input('Answer.'.$tag_id ,['id' => 'answer_' . $tag_id, 'class' => 'multi_selection_answer', 'onchange' => 'Answer.answerChanged = true', 'value' => $value, 'options' => $answers, 'label' => false, 'div' => false, 'style' => 'display:inline-block; width:150px']);
