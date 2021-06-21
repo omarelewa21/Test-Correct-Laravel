@@ -201,7 +201,7 @@ class ImportHelper
     public function process()
     {
 
-        $this->csv_data_lines = count($this->csv_data)-1;// first row is header
+        $this->csv_data_lines = count($this->csv_data) - 1;// first row is header
 
         // Temporary datastore
         $studentsPerClass = [];
@@ -229,7 +229,8 @@ class ImportHelper
                     $study_year_layer = $row[$column_index['lesJaarlaag']];
                     $study_year = substr($row[$column_index['Schooljaar']], 0, 4);
 
-                    $student_external_code = array_key_exists('leeStamNummer', $column_index) ? $row[$column_index['leeStamNummer']]: null;
+                    $student_external_code = array_key_exists('leeStamNummer',
+                        $column_index) ? $row[$column_index['leeStamNummer']] : null;
                     $student_name_first = $row[$column_index['leeVoornaam']];
                     $student_name_suffix = $row[$column_index['leeTussenvoegsels']];
                     $student_name_last = $row[$column_index['leeAchternaam']];
@@ -243,7 +244,8 @@ class ImportHelper
                     $class_name = $row[$column_index['lesNaam']];
                     $subject_abbreviation = $row[$column_index['vakNaam']];
 
-                    $teacher_external_code = array_key_exists('docStamNummer', $column_index)? $row[$column_index['docStamNummer']]: null;
+                    $teacher_external_code = array_key_exists('docStamNummer',
+                        $column_index) ? $row[$column_index['docStamNummer']] : null;
                     $teacher_name_first = $row[$column_index['docVoornaam']];
                     $teacher_name_suffix = $row[$column_index['docTussenvoegsels']];
                     $teacher_name_last = $row[$column_index['docAchternaam']];
@@ -255,6 +257,11 @@ class ImportHelper
                         $column_index) ? $row[$column_index['docEmail']] : null;
 
                     $teacher_is_mentor = $row[$column_index['IsMentor']];
+
+                    $isNullTeacher = 0;
+                    if (array_key_exists('isNullTeacher', $column_index)) {
+                        $isNullTeacher = $row[$column_index['isNullTeacher']];
+                    }
 
 
                     if (strlen($external_sub_code) == 1) {
@@ -273,7 +280,8 @@ class ImportHelper
                     $student_email = $this->generateEmailAddress($student_external_code, $student_eckid);
 
 ////                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
-                    $teacher_email = $this->generateEmailAddress('rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code, $teacher_eckid);
+                    $teacher_email = $this->generateEmailAddress('rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code,
+                        $teacher_eckid);
 
 
                     if (!in_array($study_year, range((now()->year - 10), (now()->year + 10)))) {
@@ -323,8 +331,10 @@ class ImportHelper
                         $study_year_layer,
                         $education_level_id
                     );
-                    $teacher_id = $this->getUserIdForTeacherInLocation($teacher_external_code, $school_location_id, $teacher_eckid);
-                    $student_id = $this->getUserIdForLocation($student_external_code, $school_location_id, $student_eckid);
+                    $teacher_id = $this->getUserIdForTeacherInLocation($teacher_external_code, $school_location_id,
+                        $teacher_eckid);
+                    $student_id = $this->getUserIdForLocation($student_external_code, $school_location_id,
+                        $student_eckid);
                     $subject_id = $this->getSubjectId($subject_abbreviation, $school_location_id, $teacher_eckid);
 
                     $this->importLog("subject id is ".$subject_id." for abbreviation ".$subject_abbreviation." and location ".$school_location_id);
@@ -358,11 +368,11 @@ class ImportHelper
                         $this->importLog('Restoring school class');
 
                         $school_class_id = $this->createOrRestoreSchoolClass([
-                            'school_location_id'              => $school_location_id,
-                            'education_level_id'              => $education_level_id,
-                            'school_year_id'                  => $school_year_id,
-                            'name'                            => $class_name,
-                            'education_level_year'            => $study_year_layer,
+                            'school_location_id'   => $school_location_id,
+                            'education_level_id'   => $education_level_id,
+                            'school_year_id'       => $school_year_id,
+                            'name'                 => $class_name,
+                            'education_level_year' => $study_year_layer,
 
                             'is_main_school_class'            => $teacher_is_mentor,
                             'do_not_overwrite_from_interface' => 0,
@@ -373,7 +383,7 @@ class ImportHelper
 
                         $this->importLog('Class '.$class_name.' with id '.$school_class_id.'  created ');
                     } else {
-                        $schoolClass = SchoolClass::find($school_class_id);
+                        $schoolClass = SchoolClass::withoutGlobalScope('visibleOnly')->find($school_class_id);
                         if ($schoolClass->is_main_school_class === 0 && $teacher_is_mentor == 1) {
                             $schoolClass->is_main_school_class = 1;
                             $schoolClass->save();
@@ -385,7 +395,8 @@ class ImportHelper
 
 
                     // rule 1 if class exists in import file and TC then set do_not_overwrite to 0 at all times
-                    SchoolClass::where('id', $school_class_id)->update(['do_not_overwrite_from_interface' => 0]);
+                    SchoolClass::withoutGlobalScope('visibleOnly')->where('id',
+                        $school_class_id)->update(['do_not_overwrite_from_interface' => 0]);
 
                     if (!isset($studentsPerClass[$school_class_id])) {
                         $studentsPerClass[$school_class_id] = [];
@@ -504,7 +515,7 @@ class ImportHelper
                             $this->importLog("Teacher already assigned with id ".$school_class_id." and subject id ".$subject_id);
                         }
                     } else {
-                        if ($this->can_create_users_for_teacher) {
+                        if ($this->can_create_users_for_teacher && $isNullTeacher != 1) {
                             $user_data = [
                                 'external_id'        => $teacher_external_code,
                                 'eckid'              => $teacher_eckid,
@@ -663,7 +674,8 @@ class ImportHelper
 
                         foreach ($allClasses as $school_location_id => $data) {
 
-                            $ids = SchoolClass::select('id')
+                            $ids = SchoolClass::withoutGlobalScope('visibleOnly')
+                                ->select('id')
                                 ->where('school_location_id', $school_location_id)
                                 ->where('do_not_overwrite_from_interface', 0)
                                 ->where('school_year_id', $data['school_year_id'])
@@ -679,7 +691,7 @@ class ImportHelper
                                 Student::where('class_id', $id['id'])->delete();
                                 Teacher::where('class_id', $id['id'])->delete();
                                 Mentor::where('school_class_id', $id['id'])->delete();
-                                SchoolClass::where('id', $id['id'])->delete();
+                                SchoolClass::withoutGlobalScope('visibleOnly')->where('id', $id['id'])->delete();
                             }
                         }
                     }
@@ -707,7 +719,7 @@ class ImportHelper
             ];
         }
 
-        if (!App::runningUnitTests()){
+        if (!App::runningUnitTests()) {
             \DB::commit();
         }
 
@@ -991,7 +1003,8 @@ class ImportHelper
 
         if ($school_year_id != null) {
 
-            return SchoolClass::where('name', $class_name)
+            return SchoolClass::withoutGlobalScope('visibleOnly')
+                ->where('name', $class_name)
                 ->where('school_location_id', $school_location_id)
                 ->where('school_year_id', $school_year_id)
                 ->where('education_level_year', $education_level_year)
@@ -1010,7 +1023,7 @@ class ImportHelper
      */
     public function createOrRestoreUser($user_data, $forRole = 'student')
     {
-$user = null;
+        $user = null;
 
         if (!empty($user_data['eckid'])) {
             $user = User::withTrashed()->findByEckid($user_data['eckid'])->first();
@@ -1120,7 +1133,8 @@ $user = null;
      */
     public function createOrRestoreSchoolClass($data)
     {
-        $schoolClass = SchoolClass::withTrashed()
+        $schoolClass = SchoolClass::withoutGlobalScope('visibleOnly')
+            ->withTrashed()
             ->where('school_location_id', $data['school_location_id'])
             ->where('education_level_id', $data['education_level_id'])
             ->where('school_year_id', $data['school_year_id'])
@@ -1129,7 +1143,7 @@ $user = null;
             ->first();
 
         // uwlr
-        if($schoolClass === null && $this->can_find_school_class_only_by_name){
+        if ($schoolClass === null && $this->can_find_school_class_only_by_name) {
             return $this->getOrCreateSchoolClassIfAllowedByName($data);
         }
 
@@ -1144,20 +1158,23 @@ $user = null;
 
     protected function getOrCreateSchoolClassIfAllowedByName($data)
     {
-        $schoolClass = SchoolClass::withTrashed()
+        $schoolClass = SchoolClass::withoutGlobalScope('visibleOnly')
+            ->withTrashed()
             ->where('school_location_id', $data['school_location_id'])
             ->where('school_year_id', $data['school_year_id'])
             ->where('name', $data['name'])
             ->first();
 
-        if($schoolClass === null){
-            $oldSchoolClass = SchoolClass::withTrashed()
+
+        if ($schoolClass === null) {
+            $oldSchoolClass = SchoolClass::withoutGlobalScope('visibleOnly')
+                ->withTrashed()
                 ->where('school_location_id', $data['school_location_id'])
                 ->where('name', $data['name'])
-                ->orderBy('created_at','desc')
+                ->orderBy('created_at', 'desc')
                 ->first();
 
-            if($oldSchoolClass){
+            if ($oldSchoolClass) {
                 $data['education_level_id'] = $oldSchoolClass->education_level_id;
                 $data['education_level_year'] = $oldSchoolClass->education_level_year;
             }
@@ -1211,7 +1228,7 @@ $user = null;
                 'name'            => self::DUMMY_SECTION_NAME,
             ]);
 
-            if($subject && !$subject->trashed()){
+            if ($subject && !$subject->trashed()) {
                 $subject->delete();
             }
 
@@ -1228,7 +1245,7 @@ $user = null;
      */
     public function getEducationLevelId($name)
     {
-        if($name === 'uwlr_education_level'){
+        if ($name === 'uwlr_education_level') {
             return 0;
         }
         return EducationLevel::where('name', $this->translateEducationLevelName($name))->value('id');

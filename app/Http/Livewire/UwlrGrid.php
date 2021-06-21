@@ -64,6 +64,7 @@ class UwlrGrid extends Component
 
     public function processResult($id)
     {
+        set_time_limit(0);
         $this->processingResultId = $id;
         $this->showProcessResultModal = true;
         $this->displayGoToErrorsButton = false;
