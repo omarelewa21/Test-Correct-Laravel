@@ -205,13 +205,6 @@ textarea {
     font-weight: normal;
 }
 
-.multiple-choice-question.active .close {
-    display: none;
-}
-.multiple-choice-question.active:hover .checkmark {
-    display: none;
-}
-
 @media (hover: hover) {
     .multiple-choice-question:hover {
         box-shadow: 0 1px 18px 0 rgba(77, 87, 143, 0.4);
@@ -222,12 +215,6 @@ textarea {
     }
     .multiple-choice-question.active:hover {
         border-color: var(--primary);
-    }
-    .multiple-choice-question.active:hover .checkmark {
-        display: none;
-    }
-    .multiple-choice-question.active:hover .close {
-        display: inline-block;
     }
 }
 
