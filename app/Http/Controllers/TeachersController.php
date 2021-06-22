@@ -210,7 +210,7 @@ class TeachersController extends Controller
         $updateCounter = 0;
         if (is_array($request->get('teacher'))) {
             collect($request->get('teacher'))->each(function ($subjectValue, $schoolClassId) use (&$updateCounter) {
-                if ($schoolClass = SchoolClass::find($schoolClassId)) {
+                if ($schoolClass = SchoolClass::withoutGlobalScope('visibleOnly')->find($schoolClassId)) {
                     if ($schoolClass->is_main_school_class == 1) {
                         $allTeacherRecordsForThisTeacherAndClass = Teacher::where([
                             'class_id' => $schoolClassId, 'user_id' => Auth::id()
@@ -243,7 +243,7 @@ class TeachersController extends Controller
         }
 
         if(!Auth::user()->hasIncompleteImport(false)){
-            $this->setClassesVisible();
+            $this->setClassesVisibleAndFinalizeImport(Auth::user());
         }
 
         return JsonResource::make(['count' => $updateCounter], 200);
