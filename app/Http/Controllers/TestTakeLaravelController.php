@@ -96,7 +96,7 @@ class TestTakeLaravelController extends Controller
         return cache()->remember('data'.$testParticipant->getKey(), now()->addMinutes(60), function() use ($testParticipant) {
             $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
 
-            return $testParticipant->answers->flatMap(function ($answer) use ($visibleAttributes) {
+            return $testParticipant->answers->load('question')->flatMap(function ($answer) use ($visibleAttributes) {
                 $hideAttributes = array_keys($answer->question->getAttributes());
                 $answer->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
 
