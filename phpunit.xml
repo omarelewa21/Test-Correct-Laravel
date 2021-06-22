@@ -28,14 +28,9 @@
             <file>./tests/Feature/CompletionQuestionTest.php</file>
             <file>./tests/Feature/AddToDatabaseTest.php</file>
             <file>./tests/Feature/ARQQuestionTest.php</file>
+            <file>./tests/Feature/TestsControllerTest.php</file>
         </testsuite>
 
-        <testsuite name="GroupTestQuestionUpdate">
-            <file>./tests/Feature/AddToDatabaseTest.php</file>
-            <file>./tests/Feature/OpenQuestionTest.php</file>
-            <file>./tests/Feature/MultipleChoiceQuestionTest.php</file>
-            <file>./tests/Feature/CompletionQuestionTest.php</file>
-        </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

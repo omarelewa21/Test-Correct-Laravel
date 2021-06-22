@@ -371,7 +371,11 @@ class CompletionQuestion extends Question implements QuestionInterface {
     {
         $qHelper = new QuestionHelper();
         if(!$this->questionData){
-            $this->questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+            $questionHtml = $request->input('question');
+            $this->questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionHtml);
+            if(empty($this->questionData['question'])){
+                return [];
+            }
         }
         return $this->questionData;
     }

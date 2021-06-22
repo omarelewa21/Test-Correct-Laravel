@@ -122,6 +122,9 @@ class DrawingQuestion extends Question implements QuestionInterface {
     }
 
     public function isDirtyFile() {
+        if(is_null($this->file)){
+            return false;
+        }
         if(!file_exists($this->file->getPath())&&!file_exists($this->getOriginalBgPath())){
             return false;
         }

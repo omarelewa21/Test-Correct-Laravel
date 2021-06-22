@@ -104,7 +104,7 @@ class GroupQuestionTest extends TestCase
         $this->setupScenario1();
         $test = Test::find($this->originalTestId);
         $test->subject_id = 6;
-        dump($test->save());
+        $test->save();
         $groupTestQuestion = TestQuestion::find($this->groupTestQuestionId);
         foreach ($groupTestQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
             $this->assertEquals(6,$groupQuestionQuestion->question->subject_id);
