@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Illuminate\Database\Eloquent\Model;
+use tcCore\Http\Helpers\SomTodayHelper;
 
 class UwlrSoapResult extends Model
 {
@@ -48,6 +49,10 @@ class UwlrSoapResult extends Model
         });
     }
 
+    private function shouldSkipGroup() {
+        return $this->source == SomTodayHelper::SOURCE;
+    }
+
     public function toCSV()
     {
         $repo = $this->asData();
@@ -91,19 +96,23 @@ class UwlrSoapResult extends Model
         ];
 
         $students->each(function ($leerling) use ($school, $repo) {
-            $this->transformGroep($leerling, $school, $repo);
+            if ($this->shouldSkipGroup()) {
+                $this->transformGroep($leerling, $school, $repo);
+            }
             $this->transformSamenGesteldeGroep($leerling, $school, $repo);
         });
 
-
-
         $teachers = $repo->get('leerkracht');
         $teachers->each(function ($leerkracht) use ($school, $repo) {
-            $this->transformGroepForTeacher($leerkracht, $school, $repo);
+            if ($this->shouldSkipGroup()) {
+                $this->transformGroepForTeacher($leerkracht, $school, $repo);
+            }
             $this->transformSamengesteldeGroepForTeacher($leerkracht, $school, $repo);
         });
-        $this->checkGroepenForWithLabel($repo, 'leerkracht');
-        $this->checkGroepenForWithLabel($repo, 'leerling');
+        if ($this->shouldSkipGroup()) {
+            $this->checkGroepenForWithLabel($repo, 'leerkracht');
+            $this->checkGroepenForWithLabel($repo, 'leerling');
+        }
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerkracht');
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerling');
 
