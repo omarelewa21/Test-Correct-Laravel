@@ -260,7 +260,6 @@ class UwlrSoapResult extends Model
                     return $teacherSamengesteldeGroepKeys->contains($groepKey);
                 }
             }
-            dd('hier');
 
             return collect($teacher['samengestelde_groepen'])->contains($groepKey);
         });
