@@ -30,7 +30,7 @@ class UwlrGrid extends Component
 
     public function mount()
     {
-        $this->resultSets = UwlrSoapResult::orderBy('created_at', 'desc')->with('entries')->get();
+        $this->resultSets = UwlrSoapResult::orderBy('created_at', 'desc')->get();
     }
 
     public function activateResult($id)
@@ -74,10 +74,13 @@ class UwlrGrid extends Component
 
     public function startProcessingResult()
     {
+
         $helper = ImportHelper::initWithUwlrSoapResult(
             UwlrSoapResult::find($this->processingResultId),
             'sobit.nl'
         );
+
+
 
         $result = $helper->process();
         if (array_key_exists('errors', $result)) {

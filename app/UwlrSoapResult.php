@@ -16,6 +16,8 @@ class UwlrSoapResult extends Model
         'source', 'client_code', 'client_name', 'school_year', 'brin_code', 'dependance_code',
     ];
 
+//    protected $with = ['entries'];
+
     private $errors = [];
 
     protected $csvArray = [];

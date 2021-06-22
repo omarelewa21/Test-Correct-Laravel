@@ -159,6 +159,8 @@ class ImportHelper
 
         $instance->csv_data = $data->toCSV();
 
+        unset($data);
+
         return $instance;
     }
 
