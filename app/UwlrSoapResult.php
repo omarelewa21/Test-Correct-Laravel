@@ -73,7 +73,7 @@ class UwlrSoapResult extends Model
             'Studierichting',
             'lesJaarlaag',
             'Schooljaar',
-//            'leeStamNummer',
+            'leeStamNummer',
             'leeAchternaam',
             'leeTussenvoegsels',
             'leeVoornaam',
@@ -81,14 +81,13 @@ class UwlrSoapResult extends Model
             'leeEckid',
             'lesNaam',
             'vakNaam',
-//            'docStamNummer',
+            'docStamNummer',
             'docAchternaam',
             'docTussenvoegsels',
             'docVoornaam',
             'docEmail',
             'docEckid',
             'IsMentor',
-            'isNullTeacher',
         ];
 
         $students->each(function ($leerling) use ($school, $repo) {
@@ -141,13 +140,12 @@ class UwlrSoapResult extends Model
         $school,
         $leerling,
         $klasNaam,
-        $leerkracht = null,// a null record for teacher is a (temporary) measure because uwlr of somToday does not contain groep info.
+        $leerkracht,
         $isMentorGroep = 1,
         $studierichting = 'uwlr_education_level'
     ): void {
         $jaargroep = $this->normalizeJaarGroep($leerling['jaargroep']);
         /** @todo jaargroep uit klas halen als die niet in de leerling zit. */
-
 
         $this->csvArray[] = [
             $school['name'], //Schoolnaam,
@@ -157,22 +155,25 @@ class UwlrSoapResult extends Model
             $jaargroep, // $klas['jaargroep'], //lesJaarlaag wordt gedefineerd als 11-16 is 1-6 vo zie code table uwlr,
 
             $school['schooljaar'], // Schooljaar,
-            // $leerling['key'], // external_id gets harvested from de entree attributes on account matching; //$leerling['key'], //leeStamNummer,
+            array_key_exists('key', $leerling) ? $leerling['key'] : '',
+            // external_id gets harvested from de entree attributes on account matching; //$leerling['key'], //leeStamNummer,
             $leerling['achternaam'], //leeAchternaam,
             array_key_exists('tussenvoegsel', $leerling) ? $leerling['tussenvoegsel'] : '', //leeTussenvoegsels,
             $leerling['roepnaam'],//leeVoornaam,
             array_key_exists('email', $leerling) ? $leerling['email'] : '', //email student,
-            array_key_exists('eckid', $leerling) ? $leerling['eckid'] : '',
+            array_key_exists('eckid', $leerling) ? $leerling['eckid'] : (array_key_exists('key',
+                $leerling) ? $leerling['key'] : ''),
             $klasNaam,//lesNaam,
             '', //vakNaam,
-//            $leerkracht['key'],//docStamNummer,
-            is_null($leerkracht)? '' : array_key_exists('achternaam', $leerkracht) ? $leerkracht['achternaam'] : '', //docAchternaam,
-            is_null($leerkracht)? '' :array_key_exists('tussenvoegsel', $leerkracht) ? $leerkracht['tussenvoegsel'] : '',//docTussenvoegsels,
-            is_null($leerkracht)? '' :array_key_exists('roepnaam', $leerkracht) ? $leerkracht['roepnaam'] : '', //docVoornaam,
-            is_null($leerkracht)? '' :array_key_exists('email', $leerkracht) ? $leerkracht['email'] : '', //docEmail,
-            is_null($leerkracht)? '' :array_key_exists('eckid', $leerkracht) ? $leerkracht['eckid'] : '',
+            array_key_exists('key', $leerkracht) ? $leerkracht['key'] : '',//docStamNummer,
+            array_key_exists('achternaam', $leerkracht) ? $leerkracht['achternaam'] : '', //docAchternaam,
+            array_key_exists('tussenvoegsel', $leerkracht) ? $leerkracht['tussenvoegsel'] : '',//docTussenvoegsels,
+            array_key_exists('roepnaam', $leerkracht) ? $leerkracht['roepnaam'] : '', //docVoornaam,
+            array_key_exists('email', $leerkracht) ? $leerkracht['email'] : '', //docEmail,
+            array_key_exists('eckid', $leerkracht) ? $leerkracht['eckid'] : (array_key_exists('key',
+                $leerkracht) ? $leerkracht['key'] : ''),
             $isMentorGroep,//IsMentor
-            is_null($leerkracht)? 1: 0, // isNullTeacher
+
         ];
     }
 
@@ -193,18 +194,16 @@ class UwlrSoapResult extends Model
                 return $groepKey === $groep['key'];
             });
 
-
             $leerkracht = (array) $repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
                 $teacher = (array) $teacher;
                 return collect($teacher['groepen'])->contains($groepKey);
             });
 
             if (!$leerkracht) {
-                $leerkracht = null;
                 $this->errors[] = sprintf('kan geen leerkracht vinden voor klas %s', $klas['naam']);
+            } else {
+                $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
             }
-
-            $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
 
         });
     }
@@ -244,8 +243,21 @@ class UwlrSoapResult extends Model
 
         $leerkracht = (array) $repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
             $teacher = (array) $teacher;
-            if (array_key_exists('samengestelde_groepen', $teacher)) {
-                return collect($teacher['samengestelde_groepen'])->contains($groepKey);
+//            dd(['teacher' => $teacher, 'groepKey' => $groepKey]);
+            if (array_key_exists('groepen', $teacher)){
+                $groepen = (array) $teacher['groepen'];
+
+                if (array_key_exists('samengestelde_groep', $groepen)) {
+                    $teacherSamengesteldeGroepKeys = collect($groepen['samengestelde_groep'])->map(function($item) {
+                        $item = (array) $item;
+                        if (array_key_exists('key', $item)) {
+                           return $item['key'];
+                        }
+                        return array_pop($item);
+                    });
+
+                    return $teacherSamengesteldeGroepKeys->contains($groepKey);
+                }
             }
 
             return collect($teacher['groepen'])->contains($groepKey);
@@ -341,8 +353,10 @@ class UwlrSoapResult extends Model
                 $school,
                 $repo
             ) {
+
                 if ($type === 'samengestelde_groep') {
                     $groepKey = $groep;
+
                     if (is_array($groepKey) || is_object($groepKey)) {
                         foreach ((array) $groepKey as $sGroep) {
                             $sGroep = (array) $sGroep;
@@ -358,14 +372,30 @@ class UwlrSoapResult extends Model
 
     private function handleSamengesteldeGroepForTeacher($repo, $school, $leerkracht, $groepKey)
     {
-         $klas = (array) $repo->get('samengestelde_groep')->first(function ($groep) use ($groepKey) {
-             $groep = (array) $groep;
+
+
+        $klas = (array) $repo->get('samengestelde_groep')->first(function ($groep) use ($groepKey) {
+            $groep = (array) $groep;
             return $groepKey === $groep['key'];
         });
 
         $leerling = (array) $repo->get('leerling')->first(function ($l) use ($groepKey) {
             $l = (array) $l;
-            return collect($l['samengestelde_groepen'])->contains($groepKey);
+            $samengesteldeGroepen = (array) $l['samengestelde_groepen'];
+            foreach ($samengesteldeGroepen as $samengesteldeGroep) {
+                $samengesteldeGroep = (array) $samengesteldeGroep;
+                foreach ($samengesteldeGroep as $value) {
+                    $value = (array) $value;
+                    $key = '';
+                    if (array_key_exists('key', $value)) {
+                        $key = $value['key'];
+                    } else {
+                        $key = array_pop($value);
+                    }
+                    return $groepKey == $key;
+                }
+            }
+            return false;
         });
 
         if ($leerling) {
@@ -399,7 +429,8 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInLabel->isNotEmpty()) {
-            $this->errors[] = sprintf('no %sen found for group(s) keys (letop deze is dubbel) [%s]', $label, $notInLabel->join(', '));
+            $this->errors[] = sprintf('no %sen found for group(s) keys (letop deze is dubbel) [%s]', $label,
+                $notInLabel->join(', '));
         }
 
         $notInGroups = $labelKeys->filter(function ($teacherKey) use ($keys) {
@@ -423,9 +454,9 @@ class UwlrSoapResult extends Model
             return $groep['key'];
         });
 
-        $labelKeys =  collect($repo->get($label))->map(function ($value) use($label) {
+        $labelKeys = collect($repo->get($label))->map(function ($value) use ($label) {
             $value = (array) $value;
-            if (! array_key_exists('samengestelde_groepen', $value)) {
+            if (!array_key_exists('samengestelde_groepen', $value)) {
                 // voor somToday staan de samengestelde_groepen onder groepen=>samengestelde_groepen.
 
                 if ($label == 'leerkracht') {
@@ -436,7 +467,8 @@ class UwlrSoapResult extends Model
                             if (is_array($groepKey) || is_object($groepKey)) {
                                 foreach ((array) $groepKey as $sGroep) {
                                     $sGroep = (array) $sGroep;
-                                    $resultKeys[] = array_key_exists('key', $sGroep) ? $sGroep['key'] : array_pop($sGroep);
+                                    $resultKeys[] = array_key_exists('key',
+                                        $sGroep) ? $sGroep['key'] : array_pop($sGroep);
                                 }
                             }
                         }
