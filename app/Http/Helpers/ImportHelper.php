@@ -258,10 +258,7 @@ class ImportHelper
 
                     $teacher_is_mentor = $row[$column_index['IsMentor']];
 
-                    $isNullTeacher = 0;
-                    if (array_key_exists('isNullTeacher', $column_index)) {
-                        $isNullTeacher = $row[$column_index['isNullTeacher']];
-                    }
+
 
 
                     if (strlen($external_sub_code) == 1) {
@@ -515,7 +512,7 @@ class ImportHelper
                             $this->importLog("Teacher already assigned with id ".$school_class_id." and subject id ".$subject_id);
                         }
                     } else {
-                        if ($this->can_create_users_for_teacher && $isNullTeacher != 1) {
+                        if ($this->can_create_users_for_teacher) {
                             $user_data = [
                                 'external_id'        => $teacher_external_code,
                                 'eckid'              => $teacher_eckid,
