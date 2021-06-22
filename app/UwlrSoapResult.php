@@ -199,6 +199,7 @@ class UwlrSoapResult extends Model
                 return collect($teacher['groepen'])->contains($groepKey);
             });
 
+
             if (!$leerkracht) {
                 $this->errors[] = sprintf('kan geen leerkracht vinden voor klas %s', $klas['naam']);
             } else {
@@ -259,9 +260,12 @@ class UwlrSoapResult extends Model
                     return $teacherSamengesteldeGroepKeys->contains($groepKey);
                 }
             }
+            dd('hier');
 
-            return collect($teacher['groepen'])->contains($groepKey);
+            return collect($teacher['samengestelde_groepen'])->contains($groepKey);
         });
+
+
 
 
         $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
