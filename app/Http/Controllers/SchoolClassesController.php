@@ -67,8 +67,7 @@ class SchoolClassesController extends Controller
                         log.finalized as finalized,
                         log.checked_by_teacher as checked_by_teacher,
                         log.checked_by_teacher_id as checked_by_teacher_id,
-                        log.checked_by_admin as checked_by_admin',
-
+                        log.checked_by_admin as checked_by_admin'
                         )
                     );
 
@@ -232,17 +231,9 @@ class SchoolClassesController extends Controller
 
         }
         if (!Auth::user()->hasIncompleteImport(false)) {
-            $this->finalizeImport();
+            $this->setClassesVisibleAndFinalizeImport(Auth::user());
         }
         return JsonResource::make(['count' => $updateCounter], 200);
-    }
-
-    protected function finalizeImport()
-    {
-        SchoolClassImportLog::where('checked_by_teacher_id', Auth::id())->update([
-            'finalized' => Carbon::now()
-        ]);
-        $this->setClassesVisible();
     }
 
     /**
