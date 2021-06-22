@@ -330,6 +330,16 @@ class GroupQuestionQuestionsController extends Controller
      */
     public function update(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id, UpdateGroupQuestionQuestionRequest $request)
     {
+        return $this->updateGeneric($groupQuestionQuestionManager, $group_question_question_id, $request);
+    }
+
+    public function updateFromWithin(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id, Request $request)
+    {
+        return $this->updateGeneric($groupQuestionQuestionManager, $group_question_question_id, $request);
+    }
+
+    public function updateGeneric(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id, $request)
+    {
         $groupQuestionPivot = $group_question_question_id;
         if (!$groupQuestionQuestionManager->isChild($groupQuestionPivot)) {
             return Response::make('Group question question not found', 404);

@@ -49,7 +49,7 @@ class Question extends MtiBaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_id', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content', 'metadata', 'external_id','scope','styling','closeable'];
+    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_year', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content', 'metadata', 'external_id','scope','styling','closeable'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -420,6 +420,9 @@ class Question extends MtiBaseModel {
     }
 
     public function isDirtyAnswerOptions($totalData){
+        if(!array_key_exists('answers',$totalData)){
+            return false;
+        }
         switch($this->type){
             case 'MatchingQuestion':
                 $requestAnswers = $this->convertMatchingAnswers($totalData['answers']);
@@ -1021,9 +1024,13 @@ class Question extends MtiBaseModel {
         return $returnArray;
     }
 
-    private function trimAnswerOptions($answers){
+    protected function trimAnswerOptions($answers){
         $returnArray = [];
         foreach ($answers as $key => $answer) {
+            if(!array_key_exists('answer',$answer)){
+                $returnArray[] = $answer;
+                continue;
+            }
             if($answer['answer']==''){
                 continue;
             }
@@ -1192,11 +1199,15 @@ class Question extends MtiBaseModel {
 
     public function handleAnswersAfterOwnerModelUpdate($ownerModel,$request){
         $baseModel = $this->getQuestionInstance();
-        if(self::usesDeleteAndAddAnswersMethods($baseModel->type)){
-            $this->deleteAnswers($this);
-            $totalData = $this->getTotalDataForTestQuestionUpdate($request);
-            $this->addAnswers($ownerModel,$totalData['answers']);
+        if(!self::usesDeleteAndAddAnswersMethods($baseModel->type)){
+            return;
         }
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        if(!array_key_exists('answers',$totalData)){
+            return;
+        }
+        $this->deleteAnswers($this);
+        $this->addAnswers($ownerModel,$totalData['answers']);
     }
 
     protected function handleDuplication($request)

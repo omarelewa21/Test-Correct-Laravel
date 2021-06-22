@@ -328,7 +328,6 @@ abstract class MtiBaseModel extends BaseModel
     public function fill(array $attributes)
     {
         parent::fill($attributes);
-
         if ($this->parentInstance !== null) {
             $this->parentInstance->fill($attributes);
         }

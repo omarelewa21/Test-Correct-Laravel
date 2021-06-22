@@ -114,6 +114,7 @@ trait MultipleChoiceQuestionTrait
                     "miller"=> "Weten",
                     "test_id"=> $testId,
                     "closeable"=> 0,
+                    "subject_id"=> 1,
                 ];
     }
 

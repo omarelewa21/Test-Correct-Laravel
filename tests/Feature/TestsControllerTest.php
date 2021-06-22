@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use tcCore\Test;
+use tcCore\TestQuestion;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -11,6 +12,8 @@ use Tests\TestCase;
 use Tests\Traits\MultipleChoiceQuestionTrait;
 use Tests\Traits\OpenQuestionTrait;
 use Tests\Traits\TestTrait;
+use Tests\Traits\CompletionQuestionTrait;
+use Tests\Traits\GroupQuestionTrait;
 
 class TestsControllerTest extends TestCase
 {
@@ -18,10 +21,16 @@ class TestsControllerTest extends TestCase
     use TestTrait;
     use MultipleChoiceQuestionTrait;
     use OpenQuestionTrait;
+    use CompletionQuestionTrait;
+    use GroupQuestionTrait;
 
     private $originalTestId;
     private $originalQuestionId;
     private $copyTestId;
+    /**
+     * @var mixed
+     */
+    private $groupTestQuestionId;
 
     /** @test */
 
@@ -93,13 +102,13 @@ class TestsControllerTest extends TestCase
         $result = array_diff($originalQuestionArray, $copyQuestionArray);
         $this->assertTrue(count($result)==0);
         $copyTest = Test::find($this->copyTestId);
-        $copyTest->education_level_year = 5;
+        $copyTest->education_level_year = 4;
         $copyTest->save();
         $copyQuestions = Test::find($this->copyTestId)->testQuestions;
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
         $result = array_diff($originalQuestionArray, $copyQuestionArray);
         $this->assertTrue(count($result)>0);
-        $this->assertEquals(5,$copyQuestions->first()->question->education_level_year);
+        $this->assertEquals(4,$copyQuestions->first()->question->education_level_year);
     }
 
     /** @test */
@@ -134,6 +143,41 @@ class TestsControllerTest extends TestCase
         $this->assertEquals(1,$question->question->subject_id);
     }
 
+    /** @test */
+    public function it_should_modify_questionsWhenModifyingTestSubjectIdCompletionQuestion()
+    {
+        $this->setupScenario4();
+        $tests = Test::where('name','TToets van GM1')->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $originalQuestion = $questions->first()->question->getQuestionHtml();
+        $originalAnswers = $questions->first()->question->completionQuestionAnswers()->get();
+        $this->assertTrue(count($questions)==1);
+        $test = $tests->first();
+        $test->subject_id = 1;
+        $test->save();
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $question = $questions->first();
+        $this->assertEquals(1,$question->question->subject_id);
+        $this->assertEquals($originalQuestion,$question->question->getQuestionHtml());
+        $modifiedAnswers = $question->question->completionQuestionAnswers()->get();
+        foreach($originalAnswers as $key => $answer){
+            $this->assertEquals($answer->answer,$modifiedAnswers[$key]->answer);
+        }
+    }
+
+    /** @test */
+    public function it_should_modify_questions_in_group_WhenModifyingTestSubjectId()
+    {
+        $this->setupScenario5();
+        $test = Test::find($this->originalTestId);
+        $test->subject_id = 6;
+        $test->save();
+        $groupTestQuestion = TestQuestion::find($this->groupTestQuestionId);
+        foreach ($groupTestQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
+            $this->assertEquals(6,$groupQuestionQuestion->question->subject_id);
+        }
+    }
 
     private function setupScenario1(){
         $attributes = $this->getAttributesForTest1();
@@ -159,6 +203,40 @@ class TestsControllerTest extends TestCase
         $this->createMultipleChoiceQuestion($attributes);
     }
 
+    private function setupScenario4(){
+        $attributes = $this->getAttributesForTest1();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getCompletionQuestionAttributes(['test_id'=>$this->originalTestId]);
+        $this->createCompletionQuestion($attributes);
+    }
+
+    private function setupScenario5(){
+        $attributes = $this->getTestAttributes();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForGroupQuestion($this->originalTestId);
+        $groupTestQuestionId = $this->createGroupQuestion($attributes);
+        $this->groupTestQuestionId = $groupTestQuestionId;
+        $groupTestQuestion = TestQuestion::find($groupTestQuestionId);
+        $attributes = $this->getAttributesForMultipleChoiceQuestion($this->originalTestId);
+        for($i=0;$i<10;$i++){
+            $this->createMultipleChoiceQuestionInGroup($attributes,$groupTestQuestion->uuid);
+        }
+        $this->checkScenario5Success('Test Title',$this->originalTestId);
+    }
+
+    private function checkScenario5Success($name,$testId){
+        $tests = Test::where('name',$name)->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($testId)->testQuestions;
+        $this->assertCount(1,$questions);
+        $this->assertEquals('GroupQuestion',$questions->first()->question->type);
+        $groupQuestion = $questions->first()->question;
+        $subQuestions = $groupQuestion->groupQuestionQuestions;
+        $this->assertCount(10,$subQuestions);
+        $this->assertEquals('MultipleChoiceQuestion',$subQuestions->first()->question->type);
+    }
 
     private function getAttributesForTest1(){
 

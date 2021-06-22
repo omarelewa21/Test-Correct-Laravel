@@ -206,7 +206,18 @@ class TestQuestionsController extends Controller {
 
     public function update(TestQuestion $testQuestion,  UpdateTestQuestionRequest $request)
     {
+        return $this->updateGeneric($testQuestion, $request);
+    }
 
+
+
+    public function updateFromWithin(TestQuestion $testQuestion,  Request $request)
+    {
+        return $this->updateGeneric($testQuestion, $request);
+    }
+
+    protected function updateGeneric(TestQuestion $testQuestion, $request)
+    {
         $question = $testQuestion->question;
         DB::beginTransaction();
         try {

@@ -359,6 +359,9 @@ class CompletionQuestion extends Question implements QuestionInterface {
     public function getCompletionAnswerDirty($request)
     {
         $questionData = $this->getQuestionData($request);
+        if(!array_key_exists('answers',$questionData)){
+            return false;
+        }
         $currentAnswers = $this->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
         $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
         return ( ($currentAnswers !== $futureAnswers));
@@ -368,7 +371,11 @@ class CompletionQuestion extends Question implements QuestionInterface {
     {
         $qHelper = new QuestionHelper();
         if(!$this->questionData){
-            $this->questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
+            $questionHtml = $request->input('question');
+            $this->questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionHtml);
+            if(empty($this->questionData['question'])){
+                return [];
+            }
         }
         return $this->questionData;
     }
