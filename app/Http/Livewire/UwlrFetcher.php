@@ -47,8 +47,8 @@ class UwlrFetcher extends Component
            return [
                'id'             => $l->getKey(),
                'name'            => $l->name,
-               'client_code'     => $l->customer_code,
-               'client_name'     => ($l->name == 'SOMToday schoollocatie') ? 'Overig' : $l->name,
+               'client_code'     => $l->lvs_client_code,
+               'client_name'     => $l->lvs_client_name,
                'brin_code'       => $l->external_main_code,
                'dependance_code' => $l->external_sub_code,
                'lvs_type'       => $l->lvs_type,

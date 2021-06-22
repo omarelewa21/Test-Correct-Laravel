@@ -482,8 +482,7 @@ class UwlrSoapResult extends Model
                 }
 
 
-            }
-            if (array_key_exists('samengestelde_groepen', $value)) {
+            } else {
                 return $value['samengestelde_groepen'];
             }
 
