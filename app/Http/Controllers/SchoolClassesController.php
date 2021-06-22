@@ -62,11 +62,13 @@ class SchoolClassesController extends Controller
                         school_year_id,
                         education_level_year,
                         name,
+                        visible,
                         is_main_school_class,
                         log.finalized as finalized,
                         log.checked_by_teacher as checked_by_teacher,
                         log.checked_by_teacher_id as checked_by_teacher_id,
-                        log.checked_by_admin as checked_by_admin'
+                        log.checked_by_admin as checked_by_admin',
+
                         )
                     );
 
