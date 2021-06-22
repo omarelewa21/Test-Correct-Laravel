@@ -45,7 +45,7 @@ class AddSomtodayDemoSchool extends Migration
                 "invoice_country" => "Netherlands",
                 "visit_country" => "Netherlands",
                 "lvs_active" => true,
-                "lvs_type" => \tcCore\SchoolLocation::LVS_SOMTODAY
+                "lvs_type" => \tcCore\SchoolLocation::LVS_SOMTODAY,
             ]);
 
             $section = \tcCore\Section::create([

@@ -11,7 +11,8 @@ use tcCore\UwlrSoapResult;
 
 class SomTodayHelper
 {
-    const WSDL = 'https://oop.test.somtoday.nl/services/v2/leerlinggegevens?wsdl';
+    const WSDL = 'https://oop.somtoday.nl/services/v2/leerlinggegevens?wsdl';
+    const WSDL_TEST = 'https://oop.test.somtoday.nl/services/v2/leerlinggegevens?wsdl';
     const SOURCE = 'SomToDay';
     const XSD_VERSION = '2.2';
 
@@ -41,38 +42,48 @@ class SomTodayHelper
     public function search($klantcode, $klantnaam, $schooljaar, $brincode, $dependancecode)
     {
         $this->searchParams = [
-            'source' => self::SOURCE,
-            'client_code'      => $klantcode,
-            'client_name'      => $klantnaam,
+            'source'          => self::SOURCE,
+            'client_code'     => $klantcode,
+            'client_name'     => $klantnaam,
             'school_year'     => $schooljaar,
             'brin_code'       => $brincode,
             'dependance_code' => $dependancecode,
-            'xsdversie' => self::XSD_VERSION,
+            'xsdversie'       => self::XSD_VERSION,
         ];
 
 
-        $this->soapWrapper->add('leerlinggegevensServiceV2', function ($service) use ($klantcode, $klantnaam) {
-            $service
-                ->wsdl(self::WSDL)
-                ->trace(true)
-                ->header('http://www.edustandaard.nl/leerresultaten/2/autorisatie', 'autorisatie', [
-                    'autorisatiesleutel' => 'uuq21LVDJhvRHBOGwyvhFqrTaxkrhZVlEEmOuJNhRUdrlpIJvI+ISGkjS2PNQijqEaeqKTqCrl7s2GBOAtLkew==',
-                    'klantcode'          => $klantcode,
-                    'klantnaam'          => $klantnaam,
-                ]);
-        });
+        $serviceUrl = $brincode === '06SS' ? self::WSDL_TEST : self::WSDL;
 
-        // Without classmap
-        $this->result = $this->soapWrapper->call('leerlinggegevensServiceV2.HaalLeerlinggegevens', [
-            'leerlinggegevens_verzoek' => [
-                'schooljaar'     => $schooljaar,
-                'brincode'       => $brincode,
-                'dependancecode' => $dependancecode,
-                'xsdversie'      => self::XSD_VERSION,
-            ]
-        ]);
+        $location = \tcCore\SchoolLocation::where('external_main_code', $brincode)->where('external_sub_code',
+            $dependancecode)->first();
 
-        return $this;
+        if ($location) { // if not exists skip
+            $authorization_key = $location->lvs_authorization_key;
+            $this->soapWrapper->add('leerlinggegevensServiceV2',
+                function ($service) use ($klantcode, $klantnaam, $serviceUrl, $authorization_key) {
+                    $service
+                        ->wsdl($serviceUrl)
+                        ->trace(true)
+                        ->header('http://www.edustandaard.nl/leerresultaten/2/autorisatie', 'autorisatie', [
+                            'autorisatiesleutel' => $authorization_key,
+                            'klantcode'          => $klantcode,
+                            'klantnaam'          => $klantnaam,
+                        ]);
+                });
+
+            // Without classmap
+            $this->result = $this->soapWrapper->call('leerlinggegevensServiceV2.HaalLeerlinggegevens', [
+                'leerlinggegevens_verzoek' => [
+                    'schooljaar'     => $schooljaar,
+                    'brincode'       => $brincode,
+                    'dependancecode' => $dependancecode,
+                    'xsdversie'      => self::XSD_VERSION,
+                ]
+            ]);
+            return $this;
+        }
+
+        dd(__FILE__ .' no autorization key was found for given brin/dependance code;');
     }
 
     public function storeInDB()
@@ -106,7 +117,8 @@ class SomTodayHelper
         return $this->resultIdentifier;
     }
 
-    public function getResultSet(){
+    public function getResultSet()
+    {
         return $this->resultSet;
     }
 
@@ -114,32 +126,32 @@ class SomTodayHelper
     {
         UwlrSoapEntry::create([
             'uwlr_soap_result_id' => $this->resultIdentifier,
-            'key' => 'school',
-            'object' => serialize($school),
+            'key'                 => 'school',
+            'object'              => serialize($school),
         ]);
 
     }
 
     private function storeInDBGroep($groepen)
     {
-       collect(['groep', 'samengestelde_groep'])->each(function($prop) use ($groepen) {
-           collect($groepen->$prop)->each(function($obj) use ($prop) {
-               UwlrSoapEntry::create([
-                   'uwlr_soap_result_id' => $this->resultIdentifier,
-                   'key' => $prop,
-                   'object' => serialize( $obj),
-               ]);
-           });
-       });
+        collect(['groep', 'samengestelde_groep'])->each(function ($prop) use ($groepen) {
+            collect($groepen->$prop)->each(function ($obj) use ($prop) {
+                UwlrSoapEntry::create([
+                    'uwlr_soap_result_id' => $this->resultIdentifier,
+                    'key'                 => $prop,
+                    'object'              => serialize($obj),
+                ]);
+            });
+        });
     }
 
     private function storeInDBLeerlingen($leerlingen)
     {
-        collect($leerlingen->leerling)->each(function($obj) {
+        collect($leerlingen->leerling)->each(function ($obj) {
             UwlrSoapEntry::create([
                 'uwlr_soap_result_id' => $this->resultIdentifier,
-                'key' => 'leerling',
-                'object' => serialize( $obj),
+                'key'                 => 'leerling',
+                'object'              => serialize($obj),
             ]);
         });
 
@@ -147,11 +159,11 @@ class SomTodayHelper
 
     private function storeInDBLeerkrachten($leerkrachten)
     {
-        collect($leerkrachten->leerkracht)->each(function($obj) {
+        collect($leerkrachten->leerkracht)->each(function ($obj) {
             UwlrSoapEntry::create([
                 'uwlr_soap_result_id' => $this->resultIdentifier,
-                'key' => 'leerkracht',
-                'object' => serialize( $obj),
+                'key'                 => 'leerkracht',
+                'object'              => serialize($obj),
             ]);
         });
     }

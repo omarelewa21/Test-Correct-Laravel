@@ -78,7 +78,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'visit_country',
         'is_rtti_school_location', 'external_main_code', 'external_sub_code', 'is_open_source_content_creator',
         'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access', 'lvs_active', 'lvs_type',
-        'sso','sso_type', 'sso_active',
+        'sso','sso_type', 'sso_active', 'lvs_authorization_key',
     ];
 
     /**

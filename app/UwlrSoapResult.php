@@ -218,21 +218,21 @@ class UwlrSoapResult extends Model
     {
         $leerling = (array) $leerling;
 
-        collect($leerling['samengestelde_groepen'])->each(function ($groep) use ($leerling, $school, $repo) {
-            $groepKey = $groep;
-            if (is_array($groepKey) || is_object($groepKey)) {
+        if (array_key_exists('samengestelde_groepen', $leerling)) {
+            collect($leerling['samengestelde_groepen'])->each(function ($groep) use ($leerling, $school, $repo) {
+                $groepKey = $groep;
+                if (is_array($groepKey) || is_object($groepKey)) {
 
-                foreach ((array) $groepKey as $sGroep) {
-                    $sGroep = (array) $sGroep;
-                    $key = array_key_exists('key', $sGroep) ? $sGroep['key'] : array_pop($sGroep);
-                    $this->handleSamengesteldeGroep($repo, $school, $leerling, $key);
+                    foreach ((array) $groepKey as $sGroep) {
+                        $sGroep = (array) $sGroep;
+                        $key = array_key_exists('key', $sGroep) ? $sGroep['key'] : array_pop($sGroep);
+                        $this->handleSamengesteldeGroep($repo, $school, $leerling, $key);
+                    }
+                } else {
+                    $this->handleSamengesteldeGroep($repo, $school, $leerling, $groepKey);
                 }
-            } else {
-                $this->handleSamengesteldeGroep($repo, $school, $leerling, $groepKey);
-            }
-
-
-        });
+            });
+        }
     }
 
     private function handleSamengesteldeGroep($repo, $school, $leerling, $groepKey)
@@ -384,18 +384,20 @@ class UwlrSoapResult extends Model
 
         $leerling = (array) $repo->get('leerling')->first(function ($l) use ($groepKey) {
             $l = (array) $l;
-            $samengesteldeGroepen = (array) $l['samengestelde_groepen'];
-            foreach ($samengesteldeGroepen as $samengesteldeGroep) {
-                $samengesteldeGroep = (array) $samengesteldeGroep;
-                foreach ($samengesteldeGroep as $value) {
-                    $value = (array) $value;
-                    $key = '';
-                    if (array_key_exists('key', $value)) {
-                        $key = $value['key'];
-                    } else {
-                        $key = array_pop($value);
+            if (array_key_exists('samengestelde_groepen', $l)) {
+                $samengesteldeGroepen = (array) $l['samengestelde_groepen'];
+                foreach ($samengesteldeGroepen as $samengesteldeGroep) {
+                    $samengesteldeGroep = (array) $samengesteldeGroep;
+                    foreach ($samengesteldeGroep as $value) {
+                        $value = (array) $value;
+                        $key = '';
+                        if (array_key_exists('key', $value)) {
+                            $key = $value['key'];
+                        } else {
+                            $key = array_pop($value);
+                        }
+                        return $groepKey == $key;
                     }
-                    return $groepKey == $key;
                 }
             }
             return false;
@@ -481,7 +483,11 @@ class UwlrSoapResult extends Model
 
 
             }
-            return $value['samengestelde_groepen'];
+            if (array_key_exists('samengestelde_groepen', $value)) {
+                return $value['samengestelde_groepen'];
+            }
+
+            return false;
         })->flatten();
 
         $notInLabel = $keys->filter(function ($key) use ($labelKeys) {
