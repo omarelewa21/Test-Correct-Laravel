@@ -27,7 +27,6 @@ class UwlrGrid extends Component
     public $errorMessages = '';
     public $displayGoToErrorsButton = false;
 
-
     public function mount()
     {
         $this->resultSets = UwlrSoapResult::orderBy('created_at', 'desc')->get();
@@ -62,6 +61,16 @@ class UwlrGrid extends Component
         $this->showSuccessDialog = true;
     }
 
+    public function deleteImportDataForResultSet($id)
+    {
+        $resultSet = UwlrSoapResult::findOrFail($id);
+        $schoolLocation = SchoolLocation::where('external_main_code',$resultSet->brin_code)->where('external_sub_code',$resultSet->dependance_code)->first();
+        if($schoolLocation){
+            UwlrSoapEntry::deleteImportDataForSchoolLocationId($schoolLocation->getKey(), $id);
+        }
+        return $this->redirect(route('uwlr.grid'));
+    }
+
     public function processResult($id)
     {
         set_time_limit(0);
@@ -74,7 +83,7 @@ class UwlrGrid extends Component
 
     public function startProcessingResult()
     {
-
+        set_time_limit(0);
         $helper = ImportHelper::initWithUwlrSoapResult(
             UwlrSoapResult::find($this->processingResultId),
             'sobit.nl'
