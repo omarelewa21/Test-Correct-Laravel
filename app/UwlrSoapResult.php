@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Illuminate\Database\Eloquent\Model;
+use tcCore\Http\Helpers\SomTodayHelper;
 
 class UwlrSoapResult extends Model
 {
@@ -14,6 +15,8 @@ class UwlrSoapResult extends Model
     protected $fillable = [
         'source', 'client_code', 'client_name', 'school_year', 'brin_code', 'dependance_code',
     ];
+
+//    protected $with = ['entries'];
 
     private $errors = [];
 
@@ -46,6 +49,10 @@ class UwlrSoapResult extends Model
                 return unserialize($item->object);
             });
         });
+    }
+
+    private function shouldSkipGroup() {
+        return $this->source == SomTodayHelper::SOURCE;
     }
 
     public function toCSV()
@@ -91,18 +98,23 @@ class UwlrSoapResult extends Model
         ];
 
         $students->each(function ($leerling) use ($school, $repo) {
-            $this->transformGroep($leerling, $school, $repo);
+            if ($this->shouldSkipGroup()) {
+                $this->transformGroep($leerling, $school, $repo);
+            }
             $this->transformSamenGesteldeGroep($leerling, $school, $repo);
         });
 
         $teachers = $repo->get('leerkracht');
         $teachers->each(function ($leerkracht) use ($school, $repo) {
-            $this->transformGroepForTeacher($leerkracht, $school, $repo);
+            if ($this->shouldSkipGroup()) {
+                $this->transformGroepForTeacher($leerkracht, $school, $repo);
+            }
             $this->transformSamengesteldeGroepForTeacher($leerkracht, $school, $repo);
         });
-
-        $this->checkGroepenForWithLabel($repo, 'leerkracht');
-        $this->checkGroepenForWithLabel($repo, 'leerling');
+        if ($this->shouldSkipGroup()) {
+            $this->checkGroepenForWithLabel($repo, 'leerkracht');
+            $this->checkGroepenForWithLabel($repo, 'leerling');
+        }
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerkracht');
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerling');
 
@@ -480,13 +492,15 @@ class UwlrSoapResult extends Model
                     });
                     return $resultKeys;
                 }
+                return [];
 
 
-            } else {
+            }
+            if (array_key_exists('samengestelde_groepen', $value)) {
                 return $value['samengestelde_groepen'];
             }
 
-            return false;
+
         })->flatten();
 
         $notInLabel = $keys->filter(function ($key) use ($labelKeys) {

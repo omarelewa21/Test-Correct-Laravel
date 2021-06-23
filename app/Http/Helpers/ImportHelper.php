@@ -159,7 +159,15 @@ class ImportHelper
 
         $instance->csv_data = $data->toCSV();
 
+        unset($data);
+
         return $instance;
+    }
+
+    private function convert($size)
+    {
+        $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
+        return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2).' '.$unit[$i];
     }
 
 
@@ -188,7 +196,7 @@ class ImportHelper
      */
     public function importLog($string)
     {
-        logger($string);
+     //   logger($string);
 
         return true;
     }
@@ -196,6 +204,15 @@ class ImportHelper
     private function checkAlphaNumericAndSpace($string)
     {
         return preg_match('/^[a-z0-9&; .\-]+$/i', $string);
+    }
+
+    private function logMemoryUsage($line)
+    {
+        $size = memory_get_usage(true);
+
+        $unit=array('b','kb','mb','gb','tb','pb');
+        $usage = @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+        logger(sprintf('[%s] usage [%s]', $line, $usage));
     }
 
     public function process()
@@ -214,6 +231,7 @@ class ImportHelper
 
         $this->importLog('----- '.$this->csv_data_lines.' data lines in input file');
 
+
         try {
             foreach ($this->csv_data as $index => $row) {
                 if ($index == 0) {
@@ -221,6 +239,7 @@ class ImportHelper
                 } else {
 
                     $this->importLog('Processing line '.$index);
+                    $this->logMemoryUsage($index);
 
                     $external_main_code = $row[$column_index['Brincode']];
                     $external_sub_code = $row[$column_index['Locatiecode']];
@@ -257,8 +276,6 @@ class ImportHelper
                         $column_index) ? $row[$column_index['docEmail']] : null;
 
                     $teacher_is_mentor = $row[$column_index['IsMentor']];
-
-
 
 
                     if (strlen($external_sub_code) == 1) {

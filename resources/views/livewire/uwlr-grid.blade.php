@@ -19,7 +19,7 @@
 ];
  ?>
 
-<div class="mt-10 flex-1 p-8">
+<div class="mt-10 flex-1 p-8" id="uwlr-grid">
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
         <div class="flex-shrink-0">
@@ -27,7 +27,7 @@
             <x-button.primary class="" wire:click="newImport">Import</x-button.primary>
         </div>
     </div>
-    <div class="content-section mt-10 flex-1 p-8">
+    <div class="content-section mt-10 flex-1 p-8" x-data="{}">
 
         <div class="flex space-x-4 mt-4">
             <x-table>
@@ -51,6 +51,9 @@
                         &nbsp;
                     </x-table.heading>
                     <x-table.heading width="120px">
+                        &nbsp;
+                    </x-table.heading>
+                    <x-table.heading width="60px">
                         &nbsp;
                     </x-table.heading>
                     <x-table.heading width="120px">
@@ -84,6 +87,18 @@
                             <x-table.cell>
                                 <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Verwerken
                                 </x-button.text-button>
+                            </x-table.cell>
+                            <x-table.cell>
+                                @if(\Illuminate\Support\Str::contains(url()->current(),'testwelcome'))
+                                    <x-button.text-button class="" @click="if(confirm('Weet je zeker dat je hier alles van wilt verijderen?\nLet op: Dit kan even duren het scherm ververst zichzelf!')){ livewire.find(document.querySelector('#uwlr-grid').getAttribute('wire:id')).call('deleteImportDataForResultSet','{{ $set->getKey() }}')}">
+                                        <div wire:loading wire:target="deleteImportDataForResultSet">
+                                            <div class="lds-hourglass"></div>
+                                        </div>
+                                        <div wire:loading.remove wire:target="deleteImportDataForResultSet">
+                                            <span class="error"><x-icon.trash></x-icon.trash></span>
+                                        </div>
+                                    </x-button.text-button>
+                                    @endif
                             </x-table.cell>
                             <x-table.cell>
                                 @if ($set->error_messages)
