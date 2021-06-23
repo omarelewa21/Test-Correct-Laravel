@@ -167,6 +167,27 @@ class TestsControllerTest extends TestCase
     }
 
     /** @test */
+    public function it_should_modify_questionsWhenModifyingTestSubjectIdCompletionQuestionInGroup()
+    {
+        $this->setupScenario6();
+        $test = Test::find($this->originalTestId);
+        $groupTestQuestion = TestQuestion::find($this->groupTestQuestionId);
+        $originalQuestion = $groupTestQuestion->question->groupQuestionQuestions->first()->question->getQuestionHtml();
+        $originalAnswers = $groupTestQuestion->question->groupQuestionQuestions->first()->question->completionQuestionAnswers()->get();
+        $this->assertCount(10,$groupTestQuestion->question->groupQuestionQuestions);
+        $test->subject_id = 6;
+        $test->save();
+        $groupTestQuestion = TestQuestion::find($this->groupTestQuestionId);
+        $question = $groupTestQuestion->question->groupQuestionQuestions->first();
+        $this->assertEquals(6,$question->question->subject_id);
+        $this->assertEquals($originalQuestion,$question->question->getQuestionHtml());
+        $modifiedAnswers = $question->question->completionQuestionAnswers()->get();
+        foreach($originalAnswers as $key => $answer){
+            $this->assertEquals($answer->answer,$modifiedAnswers[$key]->answer);
+        }
+    }
+
+    /** @test */
     public function it_should_modify_questions_in_group_WhenModifyingTestSubjectId()
     {
         $this->setupScenario5();
@@ -226,6 +247,21 @@ class TestsControllerTest extends TestCase
         $this->checkScenario5Success('Test Title',$this->originalTestId);
     }
 
+    private function setupScenario6(){
+        $attributes = $this->getTestAttributes();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForGroupQuestion($this->originalTestId);
+        $groupTestQuestionId = $this->createGroupQuestion($attributes);
+        $this->groupTestQuestionId = $groupTestQuestionId;
+        $groupTestQuestion = TestQuestion::find($groupTestQuestionId);
+        $attributes = $this->getCompletionQuestionAttributes(['test_id'=>$this->originalTestId]);
+        for($i=0;$i<10;$i++){
+            $this->createCompletionQuestionInGroup($attributes,$groupTestQuestion->uuid);
+        }
+        $this->checkScenario6Success('Test Title',$this->originalTestId);
+    }
+
     private function checkScenario5Success($name,$testId){
         $tests = Test::where('name',$name)->get();
         $this->assertTrue(count($tests)==1);
@@ -236,6 +272,18 @@ class TestsControllerTest extends TestCase
         $subQuestions = $groupQuestion->groupQuestionQuestions;
         $this->assertCount(10,$subQuestions);
         $this->assertEquals('MultipleChoiceQuestion',$subQuestions->first()->question->type);
+    }
+
+    private function checkScenario6Success($name,$testId){
+        $tests = Test::where('name',$name)->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($testId)->testQuestions;
+        $this->assertCount(1,$questions);
+        $this->assertEquals('GroupQuestion',$questions->first()->question->type);
+        $groupQuestion = $questions->first()->question;
+        $subQuestions = $groupQuestion->groupQuestionQuestions;
+        $this->assertCount(10,$subQuestions);
+        $this->assertEquals('CompletionQuestion',$subQuestions->first()->question->type);
     }
 
     private function getAttributesForTest1(){
