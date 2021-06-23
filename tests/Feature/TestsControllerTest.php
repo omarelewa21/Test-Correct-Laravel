@@ -200,6 +200,20 @@ class TestsControllerTest extends TestCase
         }
     }
 
+    /** @test */
+    public function it_should_modify_questions_in_group_in_copied_test_WhenModifyingTestSubjectId()
+    {
+        $this->setupScenario7();
+        $test = Test::find($this->copyTestId);
+        $test->subject_id = 6;
+        $test->save();
+        $this->checkGroupQuestionsOriginalAndCopyDoNotShareQuestions();
+        $groupTestQuestion = $test->testQuestions->first();
+        foreach ($groupTestQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
+            $this->assertEquals(6,$groupQuestionQuestion->question->subject_id);
+        }
+    }
+
     private function setupScenario1(){
         $attributes = $this->getAttributesForTest1();
         unset($attributes['school_classes']);
@@ -262,6 +276,22 @@ class TestsControllerTest extends TestCase
         $this->checkScenario6Success('Test Title',$this->originalTestId);
     }
 
+    private function setupScenario7(){
+        $attributes = $this->getTestAttributes();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForGroupQuestion($this->originalTestId);
+        $groupTestQuestionId = $this->createGroupQuestion($attributes);
+        $this->groupTestQuestionId = $groupTestQuestionId;
+        $groupTestQuestion = TestQuestion::find($groupTestQuestionId);
+        $attributes = $this->getAttributesForMultipleChoiceQuestion($this->originalTestId);
+        $this->createMultipleChoiceQuestionInGroup($attributes,$groupTestQuestion->uuid);
+        $attributes = $this->getCompletionQuestionAttributes(['test_id'=>$this->originalTestId]);
+        $this->createCompletionQuestionInGroup($attributes,$groupTestQuestion->uuid);
+        $this->duplicateTest($this->originalTestId);
+        $this->checkScenario7Success('Test Title',$this->originalTestId);
+    }
+
     private function checkScenario5Success($name,$testId){
         $tests = Test::where('name',$name)->get();
         $this->assertTrue(count($tests)==1);
@@ -284,6 +314,43 @@ class TestsControllerTest extends TestCase
         $subQuestions = $groupQuestion->groupQuestionQuestions;
         $this->assertCount(10,$subQuestions);
         $this->assertEquals('CompletionQuestion',$subQuestions->first()->question->type);
+    }
+
+    private function checkScenario7Success($name,$testId){
+        $tests = Test::where('name',$name)->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($testId)->testQuestions;
+        $this->assertCount(1,$questions);
+        $this->assertEquals('GroupQuestion',$questions->first()->question->type);
+        $this->checkGroupQuestionsOriginalAndCopyShareQuestions();
+    }
+
+    private function checkGroupQuestionsOriginalAndCopyShareQuestions(){
+        $subQuestionIds = $this->getOriginalQuestionIds(2);
+        $copySubQuestionIds = $this->getCopyQuestionIds(2);
+        $this->assertEquals($subQuestionIds,$copySubQuestionIds);
+    }
+
+    private function checkGroupQuestionsOriginalAndCopyDoNotShareQuestions(){
+        $subQuestionIds = $this->getOriginalQuestionIds(2);
+        $copySubQuestionIds = $this->getCopyQuestionIds(2);
+        foreach ($copySubQuestionIds as $subQuestionId){
+            $this->assertFalse(in_array($subQuestionId,$subQuestionIds));
+        }
+    }
+
+    private function getOriginalQuestionIds($expectedNumberSubquestions)
+    {
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $subQuestionIds = $this->getSubquestionIds($questions, $expectedNumberSubquestions);
+        return $subQuestionIds;
+    }
+
+    private function getCopyQuestionIds($expectedNumberSubquestions)
+    {
+        $questions = Test::find($this->copyTestId)->testQuestions;
+        $subQuestionIds = $this->getSubquestionIds($questions, $expectedNumberSubquestions);
+        return $subQuestionIds;
     }
 
     private function getAttributesForTest1(){
@@ -381,5 +448,21 @@ class TestsControllerTest extends TestCase
             "education_level_year"=> 2,
             'education_level_id'   => 1
         ], $overrides);
+    }
+
+    /**
+     * @param $questions
+     * @param $expectedNumberSubquestions
+     * @return mixed
+     */
+    private function getSubquestionIds($questions, $expectedNumberSubquestions)
+    {
+        $groupQuestion = $questions->first()->question;
+        $subQuestions = $groupQuestion->groupQuestionQuestions;
+        $subQuestionIds = $groupQuestion->groupQuestionQuestions->map(function ($item, $key) {
+            return $item->question->id;
+        })->toArray();
+        $this->assertCount($expectedNumberSubquestions, $subQuestions);
+        return $subQuestionIds;
     }
 }

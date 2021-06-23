@@ -1131,6 +1131,15 @@ class Question extends MtiBaseModel {
         return $this;
     }
 
+    public function updateWithRequestGroup($request,$groupQuestionPivot,$groupQuestionQuestionManager)
+    {
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        $this->fill($totalData);
+        $this->handleOnlyAddToDatabaseFieldIsModified($request);
+        $this->handleAnyOtherFieldsAreModifiedWithinGroupQuestion($request,$groupQuestionPivot,$groupQuestionQuestionManager);
+
+    }
+
     public function getCompletionAnswerDirty($request)
     {
         return false;
@@ -1195,6 +1204,11 @@ class Question extends MtiBaseModel {
             return $this->getKey();
         }
         return $this->duplicateQuestionKey;
+    }
+
+    public function flushDuplicateQuestionKey()
+    {
+        $this->duplicateQuestionKey = false;
     }
 
     public function handleAnswersAfterOwnerModelUpdate($ownerModel,$request){
