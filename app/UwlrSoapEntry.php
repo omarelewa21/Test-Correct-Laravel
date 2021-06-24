@@ -21,12 +21,16 @@ class UwlrSoapEntry extends Model
             $schoolClass->forceDelete();
         });
 
-        User::whereSchoolLocationId($id)->each(function($user) {
+        $userIdsToDelete = [];
+        User::whereSchoolLocationId($id)->each(function($user) use (&$userIdsToDelete){
             $user->eckidFromRelation()->forceDelete();
             if(!$user->isA('school manager')) {
-                $user->forceDelete();
+                $userIdsToDelete[] = $user->getKey();
             }
         });
+        if(count($userIdsToDelete)){
+            User::whereIn('id',$userIdsToDelete)->forceDelete();
+        }
         $schoolLocation = SchoolLocation::find($id);
         if($resultSetId) {
             $set = UwlrSoapResult::find($resultSetId);
