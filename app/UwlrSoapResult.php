@@ -412,16 +412,20 @@ class UwlrSoapResult extends Model
             if (array_key_exists('samengestelde_groepen', $l)) {
                 $samengesteldeGroepen = (array) $l['samengestelde_groepen'];
                 foreach ($samengesteldeGroepen as $samengesteldeGroep) {
-                    $samengesteldeGroep = (array) $samengesteldeGroep;
-                    foreach ($samengesteldeGroep as $value) {
-                        $value = (array) $value;
-                        $key = '';
-                        if (array_key_exists('key', $value)) {
-                            $key = $value['key'];
-                        } else {
-                            $key = array_pop($value);
+                    if(is_string($samengesteldeGroep)){
+                        return $samengesteldeGroep == $groepKey;
+                    } else {
+                        $samengesteldeGroep = (array)$samengesteldeGroep;
+                        foreach ($samengesteldeGroep as $value) {
+                            $value = (array)$value;
+                            $key = '';
+                            if (array_key_exists('key', $value)) {
+                                $key = $value['key'];
+                            } else {
+                                $key = array_pop($value);
+                            }
+                            return $groepKey == $key;
                         }
-                        return $groepKey == $key;
                     }
                 }
             }
