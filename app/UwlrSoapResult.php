@@ -74,7 +74,9 @@ class UwlrSoapResult extends Model
         } else {
             /** @todo foutmelding school niet gevonden met gegevens hoe aan te maken (brin en brinneven) */
         }
-
+$groepKey = 'd3095f6a-d1f7-42ee-ad47-6ba0e246ece1';
+        $this->handleSamengesteldeGroepForTeacher($repo, 'a', 'a', $groepKey);
+dd('done');
 
         $this->csvArray[] = [
             'Schoolnaam',
@@ -412,22 +414,38 @@ class UwlrSoapResult extends Model
             if (array_key_exists('samengestelde_groepen', $l)) {
                 $samengesteldeGroepen = (array) $l['samengestelde_groepen'];
                 foreach ($samengesteldeGroepen as $samengesteldeGroep) {
-                    $samengesteldeGroep = (array) $samengesteldeGroep;
-                    foreach ($samengesteldeGroep as $value) {
-                        $value = (array) $value;
-                        $key = '';
-                        if (array_key_exists('key', $value)) {
-                            $key = $value['key'];
-                        } else {
-                            $key = array_pop($value);
+                    if(is_string($samengesteldeGroep)){
+                        return $samengesteldeGroep == $groepKey;
+                    } else {
+                        $samengesteldeGroep = (array)$samengesteldeGroep;
+                        foreach ($samengesteldeGroep as $value) {
+                            $value = (array)$value;
+                            $key = '';
+                            if (array_key_exists('key', $value)) {
+                                $key = $value['key'];
+                            } else {
+                                $key = array_pop($value);
+                            }
+                            if($l['eckid'] === 'https://ketenid.nl/201703/7003c1987d1431988c399cb31913c82b1c2003e8514a59396f1e0d6c8a6f9edea1157249ccbc35b308f410db12ef35c5c7472ba43a48587f902d6a058287aee8') {
+                                dump($key);
+                                dump($groepKey);
+                            }
+                            // indien true dan returnen anders niet, want anders kunnen we niet door de rest van de lijst lopen!!!!f
+                            return $groepKey == $key;
                         }
-                        return $groepKey == $key;
                     }
+                }
+                if($l['eckid'] === 'https://ketenid.nl/201703/7003c1987d1431988c399cb31913c82b1c2003e8514a59396f1e0d6c8a6f9edea1157249ccbc35b308f410db12ef35c5c7472ba43a48587f902d6a058287aee8'){
+                    dd($samengesteldeGroep);
                 }
             }
             return false;
         });
-
+        dd([
+            'groepKey' => $groepKey,
+            'leerlingen' => $repo->get('leerling')
+        ]);
+dd($leerling);
         if ($leerling) {
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
         } else {
