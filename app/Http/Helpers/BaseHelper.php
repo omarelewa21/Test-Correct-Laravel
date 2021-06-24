@@ -37,7 +37,7 @@ class BaseHelper
 
     public static function notProduction()
     {
-        return str_contains('testportal', config('app.url_login') && str_contains('.test', config('app.url_login')));
+        return str_contains('testportal', config('app.url_login')) && str_contains('.test', config('app.url_login'));
     }
 
     public static function isRunningTestRefreshDb() {
