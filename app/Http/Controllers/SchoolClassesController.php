@@ -206,7 +206,7 @@ class SchoolClassesController extends Controller
         }
 
         if (!Auth::user()->hasIncompleteImport(false)) {
-            $this->finalizeImport();
+            $this->setClassesVisibleAndFinalizeImport(Auth::user());
         }
 
         return JsonResource::make(['count' => $updateCounter], 200);
