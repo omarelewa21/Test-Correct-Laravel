@@ -108,7 +108,6 @@ class GroupQuestionQuestionManager {
 
     public function prepareForChange($relationToIgnore=null) {
         $question = $this->testQuestion->question;
-
         $i = 1;
         $prevGroupQuestionQuestion = null;
         $prevKey = null;
@@ -116,9 +115,7 @@ class GroupQuestionQuestionManager {
         foreach($this->groupQuestionQuestions as $key => $groupQuestionQuestion) {
             $prevGroupQuestionQuestion = $groupQuestionQuestion;
             $prevKey = $key;
-
             $newQuestion = $question->duplicate($groupQuestionQuestion->question);
-
             if ($i === 1) {
                 $testQuestion = $this->testQuestion;
                 $testQuestion->setAttribute('question_id', $newQuestion->getKey());

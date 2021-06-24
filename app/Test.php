@@ -94,16 +94,11 @@ class Test extends BaseModel
                         'education_level_id' => $test->education_level_id,
                         'education_level_year' => $test->education_level_year
                     ];
+                    $testQuestionQuestionId = $testQuestion->question->id;
                     $request->merge($params);
                     $response = (new TestQuestionsController())->updateFromWithin($testQuestion,  $request);
                     if($testQuestion->question->type=='GroupQuestion'){
                         $testQuestion = $testQuestion->fresh();
-//                        $groupQuestionQuestionsArray = [];
-//                        $groupQuestionQuestionsArray[] = $testQuestion->uuid;
-//                        foreach ($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
-//                            $groupQuestionQuestionsArray[] = $groupQuestionQuestion->uuid;
-//                        }
-//                        $groupQuestionQuestionsUuidString = implode('.',$groupQuestionQuestionsArray);
                         $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
                         foreach($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
                             $request  = new Request();
@@ -913,4 +908,5 @@ class Test extends BaseModel
         }
         return $questionCount;
     }
+
 }

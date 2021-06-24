@@ -18,6 +18,7 @@ use tcCore\Lib\Question\Factory;
 use tcCore\Lib\Question\QuestionInterface;
 use tcCore\Question;
 use tcCore\GroupQuestionQuestion;
+use tcCore\TestQuestion;
 
 class GroupQuestionQuestionsController extends Controller
 {
@@ -328,15 +329,30 @@ class GroupQuestionQuestionsController extends Controller
      * @param UpdateGroupQuestionQuestionRequest $request
      * @return Response
      */
-    public function update(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id, UpdateGroupQuestionQuestionRequest $request)
+    public function update(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $groupQuestionPivot, UpdateGroupQuestionQuestionRequest $request)
     {
-        return $this->updateGeneric($groupQuestionQuestionManager, $group_question_question_id, $request);
+        return $this->updateGeneric($groupQuestionQuestionManager, $groupQuestionPivot, $request);
     }
 
-    public function updateFromWithin(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id, Request $request)
+    public function updateFromWithin(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $groupQuestionPivot, Request $request)
     {
-        return $this->updateGeneric($groupQuestionQuestionManager, $group_question_question_id, $request);
+        if (!$groupQuestionQuestionManager->isChild($groupQuestionPivot)) {
+            return Response::make('Group question question not found', 404);
+        }
+        $question = $groupQuestionPivot->question;
+        DB::beginTransaction();
+        try {
+            $groupQuestionPivot->fill($request->all());
+            $this->handleGroupQuestionQuestionUpdate($question, $request, $groupQuestionPivot, $groupQuestionQuestionManager);
+        } catch (QuestionException $e) {
+            DB::rollback();
+            $e->sendExceptionMail();
+            return Response::make($e->getMessage(), 422);
+        }
+        DB::commit();
+        return Response::make($groupQuestionPivot, 200);
     }
+
 
     public function updateGeneric(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $group_question_question_id, $request)
     {
@@ -350,19 +366,7 @@ class GroupQuestionQuestionsController extends Controller
             $groupQuestionPivot->fill($request->all());
             $question->handleGroupDuplication($request,$groupQuestionQuestionManager,$groupQuestionPivot);
             $groupQuestionPivot = $question->getGroupQuestionPivotAfterPossibleDuplication($groupQuestionPivot);
-            $totalData = $question->getTotalDataForTestQuestionUpdate($request);
-            $question->fill($totalData);
-            $question->handleOnlyAddToDatabaseFieldIsModified($request);
-            $question->handleAnyOtherFieldsAreModifiedWithinGroupQuestion($request,$groupQuestionPivot,$groupQuestionQuestionManager);
-            $groupQuestionPivot->setAttribute('question_id', $question->getKeyAfterPossibleDuplicate());
-            if ($groupQuestionPivot->save()) {
-                $groupQuestionPivot->refresh();
-                $question = $groupQuestionPivot->question;
-                $question->handleAnswersAfterOwnerModelUpdate($groupQuestionPivot,$request);
-                $groupQuestionPivot->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
-            } else {
-                throw new QuestionException('Failed to update group question question', 422);
-            }
+            $this->handleGroupQuestionQuestionUpdate($question, $request, $groupQuestionPivot, $groupQuestionQuestionManager);
         } catch (QuestionException $e) {
             DB::rollback();
             $e->sendExceptionMail();
@@ -417,5 +421,26 @@ class GroupQuestionQuestionsController extends Controller
         }
 
         return $question;
+    }
+
+    /**
+     * @param $question
+     * @param $request
+     * @param $groupQuestionPivot
+     * @param GroupQuestionQuestionManager $groupQuestionQuestionManager
+     * @throws QuestionException
+     */
+    private function handleGroupQuestionQuestionUpdate($question, $request, $groupQuestionPivot, GroupQuestionQuestionManager $groupQuestionQuestionManager): void
+    {
+        $question->updateWithRequestGroup($request, $groupQuestionPivot, $groupQuestionQuestionManager);
+        $groupQuestionPivot->setAttribute('question_id', $question->getKeyAfterPossibleDuplicate());
+        if ($groupQuestionPivot->save()) {
+            $groupQuestionPivot->refresh();
+            $question = $groupQuestionPivot->question;
+            $question->handleAnswersAfterOwnerModelUpdate($groupQuestionPivot, $request);
+            $groupQuestionPivot->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+        } else {
+            throw new QuestionException('Failed to update group question question', 422);
+        }
     }
 }
