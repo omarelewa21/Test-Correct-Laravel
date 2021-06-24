@@ -3,6 +3,9 @@
 namespace tcCore;
 
 use Illuminate\Database\Eloquent\Model;
+use Maatwebsite\Excel\Facades\Excel;
+use tcCore\Exports\TestTakesExport;
+use tcCore\Exports\UwlrExport;
 use tcCore\Http\Helpers\SomTodayHelper;
 
 class UwlrSoapResult extends Model
@@ -98,7 +101,7 @@ class UwlrSoapResult extends Model
         ];
 
         $students->each(function ($leerling) use ($school, $repo) {
-            if ($this->shouldSkipGroup()) {
+            if (!$this->shouldSkipGroup()) {
                 $this->transformGroep($leerling, $school, $repo);
             }
             $this->transformSamenGesteldeGroep($leerling, $school, $repo);
@@ -106,17 +109,25 @@ class UwlrSoapResult extends Model
 
         $teachers = $repo->get('leerkracht');
         $teachers->each(function ($leerkracht) use ($school, $repo) {
-            if ($this->shouldSkipGroup()) {
+            if (!$this->shouldSkipGroup()) {
                 $this->transformGroepForTeacher($leerkracht, $school, $repo);
             }
             $this->transformSamengesteldeGroepForTeacher($leerkracht, $school, $repo);
         });
-        if ($this->shouldSkipGroup()) {
+        if (!$this->shouldSkipGroup()) {
             $this->checkGroepenForWithLabel($repo, 'leerkracht');
             $this->checkGroepenForWithLabel($repo, 'leerling');
         }
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerkracht');
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerling');
+
+//        $export = new UwlrExport($this->csvArray);
+//        $fileName = sprintf('uwlr-export-%s-%s.xlsx',$this->getKey(),date('Ymd'));
+//        $file = storage_path($fileName);
+//        if (file_exists($file)) {
+//            unlink($file);
+//        }
+//        Excel::store($export,$fileName);
 
         return $this->csvArray;
     }
@@ -277,9 +288,11 @@ class UwlrSoapResult extends Model
         });
 
 
-
-
-        $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
+        if($leerkracht) {
+            $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
+        } else {
+            $this->errors[] = sprintf('kan geen leerkracht vinden voor klas %s', $klas['naam']);
+        }
 
 
     }

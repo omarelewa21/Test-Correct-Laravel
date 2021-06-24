@@ -127,6 +127,8 @@ class ImportHelper
 
     public $make_school_classes_visible = true;
 
+    public $uwlr_soap_result_id;
+
 
     /**
      *
@@ -158,6 +160,8 @@ class ImportHelper
         $instance->log_name = date("mdh_i_s");
 
         $instance->csv_data = $data->toCSV();
+
+        $instance->uwlr_soap_result_id = $data->getKey();
 
         unset($data);
 

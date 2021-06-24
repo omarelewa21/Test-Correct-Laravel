@@ -90,29 +90,40 @@
                                 {{ $set->client_code }}
                             </x-table.cell>
                             <x-table.cell>
-                                <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Bekijk details
-                                </x-button.text-button>
+                                @if($set->status !== 'PROCESSING')
+                                    <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Bekijk details
+                                    </x-button.text-button>
+                                @elseif($set->status === 'PROCESSING' || $set->status === 'READYTOPROCESS')
+                                    <div class="lds-hourglass" wire:poll></div>
+                                @endif
+
                             </x-table.cell>
                             <x-table.cell>
+                                @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
                                 <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Verwerken
                                 </x-button.text-button>
+                                @endif
                             </x-table.cell>
                             <x-table.cell>
-                                @if(\Illuminate\Support\Str::contains(url()->current(),'testwelcome'))
-                                    <x-button.text-button class="" @click="if(confirm('Weet je zeker dat je hier alles van wilt verijderen?\nLet op: Dit kan even duren het scherm ververst zichzelf!')){ livewire.find(document.querySelector('#uwlr-grid').getAttribute('wire:id')).call('deleteImportDataForResultSet','{{ $set->getKey() }}')}">
-                                        <div wire:loading wire:target="deleteImportDataForResultSet">
-                                            <div class="lds-hourglass"></div>
-                                        </div>
-                                        <div wire:loading.remove wire:target="deleteImportDataForResultSet">
-                                            <span class="error"><x-icon.trash></x-icon.trash></span>
-                                        </div>
-                                    </x-button.text-button>
+                                @if($set->status !== 'PROCESSING')
+                                    @if(\Illuminate\Support\Str::contains(url()->current(),'testwelcome'))
+                                        <x-button.text-button class="" @click="if(confirm('Weet je zeker dat je hier alles van wilt verijderen?\nLet op: Dit kan even duren het scherm ververst zichzelf!')){ livewire.find(document.querySelector('#uwlr-grid').getAttribute('wire:id')).call('deleteImportDataForResultSet','{{ $set->getKey() }}')}">
+                                            <div wire:loading wire:target="deleteImportDataForResultSet">
+                                                <div class="lds-hourglass"></div>
+                                            </div>
+                                            <div wire:loading.remove wire:target="deleteImportDataForResultSet">
+                                                <span class="error"><x-icon.trash></x-icon.trash></span>
+                                            </div>
+                                        </x-button.text-button>
                                     @endif
+                                @endif
                             </x-table.cell>
                             <x-table.cell>
-                                @if ($set->error_messages)
-                                    <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">Error
-                                    </x-button.text-button>
+                                @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
+                                    @if ($set->error_messages)
+                                        <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">Error
+                                        </x-button.text-button>
+                                    @endif
                                 @endif
                             </x-table.cell>
                         </x-table.row>

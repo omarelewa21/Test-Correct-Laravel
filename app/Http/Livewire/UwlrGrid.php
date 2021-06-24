@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Http\Helpers\ImportHelper;
+use tcCore\Jobs\ProcessUwlrSoapResultJob;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\User;
@@ -83,6 +84,11 @@ class UwlrGrid extends Component
 
     public function startProcessingResult()
     {
+        $result = UwlrSoapResult::findOrFail($this->processingResultId);
+        $result->status = 'READYTOPROCESS';
+        $result->save();
+//        dispatch(new ProcessUwlrSoapResultJob($this->processingResultId));
+//
         set_time_limit(0);
         $helper = ImportHelper::initWithUwlrSoapResult(
             UwlrSoapResult::find($this->processingResultId),
@@ -102,7 +108,7 @@ class UwlrGrid extends Component
 
         $this->processingResult = collect($result)->join('<BR>');
         $this->displayGoToErrorsButton = !empty(UwlrSoapResult::find($this->processingResultId)->error_messages);
-
+        return $this->redirect(route('uwlr.grid'));
     }
 
     public function newImport()
@@ -125,12 +131,10 @@ class UwlrGrid extends Component
             if (is_object($obj)) {
                 $r = (array) $obj;
             }
-
-
+            $groepCollection = collect($this->activeResult['groep']);
+            $samengesteldeGroepCollection = collect($this->activeResult['samengestelde_groep']);
             foreach ($r as $k => $value) {
                 if (in_array($k, ['groepen', 'groep', 'samengestelde_groepen'])) {
-                    $groepCollection = collect($this->activeResult['groep']);
-                    $samengesteldeGroepCollection = collect($this->activeResult['samengestelde_groep']);
                    if ($k == 'groep') {
                        $currentGroepKey = $r[$k]['key'];
                        $groep = $groepCollection->first(function($groep) use ($currentGroepKey) {
@@ -139,7 +143,7 @@ class UwlrGrid extends Component
                        $r[$k] = $groep['naam'];
                    }
                     if ($k == 'samengestelde_groepen') {
-                        $samengesteldeGroepenKeys = $r[$k];
+                        $samengesteldeGroepenKeys = $this->getSamengesteldeGroepenKeys($r[$k]);
 
                         $samengesteldeGroepen = $samengesteldeGroepCollection->filter(function($groep) use ($samengesteldeGroepenKeys) {
                             return in_array($groep['key'],  $samengesteldeGroepenKeys);
@@ -150,14 +154,27 @@ class UwlrGrid extends Component
                         $r[$k] = $samengesteldeGroepen->join(',');
                     }
                     if ($k == 'groepen') {
-                        $groepenKeys = $r[$k];
-                        $groepen = $groepCollection->filter(function($groep) use ($groepenKeys) {
-                            return in_array($groep['key'],  $groepenKeys);
-                        })->map(function($groep){
-                            return $groep['naam'];
-                        });
+                        $groepenKeys = $this->getGroepenKeys($r[$k]);
 
-                        $r[$k] = $groepen->join(',');
+                        if($this->hasSamengesteldeGroepInGroepen($r[$k])){
+                            $groepen = $samengesteldeGroepCollection->filter(function ($groep) use ($groepenKeys) {
+                                return in_array($groep['key'], $groepenKeys);
+                            })->map(function ($groep) {
+                                return $groep['naam'];
+                            });
+
+                            $r['samengestelde_groepen'] = $groepen->join(',');
+                            $r['groepen'] = '';
+
+                        } else {
+                            $groepen = $groepCollection->filter(function ($groep) use ($groepenKeys) {
+                                return in_array($groep['key'], $groepenKeys);
+                            })->map(function ($groep) {
+                                return $groep['naam'];
+                            });
+
+                            $r[$k] = $groepen->join(',');
+                        }
                     }
                     //unset($r[$k]);
                 }
@@ -166,6 +183,32 @@ class UwlrGrid extends Component
         }
 
         return $arr;
+    }
+
+    protected function getSamengesteldeGroepenKeys($data)
+    {
+        return $this->getGroepenKeys($data);
+    }
+
+    protected function hasSamengesteldeGroepInGroepen($data)
+    {
+        return array_key_exists('samengestelde_groep',$data);
+    }
+
+    protected function getGroepenKeys($data)
+    {
+        if($this->hasSamengesteldeGroepInGroepen($data)){
+            $returnData = [];
+            foreach($data['samengestelde_groep'] as $gData){
+                if(is_array($gData) && array_key_exists('key',$gData)){
+                    $returnData[] = $gData['key'];
+                } else {
+                    $returnData[] = $gData;
+                }
+            }
+            return $returnData;
+        }
+        return $data;
     }
 
     public function render()
