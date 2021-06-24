@@ -1998,6 +1998,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 })
                 ->where('teachers.user_id', $this->getKey())
                 ->where('school_classes.demo', 0)
+                ->where('school_classes.visible',0)
                 ->value('cnt');
 
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
