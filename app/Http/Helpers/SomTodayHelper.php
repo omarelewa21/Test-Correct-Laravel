@@ -4,6 +4,7 @@ namespace tcCore\Http\Helpers;
 
 
 use Artisaninweb\SoapWrapper\SoapWrapper;
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Ramsey\Uuid\Guid\Guid;
 use tcCore\UwlrSoapEntry;
 use tcCore\UwlrSoapResult;
@@ -23,6 +24,9 @@ class SomTodayHelper
     private $result = null;
 
     private $resultIdentifier = null;
+
+    protected $soapError;
+    protected $soapException;
 
 
     /**
@@ -71,14 +75,19 @@ class SomTodayHelper
                 });
 
             // Without classmap
-            $this->result = $this->soapWrapper->call('leerlinggegevensServiceV2.HaalLeerlinggegevens', [
-                'leerlinggegevens_verzoek' => [
-                    'schooljaar'     => $schooljaar,
-                    'brincode'       => $brincode,
-                    'dependancecode' => $dependancecode,
-                    'xsdversie'      => self::XSD_VERSION,
-                ]
-            ]);
+            try {
+                $this->result = $this->soapWrapper->call('leerlinggegevensServiceV2.HaalLeerlinggegevens', [
+                    'leerlinggegevens_verzoek' => [
+                        'schooljaar' => $schooljaar,
+                        'brincode' => $brincode,
+                        'dependancecode' => $dependancecode,
+                        'xsdversie' => self::XSD_VERSION,
+                    ]
+                ]);
+            } catch(\Exception $e){
+                $this->soapError = $e->getMessage();
+                $this->soapException = $e;
+            }
             return $this;
         }
 
@@ -87,6 +96,14 @@ class SomTodayHelper
 
     public function storeInDB()
     {
+        if($this->soapError){
+            $this->resultSet = UwlrSoapResult::create($this->searchParams);
+            $this->resultSet->error_messages = $this->soapError;
+            $this->resultSet->save();
+            $body = sprintf('There was an exception while retrieving data from SomToday%serror: %s%sdata:%s',PHP_EOL,$this->soapError,PHP_EOL,print_r($this->searchParams,true));
+            Bugsnag::notifyException(new \LogicException($body,0,$this->soapException));
+            throw new \Exception($body = sprintf('Er ging iets mis bij het ophalen van de gegevens via SomToday<br/>error: %s<br/>Data die gebruikt is:<pre>%s</pre>',$this->soapError,print_r($this->searchParams,true)));
+        }
         if (!$this->result) {
             throw new \Exception('no result to store');
         }
