@@ -27,8 +27,8 @@
         <div class="flex space-x-4 mt-4">
             <x-input.group label="Schooljaar" class="w-1/2">
                 <x-input.select wire:model="schoolYear">
-                    @foreach($this->schoolYears as $schoolYear)
-                        <option value="{{ $schoolYear }}">{{ $schoolYear  }}</option>
+                    @foreach($this->schoolYears as $i => $schoolYear)
+                        <option value="{{ $schoolYear }}" @if($i === 0) checked="true" @endif>{{ $schoolYear  }}</option>
                     @endforeach
                 </x-input.select>
             </x-input.group>
