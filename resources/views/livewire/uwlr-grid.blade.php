@@ -29,6 +29,13 @@
             <x-button.primary class="" wire:click="newImport">Import</x-button.primary>
         </div>
     </div>
+
+    @if (session()->has('error'))
+        <div class="content-section mt-10 flex-1 p-8 error">
+            {!!  session('error')  !!}
+        </div>
+    @endif
+
     <div class="content-section mt-10 flex-1 p-8" x-data="{}">
 
         <div class="flex space-x-4 mt-4">

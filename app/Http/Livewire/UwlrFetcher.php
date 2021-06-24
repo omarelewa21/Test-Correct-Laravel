@@ -93,10 +93,15 @@ class UwlrFetcher extends Component
 
     public function fetch()
     {
-        $helper = $this->getHelper();
+        try {
+            $helper = $this->getHelper();
 
-        $this->report = $helper->getResultSet()->report();
-        $this->resultIdendifier = $helper->getResultIdentifier();
+            $this->report = $helper->getResultSet()->report();
+            $this->resultIdendifier = $helper->getResultIdentifier();
+        } catch(\Exception $e){
+            session()->flash('error', $e->getMessage());
+            return $this->redirect(route('uwlr.grid'));
+        }
     }
 
     public function getHelper()
