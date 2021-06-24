@@ -1977,7 +1977,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //            if ($this->schoolLocation->lvs === false) {
 //                return false;
 //            }
-            if ($this->schoolLocation->lvs_active === false) {
+            if ($this->schoolLocation->lvs_type) { // not lvs_active any more as active means that it will be taken along with the daily checks cron import
                 return false;
             }
             $baseSubjectId = BaseSubject::where('name','demovak')->value('id');
