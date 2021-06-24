@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Http\Helpers\ImportHelper;
+use tcCore\Jobs\ProcessUwlrSoapResultJob;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\User;
@@ -83,26 +84,31 @@ class UwlrGrid extends Component
 
     public function startProcessingResult()
     {
-        set_time_limit(0);
-        $helper = ImportHelper::initWithUwlrSoapResult(
-            UwlrSoapResult::find($this->processingResultId),
-            'sobit.nl'
-        );
-
-
-
-        $result = $helper->process();
-        if (array_key_exists('errors', $result)) {
-            if (!is_array($result['errors'])) {
-                $result['errors'] = [$result['errors']];
-            }
-            $this->processingResultErrors = $result['errors'];
-            return false;
-        }
-
-        $this->processingResult = collect($result)->join('<BR>');
-        $this->displayGoToErrorsButton = !empty(UwlrSoapResult::find($this->processingResultId)->error_messages);
-
+        $result = UwlrSoapResult::findOrFail($this->processingResultId);
+        $result->status = 'READYTOPROCESS';
+        $result->save();
+        dispatch(new ProcessUwlrSoapResultJob($this->processingResultId));
+//
+//        set_time_limit(0);
+//        $helper = ImportHelper::initWithUwlrSoapResult(
+//            UwlrSoapResult::find($this->processingResultId),
+//            'sobit.nl'
+//        );
+//
+//
+//
+//        $result = $helper->process();
+//        if (array_key_exists('errors', $result)) {
+//            if (!is_array($result['errors'])) {
+//                $result['errors'] = [$result['errors']];
+//            }
+//            $this->processingResultErrors = $result['errors'];
+//            return false;
+//        }
+//
+//        $this->processingResult = collect($result)->join('<BR>');
+//        $this->displayGoToErrorsButton = !empty(UwlrSoapResult::find($this->processingResultId)->error_messages);
+        return $this->redirect(route('uwlr.grid'));
     }
 
     public function newImport()
