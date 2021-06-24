@@ -2026,6 +2026,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if ($this->isA('school manager')) {
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')->withoutGlobalScope('visibleOnly')
                 ->where('school_classes.visible',0)
+                ->where('school_classes.is_main_school_class',1)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
                 ->where(function ($query) {
