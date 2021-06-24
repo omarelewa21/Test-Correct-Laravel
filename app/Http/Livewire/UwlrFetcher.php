@@ -73,6 +73,7 @@ class UwlrFetcher extends Component
                return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
             });
             $this->schoolYears = collect($years)->sortDesc();
+            $this->schoolYear = $this->schoolYears->first();
         }
 
     }
