@@ -15,7 +15,7 @@ class UwlrSoapEntry extends Model
 
     public static function deleteImportDataForSchoolLocationId($id, $resultSetId = false)
     {
-        SchoolClass::whereSchoolLocationId($id)->each(function ($schoolClass) {
+        SchoolClass::withoutGlobalScope('visibleOnly')->whereSchoolLocationId($id)->each(function ($schoolClass) {
             $schoolClass->teacher()->forceDelete();
             $schoolClass->students()->forceDelete();
             $schoolClass->forceDelete();
