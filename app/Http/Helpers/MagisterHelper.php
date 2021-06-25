@@ -55,11 +55,11 @@ class MagisterHelper
 
     public static function guzzle($schoolYear = '2019-2020', $brinCode = '99DE', $dependanceCode = '00')
     {
-        $url = 'https://hub.iddinkgroup.com/uwlr-l-alles-in-een/V2.3'; // 'https://acc.idhub.nl/uwlr-l-alles-in-een/v2.3'; // test is acc.ihub
+        $url = 'https://hub.iddinkgroup.com/uwlr-l-alles-in-een/V2.3'; // 'https://acc.idhub.nl/uwlr-l-alles-in-een/v2.3'; // test is acc.ihub // live is https://hub.iddinkgroup.com/uwlr-l-alles-in-een/V2.3
 
-        $authKey = 'AC76D8FD11A644108A50E062CC685BBF'; // 'HubUwlrLDemoAuthKey'; //test is HubUwlrLDemoAuthKey
-        $klantCode = 'Test-correct-uwlr'; // 'HubUwlrLDemo'; // test is HubUwlrLDemo
-        $klantNaam = 'Test-correct-uwlr'; // 'HubUwlrLDemoClient'; // test is HubUwlrLDemoClient
+        $authKey = 'AC76D8FD11A644108A50E062CC685BBF'; // 'HubUwlrLDemoAuthKey'; //test is HubUwlrLDemoAuthKey // live is 'AC76D8FD11A644108A50E062CC685BBF';
+        $klantCode = 'Test-correct-uwlr'; // 'HubUwlrLDemo'; // test is HubUwlrLDemo // live is 'Test-correct-uwlr';
+        $klantNaam = 'Test-correct-uwlr'; // 'HubUwlrLDemoClient'; // test is HubUwlrLDemoClient // live is 'Test-correct-uwlr';
 
         $xml = trim('
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:aut="http://www.edustandaard.nl/leerresultaten/2/autorisatie" xmlns:leer="http://www.edustandaard.nl/leerresultaten/2/leerlinggegevens">
@@ -85,7 +85,7 @@ class MagisterHelper
         $client = new Client([
             'headers' => [
                 'SOAPAction'                 => 'HaalLeerlinggegevens',
-                'IddinkHub-Subscription-Key' => 'b412ddd6a5fd4134a6505a46c01baf36',// 'a52478c70c6a43df83f3bcd4f7a77327', // test is a524
+                'IddinkHub-Subscription-Key' => 'b412ddd6a5fd4134a6505a46c01baf36',// 'a52478c70c6a43df83f3bcd4f7a77327', // test is a524 // live is b412ddd6a5fd4134a6505a46c01baf36
                 'Content-Type'               => 'text/xml',
             ]
         ]);

@@ -472,8 +472,14 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInLabel->isNotEmpty()) {
+            $keyNames = collect($repo->get('groep'))->filter(function ($groep) use ($notInLabel){
+                $groep = (array) $groep;
+                return $notInLabel->contains($groep['key']);
+            })->map(function($k){
+                return $k['naam'];
+            });
             $this->errors[] = sprintf('no %sen found for group(s) keys (letop deze is dubbel) [%s]', $label,
-                $notInLabel->join(', '));
+                $keyNames->join(', '));
         }
 
         $notInGroups = $labelKeys->filter(function ($teacherKey) use ($keys) {
@@ -534,7 +540,13 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInLabel->isNotEmpty()) {
-            $this->errors[] = sprintf('no %sen found for samengestelde_group(s) [%s]', $label, $notInLabel->join(', '));
+            $keyNames = collect($repo->get('samengestelde_groep'))->filter(function ($groep) use ($notInLabel){
+                $groep = (array) $groep;
+                return $notInLabel->contains($groep['key']);
+            })->map(function($k){
+                return $k['naam'];
+            });
+            $this->errors[] = sprintf('no %sen found for samengestelde_group(s) [%s]', $label, $keyNames->join(', '));
         }
 
         $notInGroups = $labelKeys->filter(function ($teacherKey) use ($keys) {
