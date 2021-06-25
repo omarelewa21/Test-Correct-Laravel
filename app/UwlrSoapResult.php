@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\Exports\TestTakesExport;
 use tcCore\Exports\UwlrExport;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\SomTodayHelper;
 
 class UwlrSoapResult extends Model
@@ -75,7 +76,6 @@ class UwlrSoapResult extends Model
             /** @todo foutmelding school niet gevonden met gegevens hoe aan te maken (brin en brinneven) */
         }
 
-
         $this->csvArray[] = [
             'Schoolnaam',
             'Brincode',
@@ -121,14 +121,19 @@ class UwlrSoapResult extends Model
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerkracht');
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerling');
 
-//        $export = new UwlrExport($this->csvArray);
-//        $fileName = sprintf('uwlr-export-%s-%s.xlsx',$this->getKey(),date('Ymd'));
-//        $file = storage_path($fileName);
-//        if (file_exists($file)) {
-//            unlink($file);
+//        if(!BaseHelper::notOnLocal()) { // only if on local
+//            $export = new UwlrExport($this->csvArray);
+//            $fileName = sprintf('uwlr-export-%s-%s.xlsx',$this->getKey(),date('Ymd'));
+//            $file = storage_path($fileName);
+//            if (file_exists($file)) {
+//                unlink($file);
+//            }
+//            Excel::store($export,$fileName);
 //        }
-//        Excel::store($export,$fileName);
 
+        unset($repo);
+        unset($students);
+        unset($teachers);
         return $this->csvArray;
     }
 
@@ -413,7 +418,9 @@ class UwlrSoapResult extends Model
                 $samengesteldeGroepen = (array) $l['samengestelde_groepen'];
                 foreach ($samengesteldeGroepen as $samengesteldeGroep) {
                     if(is_string($samengesteldeGroep)){
-                        return $samengesteldeGroep == $groepKey;
+                        if($samengesteldeGroep == $groepKey){
+                            return true;
+                        }
                     } else {
                         $samengesteldeGroep = (array)$samengesteldeGroep;
                         foreach ($samengesteldeGroep as $value) {
@@ -424,7 +431,9 @@ class UwlrSoapResult extends Model
                             } else {
                                 $key = array_pop($value);
                             }
-                            return $groepKey == $key;
+                            if($groepKey == $key){
+                                return true;
+                            }
                         }
                     }
                 }
