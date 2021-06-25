@@ -442,13 +442,10 @@ class DemoHelper
                 if($r->trashed()){
                     $r->restore();
                 }
-                $r = Text2SpeechLog::withTrashed()->firstOrCreate(
+                $r = Text2SpeechLog::firstOrCreate(
                     ['user_id' => $user->getKey()],
                     ['who' => 0, 'action' => 'ACCEPTED']
                 );
-                if($r->trashed()){
-                    $r->restore();
-                }
             }
             $users->add($user);
         });
