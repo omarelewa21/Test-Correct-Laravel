@@ -556,7 +556,7 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInGroups->isNotEmpty()) {
-            $this->errors[] = sprintf('found groep(s) in %s but not in groep %s', $label, $notInGroups->join(' '));
+            $this->errors[] = sprintf('found samengestelde groep(s) in %s but not in samengestelde groep %s', $label, $notInGroups->join(' '));
         };
     }
 
