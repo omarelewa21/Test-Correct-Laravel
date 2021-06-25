@@ -86,6 +86,19 @@ function shouldLostFocusBeReported(reason) {
 }
 
 Core = {
+    inApp : false,
+    appType : '',
+
+    init : function() {
+        let isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+        let isAndroid = /Android/g.test(navigator.userAgent);
+
+        if(isIOS) {
+            Core.isIpad();
+        }else if(isAndroid){
+            Core.isAndroid();
+        }
+    },
     lostFocus: function (reason) {
         if (reason == "printscreen") {
             Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
@@ -99,6 +112,34 @@ Core = {
             livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
         }
         alert = true;
+    },
+    isIpad : function() {
+        var standalone = window.navigator.standalone,
+            userAgent = window.navigator.userAgent.toLowerCase(),
+            safari = /safari/.test( userAgent ),
+            ios = /iphone|ipod|ipad/.test( userAgent );
+
+        if( ios ) {
+            if ( !standalone && safari ) {
+                Core.appType = 'browser';
+                Core.inApp = false;
+            } else if ( standalone && !safari ) {
+                Core.appType = 'standalone';
+                Core.inApp = true;
+            } else if ( !standalone && !safari ) {
+                Core.appType = 'ipad';
+                Core.inApp = true;
+                checkForIpadKeyboard();
+            };
+        }
+    },
+
+    isAndroid : function() {
+        Core.inApp = true;
+        Core.appType = 'android';
+    },
+    isChromebook : function(){
+        return (window.navigator.userAgent.indexOf('CrOS') > 0);
     }
 }
 
@@ -111,4 +152,16 @@ handleScrollNavigation = function (evt) {
         return false;
     }
     return evt.shiftKey;
+}
+
+function checkForIpadKeyboard() {
+    window.visualViewport.addEventListener('resize', function() {
+        if(visualViewport.height < 400) {
+            document.querySelector('header').classList.remove('fixed');
+            document.querySelector('footer').classList.remove('fixed');
+        } else {
+            document.querySelector('header').classList.add('fixed');
+            document.querySelector('footer').classList.add('fixed');
+        }
+    })
 }
