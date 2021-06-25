@@ -509,7 +509,7 @@ class DemoHelper
         ];
 
         $return = EducationLevel::withTrashed()->firstOrCreate($attr);
-        if($return->isTrashed()){
+        if($return->trashed()){
             $return->restore();
         }
         return $return;
