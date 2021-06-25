@@ -15,14 +15,14 @@ class UwlrSoapEntry extends Model
 
     public static function deleteImportDataForSchoolLocationId($id, $resultSetId = false)
     {
-        SchoolClass::withoutGlobalScope('visibleOnly')->whereSchoolLocationId($id)->each(function ($schoolClass) {
-            $schoolClass->teacher()->forceDelete();
-            $schoolClass->students()->forceDelete();
+        SchoolClass::withoutGlobalScope('visibleOnly')->withTrashed()->whereSchoolLocationId($id)->each(function ($schoolClass) {
+            $schoolClass->teacher()->withTrashed()->forceDelete();
+            $schoolClass->students()->withTrashed()->forceDelete();
             $schoolClass->forceDelete();
         });
 
         $userIdsToDelete = [];
-        User::whereSchoolLocationId($id)->each(function($user) use (&$userIdsToDelete){
+        User::whereSchoolLocationId($id)->withTrashed()->each(function($user) use (&$userIdsToDelete){
             $user->eckidFromRelation()->forceDelete();
             if(!$user->isA('school manager')) {
                 $userIdsToDelete[] = $user->getKey();
