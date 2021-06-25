@@ -138,6 +138,7 @@ class UwlrGrid extends Component
             foreach ($r as $k => $value) {
                 if (in_array($k, ['groepen', 'groep', 'samengestelde_groepen'])) {
                    if ($k == 'groep') {
+                       $r[$k] = (array) $r[$k];
                        $currentGroepKey = $r[$k]['key'];
                        $groep = $groepCollection->first(function($groep) use ($currentGroepKey) {
                            return $groep['key'] === $currentGroepKey;
