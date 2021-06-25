@@ -45,10 +45,14 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
         set_time_limit(0);
         $resultSet = UwlrSoapResult::find($this->uwlrSoapResultId);
         if(!$resultSet){
+            // should be a logger notice but let's do an exception for the moment so that we can see what happens in bugsnag
             throw new \Exception('we could not find the corresponding resultset  with id '.$this->uwlrSoapResultId);
+            return true;
         }
         if($resultSet->status !== 'READYTOPROCESS'){
+            // should be a logger notice but let's do an exception for the moment so that we can see what happens in bugsnag
             throw new \Exception('trying to process the resultset with the wrong status '.$resultSet->status.', resultset  with id '.$this->uwlrSoapResultId);
+            return true;
         }
 
         $accountManager = User::leftJoin('user_roles','user_roles.user_id','users.id')->where('user_roles.role_id',5)->first();
