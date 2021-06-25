@@ -476,6 +476,7 @@ class UwlrSoapResult extends Model
                 $groep = (array) $groep;
                 return $notInLabel->contains($groep['key']);
             })->map(function($k){
+                $k = (array) $k;
                 return $k['naam'];
             });
             $this->errors[] = sprintf('no %sen found for group(s) keys (letop deze is dubbel) [%s]', $label,
@@ -544,6 +545,7 @@ class UwlrSoapResult extends Model
                 $groep = (array) $groep;
                 return $notInLabel->contains($groep['key']);
             })->map(function($k){
+                $k = (array) $k;
                 return $k['naam'];
             });
             $this->errors[] = sprintf('no %sen found for samengestelde_group(s) [%s]', $label, $keyNames->join(', '));
