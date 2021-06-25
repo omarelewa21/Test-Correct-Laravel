@@ -57,9 +57,9 @@ class MagisterHelper
     {
         $url = 'https://hub.iddinkgroup.com/uwlr-l-alles-in-een/V2.3'; // 'https://acc.idhub.nl/uwlr-l-alles-in-een/v2.3'; // test is acc.ihub
 
-        $authKey = 'AC76D8FD11A644108A50E062CC685BBF'; // 'HubUwlrLDemoAuthKey'; //test is HubUwlrLDemoAuthKey
-        $klantCode = 'Test-correct-uwlr'; // 'HubUwlrLDemo'; // test is HubUwlrLDemo
-        $klantNaam = 'Test-correct-uwlr'; // 'HubUwlrLDemoClient'; // test is HubUwlrLDemoClient
+        $authKey = 'AC76D8FD11A644108A50E062CC685BBF'; // 'HubUwlrLDemoAuthKey'; //test is HubUwlrLDemoAuthKey // live is 'AC76D8FD11A644108A50E062CC685BBF';
+        $klantCode = 'Test-correct-uwlr'; // 'HubUwlrLDemo'; // test is HubUwlrLDemo // live is 'Test-correct-uwlr';
+        $klantNaam = 'Test-correct-uwlr'; // 'HubUwlrLDemoClient'; // test is HubUwlrLDemoClient // live is 'Test-correct-uwlr';
 
         $xml = trim('
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:aut="http://www.edustandaard.nl/leerresultaten/2/autorisatie" xmlns:leer="http://www.edustandaard.nl/leerresultaten/2/leerlinggegevens">
