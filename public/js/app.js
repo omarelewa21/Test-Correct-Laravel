@@ -3806,6 +3806,10 @@ __webpack_require__(/*! livewire-sortable */ "./node_modules/livewire-sortable/d
 
 __webpack_require__(/*! ./swipe */ "./resources/js/swipe.js");
 
+__webpack_require__(/*! ./core */ "./resources/js/core.js");
+
+__webpack_require__(/*! ./notify */ "./resources/js/notify.js");
+
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
   var id = 1;
   var questionContainers = document.querySelectorAll('[questionHtml]');
@@ -3830,6 +3834,59 @@ makeHeaderMenuActive = function makeHeaderMenuActive(elementId) {
   document.getElementById(elementId).classList.add('active');
 };
 
+isInputElement = function isInputElement(target) {
+  return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
+};
+
+handleScrollNavigation = function handleScrollNavigation(evt) {
+  if (evt.target.closest('#navigation-container') !== null) {
+    return false;
+  }
+
+  return evt.shiftKey;
+};
+
+/***/ }),
+
+/***/ "./resources/js/bootstrap.js":
+/*!***********************************!*\
+  !*** ./resources/js/bootstrap.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+
+window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+/**
+ * We'll load the axios HTTP library which allows us to easily issue requests
+ * to our Laravel back-end. This library automatically handles sending the
+ * CSRF token as a header based on the value of the "XSRF" token cookie.
+ */
+
+window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+/**
+ * Echo exposes an expressive API for subscribing to channels and listening
+ * for events that are broadcast by Laravel. Echo and event broadcasting
+ * allows your team to easily build robust real-time web applications.
+ */
+// import Echo from 'laravel-echo';
+// window.Pusher = require('pusher-js');
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: process.env.MIX_PUSHER_APP_KEY,
+//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
+//     forceTLS: true
+// });
+
+window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+
+/***/ }),
+
+/***/ "./resources/js/core.js":
+/*!******************************!*\
+  !*** ./resources/js/core.js ***!
+  \******************************/
+/***/ (() => {
+
 parent.skip = false;
 var notifsent = false;
 var lastLostFocus = {
@@ -3839,15 +3896,64 @@ var lastLostFocus = {
 };
 var alert = false;
 var checkFocusTimer = false;
-Notify = {
-  notify: function notify(message, initialType) {
-    var type = initialType ? initialType : 'info';
-    window.dispatchEvent(new CustomEvent('notify', {
-      detail: {
-        message: message,
-        type: type
+Core = {
+  inApp: false,
+  appType: '',
+  init: function init() {
+    var isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+    var isAndroid = /Android/g.test(navigator.userAgent);
+
+    if (isIOS) {
+      Core.isIpad();
+    } else if (isAndroid) {
+      Core.isAndroid();
+    }
+
+    runCheckFocus();
+  },
+  lostFocus: function lostFocus(reason) {
+    if (reason == "printscreen") {
+      Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
+    } else {
+      Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
+    }
+
+    window.Livewire.emit('setFraudDetected');
+
+    if (shouldLostFocusBeReported(reason)) {
+      livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
+    }
+
+    alert = true;
+  },
+  isIpad: function isIpad() {
+    var standalone = window.navigator.standalone,
+        userAgent = window.navigator.userAgent.toLowerCase(),
+        safari = /safari/.test(userAgent),
+        ios = /iphone|ipod|ipad/.test(userAgent);
+
+    if (ios) {
+      if (!standalone && safari) {
+        Core.appType = 'browser';
+        Core.inApp = false;
+      } else if (standalone && !safari) {
+        Core.appType = 'standalone';
+        Core.inApp = true;
+      } else if (!standalone && !safari) {
+        Core.appType = 'ipad';
+        Core.inApp = true;
+        checkForIpadKeyboard();
       }
-    }));
+
+      ;
+    }
+  },
+  isAndroid: function isAndroid() {
+    Core.inApp = true;
+    Core.appType = 'android';
+  },
+  isChromebook: function isChromebook() {
+    return window.navigator.userAgent.indexOf('CrOS') > 0;
   }
 };
 
@@ -3898,108 +4004,37 @@ function shouldLostFocusBeReported(reason) {
   return false;
 }
 
-Core = {
-  inApp: false,
-  appType: '',
-  init: function init() {
-    var isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
-    var isAndroid = /Android/g.test(navigator.userAgent);
-
-    if (isIOS) {
-      Core.isIpad();
-    } else if (isAndroid) {
-      Core.isAndroid();
-    }
-  },
-  lostFocus: function lostFocus(reason) {
-    if (reason == "printscreen") {
-      Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
+function checkForIpadKeyboard() {
+  window.visualViewport.addEventListener('resize', function () {
+    if (visualViewport.height < 400) {
+      document.querySelector('header').classList.remove('fixed');
+      document.querySelector('footer').classList.remove('fixed');
     } else {
-      Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
+      document.querySelector('header').classList.add('fixed');
+      document.querySelector('footer').classList.add('fixed');
     }
-
-    window.Livewire.emit('setFraudDetected');
-
-    if (shouldLostFocusBeReported(reason)) {
-      livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
-    }
-
-    alert = true;
-  },
-  isIpad: function isIpad() {
-    var standalone = window.navigator.standalone,
-        userAgent = window.navigator.userAgent.toLowerCase(),
-        safari = /safari/.test(userAgent),
-        ios = /iphone|ipod|ipad/.test(userAgent);
-
-    if (ios) {
-      if (!standalone && safari) {
-        Core.appType = 'browser';
-        Core.inApp = false;
-      } else if (standalone && !safari) {
-        Core.appType = 'standalone';
-        Core.inApp = true;
-      } else if (!standalone && !safari) {
-        Core.appType = 'ipad';
-        Core.inApp = true;
-      }
-
-      ;
-    }
-  },
-  isAndroid: function isAndroid() {
-    Core.inApp = true;
-    Core.appType = 'android';
-  },
-  isChromebook: function isChromebook() {
-    return window.navigator.userAgent.indexOf('CrOS') > 0;
-  }
-};
-
-isInputElement = function isInputElement(target) {
-  return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
-};
-
-handleScrollNavigation = function handleScrollNavigation(evt) {
-  if (evt.target.closest('#navigation-container') !== null) {
-    return false;
-  }
-
-  return evt.shiftKey;
-};
+  });
+}
 
 /***/ }),
 
-/***/ "./resources/js/bootstrap.js":
-/*!***********************************!*\
-  !*** ./resources/js/bootstrap.js ***!
-  \***********************************/
-/***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
+/***/ "./resources/js/notify.js":
+/*!********************************!*\
+  !*** ./resources/js/notify.js ***!
+  \********************************/
+/***/ (() => {
 
-window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
-
-window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-// import Echo from 'laravel-echo';
-// window.Pusher = require('pusher-js');
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
-
-window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+Notify = {
+  notify: function notify(message, initialType) {
+    var type = initialType ? initialType : 'info';
+    window.dispatchEvent(new CustomEvent('notify', {
+      detail: {
+        message: message,
+        type: type
+      }
+    }));
+  }
+};
 
 /***/ }),
 
