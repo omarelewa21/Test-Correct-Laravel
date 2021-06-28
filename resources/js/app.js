@@ -96,3 +96,30 @@ Core = {
         alert = true;
     }
 }
+
+truncateOptionsIfTooLong = function (el) {
+    let options = el.querySelectorAll('option');
+    if (options !== null) {
+        let truncateLimit;
+        if (window.innerWidth < 900) truncateLimit = 80;
+        if (window.innerWidth >= 900 && window.innerWidth < 1200) truncateLimit = 110;
+        if (window.innerWidth >= 1200) truncateLimit = 180;
+
+        options.forEach(function (option) {
+            if (option.value.length > truncateLimit) {
+                option.text = option.value.slice(0, truncateLimit) + '...';
+            }
+        });
+    }
+}
+
+setSelectTitleOnLoad = function (el) {
+    let selects = el.querySelectorAll('select');
+    if (selects !== null) {
+        selects.forEach(function (select) {
+            if (select.value !== '') {
+                select.setAttribute('title', select.value);
+            }
+        });
+    }
+}
