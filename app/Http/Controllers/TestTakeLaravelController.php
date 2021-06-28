@@ -33,16 +33,18 @@ class TestTakeLaravelController extends Controller
     }
 
 
-    public function show(TestTake $testTake, Request $request)
+    public function show($testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
         if (!$testParticipant->startTestTake()) {
             return redirect(config('app.url_login'));
         }
 
-        $data = self::getData($testParticipant);
+        $data = self::getData($testParticipant, $testTake);
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
         $nav = $this->getNavigationData($data, $answers);
+
+        $data = $this->filterDataForParticipant($data, $nav);
 
         $current = (int) $request->get('q') ?: 1;
         if($current < 1){
@@ -71,11 +73,16 @@ class TestTakeLaravelController extends Controller
                 $groupId = 0;
                 $groupCloseable = 0;
                 if ($question->is_subquestion) {
-                    $groupQuestionQuestion = GroupQuestionQuestion::whereQuestionId($question->getKey())->whereIn('group_question_id', function ($query) use ($testTake) {
-                        $query->select('question_id')->from('test_questions')->where('test_id', $testTake->test_id);
-                    })->with('question:id,closeable')->first();
-                    $groupId = $groupQuestionQuestion->group_question_id;
-                    $groupCloseable = $groupQuestionQuestion->groupQuestion->question->closeable;
+                    $groupQuestionQuestion = GroupQuestionQuestion::select('group_question_questions.group_question_id', 'questions.closeable')
+                        ->where('group_question_questions.question_id',$question->getKey())
+                        ->whereIn('group_question_questions.group_question_id', function ($query) use ($testTake) {
+                            $query->select('question_id')->from('test_questions')->where('test_id', $testTake->test_id);
+                        })
+                        ->leftJoin('group_questions', 'group_questions.id', '=', 'group_question_questions.group_question_id')
+                        ->leftJoin('questions', 'questions.id', '=', 'group_questions.id')
+                        ->get();
+                    $groupId = $groupQuestionQuestion->first()->group_question_id;
+                    $groupCloseable = $groupQuestionQuestion->first()->closeable;
                 }
 
                 $result[$question->uuid] = [
@@ -91,18 +98,19 @@ class TestTakeLaravelController extends Controller
         return $result;
     }
 
-    public static function getData($testParticipant)
+    public static function getData($testParticipant, $testTake)
     {
-//        return cache()->remember('data'.$testParticipant->getKey(), now()->addMinutes(60), function() use ($testParticipant) {
-            $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
-
-            return $testParticipant->answers->load('question')->flatMap(function ($answer) use ($visibleAttributes) {
-                $hideAttributes = array_keys($answer->question->getAttributes());
-                $answer->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
-
-                return collect([$answer->question]);
+        return cache()->remember('data_test_take_' . $testTake->getKey(), now()->addMinutes(60), function () use ($testTake) {
+            $testTake->load('test','test.testQuestions', 'test.testQuestions.question', 'test.testQuestions.question.attachments');
+            return $testTake->test->testQuestions->flatMap(function ($testQuestion) {
+                if ($testQuestion->question->type === 'GroupQuestion') {
+                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) {
+                        return $item->question;
+                    });
+                }
+                return collect([$testQuestion->question]);
             });
-//        });
+        });
     }
 
     /**
@@ -112,8 +120,8 @@ class TestTakeLaravelController extends Controller
      */
     private function getNavigationData($data, $answers)
     {
-        return $data->map(function ($question) use ($answers) {
-            $answer = collect($answers)->first(function ($answer, $questionUuid) use ($question) {
+        $nav = collect($answers)->map(function ($answer, $questionUuid) use ($data) {
+            $question = collect($data)->first(function ($question) use ($questionUuid) {
                 return $question->uuid == $questionUuid;
             });
 
@@ -130,6 +138,20 @@ class TestTakeLaravelController extends Controller
                     'closed'    => $answer['closed_group'],
                 ],
             ];
+        })->toArray();
+        return collect(array_values($nav));
+    }
+
+    private function filterDataForParticipant($data, $nav)
+    {
+        return $data->map(function($testQuestion) use ($nav) {
+            foreach ($nav as $value) {
+                if ($value['id'] === $testQuestion->getKey()) {
+                    return $testQuestion;
+                }
+            }
+        })->filter(function($data) {
+            return !is_null($data);
         });
     }
 }
