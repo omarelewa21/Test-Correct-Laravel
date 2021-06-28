@@ -22,7 +22,7 @@ Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
 Route::post('/send_password_reset', [tcCore\Http\Controllers\Auth\PasswordController::class, 'sendPasswordReset']);
 
-if(!tcCore\Http\Helpers\BaseHelper::onProduction()) {
+if(tcCore\Http\Helpers\BaseHelper::notProduction()) {
     Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
 
     Route::get('/magister', [\tcCore\Http\Controllers\MagisterController::class, 'index']);

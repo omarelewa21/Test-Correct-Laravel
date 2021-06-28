@@ -13,6 +13,7 @@
                         el.classList.add('border-red')
                     }
                  });
+                 setSelectTitleOnLoad($el);
                  ">
 
         <div>
