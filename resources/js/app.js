@@ -1,7 +1,6 @@
 require('./bootstrap');
 require('alpinejs');
 require('livewire-sortable');
-require('./swipe');
 
 addIdsToQuestionHtml = function () {
     let id = 1;
@@ -80,8 +79,6 @@ function shouldLostFocusBeReported(reason) {
         return true;
     }
 
-    window.Livewire.emit('checkConfirmedEvents', reason);
-
     return false;
 }
 
@@ -93,8 +90,6 @@ Core = {
             Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
         }
 
-        window.Livewire.emit('setFraudDetected');
-
         if (shouldLostFocusBeReported(reason)) {
             livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
         }
@@ -102,13 +97,29 @@ Core = {
     }
 }
 
-isInputElement = function(target) {
-    return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
+truncateOptionsIfTooLong = function (el) {
+    let options = el.querySelectorAll('option');
+    if (options !== null) {
+        let truncateLimit;
+        if (window.innerWidth < 900) truncateLimit = 80;
+        if (window.innerWidth >= 900 && window.innerWidth < 1200) truncateLimit = 110;
+        if (window.innerWidth >= 1200) truncateLimit = 180;
+
+        options.forEach(function (option) {
+            if (option.value.length > truncateLimit) {
+                option.text = option.value.slice(0, truncateLimit) + '...';
+            }
+        });
+    }
 }
 
-handleScrollNavigation = function (evt) {
-    if(evt.target.closest('#navigation-container') !== null) {
-        return false;
+setSelectTitleOnLoad = function (el) {
+    let selects = el.querySelectorAll('select');
+    if (selects !== null) {
+        selects.forEach(function (select) {
+            if (select.value !== '') {
+                select.setAttribute('title', select.value);
+            }
+        });
     }
-    return evt.shiftKey;
 }

@@ -45,9 +45,9 @@ class CompletionQuestion extends Component
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" wire:key="%s"/>',
+                '<input wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);" wire:key="%s"/>',
                 $tag_id,
-                'answer_' . $tag_id .'_'.$this->question->getKey(),
+                'answer_' . $tag_id . '_' . $this->question->getKey(),
                 'comp_answer_' . $tag_id,
                 'comp_answer_' . $tag_id,
                 'comp_answer_' . $tag_id
@@ -91,7 +91,8 @@ class CompletionQuestion extends Component
 
                 $answers = $random;
 
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden">%s</select>', $matches[1],
+                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden" @change="$event.target.setAttribute(\'title\', $event.target.value);">%s</select>',
+                    $matches[1],
                     $this->getOptions($answers));
 
 //                return $this->Form->input('Answer.'.$tag_id ,['id' => 'answer_' . $tag_id, 'class' => 'multi_selection_answer', 'onchange' => 'Answer.answerChanged = true', 'value' => $value, 'options' => $answers, 'label' => false, 'div' => false, 'style' => 'display:inline-block; width:150px']);
