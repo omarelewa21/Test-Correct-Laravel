@@ -76,7 +76,7 @@ class MagisterHelper
        <leer:brincode>'.$brinCode.'</leer:brincode>
        <leer:dependancecode>'.$dependanceCode.'</leer:dependancecode>
         <leer:xsdversie>2.3</leer:xsdversie>
-       <leer:gegevenssetid></leer:gegevenssetid>
+       
     </leer:leerlinggegevens_verzoek>
  </soapenv:Body>
 </soapenv:Envelope>
@@ -101,6 +101,7 @@ class MagisterHelper
         $stream = $response->getBody();
         $stream->rewind();
         $instance = new self;
+
         $instance->string = $stream->getContents();
 
         $instance->searchParams = [
