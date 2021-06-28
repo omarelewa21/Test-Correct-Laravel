@@ -111,8 +111,10 @@ function shouldLostFocusBeReported(reason) {
 }
 
 function checkForIpadKeyboard() {
+    document.querySelector('header a').text = 'in check for ipad';
     window.visualViewport.addEventListener('resize', function() {
         if(visualViewport.height < 400) {
+            document.querySelector('header a').text = 'iPad Resized height < 400>';
             document.querySelector('header').classList.remove('fixed');
             document.querySelector('footer').classList.remove('fixed');
         } else {
