@@ -9,8 +9,11 @@ use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\TeachersImportRequest;
+use tcCore\Http\Requests\UpdateWithSubjectsForClusterClassesRequest;
+use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\User\Factory;
 use tcCore\SchoolClass;
+use tcCore\SchoolClassImportLog;
 use tcCore\Subject;
 use tcCore\Teacher;
 use tcCore\Http\Requests\CreateTeacherRequest;
@@ -20,6 +23,8 @@ use tcCore\User;
 
 class TeachersController extends Controller
 {
+
+    use UwlrImportHandlingForController;
 
     /**
      * Display a listing of the teachers.
@@ -200,12 +205,12 @@ class TeachersController extends Controller
         $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
     }
 
-    public function updateWithSubjectsForClusterClasses(Request $request)
+    public function updateWithSubjectsForClusterClasses(UpdateWithSubjectsForClusterClassesRequest $request)
     {
         $updateCounter = 0;
         if (is_array($request->get('teacher'))) {
             collect($request->get('teacher'))->each(function ($subjectValue, $schoolClassId) use (&$updateCounter) {
-                if ($schoolClass = SchoolClass::find($schoolClassId)) {
+                if ($schoolClass = SchoolClass::withoutGlobalScope('visibleOnly')->find($schoolClassId)) {
                     if ($schoolClass->is_main_school_class == 1) {
                         $allTeacherRecordsForThisTeacherAndClass = Teacher::where([
                             'class_id' => $schoolClassId, 'user_id' => Auth::id()
@@ -237,6 +242,10 @@ class TeachersController extends Controller
             });
         }
 
+        if(!Auth::user()->hasIncompleteImport(false)){
+            $this->setClassesVisibleAndFinalizeImport(Auth::user());
+        }
+
         return JsonResource::make(['count' => $updateCounter], 200);
     }
 
@@ -262,9 +271,10 @@ class TeachersController extends Controller
         }
     }
 
-    public function hasIncompleteImport()
+    public function hasIncompleteImport(Request $request)
     {
         return Auth::user()->hasIncompleteImport();
+
     }
 
 }

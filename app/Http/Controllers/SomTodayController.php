@@ -6,7 +6,7 @@ use Artisaninweb\SoapWrapper\SoapWrapper;
 use Illuminate\Http\Request;
 use SoapClient;
 
-class SomeTodayController extends Controller
+class SomTodayController extends Controller
 {
     const WSDL = 'https://oop.test.somtoday.nl/services/v2/leerlinggegevens?wsdl';
 
@@ -55,7 +55,7 @@ class SomeTodayController extends Controller
         $groepen = $response->leerlinggegevens->groepen->groep;
 
 
-        return view('sometoday')->with(compact(['school', 'groepen']));
+        return view('somtoday')->with(compact(['school', 'groepen']));
 
 
         ($response->leerlinggegevens->leerlingen);

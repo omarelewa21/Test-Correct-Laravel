@@ -4,7 +4,7 @@ namespace tcCore\Http\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use tcCore\Http\Helpers\RTTIImportHelper;
+use tcCore\Http\Helpers\ImportHelper;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\User;
@@ -25,49 +25,71 @@ class UwlrGrid extends Component
     public $processingResultId;
     public $showErrorModal = false;
     public $errorMessages = '';
-
+    public $displayGoToErrorsButton = false;
 
     public function mount()
     {
-        $this->resultSets = UwlrSoapResult::orderBy('created_at', 'desc')->with('entries')->get();
+        $this->resultSets = UwlrSoapResult::orderBy('created_at', 'desc')->get();
     }
 
     public function activateResult($id)
     {
 
         $this->activeResult = UwlrSoapResult::find($id)->asData()->toArray();
+//        dd($this->activeResult);
+        $this->currentResultId = $id;
 
         $this->showImportModal = true;
     }
 
-    public function triggerErrorModal($id)
+    public function triggerErrorModal($id=null)
     {
-        $this->errorMessages = UwlrSoapResult::find($id)->error_messages;
+        $id = $id ?: $this->processingResultId;
+
+        $this->showImportModal = false;
+        if ($id) {
+            $this->errorMessages = UwlrSoapResult::find($id)->error_messages;
+        }
 
         $this->showErrorModal = true;
     }
 
-    public function deleteMagister()
+    public function deleteImportData()
     {
-        UwlrSoapEntry::deleteMagisterData();
-        $this->successDialogMessage = 'Magister data succesvol verwijderd';
+        UwlrSoapEntry::deleteImportData();
+        $this->successDialogMessage = 'Import data succesvol verwijderd';
         $this->showSuccessDialog = true;
+    }
+
+    public function deleteImportDataForResultSet($id)
+    {
+        $resultSet = UwlrSoapResult::findOrFail($id);
+        $schoolLocation = SchoolLocation::where('external_main_code',$resultSet->brin_code)->where('external_sub_code',$resultSet->dependance_code)->first();
+        if($schoolLocation){
+            UwlrSoapEntry::deleteImportDataForSchoolLocationId($schoolLocation->getKey(), $id);
+        }
+        return $this->redirect(route('uwlr.grid'));
     }
 
     public function processResult($id)
     {
+        set_time_limit(0);
         $this->processingResultId = $id;
         $this->showProcessResultModal = true;
+        $this->displayGoToErrorsButton = false;
         $this->processingResult = '';
         $this->processingResultErrors = [];
     }
 
     public function startProcessingResult()
     {
-        $helper = RTTIImportHelper::initWithUwlrSoapResult(
+        set_time_limit(0);
+        $helper = ImportHelper::initWithUwlrSoapResult(
             UwlrSoapResult::find($this->processingResultId),
             'sobit.nl'
         );
+
+
 
         $result = $helper->process();
         if (array_key_exists('errors', $result)) {
@@ -79,6 +101,8 @@ class UwlrGrid extends Component
         }
 
         $this->processingResult = collect($result)->join('<BR>');
+        $this->displayGoToErrorsButton = !empty(UwlrSoapResult::find($this->processingResultId)->error_messages);
+
     }
 
     public function newImport()
@@ -93,15 +117,49 @@ class UwlrGrid extends Component
         }
 
         $arr = $this->activeResult[$this->modalActiveTab];
+        $result = [];
         foreach ($arr as $key => $obj) {
+
+            // is een teacher
             $r = $obj;
             if (is_object($obj)) {
                 $r = (array) $obj;
             }
 
+
             foreach ($r as $k => $value) {
                 if (in_array($k, ['groepen', 'groep', 'samengestelde_groepen'])) {
-                    unset($r[$k]);
+                    $groepCollection = collect($this->activeResult['groep']);
+                    $samengesteldeGroepCollection = collect($this->activeResult['samengestelde_groep']);
+                   if ($k == 'groep') {
+                       $currentGroepKey = $r[$k]['key'];
+                       $groep = $groepCollection->first(function($groep) use ($currentGroepKey) {
+                           return $groep['key'] === $currentGroepKey;
+                       });
+                       $r[$k] = $groep['naam'];
+                   }
+                    if ($k == 'samengestelde_groepen') {
+                        $samengesteldeGroepenKeys = $r[$k];
+
+                        $samengesteldeGroepen = $samengesteldeGroepCollection->filter(function($groep) use ($samengesteldeGroepenKeys) {
+                            return in_array($groep['key'],  $samengesteldeGroepenKeys);
+                        })->map(function($groep){
+                            return $groep['naam'];
+                        });
+
+                        $r[$k] = $samengesteldeGroepen->join(',');
+                    }
+                    if ($k == 'groepen') {
+                        $groepenKeys = $r[$k];
+                        $groepen = $groepCollection->filter(function($groep) use ($groepenKeys) {
+                            return in_array($groep['key'],  $groepenKeys);
+                        })->map(function($groep){
+                            return $groep['naam'];
+                        });
+
+                        $r[$k] = $groepen->join(',');
+                    }
+                    //unset($r[$k]);
                 }
             }
             $arr[$key] = $r;

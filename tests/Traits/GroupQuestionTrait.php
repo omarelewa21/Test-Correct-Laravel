@@ -29,13 +29,13 @@ trait GroupQuestionTrait
             'test_id'           => $testId,
             'type'              => 'GroupQuestion',
             'attainments'       => [],
+            "closeable"=> 0,
         ], $overrides);
 
         $response = $this->post(
             'api-c/test_question',
             static::getTeacherOneAuthRequestData($attributes)
         );
-
         $response->assertStatus(200);
 
         return $response->decodeResponseJson()['id'];

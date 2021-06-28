@@ -5,7 +5,8 @@ namespace Tests\Unit;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use tcCore\Http\Helpers\MagisterHelper;
-use tcCore\Http\Helpers\RTTIImportHelper;
+use tcCore\Http\Helpers\ImportHelper;
+use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\Teacher;
 use tcCore\User;
@@ -25,7 +26,7 @@ class MagisterHelperTest extends TestCase
 
         $helper = (new MagisterHelper)
             ->parseResult()
-            ->storeInDB();
+            ->storeInDB("99DE", "00");
 
         $this->assertInstanceOf(MagisterHelper::class, $helper);
 
@@ -46,30 +47,30 @@ class MagisterHelperTest extends TestCase
             'De import was succesvol.',
             $processResult['data']
         );
-
+//dd($processResult);
         // letop 10 docenten betekend 10 teacher records.
         // In de uwlr Magister set zitten 5 klassen die geen leerlingen/docenten bevatten deze worden ook niet aangemaakt;
-//        $this->assertStringContainsString(
-//            'Er zijn 22 leerlingen aangemaakt, 10 docenten en 5 klassen.',
-//            $processResult['data']
-//        );
-//
-//        $this->assertEquals(28, $schoolLocation->users()->where('demo', 0)->count());
-//        // de import bevat 22 leerlingen
-//        $this->assertEquals(22, $schoolLocation->users->filter(function ($user) {
-//            return $user->isA('student') && $user->demo === 0;
-//        })->count());
-//        // de import bevat 6 leerkrachten;
-//        $this->assertEquals(6, $schoolLocation->users->where('demo', 0)->filter(function ($user) {
-//            return $user->isA('teacher') && $user->demo === 0;
-//        })->count());
-//
-//        // de import bevat 10 groepen; maar slechts 6 daarvan komen voor bij zowel leerlingen als docenten.
-//        $this->assertEquals(6, $schoolLocation->schoolClasses()->count());
-//        // de import bevat 4 samengestelde groepen maar slecht 3 bevatten leerlingen en docenten
-//        $this->assertEquals(3, $schoolLocation->schoolClasses()->where('is_main_school_class', 0)->count());
-//        // de import bevat 6 groepen maar slechts 3 bevatten leerlingen en docenten.
-//        $this->assertEquals(3, $schoolLocation->schoolClasses()->where('is_main_school_class', 1)->count());
+        $this->assertStringContainsString(
+            'Er zijn 22 leerlingen aangemaakt, 12 docenten en 5 klassen.',
+            $processResult['data']
+        );
+
+        $this->assertEquals(28, $schoolLocation->users()->where('demo', 0)->count());
+        // de import bevat 22 leerlingen
+        $this->assertEquals(22, $schoolLocation->users->filter(function ($user) {
+            return $user->isA('student') && $user->demo === 0;
+        })->count());
+        // de import bevat 6 leerkrachten;
+        $this->assertEquals(6, $schoolLocation->users->where('demo', 0)->filter(function ($user) {
+            return $user->isA('teacher') && $user->demo === 0;
+        })->count());
+
+        // de import bevat 10 groepen; maar slechts 6 daarvan komen voor bij zowel leerlingen als docenten.
+        $this->assertEquals(6, $schoolLocation->schoolClasses()->count());
+        // de import bevat 4 samengestelde groepen maar slecht 3 bevatten leerlingen en docenten
+        $this->assertEquals(3, $schoolLocation->schoolClasses()->where('is_main_school_class', 0)->count());
+        // de import bevat 6 groepen maar slechts 3 bevatten leerlingen en docenten.
+        $this->assertEquals(3, $schoolLocation->schoolClasses()->where('is_main_school_class', 1)->count());
     }
 
     /** @test */
@@ -121,15 +122,71 @@ class MagisterHelperTest extends TestCase
 
     }
 
+    /** @test */
+    public function it_should_import_classes_without_an_education_level_id()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->first();
+        $this->assertCount(0, SchoolClass::where('school_location_id', $location->getKey())->get());
+        list($schoolLocation, $processResult) = $this->runMagisterImport();
+        $importedClasses = SchoolClass::where('school_location_id', $location->getKey())->get();
+        $this->assertEquals(1, $importedClasses->first()->education_level_id); // is vwo;
+        $this->assertEquals(1, $importedClasses->first()->education_level_year);
+    }
 
     /** @test */
-//    public function uwlrSoapResultToCVs()
+    public function it_should_create_teacher_users_that_are_already_verified()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->first();
+        $teachers = User::where([['school_location_id', $location->getKey()], ['demo', 0]])->get()->filter(function (
+            $user
+        ) {
+            return $user->isA('teacher');
+        });
+        $this->assertCount(0, $teachers);
+        list($schoolLocation, $processResult) = $this->runMagisterImport();
+
+        $teachersAfterImport = User::where([
+            ['school_location_id', $location->getKey()], ['demo', 0]
+        ])->get()->filter(function ($user) {
+            return $user->isA('teacher') && $user->account_verified;
+        });
+
+        $this->assertCount(6, $teachersAfterImport);
+    }
+//    /** @test */
+// Disabled because of discussion name_suffix is voorvoegsel of tussenvoegsel. (t bekend het eerste maar t wordt nu gebruikt als het laatste.
+//    public function student_demo_10_should_have_a_name_suffix_of_a()
+//    {
+//        list($schoolLocation, $processResult) = $this->runMagisterImport();
+//        dd($processResult);
+//        $demo10 = User::findByEckId('eckid_L10')->first();
+//        $this->assertEquals('a', $demo10->name_suffix);
+//
+//
+//    }
+
+    public function is_should_be_able_to_add_multiple_samengestelde_groepen_als_klassen_aan_leerlingen()
+    {
+        //Leerling Demo10 zit in H1C, H1Sport en H1Muziek in de XML,
+        // maar dit zie ik niet terug in TC (daar alleen aan H1C gekoppeld).
+        // Ook Demo11 en Demo13 heeft maar 1 van de 3 klassen gekoppeld.
+        // Misschien gaat dit mis omdat die aan meer dan 1 samengestelde groep zijn gekoppeld?
+//        list($schoolLocation, $processResult) = $this->runMagisterImport();
+//        (User::findByEckId('eckid_L10')->first()->classes);
+
+
+
+    }
+
+
+    /** @test */
+//    public function uwlrSoapResultToCSV()
 //    {
 //        $helper = (new MagisterHelper)
 //            ->parseResult()
 //            ->storeInDB();
 //
-//        UwlrSoapResult::first()->toCVS();
+//        UwlrSoapResult::first()->toCSV();
 //    }
 
 //    /** @test */
@@ -148,10 +205,10 @@ class MagisterHelperTest extends TestCase
         Auth::loginUsingId(755);
         (new MagisterHelper)
             ->parseResult()
-            ->storeInDB();
+            ->storeInDB("99DE", "00");
 
         $result = UwlrSoapResult::first();
-        $helper = RTTIImportHelper::initWithUwlrSoapResult($result, 'sobit.nl');
+        $helper = ImportHelper::initWithUwlrSoapResult($result, 'sobit.nl');
 
         $usersCountBefore = User::count();
         $teacherCountBefore = Teacher::count();

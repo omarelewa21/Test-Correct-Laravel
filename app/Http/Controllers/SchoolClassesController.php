@@ -2,13 +2,18 @@
 
 namespace tcCore\Http\Controllers;
 
+use Carbon\Carbon;
 use Composer\Package\Package;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use tcCore\EducationLevel;
 use tcCore\Http\Requests;
+use tcCore\Http\Requests\UpdateWithEducationLevelsForClusterClassesRequest;
+use tcCore\Http\Requests\UpdateWithEducationLevelsForMainClassesRequest;
+use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
 use tcCore\School;
@@ -21,10 +26,11 @@ use tcCore\SchoolClassImportLog;
 
 class SchoolClassesController extends Controller
 {
+    use UwlrImportHandlingForController;
     /**
      * Display a listing of the school classes.
-     * @param  SchoolLocation  $schoolLocation
-     * @param  Request  $request
+     * @param SchoolLocation $schoolLocation
+     * @param Request $request
      * @return
      */
     public function index(Requests\IndexSchoolClassRequest $request)
@@ -44,19 +50,26 @@ class SchoolClassesController extends Controller
                 break;
             case 'import_data':
                 $schoolClasses = SchoolClass::filtered($request->get('filter', []),
-                    $request->get('order', []));
+                    $request->get('order', []))
+                    ->withoutGlobalScope('visibleOnly');
 
                 $schoolClasses
                     ->leftJoin('school_class_import_logs as log', 'school_classes.id', 'class_id')
                     ->select(
-                        'school_classes.id as id',
-                        'education_level_id',
-                        'school_year_id',
-                        'education_level_year',
-                        'name',
-                        'is_main_school_class',
-                        'log.checked_by_teacher as checked_by_teacher',
-                        'log.checked_by_admin as checked_by_admin');
+                        DB::raw(
+                            'school_classes.id as id,
+                        education_level_id,
+                        school_year_id,
+                        education_level_year,
+                        name,
+                        visible,
+                        is_main_school_class,
+                        log.finalized as finalized,
+                        log.checked_by_teacher as checked_by_teacher,
+                        log.checked_by_teacher_id as checked_by_teacher_id,
+                        log.checked_by_admin as checked_by_admin'
+                        )
+                    );
 
 
                 return Response::make(['data' => $schoolClasses->get()->toArray()], 200);
@@ -81,7 +94,7 @@ class SchoolClassesController extends Controller
 
     /**
      * Store a newly created school class in storage.
-     * @param  CreateSchoolClassRequest  $request
+     * @param CreateSchoolClassRequest $request
      * @return
      */
     public function store(CreateSchoolClassRequest $request)
@@ -112,8 +125,8 @@ class SchoolClassesController extends Controller
 
     /**
      * Display the specified school class.
-     * @param  SchoolClass  $schoolClass
-     * @param  Request  $request
+     * @param SchoolClass $schoolClass
+     * @param Request $request
      * @return
      */
     public function show(SchoolClass $schoolClass, Request $request)
@@ -131,8 +144,8 @@ class SchoolClassesController extends Controller
 
     /**
      * Update the specified school class in storage.
-     * @param  SchoolClass  $schoolClass
-     * @param  UpdateSchoolClassRequest  $request
+     * @param SchoolClass $schoolClass
+     * @param UpdateSchoolClassRequest $request
      * @return
      */
     public function update(SchoolClass $schoolClass, UpdateSchoolClassRequest $request)
@@ -148,7 +161,7 @@ class SchoolClassesController extends Controller
 
     /**
      * Remove the specified school class from storage.
-     * @param  SchoolClass  $schoolClass
+     * @param SchoolClass $schoolClass
      * @return
      * @throws \Exception
      */
@@ -171,17 +184,18 @@ class SchoolClassesController extends Controller
         return Response::make(Auth::user()->teacherSchoolClasses()->orderBy('name', 'asc')->pluck('name', 'id'));
     }
 
-    public function updateWithEducationLevelsForMainClasses(Request $request)
+    public function updateWithEducationLevelsForMainClasses(UpdateWithEducationLevelsForMainClassesRequest $request)
     {
         $updateCounter = 0;
         if (is_array($request->get('class'))) {
             collect($request->get('class'))->each(function ($value, $schoolClassId) use (&$updateCounter) {
                 $schoolClass = SchoolClass::where('id', $schoolClassId)
+                    ->withoutGlobalScope('visibleOnly')
                     ->where('is_main_school_class', 1)
                     ->where('school_location_id', Auth::user()->school_location_id)
                     ->first();
-                    $schoolClass->education_level_id = $value['education_level'];
-                    $schoolClass->save();
+                $schoolClass->education_level_id = $value['education_level'];
+                $schoolClass->save();
 
                 $this->updateImportLog($value, $schoolClass);
 
@@ -189,15 +203,20 @@ class SchoolClassesController extends Controller
             });
         }
 
+        if (!Auth::user()->hasIncompleteImport(false)) {
+            $this->finalizeImport();
+        }
+
         return JsonResource::make(['count' => $updateCounter], 200);
     }
 
-    public function updateWithEducationLevelsForClusterClasses(Request $request)
+    public function updateWithEducationLevelsForClusterClasses(UpdateWithEducationLevelsForClusterClassesRequest $request)
     {
         $updateCounter = 0;
         if (is_array($request->get('class'))) {
             collect($request->get('class'))->each(function ($value, $schoolClassId) use (&$updateCounter) {
                 $schoolClass = SchoolClass::where('id', $schoolClassId)
+                    ->withoutGlobalScope('visibleOnly')
                     ->where('is_main_school_class', 0)
                     ->where('school_location_id', Auth::user()->school_location_id)
                     ->first();
@@ -209,6 +228,10 @@ class SchoolClassesController extends Controller
 
                 $updateCounter++;
             });
+
+        }
+        if (!Auth::user()->hasIncompleteImport(false)) {
+            $this->setClassesVisibleAndFinalizeImport(Auth::user());
         }
         return JsonResource::make(['count' => $updateCounter], 200);
     }
@@ -229,6 +252,7 @@ class SchoolClassesController extends Controller
 
             if (Auth::user()->isA('teacher') && is_null($importLog->checked_by_teacher)) {
                 $importLog->checked_by_teacher = now();
+                $importLog->checked_by_teacher_id = Auth::id();
             }
 
             if (Auth::user()->isA('school manager') && is_null($importLog->checked_by_admin)) {

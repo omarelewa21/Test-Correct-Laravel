@@ -51,4 +51,8 @@ class RankingQuestion extends Component
         return view('livewire.overview.ranking-question');
     }
 
+    public function isQuestionFullyAnswered(): bool
+    {
+        return true;
+    }
 }

@@ -1,6 +1,7 @@
 require('./bootstrap');
 require('alpinejs');
 require('livewire-sortable');
+require('./swipe');
 
 addIdsToQuestionHtml = function () {
     let id = 1;
@@ -79,6 +80,8 @@ function shouldLostFocusBeReported(reason) {
         return true;
     }
 
+    window.Livewire.emit('checkConfirmedEvents', reason);
+
     return false;
 }
 
@@ -90,9 +93,22 @@ Core = {
             Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
         }
 
+        window.Livewire.emit('setFraudDetected');
+
         if (shouldLostFocusBeReported(reason)) {
             livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
         }
         alert = true;
     }
+}
+
+isInputElement = function(target) {
+    return /^(?:input|textarea|select|button)$/i.test(target.tagName.toLowerCase());
+}
+
+handleScrollNavigation = function (evt) {
+    if(evt.target.closest('#navigation-container') !== null) {
+        return false;
+    }
+    return evt.shiftKey;
 }

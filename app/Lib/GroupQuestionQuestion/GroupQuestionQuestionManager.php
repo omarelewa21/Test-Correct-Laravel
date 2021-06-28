@@ -41,22 +41,17 @@ class GroupQuestionQuestionManager {
     }
 
     public static function getInstanceWithUuid($group_question_question_path) {
-
         $group_question_question_path_parts = explode('.', $group_question_question_path);
         $testQuestionId = array_shift($group_question_question_path_parts);
         $groupQuestionQuestionIds = $group_question_question_path_parts;
-
         $testQuestion = TestQuestion::whereUuid($testQuestionId)->firstOrFail();
-
         $groupQuestionQuestionsOrdered = [];
-
         if (!empty($groupQuestionQuestionIds)) {
             $groupQuestionQuestions = [];
 
             foreach ($groupQuestionQuestionIds as $key => $value) {
                 $groupQuestionQuestions[] = GroupQuestionQuestion::whereUuid($value)->firstOrFail();
             }
-
             $nextGroupQuestionQuestionId = $testQuestion->getAttribute('question_id');
             $groupQuestionQuestionsCount = count($groupQuestionQuestions);
     
@@ -80,7 +75,7 @@ class GroupQuestionQuestionManager {
         return new static($testQuestion, $groupQuestionQuestionsOrdered);
     }
 
-    protected function __construct($testQuestion, $groupQuestionQuestions)
+    public function __construct($testQuestion, $groupQuestionQuestions)
     {
         $this->testQuestion = $testQuestion;
         $this->groupQuestionQuestions = $groupQuestionQuestions;
@@ -113,7 +108,6 @@ class GroupQuestionQuestionManager {
 
     public function prepareForChange($relationToIgnore=null) {
         $question = $this->testQuestion->question;
-
         $i = 1;
         $prevGroupQuestionQuestion = null;
         $prevKey = null;
@@ -121,9 +115,7 @@ class GroupQuestionQuestionManager {
         foreach($this->groupQuestionQuestions as $key => $groupQuestionQuestion) {
             $prevGroupQuestionQuestion = $groupQuestionQuestion;
             $prevKey = $key;
-
             $newQuestion = $question->duplicate($groupQuestionQuestion->question);
-
             if ($i === 1) {
                 $testQuestion = $this->testQuestion;
                 $testQuestion->setAttribute('question_id', $newQuestion->getKey());

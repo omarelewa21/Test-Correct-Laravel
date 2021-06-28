@@ -51,6 +51,20 @@
     src: url("../fonts/Zilla_Slab/ZillaSlab-Regular.ttf");
 }
 
+@font-face {
+    font-family: 'dotsfont';
+    src: url('../fonts/password/dotsfont.eot');
+    src: url('../fonts/password/dotsfont.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/password/dotsfont.woff') format('woff'),
+    url('../fonts/password/dotsfont.ttf') format('truetype'),
+    url('../fonts/password/dotsfont.svg#dotsfontregular') format('svg');
+}
+
+.dotsfont {
+    font-family: 'dotsfont';
+    font-size: .7rem;
+}
+
 body {
     font-family: Nunito Regular, sans-serif !important;
     background: var(--light-grey) !important;

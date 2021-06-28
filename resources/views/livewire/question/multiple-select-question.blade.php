@@ -9,6 +9,8 @@
                             class="relative w-full flex p-5 border-2 border-blue-grey rounded-10 base
                             multiple-choice-question transition ease-in-out duration-150 focus:outline-none
                             justify-between cursor-pointer {!! ($this->answerStruct[$value] == 1) ? 'active' :'' !!}"
+                           @mouseenter="$event.target.querySelector('.close').style.display = 'inline-block'; $event.target.querySelector('.checkmark').style.display = 'none'"
+                           @mouseleave="$event.target.querySelector('.close').style.display = 'none'; $event.target.querySelector('.checkmark').style.display = 'inline-block'"
                     >
                         <input
                                 wire:model="answer"
@@ -21,7 +23,7 @@
                         <div id="mc_c_answertext_{{$value}}" wire:key="mc_c_answertext_{{$value}}">{!! $this->answerText[$value] !!}</div>
                         <div id="mc_c_icon_{{$value}}" wire:key="mc_c_icon_{{$value}}" class="{!! ($this->answerStruct[$value] == 1) ? '' :'hidden' !!}">
                             <x-icon.checkmark class="checkmark transition"></x-icon.checkmark>
-                            <x-icon.close class="w-4 h-4 close transition"/>
+                            <x-icon.close class="w-4 h-4 close hidden transition"/>
                         </div>
                     </label>
                 </div>

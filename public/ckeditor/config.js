@@ -8,7 +8,7 @@ CKEDITOR.plugins.addExternal('ckeditor_wiris', 'plugins/@wiris/mathtype-ckeditor
 
 
 CKEDITOR.editorConfig = function( config ) {
-    config.extraPlugins = 'clipboard,pastefromword,advanced,simpleuploads,quicktable,panelbutton,button,floatpanel,panel,ckeditor_wiris';
+    config.extraPlugins = 'clipboard,pastefromword,advanced,simpleuploads,quicktable,panelbutton,button,floatpanel,panel,ckeditor_wiris,autogrow';
     config.allowedContent = true;
     config.disableNativeSpellChecker = true;
 
@@ -83,6 +83,11 @@ CKEDITOR.editorConfig = function( config ) {
         { name: 'Borderless Table', element: 'table', styles: { 'border-style': 'hidden', 'background-color': '#E6E6FA' } },
         { name: 'Square Bulleted List', element: 'ul', styles: { 'list-style-type': 'square' } }
     ];
+
+    config.autoGrow_minHeight = 250;
+    config.autoGrow_maxHeight = getMaxHeightForEditor();
+    config.autoGrow_onStartup = true;
+    config.autoGrow_bottomSpace = 50;
 };
 
 
@@ -96,4 +101,22 @@ CKEDITOR.studentEditorConfig = {
         { name: 'styles', items: ['Font', 'FontSize' ] },
         { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
     ]
+}
+
+function getMaxHeightForEditor() {
+    var absoluteMaxHeight = 600;
+    var mininmalMaxHeight = 250;
+
+    var fixedElementsHeight = 70*2;
+    var virtualKeyboardHeight = 270;
+
+    if ((window.innerHeight - fixedElementsHeight - virtualKeyboardHeight) < mininmalMaxHeight ) {
+        return mininmalMaxHeight;
+    }
+
+    if((window.innerHeight - fixedElementsHeight - virtualKeyboardHeight) > absoluteMaxHeight) {
+        return absoluteMaxHeight;
+    }
+
+    return window.innerHeight - fixedElementsHeight - virtualKeyboardHeight;
 }

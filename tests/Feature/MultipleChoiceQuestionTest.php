@@ -3,22 +3,21 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use tcCore\User;
+use tcCore\TestQuestion;
 use tcCore\Test;
-use tcCore\Question;
 use tcCore\MulipleChoiceQuestion;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\Traits\TestTrait;
 use Tests\Traits\MultipleChoiceQuestionTrait;
-use Illuminate\Support\Facades\DB;
+use Tests\Traits\GroupQuestionTrait;
 
-class MulipleChoiceQuestionTest extends TestCase
+
+class MultipleChoiceQuestionTest extends TestCase
 {
     use DatabaseTransactions;
     use TestTrait;
     use MultipleChoiceQuestionTrait;
+    use GroupQuestionTrait;
 
     private $originalTestId;
     private $originalQuestionId;
@@ -128,8 +127,98 @@ class MulipleChoiceQuestionTest extends TestCase
         $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
         $result = array_diff($originalQuestionArray, $copyQuestionArray);
         $this->assertTrue(count($result)==0);
-    }   
-    
+    }
+
+    /** @test */
+    public function it_should_copy_questions_when_mc_is_changed_in_group()
+    {
+        $this->setupScenario1();
+        $this->originalAndCopyShareGroupQuestion();
+        $attributes = $this->getAttributesForEditQuestion1($this->copyTestId);
+        $copyGroupTestQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first()->question->groupQuestionQuestions->first();
+        $this->editMultipleChoiceQuestionInGroup($copyGroupTestQuestion->uuid,$copyQuestion->uuid,$attributes);
+        $this->originalAndCopyDifferFromGroupQuestion();
+    }
+
+    /** @test */
+    public function it_should_copy_questions_when_mc_answers_is_changed_in_group()
+    {
+        $this->setupScenario1();
+        $this->originalAndCopyShareGroupQuestion();
+        $attributes = $this->getAttributesForEditQuestion2($this->copyTestId);
+        $copyGroupTestQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first()->question->groupQuestionQuestions->first();
+        $this->editMultipleChoiceQuestionInGroup($copyGroupTestQuestion->uuid,$copyQuestion->uuid,$attributes);
+        $this->originalAndCopyDifferFromGroupQuestion();
+    }
+
+    /** @test */
+    public function it_can_update_mc_answers_in_group()
+    {
+        $this->setupScenario1();
+        $this->originalAndCopyShareGroupQuestion();
+        $attributes = $this->getAttributesForEditQuestion2($this->copyTestId);
+        $copyGroupTestQuestion = Test::find($this->copyTestId)->testQuestions->first();
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first()->question->groupQuestionQuestions->first();
+        $this->editMultipleChoiceQuestionInGroup($copyGroupTestQuestion->uuid,$copyQuestion->uuid,$attributes);
+        $this->originalAndCopyDifferFromGroupQuestion();
+        $copyQuestion = Test::find($this->copyTestId)->testQuestions->first()->question->groupQuestionQuestions->first();
+        $mcAnswer = $copyQuestion->question->multipleChoiceQuestionAnswers()->first();
+        $this->assertEquals('ab',$mcAnswer->answer);
+    }
+
+    private function setupScenario1(){
+        $attributes = $this->getTestAttributes();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForGroupQuestion($this->originalTestId);
+        $groupTestQuestionId = $this->createGroupQuestion($attributes);
+        $groupTestQuestion = TestQuestion::find($groupTestQuestionId);
+        $attributes = $this->getAttributesForMultipleChoiceQuestion($this->originalTestId);
+        $this->createMultipleChoiceQuestionInGroup($attributes,$groupTestQuestion->uuid);
+        $this->duplicateTest($this->originalTestId);
+
+        $this->checkScenario1Success('Test Title',$this->originalTestId);
+        $this->checkScenario1Success('Kopie #1 Test Title',$this->copyTestId);
+
+    }
+
+    private function getAttributesForEditQuestion1($testId){
+        return array_merge($this->getAttributesForMultipleChoiceQuestion($testId),['question'=>'Hoe dan?']);
+    }
+
+    private function getAttributesForEditQuestion2($testId){
+        return array_merge($this->getAttributesForMultipleChoiceQuestion($testId),["answers"=> array_merge([
+            [
+                "order"=> "1",
+                "answer"=> "ab",
+                "score"=> "5"
+            ],
+            [
+                "order"=> "2",
+                "answer"=> "b",
+                "score"=> "0"
+            ],
+            [
+                "order"=> "3",
+                "answer"=> "c",
+                "score"=> "0"
+            ]
+        ],$this->getRestOfAnswerArray(3,10)),]);
+    }
+
+    private function checkScenario1Success($name,$testId){
+        $tests = Test::where('name',$name)->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($testId)->testQuestions;
+        $this->assertCount(1,$questions);
+        $this->assertEquals('GroupQuestion',$questions->first()->question->type);
+        $groupQuestion = $questions->first()->question;
+        $subQuestions = $groupQuestion->groupQuestionQuestions;
+        $this->assertCount(1,$subQuestions);
+        $this->assertEquals('MultipleChoiceQuestion',$subQuestions->first()->question->type);
+    }
 
     private function setupScenario7(){
         $attributes = $this->getAttributesForTest7();
@@ -227,6 +316,7 @@ class MulipleChoiceQuestionTest extends TestCase
                     "bloom"=> "Onthouden",
                     "miller"=> "Weten",
                     "test_id"=> $testId,
+                    'closeable'=> 0,
                 ];
     }
 
@@ -268,6 +358,7 @@ class MulipleChoiceQuestionTest extends TestCase
                     "bloom"=> "Onthouden",
                     "miller"=> "Weten",
                     "test_id"=> $testId,
+                    'closeable'=> 0,
                 ];
     }
 
@@ -309,8 +400,11 @@ class MulipleChoiceQuestionTest extends TestCase
                     "bloom"=> "Onthouden",
                     "miller"=> "Weten",
                     "test_id"=> $testId,
+                    'closeable'=> 0,
                 ];
     }
+
+
 
     private function getScenario5GetAttributes(){
         return $this->getGetAttributes($this->originalTestId);

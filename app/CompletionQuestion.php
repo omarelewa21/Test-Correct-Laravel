@@ -1,6 +1,8 @@
 <?php namespace tcCore;
 
 use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -42,6 +44,8 @@ class CompletionQuestion extends Question implements QuestionInterface {
      * @var array
      */
     protected $hidden = [];
+
+    protected $questionData = false;
 
     public function question() {
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
@@ -346,5 +350,42 @@ class CompletionQuestion extends Question implements QuestionInterface {
 //        }
 //    }
 
+    public function getTotalDataForTestQuestionUpdate($request)
+    {
+        $questionData = $this->getQuestionData($request);
+        return array_merge($request->all(),$questionData);
+    }
 
+    public function getCompletionAnswerDirty($request)
+    {
+        $questionData = $this->getQuestionData($request);
+        if(!array_key_exists('answers',$questionData)){
+            return false;
+        }
+        $currentAnswers = $this->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
+        $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
+        return ( ($currentAnswers !== $futureAnswers));
+    }
+
+    public function getQuestionData($request)
+    {
+        $qHelper = new QuestionHelper();
+        if(!$this->questionData){
+            $questionHtml = $request->input('question');
+            $this->questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionHtml);
+            if(empty($this->questionData['question'])){
+                $this->questionData = false;
+                return [];
+            }
+        }
+        return $this->questionData;
+    }
+
+    public function needsToBeUpdated($request)
+    {
+        if($this->getCompletionAnswerDirty($request)){
+            return true;
+        }
+        return parent::needsToBeUpdated($request);
+    }
 }

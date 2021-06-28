@@ -26,7 +26,7 @@ use Carbon\Carbon;
 use tcCore\Http\Requests\Request;
 use tcCore\UwlrSoapResult;
 
-class RTTIImportHelper
+class ImportHelper
 {
 
     /**
@@ -69,7 +69,7 @@ class RTTIImportHelper
      *
      * @var array
      */
-    private $studydirectionarray = [
+    private $educationLevelArray = [
         'b'   => 'Vmbo bb',
         'b/k' => 'Vmbo kb',
         'k'   => 'Vmbo kb',
@@ -119,9 +119,13 @@ class RTTIImportHelper
 
     public $can_find_teacher_only_by_class_id = false;
 
+    public $skip_mentor_creation = false;
+
     public $can_use_dummy_subject = false;
 
-    const DUMMY_SECTION_NAME = 'Magister sectie';
+    const DUMMY_SECTION_NAME = 'lvs import sectie';
+
+    public $make_school_classes_visible = true;
 
 
     /**
@@ -139,7 +143,9 @@ class RTTIImportHelper
     {
         $instance = new self($email_domain);
         $instance->can_create_users_for_teacher = true;
+        $instance->skip_mentor_creation = true;
         $instance->should_use_import_email_pattern = true;
+        $instance->make_school_classes_visible = false;
         if (App::environment(['testing', 'local'])) {
             $instance->should_use_import_password_pattern = true;
         }
@@ -151,13 +157,21 @@ class RTTIImportHelper
 
         $instance->log_name = date("mdh_i_s");
 
-        $instance->csv_data = $data->toCVS();
+        $instance->csv_data = $data->toCSV();
+
+        unset($data);
 
         return $instance;
     }
 
+    private function convert($size)
+    {
+        $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
+        return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2).' '.$unit[$i];
+    }
 
-    public static function initWithCVS($csv_file_path = "", $email_domain = "")
+
+    public static function initWithCSV($csv_file_path = "", $email_domain = "")
     {
         $instance = new self($email_domain);
 
@@ -182,7 +196,7 @@ class RTTIImportHelper
      */
     public function importLog($string)
     {
-        logger($string);
+     //   logger($string);
 
         return true;
     }
@@ -192,8 +206,19 @@ class RTTIImportHelper
         return preg_match('/^[a-z0-9&; .\-]+$/i', $string);
     }
 
+    private function logMemoryUsage($line)
+    {
+        $size = memory_get_usage(true);
+
+        $unit=array('b','kb','mb','gb','tb','pb');
+        $usage = @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+        logger(sprintf('[%s] usage [%s]', $line, $usage));
+    }
+
     public function process()
     {
+
+        $this->csv_data_lines = count($this->csv_data) - 1;// first row is header
 
         // Temporary datastore
         $studentsPerClass = [];
@@ -214,6 +239,7 @@ class RTTIImportHelper
                 } else {
 
                     $this->importLog('Processing line '.$index);
+                    $this->logMemoryUsage($index);
 
                     $external_main_code = $row[$column_index['Brincode']];
                     $external_sub_code = $row[$column_index['Locatiecode']];
@@ -222,7 +248,8 @@ class RTTIImportHelper
                     $study_year_layer = $row[$column_index['lesJaarlaag']];
                     $study_year = substr($row[$column_index['Schooljaar']], 0, 4);
 
-                    $student_external_code = $row[$column_index['leeStamNummer']];
+                    $student_external_code = array_key_exists('leeStamNummer',
+                        $column_index) ? $row[$column_index['leeStamNummer']] : null;
                     $student_name_first = $row[$column_index['leeVoornaam']];
                     $student_name_suffix = $row[$column_index['leeTussenvoegsels']];
                     $student_name_last = $row[$column_index['leeAchternaam']];
@@ -236,7 +263,8 @@ class RTTIImportHelper
                     $class_name = $row[$column_index['lesNaam']];
                     $subject_abbreviation = $row[$column_index['vakNaam']];
 
-                    $teacher_external_code = $row[$column_index['docStamNummer']];
+                    $teacher_external_code = array_key_exists('docStamNummer',
+                        $column_index) ? $row[$column_index['docStamNummer']] : null;
                     $teacher_name_first = $row[$column_index['docVoornaam']];
                     $teacher_name_suffix = $row[$column_index['docTussenvoegsels']];
                     $teacher_name_last = $row[$column_index['docAchternaam']];
@@ -263,10 +291,11 @@ class RTTIImportHelper
                     }
 
 
-                    $student_email = sprintf('%s@%s', $student_external_code, $this->email_domain);
+                    $student_email = $this->generateEmailAddress($student_external_code, $student_eckid);
 
 ////                    $student_email = 'rtti_' . $student_external_code . '_' . $external_main_code . '_' . $external_sub_code . '@' . $this->email_domain;
-                    $teacher_email = 'rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code.'@'.$this->email_domain;
+                    $teacher_email = $this->generateEmailAddress('rtti_'.$teacher_external_code.'_'.$external_main_code.'_'.$external_sub_code,
+                        $teacher_eckid);
 
 
                     if (!in_array($study_year, range((now()->year - 10), (now()->year + 10)))) {
@@ -295,16 +324,15 @@ class RTTIImportHelper
 //                        . 'Neem contact op met de schoolbeheerder om het schooljaar te laten aanmaken.');
                     }
 
-                    $education_level_id = $this->getStudyDirectionId($study_direction);
-                    if (!$education_level_id) {
+                    $education_level_id = $this->getEducationLevelId($study_direction);
+
+                    if ($education_level_id === null) {
                         $this->errorMessages[] = 'Onbekende studierichting '.$study_direction;
                         throw new \Exception('Onbekende studierichting '.$study_direction);
                     }
 
                     // check if education level is allowed
-                    $education_level_max_years = Educationlevel::select('max_years')
-                        ->where('id', $education_level_id)
-                        ->value('max_years');
+                    $education_level_max_years = $this->getEducationLevelMaxYearsForEducationLevelId($education_level_id);
                     if ($study_year_layer > $education_level_max_years) {
                         $this->errorMessages[] = 'De les jaar laag '.$study_year_layer.' is niet correct. De Studierichting (niveau) '.$study_direction.' kan maximaal '.$education_level_max_years.' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT';
                         //throw new \Exception('De les jaar laag ' . $study_year_layer . ' is niet correct. De Studierichting (niveau) ' . $study_direction . ' kan maximaal ' . $education_level_max_years . ' jaren zijn. Pas dit in het bestand aan of neem contact op met ICT');
@@ -317,9 +345,11 @@ class RTTIImportHelper
                         $study_year_layer,
                         $education_level_id
                     );
-                    $teacher_id = $this->getUserIdForTeacherInLocation($teacher_external_code, $school_location_id);
-                    $student_id = $this->getUserIdForLocation($student_external_code, $school_location_id);
-                    $subject_id = $this->getSubjectId($subject_abbreviation, $school_location_id);
+                    $teacher_id = $this->getUserIdForTeacherInLocation($teacher_external_code, $school_location_id,
+                        $teacher_eckid);
+                    $student_id = $this->getUserIdForLocation($student_external_code, $school_location_id,
+                        $student_eckid);
+                    $subject_id = $this->getSubjectId($subject_abbreviation, $school_location_id, $teacher_eckid);
 
                     $this->importLog("subject id is ".$subject_id." for abbreviation ".$subject_abbreviation." and location ".$school_location_id);
 
@@ -351,22 +381,23 @@ class RTTIImportHelper
                     if ($school_class_id == null) {
                         $this->importLog('Restoring school class');
 
-
                         $school_class_id = $this->createOrRestoreSchoolClass([
-                            'school_location_id'              => $school_location_id,
-                            'education_level_id'              => $education_level_id,
-                            'school_year_id'                  => $school_year_id,
-                            'name'                            => $class_name,
-                            'education_level_year'            => $study_year_layer,
+                            'school_location_id'   => $school_location_id,
+                            'education_level_id'   => $education_level_id,
+                            'school_year_id'       => $school_year_id,
+                            'name'                 => $class_name,
+                            'education_level_year' => $study_year_layer,
+
                             'is_main_school_class'            => $teacher_is_mentor,
-                            'do_not_overwrite_from_interface' => 0
+                            'do_not_overwrite_from_interface' => 0,
+                            'visible'                         => $this->make_school_classes_visible,
                         ]);
 
                         $this->create_tally['classes']++;
 
                         $this->importLog('Class '.$class_name.' with id '.$school_class_id.'  created ');
                     } else {
-                        $schoolClass = SchoolClass::find($school_class_id);
+                        $schoolClass = SchoolClass::withoutGlobalScope('visibleOnly')->find($school_class_id);
                         if ($schoolClass->is_main_school_class === 0 && $teacher_is_mentor == 1) {
                             $schoolClass->is_main_school_class = 1;
                             $schoolClass->save();
@@ -378,7 +409,8 @@ class RTTIImportHelper
 
 
                     // rule 1 if class exists in import file and TC then set do_not_overwrite to 0 at all times
-                    SchoolClass::where('id', $school_class_id)->update(['do_not_overwrite_from_interface' => 0]);
+                    SchoolClass::withoutGlobalScope('visibleOnly')->where('id',
+                        $school_class_id)->update(['do_not_overwrite_from_interface' => 0]);
 
                     if (!isset($studentsPerClass[$school_class_id])) {
                         $studentsPerClass[$school_class_id] = [];
@@ -410,14 +442,8 @@ class RTTIImportHelper
                             $this->importLog('Student with id '.$student_id.' exists in class '.$school_class_id);
                         }
 
-                        $user = User::where('external_id', $student_external_code)
-                            ->where('school_location_id', $school_location_id);
 
-
-                        if ($user->count() > 1) {
-                            $this->errorMessages[] = 'Dubbele externe id voor dezelfde gebruiker '.$student_external_code;
-                            //throw new \Exception('Dubbele externe id voor dezelfde gebruiker ' . $student_external_code);
-                        }
+                        $this->raiseDoubleEntryError($student_eckid, $student_external_code, $school_location_id);
                     } else {
 
                         $this->importLog("Create student with external code ".$student_external_code);
@@ -451,18 +477,29 @@ class RTTIImportHelper
                     $studentsPerClass[$school_class_id][] = $student_id;
 
                     if ($teacher_id != null) {
-                        $user_collection = User::join('school_location_user', 'users.id', '=',
-                            'school_location_user.user_id')
-                            ->where('school_location_user.school_location_id', $school_location_id)
-                            ->where('school_location_user.external_id', $teacher_external_code)
-                            ->get();
 
-                        if ($user_collection->count() > 1) {
+                        $user = null;
+                        if ($teacher_external_code) {
+                            $user_collection = User::join('school_location_user', 'users.id', '=',
+                                'school_location_user.user_id')
+                                ->where('school_location_user.school_location_id', $school_location_id)
+                                ->where('school_location_user.external_id', $teacher_external_code)
+                                ->get();
 
-                            throw new \Exception('Dubbele externe id voor leraar met externe code '.$teacher_external_code);
+                            if ($user_collection->count() > 1) {
+
+                                throw new \Exception('Dubbele externe id voor leraar met externe code '.$teacher_external_code);
+                            }
+                            $user = $user_collection->first();
+                        }
+                        if ($user == null && $teacher_eckid) {
+                            $user = User::findByEckId($teacher_eckid)->first();
                         }
 
-                        $user = $user_collection->first();
+                        if ($user === null) {
+                            throw new \Exception('User niet gevonden blijkbaar gaat er hier iets mis');
+                        }
+
 
                         $user->name_first = $teacher_name_first;
                         $user->name_suffix = $teacher_name_suffix;
@@ -561,7 +598,7 @@ class RTTIImportHelper
                     }
 
                     // set mentor state
-                    if ($teacher_is_mentor && $teacher_id) {
+                    if ($this->skip_mentor_creation === false && $teacher_is_mentor && $teacher_id) {
 
                         $classMentorCheck[$school_class_id][] = $teacher_id;
 
@@ -651,7 +688,8 @@ class RTTIImportHelper
 
                         foreach ($allClasses as $school_location_id => $data) {
 
-                            $ids = SchoolClass::select('id')
+                            $ids = SchoolClass::withoutGlobalScope('visibleOnly')
+                                ->select('id')
                                 ->where('school_location_id', $school_location_id)
                                 ->where('do_not_overwrite_from_interface', 0)
                                 ->where('school_year_id', $data['school_year_id'])
@@ -667,7 +705,7 @@ class RTTIImportHelper
                                 Student::where('class_id', $id['id'])->delete();
                                 Teacher::where('class_id', $id['id'])->delete();
                                 Mentor::where('school_class_id', $id['id'])->delete();
-                                SchoolClass::where('id', $id['id'])->delete();
+                                SchoolClass::withoutGlobalScope('visibleOnly')->where('id', $id['id'])->delete();
                             }
                         }
                     }
@@ -695,7 +733,9 @@ class RTTIImportHelper
             ];
         }
 
-        \DB::commit();
+        if (!App::runningUnitTests()) {
+            \DB::commit();
+        }
 
         $this->importLog('import done');
 
@@ -977,7 +1017,8 @@ class RTTIImportHelper
 
         if ($school_year_id != null) {
 
-            return SchoolClass::where('name', $class_name)
+            return SchoolClass::withoutGlobalScope('visibleOnly')
+                ->where('name', $class_name)
                 ->where('school_location_id', $school_location_id)
                 ->where('school_year_id', $school_year_id)
                 ->where('education_level_year', $education_level_year)
@@ -996,11 +1037,19 @@ class RTTIImportHelper
      */
     public function createOrRestoreUser($user_data, $forRole = 'student')
     {
+        $user = null;
 
-        $user = User::withTrashed()
-            ->where('external_id', $user_data['external_id'])
-            ->where('school_location_id', $user_data['school_location_id'])
-            ->first();
+        if (!empty($user_data['eckid'])) {
+            $user = User::withTrashed()->findByEckid($user_data['eckid'])->first();
+        }
+
+        if ($user == null && $user_data['external_id']) {
+            $user = User::withTrashed()
+                ->where('external_id', $user_data['external_id'])
+                ->where('school_location_id', $user_data['school_location_id'])
+                ->first();
+        }
+
 
         if ($user != null) {
 
@@ -1015,6 +1064,10 @@ class RTTIImportHelper
 
                 }
             }
+            if ($forRole == 'teacher') {
+                $user->account_verified = now();
+            }
+
             $user->save();
             if ($this->should_use_import_email_pattern) {
                 $pattern = ($forRole === 'teacher') ? User::TEACHER_IMPORT_EMAIL_PATTERN : User::STUDENT_IMPORT_EMAIL_PATTERN;
@@ -1094,7 +1147,8 @@ class RTTIImportHelper
      */
     public function createOrRestoreSchoolClass($data)
     {
-        $schoolclass = SchoolClass::withTrashed()
+        $schoolClass = SchoolClass::withoutGlobalScope('visibleOnly')
+            ->withTrashed()
             ->where('school_location_id', $data['school_location_id'])
             ->where('education_level_id', $data['education_level_id'])
             ->where('school_year_id', $data['school_year_id'])
@@ -1102,23 +1156,49 @@ class RTTIImportHelper
             ->where('education_level_year', $data['education_level_year'])
             ->first();
 
-
-        if($schoolclass === null && $this->can_find_school_class_only_by_name){
-            $schoolclass = SchoolClass::withTrashed()
-                ->where('school_location_id', $data['school_location_id'])
-                ->where('name', $data['name'])
-                ->first();
+        // uwlr
+        if ($schoolClass === null && $this->can_find_school_class_only_by_name) {
+            return $this->getOrCreateSchoolClassIfAllowedByName($data);
         }
 
-        if ($schoolclass) {
-            $schoolclass->restore();
+        if ($schoolClass) {
+            $schoolClass->restore();
 
-            return $schoolclass->getKey();
+            return $schoolClass->getKey();
         }
-
-
 
         return SchoolClass::create($data)->getKey();
+    }
+
+    protected function getOrCreateSchoolClassIfAllowedByName($data)
+    {
+        $schoolClass = SchoolClass::withoutGlobalScope('visibleOnly')
+            ->withTrashed()
+            ->where('school_location_id', $data['school_location_id'])
+            ->where('school_year_id', $data['school_year_id'])
+            ->where('name', $data['name'])
+            ->first();
+
+
+        if ($schoolClass === null) {
+            $oldSchoolClass = SchoolClass::withoutGlobalScope('visibleOnly')
+                ->withTrashed()
+                ->where('school_location_id', $data['school_location_id'])
+                ->where('name', $data['name'])
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($oldSchoolClass) {
+                $data['education_level_id'] = $oldSchoolClass->education_level_id;
+                $data['education_level_year'] = $oldSchoolClass->education_level_year;
+            }
+            return SchoolClass::create($data)->getKey();
+        }
+        $schoolClass->name = $data['name']; // set the name the capitalized way we get it from the data array
+        $schoolClass->is_main_school_class = $data['is_main_school_class']; // the import is leading in telling whether this is a mainSchoolClass even if set differently earlier
+        $schoolClass->save();
+        $schoolClass->restore();
+        return $schoolClass->getKey();
     }
 
     /**
@@ -1155,12 +1235,16 @@ class RTTIImportHelper
                     self::DUMMY_SECTION_NAME);
             }
 
-            $subject = Subject::firstOrCreate([
+            $subject = Subject::withTrashed()->firstOrCreate([
                 'section_id'      => $magisterSection->section->getKey(),
                 'base_subject_id' => BaseSubject::where('name', DemoHelper::SUBJECTNAME)->first()->getKey(),
                 'abbreviation'    => 'IMP',
                 'name'            => self::DUMMY_SECTION_NAME,
             ]);
+
+            if ($subject && !$subject->trashed()) {
+                $subject->delete();
+            }
 
             return $subject->getKey();
         }
@@ -1173,9 +1257,19 @@ class RTTIImportHelper
      * @param  type  $name
      * @return type
      */
-    public function getStudyDirectionId($name)
+    public function getEducationLevelId($name)
     {
-        return EducationLevel::where('name', $this->translateStudyDirectionName($name))->value('id');
+        if ($name === 'uwlr_education_level') {
+            return 0;
+        }
+        return EducationLevel::where('name', $this->translateEducationLevelName($name))->value('id');
+    }
+
+    protected function getEducationLevelMaxYearsForEducationLevelId($education_level_id)
+    {
+        return Educationlevel::withTrashed()->select('max_years')
+            ->where('id', $education_level_id)
+            ->value('max_years');
     }
 
     /**
@@ -1183,9 +1277,9 @@ class RTTIImportHelper
      * @param  type  $name
      * @return type string
      */
-    public function translateStudyDirectionName($name)
+    public function translateEducationLevelName($name)
     {
-        return array_key_exists($name, $this->studydirectionarray) ? $this->studydirectionarray[$name] : $name;
+        return array_key_exists($name, $this->educationLevelArray) ? $this->educationLevelArray[$name] : $name;
     }
 
     /**
@@ -1194,11 +1288,19 @@ class RTTIImportHelper
      * @param  type  $school_location_id
      * @return type int
      */
-    public function getUserIdForLocation($external_id, $school_location_id)
+    public function getUserIdForLocation($external_id, $school_location_id, $eckId = null)
     {
-        return User::where('external_id', $external_id)
-            ->where('school_location_id', $school_location_id)
-            ->value('id');
+        if ($eckId) {
+            return User::findByEckid($eckId)->value('id');
+        }
+
+        if ($external_id) {
+            return User::where('external_id', $external_id)
+                ->where('school_location_id', $school_location_id)
+                ->value('id');
+        }
+
+        return null;
     }
 
     /**
@@ -1207,12 +1309,18 @@ class RTTIImportHelper
      * @param  type  $school_location_id
      * @return type int
      */
-    public function getUserIdForTeacherInLocation($external_id, $school_location_id)
+    public function getUserIdForTeacherInLocation($external_id, $school_location_id, $eckId = null)
     {
-        return User::join('school_location_user', 'users.id', '=', 'school_location_user.user_id')
-            ->where('school_location_user.school_location_id', $school_location_id)
-            ->where('school_location_user.external_id', $external_id)
-            ->value('id');
+        if ($eckId) {
+            return User::findByEckid($eckId)->value('id');
+        }
+        if ($external_id) {
+            return User::join('school_location_user', 'users.id', '=', 'school_location_user.user_id')
+                ->where('school_location_user.school_location_id', $school_location_id)
+                ->where('school_location_user.external_id', $external_id)
+                ->value('id');
+        }
+        return null;
     }
 
     /**
@@ -1276,11 +1384,13 @@ class RTTIImportHelper
      */
     public function removeTeacherAsMentor($class_mentor_check)
     {
-        foreach ($class_mentor_check as $class_id => $mentor_ids) {
-            Mentor::whereNotIn('user_id', array_unique($mentor_ids))
-                ->where('school_class_id', $class_id)
-                ->delete();
+        if ($this->skip_mentor_creation === false) {
+            foreach ($class_mentor_check as $class_id => $mentor_ids) {
+                Mentor::whereNotIn('user_id', array_unique($mentor_ids))
+                    ->where('school_class_id', $class_id)
+                    ->delete();
 //            $this->delete_tally['mentors']++;
+            }
         }
 
         return true;
@@ -1345,5 +1455,28 @@ class RTTIImportHelper
             }
         }
         return $returnArray;
+    }
+
+    private function generateEmailAddress($pattern, $eckId = null)
+    {
+        if (!empty($eckId)) {
+            $pattern = $eckId;
+        }
+
+        return sprintf('%s@%s', $pattern, $this->email_domain);
+    }
+
+    /**
+     * @param $student_eckid
+     * @param $student_external_code
+     * @param  $school_location_id
+     */
+    public function raiseDoubleEntryError($student_eckid, $student_external_code, $school_location_id): void
+    {
+        if (!$student_eckid && User::where('external_id', $student_external_code)
+                ->where('school_location_id', $school_location_id)->count() > 1) {
+            $this->errorMessages[] = 'Dubbele externe id voor dezelfde gebruiker '.$student_external_code;
+            //throw new \Exception('Dubbele externe id voor dezelfde gebruiker ' . $student_external_code);
+        }
     }
 }

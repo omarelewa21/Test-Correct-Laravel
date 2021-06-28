@@ -2,12 +2,19 @@
 
 namespace tcCore\Http\Livewire\Auth;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
-use tcCore\TemporaryLogin;
+use tcCore\Http\Helpers\EntreeHelper;
+use tcCore\Jobs\SendForgotPasswordMail;
+use tcCore\SamlMessage;
+use tcCore\User;
 
 class Login extends Component
 {
@@ -20,18 +27,33 @@ class Login extends Component
     public $lastName = '';
 
     public $forgotPasswordEmail = '';
+    public $entreeEmail = '';
+    public $entreePassword = '';
 
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    public $loginTab = true;
+    protected $queryString = ['tab', 'uuid', 'message_brin'];
+
+    public $tab = 'login';
+
+    public $uuid = '';
+
+    public $message_brin = '';
+
+//    public $loginTab = true;
+//    public $forgotPasswordTab = false;
+//    public $entreeTab = false;
+
     public $showTestCode = false;
     public $loginButtonDisabled = true;
     public $guestLoginButtonDisabled = true;
     public $forgotPasswordButtonDisabled = true;
+    public $connectEntreeButtonDisabled = true;
 
     public $showAuthModal = false;
     public $authModalRoleType;
+    public $showSendForgotPasswordNotification = false;
 
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
@@ -62,19 +84,30 @@ class Login extends Component
     public function login()
     {
         $this->resetErrorBag();
-
-        $credentials = $this->validate();
+        $this->message_brin = '';
 
         if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
-            return $this->requireCaptcha = true;
+            $this->requireCaptcha = true;
+            return;
         }
-        if ($this->captcha) {
-            $this->validateCaptcha();
+        if ($this->captcha && !$this->validateCaptcha()) {
+            return;
         }
 
+        $credentials = $this->validate();
         if (!auth()->attempt($credentials)) {
+            if($this->requireCaptcha) {
+                $this->reset('captcha');
+                $this->emit('refresh-captcha');
+                return;
+            }
             $this->createFailedLogin();
-            return $this->addError('invalid_user', __('auth.failed'));
+            $this->addError('invalid_user', __('auth.failed'));
+            return;
+        }
+        if(EntreeHelper::shouldPromptForEntree(auth()->user())) {
+            auth()->logout();
+            return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
 
         $this->doLoginProcedure();
@@ -104,6 +137,7 @@ class Login extends Component
 
     public function goToPasswordReset()
     {
+        $this->message_brin = '';
         $this->redirect(route('password.reset'));
     }
 
@@ -124,17 +158,20 @@ class Login extends Component
         ]);
     }
 
-    private function validateCaptcha(): void
+    private function validateCaptcha()
     {
         $validateCaptcha = Validator::make(['captcha' => $this->captcha], ['captcha' => 'required|captcha']);
 
         if ($validateCaptcha->fails()) {
             $this->reset('captcha');
-            $this->dispatchBrowserEvent('refresh-captcha');
+            $this->addError('captcha', __('auth.incorrect_captcha'));
+            $this->emit('refresh-captcha');
+            return false;
         }
 
         $rulesWithCaptcha = array_merge($this->rules, ['captcha' => 'required|captcha']);
         $this->validate($rulesWithCaptcha);
+        return true;
     }
 
     public function updated($name, $value)
@@ -144,6 +181,10 @@ class Login extends Component
         $this->couldBeEmail($this->forgotPasswordEmail) ? $this->forgotPasswordButtonDisabled = false : $this->forgotPasswordButtonDisabled = true;
 
         $this->guestLoginButtonDisabled = !(filled($this->firstName) && filled($this->lastName) && count($this->testTakeCode) == 6);
+
+        if($this->couldBeEmail($this->entreeEmail) && filled($this->entreePassword)) {
+            $this->connectEntreeButtonDisabled = false;
+        }
 
     }
 
@@ -155,14 +196,28 @@ class Login extends Component
         }
     }
 
-    private function couldBeEmail(string $email): bool
+    private function couldBeEmail($email): bool
     {
         return Str::of($email)->containsAll(['@', '.']);
     }
 
     public function sendForgotPasswordEmail()
     {
+        $this->message_brin = '';
+        $user = User::whereUsername($this->forgotPasswordEmail)->first();
+        if ($user) {
+            $token = Password::getRepository()->create($user);
+            $url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
+            $urlLogin = route('auth.login');
 
+            try {
+                Mail::to($user->username)->send(new SendForgotPasswordMail($user,$token,$url,$urlLogin));
+            } catch (\Throwable $th) {
+                Bugsnag::notifyException($th);
+            }
+        }
+
+        $this->showSendForgotPasswordNotification = true;
     }
 
     private function isTestTakeCodeValid(): bool
@@ -212,5 +267,35 @@ class Login extends Component
         } else {
             $this->loginButtonDisabled = true;
         }
+    }
+
+
+    public function entreeForm()
+    {
+        $this->message_brin = '';
+        $credentials = [
+            'username' => $this->entreeEmail,
+            'password' => $this->entreePassword,
+        ];
+
+        $message = SamlMessage::whereUuid($this->uuid)->first();
+
+        if ($message == null) {
+            return $this->addError('invalid_user_pfff', __('auth.failed'));
+        }
+
+        if (!auth()->attempt($credentials)) {
+            $this->createFailedLogin();
+            return $this->addError('invalid_user', __('auth.failed'));
+        }
+        $user = auth::user();
+
+        if ($user->eckId !== null) {
+            return $this->addError('some_field', 'some error where we already have a matching eckid');
+        }
+
+        $user->eckId = $message->eck_id;
+        $user->save();
+        $user->redirectToCakeWithTemporaryLogin();
     }
 }
