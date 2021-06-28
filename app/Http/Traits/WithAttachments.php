@@ -18,7 +18,7 @@ trait WithAttachments
 
     public function mountWithAttachments()
     {
-        $this->answerId = Answer::whereId($this->answers[$this->question->uuid]['id'])->first()->uuid;
+        $this->answerId = Answer::whereId($this->answers[$this->question->uuid]['id'])->value('uuid');
     }
 
     public function showAttachment(Attachment $attachment)

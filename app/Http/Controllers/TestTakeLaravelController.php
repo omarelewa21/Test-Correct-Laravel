@@ -71,11 +71,11 @@ class TestTakeLaravelController extends Controller
                 $groupId = 0;
                 $groupCloseable = 0;
                 if ($question->is_subquestion) {
-                    $groupQuestion = GroupQuestionQuestion::whereQuestionId($question->getKey())->whereIn('group_question_id', function ($query) use ($testTake) {
+                    $groupQuestionQuestion = GroupQuestionQuestion::whereQuestionId($question->getKey())->whereIn('group_question_id', function ($query) use ($testTake) {
                         $query->select('question_id')->from('test_questions')->where('test_id', $testTake->test_id);
-                    })->first();
-                    $groupId = $groupQuestion->group_question_id;
-                    $groupCloseable = $groupQuestion->groupQuestion->question->closeable;
+                    })->with('question:id,closeable')->first();
+                    $groupId = $groupQuestionQuestion->group_question_id;
+                    $groupCloseable = $groupQuestionQuestion->groupQuestion->question->closeable;
                 }
 
                 $result[$question->uuid] = [
@@ -93,7 +93,7 @@ class TestTakeLaravelController extends Controller
 
     public static function getData($testParticipant)
     {
-        return cache()->remember('data'.$testParticipant->getKey(), now()->addMinutes(60), function() use ($testParticipant) {
+//        return cache()->remember('data'.$testParticipant->getKey(), now()->addMinutes(60), function() use ($testParticipant) {
             $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
 
             return $testParticipant->answers->load('question')->flatMap(function ($answer) use ($visibleAttributes) {
@@ -102,7 +102,7 @@ class TestTakeLaravelController extends Controller
 
                 return collect([$answer->question]);
             });
-        });
+//        });
     }
 
     /**
