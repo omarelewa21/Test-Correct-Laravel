@@ -377,7 +377,7 @@ class UwlrSoapResult extends Model
                 if ($leerling) {
                     $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
                 } else {
-                    $this->errors[] = $this->errors[] = sprintf('kan geen leerling vinden voor klas %s', $klas['naam']);
+                    $this->errors[] = sprintf('kan geen leerling vinden voor klas %s', $klas['naam']);
                 }
             });
         } else {
