@@ -3944,8 +3944,6 @@ Core = {
         Core.inApp = true;
         checkForIpadKeyboard();
       }
-
-      ;
     }
   },
   isAndroid: function isAndroid() {
@@ -4005,8 +4003,8 @@ function shouldLostFocusBeReported(reason) {
 }
 
 function checkForIpadKeyboard() {
-  window.visualViewport.addEventListener('resize', function () {
-    if (visualViewport.height < 400) {
+  document.addEventListener('click', function (e) {
+    if (needsKeyboard(e.target)) {
       document.querySelector('header').classList.remove('fixed');
       document.querySelector('footer').classList.remove('fixed');
     } else {
@@ -4014,6 +4012,10 @@ function checkForIpadKeyboard() {
       document.querySelector('footer').classList.add('fixed');
     }
   });
+}
+
+function needsKeyboard(target) {
+  return /^(?:input|textarea)$/i.test(target.tagName.toLowerCase());
 }
 
 /***/ }),
