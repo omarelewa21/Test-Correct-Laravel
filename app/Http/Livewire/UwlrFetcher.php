@@ -54,7 +54,7 @@ class UwlrFetcher extends Component
                'lvs_type'       => $l->lvs_type,
                'school_year'    => ''
            ];
-        });
+        })->toArray();
     }
 
     public function updatedCurrentSource()
@@ -76,8 +76,8 @@ class UwlrFetcher extends Component
                     })->map(function(SchoolLocationSchoolYear $slsy){
                         return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
                     });
-            $this->schoolYears = collect($years)->sortDesc();
-            $this->schoolYear = $this->schoolYears->first();
+            $this->schoolYears = collect($years)->sortDesc()->toArray();
+            $this->schoolYear = $this->schoolYears[0];
         }
 
     }
@@ -91,7 +91,7 @@ class UwlrFetcher extends Component
     {
         $this->clientCode = $this->uwlrDatasource[$this->currentSource]['client_code'];
         $this->clientName = $this->uwlrDatasource[$this->currentSource]['client_name'];
-        $this->schoolYear = $this->schoolYear;
+//        $this->schoolYear = $this->schoolYear;
         $this->brinCode = $this->uwlrDatasource[$this->currentSource]['brin_code'];
         $this->dependanceCode = $this->uwlrDatasource[$this->currentSource]['dependance_code'];
     }

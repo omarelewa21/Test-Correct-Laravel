@@ -1195,6 +1195,7 @@ class ImportHelper
             if ($oldSchoolClass) {
                 $data['education_level_id'] = $oldSchoolClass->education_level_id;
                 $data['education_level_year'] = $oldSchoolClass->education_level_year;
+                $data['subject_id'] = $oldSchoolClass->subject_id;
             }
             return SchoolClass::create($data)->getKey();
         }
@@ -1232,7 +1233,7 @@ class ImportHelper
                 $school_location_section
             ) {
 
-                return $school_location_section->section->name === self::DUMMY_SECTION_NAME;
+                return optional($school_location_section->section)->name === self::DUMMY_SECTION_NAME;
             });
             if (!$magisterSection) {
                 $this->errorMessages[] = sprintf('Als u gebruik maakt van de uwlr import dient u een sectie in de school te hebben met de naam [%s]',
