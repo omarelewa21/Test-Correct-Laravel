@@ -69,9 +69,13 @@ class UwlrFetcher extends Component
         $this->schoolYears = [];
         $location = SchoolLocation::find($this->uwlrDatasource[$this->currentSource]['id']);
         if($location) {
-            $years = $location->schoolLocationSchoolYears->map(function(SchoolLocationSchoolYear $slsy){
-               return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
-            });
+            $years = $location
+                    ->schoolLocationSchoolYears
+                    ->filter(function(SchoolLocationSchoolYear $s) {
+                        return null != optional($s->schoolYear)->year;
+                    })->map(function(SchoolLocationSchoolYear $slsy){
+                        return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
+                    });
             $this->schoolYears = collect($years)->sortDesc();
             $this->schoolYear = $this->schoolYears->first();
         }
