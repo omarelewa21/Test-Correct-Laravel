@@ -38,7 +38,7 @@ class EntreeHelperTest extends TestCase
         $this->assertNull($location);
 
         $this->assertEquals(
-            route('auth.login', ['tab' => 'login', 'message_brin' => 'brin_not_found']),
+            route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']),
             (new EntreeHelper(['nlEduPersonHomeOrganizationBranchId' => ['99DE01']], 'abcd'))->redirectIfBrinUnknown()
         );
     }
@@ -49,7 +49,7 @@ class EntreeHelperTest extends TestCase
     public function it_should_redirect_when_no_brin_zes_is_provided()
     {
         $this->assertEquals(
-            route('auth.login', ['tab' => 'login', 'message_brin' => 'brin_not_found']),
+            route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']),
             (new EntreeHelper([], 'abcd'))->redirectIfBrinUnknown()
         );
     }
@@ -73,7 +73,7 @@ class EntreeHelperTest extends TestCase
         ], 'abc');
 
         $this->assertStringContainsString(
-            route('auth.login', ['tab' => 'entree', 'message' => '']),
+            route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.school_info_not_synced_with_test_correct']),
             $helper->redirectIfNoUserWasFoundForEckId()
         );
     }
@@ -151,7 +151,7 @@ class EntreeHelperTest extends TestCase
             'abcd'
         );
         $this->assertStringContainsString(
-            route('auth.login', ['tab' => 'entree', 'message' => 'oeps']),
+            route('auth.login', ['tab' => 'entree', 'entree_error_message'=>'auth.user_not_in_same_school']),
             $helper->redirectIfUserNotInSameSchool()
         );
     }
@@ -204,7 +204,7 @@ class EntreeHelperTest extends TestCase
         );
 
         $this->assertStringContainsString(
-            route('auth.login', ['tab' => 'entree', 'message' => '']),
+            route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.roles_do_not_match_up']),
             $helper->redirectIfUserNotHasSameRole()
         );
     }
@@ -304,7 +304,7 @@ class EntreeHelperTest extends TestCase
         $this->assertStringContainsString(
             route('auth.login', [
                 'tab'     => 'entree',
-                'message' => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Kies de juiste schoollocatie'
+                'entree_error_message'=>'auth.student_account_not_found_in_this_location',
             ]),
             $helper->handleScenario2IfAddressIsKnownInOtherAccount()
         );
@@ -425,8 +425,8 @@ class EntreeHelperTest extends TestCase
             'abcd'
         );
 
-        $this->assertStringContainsString(
-            'other%20user%20is%20using%20emailaddress%20not%20in%20same%20koepel%20not%20in%20same%20school',
+        $this->assertEquals(
+            route('auth.login', ['tab' =>  'entree', 'entree_error_message'=> 'auth.email_already_in_use_in_different_school_location']),
             $helper->handleScenario2IfAddressIsKnownInOtherAccount()
         );
     }
