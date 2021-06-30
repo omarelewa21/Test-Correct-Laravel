@@ -57,6 +57,7 @@ return [
     'forgot_password_email_send_text'                   => 'Binnen enkele minuten ontvang je een e-mail met instructies om je wachtwoord opnieuw in te stellen. Vergeet niet je spamfolder te checken als je de e-mail niet binnenkrijgt.',
     'send_mail_again'                                   => 'Stuur de e-mail nog een keer',
     'find_support'                                      => 'Zoek ondersteuning',
+    'entree_error'                                      => 'Entree error',
     'should_first_login_using_entree'                   => 'Je gegevens zijn nog niet gecontroleerd log de eerste keer in via Entree',
     'brin_not_found'                                    => 'Je school is niet aangesloten bij Test-Correct',
     'school_info_not_synced_with_test_correct'          => 'Je schoolgegevens zijn nog niet gesynchroniseerd met Test-Correct.',

@@ -14,7 +14,7 @@
         'samengestelde_groepen',
     ],
     'leerkracht'          => [
-        'key', 'roepnaam', 'emailadres',  'groepen', 'achternaam', 'samengestelde_groepen',
+        'key', 'roepnaam', 'emailadres',  'groepen', 'achternaam', 'samengestelde_groepen', 'eckid'
     ],
 ];
  ?>

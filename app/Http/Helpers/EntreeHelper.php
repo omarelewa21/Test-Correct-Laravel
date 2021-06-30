@@ -125,6 +125,9 @@ class EntreeHelper
 
     public function redirectIfscenario5()
     {
+        if (!empty($this->location->lvs_type)) {
+            return true;
+        }
         if ($this->location->lvs_active) {
             return true;
         }
