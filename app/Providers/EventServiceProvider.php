@@ -37,8 +37,7 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->redirectIfBrinUnknown();
 
-//            $entreeHelper->redirectIfEntreeSettingIsOffForBrin(); //Entree is niet gekoppeld aan deze school;
-
+            //scenario 5 still needs implementation;
             $entreeHelper->redirectIfScenario5();
 
             $entreeHelper->redirectIfNoUserWasFoundForEckId();
@@ -49,16 +48,7 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->handleScenario2IfAddressIsKnownInOtherAccount();
 
-
-
-
-            $userData = [
-                'id' => $user->getUserId(),
-                'attributes' => $user->getAttributes(),
-                'assertion' => $user->getRawSamlAssertion()
-            ];
-
-
+            $entreeHelper->handleScenario1();
 
             dd('No ECK_id on the request error (something went wrong?) Entree user.');
 
