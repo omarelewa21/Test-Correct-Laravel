@@ -37,6 +37,9 @@ class UwlrFetcher extends Component
     public function mount()
     {
         $this->uwlrDatasource = $this->getDataSource();
+        if (count($this->uwlrDatasource) == 0) {
+            dd('Geen schoollocaties gevonden met een gevuld veld lvs_type [ben je vergeten om deze in de database te zetten?]');
+        }
         $this->setSearchFields();
         $this->setSchoolYears();
     }
@@ -77,6 +80,15 @@ class UwlrFetcher extends Component
                         return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
                     });
             $this->schoolYears = collect($years)->sortDesc()->toArray();
+            if (!array_key_exists(0, $this->schoolYears)) {
+                dd(
+                    sprintf(
+                        'Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s',
+                        $location->id,
+                        $location->name
+                    )
+                );
+            }
             $this->schoolYear = $this->schoolYears[0];
         }
 
