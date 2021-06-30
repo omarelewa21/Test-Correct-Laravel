@@ -36,8 +36,8 @@ abstract class TestCase extends BaseTestCase
 
     public static function getAuthRequestData($overrides = [])
     {
-        $user = \tcCore\User::where('username','=',static::USER_TEACHER)->get()->first();
-        if(!$user->session_hash) {
+        $user = \tcCore\User::where('username', '=', static::USER_TEACHER)->get()->first();
+        if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
         }
@@ -50,22 +50,23 @@ abstract class TestCase extends BaseTestCase
     public static function getAuthRequestDataForAccountManager($overrides = [])
     {
 
-        $user = \tcCore\User::where('username','=',static::USER_ACCOUNTMANAGER)->get()->first();
-        if(!$user->session_hash) {
+        $user = \tcCore\User::where('username', '=', static::USER_ACCOUNTMANAGER)->get()->first();
+        if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
         }
 
         return array_merge([
-                'session_hash' => $user->session_hash,
-                'user'         => static::USER_ACCOUNTMANAGER,
-            ], $overrides);
+            'session_hash' => $user->session_hash,
+            'user'         => static::USER_ACCOUNTMANAGER,
+        ], $overrides);
     }
 
-    public static function AuthBeheerderGetRequest($url, $params=[]) {
+    public static function AuthBeheerderGetRequest($url, $params = [])
+    {
 
-        $user = \tcCore\User::where('username','=',static::USER_BEHEERDER)->get()->first();
-        if(!$user->session_hash) {
+        $user = \tcCore\User::where('username', '=', static::USER_BEHEERDER)->get()->first();
+        if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
         }
@@ -79,10 +80,11 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    public static function AuthBeheerderGetRequestLocation3($url, $params=[]) {
-        $user = \tcCore\User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first();
+    public static function AuthBeheerderGetRequestLocation3($url, $params = [])
+    {
+        $user = \tcCore\User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first();
         ActingAsHelper::getInstance()->setUser($user);
-        if(!$user->session_hash) {
+        if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
         }
@@ -95,10 +97,11 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    public static function AuthBeheerderGetRequestLocation1($url, $params=[]) {
-        $user = \tcCore\User::where('username','=',static::USER_SCHOOLBEHEERDER_LOCATION1)->get()->first();
+    public static function AuthBeheerderGetRequestLocation1($url, $params = [])
+    {
+        $user = \tcCore\User::where('username', '=', static::USER_SCHOOLBEHEERDER_LOCATION1)->get()->first();
         ActingAsHelper::getInstance()->setUser($user);
-        if(!$user->session_hash) {
+        if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
         }
@@ -114,8 +117,8 @@ abstract class TestCase extends BaseTestCase
 
     public static function getBeheerderAuthRequestData($overrides = [])
     {
-        $user = \tcCore\User::where('username','=',static::USER_BEHEERDER)->get()->first();
-        if(!$user->session_hash) {
+        $user = \tcCore\User::where('username', '=', static::USER_BEHEERDER)->get()->first();
+        if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
         }
@@ -129,15 +132,16 @@ abstract class TestCase extends BaseTestCase
     public static function getSchoolBeheerderAuthRequestData($overrides = [])
     {
         return self::getUserAuthRequestData(
-            User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first(),
+            User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first(),
             $overrides
         );
     }
 
-    public static function AuthSchoolBeheerderGetRequest($url, $params=[]) {
+    public static function AuthSchoolBeheerderGetRequest($url, $params = [])
+    {
 
-        $user = \tcCore\User::where('username','=',static::USER_SCHOOLBEHEERDER)->get()->first();
-        if(!$user->session_hash) {
+        $user = \tcCore\User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first();
+        if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
         }
@@ -159,9 +163,9 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    public static function getStudentXAuthRequestData($overrides = [],$studentNumber)
+    public static function getStudentXAuthRequestData($overrides = [], $studentNumber)
     {
-        $username = sprintf('s%d@test-correct.nl',$studentNumber);
+        $username = sprintf('s%d@test-correct.nl', $studentNumber);
         $user = User::where('username', $username)->first();
         ActingAsHelper::getInstance()->setUser($user);
         return self::getUserAuthRequestData(
@@ -194,7 +198,8 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    public static function authStudentOneGetRequest($url, $params=[]) {
+    public static function authStudentOneGetRequest($url, $params = [])
+    {
 
         return self::authUserGetRequest(
             $url,
@@ -203,7 +208,8 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
-    public static function authTeacherOneGetRequest($url, $params=[]) {
+    public static function authTeacherOneGetRequest($url, $params = [])
+    {
 
         return self::authUserGetRequest(
             $url,
@@ -234,7 +240,7 @@ abstract class TestCase extends BaseTestCase
      * @param $overrides
      * @return array
      */
-    protected static function getUserAuthRequestData($user, $overrides=[])
+    protected static function getUserAuthRequestData($user, $overrides = [])
     {
         return array_merge([
             'session_hash' => $user->session_hash,
@@ -242,12 +248,13 @@ abstract class TestCase extends BaseTestCase
         ], $overrides);
     }
 
-    protected function getUrlWithAuthCredentials($url,$data){
+    protected function getUrlWithAuthCredentials($url, $data)
+    {
         $startkey = '?';
-        if(substr_count($url,'?')){
+        if (substr_count($url, '?')) {
             $startkey = '&';
         }
-        return sprintf('%s%suser=%s&session_hash=%s',$url,$startkey,$data['user'],$data['session_hash']);
+        return sprintf('%s%suser=%s&session_hash=%s', $url, $startkey, $data['user'], $data['session_hash']);
     }
 
 //    protected function setUp(): void
@@ -257,11 +264,11 @@ abstract class TestCase extends BaseTestCase
 //        parent::setUp(); // TODO: Change the autogenerated stub
 
 
-        // skip refresh db when running phpunit
-        // with a 5th parameter ignoredb for performance;
-        // example:
-        // phpunit UserControllerTest tests/Feature/UserControllerTest.php --filter _ ignoredb
-        // underscore as that is a common character in all the tests except for single word tests which we don't have
+    // skip refresh db when running phpunit
+    // with a 5th parameter ignoredb for performance;
+    // example:
+    // phpunit UserControllerTest tests/Feature/UserControllerTest.php --filter _ ignoredb
+    // underscore as that is a common character in all the tests except for single word tests which we don't have
 //        if (!static::$setUpRun) {
 //            if (!(array_key_exists(5, $argv) && $argv[5] == 'ignoredb')) {
 //                $this->artisan('test:refreshdb');
@@ -270,16 +277,19 @@ abstract class TestCase extends BaseTestCase
 //        }
 //    }
 
-    protected function toetsActiveren($id) {
+    protected function toetsActiveren($id)
+    {
         $this->updateTestTakeStatus($id, 3);
     }
 
-    protected function toetsInleveren($id) {
+    protected function toetsInleveren($id)
+    {
 
         $this->updateTestTakeStatus($id, 9);
     }
 
-    private function updateTestTakeStatus($testTakeId, $status) {
+    private function updateTestTakeStatus($testTakeId, $status)
+    {
         $response = $this->put(
             sprintf(
                 'api-c/test_take/%s',
@@ -302,83 +312,94 @@ abstract class TestCase extends BaseTestCase
         Test::findOrFail($test['id'])->delete();
     }
 
-    protected function deleteUser($student){
+    protected function deleteUser($student)
+    {
         User::find($student->getKey())->delete();
     }
 
-    protected function getSchoolBeheerder(){
-        $user = User::where('username',static::USER_SCHOOLBEHEERDER)->first();
+    protected function getSchoolBeheerder()
+    {
+        $user = User::where('username', static::USER_SCHOOLBEHEERDER)->first();
         $this->actingAs($user);
         return $user;
     }
 
-    protected function createStudent($password,$schoolLocation,$schoolClass=null,$nr)
+    protected function createStudent($password, $schoolLocation, $schoolClass = null, $nr)
     {
         $user = User::create([
             'school_location_id' => $schoolLocation->getKey(),
-            'username' => sprintf('info+%s-%d@test-correct.nl',$schoolLocation->name,$nr),
-            'password' => \Hash::make($password),
-            'name_first' => $schoolLocation->name,
-            'name' => sprintf('student-%d',$nr),
-            'api_key' => sha1(time()),
+            'username'           => sprintf('info+%s-%d@test-correct.nl', $schoolLocation->name, $nr),
+            'password'           => \Hash::make($password),
+            'name_first'         => $schoolLocation->name,
+            'name'               => sprintf('student-%d', $nr),
+            'api_key'            => sha1(time()),
             'send_welcome_email' => 1
         ]);
 
 
-        if (null == $schoolClass) {
-            $schoolClass = SchoolClass::create([
-                'school_location_id' => $schoolLocation->getKey(),
-                'education_level_id' => 12,
-                'school_year_id' => $schoolLocation->schoolLocationSchoolYears->first()->school_year_id,
-                'name' => sprintf('%s klas',$schoolLocation->name),
-                'education_level_year' => 2,
-                'is_main_school_class' => 1,
-                'do_not_overwrite_from_interface' => 0,
-            ]);
-        }
+        $schoolClass = $this->setSchoolClassIfNull($schoolClass, $schoolLocation);
 
-        if(!$user){
+        if (!$user) {
             throw new \Exception('could not create student');
         }
 
         UserRole::create([
-            'user_id'=> $user->getKey(),
+            'user_id' => $user->getKey(),
             'role_id' => 3
         ]);
 
         Student::create([
-            'user_id' => $user->getKey(),
+            'user_id'  => $user->getKey(),
             'class_id' => $schoolClass->getKey(),
         ]);
 
         return $user;
     }
 
-    protected function createTeacher($password,$schoolLocation,$schoolClass)
+    private function setSchoolClassIfNull($schoolClass, $schoolLocation)
+    {
+        if (null == $schoolClass) {
+            $schoolClass = SchoolClass::create([
+                'school_location_id'              => $schoolLocation->getKey(),
+                'education_level_id'              => 12,
+                'school_year_id'                  => $schoolLocation->schoolLocationSchoolYears->first()->school_year_id,
+                'name'                            => sprintf('%s klas', $schoolLocation->name),
+                'education_level_year'            => 2,
+                'is_main_school_class'            => 1,
+                'do_not_overwrite_from_interface' => 0,
+            ]);
+        }
+        return $schoolClass;
+    }
+
+
+    protected function createTeacher($password, $schoolLocation, $schoolClass)
     {
         $user = User::create([
             'school_location_id' => $schoolLocation->getKey(),
-            'username' => sprintf('info+%s-teacher@test-correct.nl',$schoolLocation->name),
-            'password' => \Hash::make($password),
-            'name_first' => $schoolLocation->name,
-            'name' => sprintf('teacher'),
-            'api_key' => str_random(40),
+            'username'           => sprintf('info+%s-teacher@test-correct.nl', $schoolLocation->name),
+            'password'           => \Hash::make($password),
+            'name_first'         => $schoolLocation->name,
+            'name'               => sprintf('teacher'),
+            'api_key'            => sha1(time()),
             'send_welcome_email' => 1
         ]);
 
-        if(!$user){
+        if (!$user) {
             throw new \Exception('could not create teacher');
         }
 
+        $schoolClass = $this->setSchoolClassIfNull($schoolClass, $schoolLocation);
+
         UserRole::create([
-            'user_id'=> $user->getKey(),
+            'user_id' => $user->getKey(),
             'role_id' => 1
         ]);
 
         Teacher::create([
-            'user_id' => $user->getKey(),
-            'class_id' => $schoolClass->getKey(),
-            'subject_id' => 76
+            'user_id'    => $user->getKey(),
+            'class_id'   => $schoolClass->getKey(),
+            'subject_id' => 30
         ]);
 
         return $user;
