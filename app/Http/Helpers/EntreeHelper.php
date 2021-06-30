@@ -36,7 +36,7 @@ class EntreeHelper
     {
         $this->setLocationWithSamlAttributes();
         if ($this->location == null) {
-            $url = route('auth.login', ['tab' => 'login', 'message_brin' => 'brin_not_found']);
+            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']);
             if (App::runningUnitTests()) {
                 return $url;
             }
@@ -141,7 +141,7 @@ class EntreeHelper
         }
 
         $url = route('auth.login',
-            ['tab' => 'entree', 'message' => __('auth.school_info_not_synced_with_test_correct')]);
+            ['tab' => 'entree', 'entree_error_message' => 'auth.school_info_not_synced_with_test_correct']);
         if (App::runningUnitTests()) {
             return $url;
         }
@@ -162,7 +162,7 @@ class EntreeHelper
             return true;
         }
 
-        $url = route('auth.login', ['tab' => 'entree', 'message' => 'oeps']);
+        $url = route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.user_not_in_same_school']);
 
         if (App::runningUnitTests()) {
             return $url;
@@ -183,7 +183,7 @@ class EntreeHelper
             return true;
         }
 
-        $url = route('auth.login', ['tab' => 'entree', 'message' => 'roles do not match up']);
+        $url = route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.roles_do_not_match_up']);
         if (App::runningUnitTests()) {
             return $url;
         }
@@ -246,7 +246,7 @@ class EntreeHelper
                 if (!$this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
                     $url = route('auth.login', [
                         'tab'     => 'entree',
-                        'message' => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Kies de juiste schoollocatie'
+                        'entree_error_message' => 'auth.student_account_not_found_in_this_location'
                     ]);
                     if (App::runningUnitTests()) {
                         return $url;
@@ -263,7 +263,7 @@ class EntreeHelper
                     return $this->handleMatchingTeachersInKoepel($otherUserWithEmailAddress, $this->laravelUser);
                 }
             }
-            $url = route('auth.login', ['tab' => 'entree', 'message'=> 'other user is using emailaddress not in same koepel not in same school']);
+            $url = route('auth.login', ['tab' => 'entree', 'entree_error_message'=> 'auth.email_already_in_use_in_different_school_location']);
 
             if (App::runningUnitTests()) {
                 return $url;

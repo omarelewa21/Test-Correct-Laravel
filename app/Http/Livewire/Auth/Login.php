@@ -33,13 +33,13 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab', 'uuid', 'message_brin'];
+    protected $queryString = ['tab', 'uuid', 'entree_error_message'];
 
     public $tab = 'login';
 
     public $uuid = '';
 
-    public $message_brin = '';
+    public $entree_error_message = '';
 
 //    public $loginTab = true;
 //    public $forgotPasswordTab = false;
@@ -84,7 +84,7 @@ class Login extends Component
     public function login()
     {
         $this->resetErrorBag();
-        $this->message_brin = '';
+        $this->entree_error_message = '';
 
         if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
             $this->requireCaptcha = true;
@@ -137,7 +137,7 @@ class Login extends Component
 
     public function goToPasswordReset()
     {
-        $this->message_brin = '';
+        $this->entree_error_message = '';
         $this->redirect(route('password.reset'));
     }
 
@@ -203,7 +203,7 @@ class Login extends Component
 
     public function sendForgotPasswordEmail()
     {
-        $this->message_brin = '';
+        $this->entree_error_message = '';
         $user = User::whereUsername($this->forgotPasswordEmail)->first();
         if ($user) {
             $token = Password::getRepository()->create($user);
@@ -272,7 +272,7 @@ class Login extends Component
 
     public function entreeForm()
     {
-        $this->message_brin = '';
+        $this->entree_error_message = '';
         $credentials = [
             'username' => $this->entreeEmail,
             'password' => $this->entreePassword,
