@@ -695,7 +695,10 @@ class ImportHelper
                             $ids = SchoolClass::withoutGlobalScope('visibleOnly')
                                 ->select('id')
                                 ->where('school_location_id', $school_location_id)
-                                ->where('do_not_overwrite_from_interface','<>', 1)
+                                ->where(function($query) {
+                                    $query->where('do_not_overwrite_from_interface',0)
+                                    ->orWhereNull('do_not_overwrite_from_interface');
+                                })
                                 ->where('school_year_id', $data['school_year_id'])
                                 ->whereNotIn('id', array_unique($class_ids))
                                 ->get()
