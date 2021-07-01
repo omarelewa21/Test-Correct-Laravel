@@ -295,6 +295,7 @@ class EntreeHelper
         $oldUser->setEckidAttribute($eckId);
         $oldUser->transferClassesFromUser($user);
         $oldUser->save();
+        $this->laravelUser = $oldUser;
         $user->delete();
     }
 
