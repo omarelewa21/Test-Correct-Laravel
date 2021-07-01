@@ -24,7 +24,7 @@ class EntreeHelper
 
     private $location = null;
 
-    private $laravelUser = null;
+    public $laravelUser = null;
 
     public function __construct($attr, $messageId)
     {

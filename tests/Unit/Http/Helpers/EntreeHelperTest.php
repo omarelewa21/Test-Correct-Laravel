@@ -253,7 +253,6 @@ class EntreeHelperTest extends TestCase
         $this->assertCount(1, $existingStudent->students);
         $this->assertCount(1, $importedStudent->students);
 
-
         $helper = new EntreeHelper(
             [
                 'nlEduPersonHomeOrganizationBranchId' => ['99DE00'],
@@ -264,7 +263,7 @@ class EntreeHelperTest extends TestCase
             'abcd'
         );
 
-        $helper->handleScenario2IfAddressIsKnownInOtherAccount();
+       $helper->handleScenario2IfAddressIsKnownInOtherAccount();
 
         $this->assertEquals(
             'eckid_L2',
@@ -272,6 +271,8 @@ class EntreeHelperTest extends TestCase
         );
 
         $this->assertTrue($importedStudent->refresh()->trashed());
+
+        $helper->laravelUser->is($existingStudent);
 
         $this->assertCount(0, ($importedStudent->refresh())->students);
         $this->assertCount(2, ($existingStudent->refresh())->students);
@@ -351,11 +352,12 @@ class EntreeHelperTest extends TestCase
         $this->assertCount(2, ($oldTeacher->refresh())->teacher);
         $this->assertTrue($teacher->refresh()->trashed());
         $this->assertCount(0, ($teacher->refresh())->teacher);
+// the laravelUser (the one that we try to login) should be the old teacher;
+        $helper->laravelUser->is($oldTeacher);
     }
 
     /** @test */
-    public function it_should_handle_scenario2_when_email_addres_is_found_in_other_teacher_account_within_the_same_koepel_but_different_location(
-    )
+    public function it_should_handle_scenario2_when_email_addres_is_found_in_other_teacher_account_within_the_same_koepel_but_different_location()
     {
         $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
         $location2 = SchoolLocation::where('external_main_code', '8888')->where('external_sub_code', '00')->first();
@@ -370,13 +372,13 @@ class EntreeHelperTest extends TestCase
             $location->is($location2)
         );
 
-        $teacher = $this->createTeacher('meOkayOrso', $location, null, 'abcdefg');
-        $teacher->eckId = 'eckid_L2';
-        $teacher->save();
+        $importedTeacher = $this->createTeacher('meOkayOrso', $location, null, 'abcdefg');
+        $importedTeacher->eckId = 'eckid_L2';
+        $importedTeacher->save();
 
-        $teacher1 = $this->createTeacher('meOkayOrso', $location2, null, 'abcdefg');
-        $teacher1->username = 'martin@sobit.nl';
-        $teacher1->save();
+        $oldTeacher = $this->createTeacher('meOkayOrso', $location2, null, 'abcdefg');
+        $oldTeacher->username = 'martin@sobit.nl';
+        $oldTeacher->save();
 
         $helper = new EntreeHelper(
             [
@@ -391,6 +393,8 @@ class EntreeHelperTest extends TestCase
         $this->assertTrue(
             $helper->handleScenario2IfAddressIsKnownInOtherAccount()
         );
+        // check that the user we try to login will be the old teacher account;
+        $helper->laravelUser->is($oldTeacher);
     }
 
     /** @test */
