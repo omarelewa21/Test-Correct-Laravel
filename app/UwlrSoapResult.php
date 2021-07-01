@@ -525,15 +525,22 @@ class UwlrSoapResult extends Model
                     });
                     return $resultKeys;
                 }
+                // Roan en martin denken dat hier nog een implementatie hoort voor leerling en dat dit voor SomToday zorgt voor
+                // logging van alle klassen bij de leerling.
                 return [];
-
-
             }
             if (array_key_exists('samengestelde_groepen', $value)) {
+                $value['samengestelde_groepen'] = (array) $value['samengestelde_groepen'];
+                if (array_key_exists('samengestelde_groep',  $value['samengestelde_groepen'])){
+                    foreach ((array) $value['samengestelde_groepen']['samengestelde_groep'] as $sGroep) {
+                        $sGroep = (array) $sGroep;
+                        $resultKeys[] = array_key_exists('key',
+                            $sGroep) ? $sGroep['key'] : array_pop($sGroep);
+                    }
+                    return $resultKeys;
+                }
                 return $value['samengestelde_groepen'];
             }
-
-
         })->flatten();
 
         $notInLabel = $keys->filter(function ($key) use ($labelKeys) {

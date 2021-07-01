@@ -426,10 +426,11 @@ class ImportHelper
                             $student->name_first = $student_name_first;
                             $student->name_suffix = $student_name_suffix;
                             $student->name = $student_name_last;
+                            $student->eckid = $student_eckid;
                             if ($student->isDirty()) {
-                                $student->save();
                                 $this->update_tally['students']++;
                             }
+                            $student->save();
                         }
 
                         // student not in class (always the case with a new class)
@@ -508,10 +509,12 @@ class ImportHelper
                         $user->name_first = $teacher_name_first;
                         $user->name_suffix = $teacher_name_suffix;
                         $user->name = $teacher_name_last;
+                        $user->eckid = $teacher_eckid;
+
                         if ($user->isDirty()) {
-                            $user->save();
                             $this->update_tally['teachers']++;
                         }
+                        $user->save();
 
                         $teacher_table_id = $this->getTeachersForClassSubject($teacher_id, $school_class_id,
                             $subject_id);
@@ -1086,7 +1089,6 @@ class ImportHelper
             if ($user->isDirty()) {
                 $user->save();
             }
-
         }
 
         return $user->id;
