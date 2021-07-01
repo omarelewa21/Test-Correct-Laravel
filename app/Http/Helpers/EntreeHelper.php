@@ -161,6 +161,7 @@ class EntreeHelper
         if (null == $this->laravelUser) {
             $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
         }
+        // @TODO check if teacher and if laravelUser is allowed to switch to this location
         if ($this->location && $this->location->is(optional($this->laravelUser)->schoolLocation)) {
             return true;
         }
