@@ -427,7 +427,7 @@ class UsersController extends Controller
         }
 
         $user = User::where('id', $temporaryLogin->user_id)->first();
-        $temporaryLogin->forceDelete();
+//        $temporaryLogin->forceDelete();
 
         $user->setAttribute('session_hash', $user->generateSessionHash());
         if((bool) $user->demo === true){
