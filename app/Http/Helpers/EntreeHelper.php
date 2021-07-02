@@ -24,7 +24,7 @@ class EntreeHelper
 
     private $location = null;
 
-    private $laravelUser = null;
+    public $laravelUser = null;
 
     public function __construct($attr, $messageId)
     {
@@ -161,7 +161,6 @@ class EntreeHelper
         if (null == $this->laravelUser) {
             $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
         }
-        // @TODO check if teacher and if laravelUser is allowed to switch to this location
         if ($this->location && $this->location->is(optional($this->laravelUser)->schoolLocation)) {
             return true;
         }
@@ -282,36 +281,41 @@ class EntreeHelper
     private function handleMatchingWithinSchoolLocation(User $oldUser, User $user){
         try {
             DB::beginTransaction();
-                $this->copyEckIdAndTransferClassesAndDeleteUser($oldUser, $user);
+            $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
             DB::commit();
         } catch (\Exception $e) {
+            logger('@@@@@ rollback of transformation');
+            logger($e->getMessage());
             DB::rollback();
         }
         return true;
     }
 
-    private function copyEckIdAndTransferClassesAndDeleteUser(User $oldUser, User $user) {
+    private function copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser(User $oldUser, User $user) {
         $eckId = $user->eckId;
         $user->removeEckId();
         $oldUser->setEckidAttribute($eckId);
         $oldUser->transferClassesFromUser($user);
+        foreach(['name','name_suffix','name_first'] as $key){
+            $oldUser->$key = $user->$key;
+        }
         $oldUser->save();
         $this->laravelUser = $oldUser;
         $user->delete();
     }
 
     private function handleMatchingTeachersInKoepel(User $oldUser, User $user) {
-       if ($oldUser->isA('teacher')) {
-           try {
-               DB::beginTransaction();
-               $oldUser->addSchoolLocation($user->schoolLocation);
-               $this->copyEckIdAndTransferClassesAndDeleteUser($oldUser, $user);
-               DB::commit();
-           } catch (\Exception $e) {
-               DB::rollback();
-           }
-           return true;
-       }
+        if ($oldUser->isA('teacher')) {
+            try {
+                DB::beginTransaction();
+                $oldUser->addSchoolLocation($user->schoolLocation);
+                $this->copyEckIdAndTransferClassesAndDeleteUser($oldUser, $user);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+            }
+            return true;
+        }
     }
 
 

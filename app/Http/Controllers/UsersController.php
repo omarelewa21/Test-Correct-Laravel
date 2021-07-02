@@ -427,7 +427,7 @@ class UsersController extends Controller
         }
 
         $user = User::where('id', $temporaryLogin->user_id)->first();
-        $temporaryLogin->forceDelete();
+//        $temporaryLogin->forceDelete();
 
         $user->setAttribute('session_hash', $user->generateSessionHash());
         if((bool) $user->demo === true){
@@ -469,7 +469,6 @@ class UsersController extends Controller
         LoginLog::create(['user_id' => $user->getKey()]);
 
         return new JsonResponse($clone);
-
     }
 
     public function isAccountVerified(Request $request)
