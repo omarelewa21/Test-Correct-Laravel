@@ -42,4 +42,10 @@ class MatrixQuestion extends Component
     {
         return view('livewire.overview.matrix-question');
     }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        $selectedAnswers = count(array_filter($this->answerStruct));
+        return $this->subQuestions->count() === $selectedAnswers;
+    }
 }

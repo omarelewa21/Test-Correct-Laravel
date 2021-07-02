@@ -57,7 +57,7 @@ class RttiImportController extends Controller {
             }
 
 //            $rtti_import_helper = new \tcCore\Http\Helpers\RTTIImportHelper($file_path, $email_domain);
-            $rtti_import_helper = \tcCore\Http\Helpers\RTTIImportHelper::initWithCVS($file_path, $email_domain);
+            $rtti_import_helper = \tcCore\Http\Helpers\ImportHelper::initWithCSV($file_path, $email_domain);
             //$rtti_import_helper->validateEmailDomain($email_domain);
 
             $rtti_import_helper->getDataFromFile($file_path, $separator);

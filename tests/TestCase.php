@@ -4,8 +4,12 @@ namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\SchoolClass;
+use tcCore\Student;
+use tcCore\Teacher;
 use tcCore\Test;
 use tcCore\User;
+use tcCore\UserRole;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -305,6 +309,78 @@ abstract class TestCase extends BaseTestCase
     protected function getSchoolBeheerder(){
         $user = User::where('username',static::USER_SCHOOLBEHEERDER)->first();
         $this->actingAs($user);
+        return $user;
+    }
+
+    protected function createStudent($password,$schoolLocation,$schoolClass=null,$nr)
+    {
+        $user = User::create([
+            'school_location_id' => $schoolLocation->getKey(),
+            'username' => sprintf('info+%s-%d@test-correct.nl',$schoolLocation->name,$nr),
+            'password' => \Hash::make($password),
+            'name_first' => $schoolLocation->name,
+            'name' => sprintf('student-%d',$nr),
+            'api_key' => sha1(time()),
+            'send_welcome_email' => 1
+        ]);
+
+
+        if (null == $schoolClass) {
+            $schoolClass = SchoolClass::create([
+                'school_location_id' => $schoolLocation->getKey(),
+                'education_level_id' => 12,
+                'school_year_id' => $schoolLocation->schoolLocationSchoolYears->first()->school_year_id,
+                'name' => sprintf('%s klas',$schoolLocation->name),
+                'education_level_year' => 2,
+                'is_main_school_class' => 1,
+                'do_not_overwrite_from_interface' => 0,
+            ]);
+        }
+
+        if(!$user){
+            throw new \Exception('could not create student');
+        }
+
+        UserRole::create([
+            'user_id'=> $user->getKey(),
+            'role_id' => 3
+        ]);
+
+        Student::create([
+            'user_id' => $user->getKey(),
+            'class_id' => $schoolClass->getKey(),
+        ]);
+
+        return $user;
+    }
+
+    protected function createTeacher($password,$schoolLocation,$schoolClass)
+    {
+        $user = User::create([
+            'school_location_id' => $schoolLocation->getKey(),
+            'username' => sprintf('info+%s-teacher@test-correct.nl',$schoolLocation->name),
+            'password' => \Hash::make($password),
+            'name_first' => $schoolLocation->name,
+            'name' => sprintf('teacher'),
+            'api_key' => str_random(40),
+            'send_welcome_email' => 1
+        ]);
+
+        if(!$user){
+            throw new \Exception('could not create teacher');
+        }
+
+        UserRole::create([
+            'user_id'=> $user->getKey(),
+            'role_id' => 1
+        ]);
+
+        Teacher::create([
+            'user_id' => $user->getKey(),
+            'class_id' => $schoolClass->getKey(),
+            'subject_id' => 76
+        ]);
+
         return $user;
     }
 

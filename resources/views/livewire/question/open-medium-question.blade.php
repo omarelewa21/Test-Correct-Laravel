@@ -11,7 +11,6 @@
 
 
         <script>
-
             (function() {
                 var editor = CKEDITOR.instances['{{ $editorId }}']
                 if (editor) {
@@ -19,7 +18,7 @@
                 }
                 CKEDITOR.replace( '{{ $editorId }}', {
                     removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris',
+                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
                     toolbar: [
                         { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
                         { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },

@@ -1,9 +1,12 @@
 <?php namespace tcCore;
 
 use Closure;
+
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Jobs\PValues\UpdatePValueSchoolClass;
 use tcCore\Jobs\Rating\UpdateRatingsSchoolClass;
 use tcCore\Lib\Models\AccessCheckable;
@@ -22,6 +25,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'visible' => 'boolean',
     ];
 
     /**
@@ -43,7 +47,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo'];
+    protected $fillable = ['school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo','visible'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -113,6 +117,12 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     public static function boot()
     {
         parent::boot();
+// column for scope is not available before 19-6-2021 this is for now solved by not adding the scope for running migrations;
+        if (! BaseHelper::isRunningTestRefreshDb()) {
+            static::addGlobalScope('visibleOnly', function (Builder $builder) {
+                $builder->where('visible', 1);
+            });
+        }
 
         self::creating(function(SchoolClass $schoolClass){
             self::setDoNotOverwriteFromInterfaceOnDemoClass($schoolClass);
@@ -333,6 +343,9 @@ class SchoolClass extends BaseModel implements AccessCheckable {
                     break;
                 case 'is_main_school_class':
                     $query->where('is_main_school_class', '=', $value);
+                    break;
+                case 'demo':
+                    $query->where('demo', '=', $value);
                     break;
                 default:
                     break;

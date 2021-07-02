@@ -360,8 +360,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->eckidFromRelation()->save($eckIdUser);
     }
 
-    public function scopeFindByEckid($query, $eckid){
-        return $query->select('users.*')->leftJoin('eckid_user', 'users.id', '=', 'eckid_user.user_id')->where('eckid', $eckid);
+    public function scopeFindByEckid($query, $eckid)
+    {
+        return $query->select('users.*')->leftJoin('eckid_user', 'users.id', '=', 'eckid_user.user_id')->where('eckid',
+            $eckid);
     }
 
     public function getIsTempTeacher()
@@ -1963,63 +1965,75 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getFullNameWithAbbreviatedFirstName(): string
     {
         $letter = Str::substr($this->name_first, 0, 1);
-        filled($this->name_suffix) ? $suffix = $this->name_suffix . ' ' : $suffix = '';
+        filled($this->name_suffix) ? $suffix = $this->name_suffix.' ' : $suffix = '';
 
         return sprintf('%s. %s%s', $letter, $suffix, $this->name);
     }
 
-    public function redirectToCakeWithTemporaryLogin()
-    {
-        $temporaryLogin = TemporaryLogin::create(
-            ['user_id' => $this->getKey()]
-        );
-        $redirectUrl = $temporaryLogin->createCakeUrl();
-
-        return redirect()->to($redirectUrl);
-    }
-
-    public function hasIncompleteImport()
+    public function hasIncompleteImport($withFinalizedCheck = true)
     {
         if ($this->isA('teacher')) {
+            // does not exist anymore
+//            if ($this->schoolLocation->lvs === false) {
+//                return false;
+//            }
+            if ($this->schoolLocation->lvs_active === false) {
+                return false;
+            }
+            $baseSubjectId = BaseSubject::where('name','demovak')->value('id');
             $teacherRecords = Teacher::selectRaw('count(*) as cnt')
                 ->leftJoin('teacher_import_logs', 'teachers.id', 'teacher_import_logs.teacher_id')
-                ->where(function ($query) {
-                    $query->whereIn('teachers.subject_id', function ($query) {
+                ->leftJoin('school_classes', 'teachers.class_id', 'school_classes.id')
+                ->where(function ($query) use($baseSubjectId){
+                    $query->whereIn('teachers.subject_id', function ($query) use ($baseSubjectId){
                         $query->select('id')
                             ->from('subjects')
-                            ->where('name', 'Magister sectie')
+                            ->where('base_subject_id', $baseSubjectId)
                             ->where('abbreviation', 'IMP');
                     })
                         ->orWhere(function ($query) {
                             $query->whereNull('teacher_import_logs.checked_by_teacher')
-                                ->whereNotNull('teacher_import_logs.id');
+                                ->orWhereNull('teacher_import_logs.id');
                         });
                 })
                 ->where('teachers.user_id', $this->getKey())
+                ->where('school_classes.demo', 0)
                 ->value('cnt');
 
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
+                ->withoutGlobalScope('visibleOnly')
+                ->where('school_classes.visible',0)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->whereIn('school_classes.id', function ($query) {
-                    $query->select('id')
+                    $query->select('class_id')
                         ->from('teachers')
                         ->where('user_id', $this->getKey());
                 })
-                ->where(function ($query) {
-                    $query->whereNull('school_class_import_logs.checked_by_teacher')
-                        ->whereNotNull('school_class_import_logs.id');
+                ->where(function ($query) use ($withFinalizedCheck){
+                    if($withFinalizedCheck){
+                        $query->whereNull('school_class_import_logs.finalized');
+                    } else {
+                        $query->whereNull('checked_by_teacher');
+                    }
+                    $query->orWhereNull('school_class_import_logs.id');
+                })->where('demo',0)
 
-                })->value('cnt');
-            return  ($classRecords + $teacherRecords) > 0;
+                ->value('cnt');
+            return ($classRecords + $teacherRecords) > 0;
         }
 
-        if ($this->isA('account manager')) {
-            $classRecords = SchoolClass::selectRaw('count(*) as cnt')
+        if ($this->isA('school manager')) {
+            $classRecords = SchoolClass::selectRaw('count(*) as cnt')->withoutGlobalScope('visibleOnly')
+                ->where('school_classes.visible',0)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
-                ->where('school_classes.school_location_id', $this->school_location->getKey())
+                ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
                 ->where(function ($query) {
-                    $query->whereNull('school_class_import_logs.checked_by_admin')
-                        ->whereNotNull('school_class_import_logs.id');
+                    $query->where(function ($q) {
+                        $q->whereNull('school_class_import_logs.checked_by_admin')
+                            ->whereNull('school_class_import_logs.checked_by_teacher')
+                            ->whereNotNull('school_class_import_logs.id');
+                    });
+                    $query->orWhereNull('school_class_import_logs.id');
                 })->value('cnt');
             return $classRecords > 0;
         }
@@ -2031,26 +2045,27 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         // update username with the emailaddress posted from entree
         // only and only when it conforms to s_<userId>@test-correct.nl or t_<userId>@test-correct.nl
-        if ($this->username === $this->generateMissingEmailAddress()) {
-            if ($attr['mail']) {
-                $this->username = $attr['mail'];
-            }
+        $emailFromEntree = false;
+        if (array_key_exists('mail', $attr) && is_array($attr['mail'])) {
+            $emailFromEntree = array_pop($attr['mail']);
         }
+
+
+        if ($emailFromEntree && $this->username === $this->generateMissingEmailAddress()) {
+            $this->username = $emailFromEntree;
+        }
+        $this->save();
 
         // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
         // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
-        if ($this->isA('student') && $this->externalId == null) {
-            if ($attr['mail']) {
-                $parts = explode('@', $attr['mail'])[0];
-                if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
-                    $this->external_id = $parts[0];
-                }
+        if ($emailFromEntree && $this->isA('student') && empty($this->externalId)) {
+            $parts = explode('@', $emailFromEntree)[0];
+            if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
+                $this->external_id = $parts[0];
             }
         }
 
-        if ($this->isDirty()){
-            $this->save();
-        }
+        $this->save();
 
         return $this;
     }
@@ -2063,5 +2078,43 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if ($this->isA('teacher')) {
             return sprintf(self::TEACHER_IMPORT_EMAIL_PATTERN, $this->getKey());
         }
+    }
+
+    public function redirectToCakeWithTemporaryLogin()
+    {
+        $redirectUrl = $this->getTemporaryCakeLoginUrl();
+
+        return redirect()->to($redirectUrl);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTemporaryCakeLoginUrl()
+    {
+        $temporaryLogin = TemporaryLogin::create(
+            ['user_id' => $this->getKey()]
+        );
+        return $temporaryLogin->createCakeUrl();
+    }
+
+    public function inSchoolLocationAsUser(User $user) {
+        if (!$this->schoolLocation || ! $user->schoolLocation) {
+            return false;
+        }
+
+        if ($this->schoolLocation->is($user->schoolLocation)) {
+            return true;
+        }
+
+        if ($this->isAllowedToSwitchToSchoolLocation($user->schoolLocation)) {
+            return true;
+        }
+
+        if ($user->isAllowedToSwitchToSchoolLocation($user->schoolLocation)) {
+            return true;
+        }
+
+        return false;
     }
 }

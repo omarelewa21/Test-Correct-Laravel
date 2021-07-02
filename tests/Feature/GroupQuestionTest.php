@@ -33,6 +33,7 @@ class GroupQuestionTest extends TestCase
     private $originalTestId;
     private $originalQuestionId;
     private $copyTestId;
+    private $groupTestQuestionId;
 
      /** @test */
      public function can_create_test_and_group_question(){
@@ -96,5 +97,46 @@ class GroupQuestionTest extends TestCase
         $test = Test::find($this->originalTestId);
         $this->assertEquals(3, $test->question_count);
      }
+
+     /** @test */
+    public function modification_of_subject_of_groupquestion_leads_to_modifaction_of_subject_of_subquestions()
+    {
+        $this->setupScenario1();
+        $test = Test::find($this->originalTestId);
+        $test->subject_id = 6;
+        $test->save();
+        $groupTestQuestion = TestQuestion::find($this->groupTestQuestionId);
+        foreach ($groupTestQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
+            $this->assertEquals(6,$groupQuestionQuestion->question->subject_id);
+        }
+    }
+    private function setupScenario1(){
+        $attributes = $this->getTestAttributes();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $attributes = $this->getAttributesForGroupQuestion($this->originalTestId);
+        $groupTestQuestionId = $this->createGroupQuestion($attributes);
+        $this->groupTestQuestionId = $groupTestQuestionId;
+        $groupTestQuestion = TestQuestion::find($groupTestQuestionId);
+        $attributes = $this->getAttributesForMultipleChoiceQuestion($this->originalTestId);
+        for($i=0;$i<10;$i++){
+            $this->createMultipleChoiceQuestionInGroup($attributes,$groupTestQuestion->uuid);
+        }
+        $this->checkScenario1Success('Test Title',$this->originalTestId);
+    }
+
+
+
+    private function checkScenario1Success($name,$testId){
+        $tests = Test::where('name',$name)->get();
+        $this->assertTrue(count($tests)==1);
+        $questions = Test::find($testId)->testQuestions;
+        $this->assertCount(1,$questions);
+        $this->assertEquals('GroupQuestion',$questions->first()->question->type);
+        $groupQuestion = $questions->first()->question;
+        $subQuestions = $groupQuestion->groupQuestionQuestions;
+        $this->assertCount(10,$subQuestions);
+        $this->assertEquals('MultipleChoiceQuestion',$subQuestions->first()->question->type);
+    }
 
 }

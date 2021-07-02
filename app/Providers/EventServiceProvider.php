@@ -4,6 +4,9 @@ use Aacotroneo\Saml2\Events\Saml2LoginEvent;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Session;
+use tcCore\Http\Helpers\EntreeHelper;
+use tcCore\SamlMessage;
 use tcCore\User;
 
 class EventServiceProvider extends ServiceProvider {
@@ -25,26 +28,35 @@ class EventServiceProvider extends ServiceProvider {
         Event::listen('Aacotroneo\Saml2\Events\Saml2LoginEvent', function (Saml2LoginEvent $event) {
             $messageId = $event->getSaml2Auth()->getLastMessageId();
             // Add your own code preventing reuse of a $messageId to stop replay attacks
-
             $user = $event->getSaml2User();
+            $attr = $user->getAttributes();
+
+            $entreeHelper = new EntreeHelper($attr, $messageId);
+
+            $entreeHelper->blockIfReplayAttackDetected();
+
+            $entreeHelper->redirectIfBrinUnknown();
+
+//            $entreeHelper->redirectIfEntreeSettingIsOffForBrin(); //Entree is niet gekoppeld aan deze school;
+
+            $entreeHelper->redirectIfScenario5();
+
+            $entreeHelper->redirectIfNoUserWasFoundForEckId();
+
+            $entreeHelper->redirectIfUserNotInSameSchool();
+
+            $entreeHelper->redirectIfUserNotHasSameRole();
+
+            $entreeHelper->handleScenario2IfAddressIsKnownInOtherAccount();
+
+
+
+
             $userData = [
                 'id' => $user->getUserId(),
                 'attributes' => $user->getAttributes(),
                 'assertion' => $user->getRawSamlAssertion()
             ];
-            // find user by eckId
-            if (array_key_exists('eckId', $userData['attributes']) && ! empty($userData['attributes']['eckId'][0])) {
-                $laravelUser = User::findByEckId($userData['attributes']['eckId'][0])->first();
-                if ($laravelUser) {
-                    $laravelUser->handleEntreeAttributes($userData['attributes']);
-
-                    $url = $laravelUser->getTemporaryCakeLoginUrl();
-                    header("Location: $url");
-                    exit;
-                } else {
-                    dd('show test-correct login screen no matching user found');
-                }
-            }
 
 
 

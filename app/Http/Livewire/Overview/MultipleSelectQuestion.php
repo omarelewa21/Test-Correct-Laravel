@@ -55,4 +55,10 @@ class MultipleSelectQuestion extends Component
     {
         return view('livewire.overview.multiple-select-question');
     }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        $selectedAnswers = count(array_keys($this->answerStruct, 1));
+        return $this->question->selectable_answers === $selectedAnswers;
+    }
 }

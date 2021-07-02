@@ -1,18 +1,51 @@
-<div class="mt-10 flex-1 p-8">
+<?php
+ $struct = [
+    'school'              => [
+        'dependancecode', 'brincode', 'schooljaar',  'xsdversie' ,
+    ],
+    'groep'               => [
+        'key', 'naam',  'mutatiedatum',
+    ],
+    'samengestelde_groep' => [
+        'key', 'naam',
+    ],
+    'leerling'            => [
+        'eckid', 'key', 'achternaam', 'roepnaam', 'geboortedatum',  'groep',
+        'samengestelde_groepen',
+    ],
+    'leerkracht'          => [
+        'key', 'roepnaam', 'emailadres',  'groepen', 'achternaam', 'samengestelde_groepen',
+    ],
+];
+ ?>
+
+<div class="mt-10 flex-1 p-8" id="uwlr-grid">
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
         <div class="flex-shrink-0">
-            <x-button.cta class="" wire:click="deleteMagister">Delete Magister</x-button.cta>
+            @if(\Illuminate\Support\Str::contains(url()->current(),'testwelcome'))
+            <x-button.cta class="" wire:click="deleteImportData">Delete Import data</x-button.cta>
+            @endif
             <x-button.primary class="" wire:click="newImport">Import</x-button.primary>
         </div>
     </div>
-    <div class="content-section mt-10 flex-1 p-8">
+
+    @if (session()->has('error'))
+        <div class="content-section mt-10 flex-1 p-8 error">
+            {!!  session('error')  !!}
+        </div>
+    @endif
+
+    <div class="content-section mt-10 flex-1 p-8" x-data="{}">
 
         <div class="flex space-x-4 mt-4">
             <x-table>
                 <x-slot name="head">
                     <x-table.heading>
                         Datum
+                    </x-table.heading>
+                    <x-table.heading>
+                        School
                     </x-table.heading>
                     <x-table.heading>
                         Brin
@@ -23,13 +56,16 @@
                     <x-table.heading>
                         Code
                     </x-table.heading>
-                    <x-table.heading>
+                    <x-table.heading width="120px">
                         &nbsp;
                     </x-table.heading>
-                    <x-table.heading>
+                    <x-table.heading width="120px">
                         &nbsp;
                     </x-table.heading>
-                    <x-table.heading>
+                    <x-table.heading width="60px">
+                        &nbsp;
+                    </x-table.heading>
+                    <x-table.heading width="120px">
                         &nbsp;
                     </x-table.heading>
 
@@ -42,7 +78,10 @@
                                 {{ $set->created_at->diffForHumans() }}
                             </x-table.cell>
                             <x-table.cell>
-                                {{ $set->brin_code }}
+                                {{ $set->school_name }}
+                            </x-table.cell>
+                            <x-table.cell>
+                                {{ $set->brin_code }} {{ $set->dependance_code  }}
                             </x-table.cell>
                             <x-table.cell>
                                 {{ $set->client_name }}
@@ -51,13 +90,30 @@
                                 {{ $set->client_code }}
                             </x-table.cell>
                             <x-table.cell>
-                                <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Modal</x-button.text-button>
+                                <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Bekijk details
+                                </x-button.text-button>
                             </x-table.cell>
                             <x-table.cell>
-                                <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Process</x-button.text-button>
+                                <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Verwerken
+                                </x-button.text-button>
                             </x-table.cell>
                             <x-table.cell>
-                                <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">Error</x-button.text-button>
+                                @if(\Illuminate\Support\Str::contains(url()->current(),'testwelcome'))
+                                    <x-button.text-button class="" @click="if(confirm('Weet je zeker dat je hier alles van wilt verijderen?\nLet op: Dit kan even duren het scherm ververst zichzelf!')){ livewire.find(document.querySelector('#uwlr-grid').getAttribute('wire:id')).call('deleteImportDataForResultSet','{{ $set->getKey() }}')}">
+                                        <div wire:loading wire:target="deleteImportDataForResultSet">
+                                            <div class="lds-hourglass"></div>
+                                        </div>
+                                        <div wire:loading.remove wire:target="deleteImportDataForResultSet">
+                                            <span class="error"><x-icon.trash></x-icon.trash></span>
+                                        </div>
+                                    </x-button.text-button>
+                                    @endif
+                            </x-table.cell>
+                            <x-table.cell>
+                                @if ($set->error_messages)
+                                    <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">Error
+                                    </x-button.text-button>
+                                @endif
                             </x-table.cell>
                         </x-table.row>
                     @endforeach
@@ -96,12 +152,16 @@
                             @endforeach
                         @endif
                     </nav>
-                    <div class="mt-8 mb-8">
-                        <x-table>
+                    <div class="mt-8 mb-8" x-data="clipboard()">
+                        <button wire:key="copy-{{ $this->modalActiveTab }}"
+                                x-on:click="copytable($event, 'table-{{ $this->modalActiveTab }}')">Copy to clipboard
+                        </button>
+                        <x-table id="table-{{ $this->modalActiveTab }}">
                             <x-slot name="head">
                                 @foreach($this->modalActiveTabHtml as $object)
                                     @if($loop->first)
-                                        @foreach($object as $prop => $value)
+                                        @foreach($struct[$this->modalActiveTab] as $prop)
+{{--                                        @foreach($object as $prop => $value)--}}
                                             <x-table.heading>
                                                 {{ $prop }}
                                             </x-table.heading>
@@ -112,11 +172,13 @@
                             <x-slot name="body">
                                 @foreach($this->modalActiveTabHtml as $object)
                                     <x-table.row>
-                                        @foreach($object as $value)
-                                            @if( is_array($value))
-                                                <x-table.cell>{!! collect($value).join([',']) !!}</x-table.cell>
+                                        @foreach($struct[$this->modalActiveTab] as $prop)
+                                            @if (!array_key_exists($prop, $object))
+                                                <x-table.cell>&nbsp;</x-table.cell>
+                                            @elseif( is_array($object[$prop]))
+                                                <x-table.cell>{!! collect($object[$prop]).join([',']) !!}</x-table.cell>
                                             @else
-                                                <x-table.cell>{!!  substr( $value, 0, 20) !!}</x-table.cell>
+                                                <x-table.cell>{!! $object[$prop] !!}</x-table.cell>
                                             @endif
                                         @endforeach
                                     </x-table.row>
@@ -142,11 +204,19 @@
                             </div>
                         </div>
                     @endforeach
-                        <div wire:loading>
-                            <div wire:key="loading-text">Processing Result...</div>
-                            <div wire:key="hourglass" class="lds-hourglass"></div>
-                        </div>
-                        <div wire:key="processing-result">{{ $this->processingResult }}</div>
+                    <div wire:loading>
+                        <div wire:key="loading-text">Processing Result...</div>
+                        <div wire:key="hourglass" class="lds-hourglass"></div>
+                    </div>
+                    <div wire:key="processing-result">
+                        {{ $this->processingResult }}
+                        @if ($this->displayGoToErrorsButton)
+                            <BR>
+                            <x-button.text-button wire:click="triggerErrorModal()">Toon errors
+                            </x-button.text-button>
+                        @endif
+
+                    </div>
                 </div>
 
                 <x-button.primary wire:click="startProcessingResult">Start</x-button.primary>
@@ -161,7 +231,7 @@
             <div class="sm:block">
                 <div class="border-b border-gray-200" id="melding">
 
-                    <PRE> {{ $this->errorMessages }}</PRE>
+                    <PRE style="white-space: pre-wrap;"> {!! $this->errorMessages !!}</PRE>
                 </div>
 
 
@@ -182,7 +252,7 @@
 
             </div>
         </x-slot>
-        <x-slot name="actionButton" ></x-slot>
+        <x-slot name="actionButton"></x-slot>
     </x-modal>
 
 
@@ -221,6 +291,40 @@
             }
         }
     </style>
+    <script>
+        function clipboard() {
+            return {
+                copytable(event, selectorId) {
+                    event.target.innerHTML = 'Copied to clipboard'
+                    event.target.classList.add('cta-button')
+                    var body = document.body, range, sel;
+                    el = document.getElementById(selectorId)
+                    if (document.createRange && window.getSelection) {
+                        range = document.createRange();
+                        sel = window.getSelection();
+                        sel.removeAllRanges();
+                        try {
+                            range.selectNodeContents(el);
+                            sel.addRange(range);
+                        } catch (e) {
+                            range.selectNode(el);
+                            sel.addRange(range);
+                        }
+                    } else if (body.createTextRange) {
+                        range = body.createTextRange();
+                        range.moveToElementText(el);
+                        range.select();
+                    }
+                    document.execCommand('copy')
+                    setTimeout(() => {
+                        event.target.innerHTML = 'Copy to clipboard'
+                        event.target.classList.remove('cta-button')
+                    }, 3000);
+                }
+            }
+        }
+    </script>
+
 </div>
 
 

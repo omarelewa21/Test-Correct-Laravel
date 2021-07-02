@@ -78,7 +78,7 @@ class MagisterController extends Controller
         $groepen = $response->leerlinggegevens->groepen->groep;
 
         dd($response);
-        return view('sometoday')->with(compact(['school', 'groepen']));
+        return view('somtoday')->with(compact(['school', 'groepen']));
 
 
         ($response->leerlinggegevens->leerlingen);

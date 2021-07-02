@@ -4,7 +4,6 @@ namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
 use tcCore\Http\Traits\WithCloseable;
-use tcCore\Question;
 
 class CompletionQuestion extends Component
 {
@@ -19,10 +18,11 @@ class CompletionQuestion extends Component
     public $answers;
 
     public $number;
+    public $searchPattern = "/\[([0-9]+)\]/i";
 
     public function mount()
     {
-        $this->answer = (array) json_decode($this->answers[$this->question->uuid]['answer']);
+        $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
         $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 
@@ -32,18 +32,17 @@ class CompletionQuestion extends Component
 
         $question_text = $question->getQuestionHTML();
 
-        $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
 
             return sprintf(
-                '<input wire:model="answer.%d" class="form-input mb-2 disabled truncate" type="text" id="%s" style="width: 100px" disabled/>',
+                '<input wire:model="answer.%d" class="form-input mb-2 disabled truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 100px" disabled/>',
                 $tag_id,
-                'answer_'.$tag_id
+                'answer_' . $tag_id
             );
         };
 
-        return preg_replace_callback($searchPattern, $replacementFunction, $question_text);
+        return preg_replace_callback($this->searchPattern, $replacementFunction, $question_text);
     }
 
     private function multiHelper($question)
@@ -63,7 +62,7 @@ class CompletionQuestion extends Component
         $isCitoQuestion = $question->isCitoQuestion();
 
         $question_text = preg_replace_callback(
-            '/\[([0-9]+)\]/i',
+            $this->searchPattern,
             function ($matches) use ($tags, $isCitoQuestion) {
 
                 $answers = $tags[$matches[1]];
@@ -80,7 +79,7 @@ class CompletionQuestion extends Component
 
                 $answers = $random;
 
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base disabled" selid="testtake-select" disabled>%s</select>', $matches[1],
+                return sprintf('<select wire:model="answer.%s" class="form-input text-base disabled max-w-full overflow-ellipsis overflow-hidden" selid="testtake-select" disabled>%s</select>', $matches[1],
                     $this->getOptions($answers));
 
 //                return $this->Form->input('Answer.'.$tag_id ,['id' => 'answer_' . $tag_id, 'class' => 'multi_selection_answer', 'onchange' => 'Answer.answerChanged = true', 'value' => $value, 'options' => $answers, 'label' => false, 'div' => false, 'style' => 'display:inline-block; width:150px']);
@@ -109,5 +108,14 @@ class CompletionQuestion extends Component
         }
 
         return view('livewire.overview.completion-question', ['html' => $html]);
+    }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        $tags = [];
+        $this->question->completionQuestionAnswers->each(function ($answer) use (&$tags) {
+            $tags[$answer->tag] = true;
+        });
+        return count($tags) === count(array_filter($this->answer));
     }
 }

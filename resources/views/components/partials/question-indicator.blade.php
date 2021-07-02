@@ -1,4 +1,4 @@
-<div class="question-indicator w-full">
+<div class="question-indicator w-full" id="navigation-container">
     <div class="flex-col"
          x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"
          x-ref="questionindicator"
@@ -10,6 +10,7 @@
                  navigationResizer.resize($data);
                  "
          x-on:resize.window.debounce.250ms="navigationResizer.resize($el.__x.$data);"
+         x-on:current-updated.window="navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});"
          x-cloak
     >
         <div class="flex">

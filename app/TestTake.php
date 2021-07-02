@@ -117,6 +117,11 @@ class TestTake extends BaseModel
                     'test_take_id' => $testTake->getKey(),
                     'test_take_status_id' => $testTake->test_take_status_id
                 ]);
+                // if we go from taken to discussed without actual discussing, we get a record created 8 (but in the mean time a 7 is also created as
+                // initiated from the frontend, so we need to remove that record if it was in the last 60 seconds as then you did not really discuss the test take
+                if((int) $testTake->test_take_status_id === 8){
+                    TestTakeStatusLog::where('test_take_id',$testTake->getKey())->where('test_take_status_id',7)->where('created_at','>=',Carbon::now()->subSeconds(120))->delete();
+                }
             }
 
             if ($testTake->invigilators !== null) {
@@ -324,7 +329,7 @@ class TestTake extends BaseModel
             }
         });
     }
-    
+
     public function test()
     {
         return $this->belongsTo('tcCore\Test');
@@ -855,6 +860,6 @@ class TestTake extends BaseModel
 
     public function getExportedToRttiFormatedAttribute()
     {
-        return $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
+        return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 }

@@ -20,12 +20,13 @@ Route::get('/inv/{shortcode}',[tcCore\Http\Controllers\Api\ShortcodeController::
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
 Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
+Route::post('/send_password_reset', [tcCore\Http\Controllers\Auth\PasswordController::class, 'sendPasswordReset']);
 
 if(!tcCore\Http\Helpers\BaseHelper::onProduction()) {
     Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
 
     Route::get('/magister', [\tcCore\Http\Controllers\MagisterController::class, 'index']);
-    Route::get('/somtoday', [\tcCore\Http\Controllers\SomeTodayController::class, 'index']);
+    Route::get('/somtoday', [\tcCore\Http\Controllers\SomTodayController::class, 'index']);
     Route::get('/uwlr/fetcher', tcCore\Http\Livewire\UwlrFetcher::class)->name('uwlr.fetcher');
     Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
 }

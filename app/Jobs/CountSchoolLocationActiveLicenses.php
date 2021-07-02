@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use tcCore\Http\Helpers\ReportHelper;
 use tcCore\SchoolLocation;
 use tcCore\SchoolLocationReport;
 
@@ -45,7 +46,7 @@ class CountSchoolLocationActiveLicenses extends Job implements ShouldQueue
 //
 //        Log::debug('Schoollocation #' . $this->schoolLocation->getKey() . ' -> count_active_licenses: ' . $count);
 
-        $this->schoolLocation->setAttribute('count_active_licenses', SchoolLocationReport::getActiveLicenses($this->schoolLocation));
+        $this->schoolLocation->setAttribute('count_active_licenses', (new ReportHelper($this->schoolLocation))->nrLicenses(0));
         $this->schoolLocation->save();
     }
 }

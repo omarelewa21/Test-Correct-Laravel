@@ -52,7 +52,14 @@ class FileManagement extends BaseModel {
     {
         parent::boot();
 
-        static::saved(function (FileManagement $fileManagement) {
+        static::created(function (FileManagement $fileManagement) {
+            FileManagementStatusLog::create([
+                'file_management_id' => $fileManagement->getKey(),
+                'file_management_status_id' => $fileManagement->file_management_status_id
+            ]);
+        });
+
+        static::updated(function (FileManagement $fileManagement) {
 
             // logging statuses if changed
             if ($fileManagement->getOriginal('file_management_status_id') != $fileManagement->file_management_status_id) {
