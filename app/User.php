@@ -2111,7 +2111,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function transferClassesFromUser(User $user) {
         if ($user->isA('teacher') && $this->isA('teacher')) {
-            $this->teacher()->saveMany($user->teacher);
+            $oldTeacherRecords = $this->teacher()->withTrashed()->get();
+            $user->teacher->each(function($tRecord) use ($oldTeacherRecords) {
+                if ($myRecord = $oldTeacherRecords->first(function($oldRecord) use ($tRecord){
+                    return $tRecord->class_id == $oldRecord->class_id && $tRecord->subject_id == $oldRecord->subject_id;
+                })) {
+                    if($myRecord->trashed()){
+                        $myRecord->restore();
+                    }
+                } else {
+                    $this->teacher()->save($tRecord);
+                }
+            });
         }
         if ($user->isA('student') && $this->isA('student')){
             $user->students->each(function($student) {
