@@ -260,9 +260,12 @@ class EntreeHelper
                     return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
                 }
             } elseif($this->laravelUser->isA('Teacher') && $otherUserWithEmailAddress->isA('Teacher')) {
+                logger('@@ is a teacher and ready to transform');
                 if ($this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
+                    logger('@@ is in same school location');
                     return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress,$this->laravelUser);
                 } elseif($this->laravelUser->inSameKoepelAsUser($otherUserWithEmailAddress)) {
+                    logger('@@ is not in same school location');
                     return $this->handleMatchingTeachersInKoepel($otherUserWithEmailAddress, $this->laravelUser);
                 }
             }
@@ -273,6 +276,8 @@ class EntreeHelper
             }
             header('Location: $url');
             exit;
+        } else {
+            logger('@@ no other email address was found '.$this->getEmailFromAttributes().' laravel user id '.$this->laravelUser->id);
         }
 
         return false;
@@ -281,15 +286,20 @@ class EntreeHelper
     private function handleMatchingWithinSchoolLocation(User $oldUser, User $user){
         try {
             DB::beginTransaction();
+            logger('@@ start transaction');
                 $this->copyEckIdAndTransferClassesAndDeleteUser($oldUser, $user);
             DB::commit();
         } catch (\Exception $e) {
+            logger('@@@@@ rollback of transformation');
+            logger($e->getMessage());
+            logger('@@@===');
             DB::rollback();
         }
         return true;
     }
 
     private function copyEckIdAndTransferClassesAndDeleteUser(User $oldUser, User $user) {
+        logger('@@ copyEckIdAndTransferClassesAndDeleteUser ');
         $eckId = $user->eckId;
         $user->removeEckId();
         $oldUser->setEckidAttribute($eckId);
