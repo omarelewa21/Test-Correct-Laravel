@@ -66,12 +66,10 @@ class GroupQuestionQuestionsController extends Controller
     }
 
     public function addExistingToGroup(Request $request){
-        $testQuestionForTheGroupWeWithToAddTo = TestQuestion::whereUUid($request->owner_id)->first();
-//        logger($testQuestionForTheGroupWeWithToAddTo->question_id);
-
+        $GetGroupquestionIDfromTestQuestion = TestQuestion::whereUUid($request->owner_id)->first();
         // Add Existing Question to Group
         $createNewGroupQuestion = GroupQuestionQuestion::create([
-            'group_question_id' => $testQuestionForTheGroupWeWithToAddTo->question_id,
+            'group_question_id' => $GetGroupquestionIDfromTestQuestion->question_id,
             'question_id' => $request->question_id,
             'order' => $request->order,
             'maintain_position' => $request->maintain_position,
