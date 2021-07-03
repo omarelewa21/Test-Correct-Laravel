@@ -71,7 +71,7 @@ class GroupQuestionQuestionsController extends Controller
 
         // Add Existing Question to Group
         $createNewGroupQuestion = GroupQuestionQuestion::create([
-            'group_question_id' => $request->group_question_id,
+            'group_question_id' => $testQuestionForTheGroupWeWithToAddTo->question_id,
             'question_id' => $request->question_id,
             'order' => $request->order,
             'maintain_position' => $request->maintain_position,
