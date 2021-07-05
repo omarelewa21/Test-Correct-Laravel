@@ -3,11 +3,13 @@
 namespace tcCore;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use tcCore\Exports\TestTakesExport;
 use tcCore\Exports\UwlrExport;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\SomTodayHelper;
+use function Livewire\str;
 
 class UwlrSoapResult extends Model
 {
@@ -183,7 +185,7 @@ class UwlrSoapResult extends Model
             $jaargroep, // $klas['jaargroep'], //lesJaarlaag wordt gedefineerd als 11-16 is 1-6 vo zie code table uwlr,
 
             $school['schooljaar'], // Schooljaar,
-            array_key_exists('key', $leerling) ? $leerling['key'] : '',
+            $this->getStamnummerIfAppropriate($leerling),
             // external_id gets harvested from de entree attributes on account matching; //$leerling['key'], //leeStamNummer,
             $leerling['achternaam'], //leeAchternaam,
             array_key_exists('tussenvoegsel', $leerling) ? $leerling['tussenvoegsel'] : '', //leeTussenvoegsels,
@@ -193,7 +195,7 @@ class UwlrSoapResult extends Model
                 $leerling) ? $leerling['key'] : ''),
             $klasNaam,//lesNaam,
             '', //vakNaam,
-            array_key_exists('key', $leerkracht) ? $leerkracht['key'] : '',//docStamNummer,
+            $this->getStamnummerIfAppropriate($leerkracht),
             array_key_exists('achternaam', $leerkracht) ? $leerkracht['achternaam'] : '', //docAchternaam,
             array_key_exists('tussenvoegsel', $leerkracht) ? $leerkracht['tussenvoegsel'] : '',//docTussenvoegsels,
             array_key_exists('roepnaam', $leerkracht) ? $leerkracht['roepnaam'] : '', //docVoornaam,
@@ -571,6 +573,7 @@ class UwlrSoapResult extends Model
     {
         if ($this->errors) {
             $this->error_messages .= collect($this->errors)
+                ->unique()
                 ->map(function ($error) {
                     return sprintf('%s: %s<BR>', now(), $error);
                 })->join(',');
@@ -583,6 +586,25 @@ class UwlrSoapResult extends Model
     public static function schoolLocationHasRunImport(SchoolLocation $schoolLocation): bool
     {
         return UwlrSoapResult::where('brin_code', $schoolLocation->external_main_code)->where('dependance_code', $schoolLocation->external_sub_code)->count() > 0;
+    }
+
+    private function getStamnummerIfAppropriate($arr)
+    {
+        if (! is_array($arr)) {
+            return '';
+        }
+
+        if (!array_key_exists('key', $arr)) {
+            return '';
+        }
+        // remove medewerker from leftside if appropriate;
+        $stamnummer = Str::of($arr['key'])->lower()->ltrim('medewerker')->__toString();
+
+        if ($stamnummer > 30) {
+            return '';
+        }
+
+        return $stamnummer;
     }
 
 }
