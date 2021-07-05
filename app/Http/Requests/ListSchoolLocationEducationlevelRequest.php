@@ -15,7 +15,7 @@ class ListSchoolLocationEducationlevelRequest extends Request {
 	{
 
         return
-            Auth::user()->hasRole('Teacher') || Auth::user()->hasRole('Account manager');
+            Auth::user()->hasRole('Teacher') || Auth::user()->hasRole('Account manager') ||  Auth::user()->hasRole('School manager');
 	}
 
 	/**

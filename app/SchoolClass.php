@@ -1,9 +1,12 @@
 <?php namespace tcCore;
 
 use Closure;
+
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Jobs\PValues\UpdatePValueSchoolClass;
 use tcCore\Jobs\Rating\UpdateRatingsSchoolClass;
 use tcCore\Lib\Models\AccessCheckable;
@@ -22,6 +25,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'visible' => 'boolean',
     ];
 
     /**
@@ -43,7 +47,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo'];
+    protected $fillable = ['school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo','visible'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -113,6 +117,12 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     public static function boot()
     {
         parent::boot();
+// column for scope is not available before 19-6-2021 this is for now solved by not adding the scope for running migrations;
+        if (! BaseHelper::isRunningTestRefreshDb()) {
+            static::addGlobalScope('visibleOnly', function (Builder $builder) {
+                $builder->where('visible', 1);
+            });
+        }
 
         self::creating(function(SchoolClass $schoolClass){
             self::setDoNotOverwriteFromInterfaceOnDemoClass($schoolClass);
@@ -196,7 +206,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     }
 
     public function students() {
-        return $this->hasMany('tcCore\Student');
+        return $this->hasMany('tcCore\Student', 'class_id');
     }
 
     public function studentUsers() {
@@ -246,6 +256,10 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         return $this->hasMany('tcCore\AverageRating');
     }
 
+    public function importLog() {
+        return $this->hasOne('tcCore\SchoolClassImportLog', 'class_id', 'id');
+    }
+
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();
@@ -261,25 +275,25 @@ class SchoolClass extends BaseModel implements AccessCheckable {
                 }
 
                 if (in_array('Teacher', $roles)) {
-                    $query->orWhereIn('id', function ($query) use ($userId) {
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
                         $query->select('class_id')->from(with(new Teacher())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
                     });
                 }
 
                 if (in_array('Mentor', $roles)) {
-                    $query->orWhereIn('id', function ($query) use ($userId) {
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
                         $query->select('school_class_id')->from(with(new Mentor())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
                     });
                 }
 
                 if (in_array('School management', $roles)) {
-                    $query->orWhereIn('id', function ($query) use ($userId) {
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
                         $query->select('school_class_id')->from(with(new Manager())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
                     });
                 }
 
                 if (in_array('Student', $roles)) {
-                    $query->orWhereIn('id', function ($query) use ($userId) {
+                    $query->orWhereIn($this->getTable().'.id', function ($query) use ($userId) {
                         $query->select('class_id')->from(with(new Student())->getTable())->whereNull('deleted_at')->where('user_id', $userId);
                     });
                 }
@@ -329,6 +343,9 @@ class SchoolClass extends BaseModel implements AccessCheckable {
                     break;
                 case 'is_main_school_class':
                     $query->where('is_main_school_class', '=', $value);
+                    break;
+                case 'demo':
+                    $query->where('demo', '=', $value);
                     break;
                 default:
                     break;

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -100,8 +101,8 @@ class DrawingQuestion extends Question implements QuestionInterface {
      */
     public function fill(array $attributes)
     {
-        parent::fill($attributes);
 
+        parent::fill($attributes);
         if (is_array($attributes) && array_key_exists('bg', $attributes) && $attributes['bg'] instanceof UploadedFile) {
             $this->fillFileBg($attributes['bg']);
         }
@@ -121,6 +122,18 @@ class DrawingQuestion extends Question implements QuestionInterface {
     }
 
     public function isDirtyFile() {
+        if(is_null($this->file)){
+            return false;
+        }
+        if(!file_exists($this->file->getPath())&&!file_exists($this->getOriginalBgPath())){
+            return false;
+        }
+        if(file_exists($this->file->getPath())&&!file_exists($this->getOriginalBgPath())){
+            return false;
+        }
+        if(!file_exists($this->file->getPath())&&file_exists($this->getOriginalBgPath())){
+            return false;
+        }
         if ($this->file instanceof UploadedFile) {
             return $this->fileDiff($this->file->getPath(), $this->getOriginalBgPath());
         } else {
@@ -184,5 +197,11 @@ class DrawingQuestion extends Question implements QuestionInterface {
         return false;
     }
 
-
+    public function needsToBeUpdated($request)
+    {
+        if($this->isDirtyFile()){
+            return true;
+        }
+        return parent::needsToBeUpdated($request);
+    }
 }

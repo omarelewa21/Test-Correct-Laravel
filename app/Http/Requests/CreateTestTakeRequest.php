@@ -35,7 +35,8 @@ class CreateTestTakeRequest extends Request
             'location'                => '',
             'weight'                  => '',
             'note'                    => '',
-            'allow_inbrowser_testing' => ''
+            'allow_inbrowser_testing' => '',
+            'exported_to_rtti'        => ''
         ];
     }
 

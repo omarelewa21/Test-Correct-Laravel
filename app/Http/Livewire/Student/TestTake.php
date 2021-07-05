@@ -2,7 +2,7 @@
 
 namespace tcCore\Http\Livewire\Student;
 
-use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use Livewire\Component;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
@@ -12,6 +12,7 @@ use tcCore\TestTakeEventType;
 
 class TestTake extends Component
 {
+    const FALLBACK_EVENT_TYPE_ID = 3; //lost-focus
     public $testTakeUuid;
     public $showTurnInModal = false;
     public $testParticipantId;
@@ -21,7 +22,10 @@ class TestTake extends Component
      *  time in milliseconds a notification is shown
      */
     public $notificationTimeout = 5000;
-    protected $listeners = ['set_force_taken_away' => 'setForceTakenAway'];
+    protected $listeners = [
+        'set-force-taken-away' => 'setForceTakenAway',
+        'checkConfirmedEvents' => 'checkConfirmedEvents'
+    ];
 
     public function render()
     {
@@ -55,7 +59,7 @@ class TestTake extends Component
     {
         $eventType = $this->getEventType($event);
         $testTakeEvent = new TestTakeEvent([
-            'test_participant_id' => $this->testParticipantId,
+            'test_participant_id'     => $this->testParticipantId,
             'test_take_event_type_id' => $eventType->getKey(),
         ]);
 
@@ -68,11 +72,30 @@ class TestTake extends Component
 
     private function getEventType($event)
     {
-        return TestTakeEventType::whereReason($event)->first();
+        $eventType = TestTakeEventType::whereReason($event)->first();
+        if ($eventType === null) {
+            return TestTakeEventType::find(self::FALLBACK_EVENT_TYPE_ID);
+        }
+        return $eventType;
     }
 
     public function setForceTakenAway()
     {
         $this->forceTakenAwayModal = true;
+    }
+
+    public function checkConfirmedEvents($reason)
+    {
+        $eventConfirmed = TestTakeEventType::whereReason($reason)
+            ->first()
+            ->testTakeEvents()
+            ->where('test_participant_id', $this->testParticipantId)
+            ->where('created_at', '>', Carbon::now()->subMinutes(3))
+            ->latest()
+            ->value('confirmed');
+
+        if ($eventConfirmed == 1) {
+            $this->createTestTakeEvent($reason);
+        }
     }
 }

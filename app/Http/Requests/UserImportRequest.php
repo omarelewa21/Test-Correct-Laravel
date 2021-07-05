@@ -8,14 +8,21 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Str;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Rules\EmailDns;
+use tcCore\Rules\SameSchoollocationSameExternalIdDifferentUsername;
+use tcCore\Rules\SameSchoollocationSameUserNameDifferentExternalId;
 use tcCore\Rules\SchoolLocationUserExternalId;
+use tcCore\Rules\SchoolLocationUserName;
 use tcCore\Rules\UsernameUniqueSchool;
 use tcCore\SchoolClass;
 use tcCore\Subject;
+use tcCore\Traits\UserImporterTrait;
 
 class UserImportRequest extends Request {
 
+    use UserImporterTrait;
+
     protected $schoolLocation;
+    protected $data;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -39,14 +46,24 @@ class UserImportRequest extends Request {
     public function rules() {
         $this->filterInput();
         $extra_rule = [];
-
-        foreach ($this->data as $key => $value) {
+        $data  = request()->data;
+        foreach ($data as $key => $value) {
             if(is_null(request()->type)){
                 break;
             }
             if (array_key_exists('username', $value)) {
                 if (request()->type == 'teacher') {
-                    $extra_rule[sprintf('data.%d.external_id', $key)] = new SchoolLocationUserExternalId($this->schoolLocation,$value['username']);
+                    $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
+                                                                        'email:rfc,filter',
+                                                                        new UsernameUniqueSchool($this->schoolLocation,request()->type),
+                                                                        new SameSchoollocationSameExternalIdDifferentUsername($this->schoolLocation,$value['username'],$value['external_id']),
+                                                                        new EmailDns,
+                                                                        function ($attribute, $value, $fail) {
+                                                                            if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                                                                                return $fail(sprintf('The user email address contains international characters  (%s).', $value));
+                                                                            }
+                                                                        }];
+                    $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
                 } else {
                     $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'],  $this->schoolLocation);
                 }
@@ -88,9 +105,12 @@ class UserImportRequest extends Request {
      * @return void
      */
     public function withValidator($validator) {
-        $validator->after(function ($validator) {
-            $data = $this->request->get('data');
 
+        $validator->after(function ($validator) {
+            if (request()->type == 'teacher') {
+                $this->usernameExternalIdCombinationUnique($validator);
+            }
+            $data = $this->request->get('data');
             $dataCollection = collect(request('data'));
             $unique = collect(request('data'))->unique();
             if ($unique->count() < $dataCollection->count()) {
@@ -101,6 +121,7 @@ class UserImportRequest extends Request {
                     );
                 });
             }
+
         });
     }
 

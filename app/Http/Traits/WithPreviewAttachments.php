@@ -13,12 +13,14 @@ trait WithPreviewAttachments
     public $pressedPlay = false;
     public $timeout;
     public $questionId;
+    public $attachmentType = '';
 
     public function showAttachment(Attachment $attachment)
     {
         $this->attachment = $attachment;
         $this->questionId = $this->question->uuid;
         $this->timeout = $this->attachment->audioTimeoutTime();
+        $this->attachmentType = $this->getAttachmentType($attachment);
     }
 
     public function closeAttachmentModal()
@@ -68,5 +70,34 @@ trait WithPreviewAttachments
             && $this->attachment->audioCanBePlayedAgain()
             && ($this->attachment->audioHasCurrentTime()
                 || $this->pressedPlay);
+    }
+
+    public function updateAnswerIdForTestParticipant()
+    {
+    }
+
+    private function getAttachmentType($attachment)
+    {
+        if ($attachment->type == 'video') return 'video';
+        if ($attachment->file_mime_type == 'audio/mpeg') return 'audio';
+        if ($attachment->file_mime_type == 'application/pdf') return 'pdf';
+        if (str_contains($attachment->file_mime_type, 'image')) return 'image';
+        return '';
+    }
+
+    public function getAttachmentModalSize()
+    {
+
+        if ($this->attachmentType == 'audio') {
+            return 'w-3/4 h-1/2';
+        }
+        if ($this->attachmentType == 'pdf') {
+            return 'w-5/6 lg:w-4/6 h-[80vh]';
+        }
+        if ($this->attachmentType == 'video') {
+            return 'w-[80vw] h-[45vw]';
+        }
+
+        return 'w-5/6 lg:w-4/6';
     }
 }

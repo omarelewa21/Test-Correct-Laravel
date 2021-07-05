@@ -213,11 +213,18 @@ class Attachment extends BaseModel
             return false;
         }
 
-        return $this->isPartOfQuestion($answer->question_id);
+        return $this->isPartOfQuestionForThisAnswer($answer);
     }
 
-    private function isPartOfQuestion($questionId){
-        return $this->questionAttachments->pluck('question_id')->contains($questionId);
+    private function isPartOfQuestionForThisAnswer($answer){
+        $question = $answer->question;
+
+        if ($question->is_subquestion) {
+            $testId = $answer->testParticipant->testTake->test->getKey();
+            return $this->questionAttachments->pluck('question_id')->contains($question->getGroupQuestionIdByTest($testId));
+        }
+
+        return $this->questionAttachments->pluck('question_id')->contains($question->getKey());
     }
 
     public function audioIsPausable()

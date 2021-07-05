@@ -26,6 +26,7 @@ trait TestTrait
             'is_open_source_content' => '1',
             'introduction'           => 'Hello this is the intro txt',
             "school_classes"         => ["1"],
+            'subject_id'             => '1',
         ], $overrides);
     }
 
@@ -38,6 +39,17 @@ trait TestTrait
             )
         );
 
+        $response->assertStatus(200);
+
+        return $response->decodeResponseJson()['id'];
+    }
+
+    private function reorderQuestion($attributes,$question)
+    {
+        $response = $this->put(
+            sprintf('api-c/test_question/%s/reorder', $question->uuid),
+            static::getTeacherOneAuthRequestData($attributes)
+        );
         $response->assertStatus(200);
 
         return $response->decodeResponseJson()['id'];
@@ -76,24 +88,38 @@ trait TestTrait
     }
 
     private function originalAndCopyShareQuestion(){
-        $questions = Test::find($this->originalTestId)->testQuestions;
-        $originalQuestionArray = $questions->pluck('question_id')->toArray();
-        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
-        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
-        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        $result = $this->compareOriginalAndCopyQuestion();
         $this->assertTrue(count($result)==0);
+    }
+
+    private function originalAndCopyDifferFromQuestion(){
+        $result = $this->compareOriginalAndCopyQuestion();
+        $this->assertTrue(count($result)>0);
     }
 
     private function originalAndCopyShareGroupQuestion($var = false){
         if($var){
             dump($var);
         }
+        $result = $this->compareOriginalAndCopyGroupQuestion();
+        $this->assertTrue(count($result)==0);
+    }
+
+    private function originalAndCopyDifferFromGroupQuestion($var = false){
+        if($var){
+            dump($var);
+        }
+        $result = $this->compareOriginalAndCopyGroupQuestion();
+        $this->assertTrue(count($result)>0);
+    }
+
+    private function compareOriginalAndCopyGroupQuestion()
+    {
         $testQuestions = Test::find($this->originalTestId)->testQuestions;
         $originalQuestionArray = $this->extractQuestionIdsFromGroupQuestion($testQuestions);
         $copyQuestions = Test::find($this->copyTestId)->testQuestions;
         $copyQuestionArray = $this->extractQuestionIdsFromGroupQuestion($copyQuestions);
-        $result = array_diff($originalQuestionArray, $copyQuestionArray);
-        $this->assertTrue(count($result)==0);
+        return array_diff($originalQuestionArray, $copyQuestionArray);
     }
 
     private function originalAndCopyShareGroup($var = false){
@@ -125,5 +151,18 @@ trait TestTrait
             }
         }
         return $questionArray;
+    }
+
+    /**
+     * @return array
+     */
+    private function compareOriginalAndCopyQuestion(): array
+    {
+        $questions = Test::find($this->originalTestId)->testQuestions;
+        $originalQuestionArray = $questions->pluck('question_id')->toArray();
+        $copyQuestions = Test::find($this->copyTestId)->testQuestions;
+        $copyQuestionArray = $copyQuestions->pluck('question_id')->toArray();
+        $result = array_diff($originalQuestionArray, $copyQuestionArray);
+        return $result;
     }
 }

@@ -33,20 +33,22 @@ class Deployment extends Model
 
     public function handleIfNeeded($oldStatus) : void
     {
-//        logger('Deployment: handle if needed');
-        if($oldStatus !== $this->status){
-//            logger('Deployment: status changed to '.$this->status);
-            if($this->status === static::ACTIVE){
-//                logger('Deployment: show maintenance should be set');
-                $this->showMaintenance();
-            }
-            else if($oldStatus === static::ACTIVE){
-//                logger('Deployment: remove maintenance should be set');
-                $this->removeMaintenance();
-            }
-//            logger('Deployment: do a portal call in order to set the notification');
-            $this->callCakeForMaintenanceCheck();
-        }
+        // we don't check, we always fire the call to cake
+        $this->callCakeForMaintenanceCheck();
+////        logger('Deployment: handle if needed');
+//        if($oldStatus !== $this->status){
+////            logger('Deployment: status changed to '.$this->status);
+//            if($this->status === static::ACTIVE){
+////                logger('Deployment: show maintenance should be set');
+//                $this->showMaintenance();
+//            }
+//            else if($oldStatus === static::ACTIVE){
+////                logger('Deployment: remove maintenance should be set');
+//                $this->removeMaintenance();
+//            }
+////            logger('Deployment: do a portal call in order to set the notification');
+//
+//        }
     }
 
     public function showMaintenance()
@@ -63,13 +65,13 @@ class Deployment extends Model
 
     public function callCakeForMaintenanceCheck()
     {
-//        logger('Deployment: ready to call Cake');
+        logger('Deployment: ready to call Cake');
         $client = new Client();
         $url = sprintf('%sdeployment_maintenance/check_for_maintenance?%d',config('app.url_login'),date("YmdHis"));
         $res = $client->request('GET',$url);
-//        logger('Deployment: url to call '.$url);
-//        logger('Deployment: response from url ');
-//        logger('Deployment: statuscode '.$res->getStatusCode());
-//        logger($res->getBody());
+        logger('Deployment: url to call '.$url);
+        logger('Deployment: response from url ');
+        logger('Deployment: statuscode '.$res->getStatusCode());
+        logger($res->getBody());
     }
 }

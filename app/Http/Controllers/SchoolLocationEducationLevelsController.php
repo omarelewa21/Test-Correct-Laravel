@@ -19,6 +19,16 @@ class SchoolLocationEducationLevelsController extends Controller {
     public function index(ListSchoolLocationEducationLevelRequest $request, SchoolLocation $schoolLocation)
     {
         $schoolLocationlEducationLevels = SchoolLocationEducationLevel::where('school_location_id',$schoolLocation->getKey())->with('educationLevel');
+
+        if ($request->get('without_demo') == true) {
+            $schoolLocationlEducationLevels = SchoolLocationEducationLevel::where('school_location_id', $schoolLocation->getKey())
+                ->with([
+                    'educationLevel' => function ($query) {
+                        $query->where('education_levels.name', '<>', 'Demo');
+                    }
+                ]);
+        }
+
         switch(strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 return Response::make($schoolLocationlEducationLevels->get(), 200);

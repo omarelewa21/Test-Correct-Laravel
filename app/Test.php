@@ -1,26 +1,29 @@
 <?php namespace tcCore;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Http\Controllers\GroupQuestionQuestionsController;
+use tcCore\Http\Controllers\RequestController;
+use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Jobs\CountTeacherTests;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
-use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
+
 
 class Test extends BaseModel
 {
 
     use SoftDeletes;
     use UuidTrait;
+
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -71,6 +74,42 @@ class Test extends BaseModel
             }
         });
 
+        static::saved(function (Test $test){
+            $dirty = $test->getDirty();
+            if( $test->isDirty(['subject_id','education_level_id','education_level_year'])){
+                $testQuestions = $test->testQuestions;
+                foreach ($testQuestions as $testQuestion){
+                    if((    $testQuestion->question->subject_id==$test->subject_id)&&
+                            ($testQuestion->question->education_level_id==$test->education_level_id)&&
+                            ($testQuestion->question->education_level_year==$test->education_level_year)
+                    ){
+                        continue;
+                    }
+                    $request  = new Request();
+                    $params = [
+                        'session_hash' => Auth::user()->session_hash,
+                        'user'         => Auth::user()->username,
+                        'id' => $testQuestion->id,
+                        'subject_id' => $test->subject_id,
+                        'education_level_id' => $test->education_level_id,
+                        'education_level_year' => $test->education_level_year
+                    ];
+                    $testQuestionQuestionId = $testQuestion->question->id;
+                    $request->merge($params);
+                    $response = (new TestQuestionsController())->updateFromWithin($testQuestion,  $request);
+                    if($testQuestion->question->type=='GroupQuestion'){
+                        $testQuestion = $testQuestion->fresh();
+                        $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($testQuestion->uuid);
+                        foreach($testQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
+                            $request  = new Request();
+                            $request->merge($params);
+                            $response = (new GroupQuestionQuestionsController())->updateFromWithin($groupQuestionQuestionManager,$groupQuestionQuestion,  $request);
+                        }
+                    }
+                }
+            }
+        });
+
         static::deleted(function (Test $test) {
             Queue::push(new CountTeacherTests($test->author));
         });
@@ -114,7 +153,7 @@ class Test extends BaseModel
      */
     public function author()
     {
-        return $this->belongsTo('tcCore\User');
+        return $this->belongsTo('tcCore\User')->withTrashed();
     }
 
     /**
@@ -869,4 +908,5 @@ class Test extends BaseModel
         }
         return $questionCount;
     }
+
 }

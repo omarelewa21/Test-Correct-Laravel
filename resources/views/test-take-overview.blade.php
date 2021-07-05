@@ -6,7 +6,7 @@
     >
         <div class="fixed left-0 w-full px-8 xl:px-28 flex-col pt-4 z-10 bg-light-grey" id="overviewQuestionNav">
             <div>
-                <livewire:overview.navigation :nav="$nav" :testTakeUuid="$uuid" :playerUrl="$playerUrl"></livewire:overview.navigation>
+                <livewire:overview.navigation :nav="$nav" :testTakeUuid="$uuid" :playerUrl="$playerUrl"/>
             </div>
 
             <div class="nav-overflow left-0 fixed w-full h-12"></div>
@@ -83,7 +83,7 @@
                     @if($testQuestion->type != 'InfoscreenQuestion')
                         <div class="flex">
                             @if(!$nav[$key-1]['closed'] && !$nav[$key-1]['group']['closed'])
-                                <x-button.primary type="link" href="{{ $playerUrl }}?q={{ $key }}"
+                                <x-button.primary onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('goToQuestion',{{ $key }})"
                                                   class="ml-auto">{!!__('test_take.adjust_answer') !!}</x-button.primary>
                             @else
                                 <span class="text-sm note w-60 ml-auto text-right">{{ __('test_take.question_closed_text_short') }}</span>

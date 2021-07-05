@@ -47,6 +47,7 @@ Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceC
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
 
+    Route::get('authors',['as' => 'authors','uses' => 'AuthorsController@index']);
     Route::get('/deployment',['uses' => 'DeploymentController@index']);
     Route::get('/deployment/{deployment}',['uses' => 'DeploymentController@show']);
     Route::post('/deployment',['uses' => 'DeploymentController@create']);
@@ -202,7 +203,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Needed lookups
     Route::post('/school_class/importStudents/{schoolLocation}/{schoolClass}','SchoolClassesStudentImportController@store')->name('school_classes.import');
     Route::post('/school_class/importStudentsWithClasses/{schoolLocation}','SchoolClassesStudentImportController@store')->name('school_classes.import_with_classes');
-    
+    Route::put('/school_class/update_with_education_levels_for_main_classes', 'SchoolClassesController@updateWithEducationLevelsForMainClasses')->name('school_classes.update_with_education_levels_for_main_classes');
+    Route::put('/school_class/update_with_education_levels_for_cluster_classes', 'SchoolClassesController@updateWithEducationLevelsForClusterClasses')->name('school_classes.update_with_education_levels_for_cluster_classes');
 
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
@@ -239,7 +241,12 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('/tell_a_teacher', 'TellATeacherController@store')->name('tell_a_teacher.store');
 
     Route::put('user/update_password_for_user/{user}',['as' => 'user.update_password_for_user','uses' => 'UsersController@updatePasswordForUser']);
-	Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
+
+    Route::put('/teacher/update_with_subjects_for_cluster_classes', 'TeachersController@updateWithSubjectsForClusterClasses')->name('teacher.update_with_subjects_for_cluster_classes');
+
+    Route::get('teacher/has_incomplete_import', 'TeachersController@hasIncompleteImport')->name('teacher.has_incomplete_import');
+    Route::get('account_manager/has_incomplete_import', 'TeachersController@hasIncompleteImport')->name('account_manager.has_incomplete_import');
+    Route::resource('teacher', 'TeachersController', ['except' => ['create', 'edit']]);
 
     Route::post('/teacher/import/schoollocation','TeachersController@import')->name('teacher.import');
 
@@ -262,6 +269,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
 	Route::resource('school', 'SchoolsController', ['except' => ['create', 'edit']]);
     Route::get('school_location/is_allowed_new_player_access', 'SchoolLocationsController@isAllowedNewPlayerAccess')->name('school_location.is_allowed_new_player_access');
+    Route::get('school_location/get_lvs_and_sso_options', 'SchoolLocationsController@getLvsAndSsoOptions')->name('school_location.get_lvs_and_sso_options');
     // School children
     Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
 
@@ -304,8 +312,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     //Route::post('testing', 'Testing\TestingController@store')->name('testing.store');
 
-    Route::post('onboarding_wizard_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
-    Route::get('onboarding_wizard_report', 'OnboardingWizardReportController@show');
+    Route::post('marketing_report', 'OnboardingWizardReportController@store')->name('onboarding_wizard_report.store');
+    Route::get('marketing_report', 'OnboardingWizardReportController@show');
+    Route::post('school_location_report', 'SchoolLocationReportController@store')->name('school_location_report.store');
+    Route::get('school_location_report', 'SchoolLocationReportController@show');
 
     Route::post('search_filter','SearchFiltersController@store')->name('search_filter.store');
     Route::put('search_filter/{uuid}','SearchFiltersController@update')->name('search_filter.update');

@@ -1,6 +1,6 @@
 <x-partials.question-container :number="$number" :question="$question">
     <div class="w-full">
-        <div class="mb-4" wire:ignore>
+        <div class="mb-4" questionHtml wire:ignore>
             {!! $question->getQuestionHtml()  !!}
         </div>
         <div wire:ignore>
@@ -11,7 +11,6 @@
 
 
         <script>
-
             (function() {
                 var editor = CKEDITOR.instances['{{ $editorId }}']
                 if (editor) {
@@ -19,7 +18,7 @@
                 }
                 CKEDITOR.replace( '{{ $editorId }}', {
                     removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris',
+                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
                     toolbar: [
                         { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
                         { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },

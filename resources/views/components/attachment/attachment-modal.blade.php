@@ -1,8 +1,10 @@
 @if($attachment)
     <div id="attachment"
-         class="absolute -top-28 left-20 z-30 w-4/6 shadow-lg border border-blue-grey rounded-10 bg-black" style="height: 600px">
+         class="fixed top-5 left-5 z-30 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation {{ $this->getAttachmentModalSize() }}"
+    >
+        <div class="hidden h-[45vw] w-3/4 h-1/2 w-5/6 lg:w-4/6 h-[80vh] w-[80vw] h-[45vw]"></div>
         <div class="flex-col relative h-full rounded-10">
-            <div class="flex absolute top-0 right-0 justify-end space-x-2">
+            <div class="flex absolute top-0 right-0 justify-end space-x-2 z-10" style="-webkit-transform: translateZ(10px);">
                 <x-button.secondary id="attachmentdrag" class="rotate-svg-45">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                          xmlns="http://www.w3.org/2000/svg">
@@ -14,17 +16,17 @@
                     <x-icon.close class="text-white"/>
                 </x-button.primary>
             </div>
-            <div class="flex w-full h-full rounded-10">
-                @if($attachment->type == 'video')
+            <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper @if($this->attachmentType == 'image') max-h-[80vh] @endif">
+                @if($this->attachmentType == 'video')
                     <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
-                @elseif($attachment->file_mime_type == 'application/pdf')
+                @elseif($this->attachmentType == 'pdf')
                     <iframe class="w-full h-full"
                             src="{{ route('student.question-pdf-attachment-show', ['attachment' => $attachment->getKey(), 'answer' => $answerId], false) }}"></iframe>
-                @elseif($attachment->file_mime_type == 'audio/mpeg')
+                @elseif($this->attachmentType == 'audio')
                     <x-attachment.audio :attachment="$attachment"/>
                 @else
-                    <iframe class="w-full h-full"
-                            src="{{ route('student.question-attachment-show', ['attachment' => $attachment->getKey(), 'answer' => $answerId], false) }}"></iframe>
+                        <img class="w-full h-full block"
+                            src="{{ route('student.question-attachment-show', ['attachment' => $attachment->getKey(), 'answer' => $answerId], false) }}" alt=""/>
                 @endif
             </div>
         </div>

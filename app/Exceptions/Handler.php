@@ -49,13 +49,15 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $e)
     {
-        if($e instanceof DeploymentMaintenanceException){
-            if($request->expectsJson()){
+        if($e instanceof DeploymentMaintenanceException) {
+            if ($request->expectsJson()) {
                 return response()->json(['error' => strip_tags($e->getMessage())], 503);
             } else {
                 return response()
-                        ->view('errors.deployment-maintenance',['deployment' => $e->deployment],503);
+                    ->view('errors.deployment-maintenance', ['deployment' => $e->deployment], 503);
             }
+        } else if($e instanceof LivewireTestTakeClosedException){
+            return response()->make('Test taken away', 406);
         } else if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
         } else if ($e instanceof QuestionException) {

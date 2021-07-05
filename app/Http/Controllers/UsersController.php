@@ -249,7 +249,19 @@ class UsersController extends Controller
      */
     public function show(User $user, Requests\ShowUserRequest $request)
     {
-        $user->load('roles', 'studentSchoolClasses', 'managerSchoolClasses', 'mentorSchoolClasses', 'teacher', 'teacher.schoolClass', 'teacher.subject', 'salesOrganization', 'school.schoolLocations', 'schoolLocation');
+        $user->load('roles',
+                            'studentSchoolClasses',
+                            'managerSchoolClasses',
+                            'mentorSchoolClasses',
+                            'ownTeachers',
+                            'ownTeachers.schoolClass',
+                            'ownTeachers.subject',
+                            'teacher.schoolClass',
+                            'teacher.subject',
+                            'salesOrganization',
+                            'school.schoolLocations',
+                            'schoolLocation'
+                    );
 
         if (is_array($request->get('with')) && in_array('studentSubjectAverages', $request->get('with'))) {
             AverageRatingRepository::getSubjectAveragesOfStudents(Collection::make([$user]));
@@ -305,6 +317,11 @@ class UsersController extends Controller
                 $query->select(['test_participants.*', 'test_takes.uuid as test_take_uuid', 'test_takes.time_start', 'test_takes.test_take_status_id AS test_take_test_take_status_id', 'tests.name'])->join('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')->join('tests', 'test_takes.test_id', '=', 'tests.id')->orderBy('test_takes.time_start', 'DESC');
             }]);
 
+        }
+
+        if($this->hasTeacherRole($user)){
+            $externalId = $this->getExternalIdForSchoolLocationOfLoggedInUser($user);
+            $user->teacher_external_id = $externalId;
         }
 
         return Response::make($user, 200);
@@ -395,7 +412,6 @@ class UsersController extends Controller
         // for safety now disabled
         // @TODO fix security issue with deletion of users (as well update/ add and such)
 //	    return Response::make($user,200);
-
         if ($user->delete()) {
             return Response::make($user, 200);
         } else {
@@ -538,5 +554,24 @@ class UsersController extends Controller
             }
         }
         $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+    }
+
+    protected function getExternalIdForSchoolLocationOfLoggedInUser(User $user)
+    {
+        $allowedSchoolLocation = $user->allowedSchoolLocations()->wherePivot('school_location_id',Auth::user()->school_location_id)->first();
+        if(is_null($allowedSchoolLocation)){
+            return $user->external_id;
+        }
+        return $allowedSchoolLocation->pivot->external_id;
+    }
+
+    public function hasTeacherRole($user)
+    {
+        foreach($user->roles as $role){
+            if($role->name=='Teacher'){
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -9,13 +9,18 @@ class CitoExportRow extends Model
     protected $guarded = [];
 
     protected $casts = [
-      'answered_at' => 'datetime',
+        'answered_at' => 'datetime',
         'export' => 'boolean',
     ];
 
     public function getUserIdHash(): string
     {
         return $this->my_simple_crypt($this->attributes['user_id']);
+    }
+
+    public function getBrinHash(): string
+    {
+        return $this->my_simple_crypt($this->attributes['brin']);
     }
 
     /**

@@ -49,8 +49,10 @@ class MultipleChoiceQuestion extends Component
         }
 
         $this->shuffledKeys = array_keys($this->answerStruct);
-        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
-            shuffle($this->shuffledKeys);
+        if (!$this->question->isCitoQuestion()) {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+                shuffle($this->shuffledKeys);
+            }
         }
 
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
@@ -86,5 +88,10 @@ class MultipleChoiceQuestion extends Component
         }
 
         return view('livewire.overview.multiple-choice-question');
+    }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        return true;
     }
 }

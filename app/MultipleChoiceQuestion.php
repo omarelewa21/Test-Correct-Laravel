@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Illuminate\Support\Facades\Log;
+use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
@@ -253,5 +254,14 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
         return parent::getCaptionAttribute();
 
+    }
+
+    public function needsToBeUpdated($request)
+    {
+        $totalData = $this->getTotalDataForTestQuestionUpdate($request);
+        if($this->isDirtyAnswerOptions($totalData)){
+            return true;
+        }
+        return parent::needsToBeUpdated($request);
     }
 }

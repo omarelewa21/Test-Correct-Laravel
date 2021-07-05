@@ -4,21 +4,15 @@
     box-shadow: 0 3px 8px 0 rgba(77, 87, 143, 0.3);
 }
 
-.menu .menu-item {
-    font-family: Nunito Bold;
-    font-size: 18px;
+.menu .text-button.active {
+    position: relative;
 }
 
-.menu .text-button {
-    border-bottom: 3px solid transparent;
-}
-.menu .text-button.active {
-    border-bottom: 3px solid var(--system-base);
-}
-.menu .text-button.active:hover {
-    border-color: var(--primary);
-}
-.sub-menu {
-    height: 55px;
-    border-bottom: solid 1px var(--system-secondary);
+.menu .text-button.active:after {
+    content: "";
+    width: 100%;
+    height: 3px;
+    background-color: currentColor;
+    position: absolute;
+    bottom: 0;
 }

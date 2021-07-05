@@ -38,8 +38,10 @@ class MultipleSelectQuestion extends Component
         }
 
         $this->shuffledKeys = array_keys($this->answerStruct);
-        if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
-            shuffle($this->shuffledKeys);
+        if (!$this->question->isCitoQuestion()) {
+            if ($this->question->subtype != 'ARQ' && $this->question->subtype != 'TrueFalse') {
+                shuffle($this->shuffledKeys);
+            }
         }
 
         $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
@@ -52,5 +54,11 @@ class MultipleSelectQuestion extends Component
     public function render()
     {
         return view('livewire.overview.multiple-select-question');
+    }
+
+    public function isQuestionFullyAnswered(): bool
+    {
+        $selectedAnswers = count(array_keys($this->answerStruct, 1));
+        return $this->question->selectable_answers === $selectedAnswers;
     }
 }

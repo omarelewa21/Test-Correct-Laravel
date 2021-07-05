@@ -95,6 +95,13 @@ class UpdateSchoolLocationRequest extends Request {
                 }
 			}
 
+			if (isset($data['lvs_type']) && $data['lvs_type'] == '') {
+			    $data['lvs_type'] = null;
+            }
+            if (isset($data['sso_type']) && $data['sso_type'] == '') {
+                $data['sso_type'] = null;
+            }
+
 			$this->merge($data);
 
     }

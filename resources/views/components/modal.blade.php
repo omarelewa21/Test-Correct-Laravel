@@ -9,6 +9,8 @@
         'lg' => 'sm:max-w-lg',
         'xl' => 'sm:max-w-xl',
         '2xl' => 'sm:max-w-2xl',
+        '6xl' =>  'sm:max-w-6xl',
+        '7xl' =>  'sm:max-w-7xl',
     ][$maxWidth ?? '2xl'];
 @endphp
 
@@ -46,7 +48,7 @@
         x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
         x-show="show"
         id="{{ $id }}"
-        class="jetstream-modal fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50"
+        class="jetstream-modal fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50 disable-swipe-navigation"
         style="display: none;"
 >
     <div x-show="show" class="fixed inset-0 transform transition-all" x-on:click="showCancelButton ? show = false : '';"

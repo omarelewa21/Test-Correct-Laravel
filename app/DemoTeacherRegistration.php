@@ -113,6 +113,7 @@ class DemoTeacherRegistration extends Model
                         'school_location_id' => $tempTeachersSchoolLocation->getKey(),
                         'user_roles'         => 1, // Teacher;
                         'invited_by'         => $invited_by,
+                        'send_welcome_mail'  => 1
                     ]
                 );
 
