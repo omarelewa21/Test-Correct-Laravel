@@ -73,7 +73,8 @@ class EntreeHelperTest extends TestCase
         ], 'abc');
 
         $this->assertStringContainsString(
-            route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.school_info_not_synced_with_test_correct']),
+            route('auth.login',
+                ['tab' => 'entree', 'entree_error_message' => 'auth.school_info_not_synced_with_test_correct']),
             $helper->redirectIfNoUserWasFoundForEckId()
         );
     }
@@ -151,7 +152,7 @@ class EntreeHelperTest extends TestCase
             'abcd'
         );
         $this->assertStringContainsString(
-            route('auth.login', ['tab' => 'entree', 'entree_error_message'=>'auth.user_not_in_same_school']),
+            route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.user_not_in_same_school']),
             $helper->redirectIfUserNotInSameSchool()
         );
     }
@@ -304,8 +305,8 @@ class EntreeHelperTest extends TestCase
 
         $this->assertStringContainsString(
             route('auth.login', [
-                'tab'     => 'entree',
-                'entree_error_message'=>'auth.student_account_not_found_in_this_location',
+                'tab'                  => 'entree',
+                'entree_error_message' => 'auth.student_account_not_found_in_this_location',
             ]),
             $helper->handleScenario2IfAddressIsKnownInOtherAccount()
         );
@@ -430,7 +431,9 @@ class EntreeHelperTest extends TestCase
         );
 
         $this->assertEquals(
-            route('auth.login', ['tab' =>  'entree', 'entree_error_message'=> 'auth.email_already_in_use_in_different_school_location']),
+            route('auth.login', [
+                'tab' => 'entree', 'entree_error_message' => 'auth.email_already_in_use_in_different_school_location'
+            ]),
             $helper->handleScenario2IfAddressIsKnownInOtherAccount()
         );
     }
@@ -637,5 +640,87 @@ class EntreeHelperTest extends TestCase
         );
     }
 
+    /** @test */
+    public function it_should_rollback_and_redirect_scenario2_when_exception_is_thrown_during_transaction_in_handleMatchingTeachersInKoepel(
+    )
+    {
 
+        $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
+        $location2 = SchoolLocation::where('external_main_code', '8888')->where('external_sub_code', '00')->first();
+
+        // in dezelfde koepel
+        $this->assertTrue(
+            $location->school->is($location2->school)
+        );
+
+        // maar niet in dezelfde locatie;
+        $this->assertFalse(
+            $location->is($location2)
+        );
+
+        $teacher = $this->createTeacher('meOkayOrso', $location, null, 'abcdefg');
+        $teacher->eckId = 'eckid_L2';
+        $teacher->save();
+
+        $teacher1 = $this->createTeacher('meOkayOrso', $location2, null, 'abcdefg');
+        $teacher1->username = 'martin@sobit.nl';
+        $teacher1->save();
+
+        $helper = new EntreeHelper(
+            [
+                'nlEduPersonHomeOrganizationBranchId' => ['99DE00'],
+                'mail'                                => ['martin@sobit.nl'],
+                'eckId'                               => ['eckid_L2'],
+                'eduPersonAffiliation'                => ['Teacher'],
+            ],
+            'abcd'
+        );
+
+        $helper->shouldThrowAnErrorDuringTransaction = true;
+
+        $this->assertEquals(
+            route('auth.login',
+                ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']),
+            $helper->handleScenario2IfAddressIsKnownInOtherAccount()
+        );
+    }
+
+    /** @test */
+    public function it_should_rollback_and_redirect_when_exception_in_scenario2_within_the_same_school_location(
+    )
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
+
+        // dit is de geimporteerde docent
+        $teacher = $this->createTeacher('meOkayOrso', $location, null, 'abcdefg');
+        $teacher->eckId = 'eckid_T2';
+        $teacher->save();
+
+        $this->assertCount(1, $teacher->teacher);
+
+        // dit is de oude docent;
+        $oldTeacher = $this->createTeacher('meOkayOrso', $location, null, 'abcdefg');
+        $oldTeacher->username = 'martin@sobit.nl';
+        $oldTeacher->save();
+        $this->assertCount(1, $oldTeacher->teacher);
+
+        $helper = new EntreeHelper(
+            [
+                'nlEduPersonHomeOrganizationBranchId' => ['99DE00'],
+                'mail'                                => ['martin@sobit.nl'],
+                'eckId'                               => ['eckid_T2'],
+                'eduPersonAffiliation'                => ['Teacher'],
+            ],
+            'abcd'
+        );
+
+        $helper->shouldThrowAnErrorDuringTransaction = true;
+
+        $this->assertEquals(
+            route('auth.login',
+                ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']
+            ),
+            $helper->handleScenario2IfAddressIsKnownInOtherAccount()
+        );
+    }
 }

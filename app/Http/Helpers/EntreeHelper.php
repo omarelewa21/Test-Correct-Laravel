@@ -26,6 +26,8 @@ class EntreeHelper
 
     public $laravelUser = null;
 
+    public $shouldThrowAnErrorDuringTransaction = false;
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $attr;
@@ -282,11 +284,20 @@ class EntreeHelper
         try {
             DB::beginTransaction();
             $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
+            if ($this->shouldThrowAnErrorDuringTransaction) {
+                throw new \Exception('Simmulating error during matching procedure');
+            }
             DB::commit();
         } catch (\Exception $e) {
             logger('@@@@@ rollback of transformation');
             logger($e->getMessage());
             DB::rollback();
+            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']);
+            if (App::runningUnitTests()) {
+                return $url;
+            }
+            header("Location: $url");
+            exit;
         }
         return true;
     }
@@ -309,10 +320,19 @@ class EntreeHelper
             try {
                 DB::beginTransaction();
                 $oldUser->addSchoolLocation($user->schoolLocation);
-                $this->copyEckIdAndTransferClassesAndDeleteUser($oldUser, $user);
+                $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
+                if ($this->shouldThrowAnErrorDuringTransaction) {
+                    throw new \Exception('Simmulating error during matching procedure');
+                }
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollback();
+                $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']);
+                if (App::runningUnitTests()) {
+                    return $url;
+                }
+                header("Location: $url");
+                exit;
             }
             return true;
         }

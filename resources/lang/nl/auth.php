@@ -65,4 +65,5 @@ return [
     'roles_do_not_match_up'                             => 'Oeps, de rol voor dit account in Test-Correct komt niet overeen met de rol die meekomt vanuit Entree, neem contact op met de helpdesk.',
     'student_account_not_found_in_this_location'        => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Kies de juiste schoollocatie',
     'email_already_in_use_in_different_school_location' => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Kies de juiste schoollocatie',
+    'error_while_syncing_please_contact_helpdesk'       => 'Er is een fout opgetreden tijdens het synchroniseren van uw accountgegevens vanuit Entree, neem contact op met de helpdesk',
 ];
