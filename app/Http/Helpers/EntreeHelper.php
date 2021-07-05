@@ -281,7 +281,7 @@ class EntreeHelper
     private function handleMatchingWithinSchoolLocation(User $oldUser, User $user){
         try {
             DB::beginTransaction();
-                $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
+            $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
             DB::commit();
         } catch (\Exception $e) {
             logger('@@@@@ rollback of transformation');
@@ -296,7 +296,7 @@ class EntreeHelper
         $user->removeEckId();
         $oldUser->setEckidAttribute($eckId);
         $oldUser->transferClassesFromUser($user);
-        foreach(['name','name_suffix','name_first'] as $key){
+        foreach(['name','name_first'] as $key){
             $oldUser->$key = $user->$key;
         }
         $oldUser->save();
@@ -305,17 +305,17 @@ class EntreeHelper
     }
 
     private function handleMatchingTeachersInKoepel(User $oldUser, User $user) {
-       if ($oldUser->isA('teacher')) {
-           try {
-               DB::beginTransaction();
-               $oldUser->addSchoolLocation($user->schoolLocation);
-               $this->copyEckIdAndTransferClassesAndDeleteUser($oldUser, $user);
-               DB::commit();
-           } catch (\Exception $e) {
-               DB::rollback();
-           }
-           return true;
-       }
+        if ($oldUser->isA('teacher')) {
+            try {
+                DB::beginTransaction();
+                $oldUser->addSchoolLocation($user->schoolLocation);
+                $this->copyEckIdAndTransferClassesAndDeleteUser($oldUser, $user);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollback();
+            }
+            return true;
+        }
     }
 
 
