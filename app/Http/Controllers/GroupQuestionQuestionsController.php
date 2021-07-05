@@ -65,20 +65,6 @@ class GroupQuestionQuestionsController extends Controller
         }
     }
 
-    public function addExistingToGroup(Request $request){
-        $GetGroupquestionIDfromTestQuestion = TestQuestion::whereUUid($request->owner_id)->first();
-        // Add Existing Question to Group
-        $createNewGroupQuestion = GroupQuestionQuestion::create([
-            'group_question_id' => $GetGroupquestionIDfromTestQuestion->question_id,
-            'question_id' => $request->question_id,
-            'order' => $request->order,
-            'maintain_position' => $request->maintain_position,
-            'discuss' => $request->discuss
-        ]);
-        $createNewGroupQuestion->save();
-        return Response::make($createNewGroupQuestion, 200);
-    }
-
     /**
      * Store a newly created question in storage.
      *
