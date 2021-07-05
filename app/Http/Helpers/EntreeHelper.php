@@ -296,7 +296,7 @@ class EntreeHelper
         $user->removeEckId();
         $oldUser->setEckidAttribute($eckId);
         $oldUser->transferClassesFromUser($user);
-        foreach(['name','name_suffix','name_first'] as $key){
+        foreach(['name','name_first'] as $key){
             $oldUser->$key = $user->$key;
         }
         $oldUser->save();

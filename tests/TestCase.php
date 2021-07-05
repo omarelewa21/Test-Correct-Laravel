@@ -373,7 +373,7 @@ abstract class TestCase extends BaseTestCase
     }
 
 
-    protected function createTeacher($password, $schoolLocation, $schoolClass)
+    protected function createTeacher($password, $schoolLocation, $schoolClass=null)
     {
         $user = User::create([
             'school_location_id' => $schoolLocation->getKey(),
@@ -402,7 +402,7 @@ abstract class TestCase extends BaseTestCase
             'subject_id' => 30
         ]);
 
-        return $user;
+        return $user->refresh();
     }
 
 }

@@ -2119,6 +2119,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     if($myRecord->trashed()){
                         $myRecord->restore();
                     }
+                    $tRecord->delete();
                 } else {
                     $this->teacher()->save($tRecord);
                 }
