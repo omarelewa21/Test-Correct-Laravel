@@ -214,7 +214,7 @@ class TestTakeRttiExportController extends Controller
             return $schoolLocation->school->umbrella_organisation->external_main_code;
         }
 
-        throw new \Exception('Geen brincode gevonden voor deze setup, neem contact op met administrators.');
+        throw new \Exception('Geen brincode gevonden voor deze setup, neem contact op met de helpdesk van Test Correct.');
 
     }
 }
