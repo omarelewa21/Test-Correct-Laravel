@@ -2,12 +2,14 @@
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use nusoap_client;
 use tcCore\Answer;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Question;
+use tcCore\RttiExportLog;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
 use tcCore\Http\Requests\CreateTestTakeEventRequest;
@@ -33,12 +35,23 @@ class TestTakeRttiExportController extends Controller
 
             // START SETTING DATA FOR SCHOOL SECTION
             $externalMainCode = $this->getExternalMainCode($testTake);
-
+            $rttiExportLog = null;
             try {
                 $auth['aut:autorisatie'] = [
                     'autorisatiesleutel' => config('rtti.autorisatiesleutel'),
                     'klantcode' => config('rtti.klantcode'),
                     'klantnaam' => config('rtti.klantnaam')
+                ];
+
+                $leerresultatenVerzoek = [
+                    'school' => [
+                        'aanmaakdatum' => Carbon::now()->toAtomString(),
+                        'dependancecode' => $testTake->schoolLocation->external_sub_code,
+                        'brincode' => $externalMainCode,
+                        'schooljaar' => $this->getSchoolYearForRttiExport($testTake),
+                    ],
+                    'toetsafnames' => $this->getToetsafnamesForRttiExport($testTake, $testCode),
+                    'toetsen' => $this->getToetsenForRttiExport($testTake, $testCode),
                 ];
 
                 $client = new nusoap_client(
@@ -48,40 +61,43 @@ class TestTakeRttiExportController extends Controller
 
                 $result = $client->call(
                     'BrengLeerresultaten', [
-                    'leerresultaten_verzoek' => [
-                        'school' => [
-                            'aanmaakdatum' => Carbon::now()->toAtomString(),
-                            'dependancecode' => $testTake->schoolLocation->external_sub_code,
-                            'brincode' => $externalMainCode,
-                            'schooljaar' => $this->getSchoolYearForRttiExport($testTake),
-                        ],
-                        'toetsafnames' => $this->getToetsafnamesForRttiExport($testTake, $testCode),
-                        'toetsen' => $this->getToetsenForRttiExport($testTake, $testCode),
-                    ]
+                    'leerresultaten_verzoek' => $leerresultatenVerzoek,
                 ], 'http://www.edustandaard.nl/leerresultaten/2/leerresultaten', 'leer:leerresultaten_verzoek', $auth
                 );
 
-                if (config('rtti.debug')) {
-                    $this->log("RTTI request was: " . $client->request, 'debug');
-                    $this->log("RTTI response was: " . $client->response, 'debug');
-                    $this->log("RTTI error was: " . $client->getError(), 'debug');
-                }
+                $rttiExportLog = RttiExportLog::create([
+                   'test_take_id' => $testTake->getKey(),
+                   'user_id' => Auth::id(),
+                    'export' => print_r($leerresultatenVerzoek,true),
+                    'result' => var_export($result,true),
+                    'error' => $client->getError(),
+                    'has_errors' => (bool) $client->getError()
+                ]);
 
-                $this->log(htmlspecialchars($client->request, ENT_QUOTES), 'error');
-                $this->log($result, 'error');
-                // Check for errors
-                $err = $client->getError();
-                if ($err) {
-                    $this->log($err, 'error');
-                    // Display the error
-                }
             } catch (\Exception $e) {
+                $rttiExportLog = RttiExportLog::create([
+                    'test_take_id' => $testTake->getKey(),
+                    'user_id' => Auth::id(),
+                    'export' => print_r($leerresultatenVerzoek,true),
+                    'result' => var_export($result,true),
+                    'error' => 'Fatal error '.$e->getMessage(),
+                    'has_errors' => true,
+                ]);
+
                 $errors[] = $e->getMessage();
             }
 
         } catch (\Exception $e) {
-
+            $rttiExportLog = RttiExportLog::create([
+                'test_take_id' => $testTake->getKey(),
+                'user_id' => Auth::id(),
+                'export' => print_r($leerresultatenVerzoek,true),
+                'error' => 'Fatal unknown error',
+                'has_errors' => true,
+            ]);
         }
+
+        // if there was an error, please send an email to support
     }
 
     protected function getToetsenForRttiExport(TestTake $testTake, $testCode)
@@ -216,5 +232,10 @@ class TestTakeRttiExportController extends Controller
 
         throw new \Exception('Geen brincode gevonden voor deze setup, neem contact op met de helpdesk van Test Correct.');
 
+    }
+
+    protected function log($logString)
+    {
+        logger($logString);
     }
 }

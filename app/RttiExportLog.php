@@ -4,7 +4,11 @@ namespace tcCore;
 
 use Illuminate\Database\Eloquent\Model;
 
-class RttiLog extends Model
+class RttiExportLog extends Model
 {
     protected $guarded = [];
+
+    protected $casts = [
+      'has_errors' => 'boolean',
+    ];
 }
