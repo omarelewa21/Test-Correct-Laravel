@@ -34,6 +34,7 @@
                                     type="radio"
                                     class="hidden"
                                     value="{{ $link->id }}"
+
                                 >
                                 <span id="arq_option_1{{$loopCount}}_{{$link->id}}" wire:key="arq_option_1{{$loopCount}}_{{$link->id}}" class="w-16 mr-4">{{ __($this->arqStructure[$loopCount][0]) }}</span>
                                 <span id="arq_option_2{{$loopCount}}_{{$link->id}}" wire:key="arq_option_2{{$loopCount}}_{{$link->id}}" class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][1]) }}</span>

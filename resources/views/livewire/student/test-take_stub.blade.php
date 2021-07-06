@@ -11,7 +11,7 @@
                         <span class="align-middle">{{ $mainQuestion->id }}</span>
                     </div>
 
-                    <h1 class="inline-block ml-2 mr-6">{{ get_class($mainQuestion) }}
+                    <h1 class="inline-block ml-2 mr-6" selid="questiontitle">{{ get_class($mainQuestion) }}
                         | {{   strip_tags($mainQuestion->getQuestionHtml()) }}</h1>
                     <h4 class="inline-block">{{$mainQuestion->score}}pt</h4>
                 </div>
