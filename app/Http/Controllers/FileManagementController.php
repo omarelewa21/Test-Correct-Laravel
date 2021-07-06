@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -96,7 +97,8 @@ class FileManagementController extends Controller
 
             DB::rollback();
             $errorMsg = 'Het is helaas niet gelukt om de formulier gegevens te verwerken, probeer het nogmaals.';
-            Response::make($errorMsg, 500);
+            Bugsnag::notifyException($e);
+            return Response::make($errorMsg, 500);
 
         }
         DB::commit();
