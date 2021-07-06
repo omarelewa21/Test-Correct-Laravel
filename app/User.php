@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
@@ -343,7 +344,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        $method = 'aes-256-cbc';
         $eckid = '';
         if (!is_null($this->eckidFromRelation)) {
-            $eckid = $this->eckidFromRelation->eckid;
+            $eckid = Crypt::decryptString($this->eckidFromRelation->eckid);
         }
         return $eckid;
 //        return openssl_decrypt(base64_decode($eckid), $method, $passphrase, OPENSSL_RAW_DATA, $iv);
@@ -356,14 +357,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        $method = 'aes-256-cbc';
 //        $this->attributes['eckid'] = base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
         $eckIdUser = $this->eckidFromRelation ?: new EckIdUser;
-        $eckIdUser->eckid = $eckid;
+        $eckIdUser->eckid = Crypt::encryptString($eckid);
+        $eckIdUser->eckid_hash = md5($eckid);
         $this->eckidFromRelation()->save($eckIdUser);
     }
 
     public function scopeFindByEckid($query, $eckid)
     {
-        return $query->select('users.*')->leftJoin('eckid_user', 'users.id', '=', 'eckid_user.user_id')->where('eckid',
-            $eckid);
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+
+        $record = $list->first(function($record) use ($eckid) {
+            return Crypt::decryptString($record->eckid) === $eckid;
+        });
+
+        // return empty if user_id was not found;
+        $user_id = 0;
+
+        if ($record) {
+            $user_id = $record->user_id;
+        }
+
+        return $query->select('users.*')->where('id', $user_id);
     }
 
     public function getIsTempTeacher()
@@ -2097,26 +2112,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return false;
         }
 
-        if (empty($user->schoolLocation) || empty($user->schoolLocation->school_id)){
+        if (empty($user->schoolLocation) || empty($user->schoolLocation->school_id)) {
             return false;
         }
 
         return $this->schoolLocation->school->is($user->schoolLocation->school);
     }
 
-    public function removeEckId(){
+    public function removeEckId()
+    {
         $this->eckidFromRelation()->delete();
         return $this;
     }
 
-    public function transferClassesFromUser(User $user) {
+    public function transferClassesFromUser(User $user)
+    {
         if ($user->isA('teacher') && $this->isA('teacher')) {
             $oldTeacherRecords = $this->teacher()->withTrashed()->get();
-            $user->teacher->each(function($tRecord) use ($oldTeacherRecords) {
-                if ($myRecord = $oldTeacherRecords->first(function($oldRecord) use ($tRecord){
+            $user->teacher->each(function ($tRecord) use ($oldTeacherRecords) {
+                if ($myRecord = $oldTeacherRecords->first(function ($oldRecord) use ($tRecord) {
                     return $tRecord->class_id == $oldRecord->class_id && $tRecord->subject_id == $oldRecord->subject_id;
                 })) {
-                    if($myRecord->trashed()){
+                    if ($myRecord->trashed()) {
                         $myRecord->restore();
                     }
                     $tRecord->delete();
@@ -2125,12 +2142,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 }
             });
         }
-        if ($user->isA('student') && $this->isA('student')){
-            $user->students->each(function($student) {
+        if ($user->isA('student') && $this->isA('student')) {
+            $user->students->each(function ($student) {
                 $this->students()->save(
                     Student::create([
                         'class_id' => $student->class_id,
-                        'user_id' => $this->id,
+                        'user_id'  => $this->id,
                     ])
                 );
                 $student->delete();
