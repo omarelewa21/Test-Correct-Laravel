@@ -21,6 +21,8 @@ class DiscussingParentQuestion extends BaseModel {
      */
     protected $table = 'discussing_parent_questions';
 
+    protected $appends= ['group_question_uuid'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -41,5 +43,9 @@ class DiscussingParentQuestion extends BaseModel {
 
     public function groupQuestion() {
         return $this->belongsTo('tcCore\GroupQuestion');
+    }
+
+    public function getGroupQuestionUuidAttribute() {
+        return $this->groupQuestion->uuid;
     }
 }
