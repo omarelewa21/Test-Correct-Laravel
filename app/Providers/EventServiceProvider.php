@@ -20,6 +20,11 @@ class EventServiceProvider extends ServiceProvider {
         'event.name' => [
             'EventListener',
         ],
+        'tcCore\Events\UserLoggedIn' => [
+            'tcCore\Listeners\AddLoginLog',
+            'tcCore\Listeners\SolveFailedLogin',
+//            'tcCore\Listeners\',
+        ]
     ];
 
     public function boot()

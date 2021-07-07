@@ -87,6 +87,7 @@ class AuthController extends Controller
             $clone->is_temp_teacher = $user->getIsTempTeacher();
             LoginLog::create(['user_id' => $user->getKey()]);
             FailedLogin::solveForUsernameAndIp($user->username,$ip);
+            UserLoggedIn::dispatch($user,$ip);
             return new JsonResponse($clone);
         } else {
             FailedLogin::create([
