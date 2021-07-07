@@ -81,6 +81,9 @@ class SchoolClassesController extends Controller
                 $classes = SchoolClass::filtered($request->get('filter', []), $request->get('order', []))->get();
                 return Response::make($classes, 200);
                 break;
+            case 'all_classes_for_location' :
+                $classes = SchoolClass::where('school_location_id', Auth::user()->school_location_id)->orderBy('name', 'asc')->paginate(15);
+                return Response::make($classes, 200 );
             case 'paginate':
             default:
                 $schoolClasses = $schoolClasses->paginate(15);
