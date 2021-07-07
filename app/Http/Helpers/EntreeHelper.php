@@ -11,6 +11,7 @@ namespace tcCore\Http\Helpers;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use tcCore\SamlMessage;
 use tcCore\SchoolLocation;
@@ -39,11 +40,7 @@ class EntreeHelper
         $this->setLocationWithSamlAttributes();
         if ($this->location == null) {
             $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']);
-            if (App::runningUnitTests()) {
-                return $url;
-            }
-            header("Location: $url");
-            exit;
+            return $this->redirectToUrlAndExit($url);
         }
         return $this->location;
     }
@@ -100,7 +97,7 @@ class EntreeHelper
 
         return SamlMessage::create([
             'message_id' => $this->messageId,
-            'eck_id'     => $this->attr['eckId'][0],
+            'eck_id'     => Crypt::decryptString($this->attr['eckId'][0]),
             'email'      => $this->attr['mail'][0],
         ]);
     }
@@ -133,8 +130,26 @@ class EntreeHelper
         if ($this->location->lvs_active) {
             return true;
         }
-        dd('not yet implemented scenario 5');
+        $this->handleScenario5();
     }
+
+    public function handleScenario5() {
+        $this->validateAttributes();
+        $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+        if ($this->laravelUser) {
+            // return true is hier waarschijnlijk voldoende omdat je dan via scenario 1 wordt ingelogged;
+            $this->handleUpdateUserWithSamlAttributes();
+            $url = $this->laravelUser->getTemporaryCakeLoginUrl();
+            return $this->redirectToUrlAndExit($url);
+        }
+// redirect to maak koppelingscherm;
+
+        $message = $this->createSamlMessage();
+        $url = route('auth.login', ['tab'=>'entree', 'uuid' => $message->uuid]);
+        return $this->redirectToUrlAndExit($url);
+    }
+
+
 
     public function redirectIfNoUserWasFoundForEckId()
     {
@@ -147,11 +162,7 @@ class EntreeHelper
 
         $url = route('auth.login',
             ['tab' => 'entree', 'entree_error_message' => 'auth.school_info_not_synced_with_test_correct']);
-        if (App::runningUnitTests()) {
-            return $url;
-        }
-        header("Location: $url");
-        exit;
+        return $this->redirectToUrlAndExit($url);
     }
 
     public function redirectIfUserNotInSameSchool()
@@ -169,12 +180,7 @@ class EntreeHelper
 
         $url = route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.user_not_in_same_school']);
 
-        if (App::runningUnitTests()) {
-            return $url;
-        }
-
-        header("Location: $url");
-        exit;
+        return $this->redirectToUrlAndExit($url);
     }
 
     public function redirectIfUserNotHasSameRole()
@@ -189,11 +195,7 @@ class EntreeHelper
         }
 
         $url = route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.roles_do_not_match_up']);
-        if (App::runningUnitTests()) {
-            return $url;
-        }
-        header("Location: $url");
-        exit;
+        return $this->redirectToUrlAndExit($url);
     }
 
     public function handleScenario1()
@@ -204,34 +206,9 @@ class EntreeHelper
             $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
         }
 
-        $emailFromEntree = false;
-        if (array_key_exists('mail', $this->attr) && is_array($this->attr['mail'])) {
-            $emailFromEntree = array_pop($this->attr['mail']);
-        }
-
-        if ($emailFromEntree) {
-            $this->laravelUser->username = $emailFromEntree;
-        }
-        $this->laravelUser->save();
-
-        // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
-        // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
-        if ($this->laravelUser->schoolLocation->is_rtti_school_location == 1 && $emailFromEntree && $this->laravelUser->isA('student') && empty($this->laravelUser->externalId)) {
-
-            $parts = explode('@', $emailFromEntree);
-
-            if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
-                $this->laravelUser->external_id = $parts[0];
-            }
-        }
-
-        $this->laravelUser->save();
+        $this->handleUpdateUserWithSamlAttributes();
         $url = $this->laravelUser->getTemporaryCakeLoginUrl();
-        if (App::runningUnitTests()) {
-            return $url;
-        }
-        header("Location: $url");
-        exit;
+        return $this->redirectToUrlAndExit($url);
 
     }
 
@@ -253,11 +230,7 @@ class EntreeHelper
                         'tab'     => 'entree',
                         'entree_error_message' => 'auth.student_account_not_found_in_this_location'
                     ]);
-                    if (App::runningUnitTests()) {
-                        return $url;
-                    }
-                    header("Location: $url");
-                    exit;
+                    return $this->redirectToUrlAndExit($url);
                 } else {
                     return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
                 }
@@ -293,11 +266,7 @@ class EntreeHelper
             logger($e->getMessage());
             DB::rollback();
             $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']);
-            if (App::runningUnitTests()) {
-                return $url;
-            }
-            header("Location: $url");
-            exit;
+            return $this->redirectToUrlAndExit($url);
         }
         return true;
     }
@@ -328,14 +297,45 @@ class EntreeHelper
             } catch (\Exception $e) {
                 DB::rollback();
                 $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']);
-                if (App::runningUnitTests()) {
-                    return $url;
-                }
-                header("Location: $url");
-                exit;
+                return $this->redirectToUrlAndExit($url);
             }
             return true;
         }
+    }
+
+    private function handleUpdateUserWithSamlAttributes(): void
+    {
+        $emailFromEntree = false;
+        if (array_key_exists('mail', $this->attr) && is_array($this->attr['mail'])) {
+            $emailFromEntree = array_pop($this->attr['mail']);
+        }
+
+        if ($emailFromEntree) {
+            $this->laravelUser->username = $emailFromEntree;
+        }
+        $this->laravelUser->save();
+
+        // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
+        // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
+        if ($this->laravelUser->schoolLocation->is_rtti_school_location == 1 && $emailFromEntree && $this->laravelUser->isA('student') && empty($this->laravelUser->externalId)) {
+
+            $parts = explode('@', $emailFromEntree);
+
+            if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
+                $this->laravelUser->external_id = $parts[0];
+            }
+        }
+
+        $this->laravelUser->save();
+    }
+
+    private function redirectToUrlAndExit($url)
+    {
+        if (App::runningUnitTests()) {
+            return $url;
+        }
+        header("Location: $url");
+        exit;
     }
 
 

@@ -320,6 +320,19 @@
                                 <x-icon.arrow/>
                             </x-button.text-button>
                         </div>
+                        <div class="flex">
+                            @if(!Ramsey\Uuid\Uuid::isValid($this->uuid))
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ __('auth.no_valid_saml_message') }}</span>
+                                </div>
+                            @endif
+
+                            @error('entree_error')
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ $message }}</span>
+                            </div>
+                            @enderror
+                        </div>
 
                         <div class="mt-auto flex w-full">
                             <x-button.text-button class="rotate-svg-180" wire:click.prevent="$set('tab', 'login')">

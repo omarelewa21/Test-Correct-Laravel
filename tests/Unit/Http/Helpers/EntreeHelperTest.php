@@ -343,7 +343,8 @@ class EntreeHelperTest extends TestCase
         $helper->handleScenario2IfAddressIsKnownInOtherAccount();
 
         $this->assertEquals('eckid_T2', ($oldTeacher->refresh())->eckId);
-        $eckIdRecords = DB::table('eckid_user')->where('eckid', 'eckid_T2')->get();
+        $eckIdRecords = DB::table('eckid_user')->where('user_id', $oldTeacher->id)->get();
+
         $this->assertCount(1, $eckIdRecords);
         $this->assertEquals(
             $oldTeacher->id,
