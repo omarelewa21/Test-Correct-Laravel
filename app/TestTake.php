@@ -108,7 +108,6 @@ class TestTake extends BaseModel
         });
 
         static::saved(function (TestTake $testTake) {
-
             $originalTestTakeStatus = TestTakeStatus::find($testTake->getOriginal('test_take_status_id'));
 
             // logging statuses if changed
