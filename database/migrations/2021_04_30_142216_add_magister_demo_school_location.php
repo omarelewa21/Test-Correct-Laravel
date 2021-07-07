@@ -79,7 +79,7 @@ class AddMagisterDemoSchoolLocation extends Migration
             // add a schoolYear for the current year;
             $schoolYear = (new tcCore\SchoolYear);
             $schoolYear->fill([
-                'year' => '2018',
+                'year' => '2020',
                 'school_locations' => [$location->getKey()]
             ]);
             $schoolYear->save();
