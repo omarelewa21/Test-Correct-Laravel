@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Auth;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
@@ -278,23 +279,30 @@ class Login extends Component
             'password' => $this->entreePassword,
         ];
 
+
         $message = SamlMessage::whereUuid($this->uuid)->first();
 
         if ($message == null) {
-            return $this->addError('invalid_user_pfff', __('auth.failed'));
+            return $this->addError('entree_error', __('auth.no_saml_message_found'));
+        }
+
+        if($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
+            return $this->addError('entree_error', __('auth.saml_message_to_old'));
         }
 
         if (!auth()->attempt($credentials)) {
             $this->createFailedLogin();
-            return $this->addError('invalid_user', __('auth.failed'));
+            return $this->addError('entree_error', __('auth.failed'));
         }
         $user = auth::user();
 
         if ($user->eckId !== null) {
-            return $this->addError('some_field', 'some error where we already have a matching eckid');
+            return $this->addError('entree_error', __('auth.eck_id_already_set_for_user'));
         }
 
-        $user->eckId = $message->eck_id;
+        $user->eckId = Crypt::decryptString($message->eck_id);
+        $user->email = $message->email;
+        $message->delete();
         $user->save();
         $user->redirectToCakeWithTemporaryLogin();
     }

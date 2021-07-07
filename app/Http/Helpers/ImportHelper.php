@@ -129,6 +129,12 @@ class ImportHelper
 
     public $uwlr_soap_result_id;
 
+    private $startTime;
+
+    private $cache = [];
+
+    private $cacheHit = 0;
+
 
     /**
      *
@@ -188,6 +194,8 @@ class ImportHelper
 
     private function __construct($email_domain)
     {
+        $this->startTime = time();
+
         if ($email_domain != "") {
             $this->email_domain = $email_domain;
         }
@@ -216,7 +224,7 @@ class ImportHelper
 
         $unit=array('b','kb','mb','gb','tb','pb');
         $usage = @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
-        logger(sprintf('[%s] usage [%s]', $line, $usage));
+        logger(sprintf('[%s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $usage, time()-$this->startTime, $this->cacheHit));
     }
 
     public function process()
@@ -776,6 +784,7 @@ class ImportHelper
         if (!App::runningUnitTests()) {
             \DB::commit();
         }
+        logger(sprintf('DONE [%s seconds] [%d cacheHits] ',  time()-$this->startTime, $this->cacheHit));
 
         $this->importLog('import done');
 
@@ -1048,23 +1057,32 @@ class ImportHelper
         $education_level_id
     ) {
 
-        $school_year_id = SchoolLocationSchoolYear::select('school_year_id')
-            ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
-            ->whereNull('school_location_school_years.deleted_at')
-            ->where('school_location_school_years.school_location_id', '=', $school_location_id)
-            ->where('school_years.year', $year)
-            ->value('school_year_id');
+        $school_year_id = $this->cache(
+            function() use ($school_location_id, $year) {
+                return SchoolLocationSchoolYear::select('school_year_id')
+                    ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
+                    ->whereNull('school_location_school_years.deleted_at')
+                    ->where('school_location_school_years.school_location_id', '=', $school_location_id)
+                    ->where('school_years.year', $year)
+                    ->value('school_year_id');
+            },'school_year_id', [$school_location_id, $year]
+        );
 
         if ($school_year_id != null) {
-
-            return SchoolClass::withoutGlobalScope('visibleOnly')
-                ->where('name', $class_name)
-                ->where('school_location_id', $school_location_id)
-                ->where('school_year_id', $school_year_id)
-                ->where('education_level_year', $education_level_year)
-                ->where('education_level_id', $education_level_id)
-                ->whereNull('school_classes.deleted_at')
-                ->value('id');
+            return $this->cache(
+                function() use ($class_name, $school_location_id,$school_year_id, $education_level_year,$education_level_id) {
+                    return SchoolClass::withoutGlobalScope('visibleOnly')
+                        ->where('name', $class_name)
+                        ->where('school_location_id', $school_location_id)
+                        ->where('school_year_id', $school_year_id)
+                        ->where('education_level_year', $education_level_year)
+                        ->where('education_level_id', $education_level_id)
+                        ->whereNull('school_classes.deleted_at')
+                        ->value('id');
+                },
+                'schoolClass',
+                [$class_name, $school_location_id,$school_year_id, $education_level_year,$education_level_id]
+            );
         } else {
             return null;
         }
@@ -1154,12 +1172,18 @@ class ImportHelper
      */
     public function createOrRestoreTeacher($teacher_data)
     {
-
-        $teacher = Teacher::withTrashed()
-            ->where('class_id', $teacher_data['class_id'])
-            ->where('user_id', $teacher_data['user_id'])
-            ->where('subject_id', $teacher_data['subject_id'])
-            ->first();
+        $class_id = $teacher_data['class_id'];
+        $user_id = $teacher_data['user_id'];
+        $subject_id = $teacher_data['subject_id'];
+        $teacher = $this->cache(
+            function() use ($class_id, $user_id, $subject_id) {
+                Teacher::withTrashed()
+                    ->where('class_id', $class_id)
+                    ->where('user_id', $user_id)
+                    ->where('subject_id', $subject_id)
+                    ->first();
+            },'createOrRestoreTeacher', [$class_id, $user_id, $subject_id]
+        );
 
         if ($teacher != null) {
 
@@ -1327,9 +1351,13 @@ class ImportHelper
 
     protected function getEducationLevelMaxYearsForEducationLevelId($education_level_id)
     {
-        return Educationlevel::withTrashed()->select('max_years')
-            ->where('id', $education_level_id)
-            ->value('max_years');
+        return $this->cache(
+            function() use ($education_level_id) {
+                return Educationlevel::withTrashed()->select('max_years')
+                    ->where('id', $education_level_id)
+                    ->value('max_years');
+            }, 'maxYearsForEducationLevelId', [$education_level_id]
+        );
     }
 
     /**
@@ -1374,7 +1402,9 @@ class ImportHelper
     public function getUserIdForTeacherInLocation($external_id, $school_location_id, $eckId = null)
     {
         if ($eckId) {
-            return User::findByEckid($eckId)->value('id');
+            $this->cache(function() use ($eckId) {
+                return User::findByEckid($eckId)->value('id');
+            }, 'getUserIdForTeacherInLocationEckId', [$eckId]);
         }
         if ($external_id) {
             return User::join('school_location_user', 'users.id', '=', 'school_location_user.user_id')
@@ -1540,5 +1570,18 @@ class ImportHelper
             $this->errorMessages[] = 'Dubbele externe id voor dezelfde gebruiker '.$student_external_code;
             //throw new \Exception('Dubbele externe id voor dezelfde gebruiker ' . $student_external_code);
         }
+    }
+
+    private function cache(callable $callable, string $entity, array $args) {
+        $key = implode('-',$args);
+        if (array_key_exists($entity, $this->cache) && array_key_exists($key, $this->cache[$entity])) {
+            $this->cacheHit ++;
+//            logger(sprintf('retrieved from cache %s %s', $entity, $key ));
+            return $this->cache[$entity][$key];
+        }
+        if ($value = $callable()) {
+            $this->cache[$entity][$key] = $value;
+        }
+        return $value;
     }
 }

@@ -366,7 +366,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
 
-
         $record = $list->first(function($record) use ($eckid) {
             return Crypt::decryptString($record->eckid) === $eckid;
         });
