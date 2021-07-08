@@ -8,6 +8,7 @@ use nusoap_client;
 use tcCore\Answer;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Jobs\SendErrorMailToSupportJob;
 use tcCore\Question;
 use tcCore\RttiExportLog;
 use tcCore\TestParticipant;
@@ -24,6 +25,7 @@ class TestTakeRttiExportController extends Controller
         $testTake->load('test', 'participants', 'test.questions', 'school_location');
         // see below for frontend handler
         $firstSchoolClass = $testTake->schoolClasses()->orderBy('name')->first();
+        $informationError = null;
         try {
             $testCode = sprintf(
                 '%s|%s|%s|%s',
@@ -73,7 +75,6 @@ class TestTakeRttiExportController extends Controller
                     'error' => $client->getError(),
                     'has_errors' => (bool) $client->getError()
                 ]);
-
             } catch (\Exception $e) {
                 $rttiExportLog = RttiExportLog::create([
                     'test_take_id' => $testTake->getKey(),
@@ -83,8 +84,6 @@ class TestTakeRttiExportController extends Controller
                     'error' => 'Fatal error '.$e->getMessage(),
                     'has_errors' => true,
                 ]);
-
-                $errors[] = $e->getMessage();
             }
 
         } catch (\Exception $e) {
@@ -98,6 +97,24 @@ class TestTakeRttiExportController extends Controller
         }
 
         // if there was an error, please send an email to support
+        if($rttiExportLog->has_errors === true){
+            // mailtje sturen
+            (new SendErrorMailToSupportJob(
+                $rttiExportLog->error,
+                __("Error bij het exporteren van RTTI"),
+                [
+                    'id' => $rttiExportLog->getKey(),
+                    'test_take_id' => $rttiExportLog->test_take_id,
+                    'user_id' => $rttiExportLog->user_id,
+                    'timestamp' => $rttiExportLog->created_at->format('Y-m-d H:i:s')
+                ]));
+            // feedback geven
+            return Response::make(
+                __("Er is iets fout gegaan tijdens het exporteren van de gegevens naar RTTI. Neem contact op met de support desk van Test-Correct"),
+                400);
+        }
+        // feedback van succesvolle rtti export terugsturen
+        return Response::make($rttiExportLog, 200);
     }
 
     protected function getToetsenForRttiExport(TestTake $testTake, $testCode)
