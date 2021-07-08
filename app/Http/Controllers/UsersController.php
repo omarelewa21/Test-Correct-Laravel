@@ -574,4 +574,14 @@ class UsersController extends Controller
         }
         return false;
     }
+
+    public function getGeneralTermsLogForUser(User $user)
+    {
+        return Response::make($user->generalTermsLog,200);
+    }
+
+    public function setGeneralTermsLogAcceptedAtForUser(User $user)
+    {
+        $user->generalTermsLog()->update(['accepted_at' => Carbon::now()]);
+    }
 }

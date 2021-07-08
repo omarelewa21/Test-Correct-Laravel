@@ -1172,6 +1172,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->belongsTo(User::class, 'invited_by');
     }
 
+    public function generalTermsLog()
+    {
+        return $this->hasOne(GeneralTermsLog::class, 'user_id');
+    }
+
     public function getOnboardingWizardSteps()
     {
         $state = $this->onboardingWizardUserState;
@@ -2116,5 +2121,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         return false;
+    }
+
+    public function createGeneralTermsLogIfRequired()
+    {
+        if ($this->isA('teacher') && $this->hasNoActiveLicense() && $this->generalTermsLog()->count() == 0) {
+            $this->generalTermsLog()->create();
+        }
+        return $this;
+    }
+    
+    public function hasNoActiveLicense()
+    {
+        return $this->schoolLocation->licenses()->count() == 0 || $this->schoolLocation->licenses()->where('end', '>', Carbon::now())->count() == 0;
     }
 }

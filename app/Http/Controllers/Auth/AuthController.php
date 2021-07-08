@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers\Auth;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use tcCore\Lib\User\Roles;
 use tcCore\LoginLog;
 use tcCore\User;
 use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
+use tcCore\GeneralTermsLog;
 
 class AuthController extends Controller
 {
@@ -78,6 +80,7 @@ class AuthController extends Controller
             $user->setAttribute('hasSharedSections',$user->hasSharedSections());
 
             $user->makeOnboardWizardIfNeeded();
+            $user->createGeneralTermsLogIfRequired();
 
             $clone = $user->replicate();
             $clone->{$user->getKeyName()} = $user->getKey();
@@ -85,9 +88,12 @@ class AuthController extends Controller
 
             $clone->logins = $user->getLoginLogCount();
             $clone->is_temp_teacher = $user->getIsTempTeacher();
+            //Dispatch UserLoggenIn Event here
+            // ----
+            //Move this to a listener of the event
             LoginLog::create(['user_id' => $user->getKey()]);
             FailedLogin::solveForUsernameAndIp($user->username,$ip);
-            UserLoggedIn::dispatch($user,$ip);
+
             return new JsonResponse($clone);
         } else {
             FailedLogin::create([
