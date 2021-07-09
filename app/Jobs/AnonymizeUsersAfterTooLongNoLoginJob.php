@@ -12,7 +12,7 @@ use tcCore\SchoolLocation;
 use tcCore\UmbrellaOrganization;
 use tcCore\User;
 
-class AnonymizeUserAfterTooLongNoLogin extends Job implements ShouldQueue
+class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
     /**
