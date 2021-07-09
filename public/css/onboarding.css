@@ -186,6 +186,11 @@ h6 {
     font-family: Nunito Regular;
 }
 
+.text-note {
+    font-size: .875rem;
+    font-family: Nunito Regular;
+}
+
 .bold {
     font-family: Nunito Bold;
 }
@@ -636,4 +641,8 @@ input:focus + label {
     background: #FFEDEB;
     border-color: #EBCCC8;
     color: #CF1B04
+}
+
+.primary-hover:hover {
+    color: var(--primary);
 }
