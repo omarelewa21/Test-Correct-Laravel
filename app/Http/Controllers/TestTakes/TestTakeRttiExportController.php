@@ -4,7 +4,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
-use nusoap_client;
 use tcCore\Answer;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
@@ -12,6 +11,7 @@ use tcCore\Jobs\SendErrorMailToSupportJob;
 use tcCore\Question;
 use tcCore\RttiExportLog;
 use tcCore\TestParticipant;
+use tcCore\TestQuestion;
 use tcCore\TestTakeEvent;
 use tcCore\Http\Requests\CreateTestTakeEventRequest;
 use tcCore\Http\Requests\UpdateTestTakeEventRequest;
@@ -22,7 +22,7 @@ class TestTakeRttiExportController extends Controller
 
     public function store(TestTake $testTake, Request $request)
     {
-        $testTake->load('test', 'participants', 'test.questions', 'school_location');
+        $testTake->load('test', 'testparticipants', 'test.testQuestions','test.testQuestions.question', 'schoolLocation');
         // see below for frontend handler
         $firstSchoolClass = $testTake->schoolClasses()->orderBy('name')->first();
         $informationError = null;
@@ -56,7 +56,7 @@ class TestTakeRttiExportController extends Controller
                     'toetsen' => $this->getToetsenForRttiExport($testTake, $testCode),
                 ];
 
-                $client = new nusoap_client(
+                $client = new \nusoap_client(
                     config('rtti.wsdl_url'), true
                 );
                 $client->soap_defencoding = 'UTF-8';
@@ -122,7 +122,8 @@ class TestTakeRttiExportController extends Controller
         $i = 1;
         $toetsOnderdelenAr = [];
 
-        $testTake->test->questions->each(function(Question $question) use (&$toetsOnderdelenAr, &$i){
+        $testTake->test->testQuestions->each(function(TestQuestion $testQuestion) use (&$toetsOnderdelenAr, &$i){
+            $question = $testQuestion->question;
 
             if ($question->parentInstance->type == 'GroupQuestion') {
 
@@ -153,7 +154,7 @@ class TestTakeRttiExportController extends Controller
                     $score = $question->parentInstance->score;
                 }
 
-                $toArray['toetsonderdeel'][] = [
+                $toetsOnderdelenAr['toetsonderdeel'][] = [
                     'toetsonderdeelvolgnummer' => $i,
                     'toetsonderdeelcode' => ['!' => $question->getKey()],
                     'toetsonderdeelnormering' => [
@@ -181,7 +182,7 @@ class TestTakeRttiExportController extends Controller
     protected function getToetsafnamesForRttiExport(TestTake $testTake, $testCode)
     {
         $afnames = [];
-        $testTake->participants->each(function(TestParticipant $participant) use (&$afnames, $testCode, $testTake){
+        $testTake->testParticipants->each(function(TestParticipant $participant) use (&$afnames, $testCode, $testTake){
             $resArray = [];
 
             $participant->answers->each(function(Answer $answer) use (&$resArray, $testCode, $testTake){
@@ -209,9 +210,9 @@ class TestTakeRttiExportController extends Controller
         return $afnames;
     }
 
-    protected function getSchoolYearForRttiExport(TestTake $testTake, $firstSchoolClass)
+    protected function getSchoolYearForRttiExport(TestTake $testTake)
     {
-        $yearInfo = optional(optional($firstSchoolClass)->schoolYear)->year;
+        $yearInfo = optional(optional($testTake->testParticipants()->first()->schoolClass)->schoolYear)->year;
 
         if (substr_count($yearInfo, '-') > 0) {
             return $yearInfo;

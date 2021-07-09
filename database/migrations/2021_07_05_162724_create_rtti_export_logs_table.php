@@ -21,7 +21,7 @@ class CreateRttiExportLogsTable extends Migration
             $table->string('url');
             $table->text('export');
             $table->text('result')->nullable();
-            $table->text('soap_error')->nullable();
+            $table->text('error')->nullable();
             $table->boolean('has_errors')->default(false);
         });
     }
