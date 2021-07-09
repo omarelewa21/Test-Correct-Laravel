@@ -352,10 +352,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function setEckidAttribute($eckid)
     {
-//        $passphrase = config('custom.encrypt.eck_id_passphrase');
-//        $iv = config('custom.encrypt.eck_id_iv');
-//        $method = 'aes-256-cbc';
-//        $this->attributes['eckid'] = base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
+        if(!$eckid){
+            $this->removeEckId();
+            return;
+        }
+
         $eckIdUser = $this->eckidFromRelation ?: new EckIdUser;
         $eckIdUser->eckid = Crypt::encryptString($eckid);
         $eckIdUser->eckid_hash = md5($eckid);
