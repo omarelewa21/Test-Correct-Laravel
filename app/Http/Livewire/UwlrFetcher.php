@@ -104,6 +104,7 @@ class UwlrFetcher extends Component
             $this->report = $helper->getResultSet()->report();
             $this->resultIdendifier = $helper->getResultIdentifier();
         } catch(\Exception $e){
+            dd($e);
             session()->flash('error', $e->getMessage());
             return $this->redirect(route('uwlr.grid'));
         }
