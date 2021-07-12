@@ -1271,7 +1271,6 @@ class ImportHelper
             if ($oldSchoolClass) {
                 $data['education_level_id'] = $oldSchoolClass->education_level_id;
                 $data['education_level_year'] = $oldSchoolClass->education_level_year;
-                $data['subject_id'] = $oldSchoolClass->subject_id;
             }
             return SchoolClass::create($data)->getKey();
         }
