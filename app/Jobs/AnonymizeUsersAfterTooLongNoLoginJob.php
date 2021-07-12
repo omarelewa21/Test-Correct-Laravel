@@ -33,6 +33,10 @@ class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
         }
     }
 
+    public function __invoke() {
+        $this->handle();
+    }
+
     /**
      * Execute the job.
      *
