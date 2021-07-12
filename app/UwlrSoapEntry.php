@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Illuminate\Database\Eloquent\Model;
+use betterapp\LaravelDbEncrypter\Traits\EncryptableDbAttribute;
 
 class UwlrSoapEntry extends Model
 {
@@ -11,6 +12,13 @@ class UwlrSoapEntry extends Model
      *
      * @var array
      */
+    use EncryptableDbAttribute;
+
+        /** @var array The attributes that should be encrypted/decrypted */
+    protected $encryptable = [
+        'object',
+    ];
+
     protected $fillable = ['uwlr_soap_result_id', 'key', 'object'];
 
     public static function deleteImportDataForSchoolLocationId($id, $resultSetId = false)

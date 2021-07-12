@@ -10,9 +10,13 @@ use tcCore\Exports\UwlrExport;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\SomTodayHelper;
 use function Livewire\str;
+use betterapp\LaravelDbEncrypter\Traits\EncryptableDbAttribute;
 
 class UwlrSoapResult extends Model
 {
+
+
+
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +25,8 @@ class UwlrSoapResult extends Model
     protected $fillable = [
         'source', 'client_code', 'client_name', 'school_year', 'brin_code', 'dependance_code',
     ];
+
+
 
 //    protected $with = ['entries'];
 
@@ -57,7 +63,8 @@ class UwlrSoapResult extends Model
         });
     }
 
-    private function shouldSkipGroup() {
+    private function shouldSkipGroup()
+    {
         return $this->source == SomTodayHelper::SOURCE;
     }
 
@@ -275,14 +282,14 @@ class UwlrSoapResult extends Model
         $leerkracht = (array) $repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
             $teacher = (array) $teacher;
 //            dd(['teacher' => $teacher, 'groepKey' => $groepKey]);
-            if (array_key_exists('groepen', $teacher)){
+            if (array_key_exists('groepen', $teacher)) {
                 $groepen = (array) $teacher['groepen'];
 
                 if (array_key_exists('samengestelde_groep', $groepen)) {
-                    $teacherSamengesteldeGroepKeys = collect($groepen['samengestelde_groep'])->map(function($item) {
+                    $teacherSamengesteldeGroepKeys = collect($groepen['samengestelde_groep'])->map(function ($item) {
                         $item = (array) $item;
                         if (array_key_exists('key', $item)) {
-                           return $item['key'];
+                            return $item['key'];
                         }
                         return array_pop($item);
                     });
@@ -295,7 +302,7 @@ class UwlrSoapResult extends Model
         });
 
 
-        if($leerkracht) {
+        if ($leerkracht) {
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
         } else {
             $this->errors[] = sprintf('kan geen leerkracht vinden voor klas %s', $klas['naam']);
@@ -419,21 +426,21 @@ class UwlrSoapResult extends Model
             if (array_key_exists('samengestelde_groepen', $l)) {
                 $samengesteldeGroepen = (array) $l['samengestelde_groepen'];
                 foreach ($samengesteldeGroepen as $samengesteldeGroep) {
-                    if(is_string($samengesteldeGroep)){
-                        if($samengesteldeGroep == $groepKey){
+                    if (is_string($samengesteldeGroep)) {
+                        if ($samengesteldeGroep == $groepKey) {
                             return true;
                         }
                     } else {
-                        $samengesteldeGroep = (array)$samengesteldeGroep;
+                        $samengesteldeGroep = (array) $samengesteldeGroep;
                         foreach ($samengesteldeGroep as $value) {
-                            $value = (array)$value;
+                            $value = (array) $value;
                             $key = '';
                             if (array_key_exists('key', $value)) {
                                 $key = $value['key'];
                             } else {
                                 $key = array_pop($value);
                             }
-                            if($groepKey == $key){
+                            if ($groepKey == $key) {
                                 return true;
                             }
                         }
@@ -474,10 +481,10 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInLabel->isNotEmpty()) {
-            $keyNames = collect($repo->get('groep'))->filter(function ($groep) use ($notInLabel){
+            $keyNames = collect($repo->get('groep'))->filter(function ($groep) use ($notInLabel) {
                 $groep = (array) $groep;
                 return $notInLabel->contains($groep['key']);
-            })->map(function($k){
+            })->map(function ($k) {
                 $k = (array) $k;
                 return $k['naam'];
             });
@@ -533,7 +540,7 @@ class UwlrSoapResult extends Model
             }
             if (array_key_exists('samengestelde_groepen', $value)) {
                 $value['samengestelde_groepen'] = (array) $value['samengestelde_groepen'];
-                if (array_key_exists('samengestelde_groep',  $value['samengestelde_groepen'])){
+                if (array_key_exists('samengestelde_groep', $value['samengestelde_groepen'])) {
                     foreach ((array) $value['samengestelde_groepen']['samengestelde_groep'] as $sGroep) {
                         $sGroep = (array) $sGroep;
                         $resultKeys[] = array_key_exists('key',
@@ -550,10 +557,10 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInLabel->isNotEmpty()) {
-            $keyNames = collect($repo->get('samengestelde_groep'))->filter(function ($groep) use ($notInLabel){
+            $keyNames = collect($repo->get('samengestelde_groep'))->filter(function ($groep) use ($notInLabel) {
                 $groep = (array) $groep;
                 return $notInLabel->contains($groep['key']);
-            })->map(function($k){
+            })->map(function ($k) {
                 $k = (array) $k;
                 return $k['naam'];
             });
@@ -565,7 +572,8 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInGroups->isNotEmpty()) {
-            $this->errors[] = sprintf('found samengestelde groep(s) in %s but not in samengestelde groep %s', $label, $notInGroups->join(' '));
+            $this->errors[] = sprintf('found samengestelde groep(s) in %s but not in samengestelde groep %s', $label,
+                $notInGroups->join(' '));
         };
     }
 
@@ -585,12 +593,13 @@ class UwlrSoapResult extends Model
 
     public static function schoolLocationHasRunImport(SchoolLocation $schoolLocation): bool
     {
-        return UwlrSoapResult::where('brin_code', $schoolLocation->external_main_code)->where('dependance_code', $schoolLocation->external_sub_code)->count() > 0;
+        return UwlrSoapResult::where('brin_code', $schoolLocation->external_main_code)->where('dependance_code',
+                $schoolLocation->external_sub_code)->count() > 0;
     }
 
     private function getStamnummerIfAppropriate($arr)
     {
-        if (! is_array($arr)) {
+        if (!is_array($arr)) {
             return '';
         }
 
