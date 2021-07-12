@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use tcCore\Question;
 
 class AddHtmlSpecialcharsEncodedToQuestionsTable extends Migration
 {
@@ -20,6 +21,8 @@ class AddHtmlSpecialcharsEncodedToQuestionsTable extends Migration
         Schema::table('questions', function (Blueprint $table) {
             $table->boolean('html_specialchars_encoded')->default(1);
         });
+
+        Question::whereNull('deleted_at')->update(['html_specialchars_encoded' => 0]);
     }
 
     /**
