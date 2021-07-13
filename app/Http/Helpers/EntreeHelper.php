@@ -140,7 +140,9 @@ class EntreeHelper
     public function handleScenario5()
     {
         $this->validateAttributes();
-        return $this->redirectIfBrinNotSso();
+        if ($url = $this->redirectIfBrinNotSso()) {
+            return $url;
+        }
         $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
         if ($this->laravelUser) {
             // return true is hier waarschijnlijk voldoende omdat je dan via scenario 1 wordt ingelogged;
@@ -158,8 +160,9 @@ class EntreeHelper
     public function redirectIfBrinNotSso()
     {
         $this->setLocationWithSamlAttributes();
-        if($this->location->sso_active != 1) {
-            $url = route('auth.login',  ['tab' => 'login', 'entree_error_message' => 'auth.school_not_registered_for_sso']);
+        if ($this->location->sso_active != 1) {
+            $url = route('auth.login',
+                ['tab' => 'login', 'entree_error_message' => 'auth.school_not_registered_for_sso']);
             return $this->redirectToUrlAndExit($url);
         }
     }
