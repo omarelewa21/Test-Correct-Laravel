@@ -293,11 +293,11 @@ class Login extends Component
 
         if (!auth()->attempt($credentials)) {
             $this->createFailedLogin();
-            return $this->addError('entree_error', __('auth.failed'));
+            return $this->addError('entree_error', __('auth.incorrect_credentials'));
         }
         $user = auth::user();
 
-        if ($user->eckId !== null) {
+        if (! empty($user->eckId)) {
             return $this->addError('entree_error', __('auth.eck_id_already_set_for_user'));
         }
 
