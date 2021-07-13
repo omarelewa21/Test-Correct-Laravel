@@ -70,6 +70,11 @@ class EntreeHelper
                 $this->attr) && $this->attr['nlEduPersonHomeOrganizationBranchId'][0]) {
             return $this->attr['nlEduPersonHomeOrganizationBranchId'][0];
         }
+        if (array_key_exists('nlEduPersonHomeOrganizationId',
+                $this->attr) && $this->attr['nlEduPersonHomeOrganizationId'][0]) {
+            return $this->attr['nlEduPersonHomeOrganizationId'][0];
+        }
+
         return null;
     }
 
@@ -104,7 +109,6 @@ class EntreeHelper
 
     private function validateAttributes()
     {
-
         if (!array_key_exists('eckId', $this->attr) || !array_key_exists(0, $this->attr['eckId'])) {
             throw new \Exception('no eckId found in saml request');
         }
@@ -133,8 +137,10 @@ class EntreeHelper
         $this->handleScenario5();
     }
 
-    public function handleScenario5() {
+    public function handleScenario5()
+    {
         $this->validateAttributes();
+        return $this->redirectIfBrinNotSso();
         $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
         if ($this->laravelUser) {
             // return true is hier waarschijnlijk voldoende omdat je dan via scenario 1 wordt ingelogged;
@@ -145,10 +151,18 @@ class EntreeHelper
 // redirect to maak koppelingscherm;
 
         $message = $this->createSamlMessage();
-        $url = route('auth.login', ['tab'=>'entree', 'uuid' => $message->uuid]);
+        $url = route('auth.login', ['tab' => 'entree', 'uuid' => $message->uuid]);
         return $this->redirectToUrlAndExit($url);
     }
 
+    public function redirectIfBrinNotSso()
+    {
+        $this->setLocationWithSamlAttributes();
+        if($this->location->sso_active != 1) {
+            $url = route('auth.login',  ['tab' => 'login', 'entree_error_message' => 'auth.school_not_registered_for_sso']);
+            return $this->redirectToUrlAndExit($url);
+        }
+    }
 
 
     public function redirectIfNoUserWasFoundForEckId()
@@ -221,27 +235,29 @@ class EntreeHelper
         }
 
         $otherUserWithEmailAddress = User::where('username', $this->getEmailFromAttributes())
-            ->where('id', '<>',$this->laravelUser->id)
+            ->where('id', '<>', $this->laravelUser->id)
             ->first();
         if ($otherUserWithEmailAddress) {
             if ($this->laravelUser->isA('Student')) {
                 if (!$this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
                     $url = route('auth.login', [
-                        'tab'     => 'entree',
+                        'tab'                  => 'entree',
                         'entree_error_message' => 'auth.student_account_not_found_in_this_location'
                     ]);
                     return $this->redirectToUrlAndExit($url);
                 } else {
                     return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
                 }
-            } elseif($this->laravelUser->isA('Teacher') && $otherUserWithEmailAddress->isA('Teacher')) {
+            } elseif ($this->laravelUser->isA('Teacher') && $otherUserWithEmailAddress->isA('Teacher')) {
                 if ($this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
-                    return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress,$this->laravelUser);
-                } elseif($this->laravelUser->inSameKoepelAsUser($otherUserWithEmailAddress)) {
+                    return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
+                } elseif ($this->laravelUser->inSameKoepelAsUser($otherUserWithEmailAddress)) {
                     return $this->handleMatchingTeachersInKoepel($otherUserWithEmailAddress, $this->laravelUser);
                 }
             }
-            $url = route('auth.login', ['tab' => 'entree', 'entree_error_message'=> 'auth.email_already_in_use_in_different_school_location']);
+            $url = route('auth.login', [
+                'tab' => 'entree', 'entree_error_message' => 'auth.email_already_in_use_in_different_school_location'
+            ]);
 
             if (App::runningUnitTests()) {
                 return $url;
@@ -253,7 +269,8 @@ class EntreeHelper
         return false;
     }
 
-    private function handleMatchingWithinSchoolLocation(User $oldUser, User $user){
+    private function handleMatchingWithinSchoolLocation(User $oldUser, User $user)
+    {
         try {
             DB::beginTransaction();
             $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
@@ -265,18 +282,20 @@ class EntreeHelper
             logger('@@@@@ rollback of transformation');
             logger($e->getMessage());
             DB::rollback();
-            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']);
+            $url = route('auth.login',
+                ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']);
             return $this->redirectToUrlAndExit($url);
         }
         return true;
     }
 
-    private function copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser(User $oldUser, User $user) {
+    private function copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser(User $oldUser, User $user)
+    {
         $eckId = $user->eckId;
         $user->removeEckId();
         $oldUser->setEckidAttribute($eckId);
         $oldUser->transferClassesFromUser($user);
-        foreach(['name','name_first'] as $key){
+        foreach (['name', 'name_first'] as $key) {
             $oldUser->$key = $user->$key;
         }
         $oldUser->save();
@@ -284,7 +303,8 @@ class EntreeHelper
         $user->delete();
     }
 
-    private function handleMatchingTeachersInKoepel(User $oldUser, User $user) {
+    private function handleMatchingTeachersInKoepel(User $oldUser, User $user)
+    {
         if ($oldUser->isA('teacher')) {
             try {
                 DB::beginTransaction();
@@ -296,7 +316,8 @@ class EntreeHelper
                 DB::commit();
             } catch (\Exception $e) {
                 DB::rollback();
-                $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']);
+                $url = route('auth.login',
+                    ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']);
                 return $this->redirectToUrlAndExit($url);
             }
             return true;

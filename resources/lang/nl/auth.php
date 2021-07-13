@@ -70,4 +70,5 @@ return [
     'no_saml_message_found'                             => 'Er is een fout opgetreden, log eerst in met Entree (geen saml bericht gedetecteerd)',
     'eck_id_already_set_for_user'                       => 'Er is iets fout gegaan, het account waarmee u probeert te koppelen is reeds gekoppeld, neem contact op met de helpdesk.',
     'saml_message_to_old'                               => 'U heeft te veel tijd genomen om uw account te koppelen, het verzoek is reeds verlopen',
+    'school_not_registered_for_sso'                     => 'Uw schoollocatie in Test-correct is niet geconfigureerd voor gebruik met Entree.',
 ];
