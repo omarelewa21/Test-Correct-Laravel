@@ -97,7 +97,7 @@ class EntreeHelper
 
         return SamlMessage::create([
             'message_id' => $this->messageId,
-            'eck_id'     => Crypt::decryptString($this->attr['eckId'][0]),
+            'eck_id'     => Crypt::encryptString($this->attr['eckId'][0]),
             'email'      => $this->attr['mail'][0],
         ]);
     }
