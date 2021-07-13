@@ -323,7 +323,7 @@
                         <div class="flex">
                             @if(!Ramsey\Uuid\Uuid::isValid($this->uuid))
                                 <div class="notification error stretched mt-4">
-                                    <span class="title">{{ __('auth.no_valid_saml_message') }}</span>
+                                    <span class="title">{{ __('auth.no_saml_message_found') }}</span>
                                 </div>
                             @endif
 
