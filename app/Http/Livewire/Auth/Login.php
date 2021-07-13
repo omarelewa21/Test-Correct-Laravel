@@ -302,7 +302,7 @@ class Login extends Component
         }
 
         $user->eckId = Crypt::decryptString($message->eck_id);
-        $user->email = $message->email;
+        $user->username = $message->email;
         $message->delete();
         $user->save();
         $user->redirectToCakeWithTemporaryLogin();
