@@ -238,7 +238,7 @@ class UwlrSoapResult extends Model
 
 
             if (!$leerkracht) {
-                $this->errors[] = sprintf('kan geen leerkracht vinden voor klas %s', $klas['naam']);
+                $this->errors[] = sprintf('%s klas bevat geen leerkracht', $klas['naam']);
             } else {
                 $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
             }
@@ -305,7 +305,7 @@ class UwlrSoapResult extends Model
         if ($leerkracht) {
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
         } else {
-            $this->errors[] = sprintf('kan geen leerkracht vinden voor klas %s', $klas['naam']);
+            $this->errors[] = sprintf('%s klas bevat geen leerkracht', $klas['naam']);
         }
 
 
@@ -351,7 +351,7 @@ class UwlrSoapResult extends Model
         if ($leerling) {
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
         } else {
-            $this->errors[] = sprintf('kan geen leerling niet vinden voor klas %s', $klas['naam']);
+            $this->errors[] = sprintf('%s klas bevat geen leerling', $klas['naam']);
         }
     }
 
@@ -386,7 +386,7 @@ class UwlrSoapResult extends Model
                 if ($leerling) {
                     $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
                 } else {
-                    $this->errors[] = sprintf('kan geen leerling vinden voor klas %s', $klas['naam']);
+                    $this->errors[] = sprintf('%s klas bevat geen leerling', $klas['naam']);
                 }
             });
         } else {
@@ -453,7 +453,7 @@ class UwlrSoapResult extends Model
         if ($leerling) {
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 0);
         } else {
-            $this->errors[] = $this->errors[] = sprintf('kan geen leerling vinden voor klas %s', $klas['naam']);
+            $this->errors[] = $this->errors[] = sprintf('%s klas bevat geen leerling', $klas['naam']);
         }
     }
 
@@ -487,9 +487,9 @@ class UwlrSoapResult extends Model
             })->map(function ($k) {
                 $k = (array) $k;
                 return $k['naam'];
+            })->each(function($keyName) use ($label){
+                $this->errors[] = sprintf('%s klas bevat geen %s', $keyName, $label);
             });
-            $this->errors[] = sprintf('no %sen found for group(s) keys (letop deze is dubbel) [%s]', $label,
-                $keyNames->join(', '));
         }
 
         $notInGroups = $labelKeys->filter(function ($teacherKey) use ($keys) {
@@ -497,7 +497,9 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInGroups->isNotEmpty()) {
-            $this->errors[] = sprintf('found groep(s) in %s but not in groep %s', $label, $notInGroups->join(', '));
+            $notInGroups->each(function($group) use ($label) {
+                $this->errors[] = sprintf('%s klas bevat geen %s', $group, $label);
+            });
         };
     }
 
@@ -563,8 +565,9 @@ class UwlrSoapResult extends Model
             })->map(function ($k) {
                 $k = (array) $k;
                 return $k['naam'];
+            })->each(function($keyName) use ($label){
+                $this->errors[] = sprintf('%s klas bevat geen %s', $keyName, $label);
             });
-            $this->errors[] = sprintf('no %sen found for samengestelde_group(s) [%s]', $label, $keyNames->join(', '));
         }
 
         $notInGroups = $labelKeys->filter(function ($teacherKey) use ($keys) {
@@ -572,8 +575,9 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInGroups->isNotEmpty()) {
-            $this->errors[] = sprintf('found samengestelde groep(s) in %s but not in samengestelde groep %s', $label,
-                $notInGroups->join(' '));
+            $notInGroups->each(function($group) use ($label) {
+                $this->errors[] = sprintf('%s klas bevat geen %s', $group, $label);
+            });
         };
     }
 
@@ -584,7 +588,7 @@ class UwlrSoapResult extends Model
                 ->unique()
                 ->map(function ($error) {
                     return sprintf('%s: %s<BR>', now(), $error);
-                })->join(',');
+                })->sort()->join('');
             $this->save();
 
         }
