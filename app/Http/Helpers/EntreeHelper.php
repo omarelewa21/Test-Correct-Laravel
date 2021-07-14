@@ -29,6 +29,8 @@ class EntreeHelper
 
     public $shouldThrowAnErrorDuringTransaction = false;
 
+    private $brinFourErrorDetected = false;
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $attr;
@@ -40,6 +42,9 @@ class EntreeHelper
         $this->setLocationWithSamlAttributes();
         if ($this->location == null) {
             $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_not_found']);
+            if ($this->brinFourErrorDetected) {
+                $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.brin_four_detected']);
+            }
             return $this->redirectToUrlAndExit($url);
         }
         return $this->location;
@@ -56,6 +61,9 @@ class EntreeHelper
             $this->location = SchoolLocation::where('external_main_code', $external_main_code)
                 ->where('external_sub_code', $external_sub_code)
                 ->first();
+        }
+        if (strlen($brinZesCode) === 4) {
+            $this->brinFourErrorDetected = true;
         }
     }
 
