@@ -363,6 +363,70 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->eckidFromRelation()->save($eckIdUser);
     }
 
+    public function scopeFindByEckidAndSchoolLocationIdForTeacher($query, $eckid, $school_location_id)
+    {
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $record = $list->first(function($record) use ($eckid,$school_location_id) {
+            if(Crypt::decryptString($record->eckid) === $eckid){
+                // user should be part of this school_location
+                $user = User::find($record->user_id);
+                return $user->allowedSchoolLocations->contains($school_location_id);
+            }
+            return false;
+        });
+
+        // return empty if user_id was not found;
+        $user_id = 0;
+
+        if ($record) {
+            $user_id = $record->user_id;
+        }
+
+        return $query->select('users.*')->where('id', $user_id);
+    }
+
+    public function scopeFindByEckidAndSchoolLocationIdForUser($query, $eckid, $school_location_id)
+    {
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $record = $list->first(function($record) use ($eckid,$school_location_id) {
+            if(Crypt::decryptString($record->eckid) === $eckid){
+                // user should be part of this school_location
+                $user = User::find($record->user_id);
+                return $user->school_location_id === $school_location_id;
+            }
+            return false;
+        });
+
+        // return empty if user_id was not found;
+        $user_id = 0;
+
+        if ($record) {
+            $user_id = $record->user_id;
+        }
+
+        return $query->select('users.*')->where('id', $user_id);
+    }
+
+    public function scopeFilteryEckid($query, $eckid)
+    {
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $records = $list->filter(function($record) use ($eckid) {
+            return Crypt::decryptString($record->eckid) === $eckid;
+        });
+
+        // return empty if user_id was not found;
+        $user_ids = [];
+
+        if ($records->count()) {
+            $user_ids = $records->map(function($u){return $u->user_id;});
+        }
+
+        return $query->select('users.*')->whereIn('id', $user_ids);
+    }
+
     public function scopeFindByEckid($query, $eckid)
     {
         $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();

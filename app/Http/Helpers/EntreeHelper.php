@@ -54,22 +54,36 @@ class EntreeHelper
     {
         $brinZesCode = $this->getBrinFromAttributes();
 
+        $external_main_code = substr($brinZesCode, 0, 4);
         if (strlen($brinZesCode) === 6) {
-            $external_main_code = substr($brinZesCode, 0, 4);
             $external_sub_code = substr($brinZesCode, 4, 2);
-
             $this->location = SchoolLocation::where('external_main_code', $external_main_code)
                 ->where('external_sub_code', $external_sub_code)
                 ->first();
+            return true;
         }
         if (strlen($brinZesCode) === 4) {
-            $this->brinFourErrorDetected = true;
+            // uitzoeken 1 locatie aanwezig dan setten
+            $locations = SchoolLocation::where('external_main_code', $external_main_code)->get();
+            if ($locations->count() === 1) {
+                $this->schoolLocation = $locations->first();
+                return true;
+            }
+            // indien meerdere met 4 code dan gebruiker zoeken en locatie daarbij zoeken
+//            User::findByEckId($this->getEckIdFromAttributes())
+
         }
+        $this->brinFourErrorDetected = true;
     }
 
     public static function shouldPromptForEntree(User $user)
     {
         return (optional($user->schoolLocation)->lvs_active && empty($user->eck_id));
+    }
+
+    private function getEckIdFromAttributes()
+    {
+        return $this->attr['eckId'][0];
     }
 
     private function getBrinFromAttributes()
@@ -110,8 +124,8 @@ class EntreeHelper
 
         return SamlMessage::create([
             'message_id' => $this->messageId,
-            'eck_id'     => Crypt::encryptString($this->attr['eckId'][0]),
-            'email'      => $this->attr['mail'][0],
+            'eck_id' => Crypt::encryptString($this->getEckIdFromAttributes()),
+            'email' => $this->attr['mail'][0],
         ]);
     }
 
@@ -219,7 +233,7 @@ class EntreeHelper
             return true;
         }
 
-        $url = route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+        $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
         return $this->redirectToUrlAndExit($url);
     }
 
@@ -252,7 +266,7 @@ class EntreeHelper
             if ($this->laravelUser->isA('Student')) {
                 if (!$this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
                     $url = route('auth.login', [
-                        'tab'                  => 'entree',
+                        'tab' => 'entree',
                         'entree_error_message' => 'auth.student_account_not_found_in_this_location'
                     ]);
                     return $this->redirectToUrlAndExit($url);
