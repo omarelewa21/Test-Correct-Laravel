@@ -895,4 +895,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     {
         return [SchoolLocation::SSO_ENTREE];
     }
+
+    public function belongsToSameSchool(SchoolLocation $schoolLocation)
+    {
+        return !is_null($schoolLocation->school_id) && $this->school_id === $schoolLocation->school_id;
+    }
 }

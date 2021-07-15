@@ -189,22 +189,24 @@ class SchoolClassesController extends Controller
         $updateCounter = 0;
         if (is_array($request->get('class'))) {
             collect($request->get('class'))->each(function ($value, $schoolClassId) use (&$updateCounter) {
-                $schoolClass = SchoolClass::where('id', $schoolClassId)
-                    ->withoutGlobalScope('visibleOnly')
-                    ->where('is_main_school_class', 1)
-                    ->where('school_location_id', Auth::user()->school_location_id)
-                    ->first();
-                $schoolClass->education_level_id = $value['education_level'];
-                $schoolClass->save();
+                if(array_key_exists('education_level',$value)) {
+                    $schoolClass = SchoolClass::where('id', $schoolClassId)
+                        ->withoutGlobalScope('visibleOnly')
+                        ->where('is_main_school_class', 1)
+                        ->where('school_location_id', Auth::user()->school_location_id)
+                        ->first();
+                    $schoolClass->education_level_id = $value['education_level'];
+                    $schoolClass->save();
 
-                $this->updateImportLog($value, $schoolClass);
+                    $this->updateImportLog($value, $schoolClass);
 
-                $updateCounter++;
+                    $updateCounter++;
+                }
             });
         }
 
         if (!Auth::user()->hasIncompleteImport(false)) {
-            $this->finalizeImport();
+            $this->setClassesVisibleAndFinalizeImport(Auth::user());
         }
 
         return JsonResource::make(['count' => $updateCounter], 200);
@@ -215,18 +217,20 @@ class SchoolClassesController extends Controller
         $updateCounter = 0;
         if (is_array($request->get('class'))) {
             collect($request->get('class'))->each(function ($value, $schoolClassId) use (&$updateCounter) {
-                $schoolClass = SchoolClass::where('id', $schoolClassId)
-                    ->withoutGlobalScope('visibleOnly')
-                    ->where('is_main_school_class', 0)
-                    ->where('school_location_id', Auth::user()->school_location_id)
-                    ->first();
+                if(array_key_exists('education_level',$value) && array_key_exists('education_level_year',$value)) {
+                    $schoolClass = SchoolClass::where('id', $schoolClassId)
+                        ->withoutGlobalScope('visibleOnly')
+                        ->where('is_main_school_class', 0)
+                        ->where('school_location_id', Auth::user()->school_location_id)
+                        ->first();
 
-                $schoolClass->education_level_id = $value['education_level'];
-                $schoolClass->education_level_year = $value['education_level_year'];
-                $schoolClass->save();
-                $this->updateImportLog($value, $schoolClass);
+                    $schoolClass->education_level_id = $value['education_level'];
+                    $schoolClass->education_level_year = $value['education_level_year'];
+                    $schoolClass->save();
+                    $this->updateImportLog($value, $schoolClass);
 
-                $updateCounter++;
+                    $updateCounter++;
+                }
             });
 
         }

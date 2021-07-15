@@ -3,6 +3,8 @@
 namespace tcCore\Http\Livewire\Auth;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Session;
@@ -33,13 +35,13 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab', 'uuid', 'message_brin'];
+    protected $queryString = ['tab', 'uuid', 'entree_error_message'];
 
     public $tab = 'login';
 
     public $uuid = '';
 
-    public $message_brin = '';
+    public $entree_error_message = '';
 
 //    public $loginTab = true;
 //    public $forgotPasswordTab = false;
@@ -84,7 +86,7 @@ class Login extends Component
     public function login()
     {
         $this->resetErrorBag();
-        $this->message_brin = '';
+        $this->entree_error_message = '';
 
         if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
             $this->requireCaptcha = true;
@@ -137,7 +139,7 @@ class Login extends Component
 
     public function goToPasswordReset()
     {
-        $this->message_brin = '';
+        $this->entree_error_message = '';
         $this->redirect(route('password.reset'));
     }
 
@@ -203,7 +205,7 @@ class Login extends Component
 
     public function sendForgotPasswordEmail()
     {
-        $this->message_brin = '';
+        $this->entree_error_message = '';
         $user = User::whereUsername($this->forgotPasswordEmail)->first();
         if ($user) {
             $token = Password::getRepository()->create($user);
@@ -272,29 +274,36 @@ class Login extends Component
 
     public function entreeForm()
     {
-        $this->message_brin = '';
+        $this->entree_error_message = '';
         $credentials = [
             'username' => $this->entreeEmail,
             'password' => $this->entreePassword,
         ];
 
+
         $message = SamlMessage::whereUuid($this->uuid)->first();
 
         if ($message == null) {
-            return $this->addError('invalid_user_pfff', __('auth.failed'));
+            return $this->addError('entree_error', __('auth.no_saml_message_found'));
+        }
+
+        if($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
+            return $this->addError('entree_error', __('auth.saml_message_to_old'));
         }
 
         if (!auth()->attempt($credentials)) {
             $this->createFailedLogin();
-            return $this->addError('invalid_user', __('auth.failed'));
+            return $this->addError('entree_error', __('auth.incorrect_credentials'));
         }
         $user = auth::user();
 
-        if ($user->eckId !== null) {
-            return $this->addError('some_field', 'some error where we already have a matching eckid');
+        if (! empty($user->eckId)) {
+            return $this->addError('entree_error', __('auth.eck_id_already_set_for_user'));
         }
 
-        $user->eckId = $message->eck_id;
+        $user->eckId = Crypt::decryptString($message->eck_id);
+        $user->username = $message->email;
+        $message->delete();
         $user->save();
         $user->redirectToCakeWithTemporaryLogin();
     }

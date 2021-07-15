@@ -127,6 +127,14 @@ class ImportHelper
 
     public $make_school_classes_visible = true;
 
+    public $uwlr_soap_result_id;
+
+    private $startTime;
+
+    private $cache = [];
+
+    private $cacheHit = 0;
+
 
     /**
      *
@@ -159,6 +167,8 @@ class ImportHelper
 
         $instance->csv_data = $data->toCSV();
 
+        $instance->uwlr_soap_result_id = $data->getKey();
+
         unset($data);
 
         return $instance;
@@ -184,6 +194,8 @@ class ImportHelper
 
     private function __construct($email_domain)
     {
+        $this->startTime = time();
+
         if ($email_domain != "") {
             $this->email_domain = $email_domain;
         }
@@ -212,7 +224,7 @@ class ImportHelper
 
         $unit=array('b','kb','mb','gb','tb','pb');
         $usage = @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
-        logger(sprintf('[%s] usage [%s]', $line, $usage));
+        logger(sprintf('[%s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $usage, time()-$this->startTime, $this->cacheHit));
     }
 
     public function process()
@@ -416,63 +428,94 @@ class ImportHelper
                         $studentsPerClass[$school_class_id] = [];
                     }
 
-                    // student is known
-                    if ($student_id != null) {
-                        if ($student = User::find($student_id)) {
-                            $student->name_first = $student_name_first;
-                            $student->name_suffix = $student_name_suffix;
-                            $student->name = $student_name_last;
-                            if ($student->isDirty()) {
-                                $student->save();
-                                $this->update_tally['students']++;
-                            }
-                        }
+//                    // student is known
+//                    if ($student_id != null) {
+//                        if ($student = User::find($student_id)) {
+//                            $student->name_first = $student_name_first;
+//                            $student->name_suffix = $student_name_suffix;
+//                            $student->name = $student_name_last;
+//                            $student->eckid = $student_eckid;
+//
+//                            if ($student->isDirty()) {
+//                                $this->update_tally['students']++;
+//                            }
+//                            $student->save();
+//                        }
+//
+//                        // student not in class (always the case with a new class)
+//                        if (!$this->getStudentIdForClass($student_id, $school_class_id)) {
+//
+//                            $this->createOrRestoreStudent([
+//                                'user_id'  => $student_id,
+//                                'class_id' => $school_class_id
+//                            ]);
+//
+//                            $this->importLog('Added student with id '.$student_id.' to class '.$school_class_id);
+//                        } else {
+//
+//                            $this->importLog('Student with id '.$student_id.' exists in class '.$school_class_id);
+//                        }
+//
+//
+//                        $this->raiseDoubleEntryError($student_eckid, $student_external_code, $school_location_id);
+//                    } else {
+//
+//                        $this->importLog("Create student with external code ".$student_external_code);
+//
+//                        $user_data = [
+//                            'external_id'        => $student_external_code,
+//                            'name_first'         => $student_name_first,
+//                            'name_suffix'        => $student_name_suffix,
+//                            'name'               => $student_name_last,
+//                            'eckid'              => $student_eckid,
+//                            'username'           => $student_email, // moet email zijn?
+//                            'school_location_id' => $school_location_id,
+//                            'user_roles'         => [3],
+//
+//                        ];
+//
+//                        $user_id = $this->createOrRestoreUser($user_data, 'student');
+//
+//                        $this->importLog('User created for student with id '.$user_id.' and external code '.$student_external_code);
+//
+//                        $this->createOrRestoreStudent([
+//                            'user_id'  => $user_id,
+//                            'class_id' => $school_class_id
+//                        ]);
+//
+//                        $this->create_tally['students']++;
+//
+//                        $student_id = $user_id;
+//                    }
 
-                        // student not in class (always the case with a new class)
-                        if (!$this->getStudentIdForClass($student_id, $school_class_id)) {
 
-                            $this->createOrRestoreStudent([
-                                'user_id'  => $student_id,
-                                'class_id' => $school_class_id
-                            ]);
+                    $user_data = [
+                        'external_id'        => $student_external_code,
+                        'name_first'         => $student_name_first,
+                        'name_suffix'        => $student_name_suffix,
+                        'name'               => $student_name_last,
+                        'eckid'              => $student_eckid,
+                        'username'           => $student_email, // moet email zijn?
+                        'school_location_id' => $school_location_id,
+                        'user_roles'         => [3],
 
-                            $this->importLog('Added student with id '.$student_id.' to class '.$school_class_id);
-                        } else {
+                    ];
 
-                            $this->importLog('Student with id '.$student_id.' exists in class '.$school_class_id);
-                        }
+                    $student_id = $this->createOrRestoreUser($user_data, 'student');
 
-
-                        $this->raiseDoubleEntryError($student_eckid, $student_external_code, $school_location_id);
-                    } else {
-
-                        $this->importLog("Create student with external code ".$student_external_code);
-
-                        $user_data = [
-                            'external_id'        => $student_external_code,
-                            'name_first'         => $student_name_first,
-                            'name_suffix'        => $student_name_suffix,
-                            'name'               => $student_name_last,
-                            'eckid'              => $student_eckid,
-                            'username'           => $student_email, // moet email zijn?
-                            'school_location_id' => $school_location_id,
-                            'user_roles'         => [3],
-
-                        ];
-
-                        $user_id = $this->createOrRestoreUser($user_data, 'student');
-
-                        $this->importLog('User created for student with id '.$user_id.' and external code '.$student_external_code);
+                    if (!$this->getStudentIdForClass($student_id, $school_class_id)) {
 
                         $this->createOrRestoreStudent([
-                            'user_id'  => $user_id,
+                            'user_id'  => $student_id,
                             'class_id' => $school_class_id
                         ]);
 
-                        $this->create_tally['students']++;
+                        $this->importLog('Added student with id '.$student_id.' to class '.$school_class_id);
+                    } else {
 
-                        $student_id = $user_id;
+                        $this->importLog('Student with id '.$student_id.' exists in class '.$school_class_id);
                     }
+
 
                     $studentsPerClass[$school_class_id][] = $student_id;
 
@@ -504,10 +547,12 @@ class ImportHelper
                         $user->name_first = $teacher_name_first;
                         $user->name_suffix = $teacher_name_suffix;
                         $user->name = $teacher_name_last;
+                        $user->eckid = $teacher_eckid;
+
                         if ($user->isDirty()) {
-                            $user->save();
                             $this->update_tally['teachers']++;
                         }
+                        $user->save();
 
                         $teacher_table_id = $this->getTeachersForClassSubject($teacher_id, $school_class_id,
                             $subject_id);
@@ -736,6 +781,7 @@ class ImportHelper
         if (!App::runningUnitTests()) {
             \DB::commit();
         }
+        logger(sprintf('DONE [%s seconds] [%d cacheHits] ',  time()-$this->startTime, $this->cacheHit));
 
         $this->importLog('import done');
 
@@ -1008,23 +1054,32 @@ class ImportHelper
         $education_level_id
     ) {
 
-        $school_year_id = SchoolLocationSchoolYear::select('school_year_id')
-            ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
-            ->whereNull('school_location_school_years.deleted_at')
-            ->where('school_location_school_years.school_location_id', '=', $school_location_id)
-            ->where('school_years.year', $year)
-            ->value('school_year_id');
+        $school_year_id = $this->cache(
+            function() use ($school_location_id, $year) {
+                return SchoolLocationSchoolYear::select('school_year_id')
+                    ->leftjoin('school_years', 'school_years.id', '=', 'school_location_school_years.school_year_id')
+                    ->whereNull('school_location_school_years.deleted_at')
+                    ->where('school_location_school_years.school_location_id', '=', $school_location_id)
+                    ->where('school_years.year', $year)
+                    ->value('school_year_id');
+            },'school_year_id', [$school_location_id, $year]
+        );
 
         if ($school_year_id != null) {
-
-            return SchoolClass::withoutGlobalScope('visibleOnly')
-                ->where('name', $class_name)
-                ->where('school_location_id', $school_location_id)
-                ->where('school_year_id', $school_year_id)
-                ->where('education_level_year', $education_level_year)
-                ->where('education_level_id', $education_level_id)
-                ->whereNull('school_classes.deleted_at')
-                ->value('id');
+            return $this->cache(
+                function() use ($class_name, $school_location_id,$school_year_id, $education_level_year,$education_level_id) {
+                    return SchoolClass::withoutGlobalScope('visibleOnly')
+                        ->where('name', $class_name)
+                        ->where('school_location_id', $school_location_id)
+                        ->where('school_year_id', $school_year_id)
+                        ->where('education_level_year', $education_level_year)
+                        ->where('education_level_id', $education_level_id)
+                        ->whereNull('school_classes.deleted_at')
+                        ->value('id');
+                },
+                'schoolClass',
+                [$class_name, $school_location_id,$school_year_id, $education_level_year,$education_level_id]
+            );
         } else {
             return null;
         }
@@ -1052,8 +1107,25 @@ class ImportHelper
 
 
         if ($user != null) {
+            $restored = false;
+            if($user->trashed() && $forRole === 'student'){
+                $this->create_tally['students']++;
+                $user->restore();
+                $restored = true;
+            }
 
-            $user->restore();
+            foreach(['eckid','name_first','name_suffix','name'] as $key){
+                $user->$key = $user_data[$key];
+            }
+            if(!$restored && $user->isDirty() && $forRole === 'student'){
+                $this->update_tally['students']++;
+            }
+            $user->save();
+
+            if($forRole === 'student') {
+                $this->raiseDoubleEntryError($user->eckid, $user->external_id, $user->school_location_id);
+            }
+
         } else {
 
             $userFactory = new Factory(new User());
@@ -1082,7 +1154,9 @@ class ImportHelper
             if ($user->isDirty()) {
                 $user->save();
             }
-
+            if($forRole === 'student') {
+                $this->create_tally['students']++;
+            }
         }
 
         return $user->id;
@@ -1095,12 +1169,18 @@ class ImportHelper
      */
     public function createOrRestoreTeacher($teacher_data)
     {
-
-        $teacher = Teacher::withTrashed()
-            ->where('class_id', $teacher_data['class_id'])
-            ->where('user_id', $teacher_data['user_id'])
-            ->where('subject_id', $teacher_data['subject_id'])
-            ->first();
+        $class_id = $teacher_data['class_id'];
+        $user_id = $teacher_data['user_id'];
+        $subject_id = $teacher_data['subject_id'];
+        $teacher = $this->cache(
+            function() use ($class_id, $user_id, $subject_id) {
+                Teacher::withTrashed()
+                    ->where('class_id', $class_id)
+                    ->where('user_id', $user_id)
+                    ->where('subject_id', $subject_id)
+                    ->first();
+            },'createOrRestoreTeacher', [$class_id, $user_id, $subject_id]
+        );
 
         if ($teacher != null) {
 
@@ -1228,7 +1308,7 @@ class ImportHelper
                 $school_location_section
             ) {
 
-                return $school_location_section->section->name === self::DUMMY_SECTION_NAME;
+                return optional($school_location_section->section)->name === self::DUMMY_SECTION_NAME;
             });
             if (!$magisterSection) {
                 $this->errorMessages[] = sprintf('Als u gebruik maakt van de uwlr import dient u een sectie in de school te hebben met de naam [%s]',
@@ -1267,9 +1347,13 @@ class ImportHelper
 
     protected function getEducationLevelMaxYearsForEducationLevelId($education_level_id)
     {
-        return Educationlevel::withTrashed()->select('max_years')
-            ->where('id', $education_level_id)
-            ->value('max_years');
+        return $this->cache(
+            function() use ($education_level_id) {
+                return Educationlevel::withTrashed()->select('max_years')
+                    ->where('id', $education_level_id)
+                    ->value('max_years');
+            }, 'maxYearsForEducationLevelId', [$education_level_id]
+        );
     }
 
     /**
@@ -1291,7 +1375,9 @@ class ImportHelper
     public function getUserIdForLocation($external_id, $school_location_id, $eckId = null)
     {
         if ($eckId) {
-            return User::findByEckid($eckId)->value('id');
+            if ($user_id = User::scopeFindByEckidAndSchoolLocationIdForUser($eckId, $school_location_id)->value('id')){
+                return $user_id;
+            }
         }
 
         if ($external_id) {
@@ -1312,7 +1398,27 @@ class ImportHelper
     public function getUserIdForTeacherInLocation($external_id, $school_location_id, $eckId = null)
     {
         if ($eckId) {
-            return User::findByEckid($eckId)->value('id');
+            $user = $this->cache(function() use ($eckId,$school_location_id) {
+                return User::findByEckidAndSchoolLocationIdForTeacher($eckId,$school_location_id)->value('id');
+            }, 'getUserIdForTeacherInLocationEckId', [$eckId]);
+            if($user){
+                return $user;
+            }
+            return $this->cache(function() use ($eckId,$school_location_id) {
+                $users = User::filterByEckId($eckId)->get();
+                if($users->count() < 1){
+                    return null;
+                }
+                $schoolLocation = SchoolLocation::find($school_location_id);
+                $user = $users->first(function(User $user) use ($schoolLocation){
+                    return optional($user->schoolLocation)->belongsToSameSchool($schoolLocation);
+                });
+                if($user){
+                    // this teacher belongs to the same school, so therefor it should be added to the school_location_user table
+                    $user->addSchoolLocation($schoolLocation);
+                    return $user->getKey();
+                }
+            }, 'getUserIdForTeacherInLocationEckId', [$eckId]);
         }
         if ($external_id) {
             return User::join('school_location_user', 'users.id', '=', 'school_location_user.user_id')
@@ -1478,5 +1584,18 @@ class ImportHelper
             $this->errorMessages[] = 'Dubbele externe id voor dezelfde gebruiker '.$student_external_code;
             //throw new \Exception('Dubbele externe id voor dezelfde gebruiker ' . $student_external_code);
         }
+    }
+
+    private function cache(callable $callable, string $entity, array $args) {
+        $key = implode('-',$args);
+        if (array_key_exists($entity, $this->cache) && array_key_exists($key, $this->cache[$entity])) {
+            $this->cacheHit ++;
+//            logger(sprintf('retrieved from cache %s %s', $entity, $key ));
+            return $this->cache[$entity][$key];
+        }
+        if ($value = $callable()) {
+            $this->cache[$entity][$key] = $value;
+        }
+        return $value;
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
@@ -343,7 +344,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        $method = 'aes-256-cbc';
         $eckid = '';
         if (!is_null($this->eckidFromRelation)) {
-            $eckid = $this->eckidFromRelation->eckid;
+            $eckid = Crypt::decryptString($this->eckidFromRelation->eckid);
         }
         return $eckid;
 //        return openssl_decrypt(base64_decode($eckid), $method, $passphrase, OPENSSL_RAW_DATA, $iv);
@@ -351,19 +352,97 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function setEckidAttribute($eckid)
     {
-//        $passphrase = config('custom.encrypt.eck_id_passphrase');
-//        $iv = config('custom.encrypt.eck_id_iv');
-//        $method = 'aes-256-cbc';
-//        $this->attributes['eckid'] = base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
+        if(!$eckid){
+            $this->removeEckId();
+            return;
+        }
+
         $eckIdUser = $this->eckidFromRelation ?: new EckIdUser;
-        $eckIdUser->eckid = $eckid;
+        $eckIdUser->eckid = Crypt::encryptString($eckid);
+        $eckIdUser->eckid_hash = md5($eckid);
         $this->eckidFromRelation()->save($eckIdUser);
+    }
+
+    public function scopeFindByEckidAndSchoolLocationIdForTeacher($query, $eckid, $school_location_id)
+    {
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $record = $list->first(function($record) use ($eckid,$school_location_id) {
+            if(Crypt::decryptString($record->eckid) === $eckid){
+                // user should be part of this school_location
+                $user = User::find($record->user_id);
+                return $user->allowedSchoolLocations->contains($school_location_id);
+            }
+            return false;
+        });
+
+        // return empty if user_id was not found;
+        $user_id = 0;
+
+        if ($record) {
+            $user_id = $record->user_id;
+        }
+
+        return $query->select('users.*')->where('id', $user_id);
+    }
+
+    public function scopeFindByEckidAndSchoolLocationIdForUser($query, $eckid, $school_location_id)
+    {
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $record = $list->first(function($record) use ($eckid,$school_location_id) {
+            if(Crypt::decryptString($record->eckid) === $eckid){
+                // user should be part of this school_location
+                $user = User::find($record->user_id);
+                return $user->school_location_id === $school_location_id;
+            }
+            return false;
+        });
+
+        // return empty if user_id was not found;
+        $user_id = 0;
+
+        if ($record) {
+            $user_id = $record->user_id;
+        }
+
+        return $query->select('users.*')->where('id', $user_id);
+    }
+
+    public function scopeFilteryEckid($query, $eckid)
+    {
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $records = $list->filter(function($record) use ($eckid) {
+            return Crypt::decryptString($record->eckid) === $eckid;
+        });
+
+        // return empty if user_id was not found;
+        $user_ids = [];
+
+        if ($records->count()) {
+            $user_ids = $records->map(function($u){return $u->user_id;});
+        }
+
+        return $query->select('users.*')->whereIn('id', $user_ids);
     }
 
     public function scopeFindByEckid($query, $eckid)
     {
-        return $query->select('users.*')->leftJoin('eckid_user', 'users.id', '=', 'eckid_user.user_id')->where('eckid',
-            $eckid);
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $record = $list->first(function($record) use ($eckid) {
+            return Crypt::decryptString($record->eckid) === $eckid;
+        });
+
+        // return empty if user_id was not found;
+        $user_id = 0;
+
+        if ($record) {
+            $user_id = $record->user_id;
+        }
+
+        return $query->select('users.*')->where('id', $user_id);
     }
 
     public function getIsTempTeacher()
@@ -1082,7 +1161,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function ownTeachers()
     {
-
         return $this->hasMany('tcCore\Teacher')->currentSchoolLocation();
     }
 
@@ -1977,15 +2055,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //            if ($this->schoolLocation->lvs === false) {
 //                return false;
 //            }
-            if ($this->schoolLocation->lvs_active === false) {
+            if (!$this->schoolLocation->lvs_type) { // not lvs_active any more as active means that it will be taken along with the daily checks cron import
                 return false;
             }
-            $baseSubjectId = BaseSubject::where('name','demovak')->value('id');
+            $baseSubjectId = BaseSubject::where('name', 'demovak')->value('id');
             $teacherRecords = Teacher::selectRaw('count(*) as cnt')
                 ->leftJoin('teacher_import_logs', 'teachers.id', 'teacher_import_logs.teacher_id')
                 ->leftJoin('school_classes', 'teachers.class_id', 'school_classes.id')
-                ->where(function ($query) use($baseSubjectId){
-                    $query->whereIn('teachers.subject_id', function ($query) use ($baseSubjectId){
+                ->where(function ($query) use ($baseSubjectId) {
+                    $query->whereIn('teachers.subject_id', function ($query) use ($baseSubjectId) {
                         $query->select('id')
                             ->from('subjects')
                             ->where('base_subject_id', $baseSubjectId)
@@ -1998,33 +2076,34 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 })
                 ->where('teachers.user_id', $this->getKey())
                 ->where('school_classes.demo', 0)
+                ->where('school_classes.visible', 0)
                 ->value('cnt');
 
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->withoutGlobalScope('visibleOnly')
-                ->where('school_classes.visible',0)
+                ->where('school_classes.visible', 0)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->whereIn('school_classes.id', function ($query) {
                     $query->select('class_id')
                         ->from('teachers')
                         ->where('user_id', $this->getKey());
                 })
-                ->where(function ($query) use ($withFinalizedCheck){
-                    if($withFinalizedCheck){
+                ->where(function ($query) use ($withFinalizedCheck) {
+                    if ($withFinalizedCheck) {
                         $query->whereNull('school_class_import_logs.finalized');
                     } else {
                         $query->whereNull('checked_by_teacher');
                     }
                     $query->orWhereNull('school_class_import_logs.id');
-                })->where('demo',0)
-
+                })->where('demo', 0)
                 ->value('cnt');
             return ($classRecords + $teacherRecords) > 0;
         }
 
         if ($this->isA('school manager')) {
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')->withoutGlobalScope('visibleOnly')
-                ->where('school_classes.visible',0)
+                ->where('school_classes.visible', 0)
+                ->where('school_classes.is_main_school_class', 1)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
                 ->where(function ($query) {
@@ -2041,36 +2120,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return false;
     }
 
-    public function handleEntreeAttributes($attr)
-    {
-        // update username with the emailaddress posted from entree
-        // only and only when it conforms to s_<userId>@test-correct.nl or t_<userId>@test-correct.nl
-        $emailFromEntree = false;
-        if (array_key_exists('mail', $attr) && is_array($attr['mail'])) {
-            $emailFromEntree = array_pop($attr['mail']);
-        }
 
-
-        if ($emailFromEntree && $this->username === $this->generateMissingEmailAddress()) {
-            $this->username = $emailFromEntree;
-        }
-        $this->save();
-
-        // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
-        // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
-        if ($emailFromEntree && $this->isA('student') && empty($this->externalId)) {
-            $parts = explode('@', $emailFromEntree)[0];
-            if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
-                $this->external_id = $parts[0];
-            }
-        }
-
-        $this->save();
-
-        return $this;
-    }
-
-    private function generateMissingEmailAddress()
+    public function generateMissingEmailAddress()
     {
         if ($this->isA('student')) {
             return sprintf(self::STUDENT_IMPORT_EMAIL_PATTERN, $this->getKey());
@@ -2098,8 +2149,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $temporaryLogin->createCakeUrl();
     }
 
-    public function inSchoolLocationAsUser(User $user) {
-        if (!$this->schoolLocation || ! $user->schoolLocation) {
+    public function inSchoolLocationAsUser(User $user)
+    {
+        if (!$this->schoolLocation || !$user->schoolLocation) {
             return false;
         }
 
@@ -2116,5 +2168,58 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         return false;
+    }
+
+    public function inSameKoepelAsUser(User $user)
+    {
+        if (empty($this->schoolLocation) || empty($this->schoolLocation->school_id)) {
+            return false;
+        }
+
+        if (empty($user->schoolLocation) || empty($user->schoolLocation->school_id)) {
+            return false;
+        }
+
+        return $this->schoolLocation->school->is($user->schoolLocation->school);
+    }
+
+    public function removeEckId()
+    {
+        $this->eckidFromRelation()->delete();
+        return $this;
+    }
+
+    public function transferClassesFromUser(User $user)
+    {
+        if ($user->isA('teacher') && $this->isA('teacher')) {
+            $oldTeacherRecords = $this->teacher()->withTrashed()->get();
+            $user->teacher->each(function ($tRecord) use ($oldTeacherRecords) {
+                if ($myRecord = $oldTeacherRecords->first(function ($oldRecord) use ($tRecord) {
+                    return $tRecord->class_id == $oldRecord->class_id && $tRecord->subject_id == $oldRecord->subject_id;
+                })) {
+                    if ($myRecord->trashed()) {
+                        $myRecord->restore();
+                    }
+                    $tRecord->delete();
+                } else {
+                    $this->teacher()->save($tRecord);
+                }
+            });
+        }
+        if ($user->isA('student') && $this->isA('student')) {
+            $user->students->each(function ($student) {
+                $this->students()->save(
+                    Student::create([
+                        'class_id' => $student->class_id,
+                        'user_id'  => $this->id,
+                    ])
+                );
+                $student->delete();
+            });
+//            $this->students()->saveMany($user->students);
+        }
+
+        $user->refresh();
+        return $this;
     }
 }

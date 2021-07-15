@@ -17,6 +17,8 @@ class MagisterHelper
     const SOURCE = 'Magister';
     const XSD_VERSION = '2.2';
 
+    private $isTestSet = false;
+
     private $string = null;
 
     /**
@@ -28,8 +30,10 @@ class MagisterHelper
 
     private $resultIdentifier = null;
 
-    public function __construct()
+    public function __construct($isTestSet = false)
     {
+        $this->isTestSet = $isTestSet;
+
         $this->result = json_decode(
             '{
                     "leerlinggegevens": {
@@ -40,6 +44,13 @@ class MagisterHelper
                     }
                }'
         );
+    }
+
+    private function getOption(array $options) {
+        if ($this->isTestSet) {
+            return $options[0];
+        }
+        return $options[1];
     }
 
 
@@ -55,15 +66,21 @@ class MagisterHelper
 
     public static function guzzle($schoolYear = '2019-2020', $brinCode = '99DE', $dependanceCode = '00')
     {
-        $url = 'https://acc.idhub.nl/uwlr-l-alles-in-een/v2.3';
+        $isTestSet = $brinCode === '99DE';
+
+        $url =(new self($isTestSet))->getOption(['https://acc.idhub.nl/uwlr-l-alles-in-een/v2.3', 'https://hub.iddinkgroup.com/uwlr-l-alles-in-een/V2.3']); // 'https://acc.idhub.nl/uwlr-l-alles-in-een/v2.3'; // test is acc.ihub // live is https://hub.iddinkgroup.com/uwlr-l-alles-in-een/V2.3
+
+        $authKey = (new self($isTestSet))->getOption(['HubUwlrLDemoAuthKey','AC76D8FD11A644108A50E062CC685BBF']); // 'HubUwlrLDemoAuthKey'; //test is HubUwlrLDemoAuthKey // live is 'AC76D8FD11A644108A50E062CC685BBF';
+        $klantCode = (new self($isTestSet))->getOption(['HubUwlrLDemo','Test-correct-uwlr']); // 'HubUwlrLDemo'; // test is HubUwlrLDemo // live is 'Test-correct-uwlr';
+        $klantNaam = (new self($isTestSet))->getOption(['HubUwlrLDemoClient','Test-correct-uwlr']); // 'HubUwlrLDemoClient'; // test is HubUwlrLDemoClient // live is 'Test-correct-uwlr';
 
         $xml = trim('
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:aut="http://www.edustandaard.nl/leerresultaten/2/autorisatie" xmlns:leer="http://www.edustandaard.nl/leerresultaten/2/leerlinggegevens">
  <soapenv:Header>
   <aut:autorisatie>
-       <aut:autorisatiesleutel>HubUwlrLDemoAuthKey</aut:autorisatiesleutel>
-       <aut:klantcode>HubUwlrLDemo</aut:klantcode>
-       <aut:klantnaam>HubUwlrLDemoClient</aut:klantnaam>
+       <aut:autorisatiesleutel>'.$authKey.'</aut:autorisatiesleutel>
+       <aut:klantcode>'.$klantCode.'</aut:klantcode>
+       <aut:klantnaam>'.$klantNaam.'</aut:klantnaam>
     </aut:autorisatie>
  </soapenv:Header>
  <soapenv:Body>
@@ -72,7 +89,7 @@ class MagisterHelper
        <leer:brincode>'.$brinCode.'</leer:brincode>
        <leer:dependancecode>'.$dependanceCode.'</leer:dependancecode>
         <leer:xsdversie>2.3</leer:xsdversie>
-       <leer:gegevenssetid></leer:gegevenssetid>
+
     </leer:leerlinggegevens_verzoek>
  </soapenv:Body>
 </soapenv:Envelope>
@@ -81,7 +98,7 @@ class MagisterHelper
         $client = new Client([
             'headers' => [
                 'SOAPAction'                 => 'HaalLeerlinggegevens',
-                'IddinkHub-Subscription-Key' => 'a52478c70c6a43df83f3bcd4f7a77327',
+                'IddinkHub-Subscription-Key' => (new self($isTestSet))->getOption(['a52478c70c6a43df83f3bcd4f7a77327','b412ddd6a5fd4134a6505a46c01baf36']),// 'a52478c70c6a43df83f3bcd4f7a77327', // test is a524 // live is b412ddd6a5fd4134a6505a46c01baf36
                 'Content-Type'               => 'text/xml',
             ]
         ]);
@@ -90,12 +107,14 @@ class MagisterHelper
                 ['body' => $xml]
             );
         } catch (\Exception $e) {
+            echo($e->getMessage());
             dd($e);
         }
 
         $stream = $response->getBody();
         $stream->rewind();
-        $instance = new self;
+        $instance = new self($isTestSet);
+
         $instance->string = $stream->getContents();
 
         $instance->searchParams = [
@@ -130,23 +149,36 @@ class MagisterHelper
 
         $response = preg_replace("/(<\/?)(\w+):([^>]*>)/", "$1$2$3", $this->string);
         $xml = new \SimpleXMLElement($response);
-        $body = $xml->xpath('//SOAP-ENV:Body')[0];
+
+
+        $body = $xml->xpath(
+            $this->getOption(['//SOAP-ENV:Body','//sBody'])
+        )[0];
+
         $array = json_decode(json_encode((array) $body), true);
 
-        $categories = $array['leleerlinggegevens_antwoord']['leleerlinggegevens'];
+        $categories = $array[
+            $this->getOption(['leleerlinggegevens_antwoord','leerlinggegevens_antwoord'])
+        ][
+            $this->getOption(['leleerlinggegevens','leerlinggegevens'])
+        ];
 
         foreach ($categories as $category => $data) {
             switch ($category) {
                 case 'leschool' :
+                case 'school' :
                     $this->result->leerlinggegevens->school = $this->parseSchool($data);
                     break;
                 case 'legroepen' :
+                case 'groepen' :
                     $this->result->leerlinggegevens->groepen = $this->parseLesGroepen($data);
                     break;
                 case 'leleerlingen' :
+                case 'leerlingen' :
                     $this->result->leerlinggegevens->leerlingen = $this->parseLeerlingen($data);
                     break;
                 case 'leleerkrachten' :
+                case 'leerkrachten' :
                     $this->result->leerlinggegevens->leerkrachten = $this->parseLeerkrachten($data);
                     break;
             }
@@ -263,11 +295,11 @@ class MagisterHelper
     private function parseLesGroepen($groepen)
     {
         $result = [];
-        foreach ($groepen['legroep'] as $groep) {
+        foreach ($groepen[$this->getOption(['legroep','groep'])] as $groep) {
             $result['groep'][] = $this->cleanKeys($groep);
         }
 
-        foreach ($groepen['lesamengestelde_groep'] as $sGroep) {
+        foreach ($groepen[$this->getOption(['lesamengestelde_groep','samengestelde_groep'])] as $sGroep) {
             $result['samengestelde_groep'][] = $this->cleanKeys($sGroep);
         }
 
@@ -277,20 +309,27 @@ class MagisterHelper
     private function parseLeerlingen($data)
     {
         $result = [];
-        foreach ($data['leleerling'] as $leerling) {
+        foreach ($data[$this->getOption(['leleerling','leerling'])] as $leerling) {
             $obj = $this->cleanKeys($leerling);
+
             $obj['groep'] = $obj['groep']['@attributes'];
 
             $sGroepen = [];
             foreach ($obj['samengestelde_groepen'] as $sGroep) {
                 if (array_key_exists('@attributes', $sGroep)) {
                     $sGroepen[] = $sGroep['@attributes']['key'];
+                } else if(array_key_exists('key',$sGroep)){
+                    $sGroepen[] = $sGroep['key'];
                 }
                 // in case there are multiple samengestelde_groepen
                 if(is_array($sGroep)) {
                     foreach ($sGroep as $mGroep) {
-                        if (is_array($mGroep) && array_key_exists('@attributes', $mGroep)) {
-                            $sGroepen[] = $mGroep['@attributes']['key'];
+                        if (is_array($mGroep)){
+                            if(array_key_exists('@attributes', $mGroep)) {
+                                $sGroepen[] = $mGroep['@attributes']['key'];
+                            } else if(array_key_exists('key',$mGroep)){
+                                $sGroepen[] = $mGroep['key'];
+                            }
                         }
                     }
                 }
@@ -304,30 +343,41 @@ class MagisterHelper
     private function parseLeerkrachten($data)
     {
         $result = [];
-        foreach ($data['leleerkracht'] as $teacher) {
+        $missingTeachers = [];
+        foreach ($data[$this->getOption(['leleerkracht', 'leerkracht'])] as $teacher) {
             $obj = $this->cleanKeys($teacher);
+            if(!array_key_exists('eckid',$teacher['@attributes'])){
+                $missingTeachers[] = $teacher;
+                continue;
+            }
             $obj['eckid'] = $teacher['@attributes']['eckid'];
             $obj['key'] = $teacher['@attributes']['key'];
 
             $groepen = [];
-            foreach ($obj['groepen']['legroep'] as $groep) {
-                if (array_key_exists('@attributes', $groep)) {
-                    $groepen[] = $groep['@attributes']['key'];
-                }
-            }
-
             $sGroepen = [];
-
-
-            foreach ($obj['groepen']['lesamengestelde_groep'] as $sGroep) {
-                if (array_key_exists('key', $sGroep)) {
-                    $sGroepen[] = $sGroep['key'];
+            if(array_key_exists('groepen',$obj)) {
+                if (array_key_exists('groep', $obj['groepen'])) {
+                    foreach ($obj['groepen'][$this->getOption(['legroep','groep'])] as $groep) {
+                        if (array_key_exists('@attributes', $groep)) {
+                            $groepen[] = $groep['@attributes']['key'];
+                        } else if(array_key_exists('key',$groep)){
+                            $groepen[] = $groep['key'];
+                        }
+                    }
                 }
-                // in case of multiple samengestelde groepen
-                if(is_array($sGroep)){
-                    foreach($sGroep as $mGroep){
-                        if (is_array($mGroep) && array_key_exists('key', $mGroep)) {
-                            $sGroepen[] = $mGroep['key'];
+
+                if (array_key_exists($this->getOption(['lesamengestelde_groep','samengestelde_groep']), $obj['groepen'])) {
+                    foreach ($obj['groepen'][$this->getOption(['lesamengestelde_groep','samengestelde_groep'])] as $sGroep) {
+                        if (array_key_exists('key', $sGroep)) {
+                            $sGroepen[] = $sGroep['key'];
+                        }
+                        // in case of multiple samengestelde groepen
+                        if (is_array($sGroep)) {
+                            foreach ($sGroep as $mGroep) {
+                                if (is_array($mGroep) && array_key_exists('key', $mGroep)) {
+                                    $sGroepen[] = $mGroep['key'];
+                                }
+                            }
                         }
                     }
                 }
@@ -349,7 +399,8 @@ class MagisterHelper
                 }
                 continue;
             }
-            $result[substr($key, 2)] = $value;
+
+            $this->isTestSet ? $result[substr($key, 2)] = $value : $result[$key] = $value;
         }
         return $result;
     }
