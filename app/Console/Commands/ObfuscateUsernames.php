@@ -57,6 +57,7 @@ class ObfuscateUsernames extends Command
         if(Str::length($ids) < 1){
             die('Sorry, but we need the ids to keep out');
         }
+        $ids = explode(',',$ids);
 
         $leaveAloneIds = $this->argument('leaveAloneIds');
 
