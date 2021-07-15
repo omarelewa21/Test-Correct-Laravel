@@ -129,7 +129,7 @@ class ObfuscateUsernames extends Command
         $this->comment('done');
 
         $this->info('update all passwords');
-        User::whereNotNull('id')->whereNotIn('school_location_ids',$leaveAloneIds)->update(['password' =>'$2y$10$c47zbj2wJschPIq.rWPMAuOJyV4jjO0CYoeDshdIHWslv4ofA3Vvm']);
+        User::whereNotNull('id')->whereNotIn('school_location_id',$leaveAloneIds)->update(['password' =>'$2y$10$c47zbj2wJschPIq.rWPMAuOJyV4jjO0CYoeDshdIHWslv4ofA3Vvm']);
         $this->comment('done');
 
         return 0;
