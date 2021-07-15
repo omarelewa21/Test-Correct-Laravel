@@ -66,7 +66,7 @@ class EntreeHelper
             // uitzoeken 1 locatie aanwezig dan setten
             $locations = SchoolLocation::where('external_main_code', $external_main_code)->get();
             if ($locations->count() === 1) {
-                $this->schoolLocation = $locations->first();
+                $this->location = $locations->first();
                 return true;
             }
             // indien meerdere met 4 code dan gebruiker zoeken en locatie daarbij zoeken
@@ -165,7 +165,14 @@ class EntreeHelper
         if ($url = $this->redirectIfBrinNotSso()) {
             return $url;
         }
-        $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+
+        if(strtolower($this->getRoleFromAttributes()) == 'teacher'){
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(),$this->location->getKey())->first();
+        } else {
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(),$this->location->getKey())->first();
+        }
+
+//        $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
         if ($this->laravelUser) {
             // return true is hier waarschijnlijk voldoende omdat je dan via scenario 1 wordt ingelogged;
             $this->handleUpdateUserWithSamlAttributes();
