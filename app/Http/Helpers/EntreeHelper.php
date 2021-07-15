@@ -219,7 +219,7 @@ class EntreeHelper
             return true;
         }
 
-        $url = route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+        $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
         return $this->redirectToUrlAndExit($url);
     }
 
