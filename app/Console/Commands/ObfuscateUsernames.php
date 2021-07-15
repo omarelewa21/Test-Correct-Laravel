@@ -24,7 +24,7 @@ class ObfuscateUsernames extends Command
      *
      * @var string
      */
-    protected $signature = 'users:obfuscate {ids}';
+    protected $signature = 'users:obfuscate {ids} {leaveAloneIds}';
 
     /**
      * The console command description.
@@ -58,7 +58,9 @@ class ObfuscateUsernames extends Command
             die('Sorry, but we need the ids to keep out');
         }
 
-        $ids = explode(',',$ids);
+        $leaveAloneIds = $this->argument('leaveAloneIds');
+
+        $leaveAloneIds = explode(',',$leaveAloneIds);
 
 //        $sqlStudents = 'Update users set username = CONCAT("s_",users.id,"@test-correct.nl"),name_first = "s", name=CONCAT(users.id) where users.id IN (select user_id from user_roles where role_id = 3) AND school_location_id not in ()';
 //        $sqlTeachers = 'Update users set username = CONCAT("t_",users.id,"@test-correct.nl"),name_first = "t", name=CONCAT(users.id) where users.id IN (select user_id from user_roles where role_id = 3)';
@@ -104,6 +106,7 @@ class ObfuscateUsernames extends Command
         User::leftJoin('user_roles','users.id','=','user_roles.user_id')
             ->where('user_roles.role_id',3)
             ->whereIn('school_location_id',$ids)
+            ->whereNotIn('school_location_id',$leaveAloneIds)
             ->update([
                 'username' => DB::raw(" CONCAT('s_',users.id,'@test-correct.nl') "),
                 'name_first' => DB::raw(" CONCAT('OUD ',users.name_first) "),
@@ -116,6 +119,7 @@ class ObfuscateUsernames extends Command
         User::leftJoin('user_roles','users.id','=','user_roles.user_id')
             ->where('user_roles.role_id',1)
             ->whereIn('school_location_id',$ids)
+            ->whereNotIn('school_location_id',$leaveAloneIds)
             ->update([
                 'username' => DB::raw(" CONCAT('t_',users.id,'@test-correct.nl') "),
                 'name_first' => DB::raw(" CONCAT('OUD ',users.name_first) "),
@@ -124,7 +128,7 @@ class ObfuscateUsernames extends Command
         $this->comment('done');
 
         $this->info('update all passwords');
-        User::whereNotNull('id')->update(['password' =>'$2y$10$c47zbj2wJschPIq.rWPMAuOJyV4jjO0CYoeDshdIHWslv4ofA3Vvm']);
+        User::whereNotNull('id')->whereNotIn('school_location_ids',$leaveAloneIds)->update(['password' =>'$2y$10$c47zbj2wJschPIq.rWPMAuOJyV4jjO0CYoeDshdIHWslv4ofA3Vvm']);
         $this->comment('done');
 
             return 0;
