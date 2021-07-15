@@ -1375,7 +1375,7 @@ class ImportHelper
     public function getUserIdForLocation($external_id, $school_location_id, $eckId = null)
     {
         if ($eckId) {
-            if ($user_id = User::findByEckid($eckId)->value('id')){
+            if ($user_id = User::scopeFindByEckidAndSchoolLocationIdForUser($eckId, $school_location_id)->value('id')){
                 return $user_id;
             }
         }
@@ -1398,8 +1398,26 @@ class ImportHelper
     public function getUserIdForTeacherInLocation($external_id, $school_location_id, $eckId = null)
     {
         if ($eckId) {
-            $this->cache(function() use ($eckId) {
-                return User::findByEckid($eckId)->value('id');
+            $user = $this->cache(function() use ($eckId,$school_location_id) {
+                return User::findByEckidAndSchoolLocationIdForTeacher($eckId,$school_location_id)->value('id');
+            }, 'getUserIdForTeacherInLocationEckId', [$eckId]);
+            if($user){
+                return $user;
+            }
+            return $this->cache(function() use ($eckId,$school_location_id) {
+                $users = User::filterByEckId($eckId)->get();
+                if($users->count() < 1){
+                    return null;
+                }
+                $schoolLocation = SchoolLocation::find($school_location_id);
+                $user = $users->first(function(User $user) use ($schoolLocation){
+                    return optional($user->schoolLocation)->belongsToSameSchool($schoolLocation);
+                });
+                if($user){
+                    // this teacher belongs to the same school, so therefor it should be added to the school_location_user table
+                    $user->addSchoolLocation($schoolLocation);
+                    return $user->getKey();
+                }
             }, 'getUserIdForTeacherInLocationEckId', [$eckId]);
         }
         if ($external_id) {
