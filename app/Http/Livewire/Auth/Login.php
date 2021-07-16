@@ -108,7 +108,7 @@ class Login extends Component
             return;
         }
 
-        if(EntreeHelper::shouldPromptForEntree(auth()->user())) {
+        if((Auth()->user()->isA('teacher') || Auth()->user()->isA('student')) && EntreeHelper::shouldPromptForEntree(auth()->user())) {
             auth()->logout();
             return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
