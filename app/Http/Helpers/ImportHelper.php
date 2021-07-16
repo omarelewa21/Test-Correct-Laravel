@@ -1205,6 +1205,7 @@ class ImportHelper
 
         if ($this->can_find_teacher_only_by_class_id && $teacher != null) {
             $teacher->restore();
+            $this->addToTeachersPerClass($teacher['user_id'], $teacher->subject_id, $teacher_data['class_id']);
 
             return $teacher;
         } else {
