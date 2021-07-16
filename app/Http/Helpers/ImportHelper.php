@@ -1378,7 +1378,7 @@ class ImportHelper
     public function getUserIdForLocation($external_id, $school_location_id, $eckId = null)
     {
         if ($eckId) {
-            if ($user_id = User::scopeFindByEckidAndSchoolLocationIdForUser($eckId, $school_location_id)->value('id')){
+            if ($user_id = User::findByEckidAndSchoolLocationIdForUser($eckId, $school_location_id)->value('id')){
                 return $user_id;
             }
         }
