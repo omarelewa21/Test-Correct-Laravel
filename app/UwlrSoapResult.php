@@ -130,15 +130,16 @@ class UwlrSoapResult extends Model
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerkracht');
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerling');
 
-//        if(!BaseHelper::notOnLocal()) { // only if on local
-//            $export = new UwlrExport($this->csvArray);
-//            $fileName = sprintf('uwlr-export-%s-%s.xlsx',$this->getKey(),date('Ymd'));
-//            $file = storage_path($fileName);
-//            if (file_exists($file)) {
-//                unlink($file);
-//            }
-//            Excel::store($export,$fileName);
-//        }
+        if(!BaseHelper::notOnLocal()) { // only if on local
+            $export = new UwlrExport($this->csvArray);
+            $fileName = sprintf('uwlr-export-%s-%s.xlsx',$this->getKey(),date('Ymd'));
+            $file = storage_path($fileName);
+            if (file_exists($file)) {
+                unlink($file);
+            }
+            Excel::store($export,$fileName);
+            exit;
+        }
 
         unset($repo);
         unset($students);
@@ -610,10 +611,11 @@ class UwlrSoapResult extends Model
         if (!array_key_exists('key', $arr)) {
             return '';
         }
+
         // remove medewerker from leftside if appropriate;
         $stamnummer = Str::of($arr['key'])->lower()->ltrim('medewerker')->__toString();
 
-        if ($stamnummer > 30) {
+        if (strlen($stamnummer) > 30) {
             return '';
         }
 
