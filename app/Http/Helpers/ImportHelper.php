@@ -1212,13 +1212,15 @@ class ImportHelper
                 $teacher = null;
                 // try to find old teacher records by class name
                 $oldSchoolClass = $this->getOldSchoolClassByNameOptionalyLeaveCurrentOut($schoolLocationId,$className,$teacher_data['class_id']);
-                Teacher::where('user_id',$teacher_data['user_id'])->where('class_id',$oldSchoolClass->getKey())->get()->each(function(Teacher $t) use (&$teacher, $teacher_data) {
-                    $teacher_data['subject_id'] = $t->subject_id;
-                    $teacher = Teacher::Create($teacher_data);
-                    $this->addToTeachersPerClass($teacher_data['user_id'],$t->subject_id,$teacher_data['class_id']);
-                });
-                if($teacher){
-                    return $teacher;
+                if($oldSchoolClass) {
+                    Teacher::where('user_id', $teacher_data['user_id'])->where('class_id', $oldSchoolClass->getKey())->get()->each(function (Teacher $t) use (&$teacher, $teacher_data) {
+                        $teacher_data['subject_id'] = $t->subject_id;
+                        $teacher = Teacher::Create($teacher_data);
+                        $this->addToTeachersPerClass($teacher_data['user_id'], $t->subject_id, $teacher_data['class_id']);
+                    });
+                    if ($teacher) {
+                        return $teacher;
+                    }
                 }
             }
             return Teacher::Create($teacher_data);
