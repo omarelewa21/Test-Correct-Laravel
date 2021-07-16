@@ -130,16 +130,16 @@ class UwlrSoapResult extends Model
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerkracht');
         $this->checkSamengesteldeGroepenForWithLabel($repo, 'leerling');
 
-        if(!BaseHelper::notOnLocal()) { // only if on local
-            $export = new UwlrExport($this->csvArray);
-            $fileName = sprintf('uwlr-export-%s-%s.xlsx',$this->getKey(),date('Ymd'));
-            $file = storage_path($fileName);
-            if (file_exists($file)) {
-                unlink($file);
-            }
-            Excel::store($export,$fileName);
-            exit;
-        }
+//        if(!BaseHelper::notOnLocal()) { // only if on local
+//            $export = new UwlrExport($this->csvArray);
+//            $fileName = sprintf('uwlr-export-%s-%s.xlsx',$this->getKey(),date('Ymd'));
+//            $file = storage_path($fileName);
+//            if (file_exists($file)) {
+//                unlink($file);
+//            }
+//            Excel::store($export,$fileName);
+//            exit;
+//        }
 
         unset($repo);
         unset($students);

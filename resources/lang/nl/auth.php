@@ -65,7 +65,7 @@ return [
     'student_account_not_found_in_this_location'        => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Kies de juiste schoollocatie',
     'email_already_in_use_in_different_school_location' => 'Je bent in Test-Correct niet gekoppeld aan de gekozen schoollocatie. Kies de juiste schoollocatie',
     'error_while_syncing_please_contact_helpdesk'       => 'Er is een fout opgetreden tijdens het synchroniseren van uw accountgegevens vanuit Entree, neem contact op met de helpdesk',
-    'should_first_login_using_entree'                   => 'Je moet eerst inloggen op Entree',
+    'should_first_login_using_entree'                   => 'Je gegevens zijn nog niet compleet. Log de eerste keer in via Entree',
     'no_saml_message_found'                             => 'Er is een fout opgetreden, log eerst in met Entree (geen saml bericht gedetecteerd)',
     'eck_id_already_set_for_user'                       => 'Er is iets fout gegaan, het account waarmee u probeert te koppelen is reeds gekoppeld, neem contact op met de helpdesk.',
     'saml_message_to_old'                               => 'U heeft te veel tijd genomen om uw account te koppelen, het verzoek is reeds verlopen',

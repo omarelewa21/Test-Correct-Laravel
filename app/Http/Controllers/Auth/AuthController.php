@@ -47,16 +47,17 @@ class AuthController extends Controller
 
         if ($this->auth->once(['username' => $user, 'password' => $password])) {
             $user = $this->auth->user();
-            if(EntreeHelper::shouldPromptForEntree($user)){
-                return \Response::make("NEEDS_LOGIN_ENTREE",403);
-            }
-                
+
             $user->setAttribute('session_hash', $user->generateSessionHash());
             if((bool) $user->demo === true){
                 $user->demoRestrictionOverrule = true;
             }
             $user->save();
             $user->load('roles');
+
+            if(($user->isA('teacher') || $user->isA('student')) && EntreeHelper::shouldPromptForEntree($user)){
+                return \Response::make("NEEDS_LOGIN_ENTREE",403);
+            }
 
             $hidden = $user->getHidden();
 
