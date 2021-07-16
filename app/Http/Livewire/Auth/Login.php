@@ -107,6 +107,7 @@ class Login extends Component
             $this->addError('invalid_user', __('auth.failed'));
             return;
         }
+
         if(EntreeHelper::shouldPromptForEntree(auth()->user())) {
             auth()->logout();
             return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
