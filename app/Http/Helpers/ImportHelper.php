@@ -1127,7 +1127,8 @@ class ImportHelper
                 $restored = true;
             }
 
-            foreach(['eckid','name_first','name'] as $key){
+            // added suffix on request of Carlo on 2021-07-16
+            foreach(['eckid','name_first','name_suffix','name'] as $key){
                 $user->$key = $user_data[$key];
             }
             if(!$restored && $user->isDirty() && $forRole === 'student'){
