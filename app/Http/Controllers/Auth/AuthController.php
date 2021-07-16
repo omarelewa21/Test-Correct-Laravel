@@ -59,7 +59,6 @@ class AuthController extends Controller
                 return \Response::make("NEEDS_LOGIN_ENTREE",403);
             }
 
-
             $hidden = $user->getHidden();
 
             if (($key = array_search('api_key', $hidden)) !== false) {
