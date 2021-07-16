@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use tcCore\FailedLogin;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Lib\User\Roles;
 use tcCore\LoginLog;
 use tcCore\User;
@@ -46,6 +47,10 @@ class AuthController extends Controller
 
         if ($this->auth->once(['username' => $user, 'password' => $password])) {
             $user = $this->auth->user();
+            if(EntreeHelper::shouldPromptForEntree($user)){
+                return \Response::make("NEEDS_LOGIN_ENTREE",403);
+            }
+                
             $user->setAttribute('session_hash', $user->generateSessionHash());
             if((bool) $user->demo === true){
                 $user->demoRestrictionOverrule = true;
