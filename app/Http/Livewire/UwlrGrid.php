@@ -9,6 +9,7 @@ use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Jobs\ProcessUwlrSoapResultJob;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationSection;
 use tcCore\User;
 use tcCore\UwlrSoapEntry;
 use tcCore\UwlrSoapResult;
@@ -75,6 +76,24 @@ class UwlrGrid extends Component
 
     public function processResult($id)
     {
+        $resultSet = UwlrSoapResult::find($id);
+        $schoolLocation = SchoolLocation::where('external_main_code',$resultSet->brin_code)->where('external_sub_code',$resultSet->dependance_code)->first();
+        if(!$schoolLocation){
+            session(['error' => 'Geen schoollocatie gevonden']);
+            return false;
+        }
+        session(['error'=>null]);
+
+        $sectionFound = $schoolLocation->schoolLocationSections->first(function(SchoolLocationSection $sls){
+            return $sls->section->name === ImportHelper::DUMMY_SECTION_NAME;
+        });
+
+        if(!$sectionFound){
+            session(['error' => 'Geen LVS sectie gevonden. Maak eerst een sectie aan met de naam `'.ImportHelper::DUMMY_SECTION_NAME.'` om verder te kunnen gaan']);
+            return false;
+        }
+        session(['error'=>null]);
+
         set_time_limit(0);
         $this->processingResultId = $id;
         $this->showProcessResultModal = true;
