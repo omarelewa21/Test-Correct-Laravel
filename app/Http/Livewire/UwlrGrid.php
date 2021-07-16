@@ -85,7 +85,7 @@ class UwlrGrid extends Component
         session(['error'=>null]);
 
         $sectionFound = $schoolLocation->schoolLocationSections->first(function(SchoolLocationSection $sls){
-            return $sls->section->name === ImportHelper::DUMMY_SECTION_NAME;
+            return optional($sls->section)->name === ImportHelper::DUMMY_SECTION_NAME;
         });
 
         if(!$sectionFound){
