@@ -200,7 +200,7 @@ class EntreeHelper
     public function redirectIfNoUserWasFoundForEckId()
     {
         $this->validateAttributes();
-        $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+        $this->setLaravelUser();
 
         if ($this->laravelUser) {
             return true;
@@ -218,7 +218,7 @@ class EntreeHelper
             $this->setLocationWithSamlAttributes();
         }
         if (null == $this->laravelUser) {
-            $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+            $this->setLaravelUser();
         }
         if ($this->location && $this->location->is(optional($this->laravelUser)->schoolLocation)) {
             return true;
@@ -234,7 +234,7 @@ class EntreeHelper
         $this->validateAttributes();
 
         if (null == $this->laravelUser) {
-            $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+            $this->setLaravelUser();
         }
         if ($this->laravelUser->isA($this->getRoleFromAttributes())) {
             return true;
@@ -249,7 +249,7 @@ class EntreeHelper
         $this->validateAttributes();
 
         if (null == $this->laravelUser) {
-            $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+            $this->setLaravelUser();
         }
 
         $this->handleUpdateUserWithSamlAttributes();
@@ -263,7 +263,7 @@ class EntreeHelper
         $this->validateAttributes();
 
         if (null == $this->laravelUser) {
-            $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
+            $this->setLaravelUser();
         }
 
         $otherUserWithEmailAddress = User::where('username', $this->getEmailFromAttributes())
@@ -389,6 +389,15 @@ class EntreeHelper
         }
         header("Location: $url");
         exit;
+    }
+
+    public function setLaravelUser(): void
+    {
+        if(strtolower($this->getRoleFromAttributes()) == 'teacher'){
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(),$this->location->getKey())->first();
+        } else {
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(),$this->location->getKey())->first();
+        }
     }
 
 
