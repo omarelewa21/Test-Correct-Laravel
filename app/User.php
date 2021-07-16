@@ -409,7 +409,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query->select('users.*')->where('id', $user_id);
     }
 
-    public function scopeFilteryEckid($query, $eckid)
+    public function scopeFilterByEckid($query, $eckid)
     {
         $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
 
