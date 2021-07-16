@@ -135,6 +135,8 @@ class ImportHelper
 
     private $cacheHit = 0;
 
+    protected $teachersPerClass = [];
+
 
     /**
      *
@@ -234,7 +236,6 @@ class ImportHelper
 
         // Temporary datastore
         $studentsPerClass = [];
-        $teachersPerClass = [];
         $classTeacherCheck = [];
         $classMentorCheck = [];
         $yearCheck = [];
@@ -563,7 +564,7 @@ class ImportHelper
                                 'user_id'    => $user->id,
                                 'class_id'   => $school_class_id,
                                 'subject_id' => $subject_id
-                            ]);
+                            ], $school_location_id, $class_name);
 
                             $this->create_tally['teachers']++;
 
@@ -594,7 +595,7 @@ class ImportHelper
                                     'user_id'    => $user_id,
                                     'class_id'   => $school_class_id,
                                     'subject_id' => $subject_id
-                                ]);
+                                ], $school_location_id,$class_name);
 
                                 $this->create_tally['teachers']++;
 
@@ -620,23 +621,12 @@ class ImportHelper
                         }
                     }
 
-                    if (isset($teachersPerClass[$teacher_id])) {
-                        if (!in_array(['subject_id' => $subject_id, 'class_id' => $school_class_id],
-                            $teachersPerClass[$teacher_id])) {
-                            $teachersPerClass[$teacher_id][] = [
-                                'subject_id' => $subject_id, 'class_id' => $school_class_id
-                            ];
-                        }
-                    } else {
-                        $teachersPerClass[$teacher_id][] = [
-                            'subject_id' => $subject_id, 'class_id' => $school_class_id
-                        ];
-                    }
+                    $this->addToTeachersPerClass($teacher_id,$subject_id,$school_class_id);
 
                     // collect teacher class combinations
                     $classTeacherCheck[$teacher_id] = $school_class_id;
 
-                    foreach ($teachersPerClass as $teacher_id => $class_subjects) {
+                    foreach ($this->teachersPerClass as $teacher_id => $class_subjects) {
                         foreach ($class_subjects as $class_subject_tuple) {
                             $this->importLog('Assigned teacher '.$teacher_id.' where class '.$class_subject_tuple['class_id'].' and subject '.$class_subject_tuple['subject_id']);
                         }
@@ -690,7 +680,7 @@ class ImportHelper
 
                         $teachers_per_class_subject = [];
 
-                        foreach ($teachersPerClass as $teacher_id => $class_subjects) {
+                        foreach ($this->teachersPerClass as $teacher_id => $class_subjects) {
                             foreach ($class_subjects as $class_subject_tuple) {
                                 $class_subjects_combined[$class_subject_tuple['class_id']][] = $class_subject_tuple['subject_id'];
                                 $teachers_per_class_subject[$class_subject_tuple['class_id']][$class_subject_tuple['subject_id']][] = $teacher_id;
@@ -796,6 +786,22 @@ class ImportHelper
                 $this->deleteTally()
             )
         ];
+    }
+
+    // $teacher_id is actually user_id;
+    protected function addToTeachersPerClass($teacher_id,$subject_id,$school_class_id)
+    {
+        if (isset($this->teachersPerClass[$teacher_id])) {
+            if (!in_array(['subject_id' => $subject_id, 'class_id' => $school_class_id], $this->teachersPerClass[$teacher_id])) {
+                $this->teachersPerClass[$teacher_id][] = [
+                    'subject_id' => $subject_id, 'class_id' => $school_class_id
+                ];
+            }
+        } else {
+            $this->teachersPerClass[$teacher_id][] = [
+                'subject_id' => $subject_id, 'class_id' => $school_class_id
+            ];
+        }
     }
 
     private function createTally()
@@ -1174,7 +1180,7 @@ class ImportHelper
      * @param  type  $teacher_data
      * @return type
      */
-    public function createOrRestoreTeacher($teacher_data)
+    public function createOrRestoreTeacher($teacher_data, $schoolLocationId,$className)
     {
         $class_id = $teacher_data['class_id'];
         $user_id = $teacher_data['user_id'];
@@ -1205,6 +1211,19 @@ class ImportHelper
 
             return $teacher;
         } else {
+            if($this->can_find_school_class_only_by_name && $this->isDummySubject($subject_id)){
+                $teacher = null;
+                // try to find old teacher records by class name
+                $oldSchoolClass = $this->getOldSchoolClassByNameOptionalyLeaveCurrentOut($schoolLocationId,$className,$teacher_data['class_id']);
+                Teacher::where('user_id',$teacher_data['user_id'])->where('class_id',$oldSchoolClass->getKey())->get()->each(function(Teacher $t) use (&$teacher, $teacher_data) {
+                    $teacher_data['subject_id'] = $t->subject_id;
+                    $teacher = Teacher::Create($teacher_data);
+                    $this->addToTeachersPerClass($teacher_data['user_id'],$t->subject_id,$teacher_data['class_id']);
+                });
+                if($teacher){
+                    return $teacher;
+                }
+            }
             return Teacher::Create($teacher_data);
         }
     }
@@ -1268,12 +1287,7 @@ class ImportHelper
 
 
         if ($schoolClass === null) {
-            $oldSchoolClass = SchoolClass::withoutGlobalScope('visibleOnly')
-                ->withTrashed()
-                ->where('school_location_id', $data['school_location_id'])
-                ->where('name', $data['name'])
-                ->orderBy('created_at', 'desc')
-                ->first();
+            $oldSchoolClass = $this->getOldSchoolClassByNameOptionalyLeaveCurrentOut($data['school_location_id'],$data['name']);
 
             if ($oldSchoolClass) {
                 $data['education_level_id'] = $oldSchoolClass->education_level_id;
@@ -1288,8 +1302,20 @@ class ImportHelper
         return $schoolClass->getKey();
     }
 
-    /**
-     *
+    protected function getOldSchoolClassByNameOptionalyLeaveCurrentOut($schooLlocationId, $name, $currentId = null)
+    {
+        $builder = SchoolClass::withoutGlobalScope('visibleOnly')
+            ->withTrashed()
+            ->where('school_location_id', $schooLlocationId)
+            ->where('name', $name)
+            ->orderBy('created_at', 'desc');
+        if($currentId){
+            $builder->where('id','<>',$currentId);
+        }
+        return $builder->first();
+    }
+
+     /**
      * @param  type  $abbreviation
      * @param  type  $school_location_id
      * @return type
@@ -1337,6 +1363,12 @@ class ImportHelper
         }
 
         return null;
+    }
+
+    protected function isDummySubject($subjectId)
+    {
+        $subject = Subject::find($subjectId);
+        return optional($subject)->abbreviation === 'IMP';
     }
 
     /**

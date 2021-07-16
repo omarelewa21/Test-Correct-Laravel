@@ -773,6 +773,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //              }
             }
 
+            $user->removeEckId();
+
             if ($user->forceDeleting) {
                 $original = $user->getOriginalProfileImagePath();
                 if (File::exists($original)) {
