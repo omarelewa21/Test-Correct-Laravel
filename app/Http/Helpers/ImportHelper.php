@@ -536,7 +536,7 @@ class ImportHelper
                             $user = $user_collection->first();
                         }
                         if ($user == null && $teacher_eckid) {
-                            $user = User::findByEckId($teacher_eckid)->first();
+                            $user = User::findByEckIdAndSchoolLocationIdForTeacher($teacher_eckid, $school_location_id)->first();
                         }
 
                         if ($user === null) {
@@ -1095,7 +1095,11 @@ class ImportHelper
         $user = null;
 
         if (!empty($user_data['eckid'])) {
-            $user = User::withTrashed()->findByEckid($user_data['eckid'])->first();
+            if(strtolower($forRole) === 'teacher'){
+                $user = User::withTrashed()->findByEckidAndSchoolLocationIdForTeacher($user_data['eckid'],$user_data['school_location_id'])->first();
+            } else {
+                $user = User::withTrashed()->findByEckidAndSchoolLocationIdForUser($user_data['eckid'], $user_data['school_location_id'])->first();
+            }
         }
 
         if ($user == null && $user_data['external_id']) {
@@ -1114,7 +1118,7 @@ class ImportHelper
                 $restored = true;
             }
 
-            foreach(['eckid','name_first','name_suffix','name'] as $key){
+            foreach(['eckid','name_first','name'] as $key){
                 $user->$key = $user_data[$key];
             }
             if(!$restored && $user->isDirty() && $forRole === 'student'){
