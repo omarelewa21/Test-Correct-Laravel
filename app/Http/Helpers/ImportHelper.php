@@ -1268,8 +1268,6 @@ class ImportHelper
 
         if ($schoolClass) {
             $schoolClass->restore();
-            $schoolClass->visible = $this->make_school_classes_visible;
-            $schoolClass->save();
 
             return $schoolClass->getKey();
         }
