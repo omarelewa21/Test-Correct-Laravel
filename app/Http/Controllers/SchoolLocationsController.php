@@ -129,4 +129,9 @@ class SchoolLocationsController extends Controller {
             200
         );
     }
+    public function getLvsType($schoolLocationId)
+    {
+        $lvsType = [SchoolLocation::whereUuid($schoolLocationId)->value('lvs_type')];
+        return Response::make($lvsType, 200);
+    }
 }
