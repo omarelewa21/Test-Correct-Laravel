@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Auth\Authenticatable;
@@ -2209,32 +2210,35 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $tRecord->delete();
                 } else {
                     // search for old class with same name and attach subject id
-                    $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->class->name, $tRecord->class_id);
-                    if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
-                        if (!array_key_exists($oldSchoolClass->getKey(), $oldClassesSubjectsDone)) {
-                            $oldClassesSubjectsDone[$oldSchoolClass->getKey()] =
-                                [
-                                    'subjects' => $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
-                                        return $r->class->name === $oldSchoolClass->name;
-                                    })->map(function ($r) {
-                                        return $r->subject_id;
-                                    }),
-                                    'done' => []
-                                ];
+                    try {
+                        $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->class->name, $tRecord->class_id);
+                        if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
+                            if (!array_key_exists($oldSchoolClass->getKey(), $oldClassesSubjectsDone)) {
+                                $oldClassesSubjectsDone[$oldSchoolClass->getKey()] =
+                                    [
+                                        'subjects' => $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
+                                            return $r->class->name === $oldSchoolClass->name;
+                                        })->map(function ($r) {
+                                            return $r->subject_id;
+                                        }),
+                                        'done' => []
+                                    ];
+                            }
+                            $found = false;
+                            if (count($oldClassesSubjectsDone['subjects'])) {
+                                $found = true;
+                                $tRecord->subject_id = array_pop($oldClassesSubjectsDone['subjects']);
+                            } else if (count($oldClassesSubjectsDone['done'])) {
+                                $found = true;
+                                $tRecord->subject_id = $oldClassesSubjectsDone['done'][0];
+                            }
+                            if ($found && !in_array($tRecord->subject_id, $oldClassesSubjectsDone['done'])) {
+                                $oldClassesSubjectsDone['done'][] = $tRecord->subject_id;
+                            }
                         }
-                        $found = false;
-                        if(count($oldClassesSubjectsDone['subjects'])) {
-                            $found = true;
-                            $tRecord->subject_id = array_pop($oldClassesSubjectsDone['subjects']);
-                        } else if(count($oldClassesSubjectsDone['done'])) {
-                            $found = true;
-                            $tRecord->subject_id = $oldClassesSubjectsDone['done'][0];
-                        }
-                        if($found && !in_array($tRecord->subject_id, $oldClassesSubjectsDone['done'])){
-                            $oldClassesSubjectsDone['done'][] = $tRecord->subject_id;
-                        }
+                    } catch (\Throwable $th) {
+                        Bugsnag::notifyException($th);
                     }
-
                     $this->teacher()->save($tRecord);
                 }
             });
