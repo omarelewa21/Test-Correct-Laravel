@@ -2199,7 +2199,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         if ($user->isA('teacher') && $this->isA('teacher')) {
             $oldTeacherRecords = $this->teacher()->withTrashed()->get();
-            $oldClassesSubjectsDone = [];
             $user->teacher->each(function ($tRecord) use ($oldTeacherRecords, &$oldClassesSubjectsDone) {
                 if ($myRecord = $oldTeacherRecords->first(function ($oldRecord) use ($tRecord) {
                     return $tRecord->class_id == $oldRecord->class_id && $tRecord->subject_id == $oldRecord->subject_id;
@@ -2210,44 +2209,37 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $tRecord->delete();
                 } else {
                     // search for old class with same name and attach subject id
+                    $done = false;
                     try {
                         $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->class->name, $tRecord->class_id);
                         logger('oldschoolclass');
                         logger(' found id'.optional($oldSchoolClass)->getKey());
                         if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
                             logger('is found and has dummy subject');
-                            if (!array_key_exists($oldSchoolClass->getKey(), $oldClassesSubjectsDone)) {
-                                $oldClassesSubjectsDone[$oldSchoolClass->getKey()] =
-                                    [
-                                        'subjects' => $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
-                                            return $r->class->name === $oldSchoolClass->name;
-                                        })->map(function ($r) {
-                                            return $r->subject_id;
-                                        })->toArray(),
-                                        'done' => []
-                                    ];
-                            }
+
+                            $subjects = $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
+                                        return $r->class->name === $oldSchoolClass->name;
+                                    })->map(function ($r) {
+                                        return $r->subject_id;
+                                    });
+
                             logger('complete list of subjects');
-                            logger($oldClassesSubjectsDone);
-                            $found = false;
-                            if (count($oldClassesSubjectsDone['subjects'])) {
-                                $found = true;
-                                $tRecord->subject_id = array_shift($oldClassesSubjectsDone['subjects']);
-                            } else if (count($oldClassesSubjectsDone['done'])) {
-                                $found = true;
-                                $tRecord->subject_id = $oldClassesSubjectsDone['done'][0];
-                            }
-                            if ($found && !in_array($tRecord->subject_id, $oldClassesSubjectsDone['done'])) {
-                                logger('new subject assigned '.$tRecord->subject_id);
-                                $oldClassesSubjectsDone['done'][] = $tRecord->subject_id;
-                            }else {
-                                logger('sorry not assigned found: '.$found);
-                            }
+                            logger($subjects);
+                            $subjects->each(function($subjectId) use ($tRecord, &$done){
+                                $tRecord->subject_id = $subjectId;
+                                $this->teacher()->save($tRecord);
+                                $done = true;
+                                logger('subject added '.$subjectId);
+                            });
+
                         }
                     } catch (\Throwable $th) {
                         Bugsnag::notifyException($th);
                     }
-                    $this->teacher()->save($tRecord);
+                    if(!$done) {
+                        logger('nothing found so subject stays the same');
+                        $this->teacher()->save($tRecord);
+                    }
                 }
             });
         }
