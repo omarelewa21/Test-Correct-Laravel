@@ -2211,14 +2211,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     // search for old class with same name and attach subject id
                     $done = false;
                     try {
-                        $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->class->name, $tRecord->class_id);
+                        $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->schoolClass->name, $tRecord->class_id);
                         logger('oldschoolclass');
                         logger(' found id'.optional($oldSchoolClass)->getKey());
                         if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
                             logger('is found and has dummy subject');
 
                             $subjects = $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
-                                        return $r->class->name === $oldSchoolClass->name;
+                                        return $r->schoolClass->name === $oldSchoolClass->name;
                                     })->map(function ($r) {
                                         return $r->subject_id;
                                     });
