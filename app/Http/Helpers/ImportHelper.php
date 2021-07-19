@@ -137,7 +137,6 @@ class ImportHelper
 
     protected $teachersPerClass = [];
 
-
     /**
      *
      * @var array counting soft-deleted teachers and classes
@@ -1182,6 +1181,7 @@ class ImportHelper
         $class_id = $teacher_data['class_id'];
         $user_id = $teacher_data['user_id'];
         $subject_id = $teacher_data['subject_id'];
+
         $teacher = $this->cache(
             function() use ($class_id, $user_id, $subject_id) {
                 Teacher::withTrashed()
@@ -1193,7 +1193,6 @@ class ImportHelper
         );
 
         if ($teacher != null) {
-
             $teacher->restore();
 
             return $teacher;
@@ -1367,7 +1366,7 @@ class ImportHelper
 
     protected function isDummySubject($subjectId)
     {
-        $subject = Subject::find($subjectId);
+        $subject = Subject::withTrashed()->find($subjectId);
         return optional($subject)->abbreviation === 'IMP';
     }
 
