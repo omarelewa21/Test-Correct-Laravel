@@ -2227,7 +2227,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                             logger($subjects);
                             $subjects->each(function($subjectId) use ($tRecord, &$done){
                                 $tRecord->subject_id = $subjectId;
-                                $this->teacher()->save($tRecord);
+                                try {
+                                    $this->teacher()->save($tRecord);
+                                } catch (\Throwable $e){
+                                    // could be that the teacher class already exists, then you get a database integrity constraint, that's okay we don't do
+                                    // anything with it
+                                }
                                 $done = true;
                                 logger('subject added '.$subjectId);
                             });
