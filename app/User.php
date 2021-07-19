@@ -2212,7 +2212,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     // search for old class with same name and attach subject id
                     try {
                         $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->class->name, $tRecord->class_id);
+                        logger('oldschoolclass');
+                        logger(' found id'.optional($oldSchoolClass)->getKey());
                         if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
+                            logger('is found and has dummy subject');
                             if (!array_key_exists($oldSchoolClass->getKey(), $oldClassesSubjectsDone)) {
                                 $oldClassesSubjectsDone[$oldSchoolClass->getKey()] =
                                     [
@@ -2220,20 +2223,25 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                                             return $r->class->name === $oldSchoolClass->name;
                                         })->map(function ($r) {
                                             return $r->subject_id;
-                                        }),
+                                        })->toArray(),
                                         'done' => []
                                     ];
                             }
+                            logger('complete list of subjects');
+                            logger($oldClassesSubjectsDone);
                             $found = false;
                             if (count($oldClassesSubjectsDone['subjects'])) {
                                 $found = true;
-                                $tRecord->subject_id = array_pop($oldClassesSubjectsDone['subjects']);
+                                $tRecord->subject_id = array_shift($oldClassesSubjectsDone['subjects']);
                             } else if (count($oldClassesSubjectsDone['done'])) {
                                 $found = true;
                                 $tRecord->subject_id = $oldClassesSubjectsDone['done'][0];
                             }
                             if ($found && !in_array($tRecord->subject_id, $oldClassesSubjectsDone['done'])) {
+                                logger('new subject assigned '.$tRecord->subject_id);
                                 $oldClassesSubjectsDone['done'][] = $tRecord->subject_id;
+                            }else {
+                                logger('sorry not assigned found: '.$found);
                             }
                         }
                     } catch (\Throwable $th) {
