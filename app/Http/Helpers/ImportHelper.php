@@ -1208,10 +1208,10 @@ class ImportHelper
 
             return $teacher;
         } else {
-            if($this->can_find_school_class_only_by_name && $this->isDummySubject($subject_id)){
+            if($this->can_find_school_class_only_by_name && self::isDummySubject($subject_id)){
                 $teacher = null;
                 // try to find old teacher records by class name
-                $oldSchoolClass = $this->getOldSchoolClassByNameOptionalyLeaveCurrentOut($schoolLocationId,$className,$teacher_data['class_id']);
+                $oldSchoolClass = self::getOldSchoolClassByNameOptionalyLeaveCurrentOut($schoolLocationId,$className,$teacher_data['class_id']);
                 if($oldSchoolClass) {
                     Teacher::where('user_id', $teacher_data['user_id'])->where('class_id', $oldSchoolClass->getKey())->get()->each(function (Teacher $t) use (&$teacher, $teacher_data) {
                         $teacher_data['subject_id'] = $t->subject_id;
@@ -1286,7 +1286,7 @@ class ImportHelper
 
 
         if ($schoolClass === null) {
-            $oldSchoolClass = $this->getOldSchoolClassByNameOptionalyLeaveCurrentOut($data['school_location_id'],$data['name']);
+            $oldSchoolClass = self::getOldSchoolClassByNameOptionalyLeaveCurrentOut($data['school_location_id'],$data['name']);
 
             if ($oldSchoolClass) {
                 $data['education_level_id'] = $oldSchoolClass->education_level_id;
@@ -1301,7 +1301,7 @@ class ImportHelper
         return $schoolClass->getKey();
     }
 
-    protected function getOldSchoolClassByNameOptionalyLeaveCurrentOut($schooLlocationId, $name, $currentId = null)
+    public static function getOldSchoolClassByNameOptionalyLeaveCurrentOut($schooLlocationId, $name, $currentId = null)
     {
         $builder = SchoolClass::withoutGlobalScope('visibleOnly')
             ->withTrashed()
@@ -1364,7 +1364,7 @@ class ImportHelper
         return null;
     }
 
-    protected function isDummySubject($subjectId)
+    public static function isDummySubject($subjectId)
     {
         $subject = Subject::withTrashed()->find($subjectId);
         return optional($subject)->abbreviation === 'IMP';
