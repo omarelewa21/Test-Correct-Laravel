@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
@@ -2204,6 +2205,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     }
                     $tRecord->delete();
                 } else {
+                    // search for old class with same name and attach subject id
+                    $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id,$tRecord->class->name,$tRecord->class_id);
+                    if($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)){
+                        $tRecord->subject_id = $oldSchoolClass->subject_id;
+                    }
+
                     $this->teacher()->save($tRecord);
                 }
             });
