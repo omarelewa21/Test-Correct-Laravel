@@ -223,28 +223,30 @@ class UwlrSoapResult extends Model
     private function transformGroep($leerling, $school, $repo): void
     {
         $leerling = (array) $leerling;
-        collect($leerling['groep'])->each(function ($groep) use ($leerling, $school, $repo) {
+        if(array_key_exists('groep',$leerling)) {
+            collect($leerling['groep'])->each(function ($groep) use ($leerling, $school, $repo) {
 
-            $groepKey = $groep;
+                $groepKey = $groep;
 
-            $klas = (array) $repo->get('groep')->first(function ($groep) use ($groepKey) {
-                $groep = (array) $groep;
-                return $groepKey === $groep['key'];
+                $klas = (array)$repo->get('groep')->first(function ($groep) use ($groepKey) {
+                    $groep = (array)$groep;
+                    return $groepKey === $groep['key'];
+                });
+
+                $leerkracht = (array)$repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
+                    $teacher = (array)$teacher;
+                    return array_key_exists('groepen',$teacher) && collect($teacher['groepen'])->contains($groepKey);
+                });
+
+
+                if (!$leerkracht) {
+                    $this->errors[] = sprintf('%s klas bevat geen leerkracht', $klas['naam']);
+                } else {
+                    $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
+                }
+
             });
-
-            $leerkracht = (array) $repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
-                $teacher = (array) $teacher;
-                return collect($teacher['groepen'])->contains($groepKey);
-            });
-
-
-            if (!$leerkracht) {
-                $this->errors[] = sprintf('%s klas bevat geen leerkracht', $klas['naam']);
-            } else {
-                $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
-            }
-
-        });
+        }
     }
 
     /**
@@ -320,21 +322,23 @@ class UwlrSoapResult extends Model
     private function transformGroepForTeacher($leerkracht, $school, $repo): void
     {
         $leerkracht = (array) $leerkracht;
-        collect($leerkracht['groepen'])->each(function ($groep, $type) use ($leerkracht, $school, $repo) {
-            // someToDay has samengestelde_groep inside groepen;
-            if ($type !== 'samengestelde_groep') {
-                $groepKey = $groep;
-                if (is_array($groepKey) || is_object($groepKey)) {
-                    foreach ((array) $groepKey as $sGroep) {
-                        $sGroep = (array) $sGroep;
-                        $key = array_key_exists('key', $sGroep) ? $sGroep['key'] : array_pop($sGroep);
-                        $this->handleGroepForTeacher($repo, $school, $leerkracht, $key);
+        if(array_key_exists('groepen',$leerkracht)) {
+            collect($leerkracht['groepen'])->each(function ($groep, $type) use ($leerkracht, $school, $repo) {
+                // someToDay has samengestelde_groep inside groepen;
+                if ($type !== 'samengestelde_groep') {
+                    $groepKey = $groep;
+                    if (is_array($groepKey) || is_object($groepKey)) {
+                        foreach ((array)$groepKey as $sGroep) {
+                            $sGroep = (array)$sGroep;
+                            $key = array_key_exists('key', $sGroep) ? $sGroep['key'] : array_pop($sGroep);
+                            $this->handleGroepForTeacher($repo, $school, $leerkracht, $key);
+                        }
+                    } else {
+                        $this->handleGroepForTeacher($repo, $school, $leerkracht, $groepKey);
                     }
-                } else {
-                    $this->handleGroepForTeacher($repo, $school, $leerkracht, $groepKey);
                 }
-            }
-        });
+            });
+        }
     }
 
     private function handleGroepForTeacher($repo, $school, $leerkracht, $groepKey)
@@ -347,7 +351,7 @@ class UwlrSoapResult extends Model
 
         $leerling = (array) $repo->get('leerling')->first(function ($l) use ($groepKey) {
             $l = (array) $l;
-            return collect($l['groep'])->contains($groepKey);
+            return array_key_exists('groep',$l) && collect($l['groep'])->contains($groepKey);
         });
         if ($leerling) {
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
@@ -381,7 +385,7 @@ class UwlrSoapResult extends Model
                 });
 
                 $leerling = $repo->get('leerling')->first(function ($leerling) use ($groepKey) {
-                    return collect($leerling['samengestelde_groepen'])->contains($groepKey);
+                    return array_key_exists('samengestelde_groepen',$leerling) && collect($leerling['samengestelde_groepen'])->contains($groepKey);
                 });
 
                 if ($leerling) {
@@ -525,18 +529,20 @@ class UwlrSoapResult extends Model
 
                 if ($label == 'leerkracht') {
                     $resultKeys = [];
-                    collect($value['groepen'])->each(function ($groep, $type) use (&$resultKeys) {
-                        if ($type === 'samengestelde_groep') {
-                            $groepKey = $groep;
-                            if (is_array($groepKey) || is_object($groepKey)) {
-                                foreach ((array) $groepKey as $sGroep) {
-                                    $sGroep = (array) $sGroep;
-                                    $resultKeys[] = array_key_exists('key',
-                                        $sGroep) ? $sGroep['key'] : array_pop($sGroep);
+                    if(array_key_exists('groepen',$value)) {
+                        collect($value['groepen'])->each(function ($groep, $type) use (&$resultKeys) {
+                            if ($type === 'samengestelde_groep') {
+                                $groepKey = $groep;
+                                if (is_array($groepKey) || is_object($groepKey)) {
+                                    foreach ((array)$groepKey as $sGroep) {
+                                        $sGroep = (array)$sGroep;
+                                        $resultKeys[] = array_key_exists('key',
+                                            $sGroep) ? $sGroep['key'] : array_pop($sGroep);
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                     return $resultKeys;
                 }
                 // Roan en martin denken dat hier nog een implementatie hoort voor leerling en dat dit voor SomToday zorgt voor
