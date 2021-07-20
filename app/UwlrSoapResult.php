@@ -391,25 +391,27 @@ class UwlrSoapResult extends Model
                 }
             });
         } else {
-            collect($leerkracht['groepen'])->each(function ($groep, $type) use (
-                $leerkracht,
-                $school,
-                $repo
-            ) {
+            if(array_key_exists('groepen',$leerkracht)) {
+                collect($leerkracht['groepen'])->each(function ($groep, $type) use (
+                    $leerkracht,
+                    $school,
+                    $repo
+                ) {
 
-                if ($type === 'samengestelde_groep') {
-                    $groepKey = $groep;
+                    if ($type === 'samengestelde_groep') {
+                        $groepKey = $groep;
 
-                    if (is_array($groepKey) || is_object($groepKey)) {
-                        foreach ((array) $groepKey as $sGroep) {
-                            $sGroep = (array) $sGroep;
-                            $key = array_key_exists('key', $sGroep) ? $sGroep['key'] : array_pop($sGroep);
+                        if (is_array($groepKey) || is_object($groepKey)) {
+                            foreach ((array)$groepKey as $sGroep) {
+                                $sGroep = (array)$sGroep;
+                                $key = array_key_exists('key', $sGroep) ? $sGroep['key'] : array_pop($sGroep);
 
-                            $this->handleSamengesteldeGroepForTeacher($repo, $school, $leerkracht, $key);
+                                $this->handleSamengesteldeGroepForTeacher($repo, $school, $leerkracht, $key);
+                            }
                         }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
