@@ -2198,8 +2198,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function transferClassesFromUser(User $user)
     {
         if ($user->isA('teacher') && $this->isA('teacher')) {
-            $oldTeacherRecords = $this->teacher()->withTrashed()->get();
-            $user->teacher->each(function ($tRecord) use ($oldTeacherRecords, &$oldClassesSubjectsDone) {
+            $currentSchoolYear = SchoolYearRepository::getCurrentSchoolYear();
+            $previousSchoolyear = SchoolYearRepository::getPreviousSchoolYear();
+
+            $oldTeacherRecords = $this->teacher()
+                ->withTrashed()
+                ->get()
+                ->filter(function (Teacher $t) use ($previousSchoolyear, $currentSchoolYear) {
+                    return $t->schoolClass->school_year_id == $currentSchoolYear->getKey() || $t->schoolClass->school_year_id == $previousSchoolyear->getKey();
+                });
+            $user->teacher->each(function ($tRecord) use ($oldTeacherRecords, &$oldClassesSubjectsDone, $currentSchoolYear, $previousSchoolyear) {
                 if ($myRecord = $oldTeacherRecords->first(function ($oldRecord) use ($tRecord) {
                     return $tRecord->class_id == $oldRecord->class_id && $tRecord->subject_id == $oldRecord->subject_id;
                 })) {
@@ -2215,32 +2223,33 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
 
                             $subjects = $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
-                                        return $r->schoolClass->name === $oldSchoolClass->name;
-                                    })->map(function ($r) {
-                                        return $r->subject_id;
-                                    })->unique();
+                                return $r->schoolClass->name === $oldSchoolClass->name && !$r->trashed();
+                            })->map(function ($r) {
+                                return $r->subject_id;
+                            })->unique();
 
-                            $subjects->each(function($subjectId) use ($tRecord, &$done){
+                            $subjects->each(function ($subjectId) use ($tRecord, &$done, $currentSchoolYear) {
                                 $tRecord->subject_id = $subjectId;
                                 try {
                                     $record = Teacher::withTrashed()
-                                        ->where('class_id',$tRecord->class_id)
-                                        ->where('user_id',$this->getKey())
-                                        ->where('subject_id',$tRecord->subject_id)
+                                        ->where('class_id', $tRecord->class_id)
+                                        ->where('user_id', $this->getKey())
+                                        ->where('subject_id', $tRecord->subject_id)
+                                        ->orderBy('class_id','desc')
                                         ->first();
-                                    if($record){
-                                        if($record->trashed()){
+                                    if ($record && $record->schoolClass->school_year_id === $currentSchoolYear->getKey()) {
+                                        if ($record->trashed()) {
                                             $record->restore();
                                         }
                                     } else {
                                         Teacher::create([
-                                           'class_id' => $tRecord->class_id,
-                                           'user_id' => $this->getKey(),
-                                           'subject_id' => $tRecord->subject_id
+                                            'class_id' => $tRecord->class_id,
+                                            'user_id' => $this->getKey(),
+                                            'subject_id' => $tRecord->subject_id
                                         ]);
                                     }
                                     $tRecord->delete();
-                                } catch (\Throwable $e){
+                                } catch (\Throwable $e) {
                                     // could be that the teacher class already exists, then you get a database integrity constraint, that's okay we don't do
                                     // anything with it
                                 }
@@ -2251,7 +2260,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     } catch (\Throwable $th) {
                         Bugsnag::notifyException($th);
                     }
-                    if(!$done) {
+                    if (!$done) {
                         $this->teacher()->save($tRecord);
                     }
                 }
@@ -2259,12 +2268,19 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
         if ($user->isA('student') && $this->isA('student')) {
             $user->students->each(function ($student) {
-                $this->students()->save(
-                    Student::create([
-                        'class_id' => $student->class_id,
-                        'user_id' => $this->id,
-                    ])
-                );
+                $record = Student::withTrashed()->where('class_id',$student->class_id)->where('user_id',$this->getKey())->first();
+                if($record){
+                    if($record->trashed()){
+                        $record->restore();
+                    }
+                } else {
+                    $this->students()->save(
+                        Student::create([
+                            'class_id' => $student->class_id,
+                            'user_id' => $this->id,
+                        ])
+                    );
+                }
                 $student->delete();
             });
 //            $this->students()->saveMany($user->students);
