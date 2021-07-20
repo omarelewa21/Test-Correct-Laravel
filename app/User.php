@@ -2205,16 +2205,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         if ($user->isA('teacher') && $this->isA('teacher')) {
             $currentSchoolYear = SchoolYearRepository::getCurrentSchoolYear();
-            $previousSchoolyear = SchoolYearRepository::getPreviousSchoolYear();
+            $previousSchoolYear = SchoolYearRepository::getPreviousSchoolYear();
 
             $oldTeacherRecords = $this->teacher()
                 ->withTrashed()
                 ->get()
-                ->filter(function (Teacher $t) use ($previousSchoolyear, $currentSchoolYear) {
+                ->filter(function (Teacher $t) use ($previousSchoolYear, $currentSchoolYear) {
                     return $t->schoolClass()->withTrashed()->first()->school_year_id == optional($currentSchoolYear)->getKey()
-                        || $t->schoolClass()->withTrashed()->first()->school_year_id == optional($previousSchoolyear)->getKey();
+                        || $t->schoolClass()->withTrashed()->first()->school_year_id == ($previousSchoolYear)->getKey();
                 });
-            $user->teacher->each(function ($tRecord) use ($oldTeacherRecords, &$oldClassesSubjectsDone, $currentSchoolYear, $previousSchoolyear) {
+            $user->teacher->each(function ($tRecord) use ($oldTeacherRecords, &$oldClassesSubjectsDone, $currentSchoolYear, $previousSchoolYear) {
                 if ($myRecord = $oldTeacherRecords->first(function ($oldRecord) use ($tRecord) {
                     return $tRecord->class_id == $oldRecord->class_id && $tRecord->subject_id == $oldRecord->subject_id;
                 })) {
