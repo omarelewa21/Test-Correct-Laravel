@@ -2211,7 +2211,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 ->withTrashed()
                 ->get()
                 ->filter(function (Teacher $t) use ($previousSchoolyear, $currentSchoolYear) {
-                    return $t->schoolClass()->withTrashed()->first()->school_year_id == $currentSchoolYear->getKey() || $t->schoolClass()->withTrashed()->first()->school_year_id == $previousSchoolyear->getKey();
+                    return $t->schoolClass()->withTrashed()->first()->school_year_id == optional($currentSchoolYear)->getKey()
+                        || $t->schoolClass()->withTrashed()->first()->school_year_id == optional($previousSchoolyear)->getKey();
                 });
             $user->teacher->each(function ($tRecord) use ($oldTeacherRecords, &$oldClassesSubjectsDone, $currentSchoolYear, $previousSchoolyear) {
                 if ($myRecord = $oldTeacherRecords->first(function ($oldRecord) use ($tRecord) {
