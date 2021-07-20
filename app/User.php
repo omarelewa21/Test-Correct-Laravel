@@ -2211,7 +2211,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 ->withTrashed()
                 ->get()
                 ->filter(function (Teacher $t) use ($previousSchoolyear, $currentSchoolYear) {
-                    return $t->schoolClass->school_year_id == $currentSchoolYear->getKey() || $t->schoolClass->school_year_id == $previousSchoolyear->getKey();
+                    return $t->schoolClass()->withTrashed()->first()->school_year_id == $currentSchoolYear->getKey() || $t->schoolClass()->withTrashed()->first()->school_year_id == $previousSchoolyear->getKey();
                 });
             $user->teacher->each(function ($tRecord) use ($oldTeacherRecords, &$oldClassesSubjectsDone, $currentSchoolYear, $previousSchoolyear) {
                 if ($myRecord = $oldTeacherRecords->first(function ($oldRecord) use ($tRecord) {
@@ -2229,7 +2229,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
 
                             $subjects = $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
-                                return $r->schoolClass->name === $oldSchoolClass->name && !$r->trashed();
+                                return $r->schoolClass()->withTrashed()->first()->name === $oldSchoolClass->name && !$r->trashed();
                             })->map(function ($r) {
                                 return $r->subject_id;
                             })->unique();
@@ -2243,7 +2243,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                                         ->where('subject_id', $tRecord->subject_id)
                                         ->orderBy('class_id','desc')
                                         ->first();
-                                    if ($record && $record->schoolClass->school_year_id === $currentSchoolYear->getKey()) {
+                                    if ($record && $record->schoolClass()->withTrashed()->first()->school_year_id === $currentSchoolYear->getKey()) {
                                         if ($record->trashed()) {
                                             $record->restore();
                                         }
