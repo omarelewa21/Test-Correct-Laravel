@@ -299,7 +299,7 @@ class UwlrSoapResult extends Model
                 }
             }
 
-            return collect($teacher['samengestelde_groepen'])->contains($groepKey);
+            return array_key_exists('samengestelde_groepen',$teacher) && collect($teacher['samengestelde_groepen'])->contains($groepKey);
         });
 
 
