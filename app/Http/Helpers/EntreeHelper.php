@@ -281,7 +281,7 @@ class EntreeHelper
                     return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
                 }
             } elseif ($this->laravelUser->isA('Teacher') && $otherUserWithEmailAddress->isA('Teacher')) {
-                ActingAsHelper::getInstance()->setUser($this->laravelUser);
+                ActingAsHelper::getInstance()->setUser($otherUserWithEmailAddress);
                 if ($this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
                     return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
                 } elseif ($this->laravelUser->inSameKoepelAsUser($otherUserWithEmailAddress)) {
