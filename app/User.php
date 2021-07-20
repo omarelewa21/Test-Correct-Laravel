@@ -2212,10 +2212,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $done = false;
                     try {
                         $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->schoolClass->name, $tRecord->class_id);
-                        logger('oldschoolclass');
-                        logger(' found id'.optional($oldSchoolClass)->getKey());
                         if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
-                            logger('is found and has dummy subject');
 
                             $subjects = $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
                                         return $r->schoolClass->name === $oldSchoolClass->name;
@@ -2223,8 +2220,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                                         return $r->subject_id;
                                     });
 
-                            logger('complete list of subjects');
-                            logger($subjects);
                             $subjects->each(function($subjectId) use ($tRecord, &$done){
                                 $tRecord->subject_id = $subjectId;
                                 try {
@@ -2234,7 +2229,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                                     // anything with it
                                 }
                                 $done = true;
-                                logger('subject added '.$subjectId);
                             });
 
                         }
@@ -2242,7 +2236,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         Bugsnag::notifyException($th);
                     }
                     if(!$done) {
-                        logger('nothing found so subject stays the same');
                         $this->teacher()->save($tRecord);
                     }
                 }
