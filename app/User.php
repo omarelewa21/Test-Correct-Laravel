@@ -2056,6 +2056,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasIncompleteImport($withFinalizedCheck = true)
     {
+        $current = SchoolYearRepository::getCurrentSchoolYear();
         if ($this->isA('teacher')) {
             // does not exist anymore
 //            if ($this->schoolLocation->lvs === false) {
@@ -2073,7 +2074,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         $query->select('id')
                             ->from('subjects')
                             ->where('base_subject_id', $baseSubjectId)
-                            ->where('abbreviation', 'IMP');
+                            ->where('abbreviation', 'IMP')
+                            ->whereNull('subjects.deleted_at');
                     })
                         ->orWhere(function ($query) {
                             $query->whereNull('teacher_import_logs.checked_by_teacher')
@@ -2082,17 +2084,20 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 })
                 ->where('teachers.user_id', $this->getKey())
                 ->where('school_classes.demo', 0)
+                ->where('school_classes.school_year_id',$current->getKey())
 //                ->where('school_classes.visible', 0) // if a class is checked by another teacher, then it might already be visible
                 ->value('cnt');
 
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->withoutGlobalScope('visibleOnly')
-//                ->where('school_classes.visible', 0)
+                ->where('school_classes.visible', 0)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
+                ->where('school_classes.school_year_id',$current->getKey())
                 ->whereIn('school_classes.id', function ($query) {
                     $query->select('class_id')
                         ->from('teachers')
-                        ->where('user_id', $this->getKey());
+                        ->where('user_id', $this->getKey())
+                        ->whereNull('teachers.deleted_at');
                 })
                 ->where(function ($query) use ($withFinalizedCheck) {
                     if ($withFinalizedCheck) {
@@ -2112,6 +2117,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 ->where('school_classes.is_main_school_class', 1)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
+                ->where('school_classes.school_year_id',$current->getKey())
                 ->where(function ($query) {
                     $query->where(function ($q) {
                         $q->whereNull('school_class_import_logs.checked_by_admin')
