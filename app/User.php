@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Auth\Authenticatable;
@@ -2081,12 +2082,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 })
                 ->where('teachers.user_id', $this->getKey())
                 ->where('school_classes.demo', 0)
-                ->where('school_classes.visible', 0)
+//                ->where('school_classes.visible', 0) // if a class is checked by another teacher, then it might already be visible
                 ->value('cnt');
 
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->withoutGlobalScope('visibleOnly')
-                ->where('school_classes.visible', 0)
+//                ->where('school_classes.visible', 0)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->whereIn('school_classes.id', function ($query) {
                     $query->select('class_id')
@@ -2107,7 +2108,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         if ($this->isA('school manager')) {
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')->withoutGlobalScope('visibleOnly')
-                ->where('school_classes.visible', 0)
+//                ->where('school_classes.visible', 0)
                 ->where('school_classes.is_main_school_class', 1)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
@@ -2198,7 +2199,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         if ($user->isA('teacher') && $this->isA('teacher')) {
             $oldTeacherRecords = $this->teacher()->withTrashed()->get();
-            $oldClassesSubjectsDone = [];
             $user->teacher->each(function ($tRecord) use ($oldTeacherRecords, &$oldClassesSubjectsDone) {
                 if ($myRecord = $oldTeacherRecords->first(function ($oldRecord) use ($tRecord) {
                     return $tRecord->class_id == $oldRecord->class_id && $tRecord->subject_id == $oldRecord->subject_id;
@@ -2209,33 +2209,51 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $tRecord->delete();
                 } else {
                     // search for old class with same name and attach subject id
-                    $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->class->name, $tRecord->class_id);
-                    if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
-                        if (!array_key_exists($oldSchoolClass->getKey(), $oldClassesSubjectsDone)) {
-                            $oldClassesSubjectsDone[$oldSchoolClass->getKey()] =
-                                [
-                                    'subjects' => $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
-                                        return $r->class->name === $oldSchoolClass->name;
+                    $done = false;
+                    try {
+                        $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->schoolClass->name, $tRecord->class_id);
+                        if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
+
+                            $subjects = $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
+                                        return $r->schoolClass->name === $oldSchoolClass->name;
                                     })->map(function ($r) {
                                         return $r->subject_id;
-                                    }),
-                                    'done' => []
-                                ];
-                        }
-                        $found = false;
-                        if(count($oldClassesSubjectsDone['subjects'])) {
-                            $found = true;
-                            $tRecord->subject_id = array_pop($oldClassesSubjectsDone['subjects']);
-                        } else if(count($oldClassesSubjectsDone['done'])) {
-                            $found = true;
-                            $tRecord->subject_id = $oldClassesSubjectsDone['done'][0];
-                        }
-                        if($found && !in_array($tRecord->subject_id, $oldClassesSubjectsDone['done'])){
-                            $oldClassesSubjectsDone['done'][] = $tRecord->subject_id;
-                        }
-                    }
+                                    })->unique();
 
-                    $this->teacher()->save($tRecord);
+                            $subjects->each(function($subjectId) use ($tRecord, &$done){
+                                $tRecord->subject_id = $subjectId;
+                                try {
+                                    $record = Teacher::withTrashed()
+                                        ->where('class_id',$tRecord->class_id)
+                                        ->where('user_id',$this->getKey())
+                                        ->where('subject_id',$tRecord->subject_id)
+                                        ->first();
+                                    if($record){
+                                        if($record->trashed()){
+                                            $record->restore();
+                                        }
+                                    } else {
+                                        Teacher::create([
+                                           'class_id' => $tRecord->class_id,
+                                           'user_id' => $this->getKey(),
+                                           'subject_id' => $tRecord->subject_id
+                                        ]);
+                                    }
+                                    $tRecord->delete();
+                                } catch (\Throwable $e){
+                                    // could be that the teacher class already exists, then you get a database integrity constraint, that's okay we don't do
+                                    // anything with it
+                                }
+                                $done = true;
+                            });
+
+                        }
+                    } catch (\Throwable $th) {
+                        Bugsnag::notifyException($th);
+                    }
+                    if(!$done) {
+                        $this->teacher()->save($tRecord);
+                    }
                 }
             });
         }
