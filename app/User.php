@@ -2218,12 +2218,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                                         return $r->schoolClass->name === $oldSchoolClass->name;
                                     })->map(function ($r) {
                                         return $r->subject_id;
-                                    });
+                                    })->unique();
 
                             $subjects->each(function($subjectId) use ($tRecord, &$done){
                                 $tRecord->subject_id = $subjectId;
                                 try {
-                                    $this->teacher()->save($tRecord);
+                                    $record = Teacher::withTrashed()
+                                        ->where('class_id',$tRecord->class_id)
+                                        ->where('user_id',$this->getKey())
+                                        ->where('subject_id',$tRecord->subject_id)
+                                        ->first();
+                                    if($record){
+                                        if($record->trashed()){
+                                            $record->restore();
+                                        }
+                                    } else {
+                                        Teacher::create([
+                                           'class_id' => $tRecord->class_id,
+                                           'user_id' => $this->getKey(),
+                                           'subject_id' => $tRecord->subject_id
+                                        ]);
+                                    }
+                                    $tRecord->delete();
                                 } catch (\Throwable $e){
                                     // could be that the teacher class already exists, then you get a database integrity constraint, that's okay we don't do
                                     // anything with it
