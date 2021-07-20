@@ -29,6 +29,17 @@ class PeriodRepository
         return $result;
     }
 
+    public static function getPreviousPeriod()
+    {
+        $current = self::getCurrentPeriod();
+        $maxDate = Period::filtered()->max('end_date');
+        return Period::filtered()
+            ->where('start_date', '<=', $maxDate)
+            ->where('end_date', '>=', $maxDate)
+            ->where('id','<>',$current->getKey())
+            ->first();
+    }
+
     public static function getPeriodsOfCurrentOrPreviousSchoolYear()
     {
         $period = static::getCurrentOrPreviousPeriod();
