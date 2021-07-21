@@ -3,15 +3,15 @@ return $settings = array(
     'strict'   => false,
     'debug'    => false,
     // Vul hier de base URL van de applicatie in (voorbeeld: https://example.com)
-    'baseurl'  => 'https://testwelcome.test-correct.nl',
+    'baseurl'  => 'https://welcome.test-correct.nl',
     // Informatie over de te implementeren Service Provider applicatie
     'sp'       => array(
         // Het entityID is de unieke idenitfier van de applicatie (voorbeeld: https://example.com/projectnaam)
-        'entityId'                 => 'https://testwelcome.test-correct.nl/saml2/entree',
+        'entityId'                 => 'https://welcome.test-correct.nl/saml2/entree',
         // Informatie over het endpoint waar Entree Federatie de responses naar toestuurt
         'assertionConsumerService' => array(
             // De URL van het endpoint (voorbeeld: https://example.com/index.php?acs)
-            'url'     => 'https://testwelcome.test-correct.nl/saml2/entree/acs',
+            'url'     => 'https://welcome.test-correct.nl/saml2/entree/acs',
             // SAML protocol binding dat gebruikt wordt om de response te versturen
             'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
         ),
