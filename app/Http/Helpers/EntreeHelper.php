@@ -133,13 +133,13 @@ class EntreeHelper
     {
         if (!array_key_exists('eckId', $this->attr) || !array_key_exists(0, $this->attr['eckId'])) {
             logger('attributes');
-            logger($this->attr);
+            logger(var_export($this->attr,true));
             throw new \Exception('no eckId found in saml request');
         }
 
         if (!array_key_exists('mail', $this->attr) || !array_key_exists(0, $this->attr['mail'])) {
             logger('attributes');
-            logger($this->attr);
+            logger(var_export($this->attr,true));
             throw new \Exception('no mail found in saml request');
         }
     }
