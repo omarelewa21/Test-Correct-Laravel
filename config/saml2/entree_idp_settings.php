@@ -74,13 +74,13 @@ jzwnvGSTRr4zLbXwz+RZmkre'
     // Metadata productie omgeving: https://hub.entree.kennisnet.nl/openaselect/profiles/saml/
     'idp'      => array(
         // De unieke identifier van Entree Federatie
-//        'entityId'            => 'https://aselect.entree.kennisnet.nl/',
-        'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
+        'entityId'            => 'https://aselect.entree.kennisnet.nl/',
+//        'entityId'            => 'https://aselect-s.entree.kennisnet.nl/',
         // Endpoint van Entree Federatie waar de authenticatie requests naar toegestuurd worden
         'singleSignOnService' => array(
             // De URL van het endpoint
-//            'url'     => 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
-            'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
+            'url'     => 'https://aselect.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
+//            'url'     => 'https://aselect-s.entree.kennisnet.nl/openaselect/profiles/saml/sso/web',
             // SAML protocol binding dat gebruikt wordt om de requests naar Entree Federatie te versturen
             'binding' => 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST',
         ),
