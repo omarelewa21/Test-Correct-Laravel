@@ -278,27 +278,9 @@ DwwVN+YKl7O/tLUYRvmTnOed5zpOwX6WELT9Gshmi9T3lVn/p3XnGxxz8RpnrcQbc/MvGjybsRsj
 7uD696761sUpsGnDlWjf6oGIsG8YulDhAf8hZTOlB4Xi3GowtQ42gCKVgE1cgXeDRjkOIgSHhXuF
 N99D5dVbx2vmPcidF8Lqre2S6R7AvpP0vVuh'
     ),
-//            'x509cert' => 'MIID0TCCArmgAwIBAgIEQ8XygzANBgkqhkiG9w0BAQsFADCBmDELMAkGA1UEBhMCTkwxFTATBgNV
-//BAgTDFp1aWQtSG9sbGFuZDETMBEGA1UEBxMKWm9ldGVybWVlcjEcMBoGA1UEChMTU3RpY2h0aW5n
-//IEtlbm5pc25ldDEZMBcGA1UECxMQRW50cmVlIEZlZGVyYXRpZTEkMCIGA1UEAxMbYXNlbGVjdC5l
-//bnRyZWUua2VubmlzbmV0Lm5sMB4XDTE3MDcyNDEzMzM1OVoXDTIyMDkwMTEzMzM1OVowgZgxCzAJ
-//BgNVBAYTAk5MMRUwEwYDVQQIEwxadWlkLUhvbGxhbmQxEzARBgNVBAcTClpvZXRlcm1lZXIxHDAa
-//BgNVBAoTE1N0aWNodGluZyBLZW5uaXNuZXQxGTAXBgNVBAsTEEVudHJlZSBGZWRlcmF0aWUxJDAi
-//BgNVBAMTG2FzZWxlY3QuZW50cmVlLmtlbm5pc25ldC5ubDCCASIwDQYJKoZIhvcNAQEBBQADggEP
-//ADCCAQoCggEBAN4WRmDAKciNyFaoZ/iC3ufN6Yyn0zHO1MeHgoBTqGb6IemAXsZ6mQjcZdkqYnC0
-//s6/vuzEL0f/a9kWKtJZvguDowgTw6/+l9XCVwAXH7eQIE+D0HTCzl/yxdPHPdbAWQf7VIJbfUW6z
-//rNCvAl6EpkAfhVimWSUX9UOsBhoMzbicQ2IWvCt1XTun7kl30AdZQGig8BG8r685dLrIUTX8dtrE
-//HNp4Gg9NUcRjr1gpahBE+5vi7cuapPVfEZm18eJ/JFOmkCMzDxhkoDU7F+7HcjSNGslB3Ku3gE1F
-///1fEvgyDFTRI8M5TDt5x/5xLj4amlPU056jmDjQyMbUlCK4wxSsCAwEAAaMhMB8wHQYDVR0OBBYE
-//FArUr8wsz1HjlcHV2wT9GSXHA9qEMA0GCSqGSIb3DQEBCwUAA4IBAQBWPD8lus6E6q6m+CZzY2m9
-//4oHsjH3pmVtqxHyvz7SupVKcU7kbxS+kBbzhfX3CHmA3F20Du5f2XS72Won3p9Ks2ceo0IuoqpkB
-//w4+IN6M2n8UPf+ULin1URSZQO4nB1aG7cPtdrJ2cv6q0dSi4fo5DADMB+8BibEbDRxHFnTjfleHA
-//swmNx2Tea8k3LoZftch6VakmtxAvS8ooFY88o5LUkFdcwHMvcxXiy9+zTCtSMJqJzV3qD0NK/rq+
-//kgkLoXSP9RrAVO/0AYF8x2MjiwyXMa+eH6ELZvPgdeObT7FfZExx+hZuto5P4BWPIdalMx7Ayxjf
-//U/ywJ8PBYG1sEYYU'),
-        'security' => array(
-            // Alle verzonden en ontvangen berichten moeten gesigned zijn
-            'authnRequestsSigned' => true,
+    'security' => array(
+        // Alle verzonden en ontvangen berichten moeten gesigned zijn
+        'authnRequestsSigned' => true,
 
             // Algorithm that the toolkit will use on signing process. Options:
             // Entree Federatie only uses SHA1 for SAML signing.
