@@ -42,7 +42,7 @@ class EntreeHelper
     protected function transformAttributesIfNeededAndReturn($attr)
     {
         // we may get employee, then we transfer it to teacher
-        if(array_key_exists('eduPersonAffiliation',$attr) && in_array($attr['eduPersonAffiliation'][0],$this->rolesToTransformToTeacher)){
+        if(array_key_exists('eduPersonAffiliation',$attr) && in_array(strotolower($attr['eduPersonAffiliation'][0]),$this->rolesToTransformToTeacher)){
             $attr['eduPersonAffiliation'][0] = 'teacher';
         }
 
@@ -248,7 +248,8 @@ class EntreeHelper
         if (null == $this->laravelUser) {
             $this->setLaravelUser();
         }
-        if ($this->laravelUser->isA($this->getRoleFromAttributes())) {
+
+        if (optional($this->laravelUser)->isA($this->getRoleFromAttributes())) {
             return true;
         }
 
@@ -264,6 +265,11 @@ class EntreeHelper
             $this->setLaravelUser();
         }
 
+        if(null == $this->laravelUser){
+            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+            return $this->redirectToUrlAndExit($url);
+        }
+
         $this->handleUpdateUserWithSamlAttributes();
         $url = $this->laravelUser->getTemporaryCakeLoginUrl();
         return $this->redirectToUrlAndExit($url);
@@ -276,6 +282,11 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->setLaravelUser();
+        }
+
+        if(null == $this->laravelUser){
+            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+            return $this->redirectToUrlAndExit($url);
         }
 
         $otherUserWithEmailAddress = User::where('username', $this->getEmailFromAttributes())
