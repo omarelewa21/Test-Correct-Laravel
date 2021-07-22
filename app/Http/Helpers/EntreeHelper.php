@@ -35,8 +35,18 @@ class EntreeHelper
 
     public function __construct($attr, $messageId)
     {
-        $this->attr = $attr;
+        $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
         $this->messageId = $messageId;
+    }
+
+    protected function transformAttributesIfNeededAndReturn($attr)
+    {
+        // we may get employee, then we transfer it to teacher
+        if(array_key_exists('eduPersonAffiliation',$attr) && in_array($attr['eduPersonAffiliation'][0],$this->rolesToTransformToTeacher)){
+            $attr['eduPersonAffiliation'][0] = 'teacher';
+        }
+
+        return $attr;
     }
 
     public function redirectIfBrinUnknown()
@@ -115,10 +125,6 @@ class EntreeHelper
     {
         if (array_key_exists('eduPersonAffiliation',
                 $this->attr) && $this->attr['eduPersonAffiliation'][0]) {
-            // we may get employee, then we transfer it to teacher
-            if(in_array($this->attr['eduPersonAffiliation'][0],$this->rolesToTransformToTeacher)){
-                $this->attr['eduPersonAffiliation'][0] = 'teacher';
-            }
             return $this->attr['eduPersonAffiliation'][0];
         }
         return null;
