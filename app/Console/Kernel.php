@@ -32,8 +32,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('telescope:prune')->daily();
         $schedule->command('onboarding_wizard_report:update')
             ->dailyAt('06:00');
-        $schedule->call(new AnonymizeUsersAfterTooLongNoLoginJob())
-            ->dailyAt('05:00');
+//        $schedule->call(new AnonymizeUsersAfterTooLongNoLoginJob())
+//            ->dailyAt('05:00');
     }
 
     /**

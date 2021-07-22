@@ -44,33 +44,33 @@ class AnonymizeUsersAfterTooLongNoLoginJob extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $day = Carbon::today()->subDays($this->days);
-
-        User::leftJoinSub(
-                \DB::table('login_logs')
-                    ->select('user_id',\DB::raw('max(login_logs.created_at) as max_created_at'))
-                    ->groupBy('user_id'),
-                'login_logs_alias',
-                function($join){
-                    $join->on('users.id','=','login_logs_alias.user_id');
-                })
-                ->where('username','not like','%test-correct.nl')
-                ->where('username','not like','%testcorrect.nl')
-                ->where(function($q) use ($day){
-                    $q->where(function($query) use ($day) {
-                        $query->whereNull('login_logs_alias.user_id')
-                            ->where('users.created_at', '<', $day);
-                    })
-                   ->orWhere('login_logs_alias.max_created_at','<',$day);
-            })->get()->each(function(User $user){
-               $user->username = sprintf('%s-vervallenivm%ddagengeenlogin@test-correct.nl',$user->getKey(),$this->days);
-               $user->password = '';
-               $user->name_first = sprintf('%d',$this->days);
-               $user->name_suffix = '';
-               $user->name = sprintf('dagen => vervallen');
-               $user->eckid = '';
-               $user->save();
-            });
+//        $day = Carbon::today()->subDays($this->days);
+//
+//        User::leftJoinSub(
+//            \DB::table('login_logs')
+//                ->select('user_id', \DB::raw('max(login_logs.created_at) as max_created_at'))
+//                ->groupBy('user_id'),
+//            'login_logs_alias',
+//            function ($join) {
+//                $join->on('users.id', '=', 'login_logs_alias.user_id');
+//            })
+//            ->where('username', 'not like', '%test-correct.nl')
+//            ->where('username', 'not like', '%testcorrect.nl')
+//            ->where(function ($q) use ($day) {
+//                $q->where(function ($query) use ($day) {
+//                    $query->whereNull('login_logs_alias.user_id')
+//                        ->where('users.created_at', '<', $day);
+//                })
+//                    ->orWhere('login_logs_alias.max_created_at', '<', $day);
+//            })->get()->each(function (User $user) {
+//                $user->username = sprintf('%s-vervallenivm%ddagengeenlogin@test-correct.nl', $user->getKey(), $this->days);
+//                $user->password = '';
+//                $user->name_first = sprintf('%d', $this->days);
+//                $user->name_suffix = '';
+//                $user->name = sprintf('dagen => vervallen');
+//                $user->eckid = '';
+//                $user->save();
+//            });
 
     }
 }
