@@ -253,8 +253,17 @@ class EntreeHelper
             return true;
         }
 
+        $this->addLogRows('redirectIfUserNotHasSameRole');
         $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
         return $this->redirectToUrlAndExit($url);
+    }
+
+    protected function addLogRows($functionName)
+    {
+        logger($functionName);
+        logger('id of laravel user '.optional($this->laravelUser)->getKey());
+        $this->attr['eckId'][0] = substr($this->attr['eckId'][0],-10);
+        logger($this->attr);
     }
 
     public function handleScenario1()
@@ -266,6 +275,7 @@ class EntreeHelper
         }
 
         if(null == $this->laravelUser){
+            $this->addLogRows('handleScenario1');
             $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
             return $this->redirectToUrlAndExit($url);
         }
@@ -285,6 +295,7 @@ class EntreeHelper
         }
 
         if(null == $this->laravelUser){
+            $this->addLogRows('handleScenario2IfAddressIsKnownInOtherAccount');
             $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
             return $this->redirectToUrlAndExit($url);
         }
