@@ -42,7 +42,7 @@ class EntreeHelper
     protected function transformAttributesIfNeededAndReturn($attr)
     {
         // we may get employee, then we transfer it to teacher
-        if(array_key_exists('eduPersonAffiliation',$attr) && in_array(strotolower($attr['eduPersonAffiliation'][0]),$this->rolesToTransformToTeacher)){
+        if(array_key_exists('eduPersonAffiliation',$attr) && in_array(strtolower($attr['eduPersonAffiliation'][0]),$this->rolesToTransformToTeacher)){
             $attr['eduPersonAffiliation'][0] = 'teacher';
         }
 
