@@ -31,6 +31,8 @@ class EntreeHelper
 
     private $brinFourErrorDetected = false;
 
+    protected $rolesToTransformToTeacher = ['employee'];
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $attr;
@@ -113,6 +115,10 @@ class EntreeHelper
     {
         if (array_key_exists('eduPersonAffiliation',
                 $this->attr) && $this->attr['eduPersonAffiliation'][0]) {
+            // we may get employee, then we transfer it to teacher
+            if(in_array($this->attr['eduPersonAffiliation'][0],$this->rolesToTransformToTeacher)){
+                $this->attr['eduPersonAffiliation'][0] = 'teacher';
+            }
             return $this->attr['eduPersonAffiliation'][0];
         }
         return null;
