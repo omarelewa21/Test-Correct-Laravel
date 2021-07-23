@@ -174,10 +174,15 @@ class DemoHelper
         $this->addTeacherToDemoClassIfNeeded($teacher, $schoolClass);
 
         $students->each(function (User $s) use ($schoolClass) {
-            Student::firstOrCreate([
+            $attr = [
                 'user_id' => $s->getKey(),
                 'class_id' => $schoolClass->getKey()
-            ]);
+            ];
+            $student = Student::withTrashed()->firstOrCreate($attr);
+            if($student->trashed()) {
+                $student->restore();
+            }
+
         });
         return $schoolClass;
     }
@@ -223,10 +228,15 @@ class DemoHelper
 
     protected function addDemoEducationlevelToSchoolIfNeeded()
     {
-        return SchoolLocationEducationLevel::firstOrCreate([
+        $attr = [
             'school_location_id' => $this->schoolLocation->getKey(),
             'education_level_id' => $this->getDemoEducationLevel()->getKey()
-        ]);
+        ];
+        $a = SchoolLocationEducationLevel::withTrashed()->firstOrCreate($attr);
+        if($a->trashed()){
+            $a->restore();
+        }
+        return $a;
     }
 
     /** create demo tests and testtakes */
@@ -313,7 +323,7 @@ class DemoHelper
 
     protected function createDemoClassIfNeeded(SchoolYear $schoolYear)
     {
-        return SchoolClass::firstOrCreate([
+        $attr = [
             'school_location_id' => $this->schoolLocation->getKey(),
             'education_level_id' => $this->getDemoEducationLevel()->getKey(),
             'school_year_id' => $schoolYear->getKey(),
@@ -322,7 +332,13 @@ class DemoHelper
             'is_main_school_class' => 0,
             'do_not_overwrite_from_interface' => 1,
             'demo' => 1,
-        ]);
+        ];
+
+        $return = SchoolClass::withTrashed()->firstOrCreate($attr);
+        if($return->trashed()){
+            $return->restore();
+        }
+        return $return;
     }
 
     protected function moveDemoClassToNewSchoolYear(SchoolClass $schoolClass, SchoolYear $schoolYear)
@@ -340,11 +356,16 @@ class DemoHelper
     protected function addTeacherToDemoClassIfNeeded(User $user, SchoolClass $schoolClass)
     {
         $subject = $this->createDemoSubjectIfNeeded();
-        return Teacher::firstOrCreate([
+
+        $return = Teacher::withTrashed()->firstOrCreate([
             'user_id' => $user->getKey(),
             'class_id' => $schoolClass->getKey(),
             'subject_id' => $subject->getKey()
         ]);
+        if($return->trashed()){
+            $return->restore();
+        }
+        return $return;
     }
 
     protected function getTestNameForTeacher(Teacher $teacher = null, User $user = null)
@@ -414,11 +435,14 @@ class DemoHelper
             }
 
             if ($u->nr === '01') {
-                Text2Speech::firstOrCreate(
+                $r = Text2Speech::withTrashed()->firstOrCreate(
                     ['user_id' => $user->getKey()],
                     ['price' => 0.0, 'active' => 1, 'acceptedby' => 0]
                 );
-                Text2SpeechLog::firstOrCreate(
+                if($r->trashed()){
+                    $r->restore();
+                }
+                $r = Text2SpeechLog::firstOrCreate(
                     ['user_id' => $user->getKey()],
                     ['who' => 0, 'action' => 'ACCEPTED']
                 );
@@ -459,24 +483,33 @@ class DemoHelper
         if ($section == null) {
             $section = Section::create(['name' => self::SECTIONNAME, 'demo' => true]);
         }
-        SchoolLocationSection::firstOrCreate([
-            'school_location_id' => $this->schoolLocation->getKey(),
-            'section_id' => $section->getKey()
-        ],
+
+        $s = SchoolLocationSection::withTrashed()->firstOrCreate(
+            [
+                'school_location_id' => $this->schoolLocation->getKey(),
+                'section_id' => $section->getKey()
+            ],
             ['demo' => true,]
         );
+        if($s->trashed()){
+            $s->restore();
+        }
         $this->setSection($section);
         return $section;
     }
 
     protected function getDemoEducationLevel()
     {
-        return EducationLevel::firstOrCreate(
-            [
-                'name' => self::EDUCATIONLEVELNAME,
-                'max_years' => 1
-            ]
-        );
+        $attr = [
+            'name' => self::EDUCATIONLEVELNAME,
+            'max_years' => 1
+        ];
+
+        $return = EducationLevel::withTrashed()->firstOrCreate($attr);
+        if($return->trashed()){
+            $return->restore();
+        }
+        return $return;
     }
 
     /** subject data */
@@ -489,9 +522,12 @@ class DemoHelper
 
     protected function createDemoSubjectIfNeeded()
     {
-        $baseSubject = BaseSubject::firstOrCreate([
+        $baseSubject = BaseSubject::withTrashed()->firstOrCreate([
             'name' => self::SUBJECTNAME
         ]);
+        if($baseSubject->trashed()){
+            $baseSubject->restore();
+        }
         if (null === $this->section) {
             $this->createDemoSectionIfNeeded();
         }

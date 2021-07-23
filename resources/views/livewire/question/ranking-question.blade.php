@@ -23,7 +23,7 @@
              wire:sortable="updateOrder" wire:model="answerStruct">
             @foreach($answerStruct as $answer)
                 <x-drag-item id="ranking-{{$answer->value}}" sortId="{{ $answer->value }}"
-                             wireKey="option-{{ $answer->value }}">
+                             wireKey="option-{{ $answer->value }}" selid="drag-box">
                     {{ $answerText[$answer->value] }}
                 </x-drag-item>
             @endforeach

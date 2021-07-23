@@ -47,7 +47,7 @@ class TestParticipant extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player'];
+    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player','answers_provisioned'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -55,6 +55,8 @@ class TestParticipant extends BaseModel
      * @var array
      */
     protected $hidden = [];
+
+    public $skipBootSavedMethod = false;
 
     public static function boot()
     {
@@ -67,6 +69,9 @@ class TestParticipant extends BaseModel
             }
         });
         static::saved(function (TestParticipant $testParticipant) {
+            if($testParticipant->skipBootSavedMethod){
+                return;
+            }
             //$testParticipant->load('testTakeStatus');
 
             $testParticipant->makeEmptyAnswerOptionsFor();
@@ -88,7 +93,12 @@ class TestParticipant extends BaseModel
     {
         // validatie op heartbeat_at was toch niet goed...
 //        if (($this->getOriginal('heartbeat_at') === null || $this->getOriginal('heartbeat_at') === '') && $this->test_take_status_id === 3 && $this->answers()->count() === 0) {
-        if ($this->test_take_status_id === 3 && $this->answers()->count() === 0) {
+        $answersProvisioned = $this->answers_provisioned;
+        if($this->answers()->count() > 0){
+            $answersProvisioned = true;
+        }
+
+        if ($this->test_take_status_id === 3 && !$answersProvisioned) {
             $this->load('testTake', 'testTake.test', 'testTake.test.testQuestions', 'testTake.test.testQuestions.question');
 
             $questions = array();
@@ -169,6 +179,9 @@ class TestParticipant extends BaseModel
 //            $this->answers()->saveMany($answers);
 
             (new AnswerParentQuestionsHelper())->fixAnswerParentQuestionsPerTestParticipant($this);
+            $this->answers_provisioned = true;
+            $this->skipBootSavedMethod = true;
+            $this->save();
         }
     }
 
