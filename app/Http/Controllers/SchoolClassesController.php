@@ -84,7 +84,6 @@ class SchoolClassesController extends Controller
                 break;
             case 'all_classes_for_location' :
                 $currentYear = SchoolYearRepository::getCurrentSchoolYear();
-                logger($currentYear);
                 $classes = SchoolClass::where('school_location_id', Auth::user()->school_location_id)->where('school_year_id',optional($currentYear)->getKey())->orderBy('name', 'asc')->paginate(15);
                 return Response::make($classes, 200 );
             case 'paginate':
