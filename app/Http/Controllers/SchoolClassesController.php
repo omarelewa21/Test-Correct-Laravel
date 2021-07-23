@@ -16,6 +16,7 @@ use tcCore\Http\Requests\UpdateWithEducationLevelsForMainClassesRequest;
 use tcCore\Http\Traits\UwlrImportHandlingForController;
 use tcCore\Lib\Repositories\AverageRatingRepository;
 use tcCore\Lib\Repositories\SchoolClassRepository;
+use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\Http\Controllers\Controller;
@@ -82,7 +83,9 @@ class SchoolClassesController extends Controller
                 return Response::make($classes, 200);
                 break;
             case 'all_classes_for_location' :
-                $classes = SchoolClass::where('school_location_id', Auth::user()->school_location_id)->orderBy('name', 'asc')->paginate(15);
+                $currentYear = SchoolYearRepository::getCurrentSchoolYear();
+                logger($currentYear);
+                $classes = SchoolClass::where('school_location_id', Auth::user()->school_location_id)->where('school_year_id',optional($currentYear)->getKey())->orderBy('name', 'asc')->paginate(15);
                 return Response::make($classes, 200 );
             case 'paginate':
             default:
