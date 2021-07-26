@@ -18,6 +18,7 @@ Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboard
 Route::get('/user/confirm_email/{EmailConfirmation}', [tcCore\Http\Controllers\UsersController::class, 'confirmEmail']);
 Route::get('/inv/{shortcode}',[tcCore\Http\Controllers\Api\ShortcodeController::class, 'registerClickAndRedirect']);
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
+Route::get('/pusher', tcCore\Http\Livewire\Pusher::class);
 
 Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
 Route::post('/send_password_reset', [tcCore\Http\Controllers\Auth\PasswordController::class, 'sendPasswordReset']);
