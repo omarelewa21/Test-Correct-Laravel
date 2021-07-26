@@ -582,5 +582,6 @@ class UsersController extends Controller
     public function setGeneralTermsLogAcceptedAtForUser(User $user)
     {
         $user->generalTermsLog()->update(['accepted_at' => Carbon::now()]);
+        return Response::make(true, 200);
     }
 }
