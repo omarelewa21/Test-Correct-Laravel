@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -129,6 +130,7 @@ class DemoTeacherRegistration extends Model
                 $this->setAttribute('user_id',$user->getKey());
                 $this->save();
 
+                $user->generalTermsLog()->create(['accepted_at' => Carbon::now()]);
 
                 if ($ref != null) {
                     //Update shortcodeclick with new userId

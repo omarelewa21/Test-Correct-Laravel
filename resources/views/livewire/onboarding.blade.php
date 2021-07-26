@@ -346,6 +346,11 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div>
+                                        <p class="text-note">
+                                            Op de dienst Test-Correct zijn de <a class="underline primary-hover" href="https://www.test-correct.nl/algemene-voorwaarden/">algemene voorwaarden</a> van The Teach & Learn Company B.V./Test-Correct van toepassing. Door middel van doorklikken naar de volgende stap bevestigt u dat u de algemene voorwaarden heeft ontvangen, gelezen en begrepen.
+                                        </p>
+                                    </div>
                                     <div class="mb-16">
                                         @if($this->warningStepTwo)
                                             <div class="notification warning mt-4">
@@ -385,7 +390,7 @@
                                     </div>
                                     <div class="md:flex md:justify-between mt-4 w-full sm:absolute bottom-0">
                                         <button wire:click.prevent="backToStepOne"
-                                                class="button text-button flex items-center rotate-svg leading-50 space-x-2">
+                                                class="button text-button flex items-center rotate-svg leading-50 space-x-2 -ml-5">
                                             <x-icon.chevron></x-icon.chevron>
                                             <span class="align-middle">Terug naar jouw docentprofiel</span>
                                         </button>

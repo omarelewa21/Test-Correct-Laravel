@@ -235,6 +235,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('user/toggle_account_verified/{user}', ['as' => 'user.toggle_account_verified', 'uses' => 'UsersController@toggleAccountVerified']);
     Route::post('/user/import/{type}','UsersController@import')->name('user.import');
 
+    Route::get('/user/{user}/general_terms_log','UsersController@getGeneralTermsLogForUser')->name('user.getGeneralTermsLogForUser');
+    Route::put('/user/{user}/general_terms_accepted','UsersController@setGeneralTermsLogAcceptedAtForUser')->name('user.setGeneralTermsLogAcceptedAtForUser');
+
 
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
     Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);
