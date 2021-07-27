@@ -198,7 +198,7 @@
                                                        class="transition ease-in-out duration-150">Achternaam</label>
                                             </div>
                                         </div>
-                                        <div class="password items-start">
+                                        <div class="password items-start mb-4">
 
                                             <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
                                                 <input id="password" wire:model="password" type="password"
@@ -242,6 +242,60 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div x-data @subjects-update="console.log('subjects updated', $event.detail.subjects)" data-subjects='[]' class="subjects mb-4 ">
+                                            <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
+                                                <div>
+                                                <label for="subjects"
+                                                       class="transition ease-in-out duration-150">Jouw vak(ken)</label>
+                                                </div>
+                                                <template x-for="(subject, index) in subjects">
+                                                    <div class="selected-subject align-top text-sm mt-2 mr-1 ">
+                                                        <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
+                                                        <button @click.prevent="removeSubject(index)" class="w-6 h-8 inline-block align-middle text-gray-500 hover:text-gray-600 focus:outline-none">
+                                                            <img class="icon-close-small" src="img/icons/icons-close-small.png" >
+                                                        </button>
+                                                    </div>
+                                                </template>
+
+                                                <div x-show="!showInput" class="add-button-div align-top text-sm mt-2 mr-1 " x-on:click="showSubjectInput()"></div>
+
+                                                <div x-show="showInput" style="
+                                                            width: 12em;
+                                                            height: 40px;
+                                                            border-radius: 8px;
+                                                            overflow: hidden;
+                                                            "
+                                                            class="responsive subject_select_div" @keydown.enter.prevent="addSubject(textInput)"
+                                                >
+
+                                                    <input x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="displaySubjects()" placeholder="Selecteer vak..."  class="input-text-select">
+                                                    <img x-show="!show" src="img/icons/icons-chevron-down-small.png"
+                                                         srcset="img/icons/icons-chevron-down-small@2x.png 2x,
+                                                                    img/icons/icons-chevron-down-small@3x.png 3x"
+                                                         class="icons-chevron float-right"
+                                                         x-on:click="displaySubjects()"
+                                                    >
+                                                    <img x-show="show" src="img/icons/icons-chevron-up-small-blue.png"
+                                                         srcset="img/icons/icons-chevron-up-small-blue@2x.png 2x,
+                                                                    img/icons/icons-chevron-up-small-blue@3x.png 3x"
+                                                         class="icons-chevron float-right"
+                                                         x-on:click="hideSubjects()"
+                                                    >
+                                                    <hr x-show="show">
+                                                    <div class="subject_select_div_padding">
+                                                        <div class="subject_select_div_inner">
+                                                            <template x-for="(subject_option, index) in available_subject_options">
+                                                                <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item"><span x-text="subject_option"></span><hr class="subject_hr"></div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+
                                     </div>
                                     <div class="error-section md:mb-20">
                                         @if($this->warningStepOne)
@@ -520,3 +574,287 @@
         </div>
     </div>
 </div>
+@push('page_styles')
+    <style>
+        input[list="languages"] {
+            width: 12em;
+        }
+        select {
+            width: 12em;
+            margin: 0;
+            margin-left: -12.75em;
+        }
+
+        .icons-chevron {
+            width: 9px;
+            height: 16px;
+            object-fit: contain;
+            margin-top: 12px;
+            margin-right: 20px;
+        }
+        .input-text-select {
+            padding: 8px;
+            width: 140px;
+        }
+        .input-text-select:focus {
+            outline: none;
+        }
+        .input-text-select::placeholder {
+            font-family: Nunito Regular;
+            font-size: 18px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: italic;
+            line-height: normal;
+            letter-spacing: normal;
+            color: #041f74;
+        }
+        .selected-subject{
+            background-color: #cedaf3;
+            width: max-content;
+            height: 40px;
+            margin: 2px 4px 0 0;
+            padding: 6px 16px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: 1.33;
+            display: inline-flex;
+        }
+        .add-button-div{
+            background-color: #cedaf3;
+            height: 40px;
+            width: 40px;
+            border-radius: 10px;
+            display: inline-flex;
+            background-image: url('img/icons/icons-plus.png');
+            background-repeat: no-repeat;
+            background-position: center center;
+            position: relative;
+            top: -5px;
+        }
+        .add-button-img{
+            width:16px;
+            height:16px;
+        }
+
+        div.subject_select_div{
+            border: 1px solid var(--blue-grey);
+            display: inline-block;
+        }
+
+        div.show_subjects{
+            border : 2px solid #004df5;
+        }
+
+        div.subject_select_div_padding{
+            padding-right: 5px;
+            padding-top: 5px;
+            overflow: hidden;
+        }
+
+        div.subject_select_div_inner{
+            overflow: hidden;
+        }
+
+        div.subject_select_div_inner::-webkit-scrollbar {
+            width: 8px;               /* width of the entire scrollbar */
+        }
+
+        div.subject_select_div_inner::-webkit-scrollbar-track {
+            background: transparent;        /* color of the tracking area */
+        }
+
+        div.subject_select_div_inner::-webkit-scrollbar-thumb {
+            background: #cedaf3;    /* color of the scroll thumb */
+            border-radius: 20px;       /* roundness of the scroll thumb */
+            border: 4px solid transparent;  /* creates padding around scroll thumb */
+        }
+
+        div.subject_item{
+            padding:16px;
+            padding-top: 7px;
+            padding-bottom: 0px;
+            font-family: Nunito Regular;
+            font-size: 16px;
+            font-weight: normal;
+            font-stretch: normal;
+            font-style: normal;
+            line-height: normal;
+            letter-spacing: normal;
+            color: #041f74;
+        }
+
+        div.subject_item:hover,div.subject_item_active{
+            color: #004df5;
+        }
+
+        hr.subject_hr{
+            margin-top: 7px;
+        }
+
+        img.icon-close-small{
+            margin-top: -2px;
+        }
+    </style>
+@endpush
+
+@push('page_scripts')
+    <script>
+        function subjectSelect() {
+            return {
+                open: false,
+                show: false,
+                textInput: '',
+                subjects: [],
+                subject_options: [  'Frans',
+                    'Duits',
+                    'Nederlands',
+                    'Wiskunde',
+                    'Biologie',
+                    'Scheikunde',
+                    'Economie'
+                ],
+                available_subject_options: [],
+                active_subject_option: null,
+                showInput: true,
+                init() {
+                    this.subjects = JSON.parse(this.$el.parentNode.getAttribute('data-subjects'));
+                    this.available_subject_options = this.subject_options;
+                    if(this.subjects.length>0){
+                        this.showInput = false;
+                    }
+                },
+                addSubject(subject) {
+                    subject = subject.trim();
+                    if(this.active_subject_option != null && !this.hasSubject(this.active_subject_option)){
+                        this.subjects.push( this.active_subject_option );
+                    }else if (subject != "" && !this.hasSubject(subject)) {
+                        this.subjects.push( subject )
+                    }
+                    this.clearSearch();
+                    this.$refs.textInput.focus();
+                    this.fireSubjectsUpdateEvent();
+                    if(this.subjects.length>0){
+                        this.showInput = false;
+                    }
+                },
+                displaySubjects() {
+                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
+                    var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
+                    div.style.height = '190px';
+                    inner_div.style.height = '130px';
+                    inner_div.style.overflow = 'auto';
+                    div.classList.add('show_subjects');
+                    this.show = true;
+                },
+                hideSubjects() {
+                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
+                    var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
+                    div.style.height = '40px';
+                    inner_div.style.overflow = 'hidden';
+                    div.classList.remove('show_subjects');
+                    this.show = false;
+                },
+                fireSubjectsUpdateEvent() {
+                    this.$el.dispatchEvent(new CustomEvent('subjects-update', {
+                        detail: { subjects: this.subjects },
+                        bubbles: true,
+                    }));
+                },
+                hasSubject(subject) {
+                    var subject = this.subjects.find(e => {
+                        return e.toLowerCase() === subject.toLowerCase()
+                    })
+                    return subject != undefined
+                },
+                removeSubject(index) {
+                    this.subjects.splice(index, 1)
+                    this.fireSubjectsUpdateEvent()
+                },
+                search(q) {
+                    if ( q.includes(",") ) {
+                        q.split(",").forEach(function(val) {
+                            this.addSubject(val)
+                        }, this)
+                    }
+                    this.toggleSearch()
+                },
+                clearSearch() {
+                    this.textInput = '';
+                    this.available_subject_options = this.subject_options;
+                    this.toggleSearch();
+                },
+                toggleSearch() {
+                    this.open = this.textInput != ''
+                },
+                filter() {
+                    if(this.textInput == ''){
+                        this.available_subject_options = this.subject_options;
+                        return;
+                    }
+                    var arr = this.subject_options.map((x) => x);
+                    var i = 0;
+                    while (i < arr.length) {
+                        if(!arr[i].toLowerCase().includes(this.textInput.toLowerCase())){
+                            arr.splice(i, 1);
+                        } else {
+                            ++i;
+                        }
+                    }
+                    this.available_subject_options = arr;
+                    if(!this.available_subject_options.includes(this.active_subject_option)){
+                        this.active_subject_option = null;
+                    }
+                },
+                navigate(e) {
+                    if(e.keyCode!=40&&e.keyCode!=38){
+                        return;
+                    }
+                    e = e || window.event;
+                    if(this.active_subject_option==null){
+                        this.active_subject_option = this.available_subject_options[0];
+                        return this.scroll();
+                    }
+                    var temp = 0;
+                    var active = this.active_subject_option;
+                    this.available_subject_options.forEach((element,key) => {
+                        if(element==active){
+                            temp = key;
+                        }
+                    });
+                    if(e.keyCode==40){
+                        if(this.available_subject_options.length>temp){
+                            var next_key = temp+1;
+                            this.active_subject_option = this.available_subject_options[next_key];
+                        }
+                        return this.scroll();
+                    }
+                    if(temp==0){
+                        this.active_subject_option = this.available_subject_options[0];
+                        return this.scroll();
+                    }
+                    var previous_key = temp-1;
+                    this.active_subject_option = this.available_subject_options[previous_key];
+                    this.scroll();
+                },
+                scroll() {
+                    var div = this.$el.getElementsByClassName('subject_item_active')[0];
+                    if(div.length==0){
+                        return;
+                    }
+                    div.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                },
+                showSubjectInput()
+                {
+                    this.showInput = true;
+                }
+            }
+
+        }
+
+    </script>
+
+@endpush
