@@ -240,7 +240,7 @@ h6 {
 }
 
 
-.name, .password, .school-info {
+.name, .password, .school-info, .subjects {
     display: flex;
     flex-wrap: wrap;
 }

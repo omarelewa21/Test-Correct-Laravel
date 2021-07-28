@@ -15,10 +15,12 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-156194835-1"></script>
     @livewireStyles
     <link rel="stylesheet" href="/css/onboarding.css">
+    @stack('page_styles')
 </head>
 <body class="antialiased font-sans bg-light-grey">
 {{ $slot }}
 
 @livewireScripts
 </body>
+@stack('page_scripts')
 </html>
