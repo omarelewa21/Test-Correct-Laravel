@@ -333,7 +333,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('school_location_user/existing_teachers', 'SchoolLocationUsersController@getExistingTeachers')->name('school_location_user.get_existing_teachers');
 
     Route::get('shortcode','Api\ShortcodeController@store')->name('shortcode.store');
-    Route::put('shortcodeclick/{shortcodeClick}','Api\ShortCodeClickController@update')->name('shortcodeClick.update');
+    Route::put('shortcodeclick/{shortcodeClick}','Api\ShortcodeClickController@update')->name('shortcodeClick.update');
 
     Route::get('config/{variable_name}','ConfigController@show')->name('config.show');
     // goes to the web part
