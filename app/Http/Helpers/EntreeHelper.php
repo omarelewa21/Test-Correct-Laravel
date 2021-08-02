@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use tcCore\SamlMessage;
+use tcCore\School;
 use tcCore\SchoolLocation;
 use tcCore\User;
 
@@ -42,7 +43,7 @@ class EntreeHelper
     protected function transformAttributesIfNeededAndReturn($attr)
     {
         // we may get employee, then we transfer it to teacher
-        if(array_key_exists('eduPersonAffiliation',$attr) && in_array(strtolower($attr['eduPersonAffiliation'][0]),$this->rolesToTransformToTeacher)){
+        if (array_key_exists('eduPersonAffiliation', $attr) && in_array(strtolower($attr['eduPersonAffiliation'][0]), $this->rolesToTransformToTeacher)) {
             $attr['eduPersonAffiliation'][0] = 'teacher';
         }
 
@@ -75,14 +76,68 @@ class EntreeHelper
             return true;
         }
         if (strlen($brinZesCode) === 4) {
-            // uitzoeken 1 locatie aanwezig dan setten
-            $locations = SchoolLocation::where('external_main_code', $external_main_code)->get();
-            if ($locations->count() === 1) {
-                $this->location = $locations->first();
-                return true;
+            // 1. zoeken binnen de scholengemeenschap (is school)
+            // 2. schoollocaties zoeken binnen deze scholengemeenschap die voldoen omdat ze ook een entree koppeling hebben
+            // 3. is er een locatie die ook past bij de gebruiker
+            // 4. zo ja bij voorkeur die pakken die nu ook al actief is en anders de eerste die wel voldoet
+            // 5. indien geen gevonden dan brinFourErrorDetected
+            $school = School::where('external_main_code', $external_main_code)->get();
+            if ($school->count() === 1) {
+                $locations = SchoolLocation::where('school_id', $school->first()->getKey())
+                    ->where('sso_type', SchoolLocation::SSO_ENTREE)
+                    ->where('sso_active', 1)
+                    ->get();
+                if ($locations->count() > 0) {
+                    if($this->isTeacherBasedOnAttributes()){
+                        // teacher (later on there will be a match on role)
+                        $allowedLocations = $locations->filter(function(SchoolLocation $sl){
+                            return User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
+                        });
+                        if($allowedLocations->count() > 0){
+                            // the locations for which the teacher is allowed to access
+                            if($allowedLocations->count() === 1){
+                                $this->location = $allowedLocations->first();
+                            } else {
+                                // search the school location where the teacher was logged in last if available
+                                $lastLocation = $allowedLocations->first(function(SchoolLocation $sl){
+                                    return User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $sl->getKey())
+                                        ->where('users.school_location_id',$sl->getKey())->first() != null;
+                                });
+                                if($lastLocation->count() === 1){
+                                    // there was a location for which the teacher was logged in last
+                                    $this->location = $lastLocation->first();
+                                } else {
+                                    // sorry not available so we just take the first we can find
+                                    $this->location = $allowedLocations->first();
+                                }
+                            }
+                        }
+                    } else {
+                        // student (later on there will be a match on role)
+                        $allowedLocations = $locations->filter(function(SchoolLocation $sl){
+                            return User::scopeFindByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
+                        });
+                        if($allowedLocations->count() > 0){
+                            // the locations for which the user is allowed to access
+                            if($allowedLocations->count() === 1){
+                                $this->location = $allowedLocations->first();
+                            } else {
+                                // this should never happen
+                                $this->location = $allowedLocations->first();
+                            }
+                        }
+                    }
+                }
             }
-            // indien meerdere met 4 code dan gebruiker zoeken en locatie daarbij zoeken
-//            User::findByEckId($this->getEckIdFromAttributes())
+
+//            // uitzoeken 1 locatie aanwezig dan setten
+//            $locations = SchoolLocation::where('external_main_code', $external_main_code)->get();
+//            if ($locations->count() === 1) {
+//                $this->location = $locations->first();
+//                return true;
+//            }
+//            // indien meerdere met 4 code dan gebruiker zoeken en locatie daarbij zoeken
+////            User::findByEckId($this->getEckIdFromAttributes())
 
         }
         $this->brinFourErrorDetected = true;
@@ -178,10 +233,10 @@ class EntreeHelper
             return $url;
         }
 
-        if(strtolower($this->getRoleFromAttributes()) == 'teacher'){
-            $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(),$this->location->getKey())->first();
+        if ($this->isTeacherBasedOnAttributes()) {
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $this->location->getKey())->first();
         } else {
-            $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(),$this->location->getKey())->first();
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $this->location->getKey())->first();
         }
 
 //        $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
@@ -196,6 +251,11 @@ class EntreeHelper
         $message = $this->createSamlMessage();
         $url = route('auth.login', ['tab' => 'entree', 'uuid' => $message->uuid]);
         return $this->redirectToUrlAndExit($url);
+    }
+
+    protected function isTeacherBasedOnAttributes()
+    {
+        return !! strtolower($this->getRoleFromAttributes()) == 'teacher';
     }
 
     public function redirectIfBrinNotSso()
@@ -261,8 +321,8 @@ class EntreeHelper
     protected function addLogRows($functionName)
     {
         logger($functionName);
-        logger('id of laravel user '.optional($this->laravelUser)->getKey());
-        $this->attr['eckId'][0] = substr($this->attr['eckId'][0],-10);
+        logger('id of laravel user ' . optional($this->laravelUser)->getKey());
+        $this->attr['eckId'][0] = substr($this->attr['eckId'][0], -10);
         logger($this->attr);
     }
 
@@ -274,7 +334,7 @@ class EntreeHelper
             $this->setLaravelUser();
         }
 
-        if(null == $this->laravelUser){
+        if (null == $this->laravelUser) {
             $this->addLogRows('handleScenario1');
             $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
             return $this->redirectToUrlAndExit($url);
@@ -294,7 +354,7 @@ class EntreeHelper
             $this->setLaravelUser();
         }
 
-        if(null == $this->laravelUser){
+        if (null == $this->laravelUser) {
             $this->addLogRows('handleScenario2IfAddressIsKnownInOtherAccount');
             $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
             return $this->redirectToUrlAndExit($url);
@@ -428,10 +488,10 @@ class EntreeHelper
 
     public function setLaravelUser(): void
     {
-        if(strtolower($this->getRoleFromAttributes()) == 'teacher'){
-            $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(),$this->location->getKey())->first();
+        if (strtolower($this->getRoleFromAttributes()) == 'teacher') {
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $this->location->getKey())->first();
         } else {
-            $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(),$this->location->getKey())->first();
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $this->location->getKey())->first();
         }
     }
 
