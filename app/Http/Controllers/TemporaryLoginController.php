@@ -12,6 +12,7 @@ class TemporaryLoginController extends Controller
 
     public function __invoke(Request $request ){
         if(null !== Auth::user() && $request->has('redirect')){
+            dump($request->redirect);
             return new RedirectResponse($request->redirect);
         }
     }
