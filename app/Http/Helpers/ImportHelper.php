@@ -710,7 +710,10 @@ class ImportHelper
                             // delete teachers where the subject is not in the import for the class
                             $deleted_teachers = Teacher::leftjoin('school_classes', 'school_classes.id', '=',
                                 'teachers.class_id')
-                                ->where('school_classes.do_not_overwrite_from_interface', 0)
+                                ->where(function($q){
+                                    $q->where('school_classes.do_not_overwrite_from_interface', 0)
+                                    ->orWhereNull('school_classes.do_not_overwrite_from_interface');
+                                })
                                 ->where('teachers.class_id', $class_id)
                                 ->whereNotIn('teachers.subject_id', $subject_ids)
                                 ->delete();
