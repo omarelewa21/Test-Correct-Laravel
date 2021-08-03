@@ -15,7 +15,7 @@
             <h1 class="mb-7">{{ __('test_take.overview_review_answers') }}</h1>
             @foreach($data as  $key => $testQuestion)
                 <div class="flex flex-col space-y-4">
-                    @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1)
+                    @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
                         <livewire:overview.multiple-select-question
                                 :question="$testQuestion"
                                 :number="++$key"

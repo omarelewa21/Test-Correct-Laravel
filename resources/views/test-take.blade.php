@@ -4,7 +4,7 @@
         <div>
             @foreach($data as  $key => $testQuestion)
                 <div selid="testtake-question">
-                    @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1)
+                    @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
                         <livewire:question.multiple-select-question
                             :question="$testQuestion"
                             :number="++$key"
