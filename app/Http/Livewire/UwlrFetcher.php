@@ -3,14 +3,12 @@
 namespace tcCore\Http\Livewire;
 
 use Artisaninweb\SoapWrapper\SoapWrapper;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Http\Helpers\MagisterHelper;
 use tcCore\Http\Helpers\SomTodayHelper;
+use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\SchoolLocation;
 use tcCore\SchoolLocationSchoolYear;
-use tcCore\SchoolYear;
-use tcCore\UwlrSoapEntry;
 
 class UwlrFetcher extends Component
 {
@@ -71,15 +69,22 @@ class UwlrFetcher extends Component
     {
         $this->schoolYears = [];
         $location = SchoolLocation::find($this->uwlrDatasource[$this->currentSource]['id']);
+        $currentPeriod = PeriodRepository::getCurrentPeriodForSchoolLocation($location)->load('schoolYear:id,year');
         if($location) {
             $years = $location
                     ->schoolLocationSchoolYears
+                    ->load('schoolYear:id,year')
+                    ->where('schoolYear.year', '>=', $currentPeriod->schoolYear->year)
+                    ->sortBy('schoolYear.year', SORT_REGULAR, false)
                     ->filter(function(SchoolLocationSchoolYear $s) {
                         return null != optional($s->schoolYear)->year;
-                    })->map(function(SchoolLocationSchoolYear $slsy){
+                    })
+                    ->map(function(SchoolLocationSchoolYear $slsy){
                         return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
                     });
-            $this->schoolYears = collect($years)->sortDesc()->toArray();
+
+            $this->schoolYears = array_values($years->toArray());
+
             if (!array_key_exists(0, $this->schoolYears)) {
                 dd(
                     sprintf(
@@ -89,7 +94,7 @@ class UwlrFetcher extends Component
                     )
                 );
             }
-            $this->schoolYear = $this->schoolYears[0];
+            $this->schoolYear = array_key_first($this->schoolYears);
         }
 
     }
