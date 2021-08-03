@@ -2084,6 +2084,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 })
                 ->where('teachers.user_id', $this->getKey())
                 ->where('school_classes.demo', 0)
+                ->where('school_classes.created_by','lvs')
                 ->where('school_classes.school_year_id',$current->getKey())
 //                ->where('school_classes.visible', 0) // if a class is checked by another teacher, then it might already be visible
                 ->value('cnt');
@@ -2091,6 +2092,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->withoutGlobalScope('visibleOnly')
                 ->where('school_classes.visible', 0)
+                ->where('school_classes.created_by','lvs')
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_year_id',$current->getKey())
                 ->whereIn('school_classes.id', function ($query) {
@@ -2114,6 +2116,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if ($this->isA('school manager')) {
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')->withoutGlobalScope('visibleOnly')
                 ->where('school_classes.visible', 0)
+                ->where('school_classes.created_by','lvs')
                 ->where('school_classes.is_main_school_class', 1)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
