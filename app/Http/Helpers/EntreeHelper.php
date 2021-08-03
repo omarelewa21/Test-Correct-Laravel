@@ -65,6 +65,11 @@ class EntreeHelper
 
     private function setLocationWithSamlAttributes()
     {
+        if(null !== $this->location){
+            // we did run this method before
+            return true;
+        }
+
         $brinZesCode = $this->getBrinFromAttributes();
 
         $external_main_code = substr($brinZesCode, 0, 4);
@@ -307,6 +312,10 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->setLaravelUser();
+        }
+
+        if(null == $this->laravelUser){
+            $this->redirectIfNoUserWasFoundForEckId();
         }
 
         if (optional($this->laravelUser)->isA($this->getRoleFromAttributes())) {

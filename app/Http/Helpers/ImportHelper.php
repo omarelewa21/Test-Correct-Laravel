@@ -1268,12 +1268,19 @@ class ImportHelper
             ->first();
 
         // uwlr
+        if(null !== $this->uwlr_soap_result_id) {
+            $data['created_by'] = 'lvs';
+        }
         if ($schoolClass === null && $this->can_find_school_class_only_by_name) {
             return $this->getOrCreateSchoolClassIfAllowedByName($data);
         }
 
         if ($schoolClass) {
-            $schoolClass->restore();
+            if($schoolClass->trashed()) {
+                $schoolClass->restore();
+                $schoolClass->craated_by = $data['lvs'];
+                $schoolClass->save();
+            }
 
             return $schoolClass->getKey();
         }
@@ -1302,6 +1309,7 @@ class ImportHelper
         }
         $schoolClass->name = $data['name']; // set the name the capitalized way we get it from the data array
         $schoolClass->is_main_school_class = $data['is_main_school_class']; // the import is leading in telling whether this is a mainSchoolClass even if set differently earlier
+        $schoolClass->created_by = $data['created_by'];
         $schoolClass->save();
         $schoolClass->restore();
         return $schoolClass->getKey();

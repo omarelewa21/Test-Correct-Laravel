@@ -47,7 +47,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['old_school_class_id','school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo','visible'];
+    protected $fillable = ['created_by','old_school_class_id','school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo','visible'];
 
     /**
      * The attributes excluded from the model's JSON form.
