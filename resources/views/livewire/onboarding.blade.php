@@ -603,8 +603,8 @@
                 open: false,
                 show: false,
                 textInput: '',
-                subjects: [{!! $selectedSubjectsString !!}],
-                subject_options: [{!! $subjectOptions !!}],
+                subjects: [],
+                subject_options: {!! $subjectOptions !!},
                 available_subject_options: [],
                 active_subject_option: null,
                 showInput: true,
@@ -617,6 +617,8 @@
                 },
                 addSubject(subject) {
                     subject = subject.trim();
+                    subject = subject.replace(/'/g,"\x27");
+                    subject = subject.replace(/"/g,"\x22");
                     if(this.active_subject_option != null && !this.hasSubject(this.active_subject_option)){
                         this.subjects.push( this.active_subject_option );
                     }else if (subject != "" && !this.hasSubject(subject)) {

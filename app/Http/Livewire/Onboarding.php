@@ -365,25 +365,18 @@ class Onboarding extends Component
 
     protected function setSubjectOptions()
     {
-        $subjects = BaseSubject::all()->pluck('name')->toArray();
+        $subjects = BaseSubject::where('name','not like','CITO%')->get()->pluck('name')->toArray();
         $subjects = array_unique($subjects);
         sort($subjects);
-        $this->subjectOptions = $this->convertToString($subjects);
+        $this->subjectOptions = json_encode($subjects,JSON_HEX_APOS);
     }
 
     protected function setSelectedSubjectsString()
     {
-        $this->selectedSubjectsString = '['.$this->convertToString($this->selectedSubjects).']';
+        $this->selectedSubjectsString =  json_encode($this->selectedSubjects,JSON_HEX_APOS);
     }
 
-    protected function convertToString($arr)
-    {
-        $temp = [];
-        foreach ($arr as $key => $value){
-            $temp[] = '"'.$value.'"';
-        }
-        return implode(',',$temp);
-    }
+
 
 
 }
