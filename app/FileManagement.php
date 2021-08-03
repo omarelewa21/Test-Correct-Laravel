@@ -39,7 +39,7 @@ class FileManagement extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['type','id','user_id','school_location_id','file_management_status_id','handledby','notes','name','origname','typedetails','parent_id','archived'];
+    protected $fillable = ['type','id','user_id','school_location_id','file_management_status_id','handledby','notes','name','origname','typedetails','parent_id','archived','form_id'];
 
     /**
      * The attributes excluded from the model's JSON form.
