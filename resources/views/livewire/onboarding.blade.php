@@ -242,22 +242,27 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div x-data @subjects-update="console.log('subjects updated', $event.detail.subjects)" data-subjects='[]' class="subjects mb-4 ">
+                                        <div x-data @subjects-update="console.log('subjects updated', $event.detail.subjects)" data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
-                                                <div>
-                                                <label for="subjects"
-                                                       class="transition ease-in-out duration-150">Jouw vak(ken)</label>
+                                                <div >
+                                                <label for="subjects" id="subjects_label"
+                                                       class="transition ease-in-out duration-150">{{__('Jouw vak(ken)')}}</label>
                                                 </div>
                                                 <template x-for="(subject, index) in subjects">
-                                                    <div class="selected-subject align-top text-sm mt-2 mr-1 ">
+
+                                                    <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('Verwijder')}}"  @click.prevent="removeSubject(index)">
                                                         <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
-                                                        <button @click.prevent="removeSubject(index)" class="w-6 h-8 inline-block align-middle text-gray-500 hover:text-gray-600 focus:outline-none">
-                                                            <img class="icon-close-small" src="img/icons/icons-close-small.png" >
-                                                        </button>
-                                                    </div>
+                                                        <span  class=" inline-block align-middle" style="margin:auto">
+                                                            <img class="icon-close-small" src="img/icons/icons-close-small.svg" >
+                                                        </span>
+                                                    </button>
                                                 </template>
 
-                                                <div x-show="!showInput" class="add-button-div align-top text-sm mt-2 mr-1 " x-on:click="showSubjectInput()"></div>
+                                                <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('Voeg toe')}}" @click.prevent="showSubjectInput()">
+                                                    <span  class=" inline-block align-middle" style="margin:auto">
+                                                        <img class="icon-close-small" src="img/icons/icons-plus.svg" >
+                                                    </span>
+                                                </button>
 
                                                 <div x-show="showInput" style="
                                                             width: 12em;
@@ -269,16 +274,13 @@
                                                 >
 
                                                     <input x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="displaySubjects()" placeholder="Selecteer vak..."  class="input-text-select">
-                                                    <img x-show="!show" src="img/icons/icons-chevron-down-small.png"
-                                                         srcset="img/icons/icons-chevron-down-small@2x.png 2x,
-                                                                    img/icons/icons-chevron-down-small@3x.png 3x"
-                                                         class="icons-chevron float-right"
+                                                    <img x-show="!show"
+                                                         src="img/icons/icons-chevron-down-small.svg"
+                                                         class="iconschevron-down-small icons-chevron float-right"
                                                          x-on:click="displaySubjects()"
                                                     >
-                                                    <img x-show="show" src="img/icons/icons-chevron-up-small-blue.png"
-                                                         srcset="img/icons/icons-chevron-up-small-blue@2x.png 2x,
-                                                                    img/icons/icons-chevron-up-small-blue@3x.png 3x"
-                                                         class="icons-chevron float-right"
+                                                    <img x-show="show" src="img/icons/icons-chevron-up-small-blue.svg"
+                                                         class="iconschevron-down-small icons-chevron float-right"
                                                          x-on:click="hideSubjects()"
                                                     >
                                                     <hr x-show="show">
@@ -290,6 +292,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <button x-show="showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 " disabled>
+                                                    <span  class=" inline-block align-middle" style="margin:auto">
+                                                        <img class="icon-close-small" src="img/icons/icons-plus-disabled.svg" >
+                                                    </span>
+                                                </button>
 
                                             </div>
 
@@ -590,119 +598,6 @@
             margin-left: -12.75em;
         }
 
-        .icons-chevron {
-            width: 9px;
-            height: 16px;
-            object-fit: contain;
-            margin-top: 12px;
-            margin-right: 20px;
-        }
-        .input-text-select {
-            padding: 8px;
-            width: 140px;
-        }
-        .input-text-select:focus {
-            outline: none;
-        }
-        .input-text-select::placeholder {
-            font-family: Nunito Regular;
-            font-size: 18px;
-            font-weight: normal;
-            font-stretch: normal;
-            font-style: italic;
-            line-height: normal;
-            letter-spacing: normal;
-            color: #041f74;
-        }
-        .selected-subject{
-            background-color: #cedaf3;
-            width: max-content;
-            height: 40px;
-            margin: 2px 4px 0 0;
-            padding: 6px 16px;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            font-stretch: normal;
-            font-style: normal;
-            line-height: 1.33;
-            display: inline-flex;
-        }
-        .add-button-div{
-            background-color: #cedaf3;
-            height: 40px;
-            width: 40px;
-            border-radius: 10px;
-            display: inline-flex;
-            background-image: url('img/icons/icons-plus.png');
-            background-repeat: no-repeat;
-            background-position: center center;
-            position: relative;
-            top: -5px;
-        }
-        .add-button-img{
-            width:16px;
-            height:16px;
-        }
-
-        div.subject_select_div{
-            border: 1px solid var(--blue-grey);
-            display: inline-block;
-        }
-
-        div.show_subjects{
-            border : 2px solid #004df5;
-        }
-
-        div.subject_select_div_padding{
-            padding-right: 5px;
-            padding-top: 5px;
-            overflow: hidden;
-        }
-
-        div.subject_select_div_inner{
-            overflow: hidden;
-        }
-
-        div.subject_select_div_inner::-webkit-scrollbar {
-            width: 8px;               /* width of the entire scrollbar */
-        }
-
-        div.subject_select_div_inner::-webkit-scrollbar-track {
-            background: transparent;        /* color of the tracking area */
-        }
-
-        div.subject_select_div_inner::-webkit-scrollbar-thumb {
-            background: #cedaf3;    /* color of the scroll thumb */
-            border-radius: 20px;       /* roundness of the scroll thumb */
-            border: 4px solid transparent;  /* creates padding around scroll thumb */
-        }
-
-        div.subject_item{
-            padding:16px;
-            padding-top: 7px;
-            padding-bottom: 0px;
-            font-family: Nunito Regular;
-            font-size: 16px;
-            font-weight: normal;
-            font-stretch: normal;
-            font-style: normal;
-            line-height: normal;
-            letter-spacing: normal;
-            color: #041f74;
-        }
-
-        div.subject_item:hover,div.subject_item_active{
-            color: #004df5;
-        }
-
-        hr.subject_hr{
-            margin-top: 7px;
-        }
-
-        img.icon-close-small{
-            margin-top: -2px;
-        }
     </style>
 @endpush
 
@@ -713,15 +608,8 @@
                 open: false,
                 show: false,
                 textInput: '',
-                subjects: [],
-                subject_options: [  'Frans',
-                    'Duits',
-                    'Nederlands',
-                    'Wiskunde',
-                    'Biologie',
-                    'Scheikunde',
-                    'Economie'
-                ],
+                subjects: [{!! $selectedSubjectsString !!}],
+                subject_options: [{!! $subjectOptions !!}],
                 available_subject_options: [],
                 active_subject_option: null,
                 showInput: true,
@@ -745,22 +633,30 @@
                     if(this.subjects.length>0){
                         this.showInput = false;
                     }
+                    this.syncSubjects();
+                },
+                syncSubjects() {
+                    @this.call('syncSelectedSubjects',this.subjects);
                 },
                 displaySubjects() {
+                    var label = document.getElementById('subjects_label');
                     var div = this.$el.getElementsByClassName('subject_select_div')[0];
                     var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
                     div.style.height = '190px';
                     inner_div.style.height = '130px';
                     inner_div.style.overflow = 'auto';
                     div.classList.add('show_subjects');
+                    label.classList.add('label_bold');
                     this.show = true;
                 },
                 hideSubjects() {
+                    var label = document.getElementById('subjects_label');
                     var div = this.$el.getElementsByClassName('subject_select_div')[0];
                     var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
                     div.style.height = '40px';
                     inner_div.style.overflow = 'hidden';
                     div.classList.remove('show_subjects');
+                    label.classList.remove('label_bold');
                     this.show = false;
                 },
                 fireSubjectsUpdateEvent() {
@@ -776,8 +672,9 @@
                     return subject != undefined
                 },
                 removeSubject(index) {
-                    this.subjects.splice(index, 1)
-                    this.fireSubjectsUpdateEvent()
+                    this.subjects.splice(index, 1);
+                    this.fireSubjectsUpdateEvent();
+                    this.syncSubjects();
                 },
                 search(q) {
                     if ( q.includes(",") ) {
@@ -790,6 +687,7 @@
                 clearSearch() {
                     this.textInput = '';
                     this.available_subject_options = this.subject_options;
+                    this.hideSubjects();
                     this.toggleSearch();
                 },
                 toggleSearch() {
@@ -847,7 +745,7 @@
                 },
                 scroll() {
                     var div = this.$el.getElementsByClassName('subject_item_active')[0];
-                    if(div.length==0){
+                    if(div==undefined){
                         return;
                     }
                     div.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
