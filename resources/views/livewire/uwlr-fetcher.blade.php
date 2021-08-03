@@ -15,41 +15,41 @@
                     @endforeach
                 </x-input.select>
             </x-input.group>
+            <div class="w-1/2"></div>
         </div>
         <div class="flex space-x-4 mt-4">
             <x-input.group label="Klant code" class="w-1/2">
-                <x-input.text wire:model="clientCode"></x-input.text>
+                <x-input.text wire:model="clientCode" disabled></x-input.text>
             </x-input.group>
             <x-input.group label="Klant naam" class="w-1/2">
-                <x-input.text wire:model="clientName"></x-input.text>
+                <x-input.text wire:model="clientName" disabled></x-input.text>
             </x-input.group>
         </div>
         <div class="flex space-x-4 mt-4">
             <x-input.group label="Schooljaar" class="w-1/2">
                 <x-input.select wire:model="schoolYear">
-                    @foreach($this->schoolYears as $i => $schoolYear)
-                        <option value="{{ $schoolYear }}" @if($i === 0) checked="true" @endif>{{ $schoolYear  }}</option>
+                    @foreach($this->schoolYears as $schoolYear)
+                        <option value="{{ $schoolYear }}" @if($loop->first) checked="true" @endif>{{ $schoolYear }}</option>
                     @endforeach
                 </x-input.select>
             </x-input.group>
             <x-input.group label="Brin code" class="w-1/2">
-                <x-input.text wire:model="brinCode"></x-input.text>
+                <x-input.text wire:model="brinCode" disabled></x-input.text>
             </x-input.group>
         </div>
         <div class="flex space-x-4 mt-4">
             <x-input.group label="Dependancecode" class="w-1/2">
-                <x-input.text wire:model="dependanceCode"></x-input.text>
+                <x-input.text wire:model="dependanceCode" disabled></x-input.text>
             </x-input.group>
+            <div class="w-1/2"></div>
         </div>
 
         <div class="flex space-x-4 mt-4 justify-end">
-            <x-button.primary wire:click="fetch">
+            <x-button.primary wire:click="fetch" class="space-x-0">
                 <div wire:loading wire:target="fetch">
                     <div class="lds-hourglass"></div>
                 </div>
-                <div wire:loading.remove wire:target="fetch">
-                    Ophalen
-                </div>
+                <span wire:loading.remove wire:target="fetch">Ophalen</span>
             </x-button.primary>
         </div>
     </div>
