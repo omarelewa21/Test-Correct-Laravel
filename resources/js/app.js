@@ -55,12 +55,20 @@ truncateOptionsIfTooLong = function (el) {
     }
 }
 
-setSelectTitleOnLoad = function (el) {
+setTitlesOnLoad = function (el) {
     let selects = el.querySelectorAll('select');
     if (selects !== null) {
         selects.forEach(function (select) {
             if (select.value !== '') {
                 select.setAttribute('title', select.value);
+            }
+        });
+    }
+    let inputs = el.querySelectorAll('input');
+    if (inputs !== null) {
+        inputs.forEach(function (input) {
+            if (input.value !== '') {
+                input.setAttribute('title', input.value);
             }
         });
     }
