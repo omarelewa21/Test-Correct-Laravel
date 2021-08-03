@@ -115,9 +115,9 @@ class Login extends Component
 
         $this->doLoginProcedure();
 
-        if (auth()->user()->isA('Student')) {
-            return redirect()->intended(route('student.dashboard'));
-        }
+//        if (auth()->user()->isA('Student')) {
+//            return redirect()->intended(route('student.dashboard'));
+//        }
         if (auth()->user()->isA('Account manager')) {
             return redirect()->intended(route('uwlr.grid'));
         }
