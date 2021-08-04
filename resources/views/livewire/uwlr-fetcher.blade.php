@@ -9,9 +9,9 @@
     <div class="content-section p-8">
         <div class="flex space-x-4 mt-4">
             <x-input.group label="DataSource" class="w-1/2">
-                <x-input.select wire:model="currentSource">
+                <x-input.select wire:model.lazy="currentSource">
                     @foreach($this->uwlrDatasource as $key => $source)
-                        <option value="{{ $key }}">{{ $source['name']  }}</option>
+                        <option value="{{ $key }}" wire:key="{{ $source['brin_code'].$key }}">{{ $source['name']  }}</option>
                     @endforeach
                 </x-input.select>
             </x-input.group>
@@ -29,7 +29,7 @@
             <x-input.group label="Schooljaar" class="w-1/2">
                 <x-input.select wire:model="schoolYear">
                     @foreach($this->schoolYears as $schoolYear)
-                        <option value="{{ $schoolYear }}" @if($loop->first) checked="true" @endif>{{ $schoolYear }}</option>
+                        <option value="{{ $schoolYear }}" @if($loop->first) checked="true" @endif wire:key="{{ $schoolYear.$loop->index }}">{{ $schoolYear }}</option>
                     @endforeach
                 </x-input.select>
             </x-input.group>
