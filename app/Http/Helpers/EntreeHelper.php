@@ -102,6 +102,7 @@ class EntreeHelper
                             // the locations for which the teacher is allowed to access
                             if($allowedLocations->count() === 1){
                                 $this->location = $allowedLocations->first();
+                                return true;
                             } else {
                                 // search the school location where the teacher was logged in last if available
                                 $lastLocation = $allowedLocations->first(function(SchoolLocation $sl){
@@ -111,9 +112,11 @@ class EntreeHelper
                                 if($lastLocation->count() === 1){
                                     // there was a location for which the teacher was logged in last
                                     $this->location = $lastLocation->first();
+                                    return true;
                                 } else {
                                     // sorry not available so we just take the first we can find
                                     $this->location = $allowedLocations->first();
+                                    return true;
                                 }
                             }
                         }
@@ -126,9 +129,11 @@ class EntreeHelper
                             // the locations for which the user is allowed to access
                             if($allowedLocations->count() === 1){
                                 $this->location = $allowedLocations->first();
+                                return true;
                             } else {
                                 // this should never happen
                                 $this->location = $allowedLocations->first();
+                                return true;
                             }
                         }
                     }
@@ -266,13 +271,30 @@ class EntreeHelper
     public function redirectIfBrinNotSso()
     {
         $this->setLocationWithSamlAttributes();
-        if ($this->location->sso_active != 1) {
+        if (optional($this->location)->sso_active != 1) {
             $url = route('auth.login',
                 ['tab' => 'login', 'entree_error_message' => 'auth.school_not_registered_for_sso']);
             return $this->redirectToUrlAndExit($url);
         }
     }
 
+    public function redirectIfUserWasNotFoundForEckIdAndNoLVS()
+    {
+        $this->validateAttributes();
+        $this->setLaravelUser();
+
+        if ($this->laravelUser) {
+            return true;
+        }
+        $this->setLocationWithSamlAttributes();
+        if(null != $this->location && $this->location->lvs_type == 1){
+            return true;
+        }
+
+        $url = route('auth.login',
+            ['tab' => 'login', 'entree_error_message' => 'auth.school_info_not_synced_with_test_correct']);
+        return $this->redirectToUrlAndExit($url);
+    }
 
     public function redirectIfNoUserWasFoundForEckId()
     {
