@@ -78,10 +78,10 @@ class UwlrFetcher extends Component
             $years = $location
                     ->schoolLocationSchoolYears
                     ->load('schoolYear:id,year')
-                    ->when($currentPeriod, function ($slsy) use ($currentPeriod) {
+                    ->when($currentPeriod->schoolYear, function ($slsy) use ($currentPeriod) {
                         return $slsy->where('schoolYear.year', '>=', $currentPeriod->schoolYear->year);
                     })
-                    ->when(!$currentPeriod, function ($slsy) {
+                    ->when(!$currentPeriod->schoolYear, function ($slsy) {
                         return $slsy->where('schoolYear.year', '>=', Carbon::now()->subYear()->format('Y'));
                     })
                     ->sortBy('schoolYear.year', SORT_REGULAR, false)
@@ -95,15 +95,15 @@ class UwlrFetcher extends Component
             $this->schoolYears = array_values($years->toArray());
 
             if (!array_key_exists(0, $this->schoolYears)) {
-                dd(
-                    sprintf(
-                        'Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s',
-                        $location->id,
-                        $location->name
-                    )
+                $this->addError(
+                    'no_school_years',
+                    sprintf('Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s', $location->id, $location->name)
                 );
+                $this->schoolYear = '';
+//                dd(sprintf('Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s', $location->id, $location->name));
+            } else {
+                $this->schoolYear = array_key_first($this->schoolYears);
             }
-            $this->schoolYear = array_key_first($this->schoolYears);
         }
 
     }

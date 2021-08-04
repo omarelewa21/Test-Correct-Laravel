@@ -27,6 +27,9 @@
         </div>
         <div class="flex space-x-4 mt-4">
             <x-input.group label="Schooljaar" class="w-1/2">
+                @error('no_school_years')
+                    <span class="error text-xs p-2 mt-2 rounded-md">{{ $message }}</span>
+                @enderror
                 <x-input.select wire:model="schoolYear">
                     @foreach($this->schoolYears as $schoolYear)
                         <option value="{{ $schoolYear }}" @if($loop->first) checked="true" @endif wire:key="{{ $schoolYear.$loop->index }}">{{ $schoolYear }}</option>
