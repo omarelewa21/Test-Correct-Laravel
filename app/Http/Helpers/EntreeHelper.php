@@ -131,7 +131,7 @@ class EntreeHelper
                     } else {
                         // student (later on there will be a match on role)
                         $allowedLocations = $locations->filter(function(SchoolLocation $sl){
-                            return User::scopeFindByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
+                            return User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
                         });
                         logger('allowed locations '.$allowedLocations->count());
                         if($allowedLocations->count() > 0){
