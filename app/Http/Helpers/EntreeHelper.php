@@ -274,7 +274,7 @@ class EntreeHelper
 
     protected function isTeacherBasedOnAttributes()
     {
-        return !! strtolower($this->getRoleFromAttributes()) == 'teacher';
+        return strtolower($this->getRoleFromAttributes()) == 'teacher';
     }
 
     public function redirectIfBrinNotSso()
