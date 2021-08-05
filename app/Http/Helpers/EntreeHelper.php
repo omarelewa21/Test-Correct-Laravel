@@ -87,12 +87,16 @@ class EntreeHelper
             // 4. zo ja bij voorkeur die pakken die nu ook al actief is en anders de eerste die wel voldoet
             // 5. indien geen gevonden dan brinFourErrorDetected
             $school = School::where('external_main_code', $external_main_code)->get();
+            logger('brin4code');
+            logger('schoolcound '.$school->count());
             if ($school->count() === 1) {
                 $locations = SchoolLocation::where('school_id', $school->first()->getKey())
                     ->where('sso_type', SchoolLocation::SSO_ENTREE)
                     ->where('sso_active', 1)
                     ->get();
+                logger('location count '.$locations->count());
                 if ($locations->count() > 0) {
+                    logger('isTeacher '.$this->isTeacherBasedOnAttributes());
                     if($this->isTeacherBasedOnAttributes()){
                         // teacher (later on there will be a match on role)
                         $allowedLocations = $locations->filter(function(SchoolLocation $sl){
@@ -125,6 +129,7 @@ class EntreeHelper
                         $allowedLocations = $locations->filter(function(SchoolLocation $sl){
                             return User::scopeFindByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
                         });
+                        logger('allowed locations '.$allowedLocations->count());
                         if($allowedLocations->count() > 0){
                             // the locations for which the user is allowed to access
                             if($allowedLocations->count() === 1){
