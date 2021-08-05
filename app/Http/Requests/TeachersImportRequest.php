@@ -81,9 +81,12 @@ class TeachersImportRequest extends Request {
             'data.*.subject' => 'required',
             'data.*.external_id' => 'required',
         ]);
-        if ($extra_rule !== []) {
+        if ($extra_rule === []) {
+            $mergedRules = $rules;
+        } else {
             $mergedRules = $rules->merge($extra_rule);
         }
+
         return $mergedRules->toArray();
     }
 
