@@ -11,6 +11,7 @@ use tcCore\FailedLogin;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\EntreeHelper;
+use tcCore\Http\Helpers\UserHelper;
 use tcCore\Lib\User\Roles;
 use tcCore\LoginLog;
 use tcCore\User;
@@ -50,57 +51,7 @@ class AuthController extends Controller
         if ($this->auth->once(['username' => $user, 'password' => $password])) {
             $user = $this->auth->user();
 
-            $user->setAttribute('session_hash', $user->generateSessionHash());
-            if((bool) $user->demo === true){
-                $user->demoRestrictionOverrule = true;
-            }
-            $user->save();
-            $user->load('roles');
-
-            if(($user->isA('teacher') || $user->isA('student')) && EntreeHelper::shouldPromptForEntree($user)){
-                return \Response::make("NEEDS_LOGIN_ENTREE",403);
-            }
-
-            $hidden = $user->getHidden();
-
-            if (($key = array_search('api_key', $hidden)) !== false) {
-                unset($hidden[$key]);
-            }
-            if (($key = array_search('session_hash', $hidden)) !== false) {
-                unset($hidden[$key]);
-            }
-
-            if($user->isA('teacher')){
-                (new DemoHelper())->createDemoForTeacherIfNeeded($user);
-                $this->dispatch(new SetSchoolYearForDemoClassToCurrent($user->schoolLocation));
-            }
-
-
-            if($this->canHaveGeneralText2SpeechPrice($user)){
-                $user->setAttribute('general_text2speech_price',config('custom.text2speech.price'));
-            }
-            $user->setAttribute('isToetsenbakker',$user->isToetsenbakker());
-
-            $user->setAttribute('hasCitoToetsen',$user->hasCitoToetsen());
-
-            $user->setAttribute('hasSharedSections',$user->hasSharedSections());
-
-            $user->makeOnboardWizardIfNeeded();
-            $user->createGeneralTermsLogIfRequired();
-
-            $clone = $user->replicate();
-            $clone->{$user->getKeyName()} = $user->getKey();
-            $clone->setHidden($hidden);
-
-            $clone->logins = $user->getLoginLogCount();
-            $clone->is_temp_teacher = $user->getIsTempTeacher();
-            //Dispatch UserLoggenIn Event here
-            // ----
-            //Move this to a listener of the event
-            LoginLog::create(['user_id' => $user->getKey()]);
-            FailedLogin::solveForUsernameAndIp($user->username,$ip);
-
-            return new JsonResponse($clone);
+            return (new UserHelper())->handleAfterLoginValidation($user,false, $ip);
         } else {
             FailedLogin::create([
                'username' => $user,
@@ -108,15 +59,5 @@ class AuthController extends Controller
             ]);
             return \Response::make("Invalid credentials.", 403);
         }
-    }
-
-    protected function canHaveGeneralText2SpeechPrice($user){
-        $roles = Roles::getUserRoles($user);
-        foreach($roles as $role){
-            if(in_array($role,$this->text2speechPriceRoles)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

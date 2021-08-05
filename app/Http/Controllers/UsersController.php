@@ -429,46 +429,9 @@ class UsersController extends Controller
         $user = User::where('id', $temporaryLogin->user_id)->first();
 //        $temporaryLogin->forceDelete();
 
-        $user->setAttribute('session_hash', $user->generateSessionHash());
-        if((bool) $user->demo === true){
-            $user->demoRestrictionOverrule = true;
-        }
-        $user->save();
-        $user->load('roles');
+        Auth::login($user);
+        return (new UserHelper())->handleAfterLoginValidation(Auth::user(),true);
 
-        $hidden = $user->getHidden();
-
-        if (($key = array_search('api_key', $hidden)) !== false) {
-            unset($hidden[$key]);
-        }
-        if (($key = array_search('session_hash', $hidden)) !== false) {
-            unset($hidden[$key]);
-        }
-
-        if($user->isA('teacher')){
-            (new DemoHelper())->createDemoForTeacherIfNeeded($user);
-            $this->dispatch(new SetSchoolYearForDemoClassToCurrent($user->schoolLocation));
-        }
-
-
-
-        $user->setAttribute('isToetsenbakker',$user->isToetsenbakker());
-
-        $user->setAttribute('hasCitoToetsen',$user->hasCitoToetsen());
-
-        $user->setAttribute('hasSharedSections',$user->hasSharedSections());
-
-        $user->makeOnboardWizardIfNeeded();
-
-        $clone = $user->replicate();
-        $clone->{$user->getKeyName()} = $user->getKey();
-        $clone->setHidden($hidden);
-
-        $clone->logins = $user->getLoginLogCount();
-        $clone->is_temp_teacher = $user->getIsTempTeacher();
-        LoginLog::create(['user_id' => $user->getKey()]);
-
-        return new JsonResponse($clone);
     }
 
     public function isAccountVerified(Request $request)
