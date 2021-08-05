@@ -225,14 +225,19 @@ class EntreeHelper
         }
     }
 
+    protected function hasLVS()
+    {
+        return (null != $this->location && !empty($this->location->lvs_type));
+    }
+
     public function redirectIfscenario5()
     {
-        if (!empty($this->location->lvs_type)) {
-            return true;
-        }
-        if ($this->location->lvs_active) {
-            return true;
-        }
+            if($this->hasLVS()){
+                return true;
+            }
+//        if ($this->location->lvs_active) {
+//            return true;
+//        }
         $this->handleScenario5();
     }
 
@@ -278,16 +283,16 @@ class EntreeHelper
         }
     }
 
-    public function redirectIfUserWasNotFoundForEckIdAndNoLVS()
+    public function redirectIfUserWasNotFoundForEckIdAndActiveLVS()
     {
         $this->validateAttributes();
+        $this->setLocationWithSamlAttributes();
         $this->setLaravelUser();
 
         if ($this->laravelUser) {
             return true;
         }
-        $this->setLocationWithSamlAttributes();
-        if(null != $this->location && $this->location->lvs_active == 1){
+        if(null != $this->location && empty($this->location->lvs_type)){
             return true;
         }
 
