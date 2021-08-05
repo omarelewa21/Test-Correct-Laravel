@@ -107,7 +107,7 @@ class EntreeHelper
                                 // search the school location where the teacher was logged in last if available
                                 $lastLocation = $allowedLocations->first(function(SchoolLocation $sl){
                                     return User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $sl->getKey())
-                                        ->where('users.school_location_id',$sl->getKey())->first() != null;
+                                            ->where('users.school_location_id',$sl->getKey())->first() != null;
                                 });
                                 if($lastLocation->count() === 1){
                                     // there was a location for which the teacher was logged in last
