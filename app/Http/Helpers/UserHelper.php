@@ -10,17 +10,75 @@ namespace tcCore\Http\Helpers;
 
 
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use tcCore\Answer;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\FailedLogin;
 use tcCore\Jobs\SendWelcomeMail;
+use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
 use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
+use tcCore\Lib\User\Roles;
+use tcCore\LoginLog;
 use tcCore\User;
 
 class UserHelper
 {
+
+    protected $text2speechPriceRoles = ['Teacher','Administrator','School manager','School management','Mentor'];
+
+    public function handleAfterLoginValidation($user, $throughTempLogin = false, $ip = false)
+    {
+        $user->setAttribute('session_hash', $user->generateSessionHash());
+        if((bool) $user->demo === true){
+            $user->demoRestrictionOverrule = true;
+        }
+        $user->save();
+        $user->load('roles');
+
+        if(($user->isA('teacher') || $user->isA('student')) && !$throughTempLogin && EntreeHelper::shouldPromptForEntree($user)){
+            return \Response::make("NEEDS_LOGIN_ENTREE",403);
+        }
+
+        $hidden = $user->getHidden();
+
+        if (($key = array_search('api_key', $hidden)) !== false) {
+            unset($hidden[$key]);
+        }
+        if (($key = array_search('session_hash', $hidden)) !== false) {
+            unset($hidden[$key]);
+        }
+
+        if($user->isA('teacher')){
+            (new DemoHelper())->createDemoForTeacherIfNeeded($user);
+            dispatch(new SetSchoolYearForDemoClassToCurrent($user->schoolLocation));
+        }
+
+        if($this->canHaveGeneralText2SpeechPrice($user)){
+            $user->setAttribute('general_text2speech_price',config('custom.text2speech.price'));
+        }
+        $user->setAttribute('isToetsenbakker',$user->isToetsenbakker());
+
+        $user->setAttribute('hasCitoToetsen',$user->hasCitoToetsen());
+
+        $user->setAttribute('hasSharedSections',$user->hasSharedSections());
+
+        $user->makeOnboardWizardIfNeeded();
+
+        $clone = $user->replicate();
+        $clone->{$user->getKeyName()} = $user->getKey();
+        $clone->setHidden($hidden);
+
+        $clone->logins = $user->getLoginLogCount();
+        $clone->is_temp_teacher = $user->getIsTempTeacher();
+        LoginLog::create(['user_id' => $user->getKey()]);
+        if($ip) {
+            FailedLogin::solveForUsernameAndIp($user->username, $ip);
+        }
+        return new JsonResponse($clone);
+    }
 
     public function createUserFromData($data){
         $userFactory = new Factory(new User());
@@ -43,5 +101,15 @@ class UserHelper
         } else {
             return false;
         }
+    }
+
+    protected function canHaveGeneralText2SpeechPrice($user){
+        $roles = Roles::getUserRoles($user);
+        foreach($roles as $role){
+            if(in_array($role,$this->text2speechPriceRoles)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
