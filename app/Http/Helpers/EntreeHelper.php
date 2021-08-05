@@ -287,7 +287,7 @@ class EntreeHelper
             return true;
         }
         $this->setLocationWithSamlAttributes();
-        if(null != $this->location && $this->location->lvs_type == 1){
+        if(null != $this->location && $this->location->lvs_active == 1){
             return true;
         }
 
