@@ -42,8 +42,6 @@ class EntreeHelper
 
     protected function transformAttributesIfNeededAndReturn($attr)
     {
-        logger('attributes');
-        logger($attr);
         // we may get employee, then we transfer it to teacher
         if (array_key_exists('eduPersonAffiliation', $attr) && in_array(strtolower($attr['eduPersonAffiliation'][0]), $this->rolesToTransformToTeacher)) {
             $attr['eduPersonAffiliation'][0] = 'teacher';
@@ -89,18 +87,12 @@ class EntreeHelper
             // 4. zo ja bij voorkeur die pakken die nu ook al actief is en anders de eerste die wel voldoet
             // 5. indien geen gevonden dan brinFourErrorDetected
             $school = School::where('external_main_code', $external_main_code)->get();
-            logger('brin4code');
-            logger('schoolcound '.$school->count());
             if ($school->count() === 1) {
                 $locations = SchoolLocation::where('school_id', $school->first()->getKey())
                     ->where('sso_type', SchoolLocation::SSO_ENTREE)
                     ->where('sso_active', 1)
                     ->get();
-                logger('location count '.$locations->count());
                 if ($locations->count() > 0) {
-                    logger('attributes');
-                    logger($this->attr);
-                    logger('isTeacher '.$this->isTeacherBasedOnAttributes());
                     if($this->isTeacherBasedOnAttributes()){
                         // teacher (later on there will be a match on role)
                         $allowedLocations = $locations->filter(function(SchoolLocation $sl){
@@ -133,7 +125,6 @@ class EntreeHelper
                         $allowedLocations = $locations->filter(function(SchoolLocation $sl){
                             return User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
                         });
-                        logger('allowed locations '.$allowedLocations->count());
                         if($allowedLocations->count() > 0){
                             // the locations for which the user is allowed to access
                             if($allowedLocations->count() === 1){
