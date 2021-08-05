@@ -708,13 +708,7 @@ class TestTakesController extends Controller {
                 $query->orderBy('level');
             }]);
         $ignoreQuestions = $request->get('ignore_questions');
-        foreach ($ignoreQuestions as $key=>$value){
-            if(!strstr($value,'.')){
-                continue;
-            }
-            $arr = explode('.',$value);
-            $ignoreQuestions[$key] = $arr[1];
-        }
+
 
 
         if ($request->filled('ppp') || $request->filled('epp') || $request->filled('wanted_average') || $request->filled('n_term')) {
@@ -1282,6 +1276,13 @@ class TestTakesController extends Controller {
     }
 
     public function maxScore(TestTake $testTake,$ignoreQuestions = []){
+        foreach ($ignoreQuestions as $key=>$value){
+            if(!strstr($value,'.')){
+                continue;
+            }
+            $arr = explode('.',$value);
+            $ignoreQuestions[$key] = $arr[1];
+        }
         $test = $testTake->test;
         return (new TestsController())->maxScore($test,$ignoreQuestions);
     }
