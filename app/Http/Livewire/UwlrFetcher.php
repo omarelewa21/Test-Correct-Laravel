@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire;
 
 use Artisaninweb\SoapWrapper\SoapWrapper;
+use Carbon\Carbon;
 use Livewire\Component;
 use tcCore\Http\Helpers\MagisterHelper;
 use tcCore\Http\Helpers\SomTodayHelper;
@@ -63,18 +64,26 @@ class UwlrFetcher extends Component
         $this->setSearchFields();
         $this->setSchoolYears();
 
+        if($this->uwlrDatasource[$this->currentSource]['school_year'] != 0) {
+            $this->schoolYear = $this->uwlrDatasource[$this->currentSource]['school_year'];
+        }
     }
 
     protected function setSchoolYears()
     {
         $this->schoolYears = [];
         $location = SchoolLocation::find($this->uwlrDatasource[$this->currentSource]['id']);
-        $currentPeriod = PeriodRepository::getCurrentPeriodForSchoolLocation($location)->load('schoolYear:id,year');
+        $currentPeriod = PeriodRepository::getCurrentPeriodForSchoolLocation($location, false, false);
         if($location) {
             $years = $location
                     ->schoolLocationSchoolYears
                     ->load('schoolYear:id,year')
-                    ->where('schoolYear.year', '>=', $currentPeriod->schoolYear->year)
+                    ->when($currentPeriod->schoolYear, function ($slsy) use ($currentPeriod) {
+                        return $slsy->where('schoolYear.year', '>=', $currentPeriod->schoolYear->year);
+                    })
+                    ->when(!$currentPeriod->schoolYear, function ($slsy) {
+                        return $slsy->where('schoolYear.year', '>=', Carbon::now()->subYear()->format('Y'));
+                    })
                     ->sortBy('schoolYear.year', SORT_REGULAR, false)
                     ->filter(function(SchoolLocationSchoolYear $s) {
                         return null != optional($s->schoolYear)->year;
@@ -86,15 +95,15 @@ class UwlrFetcher extends Component
             $this->schoolYears = array_values($years->toArray());
 
             if (!array_key_exists(0, $this->schoolYears)) {
-                dd(
-                    sprintf(
-                        'Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s',
-                        $location->id,
-                        $location->name
-                    )
+                $this->addError(
+                    'no_school_years',
+                    sprintf('Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s', $location->id, $location->name)
                 );
+                $this->schoolYear = '';
+//                dd(sprintf('Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s', $location->id, $location->name));
+            } else {
+                $this->schoolYear = array_key_first($this->schoolYears);
             }
-            $this->schoolYear = array_key_first($this->schoolYears);
         }
 
     }
@@ -102,6 +111,7 @@ class UwlrFetcher extends Component
     public function updatedSchoolYear($data)
     {
         $this->setSearchFields();
+        $this->uwlrDatasource[$this->currentSource]['school_year'] = $data;
     }
 
     private function setSearchFields()
