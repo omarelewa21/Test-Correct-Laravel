@@ -107,7 +107,7 @@ class EntreeHelper
                                 // search the school location where the teacher was logged in last if available
                                 $lastLocation = $allowedLocations->first(function(SchoolLocation $sl){
                                     return User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $sl->getKey())
-                                        ->where('users.school_location_id',$sl->getKey())->first() != null;
+                                            ->where('users.school_location_id',$sl->getKey())->first() != null;
                                 });
                                 if($lastLocation->count() === 1){
                                     // there was a location for which the teacher was logged in last
@@ -123,7 +123,7 @@ class EntreeHelper
                     } else {
                         // student (later on there will be a match on role)
                         $allowedLocations = $locations->filter(function(SchoolLocation $sl){
-                            return User::scopeFindByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
+                            return User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
                         });
                         if($allowedLocations->count() > 0){
                             // the locations for which the user is allowed to access
@@ -265,7 +265,7 @@ class EntreeHelper
 
     protected function isTeacherBasedOnAttributes()
     {
-        return !! strtolower($this->getRoleFromAttributes()) == 'teacher';
+        return strtolower($this->getRoleFromAttributes()) == 'teacher';
     }
 
     public function redirectIfBrinNotSso()
