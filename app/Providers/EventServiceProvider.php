@@ -39,7 +39,7 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->redirectIfBrinNotSso();
 
-            $entreeHelper->redirectIfUserWasNotFoundForEckIdAndNoLVS();
+//            $entreeHelper->redirectIfUserWasNotFoundForEckIdAndNoLVS();
 
             $entreeHelper->redirectIfUserNotHasSameRole();
 
