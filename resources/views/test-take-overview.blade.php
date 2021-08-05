@@ -11,7 +11,10 @@
 
             <div class="nav-overflow left-0 fixed w-full h-12"></div>
         </div>
-        <div class="w-full space-y-8 mt-40" :style="calculateMarginTop()">
+        <div x-data="{showMe: true}"
+             x-show="showMe"
+             x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;console.log($event.detail)"
+             class="w-full space-y-8 mt-40" :style="calculateMarginTop()">
             <h1 class="mb-7">{{ __('test_take.overview_review_answers') }}</h1>
             @foreach($data as  $key => $testQuestion)
                 <div class="flex flex-col space-y-4">
@@ -111,7 +114,7 @@
             <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()"/>
         </x-slot>
         <x-slot name="fraudDetection">
-            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()"/>
+            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testTakeUuid="$uuid"/>
         </x-slot>
     </div>
     @push('scripts')

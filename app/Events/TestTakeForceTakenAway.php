@@ -1,15 +1,16 @@
 <?php
+
 namespace tcCore\Events;
 
-use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 
-class RemoveFraudDetectionNotification implements ShouldBroadcast
+class TestTakeForceTakenAway implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,13 +27,8 @@ class RemoveFraudDetectionNotification implements ShouldBroadcast
         return new PrivateChannel('TestTake.'.$this->testTake->uuid);
     }
 
-//    public function broadcastWith()
-//    {
-//        return ['user_id' => $this->userId];
-//    }
-
     public function broadcastAs()
     {
-        return 'RemoveFraudDetectionNotification';
+        return 'TestTakeForceTakenAway';
     }
 }

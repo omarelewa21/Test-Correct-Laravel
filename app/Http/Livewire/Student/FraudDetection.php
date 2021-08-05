@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
@@ -10,13 +11,13 @@ use tcCore\TestTakeStatus;
 class FraudDetection extends Component
 {
     public $fraudDetected = false;
-    public $testParticipantId;
+    public $testParticipantId, $testTakeUuid;
 
-    protected $listeners = ['setFraudDetected'];
+//    protected $listeners = ['setFraudDetected'];
     protected function getListeners() {
         return [
-            'echo-private:TestTake.{$this->testTakeId},.RemoveFraudDetectionNotification' => 'isTestTakeConfirmed',
-            'setFraudDetected'
+            'echo-private:TestTake.'.$this->testTakeUuid.',.RemoveFraudDetectionNotification' => 'shouldRemoveFraudNotification',
+            'setFraudDetected' => 'setFraudDetected'
         ];
     }
 
@@ -57,5 +58,12 @@ class FraudDetection extends Component
     public function canParticipantContinue(): bool
     {
         return TestParticipant::whereId($this->testParticipantId)->value('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST;
+    }
+
+    public function shouldRemoveFraudNotification($eventData)
+    {
+        if ($eventData['userId'] === Auth::id()) {
+            $this->isTestTakeEventConfirmed();
+        }
     }
 }

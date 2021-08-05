@@ -24,11 +24,7 @@
     window.livewire.onError(statusCode => {
 
         if (statusCode === 406) {
-            console.log('in onError')
-            // var element = document.querySelector('[testtakemanager]');
-            // console.log(element)
-            // element.dispatchEvent(new CustomEvent('set-force-taken-away', {w: true}));
-            Livewire.emit('set-force-taken-away');
+            // Livewire.emit('set-force-taken-away');
 
             return false;
         }

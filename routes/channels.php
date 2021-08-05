@@ -14,6 +14,4 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 
-Broadcast::channel('TestTake.{testTakeId}', function ($user, $participantUserIds) {
-    return Arr::exists($participantUserIds, $user->getKey());
-});
+Broadcast::channel('TestTake.{testTakeUuid}', \tcCore\Broadcasting\TestTakeChannel::class);

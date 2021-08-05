@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use tcCore\Events\RemoveFraudDetectionNotification;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\TestTakeEvent;
@@ -81,6 +82,9 @@ class TestTakeEventsController extends Controller {
         $testTakeEvent->fill($request->all());
 
         if ($testTake->testTakeEvents()->save($testTakeEvent) !== false) {
+            if ($testTakeEvent->confirmed) {
+                RemoveFraudDetectionNotification::dispatch($testTake, $testTakeEvent->test_participant_id);
+            }
             return Response::make($testTakeEvent, 200);
         } else {
             return Response::make('Failed to update test take event', 500);
