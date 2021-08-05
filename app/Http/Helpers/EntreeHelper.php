@@ -42,6 +42,8 @@ class EntreeHelper
 
     protected function transformAttributesIfNeededAndReturn($attr)
     {
+        logger('attributes');
+        logger($attr);
         // we may get employee, then we transfer it to teacher
         if (array_key_exists('eduPersonAffiliation', $attr) && in_array(strtolower($attr['eduPersonAffiliation'][0]), $this->rolesToTransformToTeacher)) {
             $attr['eduPersonAffiliation'][0] = 'teacher';
@@ -96,6 +98,8 @@ class EntreeHelper
                     ->get();
                 logger('location count '.$locations->count());
                 if ($locations->count() > 0) {
+                    logger('attributes');
+                    logger($this->attr);
                     logger('isTeacher '.$this->isTeacherBasedOnAttributes());
                     if($this->isTeacherBasedOnAttributes()){
                         // teacher (later on there will be a match on role)
