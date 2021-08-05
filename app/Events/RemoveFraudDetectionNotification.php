@@ -12,11 +12,12 @@ class RemoveFraudDetectionNotification implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $testTake;
+    public $testTake, $userId;
 
-    public function __construct(TestTake $testTake)
+    public function __construct(TestTake $testTake, $userId)
     {
         $this->testTake = $testTake;
+        $this->userId = $userId;
     }
 
     public function broadcastOn()
@@ -26,8 +27,6 @@ class RemoveFraudDetectionNotification implements ShouldBroadcast
 
     public function broadcastWith()
     {
-        return $this->testTake->testParticipants->map(function($tp) {
-            return $tp->user_id;
-        });
+        return ['user_id' => $this->userId];
     }
 }

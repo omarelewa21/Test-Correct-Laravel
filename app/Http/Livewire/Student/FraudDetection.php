@@ -12,7 +12,13 @@ class FraudDetection extends Component
     public $fraudDetected = false;
     public $testParticipantId;
 
-    protected $listeners = ['setFraudDetected', 'setFraudDetected'];
+    protected $listeners = ['setFraudDetected'];
+    protected function getListeners() {
+        return [
+            'echo-private:TestTake.{$this->testTakeId},.RemoveFraudDetectionNotification' => 'isTestTakeConfirmed',
+            'setFraudDetected'
+        ];
+    }
 
     public $testTakeEvents;
 

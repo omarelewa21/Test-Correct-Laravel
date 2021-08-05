@@ -10,7 +10,11 @@ use tcCore\Events\RemoveFraudDetectionNotification;
 class Pusher extends Component implements ShouldBroadcast
 {
 
-    protected $listeners = ['echo:my-channel,.my-event' => 'hansactie'];
+    protected function getListeners() {
+        return [
+            'echo-private:TestTake.{$this->testTakeId},.RemoveFraudDetectionNotification' => 'hansactie'
+        ];
+    }
 
     public function render()
     {
@@ -23,7 +27,7 @@ class Pusher extends Component implements ShouldBroadcast
     }
 
     public function doeiets() {
-        event(new RemoveFraudDetectionNotification('hello world'));
+        event(new RemoveFraudDetectionNotification('hello world', 1));
     }
     public function hansactie()
     {

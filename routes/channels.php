@@ -14,8 +14,6 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 
-Broadcast::channel('testTake.{testTakeId}', function ($user, $participantUserIds) {
-    return $participantUserIds->each(function ($pid) {
-        return $pid === $user->getKey();
-    });
+Broadcast::channel('TestTake.{testTakeId}', function ($user, $participantUserIds) {
+    return Arr::exists($participantUserIds, $user->getKey());
 });
