@@ -708,6 +708,14 @@ class TestTakesController extends Controller {
                 $query->orderBy('level');
             }]);
         $ignoreQuestions = $request->get('ignore_questions');
+        foreach ($ignoreQuestions as $key=>$value){
+            if(!strstr($value,'.')){
+                continue;
+            }
+            $arr = explode('.',$value);
+            $ignoreQuestions[$key] = $arr[1];
+        }
+
 
         if ($request->filled('ppp') || $request->filled('epp') || $request->filled('wanted_average') || $request->filled('n_term')) {
             $testTake->setAttribute('ppp', null);
