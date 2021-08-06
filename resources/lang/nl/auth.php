@@ -71,5 +71,5 @@ return [
     'eck_id_already_set_for_user'                       => 'Er is iets fout gegaan, het account waarmee u probeert te koppelen is reeds gekoppeld, neem contact op met de helpdesk.',
     'saml_message_to_old'                               => 'U heeft te veel tijd genomen om uw account te koppelen, het verzoek is reeds verlopen',
     'school_not_registered_for_sso'                     => 'Uw schoollocatie in Test-correct is niet geconfigureerd voor gebruik met Entree.',
-    'brin_four_detected'                                => 'Uw Entree account bevat een 4 cijferige brincode we kunnen uw account niet aan een schoollocatie linken, neem contact op met de helpdesk.',
+    'brin_four_detected'                                => 'Uw Entree account bevat een 4 cijferige brincode. We kunnen uw account niet aan een schoollocatie linken, neem contact op met de helpdesk.',
 ];

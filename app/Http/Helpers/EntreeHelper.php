@@ -529,6 +529,15 @@ class EntreeHelper
         } else {
             $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $this->location->getKey())->first();
         }
+
+        if(null == $this->laravelUser){
+            // could be that they have the wrong role, so check the other way around (somewhere else there's the role check);
+            if (strtolower($this->getRoleFromAttributes()) != 'teacher') {
+                $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $this->location->getKey())->first();
+            } else {
+                $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $this->location->getKey())->first();
+            }
+        }
     }
 
 
