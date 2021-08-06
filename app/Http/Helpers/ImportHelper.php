@@ -209,7 +209,7 @@ class ImportHelper
      */
     public function importLog($string)
     {
-     //   logger($string);
+        logger($string);
 
         return true;
     }
@@ -242,6 +242,7 @@ class ImportHelper
         $this->errorMessages = [];
 
         $this->importLog('----- '.$this->csv_data_lines.' data lines in input file');
+        logger(sprintf('Total of %d lines to handle',$this->csv_data_lines));
 
 
         try {
