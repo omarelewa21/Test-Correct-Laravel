@@ -120,6 +120,9 @@ class EntreeHelper
                                     $u = User::filterByEckid($this->getEckIdFromAttributes())->first();
                                     $u->school_location_id = $this->location->getKey();
                                     $u->save();
+                                    if(null != $this->laravelUser){
+                                        $this->laravelUser->school_location_id = $this->location->getKey();
+                                    }
 
                                     return true;
                                 }
