@@ -32,26 +32,26 @@ class EventServiceProvider extends ServiceProvider {
             $attr = $user->getAttributes();
 
             $entreeHelper = new EntreeHelper($attr, $messageId);
-
+logger('check for replay attack and kill if so');
             $entreeHelper->blockIfReplayAttackDetected();
-
+logger('check for unknown brin and kill if so');
             $entreeHelper->redirectIfBrinUnknown();
-
+            logger('check for no sso and kill if so');
             $entreeHelper->redirectIfBrinNotSso();
-
+            logger('check for no user and active lvs and kill if so');
             $entreeHelper->redirectIfUserWasNotFoundForEckIdAndActiveLVS();
-
+            logger('check for not same role and kill if so');
             $entreeHelper->redirectIfUserNotHasSameRole();
-
+            logger('check for scenario5 and kill if so');
             //scenario 5 still needs implementation;
             $entreeHelper->redirectIfScenario5();
-
+            logger('check for no user and kill if so');
             $entreeHelper->redirectIfNoUserWasFoundForEckId();
-
+            logger('check for user in same school and kill if so');
             $entreeHelper->redirectIfUserNotInSameSchool();
-
+            logger('check for scenario2 and kill if so');
             $entreeHelper->handleScenario2IfAddressIsKnownInOtherAccount();
-
+            logger('check for scenario1 and kill if so');
             $entreeHelper->handleScenario1();
 
             dd('No ECK_id on the request error (something went wrong?) Entree user.');
