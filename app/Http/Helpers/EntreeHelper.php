@@ -335,6 +335,8 @@ class EntreeHelper
         if(null != $this->laravelUser) {
             if ($this->isTeacherBasedOnAttributes()) {
                 if($this->laravelUser->allowedSchoolLocations->contains($this->location->getKey())){
+                    $this->laravelUser->school_location_id = $this->location->getKey();
+                    $this->laravelUser->save();
                     return true;
                 }
             } else {
