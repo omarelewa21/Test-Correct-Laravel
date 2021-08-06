@@ -373,6 +373,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if (Crypt::decryptString($record->eckid) === $eckid) {
                 // user should be part of this school_location
                 $user = User::find($record->user_id);
+                if(!$user){
+                    return false;
+                }
                 return $user->allowedSchoolLocations->contains($school_location_id);
             }
             return false;
