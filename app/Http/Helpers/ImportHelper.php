@@ -760,9 +760,12 @@ class ImportHelper
             $this->importLog("Transaction failed with message ".$e->getMessage());
             if ($e->getMessage() == 'collected errors') {
                 $uniqueErrors = $this->makeErrorsUnique();
-
-
                 return ['errors' => $uniqueErrors];
+            } else {
+                $result = UwlrSoapResult::find($this->uwlr_soap_result_id);
+                $result->error_messages = $e->getMessage();
+                $result->status = 'ERROR';
+                $result->save();
             }
             // MF merge the errorMessages of helper on the return to fix schoolyear error;
             return [
