@@ -350,7 +350,7 @@ class EntreeHelper
         }
 
         if(null == $this->laravelUser){
-            $this->redirectIfNoUserWasFoundForEckId();
+            return true;//$this->redirectIfNoUserWasFoundForEckId();
         }
 
         if (optional($this->laravelUser)->isA($this->getRoleFromAttributes())) {
