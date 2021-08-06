@@ -332,8 +332,16 @@ class EntreeHelper
         if (null == $this->laravelUser) {
             $this->setLaravelUser();
         }
-        if ($this->location && $this->location->is(optional($this->laravelUser)->schoolLocation)) {
-            return true;
+        if(null != $this->laravelUser) {
+            if ($this->isTeacherBasedOnAttributes()) {
+                if($this->laravelUser->allowedSchoolLocations->contains($this->location->getKey())){
+                    return true;
+                }
+            } else {
+                if ($this->location && $this->location->is($this->laravelUser->schoolLocation)) {
+                    return true;
+                }
+            }
         }
 
         $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.user_not_in_same_school']);
