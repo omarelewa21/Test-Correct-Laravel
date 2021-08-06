@@ -225,7 +225,7 @@ class ImportHelper
 
         $unit=array('b','kb','mb','gb','tb','pb');
         $usage = @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
-        logger(sprintf('[%s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $usage, time()-$this->startTime, $this->cacheHit));
+        logger(sprintf('[%s of %s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $this->csv_data_lines, $usage, time()-$this->startTime, $this->cacheHit));
     }
 
     public function process()
