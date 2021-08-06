@@ -116,6 +116,11 @@ class EntreeHelper
                                 } else {
                                     // sorry not available so we just take the first we can find
                                     $this->location = $allowedLocations->first();
+                                    // set user schoollocation for later checks;
+                                    $u = User::filterByEckid($this->getEckIdFromAttributes())->first();
+                                    $u->school_location_id = $this->location->getKey();
+                                    $u->save();
+
                                     return true;
                                 }
                             }
@@ -328,7 +333,7 @@ class EntreeHelper
             return true;
         }
 
-        $url = route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.user_not_in_same_school']);
+        $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.user_not_in_same_school']);
 
         return $this->redirectToUrlAndExit($url);
     }
