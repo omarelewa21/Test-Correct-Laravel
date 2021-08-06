@@ -311,7 +311,7 @@ class EntreeHelper
         }
 
         $url = route('auth.login',
-            ['tab' => 'entree', 'entree_error_message' => 'auth.school_info_not_synced_with_test_correct']);
+            ['tab' => 'login', 'entree_error_message' => 'auth.school_info_not_synced_with_test_correct']);
         return $this->redirectToUrlAndExit($url);
     }
 
