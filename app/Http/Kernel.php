@@ -49,7 +49,7 @@ class Kernel extends HttpKernel
         'teacher'               => AuthenticatedAsTeacher::class,
         'deploymentMaintenance' => CheckForDeploymentMaintenance::class,
         'student'               => AuthenticatedAsStudent::class,
-//        'forceTaken'            => TestTakeForceTakenAwayCheck::class,
+        'forceTaken'            => TestTakeForceTakenAwayCheck::class,
     ];
 
     /**

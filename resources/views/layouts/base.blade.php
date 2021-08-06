@@ -24,7 +24,7 @@
     window.livewire.onError(statusCode => {
 
         if (statusCode === 406) {
-            // Livewire.emit('set-force-taken-away');
+            Livewire.emit('set-force-taken-away');
 
             return false;
         }
