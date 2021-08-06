@@ -16,7 +16,7 @@ class FraudDetection extends Component
 //    protected $listeners = ['setFraudDetected'];
     protected function getListeners() {
         return [
-            'echo-private:TestTake.'.$this->testTakeUuid.',.RemoveFraudDetectionNotification' => 'shouldRemoveFraudNotification',
+            'echo-private:TestParticipant.'.$this->testParticipantId.',.RemoveFraudDetectionNotification' => 'isTestTakeEventConfirmed',
             'setFraudDetected' => 'setFraudDetected'
         ];
     }
@@ -58,12 +58,5 @@ class FraudDetection extends Component
     public function canParticipantContinue(): bool
     {
         return TestParticipant::whereId($this->testParticipantId)->value('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST;
-    }
-
-    public function shouldRemoveFraudNotification($eventData)
-    {
-        if ($eventData['userId'] === Auth::id()) {
-            $this->isTestTakeEventConfirmed();
-        }
     }
 }

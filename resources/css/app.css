@@ -53,11 +53,11 @@
 
 @font-face {
     font-family: 'dotsfont';
-    src: url('../fonts/password/dotsfont.eot');
-    src: url('../fonts/password/dotsfont.eot?#iefix') format('embedded-opentype'),
-    url('../fonts/password/dotsfont.woff') format('woff'),
-    url('../fonts/password/dotsfont.ttf') format('truetype'),
-    url('../fonts/password/dotsfont.svg#dotsfontregular') format('svg');
+    src: url('../fonts/Password/dotsfont.eot');
+    src: url('../fonts/Password/dotsfont.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/Password/dotsfont.woff') format('woff'),
+    url('../fonts/Password/dotsfont.ttf') format('truetype'),
+    url('../fonts/Password/dotsfont.svg#dotsfontregular') format('svg');
 }
 
 .dotsfont {

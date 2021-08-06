@@ -288,7 +288,7 @@ class TestParticipant extends BaseModel
             $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Continue')->value('id'));
             $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
             $this->testTake->testTakeEvents()->save($testTakeEvent);
-            TestTakeReopened::dispatch($this->testTake, $this->getKey());
+            TestTakeReopened::dispatch($this);
         }
     }
 
@@ -380,7 +380,7 @@ class TestParticipant extends BaseModel
     private function isTestTakenAway()
     {
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
-            TestTakeForceTakenAway::dispatch($this->testTake, $this->getKey());
+            TestTakeForceTakenAway::dispatch($this);
         }
     }
 }

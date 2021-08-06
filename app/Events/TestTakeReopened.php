@@ -8,23 +8,21 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use tcCore\TestParticipant;
-use tcCore\TestTake;
 
 class TestTakeReopened implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $testTake, $userId;
+    public $testParticipant;
 
-    public function __construct(TestTake $testTake, $testParticipantId)
+    public function __construct(TestParticipant $testParticipant)
     {
-        $this->testTake = $testTake;
-        $this->userId = TestParticipant::whereId($testParticipantId)->value('user_id');
+        $this->testParticipant = $testParticipant;
     }
 
     public function broadcastOn()
     {
-        return new PrivateChannel('TestTake.'.$this->testTake->uuid);
+        return new PrivateChannel('TestParticipant.'.$this->testParticipant->getKey());
     }
 
     public function broadcastAs()

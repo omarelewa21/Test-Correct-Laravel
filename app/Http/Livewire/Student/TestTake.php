@@ -29,8 +29,8 @@ class TestTake extends Component
         return [
             'set-force-taken-away'                                                      => 'setForceTakenAway',
             'checkConfirmedEvents'                                                      => 'checkConfirmedEvents',
-            'echo-private:TestTake.' . $this->testTakeUuid . ',.TestTakeForceTakenAway' => 'setForceTakenAway',
-            'echo-private:TestTake.' . $this->testTakeUuid . ',.TestTakeReopened'       => 'testTakeReopened',
+            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeForceTakenAway' => 'setForceTakenAway',
+            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeReopened'       => 'testTakeReopened',
 
         ];
     }
@@ -83,10 +83,8 @@ class TestTake extends Component
 
     public function setForceTakenAway($eventData)
     {
-        if ($eventData['userId'] === Auth::id()) {
-            $this->dispatchBrowserEvent('force-taken-away-blur', ['shouldBlur' => true]);
-            $this->forceTakenAwayModal = true;
-        }
+        $this->dispatchBrowserEvent('force-taken-away-blur', ['shouldBlur' => true]);
+        $this->forceTakenAwayModal = true;
     }
 
     public function checkConfirmedEvents($reason)
@@ -106,9 +104,7 @@ class TestTake extends Component
 
     public function testTakeReopened($eventData)
     {
-        if ($eventData['userId'] === Auth::id()) {
-            $this->dispatchBrowserEvent('force-taken-away-blur', ['shouldBlur' => false]);
-            $this->forceTakenAwayModal = false;
-        }
+        $this->dispatchBrowserEvent('force-taken-away-blur', ['shouldBlur' => false]);
+        $this->forceTakenAwayModal = false;
     }
 }

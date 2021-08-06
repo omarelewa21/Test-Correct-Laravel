@@ -26,7 +26,7 @@ class TestTakeChannel
      */
     public function join(User $user, $testTakeUuid)
     {
-        $testTake = TestTake::whereUuid($testTakeUuid)->with('testParticipants')->firstOrFail();
+        $testTake = TestTake::whereUuid($testTakeUuid)->with('testParticipants:id,user_id')->firstOrFail();
         return $testTake->testParticipants->each(function ($tp) use ($user) {
             if ($tp->user_id === $user->getKey()) {
                 return true;
