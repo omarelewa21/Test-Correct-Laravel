@@ -209,7 +209,7 @@ class ImportHelper
      */
     public function importLog($string)
     {
-        logger($string);
+//        logger($string);
 
         return true;
     }
