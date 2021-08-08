@@ -12,6 +12,10 @@
     <!-- Alpine -->
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
 
+    <script src="{{ mix('/js/app.js') }}"></script>
+    <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
+
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-156194835-1"></script>
     @livewireStyles
     <link rel="stylesheet" href="/css/onboarding.css">

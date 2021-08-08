@@ -3,7 +3,7 @@
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
-CKEDITOR.plugins.addExternal('ckeditor_wiris', 'plugins/@wiris/mathtype-ckeditor4/', 'plugin.js');
+CKEDITOR.plugins.addExternal('ckeditor_wiris', 'plugins/ckeditor_wiris/plugin.js');
 
 
 
@@ -58,6 +58,13 @@ CKEDITOR.editorConfig = function( config ) {
         { name: 'align', items: [ 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
         {name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
     ];
+
+    config.mathTypeParameters = {
+        serviceProviderProperties : {
+            URI : 'integration',
+                server : 'php'
+        }
+    };
 
     config.stylesSet = [
         /* Inline Styles */
