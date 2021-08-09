@@ -198,7 +198,7 @@
                                                        class="transition ease-in-out duration-150">Achternaam</label>
                                             </div>
                                         </div>
-                                        <div class="password items-start">
+                                        <div class="password items-start mb-4">
 
                                             <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
                                                 <input id="password" wire:model="password" type="password"
@@ -242,6 +242,68 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div x-data @subjects-update="console.log('subjects updated', $event.detail.subjects)" data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
+                                            <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
+                                                <div >
+                                                <label for="subjects" id="subjects_label"
+                                                       class="transition ease-in-out duration-150">{{__('Jouw vak(ken)')}}</label>
+                                                </div>
+                                                <template x-for="(subject, index) in subjects">
+
+                                                    <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('Verwijder')}}"  @click.prevent="removeSubject(index)">
+                                                        <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
+                                                        <span  class=" inline-block align-middle" style="margin:auto">
+                                                            <img class="icon-close-small" src="img/icons/icons-close-small.svg" >
+                                                        </span>
+                                                    </button>
+                                                </template>
+
+                                                <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('Voeg toe')}}" @click.prevent="showSubjectInput()">
+                                                    <span  class=" inline-block align-middle" style="margin:auto">
+                                                        <img class="icon-close-small" src="img/icons/icons-plus.svg" >
+                                                    </span>
+                                                </button>
+
+                                                <div x-show="showInput" style="
+                                                            width: 12em;
+                                                            height: 40px;
+                                                            border-radius: 8px;
+                                                            overflow: hidden;
+                                                            "
+                                                            class="responsive subject_select_div" @keydown.enter.prevent="addSubject(textInput)"
+                                                >
+
+                                                    <input x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="displaySubjects()" placeholder="Selecteer vak..."  class="input-text-select">
+                                                    <img x-show="!show"
+                                                         src="img/icons/icons-chevron-down-small.svg"
+                                                         class="iconschevron-down-small icons-chevron float-right"
+                                                         x-on:click="displaySubjects()"
+                                                    >
+                                                    <img x-show="show" src="img/icons/icons-chevron-up-small-blue.svg"
+                                                         class="iconschevron-down-small icons-chevron float-right"
+                                                         x-on:click="hideSubjects()"
+                                                    >
+                                                    <hr x-show="show">
+                                                    <div class="subject_select_div_padding">
+                                                        <div class="subject_select_div_inner">
+                                                            <template x-for="(subject_option, index) in available_subject_options">
+                                                                <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item"><span x-text="subject_option"></span><hr class="subject_hr"></div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <button x-show="showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 " disabled>
+                                                    <span  class=" inline-block align-middle" style="margin:auto">
+                                                        <img class="icon-close-small" src="img/icons/icons-plus-disabled.svg" >
+                                                    </span>
+                                                </button>
+
+                                            </div>
+
+                                        </div>
+
+
                                     </div>
                                     <div class="error-section md:mb-20">
                                         @if($this->warningStepOne)
@@ -520,3 +582,179 @@
         </div>
     </div>
 </div>
+@push('page_styles')
+    <style>
+        input[list="languages"] {
+            width: 12em;
+        }
+        select {
+            width: 12em;
+            margin: 0;
+            margin-left: -12.75em;
+        }
+
+    </style>
+@endpush
+
+@push('page_scripts')
+    <script>
+        function subjectSelect() {
+            return {
+                open: false,
+                show: false,
+                textInput: '',
+                subjects: [],
+                subject_options: {!! $subjectOptions !!},
+                available_subject_options: [],
+                active_subject_option: null,
+                showInput: true,
+                init() {
+                    this.subjects = JSON.parse(this.$el.parentNode.getAttribute('data-subjects'));
+                    this.available_subject_options = this.subject_options;
+                    if(this.subjects.length>0){
+                        this.showInput = false;
+                    }
+                },
+                addSubject(subject) {
+                    subject = subject.trim();
+                    subject = subject.replace(/'/g,"\x27");
+                    subject = subject.replace(/"/g,"\x22");
+                    if(this.active_subject_option != null && !this.hasSubject(this.active_subject_option)){
+                        this.subjects.push( this.active_subject_option );
+                    }else if (subject != "" && !this.hasSubject(subject)) {
+                        this.subjects.push( subject )
+                    }
+                    this.clearSearch();
+                    this.$refs.textInput.focus();
+                    this.fireSubjectsUpdateEvent();
+                    if(this.subjects.length>0){
+                        this.showInput = false;
+                    }
+                    this.syncSubjects();
+                },
+                syncSubjects() {
+                    @this.call('syncSelectedSubjects',this.subjects);
+                },
+                displaySubjects() {
+                    var label = document.getElementById('subjects_label');
+                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
+                    var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
+                    div.style.height = '190px';
+                    inner_div.style.height = '130px';
+                    inner_div.style.overflow = 'auto';
+                    div.classList.add('show_subjects');
+                    label.classList.add('label_bold');
+                    this.show = true;
+                },
+                hideSubjects() {
+                    var label = document.getElementById('subjects_label');
+                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
+                    var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
+                    div.style.height = '40px';
+                    inner_div.style.overflow = 'hidden';
+                    div.classList.remove('show_subjects');
+                    label.classList.remove('label_bold');
+                    this.show = false;
+                },
+                fireSubjectsUpdateEvent() {
+                    this.$el.dispatchEvent(new CustomEvent('subjects-update', {
+                        detail: { subjects: this.subjects },
+                        bubbles: true,
+                    }));
+                },
+                hasSubject(subject) {
+                    var subject = this.subjects.find(e => {
+                        return e.toLowerCase() === subject.toLowerCase()
+                    })
+                    return subject != undefined
+                },
+                removeSubject(index) {
+                    this.subjects.splice(index, 1);
+                    this.fireSubjectsUpdateEvent();
+                    this.syncSubjects();
+                },
+                search(q) {
+                    if ( q.includes(",") ) {
+                        q.split(",").forEach(function(val) {
+                            this.addSubject(val)
+                        }, this)
+                    }
+                    this.toggleSearch()
+                },
+                clearSearch() {
+                    this.textInput = '';
+                    this.available_subject_options = this.subject_options;
+                    this.hideSubjects();
+                    this.toggleSearch();
+                },
+                toggleSearch() {
+                    this.open = this.textInput != ''
+                },
+                filter() {
+                    if(this.textInput == ''){
+                        this.available_subject_options = this.subject_options;
+                        return;
+                    }
+                    var arr = this.subject_options.map((x) => x);
+                    var i = 0;
+                    while (i < arr.length) {
+                        if(!arr[i].toLowerCase().includes(this.textInput.toLowerCase())){
+                            arr.splice(i, 1);
+                        } else {
+                            ++i;
+                        }
+                    }
+                    this.available_subject_options = arr;
+                    if(!this.available_subject_options.includes(this.active_subject_option)){
+                        this.active_subject_option = null;
+                    }
+                },
+                navigate(e) {
+                    if(e.keyCode!=40&&e.keyCode!=38){
+                        return;
+                    }
+                    e = e || window.event;
+                    if(this.active_subject_option==null){
+                        this.active_subject_option = this.available_subject_options[0];
+                        return this.scroll();
+                    }
+                    var temp = 0;
+                    var active = this.active_subject_option;
+                    this.available_subject_options.forEach((element,key) => {
+                        if(element==active){
+                            temp = key;
+                        }
+                    });
+                    if(e.keyCode==40){
+                        if(this.available_subject_options.length>temp){
+                            var next_key = temp+1;
+                            this.active_subject_option = this.available_subject_options[next_key];
+                        }
+                        return this.scroll();
+                    }
+                    if(temp==0){
+                        this.active_subject_option = this.available_subject_options[0];
+                        return this.scroll();
+                    }
+                    var previous_key = temp-1;
+                    this.active_subject_option = this.available_subject_options[previous_key];
+                    this.scroll();
+                },
+                scroll() {
+                    var div = this.$el.getElementsByClassName('subject_item_active')[0];
+                    if(div==undefined){
+                        return;
+                    }
+                    div.scrollIntoView({behavior: "smooth", block: "center", inline: "nearest"});
+                },
+                showSubjectInput()
+                {
+                    this.showInput = true;
+                }
+            }
+
+        }
+
+    </script>
+
+@endpush
