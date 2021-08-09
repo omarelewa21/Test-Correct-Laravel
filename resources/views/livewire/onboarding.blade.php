@@ -242,7 +242,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div x-data @subjects-update="console.log('subjects updated', $event.detail.subjects)" data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
+                                        <div x-data @subjects-update="console.log('subjects updated', $event.detail.subjects)" data-available_subject_options='{!! $subjectOptions !!}' data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
                                                 <div >
                                                 <label for="subjects" id="subjects_label"
@@ -287,17 +287,12 @@
                                                     <div class="subject_select_div_padding">
                                                         <div class="subject_select_div_inner">
                                                             <template x-for="(subject_option, index) in available_subject_options">
-                                                                <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item"><span x-text="subject_option"></span><hr class="subject_hr"></div>
+                                                                <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item"><span x-text="subject_option"></span><img class="icon-close-small-subjects" src="img/icons/icons-plus.svg"><hr class="subject_hr"></div>
                                                             </template>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <button x-show="showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 " disabled>
-                                                    <span  class=" inline-block align-middle" style="margin:auto">
-                                                        <img class="icon-close-small" src="img/icons/icons-plus-disabled.svg" >
-                                                    </span>
-                                                </button>
 
                                             </div>
 
@@ -604,13 +599,12 @@
                 show: false,
                 textInput: '',
                 subjects: [],
-                subject_options: {!! $subjectOptions !!},
                 available_subject_options: [],
                 active_subject_option: null,
                 showInput: true,
                 init() {
                     this.subjects = JSON.parse(this.$el.parentNode.getAttribute('data-subjects'));
-                    this.available_subject_options = this.subject_options;
+                    this.available_subject_options = JSON.parse(this.$el.parentNode.getAttribute('data-available_subject_options'));
                     if(this.subjects.length>0){
                         this.showInput = false;
                     }
@@ -639,9 +633,8 @@
                     var label = document.getElementById('subjects_label');
                     var div = this.$el.getElementsByClassName('subject_select_div')[0];
                     var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
+                    inner_div.classList.add('subject_select_div_inner_open');
                     div.style.height = '190px';
-                    inner_div.style.height = '130px';
-                    inner_div.style.overflow = 'auto';
                     div.classList.add('show_subjects');
                     label.classList.add('label_bold');
                     this.show = true;
@@ -651,7 +644,7 @@
                     var div = this.$el.getElementsByClassName('subject_select_div')[0];
                     var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
                     div.style.height = '40px';
-                    inner_div.style.overflow = 'hidden';
+                    inner_div.classList.remove('subject_select_div_inner_open');
                     div.classList.remove('show_subjects');
                     label.classList.remove('label_bold');
                     this.show = false;
@@ -683,7 +676,7 @@
                 },
                 clearSearch() {
                     this.textInput = '';
-                    this.available_subject_options = this.subject_options;
+                    this.available_subject_options = JSON.parse(this.$el.parentNode.getAttribute('data-available_subject_options'));
                     this.hideSubjects();
                     this.toggleSearch();
                 },
@@ -692,10 +685,10 @@
                 },
                 filter() {
                     if(this.textInput == ''){
-                        this.available_subject_options = this.subject_options;
+                        this.available_subject_options = JSON.parse(this.$el.parentNode.getAttribute('data-available_subject_options'));
                         return;
                     }
-                    var arr = this.subject_options.map((x) => x);
+                    var arr = JSON.parse(this.$el.parentNode.getAttribute('data-available_subject_options')).map((x) => x);
                     var i = 0;
                     while (i < arr.length) {
                         if(!arr[i].toLowerCase().includes(this.textInput.toLowerCase())){

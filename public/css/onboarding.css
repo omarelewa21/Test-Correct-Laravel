@@ -723,6 +723,11 @@ div.subject_select_div_inner{
     overflow: hidden;
 }
 
+div.subject_select_div_inner_open{
+    height: 130px;
+    overflow-y : auto;
+}
+
 div.subject_select_div_inner::-webkit-scrollbar {
     width: 8px;               /* width of the entire scrollbar */
     height: 8px;
@@ -763,31 +768,34 @@ hr.subject_hr{
 img.icon-close-small{
     margin-top: -2px;
 }
+
+img.icon-close-small-subjects{
+    display: inline-flex;
+    float: right;
+    margin-top: 5px;
+}
 .tooltip {
     position:relative; /* making the .tooltip span a container for the tooltip text */
 }
-.tooltip:before {
-    content: attr(data-text); /* here's the magic */
-    position:absolute;
+
+.tooltip::before {
+    content: attr(data-text);
+    position: absolute;
     z-index: 1000;
-
-    /* vertically center */
-    top:-100%;
-
-    /* move to right */
-    left:0px;
-
-    /* basic styles */
-    padding:10px;
+    top: -60%;
+    left: 0px;
+    padding: 6px;
     border: solid 1px #cccccc;
-    border-radius:10px;
-    background:#fff;
-    color: #929DAF;
-    text-align:center;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .5);
+    color: var(--system-base);
+    text-align: center;
     white-space: nowrap;
-
-    display:none; /* hide by default */
+    display: none;
+    font-size: .75rem;
+    font-family: Nunito Regular;
 }
+
 .tooltip:hover:before {
     display:block;
 }
