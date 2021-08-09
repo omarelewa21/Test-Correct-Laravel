@@ -810,12 +810,10 @@ class TestTakesController extends Controller {
 
         if ($request->filled('ppp') || $testTake->getAttribute('ppp') !== null) {
             $ppp = ($request->filled('ppp')) ? $request->get('ppp') : $testTake->getAttribute('ppp');
-
             $testTake->setAttribute('ppp', $ppp);
             if (!$request->filled('preview') || $request->get('preview') != true) {
                 $testTake->save();
             }
-
             foreach ($testTake->testParticipants as $testParticipant) {
                 if (array_key_exists($testParticipant->getKey(), $scores)) {
                     $score = $scores[$testParticipant->getKey()];
