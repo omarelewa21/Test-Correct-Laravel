@@ -53,7 +53,7 @@ class SchoolClassesStudentImportRequest extends Request
         foreach ($this->data as $key => $value) {
 
             if (array_key_exists('username', $value)) {
-                $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'], $this->schoolLocation->getKey());
+                $extra_rule[sprintf('data.%d.external_id', $key)] = ['required',sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'], $this->schoolLocation->getKey())];
             }
         }
 
@@ -157,7 +157,7 @@ class SchoolClassesStudentImportRequest extends Request
         $data = collect(request()->input('data'));
         $uniqueFields = ['external_id'];
         $groupedByDuplicates = $data->groupBy(function ($row, $key) {
-            if (array_key_exists('external_id', $row)) {
+            if (array_key_exists('external_id', $row)&&$row['external_id']!='') {
                 return $row['external_id'];
             }
         })->map(function ($item) {
@@ -165,10 +165,9 @@ class SchoolClassesStudentImportRequest extends Request
         })->filter(function ($item, $key) {
             return $item > 1;
         });
-
         if ($groupedByDuplicates->count() < $data->count()) {
             collect($this->data)->each(function ($item, $key) use ($groupedByDuplicates, $validator) {
-                if (array_key_exists('external_id', $item) && array_key_exists($item['external_id'], $groupedByDuplicates->toArray())) {
+                if (array_key_exists('external_id', $item)&& ($item['external_id']!='') && array_key_exists($item['external_id'], $groupedByDuplicates->toArray())) {
                     $validator->errors()->add(
                         sprintf('data.%d.external_id', $key),
                         'Deze import bevat dubbele studentennummers'
