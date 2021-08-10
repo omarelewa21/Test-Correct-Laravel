@@ -345,4 +345,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('test_take/{test_take}/toggle_inbrowser_testing_for_all_participants','TestTakesController@toggleInbrowserTestingForAllParticipants')->name('test_takes.toggle_inbrowser_testing_for_all_participants');
 
     Route::post('/convert/html/pdf','PdfController@HtmlToPdf')->name('convert.htmltopdf');
+
+    Route::post('bugsnag_error','SystemErrorController@addErrorToBugsnag')->name('bugsnag_error');
 });
