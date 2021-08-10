@@ -242,7 +242,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div x-data @subjects-update="console.log('subjects updated', $event.detail.subjects)" data-available_subject_options='{!! $subjectOptions !!}' data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
+                                        <div x-data @subjects-update="console.log('subjects updated', $event.detail.subjects)"  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
                                                 <div >
                                                 <label for="subjects" id="subjects_label"
@@ -273,21 +273,41 @@
                                                             class="responsive subject_select_div" @keydown.enter.prevent="addSubject(textInput)"
                                                 >
 
-                                                    <input x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="displaySubjects()" placeholder="Selecteer vak..."  class="input-text-select">
-                                                    <img x-show="!show"
-                                                         src="img/icons/icons-chevron-down-small.svg"
-                                                         class="iconschevron-down-small icons-chevron float-right"
-                                                         x-on:click="displaySubjects()"
-                                                    >
-                                                    <img x-show="show" src="img/icons/icons-chevron-up-small-blue.svg"
-                                                         class="iconschevron-down-small icons-chevron float-right"
-                                                         x-on:click="hideSubjects()"
-                                                    >
+                                                    <div class="select-search-header" x-on:click="toggleSubjects()">Selecteer vak....
+                                                        <img x-show="!show"
+                                                             src="img/icons/icons-chevron-down-small.svg"
+                                                             class="iconschevron-down-small icons-chevron float-right"
+                                                             x-on:click="displaySubjects()"
+                                                        >
+                                                        <img x-show="show" src="img/icons/icons-chevron-up-small-blue.svg"
+                                                             class="iconschevron-down-small icons-chevron float-right"
+                                                             x-on:click="hideSubjects()"
+                                                        >
+                                                    </div>
+                                                    <div class="search-wrapper">
+                                                        <input x-show="show" x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="focusSearch()" x-on:focusout="loseFocusSearch()"  class="form-input input-text-select">
+                                                        <img x-show="show"
+                                                             src="img/icons/icons-search-blue.svg"
+                                                             class="icons-search-small icons-search-active float-right hide-search"
+                                                        >
+                                                        <img x-show="show" src="img/icons/icons-search-blue-inactive.svg"
+                                                             class="icons-search-small icons-search-inactive float-right"
+                                                        >
+                                                    </div>
                                                     <hr x-show="show">
                                                     <div class="subject_select_div_padding">
                                                         <div class="subject_select_div_inner">
+                                                            <div x-show="show_new_item"  x-on:click="addSubject(new_subject_item)" id="new_subject_item" class="subject_item new_subject_item">
+                                                                <span x-text="new_subject_item"></span>
+                                                                <img class="icon-close-small-subjects " src="img/icons/icons-plus-blue.svg">
+                                                                <hr class="subject_hr">
+                                                            </div>
                                                             <template x-for="(subject_option, index) in available_subject_options">
-                                                                <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item"><span x-text="subject_option"></span><img class="icon-close-small-subjects" src="img/icons/icons-plus.svg"><hr class="subject_hr"></div>
+                                                                <div x-show="show" :class="{subject_item_active: subject_option==active_subject_option}" x-on:click="addSubject(subject_option)" class="subject_item existing_subject_item">
+                                                                    <span x-text="subject_option"></span>
+                                                                    <img class="icon-close-small-subjects " src="img/icons/icons-plus-blue.svg">
+                                                                    <hr class="subject_hr">
+                                                                </div>
                                                             </template>
                                                         </div>
                                                     </div>
@@ -599,12 +619,16 @@
                 show: false,
                 textInput: '',
                 subjects: [],
+                subject_list_init: {!! $subjectOptions !!},
                 available_subject_options: [],
                 active_subject_option: null,
                 showInput: true,
+                show_new_item: false,
+                new_subject_item: '',
                 init() {
                     this.subjects = JSON.parse(this.$el.parentNode.getAttribute('data-subjects'));
-                    this.available_subject_options = JSON.parse(this.$el.parentNode.getAttribute('data-available_subject_options'));
+                    this.available_subject_options = this.subject_list_init;
+                    this.filterAvailableSubjectOptions();
                     if(this.subjects.length>0){
                         this.showInput = false;
                     }
@@ -613,14 +637,13 @@
                     subject = subject.trim();
                     subject = subject.replace(/'/g,"\x27");
                     subject = subject.replace(/"/g,"\x22");
-                    if(this.active_subject_option != null && !this.hasSubject(this.active_subject_option)){
+                    if(this.active_subject_option != null && this.active_subject_option != "" && !this.hasSubject(this.active_subject_option)){
                         this.subjects.push( this.active_subject_option );
                     }else if (subject != "" && !this.hasSubject(subject)) {
                         this.subjects.push( subject )
                     }
                     this.clearSearch();
                     this.$refs.textInput.focus();
-                    this.fireSubjectsUpdateEvent();
                     if(this.subjects.length>0){
                         this.showInput = false;
                     }
@@ -629,7 +652,19 @@
                 syncSubjects() {
                     @this.call('syncSelectedSubjects',this.subjects);
                 },
+                toggleSubjects() {
+                    var div = this.$el.getElementsByClassName('subject_select_div')[0];
+                    if(div.classList.contains('show_subjects')){
+                        this.hideSubjects();
+                        return;
+                    }
+                    this.displaySubjects();
+                },
                 displaySubjects() {
+                    this.show_new_item = false;
+                    this.new_subject_item = '';
+                    this.active_subject_option = '';
+                    this.filterAvailableSubjectOptions();
                     var label = document.getElementById('subjects_label');
                     var div = this.$el.getElementsByClassName('subject_select_div')[0];
                     var inner_div = this.$el.getElementsByClassName('subject_select_div_inner')[0];
@@ -649,12 +684,6 @@
                     label.classList.remove('label_bold');
                     this.show = false;
                 },
-                fireSubjectsUpdateEvent() {
-                    this.$el.dispatchEvent(new CustomEvent('subjects-update', {
-                        detail: { subjects: this.subjects },
-                        bubbles: true,
-                    }));
-                },
                 hasSubject(subject) {
                     var subject = this.subjects.find(e => {
                         return e.toLowerCase() === subject.toLowerCase()
@@ -663,20 +692,20 @@
                 },
                 removeSubject(index) {
                     this.subjects.splice(index, 1);
-                    this.fireSubjectsUpdateEvent();
                     this.syncSubjects();
+                    this.filter();
                 },
                 search(q) {
-                    if ( q.includes(",") ) {
-                        q.split(",").forEach(function(val) {
-                            this.addSubject(val)
-                        }, this)
-                    }
+                    // if ( q.includes(",") ) {
+                    //     q.split(",").forEach(function(val) {
+                    //         this.addSubject(val)
+                    //     }, this)
+                    // }
                     this.toggleSearch()
                 },
                 clearSearch() {
                     this.textInput = '';
-                    this.available_subject_options = JSON.parse(this.$el.parentNode.getAttribute('data-available_subject_options'));
+                    this.available_subject_options = this.subject_list_init;
                     this.hideSubjects();
                     this.toggleSearch();
                 },
@@ -685,13 +714,17 @@
                 },
                 filter() {
                     if(this.textInput == ''){
-                        this.available_subject_options = JSON.parse(this.$el.parentNode.getAttribute('data-available_subject_options'));
+                        this.available_subject_options = this.subject_list_init;
+                        this.filterAvailableSubjectOptions();
                         return;
                     }
-                    var arr = JSON.parse(this.$el.parentNode.getAttribute('data-available_subject_options')).map((x) => x);
+                    this.new_subject_item = this.textInput;
+                    var arr = this.subject_list_init.map((x) => x);
                     var i = 0;
                     while (i < arr.length) {
-                        if(!arr[i].toLowerCase().includes(this.textInput.toLowerCase())){
+                        if(this.subjects.includes(arr[i])){
+                            arr.splice(i, 1);
+                        }else if(!arr[i].toLowerCase().includes(this.textInput.toLowerCase())){
                             arr.splice(i, 1);
                         } else {
                             ++i;
@@ -700,13 +733,25 @@
                     this.available_subject_options = arr;
                     if(!this.available_subject_options.includes(this.active_subject_option)){
                         this.active_subject_option = null;
+                     }
+                    if(this.available_subject_options.length==0){
+                        this.show_new_item = true;
+                        return;
                     }
+                    this.show_new_item = false;
                 },
                 navigate(e) {
+                    this.filterAvailableSubjectOptions();
                     if(e.keyCode!=40&&e.keyCode!=38){
                         return;
                     }
                     e = e || window.event;
+                    document.getElementById('new_subject_item').classList.remove('subject_item_active');
+                    if(this.available_subject_options.length==0){
+                        this.active_subject_option = this.textInput;
+                        document.getElementById('new_subject_item').classList.add('subject_item_active');
+                        return;
+                    }
                     if(this.active_subject_option==null){
                         this.active_subject_option = this.available_subject_options[0];
                         return this.scroll();
@@ -743,6 +788,32 @@
                 showSubjectInput()
                 {
                     this.showInput = true;
+                },
+                focusSearch() {
+                    var icon = this.$el.getElementsByClassName('icons-search-active')[0];
+                    icon.classList.remove('hide-search');
+                    var icon = this.$el.getElementsByClassName('icons-search-inactive')[0];
+                    icon.classList.add('hide-search');
+                },
+                loseFocusSearch() {
+                    var icon = this.$el.getElementsByClassName('icons-search-inactive')[0];
+                    icon.classList.remove('hide-search');
+                    var icon = this.$el.getElementsByClassName('icons-search-active')[0];
+                    icon.classList.add('hide-search');
+                },
+                filterAvailableSubjectOptions() {
+                    var arr = this.subject_list_init.map((x) => x);
+                    var i = 0;
+                    while (i < arr.length) {
+                        if(this.subjects.includes(arr[i])){
+                            arr.splice(i, 1);
+                        }else if(!arr[i].toLowerCase().includes(this.textInput.toLowerCase())){
+                            arr.splice(i, 1);
+                        } else {
+                            ++i;
+                        }
+                    }
+                    this.available_subject_options = arr;
                 }
             }
 
