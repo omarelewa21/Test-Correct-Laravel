@@ -285,7 +285,7 @@
                                                         >
                                                     </div>
                                                     <div class="search-wrapper">
-                                                        <input x-show="show" x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="focusSearch()" x-on:focusout="loseFocusSearch()"  class="form-input input-text-select">
+                                                        <input id="input-text-select" x-show="show" x-model="textInput" x-ref="textInput" @input="search($event.target.value)" x-on:keyup="filter()" x-on:focus="focusSearch()" x-on:focusout="loseFocusSearch()"  class="form-input input-text-select">
                                                         <img x-show="show"
                                                              src="img/icons/icons-search-blue.svg"
                                                              class="icons-search-small icons-search-active float-right hide-search"
@@ -673,6 +673,7 @@
                     div.classList.add('show_subjects');
                     label.classList.add('label_bold');
                     this.show = true;
+                    setTimeout(function(){document.getElementById('input-text-select').focus();},1000);
                 },
                 hideSubjects() {
                     var label = document.getElementById('subjects_label');
@@ -694,6 +695,9 @@
                     this.subjects.splice(index, 1);
                     this.syncSubjects();
                     this.filter();
+                    if(this.subjects.length==0){
+                        this.showInput = true;
+                    }
                 },
                 search(q) {
                     // if ( q.includes(",") ) {
