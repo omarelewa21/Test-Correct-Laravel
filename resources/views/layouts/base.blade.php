@@ -40,7 +40,7 @@
     })
 </script>
 <script src="{{ mix('/js/app.js') }}"></script>
-<script src="https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image"></script>
+<script src="https://www.wiris.net/client/plugins/app/WIRISplugins.js?viewer=image"></script>
 @stack('scripts')
 </body>
 </html>

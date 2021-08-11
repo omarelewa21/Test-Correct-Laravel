@@ -62,7 +62,7 @@ CKEDITOR.editorConfig = function( config ) {
     config.mathTypeParameters = {
         serviceProviderProperties : {
             URI : 'integration',
-                server : 'php'
+                server : 'php' //change this to 'java' if 'php' does not work for you (for example you're using Vale)
         }
     };
 
