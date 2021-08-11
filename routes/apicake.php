@@ -346,5 +346,4 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 
     Route::post('/convert/html/pdf','PdfController@HtmlToPdf')->name('convert.htmltopdf');
 
-    Route::post('bugsnag_error','SystemErrorController@addErrorToBugsnag')->name('bugsnag_error');
 });
