@@ -11,7 +11,9 @@ namespace Tests\Unit;
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
 use tcCore\EckidUser;
+use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
+use tcCore\Teacher;
 use tcCore\TestTake;
 use tcCore\User;
 use Tests\TestCase;
@@ -95,7 +97,7 @@ class UserTest extends TestCase
         $rData = $response->decodeResponseJson();
         $user = User::find($rData['id']);
         $this->assertTrue($rData['school_location']['id']==2);
-        $schoolLocations = $user->schoolLocations()->get();
+        $schoolLocations = $user->allowedSchoolLocations()->get();
         foreach ($schoolLocations as $schoolLocation){
             $this->assertEquals('abc',$schoolLocation->pivot->external_id);
             $this->assertEquals(2,$schoolLocation->pivot->school_location_id);
@@ -110,7 +112,7 @@ class UserTest extends TestCase
         );
         $response->assertStatus(200);
         $rData = $response->decodeResponseJson();
-        $schoolLocations = $user->schoolLocations()->get();
+        $schoolLocations = $user->allowedSchoolLocations()->get();
         foreach ($schoolLocations as $schoolLocation){
             $this->assertEquals('cde',$schoolLocation->pivot->external_id);
             //dump($schoolLocation->pivot->external_id);
@@ -194,5 +196,101 @@ class UserTest extends TestCase
     {
         $teacherOne = User::where('username', 'd1@test-correct.nl')->first();
         $this->assertFalse($teacherOne->hasIncompleteImport());
+    }
+
+    /** @test */
+    public function when_classes_get_transfered_from_teacher_to_teacher_the_one_the_function_is_called_on_should_have_the_classes()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
+
+        $teacherOne = $this->createTeacher('password', $location, null);
+        $teacherTwo = $this->createTeacher('password', $location, null);
+
+        $this->assertCount(1, $teacherOne->teacher);
+        $this->assertCount(1, $teacherTwo->teacher);
+
+        $teacherOne->transferClassesFromUser($teacherTwo);
+
+        $this->assertCount(2, ($teacherOne->refresh())->teacher);
+        $this->assertCount(0, ($teacherTwo->refresh())->teacher);
+    }
+
+    /** @test */
+    public function when_classes_get_transfered_and_both_teacher_are_linked_to_the_same_class_nothing_happens_to_the_receiving_teacher_but_the_from_teacher_gets_removed_from_the_class()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
+
+        $teacherOne = $this->createTeacher('password', $location, null);
+        $schoolClass = $teacherOne->teacher->first()->schoolClass;
+
+        $teacherTwo = $this->createTeacher('password', $location, $schoolClass);
+
+        $this->assertCount(1, $teacherOne->teacher);
+        $this->assertCount(1, $teacherTwo->teacher);
+
+        $teacherOne->transferClassesFromUser($teacherTwo);
+
+        $this->assertCount(1, ($teacherOne->refresh())->teacher);
+        $this->assertCount(0, ($teacherTwo->refresh())->teacher);
+    }
+
+    /**
+     * @test
+     */
+    public function when_an_old_teacher_is_linked_to_a_trashed_school_class_and_the_imported_user_has_access_to_this_class_it_gets_restored()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
+
+        $teacherOne = $this->createTeacher('password', $location, null);
+        $schoolClass = $teacherOne->teacher->first()->schoolClass;
+        $teacherOne->teacher->first()->delete();
+
+        $teacherTwo = $this->createTeacher('password', $location, $schoolClass);
+
+        $this->assertCount(1, $teacherOne->teacher()->withTrashed()->get());
+
+        $this->assertCount(0, ($teacherOne->refresh())->teacher);
+        $this->assertCount(1, ($teacherTwo->refresh())->teacher);
+
+        $teacherOne->transferClassesFromUser($teacherTwo);
+
+        $this->assertCount(1, ($teacherOne->refresh())->teacher);
+        $this->assertCount(0, $teacherOne->teacher()->onlyTrashed()->get());
+        $this->assertCount(0, ($teacherTwo->refresh())->teacher);
+    }
+
+
+    /**
+     * @test
+     */
+    public function when_an_imported_teacher_is_linked_to_two_classes_both_get_transferred_to_the_old_teacher()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
+
+        $teacherOne = $this->createTeacher('password', $location, null);
+        $teacherTwo = $this->createTeacher('password', $location);
+
+        $schoolClassThree = SchoolClass::create([
+            'school_location_id'              => $location->getKey(),
+            'education_level_id'              => 12,
+            'school_year_id'                  => $location->schoolLocationSchoolYears->first()->school_year_id,
+            'name'                            => 'other name',
+            'education_level_year'            => 2,
+            'is_main_school_class'            => 1,
+            'do_not_overwrite_from_interface' => 0,
+        ]);
+        Teacher::create([
+            'user_id'    => $teacherTwo->getKey(),
+            'class_id'   => $schoolClassThree->getKey(),
+            'subject_id' => 30,
+        ]);
+
+        $this->assertCount(1, $teacherOne->teacher()->withTrashed()->get());
+        $this->assertCount(2, ($teacherTwo->refresh())->teacher);
+
+        $teacherOne->transferClassesFromUser($teacherTwo);
+
+        $this->assertCount(3, ($teacherOne->refresh())->teacher);
+        $this->assertCount(0, ($teacherTwo->refresh())->teacher);
     }
 }

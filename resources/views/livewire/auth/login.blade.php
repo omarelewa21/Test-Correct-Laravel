@@ -114,13 +114,13 @@
                                     <span class="body">{{ __('auth.incorrect_credentials_long') }}</span>
                                 </div>
                                 @enderror
-                                @if($this->message_brin == 'brin_not_found')
+                                @if($this->entree_error_message)
                                     <div class="notification error stretched mt-4">
                                         <div class="flex items-center space-x-3">
                                             <x-icon.exclamation/>
-                                            <span class="title">{{ __('auth.brin_not_found') }}</span>
+                                            <span class="title">{{ __('auth.entree_error') }}</span>
                                         </div>
-                                        <span class="body">{{ __('auth.brin_not_found_long') }}</span>
+                                        <span class="body">{{ __($this->entree_error_message) }}</span>
                                     </div>
                                 @endif
                                 @error('should_first_go_to_entree')
@@ -319,6 +319,19 @@
                                 <span class="text-base">{{__('auth.forgot_password_long')}}</span>
                                 <x-icon.arrow/>
                             </x-button.text-button>
+                        </div>
+                        <div class="flex">
+                            @if(!Ramsey\Uuid\Uuid::isValid($this->uuid))
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ __('auth.no_saml_message_found') }}</span>
+                                </div>
+                            @endif
+
+                            @error('entree_error')
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ $message }}</span>
+                            </div>
+                            @enderror
                         </div>
 
                         <div class="mt-auto flex w-full">

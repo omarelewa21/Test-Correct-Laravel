@@ -16,7 +16,7 @@ class CreateEckidUserTable extends Migration
         Schema::create('eckid_user', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('user_id');
-            $table->string('eckid');
+            $table->text('eckid');
             $table->timestamps();
         });
     }

@@ -270,6 +270,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('school', 'SchoolsController', ['except' => ['create', 'edit']]);
     Route::get('school_location/is_allowed_new_player_access', 'SchoolLocationsController@isAllowedNewPlayerAccess')->name('school_location.is_allowed_new_player_access');
     Route::get('school_location/get_lvs_and_sso_options', 'SchoolLocationsController@getLvsAndSsoOptions')->name('school_location.get_lvs_and_sso_options');
+    Route::get('school_location/{school_location_id}/get_lvs_type', 'SchoolLocationsController@getLvsType')->name('school_location.get_lvs_type');
     // School children
     Route::resource('school_location', 'SchoolLocationsController', ['except' => ['create', 'edit']]);
 
@@ -332,7 +333,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('school_location_user/existing_teachers', 'SchoolLocationUsersController@getExistingTeachers')->name('school_location_user.get_existing_teachers');
 
     Route::get('shortcode','Api\ShortcodeController@store')->name('shortcode.store');
-    Route::put('shortcodeclick/{shortcodeClick}','Api\ShortCodeClickController@update')->name('shortcodeClick.update');
+    Route::put('shortcodeclick/{shortcodeClick}','Api\ShortcodeClickController@update')->name('shortcodeClick.update');
 
     Route::get('config/{variable_name}','ConfigController@show')->name('config.show');
     // goes to the web part
@@ -342,4 +343,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('test_take/{test_take}/test_participant/{test_participant}/toggle_inbrowser_testing','TestTakes\TestParticipantsController@toggle_inbrowser_testing')->name('testparticipant.is_allowed_inbrowser_testing.update');
     Route::get('test_take/{test_take}/has_carousel_question','TestTakesController@hasCarouselQuestion')->name('test_takes.has_carousel_question');
     Route::put('test_take/{test_take}/toggle_inbrowser_testing_for_all_participants','TestTakesController@toggleInbrowserTestingForAllParticipants')->name('test_takes.toggle_inbrowser_testing_for_all_participants');
+
+    Route::post('/convert/html/pdf','PdfController@HtmlToPdf')->name('convert.htmltopdf');
 });
