@@ -78,10 +78,10 @@ class UwlrFetcher extends Component
             $years = $location
                     ->schoolLocationSchoolYears
                     ->load('schoolYear:id,year')
-                    ->when($currentPeriod->schoolYear, function ($slsy) use ($currentPeriod) {
+                    ->when(optional($currentPeriod)->schoolYear, function ($slsy) use ($currentPeriod) {
                         return $slsy->where('schoolYear.year', '>=', $currentPeriod->schoolYear->year);
                     })
-                    ->when(!$currentPeriod->schoolYear, function ($slsy) {
+                    ->when(!optional($currentPeriod)->schoolYear, function ($slsy) {
                         return $slsy->where('schoolYear.year', '>=', Carbon::now()->subYear()->format('Y'));
                     })
                     ->sortBy('schoolYear.year', SORT_REGULAR, false)

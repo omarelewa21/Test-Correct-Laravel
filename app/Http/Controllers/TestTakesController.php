@@ -709,6 +709,8 @@ class TestTakesController extends Controller {
             }]);
         $ignoreQuestions = $request->get('ignore_questions');
 
+
+
         if ($request->filled('ppp') || $request->filled('epp') || $request->filled('wanted_average') || $request->filled('n_term')) {
             $testTake->setAttribute('ppp', null);
             $testTake->setAttribute('epp', null);
@@ -808,12 +810,10 @@ class TestTakesController extends Controller {
 
         if ($request->filled('ppp') || $testTake->getAttribute('ppp') !== null) {
             $ppp = ($request->filled('ppp')) ? $request->get('ppp') : $testTake->getAttribute('ppp');
-
             $testTake->setAttribute('ppp', $ppp);
             if (!$request->filled('preview') || $request->get('preview') != true) {
                 $testTake->save();
             }
-
             foreach ($testTake->testParticipants as $testParticipant) {
                 if (array_key_exists($testParticipant->getKey(), $scores)) {
                     $score = $scores[$testParticipant->getKey()];
@@ -1274,6 +1274,13 @@ class TestTakesController extends Controller {
     }
 
     public function maxScore(TestTake $testTake,$ignoreQuestions = []){
+        foreach ($ignoreQuestions as $key=>$value){
+            if(!strstr($value,'.')){
+                continue;
+            }
+            $arr = explode('.',$value);
+            $ignoreQuestions[$key] = $arr[1];
+        }
         $test = $testTake->test;
         return (new TestsController())->maxScore($test,$ignoreQuestions);
     }
