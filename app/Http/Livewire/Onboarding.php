@@ -155,6 +155,7 @@ class Onboarding extends Component
     public function render()
     {
         $this->setSelectedSubjectsString();
+        $this->setSubjectOptions();
         return view('livewire.onboarding')->layout('layouts.onboarding');
     }
 
@@ -365,9 +366,10 @@ class Onboarding extends Component
 
     protected function setSubjectOptions()
     {
-        $subjects = BaseSubject::where('name','not like','CITO%')->get()->pluck('name')->toArray();
+        $subjects = BaseSubject::where('show_in_onboarding',true)->get()->pluck('name')->toArray();
         $subjects = array_unique($subjects);
         sort($subjects);
+        $subjects = array_diff($subjects,$this->selectedSubjects);
         $this->subjectOptions = json_encode($subjects,JSON_HEX_APOS);
     }
 

@@ -648,22 +648,58 @@ input:focus + label {
     color: var(--primary);
 }
 
+.hide-search,icon-plus-hide {
+    display: none;
+}
+.select-search-header {
+    width: 100%;
+    height: 40px;
+    margin-left: 16px;
+    font-family: 'Nunito Regular';
+    font-size: 16px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: italic;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #929daf;
+    display: inline;
+}
+
+.search-wrapper {
+    position: relative;
+    display: flex;
+    min-width: 100px;
+}
+
 .icons-chevron {
     width: 9px;
     height: 16px;
     object-fit: contain;
-    margin-top: 12px;
-    margin-right: 20px;
+    margin-top: 5px;
+    margin-right: 26px;
+}
+.icons-search-small {
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    top: 11px;
+    right: 8px;
+    margin-right: 15px;
 }
 .input-text-select {
     padding: 0.5rem;
     padding-left: 1rem;
-    width: 140px;
-    background-color: #F9FAFF;
+    width: 169px;
+    background-color: #FFFFFF;
+    border: solid 1px #c3d0ed;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    margin-left: 10px;
 }
 .input-text-select:focus {
-    outline: none;
-    background-color: #FFFFFF;
+    border: solid 1px #004df5;
+    background-color: #F9FAFF;
 }
 .input-text-select::placeholder {
     font-family: Nunito Regular;
@@ -708,6 +744,7 @@ div.subject_select_div{
     display: inline-block;
     background-color: #F9FAFF;
     margin-top: 2px;
+    padding-top: 7px;
 }
 div.subject_select_div:hover{
     border-color: #004df5;
@@ -726,6 +763,11 @@ div.subject_select_div_padding{
 
 div.subject_select_div_inner{
     overflow: hidden;
+}
+
+div.subject_select_div_inner_open{
+    height: 130px;
+    overflow-y : auto;
 }
 
 div.subject_select_div_inner::-webkit-scrollbar {
@@ -759,6 +801,18 @@ div.subject_item{
 
 div.subject_item:hover,div.subject_item_active{
     color: #004df5;
+    background-color: #F9FAFF;
+}
+
+div.subject_item>img.icon-close-small-subjects{
+    display:none;
+}
+
+div.subject_item:hover>img.icon-close-small-subjects,div.subject_item_active>img.icon-close-small-subjects,div.new_subject_item>img.icon-close-small-subjects{
+    display:inline-flex;
+}
+div.existing_subject_item_hide{
+    display: none;
 }
 
 hr.subject_hr{
@@ -768,31 +822,33 @@ hr.subject_hr{
 img.icon-close-small{
     margin-top: -2px;
 }
+
+img.icon-close-small-subjects{
+    float: right;
+    margin-top: 5px;
+}
 .tooltip {
     position:relative; /* making the .tooltip span a container for the tooltip text */
 }
-.tooltip:before {
-    content: attr(data-text); /* here's the magic */
-    position:absolute;
+
+.tooltip::before {
+    content: attr(data-text);
+    position: absolute;
     z-index: 1000;
-
-    /* vertically center */
-    top:-100%;
-
-    /* move to right */
-    left:0px;
-
-    /* basic styles */
-    padding:10px;
+    top: -60%;
+    left: 0px;
+    padding: 6px;
     border: solid 1px #cccccc;
-    border-radius:10px;
-    background:#fff;
-    color: #929DAF;
-    text-align:center;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, .5);
+    color: var(--system-base);
+    text-align: center;
     white-space: nowrap;
-
-    display:none; /* hide by default */
+    display: none;
+    font-size: .75rem;
+    font-family: Nunito Regular;
 }
+
 .tooltip:hover:before {
     display:block;
 }
