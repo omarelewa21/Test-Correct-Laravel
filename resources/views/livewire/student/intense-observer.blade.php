@@ -51,11 +51,11 @@
             /** devivceId = userId, sessionId = $testParticipantId; **/
             console.log([{{ $deviceId }},{{ $sessionId }}, '{{ md5('1.1') }}']);
             console.log([deviceId,sessionId, code]);
-            Intense.start(deviceId, sessionId, code+'abc');
+            //Intense.resetDefaults();
+            Intense.start(deviceId.toString(), sessionId.toString(), code);
             console.dir(Intense);
         })();"
 >
-    {{-- Be like water. brr --}}
 </div>
 
 @push('scripts')
