@@ -27,11 +27,11 @@ class TestTake extends Component
     protected function getListeners()
     {
         return [
-            'set-force-taken-away'                                                                 => 'setForceTakenAway',
+            'set-force-taken-away'                                                                  => 'setForceTakenAway',
             'checkConfirmedEvents'                                                                  => 'checkConfirmedEvents',
             'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeForceTakenAway' => 'setForceTakenAway',
             'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeReopened'       => 'testTakeReopened',
-
+            'studentInactive'                                                                       => 'handleInactiveStudent'
         ];
     }
 
@@ -106,5 +106,10 @@ class TestTake extends Component
     {
         $this->dispatchBrowserEvent('force-taken-away-blur', ['shouldBlur' => false]);
         $this->forceTakenAwayModal = false;
+    }
+
+    public function handleInactiveStudent()
+    {
+
     }
 }
