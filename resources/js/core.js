@@ -129,7 +129,10 @@ function needsKeyboard(target) {
 }
 
 function startStudentActivityCheck() {
-    body.addEventListener('mouseover', function () {
+    document.addEventListener('mousemove', function () {
+        Core.inactive = 0;
+    })
+    document.addEventListener('touchstart', function () {
         Core.inactive = 0;
     })
 

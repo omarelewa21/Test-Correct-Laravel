@@ -3930,6 +3930,8 @@ var checkFocusTimer = false;
 Core = {
   inApp: false,
   appType: '',
+  inactive: 0,
+  secondsBeforeStudentLogout: 60 * 60,
   init: function init() {
     var isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
     var isAndroid = /Android/g.test(navigator.userAgent);
@@ -3941,6 +3943,7 @@ Core = {
     }
 
     runCheckFocus();
+    startStudentActivityCheck();
   },
   lostFocus: function lostFocus(reason) {
     if (reason == "printscreen") {
@@ -4047,6 +4050,22 @@ function checkForIpadKeyboard() {
 
 function needsKeyboard(target) {
   return /^(?:input|textarea)$/i.test(target.tagName.toLowerCase());
+}
+
+function startStudentActivityCheck() {
+  document.addEventListener('mousemove', function () {
+    Core.inactive = 0;
+  });
+  document.addEventListener('touchstart', function () {
+    Core.inactive = 0;
+  });
+  studentActivityTimer = setInterval(function () {
+    Core.inactive++;
+
+    if (Core.inactive >= Core.secondsBeforeStudentLogout) {
+      Livewire.emit('studentInactive');
+    }
+  }, 1000);
 }
 
 /***/ }),
