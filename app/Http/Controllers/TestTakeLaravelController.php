@@ -20,9 +20,10 @@ class TestTakeLaravelController extends Controller
 
         $current = $request->get('q') ?: '1';
 
-        $data = self::getData($testParticipant);
+        $data = self::getData($testParticipant, $testTake);
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
 
+        $data = $this->applyAnswerOrderForParticipant($data, $answers);;
         $playerUrl = route('student.test-take-laravel', ['test_take' => $testTake->uuid]);
 
         $nav = $this->getNavigationData($data, $answers);
@@ -43,8 +44,7 @@ class TestTakeLaravelController extends Controller
         $data = self::getData($testParticipant, $testTake);
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
         $nav = $this->getNavigationData($data, $answers);
-
-        $data = $this->filterDataForParticipant($data, $nav);
+        $data = $this->applyAnswerOrderForParticipant($data, $answers);
 
         $current = (int) $request->get('q') ?: 1;
         if($current < 1){
@@ -65,6 +65,9 @@ class TestTakeLaravelController extends Controller
         $result = [];
         $testParticipant
             ->answers
+            ->sortBy(function($answer) {
+                return $answer->order;
+            })
             ->each(function ($answer) use ($testTake, &$result, $testQuestions) {
                 $question = $testQuestions->first(function ($question) use ($answer) {
                     return $question->getKey() === $answer->question_id;
@@ -88,6 +91,8 @@ class TestTakeLaravelController extends Controller
                 $result[$question->uuid] = [
                     'id'              => $answer->getKey(),
                     'uuid'            => $answer->uuid,
+                    'order'           => $answer->order,
+                    'question_id'     => $answer->question_id,
                     'answer'          => $answer->json,
                     'answered'        => $answer->is_answered,
                     'closed'          => $answer->closed,
@@ -144,16 +149,14 @@ class TestTakeLaravelController extends Controller
         return collect(array_values($nav));
     }
 
-    private function filterDataForParticipant($data, $nav)
+    private function applyAnswerOrderForParticipant($data, $answers)
     {
-        return $data->map(function($testQuestion) use ($nav) {
-            foreach ($nav as $value) {
-                if ($value['id'] === $testQuestion->getKey()) {
-                    return $testQuestion;
-                }
-            }
-        })->filter(function($data) {
-            return !is_null($data);
+        $newData = collect([]);
+        collect($answers)->each(function($answer) use ($data, $newData) {
+            $newData->push($data->first(function($question) use ($data, $answer) {
+                return $question->id == $answer['question_id'];
+            }));
         });
+        return $newData;
     }
 }
