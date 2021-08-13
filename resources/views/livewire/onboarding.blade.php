@@ -242,7 +242,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div x-data @subjects-update="console.log('subjects updated', $event.detail.subjects)"  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
+                                        <div x-data  data-subjects='{!! $selectedSubjectsString !!}' class="subjects mb-4 ">
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
                                                 <div >
                                                 <label for="subjects" id="subjects_label"
@@ -710,6 +710,8 @@
                 clearSearch() {
                     this.textInput = '';
                     this.available_subject_options = this.subject_list_init;
+                    this.show_new_item = false;
+                    this.new_subject_item = '';
                     this.hideSubjects();
                     this.toggleSearch();
                 },
