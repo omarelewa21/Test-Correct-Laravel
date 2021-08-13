@@ -20,12 +20,32 @@ class PasswordReset extends Component
 
     protected $queryString = ['token'];
 
-    protected $messages = [
-        'password.required' => 'Wachtwoord is verplicht',
-        'password.min'      => 'Wachtwoord moet langer zijn dan 8 karakters',
-        'password.regex'    => 'Wachtwoord voldoet niet aan de eisen',
-        'password.same'     => 'Wachtwoord komt niet overeen',
-    ];
+    private function get_browser_language(){
+        if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
+            $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+            if($language ==	 'nl'){
+                return 'nl';
+            }
+        }
+        return 'eng';
+    }
+
+    protected function messages(){
+        if($this->get_browser_language() == 'nl'){
+            return[
+                'password.required' => 'Wachtwoord is verplicht',
+                'password.min'      => 'Wachtwoord moet langer zijn dan 8 karakters',
+                'password.regex'    => 'Wachtwoord voldoet niet aan de eisen',
+                'password.same'     => 'Wachtwoord komt niet overeen',
+            ];
+        }
+        return[
+            'password.required' => 'Password is required',
+            'password.min'      => 'Password must be longer than 8 characters',
+            'password.regex'    => 'Password does not meet the requirements',
+            'password.same'     => 'Password does not match',
+        ];
+    }
 
 
     public function getMinCharRuleProperty()
@@ -87,11 +107,23 @@ class PasswordReset extends Component
         }
 
         if ($response === PasswordBroker::INVALID_USER) {
-            $this->addError('password', 'Het opgegeven emailadres is niet correct');
+            if($this->get_browser_language() == 'nl'){
+                $this->addError('password', 'Het opgegeven emailadres is niet correct');
+            }
+            else{
+                $this->addError('password', 'The email address provided is incorrect');
+            }
+            
         };
 
         if ($response === PasswordBroker::INVALID_TOKEN) {
+            if($this->get_browser_language() == 'nl'){
                 $this->addError('password', 'De gebruikte link niet correct, of verlopen');
+            }
+            else{
+                $this->addError('password', 'The link used is incorrect, or has expired');
+            }
+                
         }
     }
 

@@ -87,6 +87,7 @@ class SchoolLocationsController extends Controller {
      */
     public function update(SchoolLocation $schoolLocation, UpdateSchoolLocationRequest $request)
     {
+        logger($request->all());
         $schoolLocation->fill($request->all());
 
         if ($schoolLocation->save() !== false) {

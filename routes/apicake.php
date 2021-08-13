@@ -19,6 +19,7 @@ use tcCore\Http\Controllers\Testing\TestingController;
 
 // file name was api.php and is now apicake.php in order to make room for the direct access urls
 
+
 Route::post('/do_we_need_captcha',[AuthController::class,'doWeNeedCaptcha'])->name('user.doWeNeedCaptcha');
 
 Route::get('/edu-k', 'EduK\HomeController@index');
