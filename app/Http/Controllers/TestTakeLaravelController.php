@@ -87,6 +87,7 @@ class TestTakeLaravelController extends Controller
 
                 $result[$question->uuid] = [
                     'id'              => $answer->getKey(),
+                    'uuid'            => $answer->uuid,
                     'answer'          => $answer->json,
                     'answered'        => $answer->is_answered,
                     'closed'          => $answer->closed,
@@ -103,6 +104,7 @@ class TestTakeLaravelController extends Controller
         return cache()->remember('data_test_take_' . $testTake->getKey(), now()->addMinutes(60), function () use ($testTake) {
             $testTake->load('test','test.testQuestions', 'test.testQuestions.question', 'test.testQuestions.question.attachments');
             return $testTake->test->testQuestions->flatMap(function ($testQuestion) {
+                $testQuestion->question->loadRelated();
                 if ($testQuestion->question->type === 'GroupQuestion') {
                     return $testQuestion->question->groupQuestionQuestions->map(function ($item) {
                         return $item->question;

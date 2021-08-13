@@ -18,7 +18,7 @@ trait WithAttachments
 
     public function mountWithAttachments()
     {
-        $this->answerId = Answer::whereId($this->answers[$this->question->uuid]['id'])->value('uuid');
+        $this->answerId = $this->answers[$this->question->uuid]['uuid'];
         $this->question->loadMissing('attachments');
     }
 
