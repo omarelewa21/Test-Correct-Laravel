@@ -141,5 +141,5 @@ function startStudentActivityCheck() {
         if (Core.inactive >= Core.secondsBeforeStudentLogout) {
             Livewire.emit('studentInactive');
         }
-    }, 1000)
+    }, 1000);
 }
