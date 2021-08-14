@@ -6,7 +6,10 @@ return [
 
     'Je hebt na het sluiten' => 'Je hebt na het sluiten',
 
-    'seconden om de vraag te beantwoorden' => 'seconden om de vraag te beantwoorden'
+    'seconden om de vraag te beantwoorden' => 'seconden om de vraag te beantwoorden',
+
+    'Let op' => 'Let op',
+
 ];
 
 ?>

@@ -27,17 +27,17 @@
             {{ __("invitebywelcome-staff.Ik raad je aan om direct te beginnen met onze demo tour. Ik leid je daar op een leuke en interactieve manier door de belangrijkste stappen van Test-Correct") }}.<br/>
             <br/>
 
-            E-mail: {{ $user->username }}<br/>
+            {{__("invitebywelcome-staff.E-mail")}}: {{ $user->username }}<br/>
             <br/>
-            U kunt uw wachtwoord instellen op:<br />
+            {{__("invitebywelcome-staff.U kunt uw wachtwoord instellen op")}}:<br />
             <a href="{{ $url }}">{{ $url }}</a><br/>
             <br/>
-            Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.
-            <br /> <a href="{{ config('app.url_login') }}">Nieuwe verzoek opsturen</a><br/>
+            {{__("invitebywelcome-staff.Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.")}}
+            <br /> <a href="{{ config('app.url_login') }}">{{__("invitebywelcome-staff.")}}</a><br/>
             <br/>
             <a href="{{ config('app.url_login')}}" style="background-color: #42b947;padding: 15px 30px;margin-bottom: 30px;display: inline-block;color:#ffffff;text-decoration:none">{{__('invitebywelcome-staff.Login en start demo')}}</a><br/>
             <br/>
-            {{ __("invitebywelcome-staff.Met vriendelijke groet") }},<br/>
+            {{ __("invitebywelcome-staff.invitebywelcome-staff.Met vriendelijke groet") }},<br/>
             <br/>
             Alex<br />
             Test-Correct Mentor

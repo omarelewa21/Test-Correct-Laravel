@@ -23,6 +23,11 @@
 			'Wachtwoord' => 'Password',
 
 			'Met vriendelijke groet' => 'Sincerely',
-			'Login en start demo' => 'Login and start demo'
+
+			'Login en start demo' => 'Login and start demo',
+
+			'U kunt uw wachtwoord instellen op' => 'You can set your password to',
+
+			"Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit." => "This link will expire four hours after this email was sent. You can have a new link sent via the forgot password functionality.",
 ];
 ?>

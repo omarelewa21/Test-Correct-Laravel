@@ -23,6 +23,11 @@
 			'Wachtwoord' => 'Wachtwoord',
 
 			'Met vriendelijke groet' => 'Met vriendelijke groet',
-			'Login en start demo' => 'Login en start demo'
+
+			'Login en start demo' => 'Login en start demo',
+
+			'U kunt uw wachtwoord instellen op' => 'U kunt uw wachtwoord instellen op',
+
+			"Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit." => "Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.",
 ];
 ?>

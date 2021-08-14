@@ -2,6 +2,8 @@
 	return [
 			'Beste' => 'Best',
 
+			'Bespreken' => 'Discuss',
+
 			'heeft via Test-Correct het volgende bericht naar je gestuurd' => 'has sent you the following message via Test-Correct',
 
 			'Via' => 'Through',

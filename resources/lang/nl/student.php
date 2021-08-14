@@ -6,6 +6,8 @@
 
 			'Via' => 'Via',
 
+            'Bespreken' => 'Bespreken',
+
 			'kan je hierop reageren' => 'kan je hierop reageren',
 
 			'Met een vriendelijke groet' => 'Met een vriendelijke groet',
