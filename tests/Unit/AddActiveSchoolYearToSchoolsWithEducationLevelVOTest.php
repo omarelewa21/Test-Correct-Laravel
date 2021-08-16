@@ -157,15 +157,15 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
 
         Artisan::call('school_locations:add_new_period ');
 
-        // er zitten 5 scholen in die van een nieuwe periode moeten worden voorzien;
+        // er zitten 11 scholen in die van een nieuwe periode moeten worden voorzien;
 
         $this->assertEquals(
-            $startCountPeriod+5,
+            $startCountPeriod+11,
             Period::count()
         );
 
         $this->assertEquals(
-            $startCountSchoolYear+5,
+            $startCountSchoolYear+11,
             SchoolYear::count()
         );
 
