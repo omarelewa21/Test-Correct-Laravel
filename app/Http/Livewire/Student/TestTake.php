@@ -110,6 +110,14 @@ class TestTake extends Component
 
     public function handleInactiveStudent()
     {
+        $testParticipant = TestParticipant::whereId($this->testParticipantId)->first();
+        $testParticipant->handInTestTake();
+        $this->createTestTakeEvent('stop-test');
 
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        $this->redirect(config('app.url_login'));
     }
 }
