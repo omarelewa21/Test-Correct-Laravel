@@ -909,7 +909,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         return !is_null($schoolLocation->school_id) && $this->school_id === $schoolLocation->school_id;
     }
 
-    public function scopeOnlyVo($query)
+    public function scopeVoOnly($query)
     {
         return $query->whereIn(
             'id',
@@ -921,6 +921,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                             'uwlr_education_level','MBO-N1','MBO-N2', 'MBO-N3','MBO-N4','HBO Bachelor','HBO Master','WO Bachelor','WO Master', 'Demo','Groep'))"
                 )
         );
+    }
+
+    public function scopeActiveOnly($query)
+    {
+        return $query->where('activated', 1);
     }
 
     public function scopeWithoutSchoolYear($query, $year)
