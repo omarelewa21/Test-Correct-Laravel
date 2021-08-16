@@ -20,9 +20,10 @@ class TestTakeLaravelController extends Controller
 
         $current = $request->get('q') ?: '1';
 
-        $data = self::getData($testParticipant);
+        $data = self::getData($testParticipant, $testTake);
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
 
+        $data = $this->applyAnswerOrderForParticipant($data, $answers);;
         $playerUrl = route('student.test-take-laravel', ['test_take' => $testTake->uuid]);
 
         $nav = $this->getNavigationData($data, $answers);
@@ -33,16 +34,17 @@ class TestTakeLaravelController extends Controller
     }
 
 
-    public function show(TestTake $testTake, Request $request)
+    public function show($testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
         if (!$testParticipant->startTestTake()) {
             return redirect(config('app.url_login'));
         }
 
-        $data = self::getData($testParticipant);
+        $data = self::getData($testParticipant, $testTake);
         $answers = $this->getAnswers($testTake, $data, $testParticipant);
         $nav = $this->getNavigationData($data, $answers);
+        $data = $this->applyAnswerOrderForParticipant($data, $answers);
 
         $current = (int) $request->get('q') ?: 1;
         if($current < 1){
@@ -63,6 +65,9 @@ class TestTakeLaravelController extends Controller
         $result = [];
         $testParticipant
             ->answers
+            ->sortBy(function($answer) {
+                return $answer->order;
+            })
             ->each(function ($answer) use ($testTake, &$result, $testQuestions) {
                 $question = $testQuestions->first(function ($question) use ($answer) {
                     return $question->getKey() === $answer->question_id;
@@ -71,15 +76,23 @@ class TestTakeLaravelController extends Controller
                 $groupId = 0;
                 $groupCloseable = 0;
                 if ($question->is_subquestion) {
-                    $groupQuestion = GroupQuestionQuestion::whereQuestionId($question->getKey())->whereIn('group_question_id', function ($query) use ($testTake) {
-                        $query->select('question_id')->from('test_questions')->where('test_id', $testTake->test_id);
-                    })->first();
-                    $groupId = $groupQuestion->group_question_id;
-                    $groupCloseable = $groupQuestion->groupQuestion->question->closeable;
+                    $groupQuestionQuestion = GroupQuestionQuestion::select('group_question_questions.group_question_id', 'questions.closeable')
+                        ->where('group_question_questions.question_id',$question->getKey())
+                        ->whereIn('group_question_questions.group_question_id', function ($query) use ($testTake) {
+                            $query->select('question_id')->from('test_questions')->where('test_id', $testTake->test_id);
+                        })
+                        ->leftJoin('group_questions', 'group_questions.id', '=', 'group_question_questions.group_question_id')
+                        ->leftJoin('questions', 'questions.id', '=', 'group_questions.id')
+                        ->get();
+                    $groupId = $groupQuestionQuestion->first()->group_question_id;
+                    $groupCloseable = $groupQuestionQuestion->first()->closeable;
                 }
 
                 $result[$question->uuid] = [
                     'id'              => $answer->getKey(),
+                    'uuid'            => $answer->uuid,
+                    'order'           => $answer->order,
+                    'question_id'     => $answer->question_id,
                     'answer'          => $answer->json,
                     'answered'        => $answer->is_answered,
                     'closed'          => $answer->closed,
@@ -91,18 +104,20 @@ class TestTakeLaravelController extends Controller
         return $result;
     }
 
-    public static function getData($testParticipant)
+    public static function getData($testParticipant, $testTake)
     {
-//        return cache()->remember('data'.$testParticipant->getKey(), now()->addMinutes(60), function() use ($testParticipant) {
-            $visibleAttributes = ['id', 'uuid', 'score', 'type', 'question', 'styling'];
-
-            return $testParticipant->answers->flatMap(function ($answer) use ($visibleAttributes) {
-                $hideAttributes = array_keys($answer->question->getAttributes());
-                $answer->question->makeHidden($hideAttributes)->makeVisible($visibleAttributes);
-
-                return collect([$answer->question]);
+        return cache()->remember('data_test_take_' . $testTake->getKey(), now()->addMinutes(60), function () use ($testTake) {
+            $testTake->load('test','test.testQuestions', 'test.testQuestions.question', 'test.testQuestions.question.attachments');
+            return $testTake->test->testQuestions->flatMap(function ($testQuestion) {
+                $testQuestion->question->loadRelated();
+                if ($testQuestion->question->type === 'GroupQuestion') {
+                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) {
+                        return $item->question;
+                    });
+                }
+                return collect([$testQuestion->question]);
             });
-//        });
+        });
     }
 
     /**
@@ -112,8 +127,8 @@ class TestTakeLaravelController extends Controller
      */
     private function getNavigationData($data, $answers)
     {
-        return $data->map(function ($question) use ($answers) {
-            $answer = collect($answers)->first(function ($answer, $questionUuid) use ($question) {
+        $nav = collect($answers)->map(function ($answer, $questionUuid) use ($data) {
+            $question = collect($data)->first(function ($question) use ($questionUuid) {
                 return $question->uuid == $questionUuid;
             });
 
@@ -130,6 +145,18 @@ class TestTakeLaravelController extends Controller
                     'closed'    => $answer['closed_group'],
                 ],
             ];
+        })->toArray();
+        return collect(array_values($nav));
+    }
+
+    private function applyAnswerOrderForParticipant($data, $answers)
+    {
+        $newData = collect([]);
+        collect($answers)->each(function($answer) use ($data, $newData) {
+            $newData->push($data->first(function($question) use ($data, $answer) {
+                return $question->id == $answer['question_id'];
+            }));
         });
+        return $newData;
     }
 }
