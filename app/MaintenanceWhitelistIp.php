@@ -26,7 +26,7 @@ class MaintenanceWhitelistIp extends Model
         parent::boot();
 
         static::saved(function(MaintenanceWhitelistIp  $ip){
-            (new Deployment)->callCakeForMaintenanceCheck();
+//            (new Deployment)->callCakeForMaintenanceCheck();
         });
     }
 }
