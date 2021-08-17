@@ -942,7 +942,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $schoolYear = new SchoolYear();
 
         $schoolYear->fill([
-            'year'             => '2021',
+            'year'             => $year,
             'school_locations' => [$this->getKey()],
         ]);
         $schoolYear->save();
@@ -950,7 +950,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $periodLocation = (new Period());
         $periodLocation->fill([
             'school_year_id'     => $schoolYear->getKey(),
-            'name'               => 'huidige voor MS A',
+            'name'               => sprintf('%d-%d',\Carbon\Carbon::parse($startDate)->year,  \Carbon\Carbon::parse($endDate)->year),
             'school_location_id' =>  $this->getKey(),
             'start_date'         => \Carbon\Carbon::parse($startDate),
             'end_date'           => \Carbon\Carbon::parse($endDate),
