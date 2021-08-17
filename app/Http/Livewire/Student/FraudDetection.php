@@ -29,6 +29,7 @@ class FraudDetection extends Component
     public function setFraudDetected()
     {
         $this->fraudDetected = true;
+        $this->dispatchBrowserEvent('set-red-header-border');
     }
 
     public function isTestTakeEventConfirmed()
@@ -46,6 +47,9 @@ class FraudDetection extends Component
             ->where('test_participant_id', $this->testParticipantId)
             ->where('requires_confirming', 1)
             ->count();
+        if (!$this->fraudDetected) {
+            $this->dispatchBrowserEvent('remove-red-header-border');
+        }
     }
 
     public function canParticipantContinue(): bool
