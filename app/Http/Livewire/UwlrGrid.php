@@ -27,7 +27,9 @@ class UwlrGrid extends Component
     public $processingResultErrors = [];
     public $processingResultId;
     public $showErrorModal = false;
+    public $showFailureModal = false;
     public $errorMessages = '';
+    public $failureMessages = '';
     public $displayGoToErrorsButton = false;
 
     public function mount()
@@ -56,6 +58,19 @@ class UwlrGrid extends Component
 
         $this->showErrorModal = true;
     }
+
+    public function triggerFailureModal($id=null)
+    {
+        $id = $id ?: $this->processingResultId;
+
+        $this->showFailureModal = false;
+        if ($id) {
+            $this->failureMessages = UwlrSoapResult::find($id)->failure_messages;
+        }
+
+        $this->showFailureModal = true;
+    }
+
 
     public function deleteImportData()
     {
