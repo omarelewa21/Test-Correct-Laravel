@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Question;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithUpdatingHandling;
@@ -102,8 +103,11 @@ class Navigation extends Component
         } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
         } else {
-            logger(route('student.test-take-overview', $this->testTakeUuid));
-            return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
+            $route = route('student.test-take-overview', $this->testTakeUuid);
+            if (Str::of(config('app.base_url'))->contains('https')) {
+                $route = Str::of($route)->replace('http:', 'https:')->__toString();
+            }
+            return redirect()->to($route);
         }
     }
 
