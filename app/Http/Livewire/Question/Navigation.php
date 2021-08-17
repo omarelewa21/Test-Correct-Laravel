@@ -104,10 +104,7 @@ class Navigation extends Component
             $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
         } else {
             $route = route('student.test-take-overview', $this->testTakeUuid);
-            logger(print_r($_SERVER, true));
-            if (Str::of(config('app.base_url'))->contains('https')) {
-                $route = Str::of($route)->replace('http:', 'https:')->__toString();
-            }
+            logger($route);
             return redirect()->to($route);
         }
     }
