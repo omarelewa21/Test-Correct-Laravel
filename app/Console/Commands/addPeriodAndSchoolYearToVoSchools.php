@@ -22,6 +22,8 @@ class addPeriodAndSchoolYearToVoSchools extends Command
      */
     protected $description = 'adds period and schoolyear 2021 to all school locations of type vo that are activated.';
 
+    private $locationWithoutUser =[];
+
     /**
      * Create a new command instance.
      *
@@ -41,11 +43,19 @@ class addPeriodAndSchoolYearToVoSchools extends Command
     {
         SchoolLocation::withoutSchoolYear('2021')->activeOnly()->get()->each(function ($location) {
             $user = $location->users()->first();
-
-            Auth::login($user);
-
-            $location->addSchoolYearAndPeriod('2021', '01-08-2021', '31-07-2022');
+            if ($user == null) {
+                $this->locationWithoutUser[] = $location->getKey();
+            } else {
+                Auth::login($user);
+                $location->addSchoolYearAndPeriod('2021', '01-08-2021', '31-07-2022');
+            }
         });
+        if ($this->locationWithoutUser) {
+            $this->error(
+                sprintf("no new school year was created for location(s) with id: [%s]", implode($this->locationWithoutUser, ','))
+            );
+        }
+
         return 0;
     }
 }

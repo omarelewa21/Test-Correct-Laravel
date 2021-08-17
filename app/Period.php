@@ -90,7 +90,8 @@ class Period extends BaseModel implements AccessCheckable {
                 $helper = new DemoHelper();
                 $schoolYear = $period->schoolYear;
                 $user = Auth::user();
-                if(null === $user->schoolLocation){
+
+                if(null === optional($user)->schoolLocation){
                     $period->forceDelete();
                     throw new \Exception('U kunt een periode alleen aanmaken als een gebruiker van een schoollocatie. Dit doet u door als schoolbeheerder in het menu Database -> Schooljaren een schooljaar aan te maken met een periode die in de huidige periode valt.');
                 }

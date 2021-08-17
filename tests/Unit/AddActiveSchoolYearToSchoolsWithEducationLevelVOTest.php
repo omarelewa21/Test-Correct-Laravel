@@ -168,6 +168,6 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
             $startCountSchoolYear+11,
             SchoolYear::count()
         );
-
     }
+
 }
