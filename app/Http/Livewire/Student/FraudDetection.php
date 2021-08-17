@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
@@ -10,9 +11,15 @@ use tcCore\TestTakeStatus;
 class FraudDetection extends Component
 {
     public $fraudDetected = false;
-    public $testParticipantId;
+    public $testParticipantId, $testTakeUuid;
 
-    protected $listeners = ['setFraudDetected', 'setFraudDetected'];
+//    protected $listeners = ['setFraudDetected'];
+    protected function getListeners() {
+        return [
+            'echo-private:TestParticipant.'.$this->testParticipantId.',.RemoveFraudDetectionNotification' => 'isTestTakeEventConfirmed',
+            'setFraudDetected' => 'setFraudDetected'
+        ];
+    }
 
     public $testTakeEvents;
 

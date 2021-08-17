@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
+use tcCore\Events\TestTakeForceTakenAway;
+use tcCore\Events\TestTakeReopened;
 use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
 use tcCore\Jobs\Rating\CalculateRatingForTestParticipant;
 use tcCore\Lib\Models\BaseModel;
@@ -85,7 +87,7 @@ class TestParticipant extends BaseModel
             $testParticipant->stoppedTakingTest();
             $testParticipant->updatedRatingOrRetakeRating();
 
-
+            $testParticipant->isTestTakenAway();
         });
     }
 
@@ -284,12 +286,13 @@ class TestParticipant extends BaseModel
         $testTakeStatuses = [4, 5, 6];
 //            if ($testParticipant->testTakeStatus->name === 'Taking test' && in_array($testParticipant->getOriginal('test_take_status_id'), $testTakeStatuses)) {
         //reopenedTest
-        if ($this->test_take_status_id === 3 && in_array($this->getOriginal('test_take_status_id'), $testTakeStatuses)) {
+        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST && in_array($this->getOriginal('test_take_status_id'), $testTakeStatuses)) {
             // Test participant test event for continueing
             $testTakeEvent = new TestTakeEvent();
             $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Continue')->value('id'));
             $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
             $this->testTake->testTakeEvents()->save($testTakeEvent);
+            TestTakeReopened::dispatch($this);
         }
     }
 
@@ -378,4 +381,10 @@ class TestParticipant extends BaseModel
         return $this->test_take_status_id <= TestTakeStatus::STATUS_TAKING_TEST;
     }
 
+    private function isTestTakenAway()
+    {
+        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
+            TestTakeForceTakenAway::dispatch($this);
+        }
+    }
 }

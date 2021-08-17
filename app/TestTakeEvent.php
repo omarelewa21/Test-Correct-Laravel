@@ -1,5 +1,7 @@
 <?php namespace tcCore;
 
+use tcCore\Events\NewTestTakeEventAdded;
+use tcCore\Events\RemoveFraudDetectionNotification;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
@@ -43,6 +45,21 @@ class TestTakeEvent extends BaseModel {
      * @var array
      */
     protected $hidden = [];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::created(function(TestTakeEvent $testTakeEvent) {
+            NewTestTakeEventAdded::dispatch($testTakeEvent->testTake);
+        });
+
+        static::saved(function(TestTakeEvent $testTakeEvent) {
+            if ($testTakeEvent->confirmed == 1 && $testTakeEvent->getOriginal('confirmed') == 0) {
+                RemoveFraudDetectionNotification::dispatch($testTakeEvent->testParticipant);
+            }
+        });
+    }
 
     public function testTakeEventType() {
         return $this->belongsTo('tcCore\TestTakeEventType');
