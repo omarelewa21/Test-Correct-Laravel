@@ -2064,15 +2064,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasIncompleteImport($withFinalizedCheck = true)
     {
+        if (!$this->schoolLocation->lvs_type) { // not lvs_active any more as active means that it will be taken along with the daily checks cron import
+            return false;
+        }
+
         $current = SchoolYearRepository::getCurrentSchoolYear();
+        if ($current == null) {
+            return false;
+        }
+
         if ($this->isA('teacher')) {
-            // does not exist anymore
-//            if ($this->schoolLocation->lvs === false) {
-//                return false;
-//            }
-            if (!$this->schoolLocation->lvs_type) { // not lvs_active any more as active means that it will be taken along with the daily checks cron import
-                return false;
-            }
+
             $baseSubjectId = BaseSubject::where('name', 'demovak')->value('id');
             $teacherRecords = Teacher::selectRaw('count(*) as cnt')
                 ->leftJoin('teacher_import_logs', 'teachers.id', 'teacher_import_logs.teacher_id')
