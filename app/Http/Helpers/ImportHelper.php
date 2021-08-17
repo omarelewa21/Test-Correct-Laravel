@@ -11,6 +11,7 @@ namespace tcCore\Http\Helpers;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\User;
@@ -756,14 +757,17 @@ class ImportHelper
                 throw new \Exception('collected errors');
             }
         } catch (\Throwable $e) {
-            \DB::rollback();
+            $failure_messages = [sprintf('Error detected: %s', $e->getMessage())];
+            $failure_messages[] = 'Initiating rollback;';
+            DB::rollback();
+            $failure_messages[] = 'Rollback completed;';
             $this->importLog("Transaction failed with message ".$e->getMessage());
             if ($e->getMessage() == 'collected errors') {
-                $uniqueErrors = $this->makeErrorsUnique();
-                return ['errors' => $uniqueErrors];
+                return ['errors' => $this->makeErrorsUnique()];
             } else {
                 $result = UwlrSoapResult::find($this->uwlr_soap_result_id);
                 $result->error_messages = $e->getMessage();
+                $result->failure_messages = implode('<BR>', $failure_messages);
                 $result->status = 'ERROR';
                 $result->save();
             }
@@ -778,7 +782,7 @@ class ImportHelper
         }
 
         if (!App::runningUnitTests()) {
-            \DB::commit();
+            DB::commit();
         }
         logger(sprintf('DONE [%s seconds] [%d cacheHits] ',  time()-$this->startTime, $this->cacheHit));
 
