@@ -103,10 +103,9 @@ class Navigation extends Component
         } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
         } else {
-            $route = route('student.test-take-overview', $this->testTakeUuid);
-            logger($route);
-            return redirect()->to($route);
+            return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
         }
+        return true;
     }
 
     public function updateQuestionIndicatorColor($questionNumber)
