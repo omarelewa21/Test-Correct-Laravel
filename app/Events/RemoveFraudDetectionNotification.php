@@ -17,7 +17,6 @@ class RemoveFraudDetectionNotification implements ShouldBroadcastNow
     public function __construct(TestParticipant $testParticipant)
     {
         $this->testParticipant = $testParticipant;
-        logger('initiating RemoveFraudDetectionNotification');
     }
 
     public function broadcastOn()
