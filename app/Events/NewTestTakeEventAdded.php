@@ -27,6 +27,7 @@ class NewTestTakeEventAdded implements ShouldBroadcast
     public function __construct(TestTake $testTake)
     {
         $this->testTake = $testTake;
+        logger('initiating NewTestTakeEventAdded');
     }
 
     /**

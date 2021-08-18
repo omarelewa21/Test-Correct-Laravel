@@ -41,6 +41,7 @@ class FraudDetection extends Component
 
     public function isTestTakeEventConfirmed()
     {
+        logger('In RemoveFraudDetectionNotification listener');
         $this->shouldDisplayFraudMessage();
         if (!$this->canParticipantContinue()) {
             $this->emitTo('student.test-take', 'set_force_taken_away');

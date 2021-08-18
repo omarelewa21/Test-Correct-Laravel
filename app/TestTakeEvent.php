@@ -51,11 +51,13 @@ class TestTakeEvent extends BaseModel {
         parent::boot();
 
         static::created(function(TestTakeEvent $testTakeEvent) {
+            logger('Trying to dispatch NewTestTakeEventAdded');
             NewTestTakeEventAdded::dispatch($testTakeEvent->testTake);
         });
 
         static::saved(function(TestTakeEvent $testTakeEvent) {
             if ($testTakeEvent->confirmed == 1 && $testTakeEvent->getOriginal('confirmed') == 0) {
+                logger('Trying to dispatch RemoveFraudDetectionNotification');
                 RemoveFraudDetectionNotification::dispatch($testTakeEvent->testParticipant);
             }
         });
