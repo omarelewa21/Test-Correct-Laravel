@@ -87,6 +87,7 @@
                         <div class="flex">
                             @if(!$nav[$key-1]['closed'] && !$nav[$key-1]['group']['closed'])
                                 <x-button.primary onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('goToQuestion',{{ $key }})"
+                                                  @click="$dispatch('show-loader')"
                                                   class="ml-auto">{!!__('test_take.adjust_answer') !!}</x-button.primary>
                             @else
                                 <span class="text-sm note w-60 ml-auto text-right">{{ __('test_take.question_closed_text_short') }}</span>

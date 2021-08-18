@@ -43,7 +43,7 @@ class MultipleChoiceQuestion extends Component
 
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-            if ($this->question->subtype == 'ARQ') {
+            if ($this->question->subtype == 'ARQ' || $this->question->subtype == 'TrueFalse') {
                 $this->answer = array_keys($this->answerStruct, 1)[0];
             }
         } else {
