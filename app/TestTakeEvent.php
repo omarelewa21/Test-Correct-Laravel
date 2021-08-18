@@ -136,5 +136,12 @@ class TestTakeEvent extends BaseModel {
         }
     }
 
-
+    public static function hasFraudBeenDetectedForParticipant($participantId)
+    {
+        return !!self::leftJoin('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
+            ->where('confirmed', 0)
+            ->where('test_participant_id', $participantId)
+            ->where('requires_confirming', 1)
+            ->count();
+    }
 }
