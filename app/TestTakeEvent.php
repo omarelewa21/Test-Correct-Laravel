@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use tcCore\Events\NewTestTakeEventAdded;
 use tcCore\Events\RemoveFraudDetectionNotification;
 use tcCore\Lib\Models\BaseModel;
@@ -51,6 +52,8 @@ class TestTakeEvent extends BaseModel {
         parent::boot();
 
         static::created(function(TestTakeEvent $testTakeEvent) {
+            Bugsnag::notify('TestTakeEvent::Created');
+
             NewTestTakeEventAdded::dispatch($testTakeEvent->testTake);
         });
 
