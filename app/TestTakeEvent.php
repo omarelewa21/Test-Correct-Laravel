@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Events\NewTestTakeEventAdded;
 use tcCore\Events\RemoveFraudDetectionNotification;
 use tcCore\Lib\Models\BaseModel;
@@ -52,7 +53,7 @@ class TestTakeEvent extends BaseModel {
         parent::boot();
 
         static::created(function(TestTakeEvent $testTakeEvent) {
-            Bugsnag::notifyException(new \Exception('TestTakeEvent::Created'));
+            Bugsnag::notifyException(new \Exception('TestTakeEvent::Created'. Auth::id()));
 
             NewTestTakeEventAdded::dispatch($testTakeEvent->testTake);
         });
