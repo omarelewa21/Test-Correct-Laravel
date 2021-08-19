@@ -53,7 +53,7 @@ class TestTakeEvent extends BaseModel {
         parent::boot();
 
         static::created(function(TestTakeEvent $testTakeEvent) {
-            Bugsnag::notifyException(new \Exception('TestTakeEvent::Created'. Auth::id()));
+            Bugsnag::notifyException(new \Exception('TestTakeEvent::Created '. Auth::id().' status_id:'.$testTakeEvent->test_take_event_type_id));
 
             NewTestTakeEventAdded::dispatch($testTakeEvent->testTake);
         });
