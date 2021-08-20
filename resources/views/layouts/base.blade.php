@@ -15,6 +15,7 @@
         <script src="//d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js"></script>
         <script>Bugsnag.start({ apiKey: '{{ config('bugsnag.browser_key') }}' })</script>
     @endif
+    @stack('styling')
 </head>
 <body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
 {{ $slot }}

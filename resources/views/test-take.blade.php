@@ -2,6 +2,11 @@
     <div class="w-full flex flex-col mb-5" selid="testtake-layout">
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
         <div>
+            @push('styling')
+                <style>
+                    {!! $styling !!}
+                </style>
+            @endpush
             @foreach($data as  $key => $testQuestion)
                 <div selid="testtake-question">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')

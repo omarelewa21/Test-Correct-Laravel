@@ -1,6 +1,6 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5">
-        <livewire:preview.navigation :nav="$data" :testId="$testId"></livewire:preview.navigation>
+        <livewire:preview.navigation :nav="$nav" :testId="$testId"></livewire:preview.navigation>
         <div>
             @foreach($data as  $key => $testQuestion)
                 <div>
@@ -72,7 +72,7 @@
             @endforeach
         </div>
         <x-slot name="footerbuttons">
-            <div x-cloak x-data="{display :footerButtonData({{ $current }}, {{$nav->count()}})}"
+            <div x-cloak x-data="{display :footerButtonData({{ $current }}, {{count($nav)}})}"
                  @update-footer-navigation.window="display= $event.detail.data" class="space-x-3">
                 <x-button.text-button x-show="display.prev"
                                       onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('previousQuestion')"
