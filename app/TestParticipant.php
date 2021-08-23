@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
+use tcCore\Events\TestTakeForceTakenAway;
+use tcCore\Events\TestTakeReopened;
 use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
 use tcCore\Jobs\Rating\CalculateRatingForTestParticipant;
 use tcCore\Lib\Models\BaseModel;
@@ -85,7 +87,7 @@ class TestParticipant extends BaseModel
             $testParticipant->stoppedTakingTest();
             $testParticipant->updatedRatingOrRetakeRating();
 
-
+            $testParticipant->isTestTakenAway();
         });
     }
 
@@ -249,27 +251,31 @@ class TestParticipant extends BaseModel
     private function startedTakingTest()
     {
         //$testTakeStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken'])->pluck('id')->all();
-        $testTakeStatuses = [1, 2];
+        $testTakeStatuses = [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TEST_NOT_TAKEN];
         // if ($testParticipant->testTakeStatus->name === 'Taking test' && in_array($testParticipant->getOriginal('test_take_status_id'), $testTakeStatuses)) {
-
-        if ($this->test_take_status_id === 3 && in_array($this->getOriginal('test_take_status_id'), $testTakeStatuses)) {
-            // Test participant test event for starting
-            $testTakeEvent = new TestTakeEvent();
-            $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Start')->value('id'));
-            $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
-            $this->testTake->testTakeEvents()->save($testTakeEvent);
-
+        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST) {
             $testTakeTypeStatus = TestTakeEventType::where('name', '=', 'Start')->value('id');
-            $testTakeStartDate = $this->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $testTakeTypeStatus)->whereNull('test_participant_id')->max('created_at');
-            $timeLate = Carbon::createFromFormat('Y-m-d H:i:s', $testTakeStartDate)->addMinutes(5);
-
-            if ($timeLate->isPast()) {
+            $participantStartEvent = TestTakeEvent::whereTestParticipantId($this->getKey())
+                                                    ->whereTestTakeId($this->testTake->getKey())
+                                                    ->whereTestTakeEventTypeId($testTakeTypeStatus)
+                                                    ->first();
+            if (!$participantStartEvent) {
+                // Test participant test event for starting
                 $testTakeEvent = new TestTakeEvent();
-
-                $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Started late')->value('id'));
-                $testTakeEvent->setAttribute('test_take_id', $this->getAttribute('test_take_id'));
-
-                $this->testTakeEvents()->save($testTakeEvent);
+                $testTakeEvent->setAttribute('test_take_event_type_id', $testTakeTypeStatus);
+                $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
+                $this->testTake->testTakeEvents()->save($testTakeEvent);
+    
+                $testTakeStartDate = $this->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $testTakeTypeStatus)->whereNull('test_participant_id')->max('created_at');
+                $timeLate = Carbon::createFromFormat('Y-m-d H:i:s', $testTakeStartDate)->addMinutes(5);
+    
+                if ($timeLate->isPast()) {
+                    $testTakeEvent = new TestTakeEvent();
+                    $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Started late')->value('id'));
+                    $testTakeEvent->setAttribute('test_take_id', $this->getAttribute('test_take_id'));
+    
+                    $this->testTakeEvents()->save($testTakeEvent);
+                }
             }
         }
     }
@@ -280,12 +286,13 @@ class TestParticipant extends BaseModel
         $testTakeStatuses = [4, 5, 6];
 //            if ($testParticipant->testTakeStatus->name === 'Taking test' && in_array($testParticipant->getOriginal('test_take_status_id'), $testTakeStatuses)) {
         //reopenedTest
-        if ($this->test_take_status_id === 3 && in_array($this->getOriginal('test_take_status_id'), $testTakeStatuses)) {
+        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST && in_array($this->getOriginal('test_take_status_id'), $testTakeStatuses)) {
             // Test participant test event for continueing
             $testTakeEvent = new TestTakeEvent();
             $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Continue')->value('id'));
             $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
             $this->testTake->testTakeEvents()->save($testTakeEvent);
+            TestTakeReopened::dispatch($this);
         }
     }
 
@@ -339,7 +346,7 @@ class TestParticipant extends BaseModel
     {
         //Remaining startTestTake actions handled in TestParticipant boot method
         if ($this->canStartTestTake()) {
-            $this->setAttribute('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST)->setAttribute('started_in_new_player', true)->save();
+            $this->setAttribute('started_in_new_player', true)->save();
             return true;
         }
         return false;
@@ -374,4 +381,10 @@ class TestParticipant extends BaseModel
         return $this->test_take_status_id <= TestTakeStatus::STATUS_TAKING_TEST;
     }
 
+    private function isTestTakenAway()
+    {
+        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
+            TestTakeForceTakenAway::dispatch($this);
+        }
+    }
 }

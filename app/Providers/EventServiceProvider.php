@@ -20,6 +20,10 @@ class EventServiceProvider extends ServiceProvider {
         'event.name' => [
             'EventListener',
         ],
+        'tcCore\Events\UserLoggedInEvent' => [
+            'tcCore\Listeners\AddLoginLog',
+            'tcCore\Listeners\SolveFailedLogin',
+        ]
     ];
 
     public function boot()
@@ -36,6 +40,10 @@ class EventServiceProvider extends ServiceProvider {
             $entreeHelper->blockIfReplayAttackDetected();
 
             $entreeHelper->redirectIfBrinUnknown();
+
+            $entreeHelper->redirectIfBrinNotSso();
+
+            $entreeHelper->redirectIfUserWasNotFoundForEckIdAndActiveLVS();
 
             $entreeHelper->redirectIfUserNotHasSameRole();
 

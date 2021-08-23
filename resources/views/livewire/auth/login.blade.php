@@ -286,6 +286,36 @@
                     </div>
                 </form>
             </div>
+        @elseif($tab == 'fatalError')
+            <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
+                <form wire:submit.prevent="entreeForm" action="#" method="POST"
+                      class="flex-col flex flex-1" autocomplete="off">
+                    <div class="flex items-center space-x-2.5 mb-5">
+                        <div class="flex">
+                            <x-stickers.entreefederatie/>
+                        </div>
+                        <div>
+                            <h1>{{ __('auth.connect_entree') }}</h1>
+                        </div>
+                    </div>
+                    <div class="flex flex-col flex-1 h-full">
+                        <p class="mb-4 body1">{{ __('auth.connect_entree_error') }}</p>
+
+                        <div class="flex">
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ $fatalErrorMessage }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto flex w-full">
+                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="$set('tab', 'login')">
+                                <x-icon.arrow/>
+                                <span class="text-base">{{ __('auth.back_to_login') }}</span>
+                            </x-button.text-button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         @elseif($tab == 'entree')
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <form wire:submit.prevent="entreeForm" action="#" method="POST"

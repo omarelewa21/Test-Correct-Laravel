@@ -132,10 +132,12 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('filemanagement/{schoolLocation}/test',['as' => 'filemanagement.uploadtest','uses' => 'FileManagementController@storeTestUpload']);
 
     Route::get('filemanagement/',['as' => 'filemanagement.index','uses' => 'FileManagementController@index']);
+    Route::get('filemanagement/form_id',['as' => 'filemanagement.form_id','uses' => 'FileManagementController@getFormId']);
     Route::get('filemanagement/{fileManagement}',['as' => 'filemanagement.view','uses' => 'FileManagementController@show']);
     Route::get('filemanagement/{fileManagement}/download',['as' => 'filemanagement.download','uses' => 'FileManagementController@download']);
     Route::put('filemanagement/{fileManagement}',['as' => 'filemanagement.update','uses' => 'FileManagementController@update']);
     Route::get('filemanagement/statuses',['as' => 'filemanagement.statuses','uses' => 'FileManagementController@getStatuses']);
+
 
 	// Test take + children
 	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@export']);
@@ -235,6 +237,9 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('user/is_account_verified', ['as' => 'user.is_account_verified', 'uses' => 'UsersController@isAccountVerified']);
     Route::post('user/toggle_account_verified/{user}', ['as' => 'user.toggle_account_verified', 'uses' => 'UsersController@toggleAccountVerified']);
     Route::post('/user/import/{type}','UsersController@import')->name('user.import');
+
+    Route::get('/user/{user}/general_terms_log','UsersController@getGeneralTermsLogForUser')->name('user.getGeneralTermsLogForUser');
+    Route::put('/user/{user}/general_terms_accepted','UsersController@setGeneralTermsLogAcceptedAtForUser')->name('user.setGeneralTermsLogAcceptedAtForUser');
 
 
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
@@ -346,4 +351,5 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('test_take/{test_take}/toggle_inbrowser_testing_for_all_participants','TestTakesController@toggleInbrowserTestingForAllParticipants')->name('test_takes.toggle_inbrowser_testing_for_all_participants');
 
     Route::post('/convert/html/pdf','PdfController@HtmlToPdf')->name('convert.htmltopdf');
+
 });

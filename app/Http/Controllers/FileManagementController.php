@@ -40,6 +40,16 @@ class FileManagementController extends Controller
         return Response(FileManagementStatus::all(), 200);
     }
 
+    public function getFormId()
+    {
+        $formId = Str::uuid();
+        $fileManagement = FileManagement::where('form_id',$formId)->first();
+        if(is_null($fileManagement)){
+            return Response($formId, 200);
+        }
+        return $this->getFormId();
+    }
+
     protected function sendInvite(FileManagement $fileManagement)
     {
         Queue::push(new SendToetsenbakkerInviteMail($fileManagement->getKey()));
@@ -226,7 +236,7 @@ class FileManagementController extends Controller
     private function handleFormSubmission(SchoolLocation $schoolLocation, CreateTestUploadRequest $request, $form_id): FileManagement
     {
         $data = [
-            'id'                 => Str::uuid(),
+            'id'                 => $form_id,
             'origname'           => '',
             'name'               => '',
             'user_id'            => Auth::user()->getKey(),
@@ -242,6 +252,7 @@ class FileManagementController extends Controller
                 'multiple'             => $request->get('multiple'),
                 'form_id'              => $request->get('form_id')
             ],
+            'form_id'           => $form_id,
         ];
 
         $main = new FileManagement();
@@ -291,10 +302,11 @@ class FileManagementController extends Controller
             'user_id'            => Auth::user()->getKey(),
             'school_location_id' => $schoolLocation->getKey(),
             'type'               => 'testupload',
-            'typedetails'        => []
+            'typedetails'        => [],
+            'form_id'            => $form_id
         ];
 
-
+        $parent = FileManagement::where('form_id',$form_id)->whereNull('parent_id')->first();
         $child = new FileManagement();
 
         $data['id'] = Str::uuid();
@@ -304,16 +316,20 @@ class FileManagementController extends Controller
         $origfileName = $file->getClientOriginalName();
         $nameOnly = explode('.', $origfileName)[0];
 
-        $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5), $nameOnly, pathinfo($origfileName, PATHINFO_EXTENSION));
-
+        if(!is_null($parent)){
+            $fileName = sprintf('%s-%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($parent->name), $parent->subject, pathinfo($origfileName, PATHINFO_EXTENSION));
+            $data['typedetails'] = $parent->typedetails;
+        }else{
+            $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5), $nameOnly, pathinfo($origfileName, PATHINFO_EXTENSION));
+        }
         $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
 
         $data['origname'] = $origfileName;
         $data['name'] = $fileName;
 
         $child->fill($data);
-
         $child->save();
+
         return $child;
     }
 

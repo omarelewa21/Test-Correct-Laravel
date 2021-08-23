@@ -1,6 +1,8 @@
 <?php namespace tcCore\Providers;
 
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider {
@@ -12,7 +14,9 @@ class AppServiceProvider extends ServiceProvider {
 	 */
 	public function boot()
 	{
-		//
+        if (Str::of(config('app.base_url'))->contains('https')) {
+            URL::forceScheme('https');
+        }
 	}
 
 	/**

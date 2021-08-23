@@ -24,10 +24,6 @@
     window.livewire.onError(statusCode => {
 
         if (statusCode === 406) {
-            console.log('in onError')
-            // var element = document.querySelector('[testtakemanager]');
-            // console.log(element)
-            // element.dispatchEvent(new CustomEvent('set-force-taken-away', {w: true}));
             Livewire.emit('set-force-taken-away');
 
             return false;
@@ -40,7 +36,7 @@
     })
 </script>
 <script src="{{ mix('/js/app.js') }}"></script>
-<script src="https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image"></script>
+<script src="https://www.wiris.net/client/plugins/app/WIRISplugins.js?viewer=image"></script>
 @stack('scripts')
 </body>
 </html>

@@ -1,30 +1,30 @@
 <?php
- $struct = [
+$struct = [
     'school'              => [
-        'dependancecode', 'brincode', 'schooljaar',  'xsdversie' ,
+        'dependancecode', 'brincode', 'schooljaar', 'xsdversie',
     ],
     'groep'               => [
-        'key', 'naam',  'mutatiedatum',
+        'key', 'naam', 'mutatiedatum',
     ],
     'samengestelde_groep' => [
         'key', 'naam',
     ],
     'leerling'            => [
-        'eckid', 'key', 'achternaam', 'roepnaam', 'geboortedatum',  'groep',
+        'eckid', 'key', 'achternaam', 'roepnaam', 'geboortedatum', 'groep',
         'samengestelde_groepen',
     ],
     'leerkracht'          => [
-        'key', 'roepnaam', 'emailadres',  'groepen', 'achternaam', 'samengestelde_groepen', 'eckid'
+        'key', 'roepnaam', 'emailadres', 'groepen', 'achternaam', 'samengestelde_groepen', 'eckid'
     ],
 ];
- ?>
+?>
 
 <div class="mt-10 flex-1 p-8" id="uwlr-grid">
     <div class="flex flex-1 justify-between">
         <div><h1>UWLR Grid</h1></div>
         <div class="flex-shrink-0">
             @if(\Illuminate\Support\Str::contains(url()->current(),'testwelcome'))
-            <x-button.cta class="" wire:click="deleteImportData">Delete Import data</x-button.cta>
+                <x-button.cta class="" wire:click="deleteImportData">Delete Import data</x-button.cta>
             @endif
             <x-button.primary class="" wire:click="newImport">Import</x-button.primary>
         </div>
@@ -68,6 +68,9 @@
                     <x-table.heading width="120px">
                         &nbsp;
                     </x-table.heading>
+                    <x-table.heading width="120px">
+                        &nbsp;
+                    </x-table.heading>
 
                 </x-slot>
                 <x-slot name="body">
@@ -91,7 +94,8 @@
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING')
-                                    <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Bekijk details
+                                    <x-button.text-button wire:click="activateResult({{ $set->getKey() }})">Bekijk
+                                        details
                                     </x-button.text-button>
                                 @elseif($set->status === 'PROCESSING' || $set->status === 'READYTOPROCESS')
                                     <div class="lds-hourglass" wire:poll></div>
@@ -100,14 +104,15 @@
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
-                                <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Verwerken
-                                </x-button.text-button>
+                                    <x-button.text-button wire:click="processResult({{ $set->getKey() }})">Verwerken
+                                    </x-button.text-button>
                                 @endif
                             </x-table.cell>
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING')
                                     @if(\Illuminate\Support\Str::contains(url()->current(),'testwelcome'))
-                                        <x-button.text-button class="" @click="if(confirm('Weet je zeker dat je hier alles van wilt verijderen?\nLet op: Dit kan even duren het scherm ververst zichzelf!')){ livewire.find(document.querySelector('#uwlr-grid').getAttribute('wire:id')).call('deleteImportDataForResultSet','{{ $set->getKey() }}')}">
+                                        <x-button.text-button class=""
+                                                              @click="if(confirm('Weet je zeker dat je hier alles van wilt verijderen?\nLet op: Dit kan even duren het scherm ververst zichzelf!')){ livewire.find(document.querySelector('#uwlr-grid').getAttribute('wire:id')).call('deleteImportDataForResultSet','{{ $set->getKey() }}')}">
                                             <div wire:loading wire:target="deleteImportDataForResultSet">
                                                 <div class="lds-hourglass"></div>
                                             </div>
@@ -121,7 +126,17 @@
                             <x-table.cell>
                                 @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
                                     @if ($set->error_messages)
-                                        <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">Error
+                                        <x-button.text-button wire:click="triggerErrorModal( {{ $set->getKey() }} )">
+                                            Warnings
+                                        </x-button.text-button>
+                                    @endif
+                                @endif
+                            </x-table.cell>
+                            <x-table.cell>
+                                @if($set->status !== 'PROCESSING' && $set->status !== 'READYTOPROCESS')
+                                    @if ($set->failure_messages)
+                                        <x-button.text-button
+                                            wire:click="triggerFailureModal( {{ $set->getKey() }} )">Error
                                         </x-button.text-button>
                                     @endif
                                 @endif
@@ -172,7 +187,7 @@
                                 @foreach($this->modalActiveTabHtml as $object)
                                     @if($loop->first)
                                         @foreach($struct[$this->modalActiveTab] as $prop)
-{{--                                        @foreach($object as $prop => $value)--}}
+                                            {{--                                        @foreach($object as $prop => $value)--}}
                                             <x-table.heading>
                                                 {{ $prop }}
                                             </x-table.heading>
@@ -237,12 +252,27 @@
     </x-modal>
 
     <x-modal wire:model="showErrorModal" maxWidth="7xl">
-        <x-slot name="title">Errors</x-slot>
+        <x-slot name="title">Warnings</x-slot>
         <x-slot name="body">
             <div class="sm:block">
                 <div class="border-b border-gray-200" id="melding">
 
                     <PRE style="white-space: pre-wrap;"> {!! $this->errorMessages !!}</PRE>
+                </div>
+
+
+            </div>
+        </x-slot>
+        <x-slot name="actionButton"></x-slot>
+    </x-modal>
+
+    <x-modal wire:model="showFailureModal" maxWidth="7xl">
+        <x-slot name="title">Failure errors</x-slot>
+        <x-slot name="body">
+            <div class="sm:block">
+                <div class="border-b border-gray-200" id="melding">
+
+                    <PRE style="white-space: pre-wrap;"> {!! $this->failureMessages !!}</PRE>
                 </div>
 
 

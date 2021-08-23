@@ -373,6 +373,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if (Crypt::decryptString($record->eckid) === $eckid) {
                 // user should be part of this school_location
                 $user = User::find($record->user_id);
+                if(!$user){
+                    return false;
+                }
                 return $user->allowedSchoolLocations->contains($school_location_id);
             }
             return false;
@@ -1256,6 +1259,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->belongsTo(User::class, 'invited_by');
     }
 
+    public function generalTermsLog()
+    {
+        return $this->hasOne(GeneralTermsLog::class, 'user_id');
+    }
+
     public function getOnboardingWizardSteps()
     {
         $state = $this->onboardingWizardUserState;
@@ -2056,15 +2064,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasIncompleteImport($withFinalizedCheck = true)
     {
+        if (!$this->schoolLocation->lvs_type) { // not lvs_active any more as active means that it will be taken along with the daily checks cron import
+            return false;
+        }
+
         $current = SchoolYearRepository::getCurrentSchoolYear();
+        if ($current == null) {
+            return false;
+        }
+
         if ($this->isA('teacher')) {
-            // does not exist anymore
-//            if ($this->schoolLocation->lvs === false) {
-//                return false;
-//            }
-            if (!$this->schoolLocation->lvs_type) { // not lvs_active any more as active means that it will be taken along with the daily checks cron import
-                return false;
-            }
+
             $baseSubjectId = BaseSubject::where('name', 'demovak')->value('id');
             $teacherRecords = Teacher::selectRaw('count(*) as cnt')
                 ->leftJoin('teacher_import_logs', 'teachers.id', 'teacher_import_logs.teacher_id')
@@ -2084,6 +2094,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 })
                 ->where('teachers.user_id', $this->getKey())
                 ->where('school_classes.demo', 0)
+                ->where('school_classes.created_by','lvs')
                 ->where('school_classes.school_year_id',$current->getKey())
 //                ->where('school_classes.visible', 0) // if a class is checked by another teacher, then it might already be visible
                 ->value('cnt');
@@ -2091,6 +2102,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->withoutGlobalScope('visibleOnly')
                 ->where('school_classes.visible', 0)
+                ->where('school_classes.created_by','lvs')
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_year_id',$current->getKey())
                 ->whereIn('school_classes.id', function ($query) {
@@ -2114,6 +2126,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if ($this->isA('school manager')) {
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')->withoutGlobalScope('visibleOnly')
                 ->where('school_classes.visible', 0)
+                ->where('school_classes.created_by','lvs')
                 ->where('school_classes.is_main_school_class', 1)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
@@ -2295,5 +2308,18 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         $user->refresh();
         return $this;
+    }
+
+    public function createGeneralTermsLogIfRequired()
+    {
+        if ($this->isA('teacher') && $this->hasNoActiveLicense() && $this->generalTermsLog()->count() == 0) {
+            $this->generalTermsLog()->create();
+        }
+        return $this;
+    }
+
+    public function hasNoActiveLicense()
+    {
+        return $this->schoolLocation->licenses()->count() == 0 || $this->schoolLocation->licenses()->where('end', '>', Carbon::now())->count() == 0;
     }
 }

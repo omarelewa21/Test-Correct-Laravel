@@ -50,6 +50,9 @@
                                          "
                                  id="nav_item_{{ 1+$key}}"
                                  wire:click="goToQuestion({{ 1+$key}})"
+                                 @if($this->isOverview)
+                                 @click="$dispatch('show-loader')"
+                                @endif
                         >
                             <span id="nav_{{$q['id']}}" wire:key="nav_{{$q['id']}}"
                                   class="align-middle px-1.5">{{ ++$key }}</span>
@@ -125,7 +128,7 @@
                 </x-button.text-button>
             @endif
             @if(!$isOverview)
-                <x-button.text-button wire:click="toOverview({{ $this->q }})">
+                <x-button.text-button wire:click="toOverview({{ $this->q }})" @click="$dispatch('show-loader')">
                     <x-icon.preview/>
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.text-button>

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Session;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use tcCore\BaseSubject;
 use tcCore\DemoTeacherRegistration;
 use tcCore\Http\Requests\Request;
 use tcCore\SchoolLocation;
@@ -37,6 +38,10 @@ class Onboarding extends Component
 
     public $warningStepOneConfirmed = false;
     public $warningStepTwoConfirmed = false;
+    public $subjectOptions = '';
+    public $selectedSubjects = [];
+    public $selectedSubjectsString = '';
+
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref'];
 
@@ -106,6 +111,7 @@ class Onboarding extends Component
             'registration.registration_email_confirmed' => 'sometimes',
             'registration.invitee'                      => 'sometimes',
             'password'                                  => 'sometimes',
+            'registration.subjects'                     => 'sometimes',
         ];
 
         if ($this->step === 1) {
@@ -159,6 +165,7 @@ class Onboarding extends Component
         }
 
         $this->registration->registration_email_confirmed = $this->confirmed;
+        $this->setSubjectOptions();
     }
 
     private function isUserConfirmedWithEmail()
@@ -174,6 +181,8 @@ class Onboarding extends Component
 
     public function render()
     {
+        $this->setSelectedSubjectsString();
+        $this->setSubjectOptions();
         return view('livewire.onboarding')->layout('layouts.onboarding');
     }
 
@@ -375,6 +384,28 @@ class Onboarding extends Component
             $this->validateOnly($propertyName);
         }
     }
+
+    public function syncSelectedSubjects($subjects)
+    {
+        $this->registration->subjects = implode(';',$subjects);
+        $this->selectedSubjects = $subjects;
+    }
+
+    protected function setSubjectOptions()
+    {
+        $subjects = BaseSubject::where('show_in_onboarding',true)->get()->pluck('name')->toArray();
+        $subjects = array_unique($subjects);
+        sort($subjects);
+        $subjects = array_diff($subjects,$this->selectedSubjects);
+        $this->subjectOptions = json_encode($subjects,JSON_HEX_APOS);
+    }
+
+    protected function setSelectedSubjectsString()
+    {
+        $this->selectedSubjectsString =  json_encode($this->selectedSubjects,JSON_HEX_APOS);
+    }
+
+
 
 
 }

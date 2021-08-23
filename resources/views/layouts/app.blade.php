@@ -1,5 +1,9 @@
 <x-layouts.base>
-    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20">
+    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20"
+            x-data="{}"
+            x-on:set-red-header-border.window="$el.classList.add('red-header-border')"
+            x-on:remove-red-header-border.window="$el.classList.remove('red-header-border')"
+        >
         <a class="mr-4 flex" href="#">
             <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                  alt="Test-Correct">

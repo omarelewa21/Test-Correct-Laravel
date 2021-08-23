@@ -20,8 +20,11 @@
         "tailwindcss": "^2.0.4"
     },
     "dependencies": {
+        "@wiris/mathtype-ckeditor4": "^7.26.1",
         "alpinejs": "^2.8.2",
         "jquery": "^2.1.1",
-        "strip-ansi": "^6.0.0"
+        "strip-ansi": "^6.0.0",
+        "pusher-js": "^7.0.3",
+        "laravel-echo": "^1.11.0"
     }
 }

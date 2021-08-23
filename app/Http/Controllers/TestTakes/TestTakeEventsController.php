@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use tcCore\Events\RemoveFraudDetectionNotification;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\TestTakeEvent;

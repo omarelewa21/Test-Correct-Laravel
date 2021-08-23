@@ -2,8 +2,8 @@
      x-data="{ fraud: @entangle('fraudDetected') }"
      x-show.transition.duration.200ms="fraud"
      x-cloak
-
-     wire:poll.30000ms="isTestTakeEventConfirmed"
+     wire:init="shouldDisplayFraudMessage"
+{{--     wire:poll.30000ms="isTestTakeEventConfirmed"--}}
 >
     <div class="fraud-detection rounded-full bg-all-red text-white flex justify-center items-center"
          style="width:40px;height:40px">

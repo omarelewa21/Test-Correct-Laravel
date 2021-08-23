@@ -11,6 +11,7 @@ namespace tcCore\Http\Helpers;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
 use tcCore\User;
@@ -209,7 +210,7 @@ class ImportHelper
      */
     public function importLog($string)
     {
-     //   logger($string);
+//        logger($string);
 
         return true;
     }
@@ -225,7 +226,7 @@ class ImportHelper
 
         $unit=array('b','kb','mb','gb','tb','pb');
         $usage = @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
-        logger(sprintf('[%s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $usage, time()-$this->startTime, $this->cacheHit));
+        logger(sprintf('[%s of %s] usage [%s] [%s seconds] [%d cacheHits] ', $line, $this->csv_data_lines, $usage, time()-$this->startTime, $this->cacheHit));
     }
 
     public function process()
@@ -242,6 +243,7 @@ class ImportHelper
         $this->errorMessages = [];
 
         $this->importLog('----- '.$this->csv_data_lines.' data lines in input file');
+        logger(sprintf('Total of %d lines to handle',$this->csv_data_lines));
 
 
         try {
@@ -710,7 +712,10 @@ class ImportHelper
                             // delete teachers where the subject is not in the import for the class
                             $deleted_teachers = Teacher::leftjoin('school_classes', 'school_classes.id', '=',
                                 'teachers.class_id')
-                                ->where('school_classes.do_not_overwrite_from_interface', 0)
+                                ->where(function($q){
+                                    $q->where('school_classes.do_not_overwrite_from_interface', 0)
+                                    ->orWhereNull('school_classes.do_not_overwrite_from_interface');
+                                })
                                 ->where('teachers.class_id', $class_id)
                                 ->whereNotIn('teachers.subject_id', $subject_ids)
                                 ->delete();
@@ -752,13 +757,19 @@ class ImportHelper
                 throw new \Exception('collected errors');
             }
         } catch (\Throwable $e) {
-            \DB::rollback();
+            $failure_messages = [sprintf('Error detected: %s', $e->getMessage())];
+            $failure_messages[] = 'Initiating rollback;';
+            DB::rollback();
+            $failure_messages[] = 'Rollback completed;';
             $this->importLog("Transaction failed with message ".$e->getMessage());
             if ($e->getMessage() == 'collected errors') {
-                $uniqueErrors = $this->makeErrorsUnique();
-
-
-                return ['errors' => $uniqueErrors];
+                return ['errors' => $this->makeErrorsUnique()];
+            } else {
+                $result = UwlrSoapResult::find($this->uwlr_soap_result_id);
+                $result->error_messages = $e->getMessage();
+                $result->failure_messages = implode('<BR>', $failure_messages);
+                $result->status = 'ERROR';
+                $result->save();
             }
             // MF merge the errorMessages of helper on the return to fix schoolyear error;
             return [
@@ -771,7 +782,7 @@ class ImportHelper
         }
 
         if (!App::runningUnitTests()) {
-            \DB::commit();
+            DB::commit();
         }
         logger(sprintf('DONE [%s seconds] [%d cacheHits] ',  time()-$this->startTime, $this->cacheHit));
 
@@ -1265,12 +1276,19 @@ class ImportHelper
             ->first();
 
         // uwlr
+        if(null !== $this->uwlr_soap_result_id) {
+            $data['created_by'] = 'lvs';
+        }
         if ($schoolClass === null && $this->can_find_school_class_only_by_name) {
             return $this->getOrCreateSchoolClassIfAllowedByName($data);
         }
 
         if ($schoolClass) {
-            $schoolClass->restore();
+            if($schoolClass->trashed()) {
+                $schoolClass->restore();
+                $schoolClass->craated_by = $data['lvs'];
+                $schoolClass->save();
+            }
 
             return $schoolClass->getKey();
         }
@@ -1299,6 +1317,7 @@ class ImportHelper
         }
         $schoolClass->name = $data['name']; // set the name the capitalized way we get it from the data array
         $schoolClass->is_main_school_class = $data['is_main_school_class']; // the import is leading in telling whether this is a mainSchoolClass even if set differently earlier
+        $schoolClass->created_by = $data['created_by'];
         $schoolClass->save();
         $schoolClass->restore();
         return $schoolClass->getKey();

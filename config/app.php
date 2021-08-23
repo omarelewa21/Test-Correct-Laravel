@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'url' => 'http://localhost',
+    'url' => env('APP_URL', 'http://localhost'),
 
     /*
     |--------------------------------------------------------------------------
@@ -158,6 +158,7 @@ return [
         'Illuminate\Validation\ValidationServiceProvider',
         'Illuminate\View\ViewServiceProvider',
         'Illuminate\Notifications\NotificationServiceProvider',
+        'Illuminate\Broadcasting\BroadcastServiceProvider',
         Laravel\Tinker\TinkerServiceProvider::class,
 
         /*
@@ -171,6 +172,7 @@ return [
         'tcCore\Providers\ConfigServiceProvider',
         'tcCore\Providers\EventServiceProvider',
         'tcCore\Providers\RouteServiceProvider',
+        'tcCore\Providers\BroadcastServiceProvider',
         // Custom validators
         'tcCore\Providers\ValidatorServiceProvider',
 

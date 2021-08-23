@@ -50,7 +50,7 @@ class TeachersImportRequest extends Request {
         $extra_rule = [];
         $data  = request()->data;
         foreach ($data as $key => $value) {
-            if (array_key_exists('username', $value)&&array_key_exists('external_id',$value)) {
+            if ($this->hasEntry('username', $value)&&$this->hasEntry('external_id', $value)) {
                 $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
                     'email:rfc,filter',
                     new UsernameUniqueSchool($this->schoolLocation,'teacher'),
@@ -63,7 +63,7 @@ class TeachersImportRequest extends Request {
                     }];
                 $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
             }
-            if (array_key_exists('username', $value)&&array_key_exists('school_class',$value)&&array_key_exists('subject',$value)) {
+            if ($this->hasEntry('username', $value)&&$this->hasEntry('school_class',$value)&&$this->hasEntry('subject',$value)) {
                 $extra_rule[sprintf('data.%d.subject', $key)] = [
                         new TeacherWithSchoolClassAndSubjectShouldNotExist($this->schoolLocation,$value),
                 ];
@@ -79,15 +79,29 @@ class TeachersImportRequest extends Request {
             'data.*.name' => 'required',
             'data.*.school_class' => 'required',
             'data.*.subject' => 'required',
+            'data.*.external_id' => 'required',
         ]);
         if ($extra_rule === []) {
-            $mergedRules = $rules->merge([
-                'data.*.external_id' => 'required',
-            ]);
+            $mergedRules = $rules;
         } else {
             $mergedRules = $rules->merge($extra_rule);
         }
+
         return $mergedRules->toArray();
+    }
+
+    protected function hasEntry($key,$arr)
+    {
+        if(!array_key_exists($key,$arr)){
+            return false;
+        }
+        if(is_null($arr[$key])){
+            return false;
+        }
+        if($arr[$key]==''){
+            return false;
+        }
+        return true;
     }
 
     /**

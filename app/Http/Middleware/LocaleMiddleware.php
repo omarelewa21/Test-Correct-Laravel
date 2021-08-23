@@ -16,8 +16,8 @@ class LocaleMiddleware
     public function handle($request, Closure $next)
     {
         if ($request->has('locale')) {
-            if (in_array(strtolower($request->locale), ['en', 'nl'])) {
-                session()->put('locale', $request->locale);
+            if (in_array(strtolower($request->getLocale()), ['en', 'nl'])) {
+                session()->put('locale', $request->getLocale());
             } else {
                 session()->put('locale', 'nl');
             }

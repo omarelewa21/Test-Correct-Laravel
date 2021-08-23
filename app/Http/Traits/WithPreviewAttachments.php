@@ -18,7 +18,7 @@ trait WithPreviewAttachments
     public function showAttachment(Attachment $attachment)
     {
         $this->attachment = $attachment;
-        $this->questionId = $this->question->uuid;
+        $this->questionId = $this->group ? $this->group->uuid : $this->question->uuid;
         $this->timeout = $this->attachment->audioTimeoutTime();
         $this->attachmentType = $this->getAttachmentType($attachment);
     }

@@ -4,14 +4,11 @@ namespace tcCore\Http\Livewire\Question;
 
 use Livewire\Component;
 use tcCore\Answer;
-use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
 use tcCore\Http\Traits\WithNotepad;
-use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Http\Traits\WithUpdatingHandling;
-use tcCore\Question;
 
 class MultipleChoiceQuestion extends Component
 {
@@ -45,7 +42,7 @@ class MultipleChoiceQuestion extends Component
     {
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-            if ($this->question->subtype == 'ARQ') {
+            if ($this->question->subtype == 'ARQ' || $this->question->subtype == 'TrueFalse') {
                 $this->answer = array_keys($this->answerStruct, 1)[0];
             }
         } else {
@@ -71,12 +68,9 @@ class MultipleChoiceQuestion extends Component
         $this->answerStruct = array_fill_keys(array_keys($this->answerStruct), 0);
         $this->answerStruct[$value] = 1;
 
-
         $json = json_encode($this->answerStruct);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
-
-//        $this->emitUp('updateAnswer', $this->uuid, $this->answerStruct);
     }
 
     public function render()
