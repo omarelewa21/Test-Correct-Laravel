@@ -2,6 +2,11 @@
     <div class="w-full flex flex-col mb-5">
         <livewire:preview.navigation :nav="$nav" :testId="$testId"></livewire:preview.navigation>
         <div>
+            @push('styling')
+                <style>
+                    {!! $styling !!}
+                </style>
+            @endpush
             @foreach($data as  $key => $testQuestion)
                 <div>
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')

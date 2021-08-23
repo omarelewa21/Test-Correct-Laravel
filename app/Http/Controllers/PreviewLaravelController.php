@@ -18,8 +18,9 @@ class PreviewLaravelController extends Controller
         $testId = $test->getKey();
         $answers = $data;
         $nav = $this->getNavigationData($data);
+        $styling = $this->getCustomStylingFromQuestions($data);
 
-        return view('test-preview', compact(['data', 'nav', 'uuid', 'answers', 'current', 'testId']));
+        return view('test-preview', compact(['data', 'nav', 'uuid', 'answers', 'current', 'testId', 'styling']));
     }
 
     public static function getData(Test $test)
@@ -65,5 +66,12 @@ class PreviewLaravelController extends Controller
                 'closeable' => $question->closeable
             ];
         })->toArray();
+    }
+
+    private function getCustomStylingFromQuestions($data)
+    {
+        return $data->map(function($question) {
+            return $question->getQuestionInstance()->styling;
+        })->unique()->implode(' ');
     }
 }
