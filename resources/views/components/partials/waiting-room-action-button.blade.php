@@ -2,7 +2,7 @@
     @if($isTakeOpen)
         <div class="divider flex flex-1 pulse-left"></div>
         <div class="flex flex-col justify-center">
-            <x-button.cta x-on:click="startCountdown = true; startCountdownTimer($el.__x.$data);">
+            <x-button.cta x-on:click="startCountdown = true; startCountdownTimer($refs.root._x_dataStack[0]);">
                 <span>{{ __('student.start_test') }}</span>
                 <x-icon.arrow/>
             </x-button.cta>

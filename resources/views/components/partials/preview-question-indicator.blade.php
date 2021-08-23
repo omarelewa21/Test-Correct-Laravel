@@ -3,9 +3,9 @@
          x-data="{ showSlider: false, scrollStep: 100, activeQuestion: @entangle('q') }"
          x-ref="questionindicator"
          x-init="$nextTick(() => { $dispatch('current-updated', {'current': activeQuestion })} );
-                navigationResizer.resize($data);
+                navigationResizer.resize($refs.questionindicator._x_dataStack[0]);
                 "
-         x-on:resize.window.debounce.250ms="navigationResizer.resize($el.__x.$data);"
+         x-on:resize.window.debounce.250ms="navigationResizer.resize($refs.questionindicator._x_dataStack[0]);"
          x-on:current-updated.window="
                if(typeof objectToObserve !== 'undefined') {
                     myIntersectionObserver.unobserve(objectToObserve);
