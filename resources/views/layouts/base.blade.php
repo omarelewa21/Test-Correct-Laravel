@@ -38,5 +38,8 @@
 <script src="{{ mix('/js/app.js') }}"></script>
 <script src="https://www.wiris.net/client/plugins/app/WIRISplugins.js?viewer=image"></script>
 @stack('scripts')
+<script>
+    Alpine.start();
+</script>
 </body>
 </html>
