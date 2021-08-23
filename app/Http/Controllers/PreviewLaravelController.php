@@ -41,7 +41,7 @@ class PreviewLaravelController extends Controller
 //
 //            return collect([$testQuestion->question]);
 //        });
-        return cache()->remember('data_test_preview' . $test->getKey(), now()->addMinutes(60), function () use ($test) {
+//        return cache()->remember('data_test_preview' . $test->getKey(), now()->addMinutes(60), function () use ($test) {
             $test->load('testQuestions', 'testQuestions.question', 'testQuestions.question.attachments');
             return $test->testQuestions->flatMap(function ($testQuestion) {
                 $testQuestion->question->loadRelated();
@@ -52,7 +52,7 @@ class PreviewLaravelController extends Controller
                 }
                 return collect([$testQuestion->question]);
             });
-        });
+//        });
     }
 
     private function getNavigationData($data)
