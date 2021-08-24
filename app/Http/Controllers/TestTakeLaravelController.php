@@ -29,8 +29,8 @@ class TestTakeLaravelController extends Controller
         $nav = $this->getNavigationData($data, $answers);
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
-
-        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant']));
+        $styling = $this->getCustomStylingFromQuestions($data);
+        return view('test-take-overview', compact(['data', 'current', 'answers', 'playerUrl', 'nav', 'uuid', 'testParticipant', 'styling']));
     }
 
 
@@ -56,8 +56,9 @@ class TestTakeLaravelController extends Controller
 
         $uuid = $testTake->uuid;
         // todo add check or failure when $current out of bounds $data;
+        $styling = $this->getCustomStylingFromQuestions($data);
 
-        return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant']));
+        return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant', 'styling']));
     }
 
     public function getAnswers($testTake, $testQuestions, $testParticipant): array
@@ -158,5 +159,12 @@ class TestTakeLaravelController extends Controller
             }));
         });
         return $newData;
+    }
+
+    private function getCustomStylingFromQuestions($data)
+    {
+        return $data->map(function($question) {
+            return $question->getQuestionInstance()->styling;
+        })->unique()->implode(' ');
     }
 }

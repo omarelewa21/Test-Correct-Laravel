@@ -16,6 +16,11 @@
              x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;console.log($event.detail)"
              class="w-full space-y-8 mt-40" :style="calculateMarginTop()">
             <h1 class="mb-7">{{ __('test_take.overview_review_answers') }}</h1>
+            @push('styling')
+                <style>
+                    {!! $styling !!}
+                </style>
+            @endpush
             @foreach($data as  $key => $testQuestion)
                 <div class="flex flex-col space-y-4">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
