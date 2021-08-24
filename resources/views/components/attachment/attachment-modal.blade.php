@@ -21,12 +21,12 @@
                     <iframe class="w-full h-full" src="{{ $attachment->getVideoLink() }}"></iframe>
                 @elseif($this->attachmentType == 'pdf')
                     <iframe class="w-full h-full"
-                            src="{{ route('student.question-pdf-attachment-show', ['attachment' => $attachment->getKey(), 'answer' => $answerId], false) }}"></iframe>
+                            src="{{ route('student.question-pdf-attachment-show', ['attachment' => $attachment, 'answer' => $answerId], false) }}"></iframe>
                 @elseif($this->attachmentType == 'audio')
                     <x-attachment.audio :attachment="$attachment"/>
                 @else
                         <img class="w-full h-full block"
-                            src="{{ route('student.question-attachment-show', ['attachment' => $attachment->getKey(), 'answer' => $answerId], false) }}" alt=""/>
+                            src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $answerId], false) }}" alt=""/>
                 @endif
             </div>
         </div>
