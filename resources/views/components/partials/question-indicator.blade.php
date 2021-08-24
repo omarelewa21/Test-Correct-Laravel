@@ -1,16 +1,17 @@
 <div class="question-indicator w-full" id="navigation-container">
     <div class="flex-col"
 {{--         x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"--}}
-        x-data="questionIndicator"
+         x-data="questionIndicator"
          x-ref="questionindicator"
+         x-global="indicatorData"
          x-init="$nextTick(() => {
                     $dispatch('current-updated', {'current': activeQuestion });
                     navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});
+                     totalScrollWidth = $refs.navscrollbar.offsetWidth;
+                     navigationResizer.resize(indicatorData);
                     });
-                 totalScrollWidth = $refs.navscrollbar.offsetWidth;
-                 navigationResizer.resize($refs.questionindicator._x_dataStack[0]);
                  "
-         x-on:resize.window.debounce.250ms="navigationResizer.resize($refs.questionindicator._x_dataStack[0]);"
+         x-on:resize.window.debounce.250ms="navigationResizer.resize(indicatorData);"
          x-on:current-updated.window="navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});"
          x-cloak
     >

@@ -4985,6 +4985,11 @@ document.addEventListener('alpine:init', function () {
       activeQuestion: window.Livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).entangle('q')
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__.default.directive('global', function (el, _ref) {
+    var expression = _ref.expression;
+    var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
+    f(window, el._x_dataStack[0]);
+  });
 });
 
 /***/ }),
