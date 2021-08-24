@@ -150,6 +150,18 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
     }
 
     /** @test */
+    public function it_should_select_all_school_locations_without_a_period_at_a_certain_date()
+    {
+        $set = SchoolLocation::NoActivePeriodAtDate('1-1-1992')->activeOnly()->voOnly()->get()->filter(function (
+            $schoolLocation
+        ) {
+            return $schoolLocation instanceof SchoolLocation;
+        });
+        $this->assertCount(5, $set);
+    }
+
+
+    /** @test */
     public function when_running_the_command_it_should_add_5_periods_and_school_years()
     {
         $startCountPeriod = Period::count();

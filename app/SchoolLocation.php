@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -938,7 +939,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         );
     }
 
-    public function addSchoolYearAndPeriod($year, $startDate, $endDate) {
+    public function addSchoolYearAndPeriod($year, $startDate, $endDate)
+    {
         $schoolYear = new SchoolYear();
 
         $schoolYear->fill([
@@ -951,10 +953,33 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $periodLocation->fill([
             'school_year_id'     => $schoolYear->getKey(),
             'name'               => 'huidige voor MS A',
-            'school_location_id' =>  $this->getKey(),
-            'start_date'         => \Carbon\Carbon::parse($startDate),
-            'end_date'           => \Carbon\Carbon::parse($endDate),
+            'school_location_id' => $this->getKey(),
+            'start_date'         => Carbon::parse($startDate),
+            'end_date'           => Carbon::parse($endDate),
         ]);
         $periodLocation->save();
+    }
+
+    public function scopeNoActivePeriodAtDate($query, $date)
+    {
+        if (is_string($date)) {
+            $date = Carbon::parse($date);
+        }
+
+        if (!$date instanceof Carbon) {
+            throw new \Exception(
+                'date should be a valid date string or an instanceof Carbon'
+            );
+        }
+
+        return $query->whereNotIn('id',
+            Period::where('start_date', '>=', $date)
+                ->where('end_date', '<=', $date)
+                ->join('school_years', 'school_year_id','school_years.id')
+                ->join('school_location_school_years', 'school_location_school_years.school_year_id', 'school_years.id')
+                ->select('school_location_id')
+        );
+
+
     }
 }

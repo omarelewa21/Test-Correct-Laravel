@@ -41,7 +41,7 @@ class addPeriodAndSchoolYearToVoSchools extends Command
      */
     public function handle()
     {
-        SchoolLocation::withoutSchoolYear('2021')->activeOnly()->get()->each(function ($location) {
+        SchoolLocation::noActivePeriodAtDate('01-08-2021')->get()->each(function ($location) {
             $user = $location->users()->first();
             if ($user == null) {
                 $this->locationWithoutUser[] = $location->getKey();

@@ -6,6 +6,7 @@
 .envBackupWhileStresstest
 .envBackupWhileSeleniumtest
 .env.selenium
+.env.orig
 .idea
 /storage
 /storage/*.key
