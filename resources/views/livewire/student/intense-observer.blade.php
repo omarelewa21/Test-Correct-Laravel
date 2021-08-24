@@ -2,9 +2,9 @@
     x-data="{deviceId: {{ $deviceId }}, sessionId: {{ $sessionId }}, code: '{{ md5('1.1') }}'}"
     x-init="(() => {
            Intense = new IntenseWrapper({
-                api_key: 'api_key', // This is a public key which will be provided by Intense.
+                api_key: '{!! config('app.intense.apiKey') !!}', // This is a public key which will be provided by Intense.
                 app: 'name of the app that implements Intense. example: TC@1.0.0',
-                debug: true // If true, all debug data will be written to console.log().
+                debug: {!! config('app.intense.debugMode') !!} // If true, all debug data will be written to console.log().
             })
             .onCallibrated(function(type) {
 {{--                document.getElementById('typecalibration_complete_button').classList.add('primary-button');--}}

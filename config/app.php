@@ -236,4 +236,8 @@ return [
             'password',
         ],
     ],
+    'intense' => [
+        'apiKey' => env('INTENSE_APP_KEY'),
+        'debugMode' => env('INTENSE_DEBUG_MODE'),
+    ],
 ];
