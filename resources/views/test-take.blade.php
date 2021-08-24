@@ -1,5 +1,8 @@
 <x-layouts.app>
     <div class="w-full flex flex-col mb-5" selid="testtake-layout">
+        @if($testParticipant->intense)
+            <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
+        @endif
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
         <div>
             @push('styling')
