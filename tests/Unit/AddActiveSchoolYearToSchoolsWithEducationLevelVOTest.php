@@ -157,7 +157,7 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         ) {
             return $schoolLocation instanceof SchoolLocation;
         });
-        $this->assertCount(5, $set);
+        $this->assertCount(0, $set);
     }
 
 
