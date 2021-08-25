@@ -139,12 +139,12 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         // er zitten 5 scholen in die van een nieuwe periode moeten worden voorzien;
 
         $this->assertEquals(
-            $startCountPeriod+5,
+            $startCountPeriod + 5,
             Period::count()
         );
 
         $this->assertEquals(
-            $startCountSchoolYear+5,
+            $startCountSchoolYear + 5,
             SchoolYear::count()
         );
     }
@@ -160,6 +160,20 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         $this->assertCount(0, $set);
     }
 
+    /** @test */
+    public function it_should_return_a_correct_query()
+    {
+        $builder = SchoolLocation::NoActivePeriodAtDate('2021-08-01')->activeOnly();
+
+        $query = str_replace(array('?'), array('\'%s\''), $builder->toSql());
+        $query = vsprintf($query, $builder->getBindings());
+        $this->assertEquals(
+            "select * from `school_locations` where `id` not in (select `school_location_id` from `periods` inner join `school_years` on `school_year_id` = `school_years`.`id` inner join `school_location_school_years` on `school_location_school_years`.`school_year_id` = `school_years`.`id` where (`start_date` >= '2021-08-01 00:00:00' or `end_date` >= '2021-08-01 00:00:00') and `periods`.`deleted_at` is null) and `activated` = '1' and `school_locations`.`deleted_at` is null",
+            $query
+        );
+
+    }
+
 
     /** @test */
     public function when_running_the_command_it_should_add_5_periods_and_school_years()
@@ -172,12 +186,12 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         // er zitten 11 scholen in die van een nieuwe periode moeten worden voorzien;
 
         $this->assertEquals(
-            $startCountPeriod+11,
+            $startCountPeriod + 11,
             Period::count()
         );
 
         $this->assertEquals(
-            $startCountSchoolYear+11,
+            $startCountSchoolYear + 11,
             SchoolYear::count()
         );
     }
