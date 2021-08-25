@@ -974,12 +974,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
 
         return $query->whereNotIn('id',
             Period::where('start_date', '>=', $date)
-                ->where('end_date', '<=', $date)
                 ->join('school_years', 'school_year_id','school_years.id')
                 ->join('school_location_school_years', 'school_location_school_years.school_year_id', 'school_years.id')
                 ->select('school_location_id')
-        );
-
-
+        )->where('activated', 1);
     }
 }
