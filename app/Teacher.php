@@ -169,7 +169,7 @@ class Teacher extends BaseModel {
                 return (object)[
                     'id'                 => $user->id,
                     'uuid'               => $user->uuid,
-                    'name'               => str_replace('  ', ' ', trim(sprintf('%s %s %s (%s)', $user->name_first, $user->name_suffix, $user->name, $user->abbreviation))),
+                    'name'               => preg_replace('!\\r?\\n?\\t!', "", str_replace('  ', ' ', trim(sprintf('%s %s %s (%s)', $user->name_first, $user->name_suffix, $user->name, $user->abbreviation)))),
                     'school_location_id' => $user->schoolLocation->uuid,
                     'subject_ids'        => $user->subjects(Subject::select('uuid'))->get()->map(function ($s) {
                         return $s->uuid;

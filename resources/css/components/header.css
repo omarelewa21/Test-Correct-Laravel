@@ -16,3 +16,14 @@
     position: absolute;
     bottom: 0;
 }
+
+.red-header-border {
+    border: 10px solid var(--all-red);
+    padding-left: 1.5rem; padding-right: 1.5rem
+    /*animation: border-pulse 2s infinite;*/
+}
+@keyframes border-pulse {
+    0%   { border-width: 5px; padding-left: 1.8rem;padding-right: 1.8rem }
+    50%  { border-width: 10px; padding-left: 1.5rem; padding-right: 1.5rem}
+    100% { border-width: 5px; padding-left: 1.8rem;padding-right: 1.8rem }
+}

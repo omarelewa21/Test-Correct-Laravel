@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\TestParticipant;
 use tcCore\TestTakeEvent;
@@ -10,16 +11,17 @@ use tcCore\TestTakeStatus;
 class FraudDetection extends Component
 {
     public $fraudDetected = false;
-    public $testParticipantId;
+    public $testParticipantId, $testTakeUuid;
 
-    protected $listeners = ['setFraudDetected', 'setFraudDetected'];
+//    protected $listeners = ['setFraudDetected'];
+    protected function getListeners() {
+        return [
+            'echo-private:TestParticipant.'.$this->testParticipantId.',.RemoveFraudDetectionNotification' => 'isTestTakeEventConfirmed',
+            'setFraudDetected' => 'shouldDisplayFraudMessage'
+        ];
+    }
 
     public $testTakeEvents;
-
-    public function mount()
-    {
-        $this->shouldDisplayFraudMessage();
-    }
 
     public function render()
     {
@@ -28,7 +30,12 @@ class FraudDetection extends Component
 
     public function setFraudDetected()
     {
-        $this->fraudDetected = true;
+        $this->dispatchBrowserEvent('set-red-header-border');
+    }
+
+    public function removeFraudDetected()
+    {
+        $this->dispatchBrowserEvent('remove-red-header-border');
     }
 
     public function isTestTakeEventConfirmed()
@@ -39,13 +46,10 @@ class FraudDetection extends Component
         }
     }
 
-    private function shouldDisplayFraudMessage()
+    public function shouldDisplayFraudMessage()
     {
-        $this->fraudDetected = !!TestTakeEvent::leftJoin('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
-            ->where('confirmed', 0)
-            ->where('test_participant_id', $this->testParticipantId)
-            ->where('requires_confirming', 1)
-            ->count();
+        $this->fraudDetected = TestTakeEvent::hasFraudBeenDetectedForParticipant($this->testParticipantId);
+        $this->fraudDetected ? $this->setFraudDetected() : $this->removeFraudDetected();
     }
 
     public function canParticipantContinue(): bool

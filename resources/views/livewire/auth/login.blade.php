@@ -114,13 +114,13 @@
                                     <span class="body">{{ __('auth.incorrect_credentials_long') }}</span>
                                 </div>
                                 @enderror
-                                @if($this->message_brin == 'brin_not_found')
+                                @if($this->entree_error_message)
                                     <div class="notification error stretched mt-4">
                                         <div class="flex items-center space-x-3">
                                             <x-icon.exclamation/>
-                                            <span class="title">{{ __('auth.brin_not_found') }}</span>
+                                            <span class="title">{{ __('auth.entree_error') }}</span>
                                         </div>
-                                        <span class="body">{{ __('auth.brin_not_found_long') }}</span>
+                                        <span class="body">{{ __($this->entree_error_message) }}</span>
                                     </div>
                                 @endif
                                 @error('should_first_go_to_entree')
@@ -286,6 +286,36 @@
                     </div>
                 </form>
             </div>
+        @elseif($tab == 'fatalError')
+            <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
+                <form wire:submit.prevent="entreeForm" action="#" method="POST"
+                      class="flex-col flex flex-1" autocomplete="off">
+                    <div class="flex items-center space-x-2.5 mb-5">
+                        <div class="flex">
+                            <x-stickers.entreefederatie/>
+                        </div>
+                        <div>
+                            <h1>{{ __('auth.connect_entree') }}</h1>
+                        </div>
+                    </div>
+                    <div class="flex flex-col flex-1 h-full">
+                        <p class="mb-4 body1">{{ __('auth.connect_entree_error') }}</p>
+
+                        <div class="flex">
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ $fatalErrorMessage }}</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto flex w-full">
+                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="$set('tab', 'login')">
+                                <x-icon.arrow/>
+                                <span class="text-base">{{ __('auth.back_to_login') }}</span>
+                            </x-button.text-button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         @elseif($tab == 'entree')
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <form wire:submit.prevent="entreeForm" action="#" method="POST"
@@ -319,6 +349,19 @@
                                 <span class="text-base">{{__('auth.forgot_password_long')}}</span>
                                 <x-icon.arrow/>
                             </x-button.text-button>
+                        </div>
+                        <div class="flex">
+                            @if(!Ramsey\Uuid\Uuid::isValid($this->uuid))
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ __('auth.no_saml_message_found') }}</span>
+                                </div>
+                            @endif
+
+                            @error('entree_error')
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ $message }}</span>
+                            </div>
+                            @enderror
                         </div>
 
                         <div class="mt-auto flex w-full">

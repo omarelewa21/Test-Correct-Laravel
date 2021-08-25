@@ -2,7 +2,7 @@ let touchstartX = 0;
 let touchstartY = 0;
 let touchendX = 0;
 let touchendY = 0;
-let disableSwipeForElements = ['.disable-swipe-navigation', '#navigation-container', '.ranking', '.classify', '.matching'];
+let disableSwipeForElements = ['.disable-swipe-navigation', '#navigation-container', '.ranking', '.classify', '.matching', '.wrs_modal_dialogContainer'];
 let swipeAccuracyDefer = 100;
 
 const gestureZone = document.getElementById('body');

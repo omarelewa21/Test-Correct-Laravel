@@ -3,14 +3,13 @@
 namespace tcCore\Http\Livewire;
 
 use Artisaninweb\SoapWrapper\SoapWrapper;
-use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use Livewire\Component;
 use tcCore\Http\Helpers\MagisterHelper;
 use tcCore\Http\Helpers\SomTodayHelper;
+use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\SchoolLocation;
 use tcCore\SchoolLocationSchoolYear;
-use tcCore\SchoolYear;
-use tcCore\UwlrSoapEntry;
 
 class UwlrFetcher extends Component
 {
@@ -37,6 +36,9 @@ class UwlrFetcher extends Component
     public function mount()
     {
         $this->uwlrDatasource = $this->getDataSource();
+        if (count($this->uwlrDatasource) == 0) {
+            dd('Geen schoollocaties gevonden met een gevuld veld lvs_type [ben je vergeten om deze in de database te zetten?]');
+        }
         $this->setSearchFields();
         $this->setSchoolYears();
     }
@@ -54,7 +56,7 @@ class UwlrFetcher extends Component
                'lvs_type'       => $l->lvs_type,
                'school_year'    => ''
            ];
-        });
+        })->toArray();
     }
 
     public function updatedCurrentSource()
@@ -62,18 +64,46 @@ class UwlrFetcher extends Component
         $this->setSearchFields();
         $this->setSchoolYears();
 
+        if($this->uwlrDatasource[$this->currentSource]['school_year'] != 0) {
+            $this->schoolYear = $this->uwlrDatasource[$this->currentSource]['school_year'];
+        }
     }
 
     protected function setSchoolYears()
     {
         $this->schoolYears = [];
         $location = SchoolLocation::find($this->uwlrDatasource[$this->currentSource]['id']);
+        $currentPeriod = PeriodRepository::getCurrentPeriodForSchoolLocation($location, false, false);
         if($location) {
-            $years = $location->schoolLocationSchoolYears->map(function(SchoolLocationSchoolYear $slsy){
-               return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
-            });
-            $this->schoolYears = collect($years)->sortDesc();
-            $this->schoolYear = $this->schoolYears->first();
+            $years = $location
+                    ->schoolLocationSchoolYears
+                    ->load('schoolYear:id,year')
+                    ->when(optional($currentPeriod)->schoolYear, function ($slsy) use ($currentPeriod) {
+                        return $slsy->where('schoolYear.year', '>=', $currentPeriod->schoolYear->year);
+                    })
+                    ->when(!optional($currentPeriod)->schoolYear, function ($slsy) {
+                        return $slsy->where('schoolYear.year', '>=', Carbon::now()->subYear()->format('Y'));
+                    })
+                    ->sortBy('schoolYear.year', SORT_REGULAR, false)
+                    ->filter(function(SchoolLocationSchoolYear $s) {
+                        return null != optional($s->schoolYear)->year;
+                    })
+                    ->map(function(SchoolLocationSchoolYear $slsy){
+                        return sprintf('%d-%d', $slsy->schoolYear->year, $slsy->schoolYear->year + 1);
+                    });
+
+            $this->schoolYears = array_values($years->toArray());
+
+            if (!array_key_exists(0, $this->schoolYears)) {
+                $this->addError(
+                    'no_school_years',
+                    sprintf('Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s', $location->id, $location->name)
+                );
+                $this->schoolYear = '';
+//                dd(sprintf('Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s', $location->id, $location->name));
+            } else {
+                $this->schoolYear = array_key_first($this->schoolYears);
+            }
         }
 
     }
@@ -81,13 +111,14 @@ class UwlrFetcher extends Component
     public function updatedSchoolYear($data)
     {
         $this->setSearchFields();
+        $this->uwlrDatasource[$this->currentSource]['school_year'] = $data;
     }
 
     private function setSearchFields()
     {
         $this->clientCode = $this->uwlrDatasource[$this->currentSource]['client_code'];
         $this->clientName = $this->uwlrDatasource[$this->currentSource]['client_name'];
-        $this->schoolYear = $this->schoolYear;
+//        $this->schoolYear = $this->schoolYear;
         $this->brinCode = $this->uwlrDatasource[$this->currentSource]['brin_code'];
         $this->dependanceCode = $this->uwlrDatasource[$this->currentSource]['dependance_code'];
     }
@@ -100,6 +131,7 @@ class UwlrFetcher extends Component
             $this->report = $helper->getResultSet()->report();
             $this->resultIdendifier = $helper->getResultIdentifier();
         } catch(\Exception $e){
+            dd($e);
             session()->flash('error', $e->getMessage());
             return $this->redirect(route('uwlr.grid'));
         }

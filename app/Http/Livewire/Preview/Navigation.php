@@ -31,7 +31,13 @@ class Navigation extends Component
         }
         $this->dispatchBrowserEvent('current-updated', ['current' => $this->q]);
 
+        $questions = Question::find(collect($this->nav)->pluck('id'));
+
         foreach ($this->nav as $key => $question) {
+            $question = $questions->first(function($item) use ($question) {
+                return $item->id === $question['id'];
+            });
+//            $question = Question::find($question['id']);
             $this->groupQuestionIdsForQuestions[$question->getKey()] = 0;
             if($question['is_subquestion']) {
                 $groupId = $question->getGroupQuestionIdByTest($this->testId);
@@ -40,7 +46,7 @@ class Navigation extends Component
                 $this->closeableGroups[$groupId] = (bool) Question::whereId($groupId)->value('closeable');
             }
         }
-
+        $this->nav = collect($this->nav);
         $this->startTime = time();
     }
 

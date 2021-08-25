@@ -1,4 +1,4 @@
-<div x-data="{}" x-init="runCheckFocus;" testtakemanager>
+<div x-data="{}" x-init="Core.init()" testtakemanager>
     <x-modal maxWidth="lg" wire:model="showTurnInModal">
         <x-slot name="title">Toets inleveren</x-slot>
         <x-slot name="body">Weet je zeker dat je de toets wilt inleveren?</x-slot>
@@ -26,6 +26,8 @@
     <x-notification :notificationTimeout="$notificationTimeout"/>
     @push('scripts')
         <script>
+            Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
+
             document.addEventListener("DOMContentLoaded", () => {
                 document.renderCounter = 0;
                 renderMathML();

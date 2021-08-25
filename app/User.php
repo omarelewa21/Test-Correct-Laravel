@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Closure;
 use Illuminate\Auth\Authenticatable;
@@ -7,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
@@ -15,6 +17,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
@@ -51,7 +54,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     use UuidTrait;
 
     protected $casts = [
-        'uuid'    => EfficientUuid::class,
+        'uuid' => EfficientUuid::class,
         'intense' => 'boolean',
     ];
 
@@ -287,7 +290,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function hasText2Speech()
     {
-        return (bool) $this->text2speech;
+        return (bool)$this->text2speech;
     }
 
     public function hasActiveText2Speech()
@@ -295,7 +298,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (!$this->hasText2Speech()) {
             return false;
         }
-        return (bool) $this->text2SpeechDetails->active;
+        return (bool)$this->text2SpeechDetails->active;
     }
 
     public function getHasText2speechAttribute()
@@ -343,7 +346,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //        $method = 'aes-256-cbc';
         $eckid = '';
         if (!is_null($this->eckidFromRelation)) {
-            $eckid = $this->eckidFromRelation->eckid;
+            $eckid = Crypt::decryptString($this->eckidFromRelation->eckid);
         }
         return $eckid;
 //        return openssl_decrypt(base64_decode($eckid), $method, $passphrase, OPENSSL_RAW_DATA, $iv);
@@ -351,19 +354,102 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function setEckidAttribute($eckid)
     {
-//        $passphrase = config('custom.encrypt.eck_id_passphrase');
-//        $iv = config('custom.encrypt.eck_id_iv');
-//        $method = 'aes-256-cbc';
-//        $this->attributes['eckid'] = base64_encode(openssl_encrypt($eckid, $method, $passphrase, OPENSSL_RAW_DATA, $iv));
+        if (!$eckid) {
+            $this->removeEckId();
+            return;
+        }
+
         $eckIdUser = $this->eckidFromRelation ?: new EckIdUser;
-        $eckIdUser->eckid = $eckid;
+        $eckIdUser->eckid = Crypt::encryptString($eckid);
+        $eckIdUser->eckid_hash = md5($eckid);
         $this->eckidFromRelation()->save($eckIdUser);
+    }
+
+    public function scopeFindByEckidAndSchoolLocationIdForTeacher($query, $eckid, $school_location_id)
+    {
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $record = $list->first(function ($record) use ($eckid, $school_location_id) {
+            if (Crypt::decryptString($record->eckid) === $eckid) {
+                // user should be part of this school_location
+                $user = User::find($record->user_id);
+                if(!$user){
+                    return false;
+                }
+                return $user->allowedSchoolLocations->contains($school_location_id);
+            }
+            return false;
+        });
+
+        // return empty if user_id was not found;
+        $user_id = 0;
+
+        if ($record) {
+            $user_id = $record->user_id;
+        }
+
+        return $query->select('users.*')->where('id', $user_id);
+    }
+
+    public function scopeFindByEckidAndSchoolLocationIdForUser($query, $eckid, $school_location_id)
+    {
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $record = $list->first(function ($record) use ($eckid, $school_location_id) {
+            if (Crypt::decryptString($record->eckid) === $eckid) {
+                // user should be part of this school_location
+                $user = User::find($record->user_id);
+                return $user->school_location_id === $school_location_id;
+            }
+            return false;
+        });
+
+        // return empty if user_id was not found;
+        $user_id = 0;
+
+        if ($record) {
+            $user_id = $record->user_id;
+        }
+
+        return $query->select('users.*')->where('id', $user_id);
+    }
+
+    public function scopeFilterByEckid($query, $eckid)
+    {
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $records = $list->filter(function ($record) use ($eckid) {
+            return Crypt::decryptString($record->eckid) === $eckid;
+        });
+
+        // return empty if user_id was not found;
+        $user_ids = [];
+
+        if ($records->count()) {
+            $user_ids = $records->map(function ($u) {
+                return $u->user_id;
+            });
+        }
+
+        return $query->select('users.*')->whereIn('id', $user_ids);
     }
 
     public function scopeFindByEckid($query, $eckid)
     {
-        return $query->select('users.*')->leftJoin('eckid_user', 'users.id', '=', 'eckid_user.user_id')->where('eckid',
-            $eckid);
+        $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
+
+        $record = $list->first(function ($record) use ($eckid) {
+            return Crypt::decryptString($record->eckid) === $eckid;
+        });
+
+        // return empty if user_id was not found;
+        $user_id = 0;
+
+        if ($record) {
+            $user_id = $record->user_id;
+        }
+
+        return $query->select('users.*')->where('id', $user_id);
     }
 
     public function getIsTempTeacher()
@@ -492,34 +578,34 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         // Progress additional answers
         static::saved(function (User $user) {
-            $oldText2Speech = (bool) $user->getOriginal('text2speech');
-            if (!$oldText2Speech && (bool) request()->input('text2speech')) {
+            $oldText2Speech = (bool)$user->getOriginal('text2speech');
+            if (!$oldText2Speech && (bool)request()->input('text2speech')) {
                 // we've got a new user with time dispensation
                 Text2Speech::create([
-                    'user_id'    => $user->getKey(),
-                    'active'     => true,
+                    'user_id' => $user->getKey(),
+                    'active' => true,
                     'acceptedby' => Auth::user()->getKey(),
-                    'price'      => config('custom.text2speech.price')
+                    'price' => config('custom.text2speech.price')
                 ]);
                 Text2SpeechLog::create([
                     'user_id' => $user->getKey(),
-                    'action'  => 'ACCEPTED',
-                    'who'     => Auth::user()->getKey()
+                    'action' => 'ACCEPTED',
+                    'who' => Auth::user()->getKey()
                 ]);
             } else {
                 if ($oldText2Speech && request()->has('active_text2speech')) {
                     // we've got a student with time dispensation and there might be a change in the active status
                     // we only change these settings if there is a active_time_dispensation value, otherwise it would be changed on password update as well for instance
-                    $newActiveText2Speech = (bool) request()->input('active_text2speech');
-                    $oldActiveText2Speech = (bool) $user->hasActiveText2Speech();
+                    $newActiveText2Speech = (bool)request()->input('active_text2speech');
+                    $oldActiveText2Speech = (bool)$user->hasActiveText2Speech();
                     if ($newActiveText2Speech !== $oldActiveText2Speech) {
                         $user->text2SpeechDetails->active = $newActiveText2Speech;
                         $user->text2SpeechDetails->save();
 
                         Text2SpeechLog::create([
                             'user_id' => $user->getKey(),
-                            'action'  => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
-                            'who'     => Auth::user()->getKey()
+                            'action' => ($newActiveText2Speech) ? 'ENABLED' : 'DISABLED',
+                            'who' => Auth::user()->getKey()
                         ]);
                     }
                 }
@@ -553,7 +639,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 }
 
                 $user->profileImage->move(storage_path('user_profile_images'),
-                    $user->getKey().' - '.$user->getAttribute('profile_image_name'));
+                    $user->getKey() . ' - ' . $user->getAttribute('profile_image_name'));
             }
 
             //Trigger jobs
@@ -694,6 +780,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 //              }
             }
 
+            $user->removeEckId();
+
             if ($user->forceDeleting) {
                 $original = $user->getOriginalProfileImagePath();
                 if (File::exists($original)) {
@@ -797,13 +885,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getOriginalProfileImagePath()
     {
         return ((substr(storage_path('user_profile_images'),
-                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images').DIRECTORY_SEPARATOR).$this->getOriginal($this->getKeyName()).' - '.$this->getOriginal('profile_image_name');
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images') . DIRECTORY_SEPARATOR) . $this->getOriginal($this->getKeyName()) . ' - ' . $this->getOriginal('profile_image_name');
     }
 
     public function getCurrentProfileImagePath()
     {
         return ((substr(storage_path('user_profile_images'),
-                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images').DIRECTORY_SEPARATOR).$this->getKey().' - '.$this->getAttribute('profile_image_name');
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('user_profile_images') : storage_path('user_profile_images') . DIRECTORY_SEPARATOR) . $this->getKey() . ' - ' . $this->getAttribute('profile_image_name');
     }
 
     public function fillFileProfileImage(UploadedFile $file)
@@ -1082,7 +1170,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function ownTeachers()
     {
-
         return $this->hasMany('tcCore\Teacher')->currentSchoolLocation();
     }
 
@@ -1172,6 +1259,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->belongsTo(User::class, 'invited_by');
     }
 
+    public function generalTermsLog()
+    {
+        return $this->hasOne(GeneralTermsLog::class, 'user_id');
+    }
+
     public function getOnboardingWizardSteps()
     {
         $state = $this->onboardingWizardUserState;
@@ -1185,8 +1277,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $wizard = OnboardingWizard::whereIn('role_id', $roleIds)->where('active',
                 true)->orderBy('role_id')->first();
             OnboardingWizardUserState::create([
-                'id'                   => Str::uuid(),
-                'user_id'              => $this->getKey(),
+                'id' => Str::uuid(),
+                'user_id' => $this->getKey(),
                 'onboarding_wizard_id' => $wizard->getKey()
             ]);
         }
@@ -1228,12 +1320,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isToetsenbakker()
     {
-        return (bool) FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
+        return (bool)FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
     }
 
     public function hasCitoToetsen()
     {
-        return (bool) $this->subjects()->where('name', 'like', 'cito%')->count() > 0;
+        return (bool)$this->subjects()->where('name', 'like', 'cito%')->count() > 0;
     }
 
     public function getNameFullAttribute()
@@ -1245,20 +1337,20 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if (array_key_exists('name_first',
                 $this->attributes) && !empty($this->attributes['name_first']) && array_key_exists('name_suffix',
                 $this->attributes) && !empty($this->attributes['name_suffix'])) {
-            $result .= ' '.$this->attributes['name_suffix'];
+            $result .= ' ' . $this->attributes['name_suffix'];
         }
         if ((array_key_exists('name_first',
                     $this->attributes) && !empty($this->attributes['name_first']) || (array_key_exists('name_suffix',
                         $this->attributes) && !empty($this->attributes['name_suffix']))) && array_key_exists('name',
                 $this->attributes) && !empty($this->attributes['name'])) {
-            $result .= ' '.$this->attributes['name'];
+            $result .= ' ' . $this->attributes['name'];
         }
         return $result;
     }
 
     public function hasSharedSections()
     {
-        return (bool) (null !== $this->schoolLocation && $this->schoolLocation->sharedSections()->count());
+        return (bool)(null !== $this->schoolLocation && $this->schoolLocation->sharedSections()->count());
     }
 
     public function scopeStudentFiltered($query, $filters = [], $sorting = [])
@@ -1289,7 +1381,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'name':
-                    $query->where('name', 'LIKE', '%'.$value.'%');
+                    $query->where('name', 'LIKE', '%' . $value . '%');
                     break;
                 case 'school_class_id':
                     $query->whereIn('users.id', function ($query) use ($value) {
@@ -1536,16 +1628,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     }
                     break;
                 case 'username':
-                    $query->where('username', 'LIKE', '%'.$value.'%');
+                    $query->where('username', 'LIKE', '%' . $value . '%');
                     break;
                 case 'name_full':
-                    $query->where(DB::raw('CONCAT_WS(\' \', name_first, name_suffix, name)'), 'LIKE', '%'.$value.'%');
+                    $query->where(DB::raw('CONCAT_WS(\' \', name_first, name_suffix, name)'), 'LIKE', '%' . $value . '%');
                     break;
                 case 'name':
-                    $query->where('name', 'LIKE', '%'.$value.'%');
+                    $query->where('name', 'LIKE', '%' . $value . '%');
                     break;
                 case 'name_first':
-                    $query->where('name_first', 'LIKE', '%'.$value.'%');
+                    $query->where('name_first', 'LIKE', '%' . $value . '%');
                     break;
                 case 'send_welcome_email':
                     $query->where('send_welcome_email', '=', $value);
@@ -1666,7 +1758,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     /**
      * @param $roleName
-     * @param  null  $user  if no user is given, the auth::user is taken
+     * @param null $user if no user is given, the auth::user is taken
      * @return bool
      */
     public function hasRole($roleName, $user = null)
@@ -1827,8 +1919,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $this->onboardingWizardUserState()->save(
                     OnboardingWizardUserState::make(
                         [
-                            'id'                   => Str::uuid(),
-                            'show'                 => true,
+                            'id' => Str::uuid(),
+                            'show' => true,
                             'onboarding_wizard_id' => $wizard->getKey()
                         ]
                     )
@@ -1965,31 +2057,35 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getFullNameWithAbbreviatedFirstName(): string
     {
         $letter = Str::substr($this->name_first, 0, 1);
-        filled($this->name_suffix) ? $suffix = $this->name_suffix.' ' : $suffix = '';
+        filled($this->name_suffix) ? $suffix = $this->name_suffix . ' ' : $suffix = '';
 
         return sprintf('%s. %s%s', $letter, $suffix, $this->name);
     }
 
     public function hasIncompleteImport($withFinalizedCheck = true)
     {
+        if (!$this->schoolLocation->lvs_type) { // not lvs_active any more as active means that it will be taken along with the daily checks cron import
+            return false;
+        }
+
+        $current = SchoolYearRepository::getCurrentSchoolYear();
+        if ($current == null) {
+            return false;
+        }
+
         if ($this->isA('teacher')) {
-            // does not exist anymore
-//            if ($this->schoolLocation->lvs === false) {
-//                return false;
-//            }
-            if ($this->schoolLocation->lvs_active === false) {
-                return false;
-            }
-            $baseSubjectId = BaseSubject::where('name','demovak')->value('id');
+
+            $baseSubjectId = BaseSubject::where('name', 'demovak')->value('id');
             $teacherRecords = Teacher::selectRaw('count(*) as cnt')
                 ->leftJoin('teacher_import_logs', 'teachers.id', 'teacher_import_logs.teacher_id')
                 ->leftJoin('school_classes', 'teachers.class_id', 'school_classes.id')
-                ->where(function ($query) use($baseSubjectId){
-                    $query->whereIn('teachers.subject_id', function ($query) use ($baseSubjectId){
+                ->where(function ($query) use ($baseSubjectId) {
+                    $query->whereIn('teachers.subject_id', function ($query) use ($baseSubjectId) {
                         $query->select('id')
                             ->from('subjects')
                             ->where('base_subject_id', $baseSubjectId)
-                            ->where('abbreviation', 'IMP');
+                            ->where('abbreviation', 'IMP')
+                            ->whereNull('subjects.deleted_at');
                     })
                         ->orWhere(function ($query) {
                             $query->whereNull('teacher_import_logs.checked_by_teacher')
@@ -1998,35 +2094,43 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 })
                 ->where('teachers.user_id', $this->getKey())
                 ->where('school_classes.demo', 0)
+                ->where('school_classes.created_by','lvs')
+                ->where('school_classes.school_year_id',$current->getKey())
+//                ->where('school_classes.visible', 0) // if a class is checked by another teacher, then it might already be visible
                 ->value('cnt');
 
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')
                 ->withoutGlobalScope('visibleOnly')
-                ->where('school_classes.visible',0)
+                ->where('school_classes.visible', 0)
+                ->where('school_classes.created_by','lvs')
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
+                ->where('school_classes.school_year_id',$current->getKey())
                 ->whereIn('school_classes.id', function ($query) {
                     $query->select('class_id')
                         ->from('teachers')
-                        ->where('user_id', $this->getKey());
+                        ->where('user_id', $this->getKey())
+                        ->whereNull('teachers.deleted_at');
                 })
-                ->where(function ($query) use ($withFinalizedCheck){
-                    if($withFinalizedCheck){
+                ->where(function ($query) use ($withFinalizedCheck) {
+                    if ($withFinalizedCheck) {
                         $query->whereNull('school_class_import_logs.finalized');
                     } else {
                         $query->whereNull('checked_by_teacher');
                     }
                     $query->orWhereNull('school_class_import_logs.id');
-                })->where('demo',0)
-
+                })->where('demo', 0)
                 ->value('cnt');
             return ($classRecords + $teacherRecords) > 0;
         }
 
         if ($this->isA('school manager')) {
             $classRecords = SchoolClass::selectRaw('count(*) as cnt')->withoutGlobalScope('visibleOnly')
-                ->where('school_classes.visible',0)
+                ->where('school_classes.visible', 0)
+                ->where('school_classes.created_by','lvs')
+                ->where('school_classes.is_main_school_class', 1)
                 ->leftJoin('school_class_import_logs', 'school_classes.id', 'school_class_import_logs.class_id')
                 ->where('school_classes.school_location_id', $this->schoolLocation->getKey())
+                ->where('school_classes.school_year_id',$current->getKey())
                 ->where(function ($query) {
                     $query->where(function ($q) {
                         $q->whereNull('school_class_import_logs.checked_by_admin')
@@ -2041,36 +2145,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return false;
     }
 
-    public function handleEntreeAttributes($attr)
-    {
-        // update username with the emailaddress posted from entree
-        // only and only when it conforms to s_<userId>@test-correct.nl or t_<userId>@test-correct.nl
-        $emailFromEntree = false;
-        if (array_key_exists('mail', $attr) && is_array($attr['mail'])) {
-            $emailFromEntree = array_pop($attr['mail']);
-        }
 
-
-        if ($emailFromEntree && $this->username === $this->generateMissingEmailAddress()) {
-            $this->username = $emailFromEntree;
-        }
-        $this->save();
-
-        // als er geen stamnummer(external_id) voor de student beschikbaar is haal het stamnummer uit het emailadres
-        // dat wordt aangeleverd via Entree stamnummer is dan alles wat voor de @ staat;
-        if ($emailFromEntree && $this->isA('student') && empty($this->externalId)) {
-            $parts = explode('@', $emailFromEntree)[0];
-            if (is_array($parts) && array_key_exists(0, $parts) && $parts[0]) {
-                $this->external_id = $parts[0];
-            }
-        }
-
-        $this->save();
-
-        return $this;
-    }
-
-    private function generateMissingEmailAddress()
+    public function generateMissingEmailAddress()
     {
         if ($this->isA('student')) {
             return sprintf(self::STUDENT_IMPORT_EMAIL_PATTERN, $this->getKey());
@@ -2098,8 +2174,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $temporaryLogin->createCakeUrl();
     }
 
-    public function inSchoolLocationAsUser(User $user) {
-        if (!$this->schoolLocation || ! $user->schoolLocation) {
+    public function inSchoolLocationAsUser(User $user)
+    {
+        if (!$this->schoolLocation || !$user->schoolLocation) {
             return false;
         }
 
@@ -2116,5 +2193,133 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
 
         return false;
+    }
+
+    public function inSameKoepelAsUser(User $user)
+    {
+        if (empty($this->schoolLocation) || empty($this->schoolLocation->school_id)) {
+            return false;
+        }
+
+        if (empty($user->schoolLocation) || empty($user->schoolLocation->school_id)) {
+            return false;
+        }
+
+        return $this->schoolLocation->school->is($user->schoolLocation->school);
+    }
+
+    public function removeEckId()
+    {
+        $this->eckidFromRelation()->delete();
+        return $this;
+    }
+
+    public function transferClassesFromUser(User $user)
+    {
+        if ($user->isA('teacher') && $this->isA('teacher')) {
+            $currentSchoolYear = SchoolYearRepository::getCurrentSchoolYear();
+            $previousSchoolYear = SchoolYearRepository::getPreviousSchoolYear();
+
+            $oldTeacherRecords = $this->teacher()
+                ->withTrashed()
+                ->get()
+                ->filter(function (Teacher $t) use ($previousSchoolYear, $currentSchoolYear) {
+                    return $t->schoolClass()->withTrashed()->first()->school_year_id == ($currentSchoolYear)->getKey()
+                        || $t->schoolClass()->withTrashed()->first()->school_year_id == optional($previousSchoolYear)->getKey();
+                });
+            $user->teacher->each(function ($tRecord) use ($oldTeacherRecords, &$oldClassesSubjectsDone, $currentSchoolYear, $previousSchoolYear) {
+                if ($myRecord = $oldTeacherRecords->first(function ($oldRecord) use ($tRecord) {
+                    return $tRecord->class_id == $oldRecord->class_id && $tRecord->subject_id == $oldRecord->subject_id;
+                })) {
+                    if ($myRecord->trashed()) {
+                        $myRecord->restore();
+                    }
+                    $tRecord->delete();
+                } else {
+                    // search for old class with same name and attach subject id
+                    $done = false;
+                    try {
+                        $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id, $tRecord->schoolClass->name, $tRecord->class_id);
+                        if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
+
+                            $subjects = $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
+                                return $r->schoolClass()->withTrashed()->first()->name === $oldSchoolClass->name && !$r->trashed();
+                            })->map(function ($r) {
+                                return $r->subject_id;
+                            })->unique();
+
+                            $subjects->each(function ($subjectId) use ($tRecord, &$done, $currentSchoolYear) {
+                                $tRecord->subject_id = $subjectId;
+                                try {
+                                    $record = Teacher::withTrashed()
+                                        ->where('class_id', $tRecord->class_id)
+                                        ->where('user_id', $this->getKey())
+                                        ->where('subject_id', $tRecord->subject_id)
+                                        ->orderBy('class_id','desc')
+                                        ->first();
+                                    if ($record && $record->schoolClass()->withTrashed()->first()->school_year_id === $currentSchoolYear->getKey()) {
+                                        if ($record->trashed()) {
+                                            $record->restore();
+                                        }
+                                    } else {
+                                        Teacher::create([
+                                            'class_id' => $tRecord->class_id,
+                                            'user_id' => $this->getKey(),
+                                            'subject_id' => $tRecord->subject_id
+                                        ]);
+                                    }
+                                    $tRecord->delete();
+                                } catch (\Throwable $e) {
+                                    // could be that the teacher class already exists, then you get a database integrity constraint, that's okay we don't do
+                                    // anything with it
+                                }
+                                $done = true;
+                            });
+
+                        }
+                    } catch (\Throwable $th) {
+                        Bugsnag::notifyException($th);
+                    }
+                    if (!$done) {
+                        $this->teacher()->save($tRecord);
+                    }
+                }
+            });
+        }
+        if ($user->isA('student') && $this->isA('student')) {
+            $user->students->each(function ($student) {
+                $record = Student::withTrashed()->where('class_id',$student->class_id)->where('user_id',$this->getKey())->first();
+                if($record){
+                    if($record->trashed()){
+                        $record->restore();
+                    }
+                } else {
+                    $this->students()->save(
+                        Student::create([
+                            'class_id' => $student->class_id,
+                            'user_id' => $this->id,
+                        ])
+                    );
+                }
+                $student->delete();
+            });
+//            $this->students()->saveMany($user->students);
+        }
+
+        $user->refresh();
+        return $this;
+    }
+
+    public function createGeneralTermsLogIfRequired()
+    {
+        if ($this->isA('teacher') && $this->hasNoActiveLicense() && $this->generalTermsLog()->count() == 0) {
+            $this->generalTermsLog()->create();
+        }
+        return $this;
+    }
+
+    public function hasNoActiveLicense()
+    {
+        return $this->schoolLocation->licenses()->count() == 0 || $this->schoolLocation->licenses()->where('end', '>', Carbon::now())->count() == 0;
     }
 }

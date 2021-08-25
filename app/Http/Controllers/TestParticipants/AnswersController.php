@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use tcCore\Http\Requests;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Answer;
@@ -135,7 +136,9 @@ class AnswersController extends Controller {
     public function getDrawingAnswerUrl(Answer $answer)
     {
         $url['url'] = config('app.url_login').'test_takes/'.$answer->getDrawingStoragePath().'?'.date('ymds');
-
+        if (request('base64')) {
+            $url['url'] = Storage::get($answer->getDrawingStoragePath());
+        }
         return Response::make($url, 200);
 	}
 

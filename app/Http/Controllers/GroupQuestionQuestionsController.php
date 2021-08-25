@@ -238,12 +238,12 @@ class GroupQuestionQuestionsController extends Controller
             // MF 10-8-2020 if ($groupQuestionQuestionManager->isUsed()) { zou voldoende moeten zijn volgens mij om de vraaggroep te dupliceren.
             // De rest van de statements is altijd false als je hier komt. ;
             if (
-                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion)) 
-                ||(     $question->isDirty() 
-                        || $questionInstance->isDirty() 
-                        || $questionInstance->isDirtyAttainments() 
+                ($groupQuestionQuestionManager->isUsed() || $question->isUsed($groupQuestionQuestion))
+                ||(     $question->isDirty()
+                        || $questionInstance->isDirty()
+                        || $questionInstance->isDirtyAttainments()
                         || $questionInstance->isDirtyTags()
-                        || ($question instanceof DrawingQuestion && $question->isDirtyFile()))) 
+                        || ($question instanceof DrawingQuestion && $question->isDirtyFile())))
             {
                 // return Response::make(var_dump($groupQuestionQuestionManager), 500);
                 $testQuestion = $groupQuestionQuestionManager->prepareForChange($groupQuestionQuestion);
@@ -281,11 +281,11 @@ class GroupQuestionQuestionsController extends Controller
                 }
 
                 // If question is modified and cannot be saved without effecting other things, duplicate and re-attach
-            } elseif (    $question->isDirty() 
-                    || $questionInstance->isDirty() 
-                    || $questionInstance->isDirtyAttainments() 
+            } elseif (    $question->isDirty()
+                    || $questionInstance->isDirty()
+                    || $questionInstance->isDirtyAttainments()
                     || $questionInstance->isDirtyTags()
-                    || ($question instanceof DrawingQuestion && $question->isDirtyFile())) 
+                    || ($question instanceof DrawingQuestion && $question->isDirtyFile()))
             {
                 if ($question->isUsed($groupQuestionQuestion) || $groupQuestionQuestionManager->isUsed()) {
                     $message = 'GM says at june 15th 2021: GroupQuestionQuestionsController line 290. We will never get here. After three months, check bugsnack and than remove this code';

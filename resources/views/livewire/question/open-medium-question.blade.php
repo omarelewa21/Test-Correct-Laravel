@@ -28,12 +28,24 @@
                     ]
                 })
                 CKEDITOR.instances['{{ $editorId }}']
-                    .on('change',function(e){
+                    .on('change', function (e) {
                         var textarea = document.getElementById('{{ $editorId }}');
-                        setTimeout(function() {textarea.value = e.editor.getData();}, 300);
-                        textarea.dispatchEvent(new Event('input'));
-                })
-            })()
+                        setTimeout(function () {
+                            textarea.value = e.editor.getData();
+                        }, 300);
+                        textarea.dispatchEvent(new Event('input'))
+                    });
+                CKEDITOR.instances['{{ $editorId }}']
+                    .on('contentDom', function () {
+                        var editor = CKEDITOR.instances['{{ $editorId }}'];
+                        editor.editable().attachListener(editor.document, 'touchstart', function () {
+                            if (Core.appType === 'ipad') {
+                                document.querySelector('header').classList.remove('fixed');
+                                document.querySelector('footer').classList.remove('fixed');
+                            }
+                        });
+                    });
+            })();
         </script>
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>

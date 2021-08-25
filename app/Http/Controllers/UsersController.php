@@ -427,48 +427,10 @@ class UsersController extends Controller
         }
 
         $user = User::where('id', $temporaryLogin->user_id)->first();
-        $temporaryLogin->forceDelete();
+//        $temporaryLogin->forceDelete();
 
-        $user->setAttribute('session_hash', $user->generateSessionHash());
-        if((bool) $user->demo === true){
-            $user->demoRestrictionOverrule = true;
-        }
-        $user->save();
-        $user->load('roles');
-
-        $hidden = $user->getHidden();
-
-        if (($key = array_search('api_key', $hidden)) !== false) {
-            unset($hidden[$key]);
-        }
-        if (($key = array_search('session_hash', $hidden)) !== false) {
-            unset($hidden[$key]);
-        }
-
-        if($user->isA('teacher')){
-            (new DemoHelper())->createDemoForTeacherIfNeeded($user);
-            $this->dispatch(new SetSchoolYearForDemoClassToCurrent($user->schoolLocation));
-        }
-
-
-
-        $user->setAttribute('isToetsenbakker',$user->isToetsenbakker());
-
-        $user->setAttribute('hasCitoToetsen',$user->hasCitoToetsen());
-
-        $user->setAttribute('hasSharedSections',$user->hasSharedSections());
-
-        $user->makeOnboardWizardIfNeeded();
-
-        $clone = $user->replicate();
-        $clone->{$user->getKeyName()} = $user->getKey();
-        $clone->setHidden($hidden);
-
-        $clone->logins = $user->getLoginLogCount();
-        $clone->is_temp_teacher = $user->getIsTempTeacher();
-        LoginLog::create(['user_id' => $user->getKey()]);
-
-        return new JsonResponse($clone);
+        Auth::login($user);
+        return (new UserHelper())->handleAfterLoginValidation(Auth::user(),true);
 
     }
 
@@ -573,5 +535,16 @@ class UsersController extends Controller
             }
         }
         return false;
+    }
+
+    public function getGeneralTermsLogForUser(User $user)
+    {
+        return Response::make($user->generalTermsLog,200);
+    }
+
+    public function setGeneralTermsLogAcceptedAtForUser(User $user)
+    {
+        $user->generalTermsLog()->update(['accepted_at' => Carbon::now()]);
+        return Response::make(true, 200);
     }
 }

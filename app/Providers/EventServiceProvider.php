@@ -20,6 +20,10 @@ class EventServiceProvider extends ServiceProvider {
         'event.name' => [
             'EventListener',
         ],
+        'tcCore\Events\UserLoggedInEvent' => [
+            'tcCore\Listeners\AddLoginLog',
+            'tcCore\Listeners\SolveFailedLogin',
+        ]
     ];
 
     public function boot()
@@ -37,28 +41,22 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->redirectIfBrinUnknown();
 
-//            $entreeHelper->redirectIfEntreeSettingIsOffForBrin(); //Entree is niet gekoppeld aan deze school;
+            $entreeHelper->redirectIfBrinNotSso();
 
+            $entreeHelper->redirectIfUserWasNotFoundForEckIdAndActiveLVS();
+
+            $entreeHelper->redirectIfUserNotHasSameRole();
+
+            //scenario 5 still needs implementation;
             $entreeHelper->redirectIfScenario5();
 
             $entreeHelper->redirectIfNoUserWasFoundForEckId();
 
             $entreeHelper->redirectIfUserNotInSameSchool();
 
-            $entreeHelper->redirectIfUserNotHasSameRole();
-
             $entreeHelper->handleScenario2IfAddressIsKnownInOtherAccount();
 
-
-
-
-            $userData = [
-                'id' => $user->getUserId(),
-                'attributes' => $user->getAttributes(),
-                'assertion' => $user->getRawSamlAssertion()
-            ];
-
-
+            $entreeHelper->handleScenario1();
 
             dd('No ECK_id on the request error (something went wrong?) Entree user.');
 
