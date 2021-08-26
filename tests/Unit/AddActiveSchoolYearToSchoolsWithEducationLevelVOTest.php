@@ -159,6 +159,20 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         });
         $this->assertCount(0, $set);
     }
+    
+    /** @test */
+    public function it_should_return_a_correct_query()
+    {
+        $builder = SchoolLocation::NoActivePeriodAtDate('2021-08-01')->activeOnly();
+
+        $query = str_replace(array('?'), array('\'%s\''), $builder->toSql());
+        $query = vsprintf($query, $builder->getBindings());
+        $this->assertEquals(
+            "select * from `school_locations` where `id` not in (select `school_location_id` from `periods` inner join `school_years` on `school_year_id` = `school_years`.`id` inner join `school_location_school_years` on `school_location_school_years`.`school_year_id` = `school_years`.`id` where (`start_date` >= '2021-08-01 00:00:00' or `end_date` >= '2021-08-01 00:00:00') and `periods`.`deleted_at` is null) and `activated` = '1' and `school_locations`.`deleted_at` is null",
+            $query
+        );
+
+    }
 
     /** @test */
     public function it_should_return_a_correct_query()

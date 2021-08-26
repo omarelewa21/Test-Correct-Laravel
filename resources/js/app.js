@@ -74,11 +74,11 @@ setTitlesOnLoad = function (el) {
     }
 }
 
-initializeIntenseWrapper = function (app_key, debug) {
+initializeIntenseWrapper = function (app_key, debug, deviceId, sessionId, code) {
     addScript('https://education.intense.solutions/collector/latest.uncompressed.js');
 
-    var initializeInterval = setInterval(function () {
-        if (typeof IntenseWrapper !== 'undefined') {
+    var initializeInterval = setInterval(function() {
+        if (typeof IntenseWrapper !== 'undefined' ) {
             Intense = new IntenseWrapper({
                 api_key: app_key, // This is a public key which will be provided by Intense.
                 app: 'name of the app that implements Intense. example: TC@1.0.0',
