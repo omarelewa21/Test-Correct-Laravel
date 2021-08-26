@@ -28,17 +28,14 @@
         </a>
 
         <span id="{{ $this->playerInstance }}btn-export"></span>
-        <a x-on:click="
-                (function() {
-                    $wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());
-                })();
-                document.getElementById('body').classList.remove('modal-open');
-                "
+        <a x-on:touchend.prevent="$wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());document.getElementById('body').classList.remove('modal-open');"
+           x-on:click="$wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());document.getElementById('body').classList.remove('modal-open');"
            class="btn highlight small ml5 pull-right" style="cursor: pointer;">
             <span class="fa fa-check"></span> Opslaan
         </a>
         <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;"
            x-on:click="document.getElementById('body').classList.remove('modal-open')"
+           x-on:touchend="opened = false"
         >
             <span class="fa fa-remove"></span> Sluiten
         </a>
