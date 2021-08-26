@@ -74,7 +74,7 @@ setTitlesOnLoad = function (el) {
     }
 }
 
-initializeIntenseWrapper = function (app_key, debug) {
+initializeIntenseWrapper = function (app_key, debug, deviceId, sessionId, code) {
     addScript('https://education.intense.solutions/collector/latest.uncompressed.js');
 
     var initializeInterval = setInterval(function() {

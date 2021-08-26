@@ -1,5 +1,5 @@
 <div
-    x-data="{deviceId: {{ $deviceId }}, sessionId: {{ $sessionId }}, code: '{{ md5('1.1') }}'}"
-    x-init="initializeIntenseWrapper('{!! config('app.intense.apiKey') !!}', {!!config('app.intense.debugMode') ? 'true' : 'false'!!})"
+    x-data="{}"
+    x-init="initializeIntenseWrapper('{!! config('app.intense.apiKey') !!}', {!!config('app.intense.debugMode') ? 'true' : 'false'!!}, {{ $deviceId}}, {{ $sessionId}}, '{{ md5('1.1') }}')"
 >
 </div>
