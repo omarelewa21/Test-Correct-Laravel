@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Preview;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithPreviewAttachments;
@@ -29,10 +30,13 @@ class DrawingQuestion extends Component
 
     public $playerInstance;
 
+    public $backgroundImage;
+
     public function mount()
     {
         $this->initPlayerInstance();
 
+        $this->backgroundImage = $this->question->getBackgroundImage();
     }
 
     public function updatedAnswer($value)

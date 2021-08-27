@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Question;
 
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithAttachments;
@@ -29,6 +30,8 @@ class DrawingQuestion extends Component
 
     public $playerInstance;
 
+    public $backgroundImage = null;
+
     public function mount()
     {
         $this->initPlayerInstance();
@@ -40,6 +43,8 @@ class DrawingQuestion extends Component
             $this->answer = json_decode($answer->json)->answer;
             $this->additionalText = json_decode($answer->json)->additional_text;
         }
+
+        $this->backgroundImage = $this->question->getBackgroundImage();
     }
 
     public function questionUpdated($uuid)
