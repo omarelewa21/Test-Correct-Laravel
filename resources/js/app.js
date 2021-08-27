@@ -1,9 +1,9 @@
 require('./bootstrap');
-require('alpinejs');
 require('livewire-sortable');
 require('./swipe');
 require('./core');
 require('./notify');
+require('./alpine');
 
 addIdsToQuestionHtml = function () {
     let id = 1;
