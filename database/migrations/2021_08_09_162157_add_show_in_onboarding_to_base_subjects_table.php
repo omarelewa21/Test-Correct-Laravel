@@ -27,7 +27,9 @@ class AddShowInOnboardingToBaseSubjectsTable extends Migration
     public function down()
     {
         Schema::table('base_subjects', function (Blueprint $table) {
-            $table->dropColumn('html_specialchars_encoded');
+//            $table->dropColumn('html_specialchars_encoded');
+            //Up and down column not corresponding - Roan 24-08-2021;
+            $table->dropColumn('show_in_onboarding');
         });
     }
 }

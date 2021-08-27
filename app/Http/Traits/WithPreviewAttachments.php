@@ -15,12 +15,12 @@ trait WithPreviewAttachments
     public $questionId;
     public $attachmentType = '';
 
-    public function showAttachment(Attachment $attachment)
+    public function showAttachment($attachment)
     {
-        $this->attachment = $attachment;
+        $this->attachment = Attachment::whereUuid($attachment)->first();
         $this->questionId = $this->group ? $this->group->uuid : $this->question->uuid;
         $this->timeout = $this->attachment->audioTimeoutTime();
-        $this->attachmentType = $this->getAttachmentType($attachment);
+        $this->attachmentType = $this->getAttachmentType($this->attachment);
     }
 
     public function closeAttachmentModal()
@@ -49,12 +49,12 @@ trait WithPreviewAttachments
         $this->attachment = null;
     }
 
-    public function audioIsPlayedOnce(Attachment $attachment)
+    public function audioIsPlayedOnce($attachment)
     {
 
     }
 
-    public function audioStoreCurrentTime(Attachment $attachment, $currentTime)
+    public function audioStoreCurrentTime($attachment, $currentTime)
     {
 
     }

@@ -1,14 +1,20 @@
 <?php namespace tcCore;
 
+use Dyrynda\Database\Casts\EfficientUuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
+use tcCore\Traits\UuidTrait;
 
 class Attachment extends BaseModel
 {
 
-    use SoftDeletes;
+    use SoftDeletes, UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -59,6 +65,11 @@ class Attachment extends BaseModel
                 }
             }
         });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 
     public function getOriginalPath()
