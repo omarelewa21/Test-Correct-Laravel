@@ -8,6 +8,7 @@ use tcCore\Http\Requests;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Subject;
+use tcCore\BaseSubject;
 use tcCore\Http\Requests\CreateSubjectRequest;
 use tcCore\Http\Requests\UpdateSubjectRequest;
 
@@ -36,6 +37,23 @@ class SubjectsController extends Controller
                 return Response::make($subjects->paginate(15), 200);
                 break;
         }
+    }
+
+    public function sectionSubjectsList($section_id){
+        $subjects = Subject::where('section_id', $section_id)->get();
+        return $subjects;
+    }
+
+    public function sectionBaseSubjectsList($section_id){
+        $subjects = Subject::where('section_id', $section_id)->get();
+        $base_subjects = [];
+        foreach($subjects as $subject){
+            $base_subject_id = $subject->base_subject_id;
+            $base_subject = BaseSubject::find($base_subject_id);
+            $base_subjects[] = $base_subject;
+        }
+        
+        return $base_subjects;
     }
 
     /**
