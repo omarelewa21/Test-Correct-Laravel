@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -957,5 +958,29 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             'end_date'           => \Carbon\Carbon::parse($endDate),
         ]);
         $periodLocation->save();
+    }
+
+    public function scopeNoActivePeriodAtDate($query, $date)
+    {
+        if (is_string($date)) {
+            $date = Carbon::parse($date);
+        }
+
+        if (!$date instanceof Carbon) {
+            throw new \Exception(
+                'date should be a valid date string or an instanceof Carbon'
+            );
+        }
+
+        return $query->whereNotIn('id',
+            Period::where(function($query) use ($date) {
+                return $query
+                    ->where( 'start_date', '>=', $date)
+                    ->orWhere('end_date', '>=', $date);
+            })
+                ->join('school_years', 'school_year_id','school_years.id')
+                ->join('school_location_school_years', 'school_location_school_years.school_year_id', 'school_years.id')
+                ->select('school_location_id')
+        );
     }
 }
