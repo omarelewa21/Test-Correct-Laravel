@@ -119,8 +119,12 @@ class GroupQuestionTest extends TestCase
         $openQuestion = Question::where('type','OpenQuestion')->firstOrFail();
         $this->assertEquals(0,$openQuestion->is_subquestion);
         $this->addExistingQuestionToGroup($openQuestion->id,$this->groupTestQuestionUuid);
-        $openQuestion = Question::where('type','OpenQuestion')->firstOrFail();
-        $this->assertEquals(1,$openQuestion->is_subquestion);
+        $groupTestQuestion = TestQuestion::find($this->groupTestQuestionId);
+        $subQuestion = $groupTestQuestion->question->groupQuestionQuestions->filter(function ($groupQuestionQuestion, $key) {
+            return $groupQuestionQuestion->question->getQuestionInstance()->type=='OpenQuestion';
+        })->first();
+        $this->assertEquals(1,$subQuestion->question->getQuestionInstance()->is_subquestion);
+        $this->assertNotEquals($subQuestion->question->getQuestionInstance()->getKey(),$openQuestion->getKey());
     }
 
     private function setupScenario1(){
