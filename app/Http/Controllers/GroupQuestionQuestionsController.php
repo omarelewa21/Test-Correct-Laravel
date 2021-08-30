@@ -79,7 +79,6 @@ class GroupQuestionQuestionsController extends Controller
         if ($groupQuestionQuestionManager->isUsed()) {
             $groupQuestionQuestionManager->prepareForChange();
         }
-
         $groupQuestion = $this->getAndValidateQuestionFromGroupQuestionQuestionManager($groupQuestionQuestionManager);
         DB::beginTransaction();
         try {
@@ -173,6 +172,9 @@ class GroupQuestionQuestionsController extends Controller
                     }
 
                     $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+                    $questionInstance = $groupQuestionQuestion->question->getQuestionInstance();
+                    $questionInstance->setAttribute('is_subquestion', 1);
+                    $questionInstance->save();
 //                    return Response::make($groupQuestionQuestion, 200);
                 } else {
                     throw new QuestionException('Failed to create group question question', 500);

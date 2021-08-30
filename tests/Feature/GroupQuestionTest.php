@@ -34,6 +34,7 @@ class GroupQuestionTest extends TestCase
     private $originalQuestionId;
     private $copyTestId;
     private $groupTestQuestionId;
+    private $groupTestQuestionUuid;
 
      /** @test */
      public function can_create_test_and_group_question(){
@@ -110,6 +111,18 @@ class GroupQuestionTest extends TestCase
             $this->assertEquals(6,$groupQuestionQuestion->question->subject_id);
         }
     }
+
+    /** @test */
+    public function adding_existing_question_to_group_leads_to_is_subquestion_true()
+    {
+        $this->setupScenario1();
+        $openQuestion = Question::where('type','OpenQuestion')->firstOrFail();
+        $this->assertEquals(0,$openQuestion->is_subquestion);
+        $this->addExistingQuestionToGroup($openQuestion->id,$this->groupTestQuestionUuid);
+        $openQuestion = Question::where('type','OpenQuestion')->firstOrFail();
+        $this->assertEquals(1,$openQuestion->is_subquestion);
+    }
+
     private function setupScenario1(){
         $attributes = $this->getTestAttributes();
         unset($attributes['school_classes']);
@@ -118,6 +131,7 @@ class GroupQuestionTest extends TestCase
         $groupTestQuestionId = $this->createGroupQuestion($attributes);
         $this->groupTestQuestionId = $groupTestQuestionId;
         $groupTestQuestion = TestQuestion::find($groupTestQuestionId);
+        $this->groupTestQuestionUuid = $groupTestQuestion->uuid;
         $attributes = $this->getAttributesForMultipleChoiceQuestion($this->originalTestId);
         for($i=0;$i<10;$i++){
             $this->createMultipleChoiceQuestionInGroup($attributes,$groupTestQuestion->uuid);
