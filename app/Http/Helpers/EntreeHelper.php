@@ -163,6 +163,12 @@ class EntreeHelper
 
     public static function shouldPromptForEntree(User $user)
     {
+        if($user->isToetsenbakker()){
+            return false;
+        }
+        if($user->isTestCorrectUser()){
+            return false;
+        }
         return (optional($user->schoolLocation)->lvs_active && empty($user->eck_id));
     }
 
