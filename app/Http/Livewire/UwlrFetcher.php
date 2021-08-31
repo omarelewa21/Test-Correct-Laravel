@@ -102,7 +102,7 @@ class UwlrFetcher extends Component
                 $this->schoolYear = '';
 //                dd(sprintf('Geen schooljaren aanwezig in schoollocatie met id: %d en naam: %s', $location->id, $location->name));
             } else {
-                $this->schoolYear = array_key_first($this->schoolYears);
+                $this->schoolYear = $this->schoolYears[0];
             }
         }
 
