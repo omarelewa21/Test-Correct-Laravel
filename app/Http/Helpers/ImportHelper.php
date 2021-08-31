@@ -757,7 +757,11 @@ class ImportHelper
                 throw new \Exception('collected errors');
             }
         } catch (\Throwable $e) {
-            $failure_messages = [sprintf('Error detected: %s', $e->getMessage())];
+            $failure_messages = [sprintf('Error detected: %s', $e->getTraceAsString())];
+            $failure_messages[] = $e->getMessage();
+            $failure_messages[] = $e->getFile();
+            $failure_messages[] = $e->getLine();
+
             $failure_messages[] = 'Initiating rollback;';
             DB::rollback();
             $failure_messages[] = 'Rollback completed;';
