@@ -27,6 +27,8 @@ class Kernel extends ConsoleKernel
 //				 ->daily();
 //		$schedule->command('cron:teacher')
 //			->daily();
+        $schedule->command('school_location_report:update')
+            ->dailyAt('02:00');
         $schedule->command('requestlog:clear 5 --silent')
             ->dailyAt('04:00');
         $schedule->command('telescope:prune')->daily();
