@@ -90,13 +90,14 @@
     @if(!$this->closed)
     <script>
         let holder{{$this->playerInstance}} = document.getElementById('{{ $this->playerInstance }}canvas-holder');
-        var {{ $this->playerInstance }} =
-        new App('{{ $this->playerInstance }}', holder{{$this->playerInstance}}.offsetWidth);
+        var {{ $this->playerInstance }} = new App('{{ $this->playerInstance }}', holder{{$this->playerInstance}}.offsetWidth, '{{ $this->backgroundImage }}');
 
         function resizeCanvas{{$this->playerInstance}}() {
             let holder = document.getElementById('{{ $this->playerInstance }}canvas-holder');
             {{ $this->playerInstance }}.rerender(holder.offsetWidth);
         }
+
+        {{ $this->playerInstance }}.rerender();
     </script>
     @endif
     @endpush

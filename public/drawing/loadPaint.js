@@ -12,7 +12,7 @@ Object.clone = function (obj) {
     return clone;
 };
 
-var App = function (prefix, width) {
+var App = function (prefix, width, backgroundImage) {
     var mouseStart, layer, path,
         // Editor
         tool = 'line',
@@ -381,27 +381,21 @@ var App = function (prefix, width) {
         };
     }
 
-    if (window.question_id != undefined) {
-        $.get('/answers/has_background/' + window.question_id,
-            function (response) {
-                if (response != 0) {
-                    var img = new Image(), element = canvas.getCanvas();
+    if (backgroundImage !== null) {
+        var img = new Image(), element = canvas.getCanvas();
 
-                    img.src = response;
+        img.src = backgroundImage;
 
-                    var size = new Paint.Point(970, 475),
-                        position = new Paint.Point(0, 0);
+        var size = new Paint.Point(970, 475),
+            position = new Paint.Point(0, 0);
 
-                    background.clear();
-                    background.add(new Paint.Image(img, {
-                        position: position,
-                        size: size
-                    }));
+        background.clear();
+        background.add(new Paint.Image(img, {
+            position: position,
+            size: size
+        }));
 
-                    canvas.render();
-                }
-            }
-        );
+        canvas.render();
     }
 
     this.getActiveImageBase64Encoded = function() {

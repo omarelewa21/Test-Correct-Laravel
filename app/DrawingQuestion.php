@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
@@ -203,5 +204,23 @@ class DrawingQuestion extends Question implements QuestionInterface {
             return true;
         }
         return parent::needsToBeUpdated($request);
+    }
+
+    public function getBackgroundImage()
+    {
+        $backgroundImage = null;
+        if($this->bg_name != null ) {
+            $backgroundImage = base64_encode(file_get_contents($this->getCurrentBgPath()));
+
+            if (!$backgroundImage) {
+                return null;
+            }
+
+            if (!Str::contains($backgroundImage, ';base64,')) {
+                $backgroundImage = 'data:' . $this->bg_mime_type . ';base64,' . $backgroundImage;
+            }
+        }
+
+        return $backgroundImage;
     }
 }
