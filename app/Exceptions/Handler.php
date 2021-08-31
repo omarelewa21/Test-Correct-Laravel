@@ -25,6 +25,7 @@ class Handler extends ExceptionHandler
         HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
+        DeploymentMaintenanceException::class,
     ];
 
     /**
