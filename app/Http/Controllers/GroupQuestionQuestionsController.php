@@ -79,7 +79,6 @@ class GroupQuestionQuestionsController extends Controller
         if ($groupQuestionQuestionManager->isUsed()) {
             $groupQuestionQuestionManager->prepareForChange();
         }
-
         $groupQuestion = $this->getAndValidateQuestionFromGroupQuestionQuestionManager($groupQuestionQuestionManager);
         DB::beginTransaction();
         try {
@@ -163,6 +162,11 @@ class GroupQuestionQuestionsController extends Controller
 //                }
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
+                $questionInstance = $groupQuestionQuestion->question->getQuestionInstance();
+                $questionInstanceCopy = $questionInstance->duplicate([]);
+                $questionInstanceCopy->setAttribute('is_subquestion', 1);
+                $groupQuestionQuestion->setAttribute('question_id', $questionInstanceCopy->getKey());
+                $questionInstanceCopy->save();
                 if ($groupQuestionQuestion->save()) {
                     if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))){
 //                        // delete old answers
@@ -173,6 +177,7 @@ class GroupQuestionQuestionsController extends Controller
                     }
 
                     $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+
 //                    return Response::make($groupQuestionQuestion, 200);
                 } else {
                     throw new QuestionException('Failed to create group question question', 500);
