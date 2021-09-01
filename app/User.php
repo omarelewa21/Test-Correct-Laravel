@@ -1323,6 +1323,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return (bool)FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
     }
 
+    public function isTestCorrectUser()
+    {
+        if(stristr($this->username,'@test-correct.nl')){
+            return true;
+        }
+        return false;
+    }
+
     public function hasCitoToetsen()
     {
         return (bool)$this->subjects()->where('name', 'like', 'cito%')->count() > 0;
