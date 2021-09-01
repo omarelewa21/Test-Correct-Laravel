@@ -109,6 +109,7 @@ class OnboardingWizardReport extends Model
             'nr_colearning_sessions_90'                   => $helper->nrColearningSessions(90), // 3.a.1
             'nr_colearning_sessions_365'                   => $helper->nrColearningSessions(365), // 3.a.1
             'nr_colearning_sessions_total'                => $helper->nrColearningSessions(0), // 3.a.2
+            'accepted_general_terms'                => $helper->dateGeneralTermsAccepted(), // 3.a.2
         ];
         
         self::updateOrCreate([
