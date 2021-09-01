@@ -5,7 +5,7 @@
 
             <div class="flex flex-col space-y-3">
                 <div questionHtml wire:ignore>{!! $question->getQuestionHtml() !!}</div>
-                <x-button.secondary class="max-w-max" @click="opened = true" x-on:click="document.getElementById('body').classList.add('modal-open');window.scrollTo(0,0);">
+                <x-button.secondary class="max-w-max" @click="opened = true; {{ $this->playerInstance }}.rerender();" x-on:click="document.getElementById('body').classList.add('modal-open');window.scrollTo(0,0);">
                     <x-icon.edit/>
                     @if($answer == '')
                         <span>{{ __('test_take.draw_answer') }}</span>
