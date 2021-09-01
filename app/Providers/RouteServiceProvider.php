@@ -465,6 +465,10 @@ class RouteServiceProvider extends ServiceProvider
             return Attainment::whereUuid($item)->firstOrFail();
         });
 
+        Route::bind('attachment', function($item) {
+            return Attachment::whereUuid($item)->firstOrFail();
+        });
+
         Route::bind('teacher', function($item) {
             return Teacher::whereUuid($item)->firstOrFail();
         });
