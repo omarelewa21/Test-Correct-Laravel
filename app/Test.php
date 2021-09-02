@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
@@ -57,6 +58,8 @@ class Test extends BaseModel
      * @var array
      */
     protected $hidden = [];
+
+    protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject_id', 'education_level_id', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author_id', 'question_count'];
 
     public static function boot()
     {
@@ -746,6 +749,18 @@ class Test extends BaseModel
                     break;
             }
         }
+
+        collect($sorting)->each(function($direction, $key) use ($query){
+            if(in_array($key, $this->sortableColumns)) {
+//                if ($key === 'subject_id') {
+//                    logger('subject_id sort ');
+//                    $query->join('subjects', 'tests.subject_id', '=', 'subjects.id')
+//                        ->orderBy('subjects.name', $direction);
+//                } else {
+                    $query->orderBy($key, $direction);
+//                }
+            }
+        });
 
         if ($user->isA('teacher')) {
             // don't show demo tests from other teachers
