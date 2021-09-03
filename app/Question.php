@@ -281,11 +281,9 @@ class Question extends MtiBaseModel {
         }
 
         $question->setAttribute('derived_question_id', $this->getKey());
-
         if (!$question->save()) {
             return false;
         }
-
         foreach($this->questionAttachments as $questionAttachment) {
             if ($ignore instanceof Attachment && $ignore->getKey() == $questionAttachment->getAttribute('attachment_id')) {
                 continue;
