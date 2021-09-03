@@ -88,6 +88,7 @@ class TestParticipant extends BaseModel
             $testParticipant->updatedRatingOrRetakeRating();
 
             $testParticipant->isTestTakenAway();
+            $testParticipant->isBrowserTestingActive();
         });
     }
 
@@ -385,6 +386,13 @@ class TestParticipant extends BaseModel
     {
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
             TestTakeForceTakenAway::dispatch($this);
+        }
+    }
+
+    private function isBrowserTestingActive()
+    {
+        if ($this->allow_inbrowser_testing == false && $this->getOriginal('allow_inbrowser_testing') == true) {
+            BrowserTestingDisabledForParticipant::dispatch($this);
         }
     }
 }
