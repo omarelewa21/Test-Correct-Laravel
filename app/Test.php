@@ -60,7 +60,7 @@ class Test extends BaseModel
      */
     protected $hidden = [];
 
-    protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count'];
+    protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
 
     public static function boot()
     {
@@ -950,6 +950,11 @@ class Test extends BaseModel
             if ($key === 'author') {
                 $query->addSelect(DB::raw('(SELECT name_first FROM users WHERE id = author_id LIMIT 1) AS author'));
                 $query->orderBy('author', $direction);
+                return;
+            }
+            if ($key === 'kind') {
+                $query->addSelect(DB::raw('(SELECT name FROM test_kinds WHERE id = test_kind_id LIMIT 1) AS kind'));
+                $query->orderBy('kind', $direction);
                 return;
             }
 
