@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
+use tcCore\Events\BrowserTestingDisabledForParticipant;
 use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Events\TestTakeReopened;
 use tcCore\Http\Helpers\AnswerParentQuestionsHelper;

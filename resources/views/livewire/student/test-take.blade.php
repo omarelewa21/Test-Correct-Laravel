@@ -24,7 +24,7 @@
     </x-modal>
 
     <x-modal maxWidth="lg" wire:model="browserTestingDisabledModal" showCancelButton="0">
-        <x-slot name="title">Toets ingenomen door docent.</x-slot>
+        <x-slot name="title">Toets geblokkeerd door docent.</x-slot>
         <x-slot name="body">Het is niet toegestaan om deze toets in de browser te maken. Start de Test-Correct app om deze toets te maken.</x-slot>
         <x-slot name="actionButton">
             <x-button.cta size="md" wire:click="TurnInTestTake">

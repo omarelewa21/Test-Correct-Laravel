@@ -1428,6 +1428,9 @@ video {
 .right-0{
 	right: 0px;
 }
+.top-1\/2{
+	top: 50%;
+}
 .bottom-0{
 	bottom: 0px;
 }
@@ -1466,9 +1469,6 @@ video {
 }
 .top-8{
 	top: 2rem;
-}
-.top-1\/2{
-	top: 50%;
 }
 .-bottom-1{
 	bottom: -0.25rem;
@@ -1905,11 +1905,14 @@ video {
 .origin-top-right{
 	transform-origin: top right;
 }
-.translate-y-4{
-	--tw-translate-y: 1rem;
+.-translate-y-1\/2{
+	--tw-translate-y: -50%;
 }
 .translate-y-0{
 	--tw-translate-y: 0px;
+}
+.translate-y-4{
+	--tw-translate-y: 1rem;
 }
 .translate-y-2{
 	--tw-translate-y: 0.5rem;
