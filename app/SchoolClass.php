@@ -426,4 +426,19 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         }
     }
 
+    public static function getAllClassesForSchoolLocation($schoolLocationId, $order)
+    {
+        $currentYear = SchoolYearRepository::getCurrentSchoolYear();
+
+        return SchoolClass::where('school_location_id', $schoolLocationId)
+            ->when($currentYear instanceof SchoolYear, function ($query) use ($currentYear) {
+                $query->where('school_year_id', $currentYear->getKey());
+            })
+            ->when(!empty($order), function($query) use ($order) {
+                collect($order)->each(function ($direction, $key) use ($query) {
+                    $query->orderBy($key, $direction);
+                });
+            })
+            ->paginate(15);
+    }
 }
