@@ -41,6 +41,25 @@ trait GroupQuestionTrait
         return $response->decodeResponseJson()['id'];
     }
 
+    protected function addExistingQuestionToGroup($questionId,$groupQuestionId)
+    {
+        $attributes =[
+            "group_question_id" => $groupQuestionId,
+            "order"             => 0,
+            "maintain_position" => 0,
+            "discuss"           => 1,
+            "closeable"         => 0,
+            "question_id"       => $questionId,
+            "owner_id"          => $groupQuestionId,
+        ];
+
+        $response = $this->post(
+            'api-c/group_question_question/'.$groupQuestionId,
+            static::getTeacherOneAuthRequestData($attributes)
+        );
+        $response->assertStatus(200);
+    }
+
     private function createGroupQuestion($attributes){
         $response = $this->post(
             'api-c/test_question',

@@ -1,6 +1,7 @@
 <?php namespace tcCore\Http\Controllers;
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -79,7 +80,6 @@ class GroupQuestionQuestionsController extends Controller
         if ($groupQuestionQuestionManager->isUsed()) {
             $groupQuestionQuestionManager->prepareForChange();
         }
-
         $groupQuestion = $this->getAndValidateQuestionFromGroupQuestionQuestionManager($groupQuestionQuestionManager);
         DB::beginTransaction();
         try {
@@ -163,6 +163,12 @@ class GroupQuestionQuestionsController extends Controller
 //                }
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
+                $subQuestion = $groupQuestionQuestion->question;
+                $subQuestionCopy = $subQuestion->duplicate([]);
+                $subQuestionCopy->getQuestionInstance()->setAttribute('is_subquestion', 1);
+                $groupQuestionQuestion->setAttribute('question_id', $subQuestionCopy->getKey());
+                $subQuestionCopy->getQuestionInstance()->save();
+
                 if ($groupQuestionQuestion->save()) {
                     if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))){
 //                        // delete old answers
@@ -173,6 +179,7 @@ class GroupQuestionQuestionsController extends Controller
                     }
 
                     $groupQuestionQuestion->setAttribute('group_question_question_path', $groupQuestionQuestionManager->getGroupQuestionQuestionPath());
+
 //                    return Response::make($groupQuestionQuestion, 200);
                 } else {
                     throw new QuestionException('Failed to create group question question', 500);

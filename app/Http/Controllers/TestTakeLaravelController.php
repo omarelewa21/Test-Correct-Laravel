@@ -73,7 +73,6 @@ class TestTakeLaravelController extends Controller
                 $question = $testQuestions->first(function ($question) use ($answer) {
                     return $question->getKey() === $answer->question_id;
                 });
-
                 $groupId = 0;
                 $groupCloseable = 0;
                 if ($question->is_subquestion) {
