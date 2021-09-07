@@ -1,6 +1,15 @@
 @if($attachment)
     <div id="attachment-{{$attachment->uuid}}"
-         class="fixed top-5 left-5 z-30 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation {{ $this->getAttachmentModalSize() }}"
+         class="fixed z-30 shadow-lg border border-blue-grey rounded-10 bg-black disable-swipe-navigation {{ $this->getAttachmentModalSize() }}"
+         x-data="{top: @entangle('positionTop'), left: @entangle('positionLeft'), uuid: '{{ $attachment->uuid }}'}"
+         x-init="top = 50; left = 50"
+         x-bind:style="`top: ${top}px; left: ${left}px`"
+         x-on:set-new-position.window="
+            if (uuid === $event.detail.uuid) {
+                top = $event.detail.x;
+                left = $event.detail.y;
+            }
+        "
     >
         <div class="hidden h-[45vw] w-3/4 h-1/2 w-5/6 lg:w-4/6 h-[80vh] w-[80vw] h-[45vw]"></div>
         <div class="flex-col relative h-full rounded-10">

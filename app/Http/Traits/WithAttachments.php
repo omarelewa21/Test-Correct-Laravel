@@ -15,6 +15,8 @@ trait WithAttachments
     public $timeout;
     public $answerId;
     public $attachmentType = '';
+    public $positionTop;
+    public $positionLeft;
 
     public function mountWithAttachments()
     {

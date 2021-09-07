@@ -1,8 +1,8 @@
 {
-    "/js/app.js": "/js/app.js?id=60eb8d951884e96c4aac",
-    "/css/app.css": "/css/app.css?id=d82c1c666f785d3cd410",
-    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js?id=bdba7653d3c2e546d304",
-    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png?id=e01e3ce6400951998bfd",
-    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png?id=1979fc1931ffd6b65bfa",
-    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png?id=628f5910e82d3e4a28b3"
+    "/js/app.js": "/js/app.js",
+    "/css/app.css": "/css/app.css",
+    "/ckeditor/plugins/ckeditor_wiris/plugin.js": "/ckeditor/plugins/ckeditor_wiris/plugin.js",
+    "/ckeditor/plugins/ckeditor_wiris/icons/cas.png": "/ckeditor/plugins/ckeditor_wiris/icons/cas.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/chem.png": "/ckeditor/plugins/ckeditor_wiris/icons/chem.png",
+    "/ckeditor/plugins/ckeditor_wiris/icons/formula.png": "/ckeditor/plugins/ckeditor_wiris/icons/formula.png"
 }

@@ -140,6 +140,8 @@ initializeIntenseWrapper = function (app_key, debug, deviceId, sessionId, code) 
 
 dragElement = function (element) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    var uuid = element.id.replace('attachment-', '');
+    let newTop, newLeft;
 
     if (document.getElementById(element.id + "drag")) {
         // if present, the header is where you move the DIV from:
@@ -183,13 +185,24 @@ dragElement = function (element) {
             pos4 = e.clientY;
         }
         // set the element's new position:
-        element.style.top = (element.offsetTop - pos2) + "px";
-        element.style.left = (element.offsetLeft - pos1) + "px";
+        newTop = (element.offsetTop - pos2);
+        newLeft = (element.offsetLeft - pos1);
+
+        element.style.top = newTop + "px";
+        element.style.left = newLeft + "px";
 
     }
 
-    function closeDragElement() {
+    function closeDragElement(e) {
         // stop moving when mouse button is released:
+        window.dispatchEvent(new CustomEvent('set-new-position', {
+                'detail': {
+                    'uuid': uuid,
+                    'x': newTop,
+                    'y': newLeft
+                }
+            }
+        ));
         document.onmouseup = null;
         document.ontouchend = null;
         document.onmousemove = null;
