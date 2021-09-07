@@ -59,6 +59,10 @@ class FixIsSubquestionTrueForNonGroupQuestionMembers extends Command
         $this->loginAuthor($questionId);
         $test = Test::find($testId);
         $testQuestion = TestQuestion::find($testQuestionId);
+        if(is_null($test)||is_null($testQuestion)){
+            Auth::logout();
+            return;
+        }
         $request  = new Request();
         $params = [
             'session_hash' => Auth::user()->session_hash,
@@ -66,6 +70,7 @@ class FixIsSubquestionTrueForNonGroupQuestionMembers extends Command
             'id' => $testQuestionId,
             'subject_id' => $test->subject_id,
             'education_level_id' => $test->education_level_id,
+            'education_level_year' => $test->education_level_year,
             'education_level_year' => $test->education_level_year,
             'is_subquestion' => false,
         ];
