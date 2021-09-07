@@ -49,31 +49,9 @@ class FixIsSubquestionInGroupQuestionMembersBatch extends Command
 
     public function getSQL()
     {
-        return 'SELECT questions.id          AS question_id,
-                       t2.id 				 AS group_question_id
-                FROM   tests
-                       INNER JOIN test_questions
-                               ON tests.id = test_questions.test_id
-                       INNER JOIN group_question_questions
-                               ON test_questions.question_id =
-                                  group_question_questions.`group_question_id`
-                       LEFT JOIN questions
-                              ON group_question_questions.question_id = questions.id
-                       LEFT JOIN group_questions AS t2
-                              ON group_question_questions.group_question_id = t2.id
-                WHERE  group_question_questions.question_id IN (
-                    SELECT
-                       test_questions.question_id
-                    FROM   `test_questions`
-                              INNER JOIN group_question_questions
-                                      ON test_questions.question_id =
-                                         group_question_questions.question_id
-                              LEFT JOIN questions
-                                     ON test_questions.question_id = questions.id
-                    WHERE  is_subquestion = 0
-                )
-                GROUP  BY question_id,
-                          group_question_id
-                ORDER  BY question_id';
+        return 'select distinct t.id as question_id, group_question_questions.group_question_id from
+                ((select * from questions where is_subquestion = 0) as t 
+            inner join group_question_questions on (t.id = group_question_questions.question_id)
+        )';
     }
 }
