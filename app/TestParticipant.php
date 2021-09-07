@@ -347,11 +347,15 @@ class TestParticipant extends BaseModel
     public function startTestTake()
     {
         //Remaining startTestTake actions handled in TestParticipant boot method
-        if ($this->canStartTestTake()) {
-            $this->setAttribute('started_in_new_player', true)->save();
-            return true;
+        if (!$this->canStartTestTake()) {
+            return false;
         }
-        return false;
+        if ($this->shouldUseApp() && !$this->isUsingApp()) {
+            return false;
+        }
+
+        $this->setAttribute('started_in_new_player', true)->save();
+        return true;
     }
     public function canSeeOverviewPage()
     {
@@ -395,5 +399,20 @@ class TestParticipant extends BaseModel
         if ($this->allow_inbrowser_testing == false && $this->getOriginal('allow_inbrowser_testing') == true) {
             BrowserTestingDisabledForParticipant::dispatch($this);
         }
+    }
+
+    public function registerIfParticipantIsUsingAnAppOnSession($request)
+    {
+        session()->put('usingApp', $request->headers->has('tlc'));
+    }
+
+    public function shouldUseApp()
+    {
+        return !$this->allow_inbrowser_testing;
+    }
+
+    public function isUsingApp()
+    {
+        return session('usingApp', false);
     }
 }

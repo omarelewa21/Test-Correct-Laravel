@@ -2164,9 +2164,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
     }
 
-    public function redirectToCakeWithTemporaryLogin()
+    public function redirectToCakeWithTemporaryLogin($redirectMessage = null)
     {
         $redirectUrl = $this->getTemporaryCakeLoginUrl();
+
+        if ($redirectMessage) {
+            $redirectUrl .= '?redirect_message='.$redirectMessage;
+        }
 
         return redirect()->to($redirectUrl);
     }

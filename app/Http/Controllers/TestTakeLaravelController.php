@@ -37,6 +37,8 @@ class TestTakeLaravelController extends Controller
     public function show($testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
+        $testParticipant->registerIfParticipantIsUsingAnAppOnSession($request);
+
         if (!$testParticipant->startTestTake()) {
             return redirect(config('app.url_login'));
         }

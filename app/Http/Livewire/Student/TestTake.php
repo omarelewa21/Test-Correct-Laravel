@@ -121,12 +121,15 @@ class TestTake extends Component
 
     public function browserTestingIsDisabled()
     {
-        $this->dispatchBrowserEvent('force-taken-away-blur', ['shouldBlur' => true]);
-        $this->browserTestingDisabledModal = true;
+        $participant = TestParticipant::findOrFail($this->testParticipantId);
+
+        if($participant->shouldUseApp() && !$participant->isUsingApp()) {
+            $this->returnToDashboard('browser_testing_disabled');
+        }
     }
 
-    public function returnToDashboard()
+    public function returnToDashboard($redirectMessage = null)
     {
-        Auth::user()->redirectToCakeWithTemporaryLogin();
+        Auth::user()->redirectToCakeWithTemporaryLogin($redirectMessage);
     }
 }
