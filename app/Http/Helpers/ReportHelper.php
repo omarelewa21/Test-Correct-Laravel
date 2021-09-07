@@ -7,6 +7,7 @@ namespace tcCore\Http\Helpers;
 use Carbon\Carbon;
 use tcCore\FileManagement;
 use tcCore\FileManagementStatusLog;
+use tcCore\GeneralTermsLog;
 use tcCore\Period;
 use tcCore\Question;
 use tcCore\QuestionAuthor;
@@ -243,6 +244,10 @@ class ReportHelper
         return $builder->count();
     }
 
+    public function dateGeneralTermsAccepted()
+    {
+        return GeneralTermsLog::whereUserId($this->reference->getKey())->value('accepted_at');
+    }
 
     public function nrUniqueStudentsTakenTest($days, $returnBuilder = false)
     {
