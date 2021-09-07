@@ -948,7 +948,7 @@ class Test extends BaseModel
                 return;
             }
             if ($key === 'author') {
-                $query->addSelect(DB::raw('(SELECT name_first FROM users WHERE id = author_id LIMIT 1) AS author'));
+                $query->addSelect(DB::raw('(SELECT TRIM(CONCAT_WS(" ", COALESCE(name_first), COALESCE(name_suffix), COALESCE(name))) FROM users WHERE id = author_id LIMIT 1) AS author'));
                 $query->orderBy('author', $direction);
                 return;
             }
