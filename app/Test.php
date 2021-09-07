@@ -1,9 +1,11 @@
 <?php namespace tcCore;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -57,6 +59,8 @@ class Test extends BaseModel
      * @var array
      */
     protected $hidden = [];
+
+    protected $sortableColumns = ['id', 'name', 'abbreviation', 'subject', 'education_level', 'education_level_year', 'period_id', 'test_kind_id', 'status', 'author', 'question_count', 'kind'];
 
     public static function boot()
     {
@@ -266,6 +270,8 @@ class Test extends BaseModel
         $citoSchool = SchoolLocation::where('customer_code', 'CITO-TOETSENOPMAAT')->first();
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
 
+        $query->select();
+
         if ($citoSchool) {
             $classIds = $citoSchool->schoolClasses()->pluck('id');
             $tempSubjectIds = Teacher::whereIn('class_id', $classIds)->pluck('subject_id')->unique();
@@ -354,42 +360,44 @@ class Test extends BaseModel
             }
         }
 
-        foreach ($sorting as $key => $value) {
-            switch (strtolower($value)) {
-                case 'id':
-                case 'name':
-                case 'abbreviation':
-                case 'subject_id':
-                case 'education_level_id':
-                case 'education_level_year':
-                case 'period_id':
-                case 'test_kind_id':
-                case 'status':
-                case 'author_id':
-                    $key = $value;
-                    $value = 'asc';
-                    break;
-                case 'asc':
-                case 'desc':
-                    break;
-                default:
-                    $value = 'asc';
-            }
-            switch (strtolower($key)) {
-                case 'id':
-                case 'name':
-                case 'abbreviation':
-                case 'subject_id':
-                case 'education_level_id':
-                case 'education_level_year':
-                case 'period_id':
-                case 'test_kind_id':
-                case 'status':
-                case 'author_id':
-                    $query->orderBy($key, $value);
-                    break;
-            }
-        }
+//        foreach ($sorting as $key => $value) {
+//            switch (strtolower($value)) {
+//                case 'id':
+//                case 'name':
+//                case 'abbreviation':
+//                case 'subject_id':
+//                case 'education_level_id':
+//                case 'education_level_year':
+//                case 'period_id':
+//                case 'test_kind_id':
+//                case 'status':
+//                case 'author_id':
+//                    $key = $value;
+//                    $value = 'asc';
+//                    break;
+//                case 'asc':
+//                case 'desc':
+//                    break;
+//                default:
+//                    $value = 'asc';
+//            }
+//            switch (strtolower($key)) {
+//                case 'id':
+//                case 'name':
+//                case 'abbreviation':
+//                case 'subject_id':
+//                case 'education_level_id':
+//                case 'education_level_year':
+//                case 'period_id':
+//                case 'test_kind_id':
+//                case 'status':
+//                case 'author_id':
+//                    $query->orderBy($key, $value);
+//                    break;
+//            }
+//        }
+
+        $this->handleFilteredSorting($query, $sorting);
 
         if ($user->isA('teacher')) {
             // don't show demo tests from other teachers
@@ -412,6 +420,8 @@ class Test extends BaseModel
         $sharedSectionIds = $user->schoolLocation->sharedSections()->pluck('id')->unique();
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
         $subjectIds = [];
+
+        $query->select();
 
         if (count($sharedSectionIds) > 0) {
             $subjectIds = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',$baseSubjectIds)->pluck('id')->unique();
@@ -493,42 +503,44 @@ class Test extends BaseModel
             }
         }
 
-        foreach ($sorting as $key => $value) {
-            switch (strtolower($value)) {
-                case 'id':
-                case 'name':
-                case 'abbreviation':
-                case 'subject_id':
-                case 'education_level_id':
-                case 'education_level_year':
-                case 'period_id':
-                case 'test_kind_id':
-                case 'status':
-                case 'author_id':
-                    $key = $value;
-                    $value = 'asc';
-                    break;
-                case 'asc':
-                case 'desc':
-                    break;
-                default:
-                    $value = 'asc';
-            }
-            switch (strtolower($key)) {
-                case 'id':
-                case 'name':
-                case 'abbreviation':
-                case 'subject_id':
-                case 'education_level_id':
-                case 'education_level_year':
-                case 'period_id':
-                case 'test_kind_id':
-                case 'status':
-                case 'author_id':
-                    $query->orderBy($key, $value);
-                    break;
-            }
-        }
+//        foreach ($sorting as $key => $value) {
+//            switch (strtolower($value)) {
+//                case 'id':
+//                case 'name':
+//                case 'abbreviation':
+//                case 'subject_id':
+//                case 'education_level_id':
+//                case 'education_level_year':
+//                case 'period_id':
+//                case 'test_kind_id':
+//                case 'status':
+//                case 'author_id':
+//                    $key = $value;
+//                    $value = 'asc';
+//                    break;
+//                case 'asc':
+//                case 'desc':
+//                    break;
+//                default:
+//                    $value = 'asc';
+//            }
+//            switch (strtolower($key)) {
+//                case 'id':
+//                case 'name':
+//                case 'abbreviation':
+//                case 'subject_id':
+//                case 'education_level_id':
+//                case 'education_level_year':
+//                case 'period_id':
+//                case 'test_kind_id':
+//                case 'status':
+//                case 'author_id':
+//                    $query->orderBy($key, $value);
+//                    break;
+//            }
+//        }
+
+        $this->handleFilteredSorting($query, $sorting);
 
         // don't show demo tests from other location
         $query->where('demo', 0);
@@ -541,6 +553,8 @@ class Test extends BaseModel
         $user = Auth::user();
         $roles = $this->getUserRoles();
         $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
+
+        $query->select();
 
         if ($schoolLocation->is_allowed_to_view_open_source_content == 1) {
             // @TODO WHY IS THIS ONLY ON THE FIRST BASE SUBJECT????????
@@ -710,42 +724,44 @@ class Test extends BaseModel
             }
         }
 
-        foreach ($sorting as $key => $value) {
-            switch (strtolower($value)) {
-                case 'id':
-                case 'name':
-                case 'abbreviation':
-                case 'subject_id':
-                case 'education_level_id':
-                case 'education_level_year':
-                case 'period_id':
-                case 'test_kind_id':
-                case 'status':
-                case 'author_id':
-                    $key = $value;
-                    $value = 'asc';
-                    break;
-                case 'asc':
-                case 'desc':
-                    break;
-                default:
-                    $value = 'asc';
-            }
-            switch (strtolower($key)) {
-                case 'id':
-                case 'name':
-                case 'abbreviation':
-                case 'subject_id':
-                case 'education_level_id':
-                case 'education_level_year':
-                case 'period_id':
-                case 'test_kind_id':
-                case 'status':
-                case 'author_id':
-                    $query->orderBy($key, $value);
-                    break;
-            }
-        }
+//        foreach ($sorting as $key => $value) {
+//            switch (strtolower($value)) {
+//                case 'id':
+//                case 'name':
+//                case 'abbreviation':
+//                case 'subject_id':
+//                case 'education_level_id':
+//                case 'education_level_year':
+//                case 'period_id':
+//                case 'test_kind_id':
+//                case 'status':
+//                case 'author_id':
+//                    $key = $value;
+//                    $value = 'asc';
+//                    break;
+//                case 'asc':
+//                case 'desc':
+//                    break;
+//                default:
+//                    $value = 'asc';
+//            }
+//            switch (strtolower($key)) {
+//                case 'id':
+//                case 'name':
+//                case 'abbreviation':
+//                case 'subject_id':
+//                case 'education_level_id':
+//                case 'education_level_year':
+//                case 'period_id':
+//                case 'test_kind_id':
+//                case 'status':
+//                case 'author_id':
+//                    $query->orderBy($key, $value);
+//                    break;
+//            }
+//        }
+
+        $this->handleFilteredSorting($query, $sorting);
 
         if ($user->isA('teacher')) {
             // don't show demo tests from other teachers
@@ -909,4 +925,42 @@ class Test extends BaseModel
         return $questionCount;
     }
 
+    private function handleFilteredSorting($query, $sorting)
+    {
+        $sortDirections = ['asc', 'desc'];
+
+        collect($sorting)->each(function ($direction, $key) use ($query, $sortDirections) {
+            if (!in_array(Str::lower($direction), $sortDirections)) {
+                return;
+            }
+            if (!in_array($key, $this->sortableColumns)) {
+                return;
+            }
+
+            if ($key === 'subject') {
+                $query->addSelect(DB::raw('(SELECT name FROM subjects WHERE id = subject_id LIMIT 1) AS subject'));
+                $query->orderBy('subject', $direction);
+                return;
+            }
+            if ($key === 'education_level') {
+                $query->addSelect(DB::raw('(SELECT name FROM education_levels WHERE id = education_level_id LIMIT 1) AS education_level'));
+                $query->orderBy('education_level', $direction);
+                return;
+            }
+            if ($key === 'author') {
+                $query->addSelect(DB::raw('(SELECT TRIM(CONCAT_WS(" ", COALESCE(name_first), COALESCE(name_suffix), COALESCE(name))) FROM users WHERE id = author_id LIMIT 1) AS author'));
+                $query->orderBy('author', $direction);
+                return;
+            }
+            if ($key === 'kind') {
+                $query->addSelect(DB::raw('(SELECT name FROM test_kinds WHERE id = test_kind_id LIMIT 1) AS kind'));
+                $query->orderBy('kind', $direction);
+                return;
+            }
+
+            $query->orderBy($key, $direction);
+        });
+
+        return $query;
+    }
 }
