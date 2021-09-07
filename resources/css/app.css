@@ -482,3 +482,18 @@ body.modal-open {
     -webkit-overflow-scrolling: touch;
     overflow: auto;
 }
+
+ol {
+    list-style: disk!important;
+    padding-left: 20px!important;
+}
+ul {
+    list-style: initial!important;
+    padding-left: 20px!important;
+}
+ul ul {
+    list-style: circle!important;
+}
+ul ul ul {
+    list-style: square!important;
+}
