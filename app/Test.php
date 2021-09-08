@@ -959,7 +959,7 @@ class Test extends BaseModel
             }
             if ($key === 'author') {
                 $query->orderBy(
-                    User::select(DB::raw('TRIM(CONCAT_WS(" ", COALESCE(name_first), COALESCE(name_suffix), COALESCE(name))) AS author'))
+                    User::select(DB::raw('TRIM(CONCAT_WS(" ", COALESCE(name_first,""), COALESCE(name_suffix,""), COALESCE(name,""))) AS author'))
                         ->whereColumn('id', 'tests.author_id')
                         ->withTrashed()
                         ->orderBy('author', $direction)
