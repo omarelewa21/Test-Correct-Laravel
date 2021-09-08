@@ -49,7 +49,10 @@ class TestParticipant extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player','answers_provisioned'];
+    protected $fillable = [
+        'test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating',
+        'allow_inbrowser_testing', 'started_in_new_player', 'answers_provisioned'
+    ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -71,7 +74,7 @@ class TestParticipant extends BaseModel
             }
         });
         static::saved(function (TestParticipant $testParticipant) {
-            if($testParticipant->skipBootSavedMethod){
+            if ($testParticipant->skipBootSavedMethod) {
                 return;
             }
             //$testParticipant->load('testTakeStatus');
@@ -96,12 +99,13 @@ class TestParticipant extends BaseModel
         // validatie op heartbeat_at was toch niet goed...
 //        if (($this->getOriginal('heartbeat_at') === null || $this->getOriginal('heartbeat_at') === '') && $this->test_take_status_id === 3 && $this->answers()->count() === 0) {
         $answersProvisioned = $this->answers_provisioned;
-        if($this->answers()->count() > 0){
+        if ($this->answers()->count() > 0) {
             $answersProvisioned = true;
         }
 
         if ($this->test_take_status_id === 3 && !$answersProvisioned) {
-            $this->load('testTake', 'testTake.test', 'testTake.test.testQuestions', 'testTake.test.testQuestions.question');
+            $this->load('testTake', 'testTake.test', 'testTake.test.testQuestions',
+                'testTake.test.testQuestions.question');
 
             $questions = array();
 
@@ -157,7 +161,8 @@ class TestParticipant extends BaseModel
             $answers = [];
             foreach ($questionOrder as $question) {
                 if ($question instanceof GroupQuestion) {
-                    $question->generateAnswersForGroupQuestion(array(), $this->testTake->test->getAttribute('shuffle'), $order, $answers);
+                    $question->generateAnswersForGroupQuestion(array(), $this->testTake->test->getAttribute('shuffle'),
+                        $order, $answers);
                 } elseif ($question instanceof Question) {
                     $answer = new Answer();
                     $answer->setAttribute('question_id', $question->getKey());
@@ -167,13 +172,14 @@ class TestParticipant extends BaseModel
                     $order++;
                 }
             }
-            foreach($answers as $answer){
+            foreach ($answers as $answer) {
                 try {
                     $this->answers()->save($answer);
-                } catch (\Throwable $e){
+                } catch (\Throwable $e) {
                     // we have an exception probably because of double adding same answer.
                     // so we only are going to send a notification to bugsnag, but won't hold.
-                    $body = sprintf('Notice: Error while adding empty answer records for the participant for participant (%d) and question (%d) with error %s',$this->getKey(),$answer->question_id,$e->getMessage());
+                    $body = sprintf('Notice: Error while adding empty answer records for the participant for participant (%d) and question (%d) with error %s',
+                        $this->getKey(), $answer->question_id, $e->getMessage());
 
                     Bugsnag::notifyException(new \LogicException($body));
                 }
@@ -238,6 +244,56 @@ class TestParticipant extends BaseModel
         return $this->attributes['ip_address'];
     }
 
+    public function getLabelAttribute()
+    {
+        return self::getLabelsAndTexts('label', $this->test_take_status_id);
+    }
+
+    public function getTextAttribute()
+    {
+        return self::getLabelsAndTexts('text', $this->test_take_status_id);
+    }
+
+
+    private static function getLabelsAndTexts($type, $value)
+    {
+        $lookup = [
+            1 => [
+                'label' => 'info',
+                'text'  => 'Ingepland',
+            ],
+            2 => [
+                'label' => 'danger',
+                'text' => 'Niet gemaakt',
+            ],
+            3 => [
+                'label' => 'success',
+                'text'  => 'Maakt toets',
+            ],
+            4 => [
+                'label' => 'info',
+                'text'  => 'Ingeleverd',
+            ],
+            5 => [
+                'label' => 'warning',
+                'text'  => 'Ingeleverd (geforceerd)',
+            ],
+            6 => [
+                'label' => 'success',
+                'text'  => 'Ingenomen',
+            ],
+        ];
+
+        if (!array_key_exists($value, $lookup)) {
+            throw new \Exception(sprintf('Couldnot find test_take_status_id %d', $value));
+        }
+
+        if (!array_key_exists($type, $lookup[$value])) {
+            throw new \Exception(sprintf('Couldnot find %s for test_take_status_id %d', $type, $value));
+        }
+        return $lookup[$value][$type];
+    }
+
     public function pValues()
     {
         return $this->hasMany('tcCore\PValue');
@@ -256,24 +312,26 @@ class TestParticipant extends BaseModel
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST) {
             $testTakeTypeStatus = TestTakeEventType::where('name', '=', 'Start')->value('id');
             $participantStartEvent = TestTakeEvent::whereTestParticipantId($this->getKey())
-                                                    ->whereTestTakeId($this->testTake->getKey())
-                                                    ->whereTestTakeEventTypeId($testTakeTypeStatus)
-                                                    ->first();
+                ->whereTestTakeId($this->testTake->getKey())
+                ->whereTestTakeEventTypeId($testTakeTypeStatus)
+                ->first();
             if (!$participantStartEvent) {
                 // Test participant test event for starting
                 $testTakeEvent = new TestTakeEvent();
                 $testTakeEvent->setAttribute('test_take_event_type_id', $testTakeTypeStatus);
                 $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
                 $this->testTake->testTakeEvents()->save($testTakeEvent);
-    
-                $testTakeStartDate = $this->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $testTakeTypeStatus)->whereNull('test_participant_id')->max('created_at');
+
+                $testTakeStartDate = $this->testTake->testTakeEvents()->where('test_take_event_type_id', '=',
+                    $testTakeTypeStatus)->whereNull('test_participant_id')->max('created_at');
                 $timeLate = Carbon::createFromFormat('Y-m-d H:i:s', $testTakeStartDate)->addMinutes(5);
-    
+
                 if ($timeLate->isPast()) {
                     $testTakeEvent = new TestTakeEvent();
-                    $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Started late')->value('id'));
+                    $testTakeEvent->setAttribute('test_take_event_type_id',
+                        TestTakeEventType::where('name', '=', 'Started late')->value('id'));
                     $testTakeEvent->setAttribute('test_take_id', $this->getAttribute('test_take_id'));
-    
+
                     $this->testTakeEvents()->save($testTakeEvent);
                 }
             }
@@ -286,10 +344,12 @@ class TestParticipant extends BaseModel
         $testTakeStatuses = [4, 5, 6];
 //            if ($testParticipant->testTakeStatus->name === 'Taking test' && in_array($testParticipant->getOriginal('test_take_status_id'), $testTakeStatuses)) {
         //reopenedTest
-        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST && in_array($this->getOriginal('test_take_status_id'), $testTakeStatuses)) {
+        if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST && in_array($this->getOriginal('test_take_status_id'),
+                $testTakeStatuses)) {
             // Test participant test event for continueing
             $testTakeEvent = new TestTakeEvent();
-            $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Continue')->value('id'));
+            $testTakeEvent->setAttribute('test_take_event_type_id',
+                TestTakeEventType::where('name', '=', 'Continue')->value('id'));
             $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
             $this->testTake->testTakeEvents()->save($testTakeEvent);
             TestTakeReopened::dispatch($this);
@@ -301,7 +361,8 @@ class TestParticipant extends BaseModel
         if ($this->test_take_status_id !== 3 && $this->getOriginal('test_take_status_id') === 3) {// TestTakeStatus::where('name', '=', 'Taking test')->value('id')) {
             // Test participant test event for stopping
             $testTakeEvent = new TestTakeEvent();
-            $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Stop')->value('id'));
+            $testTakeEvent->setAttribute('test_take_event_type_id',
+                TestTakeEventType::where('name', '=', 'Stop')->value('id'));
             $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
             $this->testTake->testTakeEvents()->save($testTakeEvent);
         }
@@ -326,7 +387,8 @@ class TestParticipant extends BaseModel
                     $rating = $retakeRating;
                 }
 
-                $retakeTestParticipant = $retakeTestTake->testParticipants()->where('user_id', $this->getAttribute('user_id'))->first();
+                $retakeTestParticipant = $retakeTestTake->testParticipants()->where('user_id',
+                    $this->getAttribute('user_id'))->first();
                 if ($retakeTestParticipant !== null) {
                     $retakeTestParticipant->setAttribute('retake_rating', $rating);
                     $retakeTestParticipant->save();
@@ -351,6 +413,7 @@ class TestParticipant extends BaseModel
         }
         return false;
     }
+
     public function canSeeOverviewPage()
     {
         return $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
@@ -369,7 +432,9 @@ class TestParticipant extends BaseModel
                 ->orWhere('test_take_status_id', TestTakeStatus::STATUS_DISCUSSING)
                 ->first();
     }
-    public function getIntenseAttribute() {
+
+    public function getIntenseAttribute()
+    {
         if (!$this->user || !$this->user->schoolLocation) {
             return false;
         }
