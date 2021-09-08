@@ -350,7 +350,7 @@ class TestParticipant extends BaseModel
         if (!$this->canStartTestTake()) {
             return false;
         }
-        if ($this->shouldUseApp() && !$this->isUsingApp()) {
+        if (!$this->canUseBrowserTesting() && !$this->isUsingApp()) {
             return false;
         }
 
@@ -406,9 +406,9 @@ class TestParticipant extends BaseModel
         session()->put('usingApp', $request->headers->has('tlc'));
     }
 
-    public function shouldUseApp()
+    public function canUseBrowserTesting()
     {
-        return !$this->allow_inbrowser_testing;
+        return $this->allow_inbrowser_testing;
     }
 
     public function isUsingApp()

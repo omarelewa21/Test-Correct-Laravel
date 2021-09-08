@@ -123,13 +123,18 @@ class TestTake extends Component
     {
         $participant = TestParticipant::findOrFail($this->testParticipantId);
 
-        if($participant->shouldUseApp() && !$participant->isUsingApp()) {
-            $this->returnToDashboard('browser_testing_disabled');
+        if(!$participant->canUseBrowserTesting() && !$participant->isUsingApp()) {
+            $this->returnToDashboard([
+                'redirect_reason' => [
+                    'Het is niet toegestaan om deze toets in de browser te maken. Start de Test-Correct app om deze toets te maken.' => 'error',
+                    '2e notificatie aub' => 'info',
+                ]
+            ]);
         }
     }
 
-    public function returnToDashboard($redirectMessage = null)
+    public function returnToDashboard($options = null)
     {
-        Auth::user()->redirectToCakeWithTemporaryLogin($redirectMessage);
+        Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 }

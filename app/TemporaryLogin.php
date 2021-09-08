@@ -30,7 +30,7 @@ class TemporaryLogin extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'uuid'];
+    protected $fillable = ['user_id', 'uuid', 'options'];
 
     /**
      * The attributes excluded from the model's JSON form.

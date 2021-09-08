@@ -65,6 +65,8 @@ class UserHelper
 
         $user->setAttribute('hasSharedSections',$user->hasSharedSections());
 
+        $user->setAttribute('temporaryLoginOptions', $user->getTemporaryLoginOptions());
+
         $user->makeOnboardWizardIfNeeded();
         $user->createGeneralTermsLogIfRequired();
 

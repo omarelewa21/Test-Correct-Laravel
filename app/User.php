@@ -2164,13 +2164,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
     }
 
-    public function redirectToCakeWithTemporaryLogin($redirectMessage = null)
+    public function redirectToCakeWithTemporaryLogin($options = null)
     {
-        $redirectUrl = $this->getTemporaryCakeLoginUrl();
-
-        if ($redirectMessage) {
-            $redirectUrl .= '?redirect_message='.$redirectMessage;
-        }
+        $redirectUrl = $this->getTemporaryCakeLoginUrl($options);
 
         return redirect()->to($redirectUrl);
     }
@@ -2178,11 +2174,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     /**
      * @return mixed
      */
-    public function getTemporaryCakeLoginUrl()
+    public function getTemporaryCakeLoginUrl($options = null)
     {
-        $temporaryLogin = TemporaryLogin::create(
-            ['user_id' => $this->getKey()]
-        );
+        $temporaryLogin = TemporaryLogin::create([
+            'user_id' => $this->getKey(),
+            'options' => $options != null ? json_encode($options) : null
+        ]);
+
         return $temporaryLogin->createCakeUrl();
     }
 
@@ -2333,5 +2331,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function hasNoActiveLicense()
     {
         return $this->schoolLocation->licenses()->count() == 0 || $this->schoolLocation->licenses()->where('end', '>', Carbon::now())->count() == 0;
+    }
+
+    public function getTemporaryLoginOptions()
+    {
+        return TemporaryLogin::whereUserId($this->getKey())->whereNotNull('options')->value('options');
     }
 }
