@@ -34,6 +34,10 @@ abstract class TestCase extends BaseTestCase
     const USER_SCHOOLBEHEERDER_LOCATION1 = 'opensourceschoollocatie1schoolbeheerder@test-correct.nl';
     const USER_ADMIN = 'testadmin@teachandlearncompany.com';
 
+    public static function getTeacherOne(){
+        return  \tcCore\User::where('username', '=', static::USER_TEACHER)->get()->first();
+    }
+
     public static function getAuthRequestData($overrides = [])
     {
         $user = \tcCore\User::where('username', '=', static::USER_TEACHER)->get()->first();

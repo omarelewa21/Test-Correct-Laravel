@@ -139,7 +139,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('filemanagement/{fileManagement}/download',['as' => 'filemanagement.download','uses' => 'FileManagementController@download']);
     Route::put('filemanagement/{fileManagement}',['as' => 'filemanagement.update','uses' => 'FileManagementController@update']);
     Route::get('filemanagement/statuses',['as' => 'filemanagement.statuses','uses' => 'FileManagementController@getStatuses']);
-
+    Route::get('test_take/get_surveillance_data', 'SurveillanceController@index')->name('test_take.get_surveillance_data');
 
 	// Test take + children
 	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@export']);
@@ -161,6 +161,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('test_take_event_type', 'TestTakeEventTypesController', ['except' => ['create', 'store', 'edit', 'update', 'destroy']]);
 
 	Route::get('test_take_max_score/{test_take}','TestTakesController@maxScoreResponse')->name('test_take.max_score');
+
+	;
 
     Route::get('test_take/{test_take}/attainment/analysis','TestTakes\TestTakeAttainmentAnalysisController@index')->name('test_take_attainment_analysis.index');
     Route::get('test_take/{test_take}/attainment/{attainment}/analysis','TestTakes\TestTakeAttainmentAnalysisController@show')->name('test_take_attainment_analysis.show');
