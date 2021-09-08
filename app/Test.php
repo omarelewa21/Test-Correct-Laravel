@@ -938,23 +938,44 @@ class Test extends BaseModel
             }
 
             if ($key === 'subject') {
-                $query->addSelect(DB::raw('(SELECT name FROM subjects WHERE id = subject_id LIMIT 1) AS subject'));
-                $query->orderBy('subject', $direction);
+                $query->orderBy(
+                    Subject::select('name')
+                        ->whereColumn('id', 'tests.subject_id')
+                        ->orderBy('name', $direction)
+                        ->take(1),
+                    $direction
+                );
                 return;
             }
             if ($key === 'education_level') {
-                $query->addSelect(DB::raw('(SELECT name FROM education_levels WHERE id = education_level_id LIMIT 1) AS education_level'));
-                $query->orderBy('education_level', $direction);
+                $query->orderBy(
+                    EducationLevel::select('name')
+                        ->whereColumn('id', 'tests.education_level_id')
+                        ->orderBy('name', $direction)
+                        ->take(1),
+                    $direction
+                );
                 return;
             }
             if ($key === 'author') {
-                $query->addSelect(DB::raw('(SELECT TRIM(CONCAT_WS(" ", COALESCE(name_first), COALESCE(name_suffix), COALESCE(name))) FROM users WHERE id = author_id LIMIT 1) AS author'));
-                $query->orderBy('author', $direction);
+                $query->orderBy(
+                    User::select(DB::raw('TRIM(CONCAT_WS(" ", COALESCE(name_first), COALESCE(name_suffix), COALESCE(name))) AS author'))
+                        ->whereColumn('id', 'tests.author_id')
+                        ->withTrashed()
+                        ->orderBy('author', $direction)
+                        ->take(1),
+                    $direction
+                );
                 return;
             }
             if ($key === 'kind') {
-                $query->addSelect(DB::raw('(SELECT name FROM test_kinds WHERE id = test_kind_id LIMIT 1) AS kind'));
-                $query->orderBy('kind', $direction);
+                $query->orderBy(
+                    TestKind::select('name')
+                        ->whereColumn('id', 'tests.test_kind_id')
+                        ->orderBy('name', $direction)
+                        ->take(1),
+                    $direction
+                );
                 return;
             }
 
