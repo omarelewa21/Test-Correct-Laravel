@@ -6,6 +6,8 @@ use tcCore\Http\Requests\CreateSectionRequest;
 use tcCore\Http\Requests\UpdateSectionRequest;
 use tcCore\SchoolLocation;
 use tcCore\Section;
+use tcCore\Subject;
+use tcCore\BaseSubject;
 
 class SectionsController extends Controller {
     /**
@@ -16,17 +18,38 @@ class SectionsController extends Controller {
      */
     public function index(Request $request)
     {
-        $schoolSections = Section::filtered($request->get('filter', []), $request->get('order', []))->with('schoolLocations');
+        $_schoolSections = Section::filtered($request->get('filter', []), $request->get('order', []))->with('schoolLocations');
         switch(strtolower($request->get('mode', 'paginate'))) {
             case 'all':
-                return Response::make($schoolSections->get(), 200);
+                $schoolSections = $_schoolSections->get();
+                $dddddd = [];
+                foreach($schoolSections as $schoolSection){
+                    $schoolSection['subjects'] = Subject::where('section_id', $schoolSection->id)->get();
+                    // $schoolSection['baseSubjects'] = [];
+                    // foreach($schoolSection['subjects'] as $schoolSubject){
+                    //     $base_subject_id = $schoolSubject->base_subject_id;
+                    //     $base_subject = BaseSubject::find($base_subject_id);
+                    //     $schoolSection['baseSubjects'][] = $base_subject;
+                    // }
+                    $dddddd[] = $schoolSection;
+                }
+                return Response::make($dddddd, 200);
                 break;
             case 'list':
-                return Response::make($schoolSections->pluck('name', 'id'), 200);
+                return 0;
                 break;
             case 'paginate':
             default:
-                return Response::make($schoolSections->paginate(15), 200);
+                $schoolSections = $_schoolSections->get();
+                foreach($schoolSections as $schoolSection){
+                    $schoolSection['subjects'] = Subject::where('section_id', $schoolSection['id'])->get();
+                    $baseSubjects = [];
+                    foreach($schoolSection['subjects'] as $schoolSubject){
+                        $baseSubjects[] = BaseSubject::find($schoolSubject->base_subject_id);
+                        $schoolSection['base_subjects'] = $baseSubjects;
+                    }
+                }
+                return Response::make($schoolSections, 200);
                 break;
         }
     }

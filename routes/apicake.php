@@ -291,9 +291,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::resource('section', 'SectionsController', ['except' => ['create', 'edit']]);
     Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
 
-    Route::get('subject/section/{section_id}', 'SubjectsController@sectionSubjectsList');
-    Route::get('section/base_subject/{subject_id}', 'SubjectsController@sectionBaseSubjectsList');
-
     Route::put('message/mark_read/{message}', 'MessageController@markRead')->name('message.mark_read');
     Route::resource('message', 'MessageController', ['except' => ['create', 'edit']]);
 
