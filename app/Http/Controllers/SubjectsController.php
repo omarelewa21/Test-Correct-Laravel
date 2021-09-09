@@ -39,23 +39,6 @@ class SubjectsController extends Controller
         }
     }
 
-    public function sectionSubjectsList($section_id){
-        $subjects = Subject::where('section_id', $section_id)->get();
-        return $subjects;
-    }
-
-    public function sectionBaseSubjectsList($section_id){
-        $subjects = Subject::where('section_id', $section_id)->get();
-        $base_subjects = [];
-        foreach($subjects as $subject){
-            $base_subject_id = $subject->base_subject_id;
-            $base_subject = BaseSubject::find($base_subject_id);
-            $base_subjects[] = $base_subject;
-        }
-        
-        return $base_subjects;
-    }
-
     /**
      * Store a newly created subject in storage.
      *
