@@ -21,22 +21,10 @@ class SectionsController extends Controller {
         $_schoolSections = Section::filtered($request->get('filter', []), $request->get('order', []))->with('schoolLocations');
         switch(strtolower($request->get('mode', 'paginate'))) {
             case 'all':
-                $schoolSections = $_schoolSections->get();
-                $dddddd = [];
-                foreach($schoolSections as $schoolSection){
-                    $schoolSection['subjects'] = Subject::where('section_id', $schoolSection->id)->get();
-                    // $schoolSection['baseSubjects'] = [];
-                    // foreach($schoolSection['subjects'] as $schoolSubject){
-                    //     $base_subject_id = $schoolSubject->base_subject_id;
-                    //     $base_subject = BaseSubject::find($base_subject_id);
-                    //     $schoolSection['baseSubjects'][] = $base_subject;
-                    // }
-                    $dddddd[] = $schoolSection;
-                }
-                return Response::make($dddddd, 200);
+                return Response::make($_schoolSections->get(), 200);
                 break;
             case 'list':
-                return 0;
+                return Response::make($_schoolSections->pluck('name', 'id'), 200);
                 break;
             case 'paginate':
             default:
@@ -44,17 +32,22 @@ class SectionsController extends Controller {
                 foreach($schoolSections as $schoolSection){
                     $schoolSection['subjects'] = Subject::where('section_id', $schoolSection['id'])->get();
                     $baseSubjects = [];
+                    $sharedLocations = [];
                     foreach($schoolSection['subjects'] as $schoolSubject){
                         $baseSubjects[] = BaseSubject::find($schoolSubject->base_subject_id);
                         $schoolSection['base_subjects'] = $baseSubjects;
+                        
+                        $sharedLocations[] = $schoolSection->sharedSchoolLocations;
+                        $section['sharedSchoolLocations'] = $sharedLocations;
                     }
                 }
                 return Response::make($schoolSections, 200);
                 break;
+            }
         }
-    }
 
-    /**
+
+     /**
      * Store a newly created sections in storage.
      * @param CreateSectionRequest $request
      * @return

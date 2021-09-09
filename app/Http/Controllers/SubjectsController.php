@@ -39,7 +39,6 @@ class SubjectsController extends Controller
         }
     }
 
-
     /**
      * Store a newly created subject in storage.
      *
