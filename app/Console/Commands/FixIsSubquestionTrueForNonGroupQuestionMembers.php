@@ -72,7 +72,7 @@ class FixIsSubquestionTrueForNonGroupQuestionMembers extends Command
             'education_level_id' => $test->education_level_id,
             'education_level_year' => $test->education_level_year,
             'education_level_year' => $test->education_level_year,
-            'is_subquestion' => false,
+            'is_subquestion' => 0,
         ];
         $testQuestionQuestionId = $questionId;
         $request->merge($params);

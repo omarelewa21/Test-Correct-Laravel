@@ -231,6 +231,7 @@ class TestQuestionsController extends Controller {
             $testQuestion->fill($request->all());
             $question->updateWithRequest($request,$testQuestion);
             $testQuestion->setAttribute('question_id', $question->getKeyAfterPossibleDuplicate());
+
             if ($testQuestion->save()) {
                 $testQuestion->refresh();
                 $question = $testQuestion->question;
