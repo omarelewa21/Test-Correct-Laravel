@@ -28,7 +28,7 @@ class SectionsController extends Controller {
                 break;
             case 'paginate':
             default:
-                $schoolSections = $_schoolSections->get();
+                $schoolSections = $_schoolSections->paginate(15);
                 foreach($schoolSections as $schoolSection){
                     $schoolSection['subjects'] = Subject::where('section_id', $schoolSection['id'])->get();
                     $baseSubjects = [];
