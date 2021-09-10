@@ -124,12 +124,11 @@ class TestTake extends Component
         $participant = TestParticipant::findOrFail($this->testParticipantId);
 
         if(!$participant->canUseBrowserTesting() && !$participant->isUsingApp()) {
-            $this->returnToDashboard([
-                'redirect_reason' => [
-                    'Het is niet toegestaan om deze toets in de browser te maken. Start de Test-Correct app om deze toets te maken.' => 'error',
-                    '2e notificatie aub' => 'info',
-                ]
-            ]);
+            $options = TemporaryLogin::createOptionsForRedirect(
+                'redirect_reason',
+                [__('browser_testing_disabled_notification') => 'error']
+            );
+            $this->returnToDashboard($options);
         }
     }
 

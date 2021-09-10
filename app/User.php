@@ -2178,7 +2178,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         $temporaryLogin = TemporaryLogin::create([
             'user_id' => $this->getKey(),
-            'options' => $options != null ? json_encode($options) : null
+            'options' => $options
         ]);
 
         return $temporaryLogin->createCakeUrl();
@@ -2335,6 +2335,6 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getTemporaryLoginOptions()
     {
-        return TemporaryLogin::whereUserId($this->getKey())->whereNotNull('options')->value('options');
+        return TemporaryLogin::whereUserId($this->getKey())->whereNotNull('options')->orderBy('created_at', 'desc')->take(1)->value('options');
     }
 }

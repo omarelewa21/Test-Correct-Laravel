@@ -67,4 +67,26 @@ class TemporaryLogin extends Model
 
         return $result;
     }
+
+    public static function createOptionsForRedirect($option, $optionValue)
+    {
+        if (is_array($option)) {
+            if (!is_array($optionValue) || count($option) != count($optionValue)) {
+                return null;
+            }
+
+            $options = [];
+            foreach ($option as $key => $value) {
+                $options[$value] = $optionValue[$key];
+            }
+
+            return json_encode($options);
+        }
+
+        if (is_array($optionValue) && is_array($optionValue[0])) {
+            return null;
+        }
+
+        return json_encode([$option => $optionValue]);
+    }
 }
