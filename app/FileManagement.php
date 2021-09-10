@@ -39,7 +39,7 @@ class FileManagement extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['type','id','user_id','school_location_id','file_management_status_id','handledby','notes','name','origname','typedetails','parent_id','archived'];
+    protected $fillable = ['type','id','user_id','school_location_id','file_management_status_id','handledby','notes','name','origname','typedetails','parent_id','archived','form_id'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -52,23 +52,24 @@ class FileManagement extends BaseModel {
     {
         parent::boot();
 
-        static::created(function (FileManagement $fileManagement) {
-            FileManagementStatusLog::create([
-                'file_management_id' => $fileManagement->getKey(),
-                'file_management_status_id' => $fileManagement->file_management_status_id
-            ]);
-        });
-
-        static::updated(function (FileManagement $fileManagement) {
-
-            // logging statuses if changed
-            if ($fileManagement->getOriginal('file_management_status_id') != $fileManagement->file_management_status_id) {
-                FileManagementStatusLog::create([
-                    'file_management_id' => $fileManagement->getKey(),
-                    'file_management_status_id' => $fileManagement->file_management_status_id
-                ]);
-            }
-        });
+//        static::created(function (FileManagement $fileManagement) {
+//            $fileManagement->refresh());
+//            FileManagementStatusLog::create([
+//                'file_management_id' => $fileManagement->getKey(),
+//                'file_management_status_id' => $fileManagement->file_management_status_id
+//            ]);
+//        });
+//
+//        static::updated(function (FileManagement $fileManagement) {
+//
+//            // logging statuses if changed
+//            if ($fileManagement->getOriginal('file_management_status_id') != $fileManagement->file_management_status_id) {
+//                FileManagementStatusLog::create([
+//                    'file_management_id' => $fileManagement->getKey(),
+//                    'file_management_status_id' => $fileManagement->file_management_status_id
+//                ]);
+//            }
+//        });
 
     }
 

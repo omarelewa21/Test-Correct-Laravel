@@ -3,6 +3,7 @@
 namespace tcCore;
 
 use Illuminate\Database\Eloquent\Model;
+use betterapp\LaravelDbEncrypter\Traits\EncryptableDbAttribute;
 
 class UwlrSoapEntry extends Model
 {
@@ -11,22 +12,33 @@ class UwlrSoapEntry extends Model
      *
      * @var array
      */
+    use EncryptableDbAttribute;
+
+        /** @var array The attributes that should be encrypted/decrypted */
+    protected $encryptable = [
+        'object',
+    ];
+
     protected $fillable = ['uwlr_soap_result_id', 'key', 'object'];
 
     public static function deleteImportDataForSchoolLocationId($id, $resultSetId = false)
     {
-        SchoolClass::whereSchoolLocationId($id)->each(function ($schoolClass) {
-            $schoolClass->teacher()->forceDelete();
-            $schoolClass->students()->forceDelete();
+        SchoolClass::withoutGlobalScope('visibleOnly')->withTrashed()->whereSchoolLocationId($id)->each(function ($schoolClass) {
+            $schoolClass->teacher()->withTrashed()->forceDelete();
+            $schoolClass->students()->withTrashed()->forceDelete();
             $schoolClass->forceDelete();
         });
 
-        User::whereSchoolLocationId($id)->each(function($user) {
+        $userIdsToDelete = [];
+        User::whereSchoolLocationId($id)->withTrashed()->each(function($user) use (&$userIdsToDelete){
             $user->eckidFromRelation()->forceDelete();
             if(!$user->isA('school manager')) {
-                $user->forceDelete();
+                $userIdsToDelete[] = $user->getKey();
             }
         });
+        if(count($userIdsToDelete)){
+            User::whereIn('id',$userIdsToDelete)->forceDelete();
+        }
         $schoolLocation = SchoolLocation::find($id);
         if($resultSetId) {
             $set = UwlrSoapResult::find($resultSetId);

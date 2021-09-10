@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +38,16 @@ class FileManagementController extends Controller
     public function getStatuses()
     {
         return Response(FileManagementStatus::all(), 200);
+    }
+
+    public function getFormId()
+    {
+        $formId = Str::uuid();
+        $fileManagement = FileManagement::where('form_id',$formId)->first();
+        if(is_null($fileManagement)){
+            return Response($formId, 200);
+        }
+        return $this->getFormId();
     }
 
     protected function sendInvite(FileManagement $fileManagement)
@@ -96,7 +107,8 @@ class FileManagementController extends Controller
 
             DB::rollback();
             $errorMsg = 'Het is helaas niet gelukt om de formulier gegevens te verwerken, probeer het nogmaals.';
-            Response::make($errorMsg, 500);
+            Bugsnag::notifyException($e);
+            return Response::make($errorMsg, 500);
 
         }
         DB::commit();
@@ -224,7 +236,7 @@ class FileManagementController extends Controller
     private function handleFormSubmission(SchoolLocation $schoolLocation, CreateTestUploadRequest $request, $form_id): FileManagement
     {
         $data = [
-            'id'                 => Str::uuid(),
+            'id'                 => $form_id,
             'origname'           => '',
             'name'               => '',
             'user_id'            => Auth::user()->getKey(),
@@ -240,6 +252,7 @@ class FileManagementController extends Controller
                 'multiple'             => $request->get('multiple'),
                 'form_id'              => $request->get('form_id')
             ],
+            'form_id'           => $form_id,
         ];
 
         $main = new FileManagement();
@@ -289,10 +302,11 @@ class FileManagementController extends Controller
             'user_id'            => Auth::user()->getKey(),
             'school_location_id' => $schoolLocation->getKey(),
             'type'               => 'testupload',
-            'typedetails'        => []
+            'typedetails'        => [],
+            'form_id'            => $form_id
         ];
 
-
+        $parent = FileManagement::where('form_id',$form_id)->whereNull('parent_id')->first();
         $child = new FileManagement();
 
         $data['id'] = Str::uuid();
@@ -302,16 +316,20 @@ class FileManagementController extends Controller
         $origfileName = $file->getClientOriginalName();
         $nameOnly = explode('.', $origfileName)[0];
 
-        $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5), $nameOnly, pathinfo($origfileName, PATHINFO_EXTENSION));
-
+        if(!is_null($parent)){
+            $fileName = sprintf('%s-%s-%s-%s.%s', date('YmdHis'), Str::random(5), Str::slug($parent->name), $parent->subject, pathinfo($origfileName, PATHINFO_EXTENSION));
+            $data['typedetails'] = $parent->typedetails;
+        }else{
+            $fileName = sprintf('%s-%s-%s.%s', date('YmdHis'), Str::random(5), $nameOnly, pathinfo($origfileName, PATHINFO_EXTENSION));
+        }
         $file->move(sprintf('%s/%s', $this->getBasePath(), $schoolLocation->getKey()), $fileName);
 
         $data['origname'] = $origfileName;
         $data['name'] = $fileName;
 
         $child->fill($data);
-
         $child->save();
+
         return $child;
     }
 

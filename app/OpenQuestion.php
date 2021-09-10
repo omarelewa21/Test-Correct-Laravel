@@ -4,6 +4,7 @@ use tcCore\Lib\Question\QuestionInterface;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Scopes\RemoveUuidScope;
 use tcCore\Traits\UuidTrait;
 
 class OpenQuestion extends Question implements QuestionInterface {
@@ -41,6 +42,11 @@ class OpenQuestion extends Question implements QuestionInterface {
      * @var array
      */
     protected $hidden = [];
+//
+//    protected static function booted()
+//    {
+//        static::addGlobalScope(new RemoveUuidScope);
+//    }
 
     public function question() {
 

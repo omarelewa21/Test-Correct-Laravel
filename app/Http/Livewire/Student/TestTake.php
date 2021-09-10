@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
@@ -22,10 +23,17 @@ class TestTake extends Component
      *  time in milliseconds a notification is shown
      */
     public $notificationTimeout = 5000;
-    protected $listeners = [
-        'set-force-taken-away' => 'setForceTakenAway',
-        'checkConfirmedEvents' => 'checkConfirmedEvents'
-    ];
+
+    protected function getListeners()
+    {
+        return [
+            'set-force-taken-away'                                                                  => 'setForceTakenAway',
+            'checkConfirmedEvents'                                                                  => 'checkConfirmedEvents',
+            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeForceTakenAway' => 'setForceTakenAway',
+            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeReopened'       => 'testTakeReopened',
+            'studentInactive'                                                                       => 'handleInactiveStudent'
+        ];
+    }
 
     public function render()
     {
@@ -46,13 +54,7 @@ class TestTake extends Component
             //error handling
         }
 
-        $temporaryLogin = TemporaryLogin::create(
-            ['user_id' => $testParticipant->user_id]
-        );
-        $redirectUrl = $temporaryLogin->createCakeUrl();
-
-        session()->flush();
-        return redirect()->to($redirectUrl);
+        $testParticipant->user->redirectToCakeWithTemporaryLogin();
     }
 
     public function createTestTakeEvent($event)
@@ -79,8 +81,9 @@ class TestTake extends Component
         return $eventType;
     }
 
-    public function setForceTakenAway()
+    public function setForceTakenAway($eventData = null)
     {
+        $this->dispatchBrowserEvent('force-taken-away-blur', ['shouldBlur' => true]);
         $this->forceTakenAwayModal = true;
     }
 
@@ -97,5 +100,20 @@ class TestTake extends Component
         if ($eventConfirmed == 1) {
             $this->createTestTakeEvent($reason);
         }
+    }
+
+    public function testTakeReopened($eventData)
+    {
+        $this->dispatchBrowserEvent('force-taken-away-blur', ['shouldBlur' => false]);
+        $this->forceTakenAwayModal = false;
+    }
+
+    public function handleInactiveStudent()
+    {
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        $this->redirect(config('app.url_login'));
     }
 }

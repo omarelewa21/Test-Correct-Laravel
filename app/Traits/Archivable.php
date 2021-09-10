@@ -47,7 +47,7 @@ trait Archivable
 
     public function scopeFilterByArchived($query, $filter)
     {
-        if (array_key_exists('archived', $filter) && $filter['archived'] == '0') {
+        if ($filter != null && array_key_exists('archived', $filter) && $filter['archived'] == '0') {
             $query->whereNull('archivable_model_id');
         }
         return $query;

@@ -1,10 +1,18 @@
 <x-layouts.app>
-    <div class="w-full flex flex-col mb-5" >
+    <div class="w-full flex flex-col mb-5"  selid="testtake-layout">
+        @if($testParticipant->intense)
+            <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
+        @endif
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
         <div>
+            @push('styling')
+                <style>
+                    {!! $styling !!}
+                </style>
+            @endpush
             @foreach($data as  $key => $testQuestion)
-                <div>
-                    @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1)
+                <div selid="testtake-question">
+                    @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
                         <livewire:question.multiple-select-question
                             :question="$testQuestion"
                             :number="++$key"
@@ -81,7 +89,9 @@
                 </x-button.text-button>
                 <x-button.cta x-show="display.turnin"
                         size="sm"
-                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{ $nav->count() }})">
+                        onclick="livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).call('toOverview', {{ $nav->count() }})"
+                        @click="$dispatch('show-loader')"
+                >
                     <span>{{ __('test_take.overview') }}</span>
                 </x-button.cta>
                 <x-button.primary x-show="display.next"
@@ -96,7 +106,7 @@
             <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()"/>
         </x-slot>
         <x-slot name="fraudDetection">
-            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()"/>
+            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testTakeUuid="$uuid"/>
         </x-slot>
     </div>
     @push('scripts')

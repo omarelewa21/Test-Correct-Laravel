@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Question;
 
+use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\Answer;
 use tcCore\Http\Traits\WithUpdatingHandling;
@@ -104,6 +105,7 @@ class Navigation extends Component
         } else {
             return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
         }
+        return true;
     }
 
     public function updateQuestionIndicatorColor($questionNumber)

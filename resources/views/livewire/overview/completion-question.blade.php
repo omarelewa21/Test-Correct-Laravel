@@ -13,10 +13,11 @@
                         el.classList.add('border-red')
                     }
                  });
+                 setTitlesOnLoad($el);
                  ">
 
         <div>
-            <x-input.group class="body1 max-w-full" for="" x-data="">
+            <x-input.group class="body1 max-w-full flex-col" for="" x-data="">
                 {!! $html !!}
             </x-input.group>
         </div>

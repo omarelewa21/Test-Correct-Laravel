@@ -147,13 +147,11 @@ class TeachersController extends Controller
         try {
             $teachers = collect($request->all()['data'])->map(function ($row) use ($defaultData) {
                 $attributes = array_merge($row, $defaultData);
-                logger($attributes);
 
                 $user = User::where('username', $attributes['username'])->first();
                 if ($user) {
                     if ($user->isA('teacher')) {
                         $this->handleExternalId($user, $attributes);
-                        return $user;
                     } else {
                         throw new \Exception('conflict: exists but not teacher');
                     }
@@ -196,13 +194,13 @@ class TeachersController extends Controller
         if (!array_key_exists('school_location_id', $attributes)) {
             return;
         }
-        $schoolLocations = $user->schoolLocations;
+        $schoolLocations = $user->allowedSchoolLocations;
         foreach ($schoolLocations as $schoolLocation) {
             if ($schoolLocation->pivot->external_id == $attributes['external_id'] && $attributes['school_location_id'] == $schoolLocation->id) {
                 return;
             }
         }
-        $user->schoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+        $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
     }
 
     public function updateWithSubjectsForClusterClasses(UpdateWithSubjectsForClusterClassesRequest $request)

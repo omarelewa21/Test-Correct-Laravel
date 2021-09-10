@@ -3,9 +3,12 @@
 /public/storage
 /public/vendor
 .env
+.env.orig
+.env.staging
 .envBackupWhileStresstest
 .envBackupWhileSeleniumtest
 .env.selenium
+.env.orig
 .idea
 /storage
 /storage/*.key

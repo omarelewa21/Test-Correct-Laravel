@@ -50,6 +50,7 @@
              }, 1000);
          "
      x-on:mark-infoscreen-as-seen.window="if('{{ $this->question->uuid }}' == $event.detail){ $wire.markAsSeen($event.detail) }"
+     x-on:force-taken-away-blur.window="$el.style.opacity = $event.detail.shouldBlur ? 0 : 1 ;"
 >
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed)
@@ -72,7 +73,7 @@
                 <x-icon.locked class="ml-2"/>
             @endif
 
-            <h1 class="inline-block ml-2 mr-6">{!! __($question->caption) !!}</h1>
+            <h1 class="inline-block ml-2 mr-6" selid="questiontitle">{!! __($question->caption) !!}</h1>
 
             @if ($question->score > 0)
                 <h4 class="inline-block">{{ $question->score }} pt</h4>

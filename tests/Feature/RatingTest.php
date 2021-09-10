@@ -49,7 +49,77 @@ class RatingTest extends TestCase
         
      }
 
+    /** @test */
+    public function rating_is_corrected_for_disabling_questions_in_group()
+    {
+        $this->setupToets2();
+    }
 
+    private function setupToets2()
+    {
+        $attributes = $this->getAttributesForTest();
+        unset($attributes['school_classes']);
+        $this->createTLCTest($attributes);
+        $groupId = $this->addQuestionGroupAndReturnId($this->originalTestId);
+        $this->addOpenQuestionToGroup($groupId);
+        $this->addOpenQuestionToGroup($groupId);
+        $this->addOpenQuestionToGroup($groupId);
+        $groupId = $this->addQuestionGroupAndReturnId($this->originalTestId);
+        $this->addOpenQuestionToGroup($groupId);
+        $this->addOpenQuestionToGroup($groupId);
+        $this->addOpenQuestionToGroup($groupId);
+
+    }
+
+
+    private function getAttributesForTest(){
+
+        return $this->getTestAttributes([
+            'name'                   => 'TToets van GM7',
+            'abbreviation'           => 'TTGM7',
+            'subject_id'             => '6',
+            'introduction'           => 'intro',
+        ]);
+
+    }
+
+
+
+    private function addOpenQuestionToGroup(int $groupId)
+    {
+
+        $response = $this->post(
+            sprintf('group_question_question/%d', $groupId),
+            static::getTeacherOneAuthRequestData(
+                $this->getGroupOpenQuestionAttributes()
+            )
+        );
+
+        $response->assertStatus(200);
+
+        return $response->decodeResponseJson()['id'];
+    }
+
+    private function getGroupOpenQuestionAttributes(array $overrides = []): array
+    {
+        return array_merge([
+            'question'               => '<p>vraag</p>\r\n',
+            'answer'                 => '<p>antoord</p>\r\n',
+            'type'                   => 'OpenQuestion',
+            'score'                  => '5',
+            'order'                  => 0,
+            'subtype'                => 'short',
+            'maintain_position'      => 0,
+            'discuss'                => '1',
+            'decimal_score'          => '0',
+            'add_to_database'        => 1,
+            'attainments'            => [],
+            'note_type'              => 'NONE',
+            'is_open_source_content' => 1,
+            'tags'                   => [],
+            'rtti'                   => null,
+        ], $overrides);
+    }
 
      private function getCorrectAnswersScenario1(){
         return [

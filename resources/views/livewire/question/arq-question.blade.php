@@ -1,6 +1,4 @@
 <x-partials.question-container :number="$number" :question="$question">
-
-
     <div class="flex flex-1">
         <div class="w-full space-y-3">
             <div>
@@ -21,7 +19,7 @@
                     </div>
                     <div class="divider my-2"></div>
                     <div class="space-y-2">
-                        @foreach( $question->multipleChoiceQuestionAnswers as $loopCount => $link)
+                        @foreach($question->multipleChoiceQuestionAnswers as $loopCount => $link)
                             <label id="arq_{{$link->id}}" wire:key="arq_{{$link->id}}"
                                 class="flex p-5 border-2 border-blue-grey rounded-10 base multiple-choice-question
                                 transition ease-in-out duration-150 {!! ($this->answer == $link->id) ? 'active' :'' !!}
@@ -34,6 +32,7 @@
                                     type="radio"
                                     class="hidden"
                                     value="{{ $link->id }}"
+
                                 >
                                 <span id="arq_option_1{{$loopCount}}_{{$link->id}}" wire:key="arq_option_1{{$loopCount}}_{{$link->id}}" class="w-16 mr-4">{{ __($this->arqStructure[$loopCount][0]) }}</span>
                                 <span id="arq_option_2{{$loopCount}}_{{$link->id}}" wire:key="arq_option_2{{$loopCount}}_{{$link->id}}" class="w-20 mr-4">{{ __($this->arqStructure[$loopCount][1]) }}</span>

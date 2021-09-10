@@ -25,6 +25,7 @@ trait WithGroups
             } else {
                 $this->group = $groupQuestions->first()->groupQuestion;
             }
+            $this->group->load('attachments');
         }
     }
 }

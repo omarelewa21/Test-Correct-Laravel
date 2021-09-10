@@ -1,8 +1,11 @@
 <?php namespace tcCore;
 
+use Carbon\Carbon;
 use Closure;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -77,8 +80,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'invoice_postal', 'invoice_city', 'invoice_country', 'visit_address', 'visit_postal', 'visit_city',
         'visit_country',
         'is_rtti_school_location', 'external_main_code', 'external_sub_code', 'is_open_source_content_creator',
-        'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access', 'lvs_active', 'lvs_type',
-        'sso','sso_type', 'sso_active', 'lvs_authorization_key',
+        'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access', 'lvs_active',
+        'lvs_type',
+        'sso', 'sso_type', 'sso_active', 'lvs_authorization_key',
     ];
 
     /**
@@ -438,6 +442,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     {
         return $this->belongsToMany(Section::class, 'school_location_shared_sections', 'school_location_id',
             'section_id')->withTimestamps();
+    }
+
+    public function schoolYears()
+    {
+        return $this->belongsToMany(SchoolYear::class, 'school_location_school_years', 'school_location_id');
     }
 
     protected function saveSections()
@@ -894,5 +903,83 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public static function getSsoOptions()
     {
         return [SchoolLocation::SSO_ENTREE];
+    }
+
+    public function belongsToSameSchool(SchoolLocation $schoolLocation)
+    {
+        return !is_null($schoolLocation->school_id) && $this->school_id === $schoolLocation->school_id;
+    }
+
+    public function scopeVoOnly($query)
+    {
+        return $query->whereIn(
+            'id',
+            DB::table('school_location_education_levels')
+                ->select(DB::raw('DISTINCT school_location_id'))
+                ->whereRaw("education_level_id IN (
+                    SELECT id FROM education_levels
+                        WHERE  NOT NAME IN (
+                            'uwlr_education_level','MBO-N1','MBO-N2', 'MBO-N3','MBO-N4','HBO Bachelor','HBO Master','WO Bachelor','WO Master', 'Demo','Groep'))"
+                )
+        );
+    }
+
+    public function scopeActiveOnly($query)
+    {
+        return $query->where('activated', 1);
+    }
+
+    public function scopeWithoutSchoolYear($query, $year)
+    {
+        return $query->whereNotIn(
+            'id',
+            SchoolYear::where('year', $year)->get()->map(function ($schoolYear) {
+                return $schoolYear->schoolLocations->pluck('id');
+            })->flatten()
+        );
+    }
+
+    public function addSchoolYearAndPeriod($year, $startDate, $endDate) {
+        $schoolYear = new SchoolYear();
+
+        $schoolYear->fill([
+            'year'             => $year,
+            'school_locations' => [$this->getKey()],
+        ]);
+        $schoolYear->save();
+
+        $periodLocation = (new Period());
+        $periodLocation->fill([
+            'school_year_id'     => $schoolYear->getKey(),
+            'name'               => sprintf('%d-%d',\Carbon\Carbon::parse($startDate)->year,  \Carbon\Carbon::parse($endDate)->year),
+            'school_location_id' =>  $this->getKey(),
+            'start_date'         => \Carbon\Carbon::parse($startDate),
+            'end_date'           => \Carbon\Carbon::parse($endDate),
+        ]);
+        $periodLocation->save();
+    }
+
+    public function scopeNoActivePeriodAtDate($query, $date)
+    {
+        if (is_string($date)) {
+            $date = Carbon::parse($date);
+        }
+
+        if (!$date instanceof Carbon) {
+            throw new \Exception(
+                'date should be a valid date string or an instanceof Carbon'
+            );
+        }
+
+        return $query->whereNotIn('id',
+            Period::where(function($query) use ($date) {
+                return $query
+                    ->where( 'start_date', '>=', $date)
+                    ->orWhere('end_date', '>=', $date);
+            })
+                ->join('school_years', 'school_year_id','school_years.id')
+                ->join('school_location_school_years', 'school_location_school_years.school_year_id', 'school_years.id')
+                ->select('school_location_id')
+        );
     }
 }

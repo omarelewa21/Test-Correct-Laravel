@@ -34,7 +34,7 @@ class Deployment extends Model
     public function handleIfNeeded($oldStatus) : void
     {
         // we don't check, we always fire the call to cake
-        $this->callCakeForMaintenanceCheck();
+//        $this->callCakeForMaintenanceCheck();
 ////        logger('Deployment: handle if needed');
 //        if($oldStatus !== $this->status){
 ////            logger('Deployment: status changed to '.$this->status);

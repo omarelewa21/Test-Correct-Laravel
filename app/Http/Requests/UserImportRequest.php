@@ -65,7 +65,7 @@ class UserImportRequest extends Request {
                                                                         }];
                     $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
                 } else {
-                    $extra_rule[sprintf('data.%d.external_id', $key)] = sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'],  $this->schoolLocation);
+                    $extra_rule[sprintf('data.%d.external_id', $key)] = ['required',sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'],  $this->schoolLocation)];
                 }
             }
         }

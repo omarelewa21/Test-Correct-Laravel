@@ -15,6 +15,7 @@
                                type="radio"
                                class="hidden"
                                value="{{ $link->id }}"
+                               selid="testtake-radiobutton"
                         >
                         <span>{!! $link->answer !!}</span>
                     </label>

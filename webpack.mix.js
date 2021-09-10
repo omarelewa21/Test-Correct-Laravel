@@ -1,4 +1,6 @@
 const mix = require('laravel-mix');
+const fs = require('fs');
+const { execSync } = require('child_process');
 
 /*
  |--------------------------------------------------------------------------
@@ -19,6 +21,10 @@ mix.postCss("resources/css/app.css", "public/css").options({
         require("@tailwindcss/jit"),
     ],
 }).js('resources/js/app.js', 'public/js');
+
+const wirisPath = "node_modules/@wiris/mathtype-ckeditor4";
+mix.copy(wirisPath + "/plugin.js", "public/ckeditor/plugins/ckeditor_wiris/plugin.js")
+    .copyDirectory(wirisPath + "/icons", "public/ckeditor/plugins/ckeditor_wiris/icons");
 
 if (mix.inProduction()) {
     mix.version();
