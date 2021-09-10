@@ -170,11 +170,9 @@ class TestTakeRttiExportController extends Controller
         });
 
         return [
-            'toetsen' => [
-                'toets' => [
-                    'toetscode' => ['!' => $testCode],
-                    'toetssonderdelen' => $toetsOnderdelenAr
-                ],
+            'toets' => [
+                'toetscode' => ['!' => $testCode],
+                'toetssonderdelen' => $toetsOnderdelenAr
             ],
         ];
     }
