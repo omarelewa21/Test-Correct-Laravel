@@ -425,7 +425,7 @@
                                     </div>
                                     <div>
                                         <p class="text-note">
-                                            Op de dienst Test-Correct zijn de <a class="underline primary-hover" href="https://www.test-correct.nl/algemene-voorwaarden/" target="_blank">algemene voorwaarden</a> van The Teach & Learn Company B.V./Test-Correct van toepassing. Door middel van doorklikken naar de volgende stap bevestigt u dat u de algemene voorwaarden heeft ontvangen, gelezen en begrepen.
+                                            Op de dienst Test-Correct zijn de <a class="underline primary-hover" href="https://support.test-correct.nl/hubfs/Downloads%20Documenten%20Website/Algemene-Voorwaarden-2021-The-Teach-and-Learn-Company-BV-Test-Correct-versie-20210618.pdf" target="_blank">algemene voorwaarden</a> van The Teach & Learn Company B.V./Test-Correct van toepassing. Door middel van doorklikken naar de volgende stap bevestigt u dat u de algemene voorwaarden heeft ontvangen, gelezen en begrepen.
                                         </p>
                                     </div>
                                     <div class="mb-16">
