@@ -124,9 +124,9 @@ class TestTake extends Component
         $participant = TestParticipant::findOrFail($this->testParticipantId);
 
         if(!$participant->canUseBrowserTesting() && !$participant->isUsingApp()) {
-            $options = TemporaryLogin::createOptionsForRedirect(
-                'redirect_reason',
-                [__('browser_testing_disabled_notification') => 'error']
+            $options = TemporaryLogin::buildValidOptionObject(
+                'notification',
+                [__('student.browser_testing_disabled_notification') => 'error']
             );
             $this->returnToDashboard($options);
         }

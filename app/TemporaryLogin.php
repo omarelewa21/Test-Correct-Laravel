@@ -68,7 +68,24 @@ class TemporaryLogin extends Model
         return $result;
     }
 
-    public static function createOptionsForRedirect($option, $optionValue)
+    public static function createWithOptionsForUser($option, $optionValue, User $user)
+    {
+        $temporaryLogin = self::createForUser($user);
+
+        if($options = self::buildValidOptionObject($option, $optionValue)) {
+            $temporaryLogin->setAttribute('options', $options)->save();
+        }
+        return $temporaryLogin;
+    }
+
+
+    /**
+     * @param $option
+     * @param $optionValue
+     * @param bool $toJson
+     * @return array|null
+     */
+    public static function buildValidOptionObject($option, $optionValue, $toJson = true)
     {
         if (is_array($option)) {
             if (!is_array($optionValue) || count($option) != count($optionValue)) {
@@ -80,13 +97,18 @@ class TemporaryLogin extends Model
                 $options[$value] = $optionValue[$key];
             }
 
-            return json_encode($options);
+            return $toJson ? json_encode($options) : $options;
         }
 
-        if (is_array($optionValue) && is_array($optionValue[0])) {
+        if (is_array($optionValue) && (isset($optionValue[0]) && is_array($optionValue[0]))) {
             return null;
         }
 
-        return json_encode([$option => $optionValue]);
+        return $toJson ? json_encode([$option => $optionValue]) : [$option => $optionValue];
+    }
+
+    public static function getOptionsForUser(User $user)
+    {
+        return TemporaryLogin::whereUserId($user->getKey())->value('options');
     }
 }

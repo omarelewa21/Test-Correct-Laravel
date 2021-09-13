@@ -22,6 +22,7 @@ use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use tcCore\LoginLog;
+use tcCore\TemporaryLogin;
 use tcCore\User;
 
 class UserHelper
@@ -65,7 +66,7 @@ class UserHelper
 
         $user->setAttribute('hasSharedSections',$user->hasSharedSections());
 
-        $user->setAttribute('temporaryLoginOptions', $user->getTemporaryLoginOptions());
+        $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
 
         $user->makeOnboardWizardIfNeeded();
         $user->createGeneralTermsLogIfRequired();
