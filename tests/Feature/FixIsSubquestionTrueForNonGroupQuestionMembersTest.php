@@ -15,26 +15,34 @@ use Tests\TestCase;
 
 class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
 {
-    //use DatabaseTransactions;
+    use DatabaseTransactions;
 
 
     /** @test */
     public function testCommandFixIsSubquestionTrueNonGroupMember()
     {
-        $question = Question::where('derived_question_id',11)->first();
-        $this->assertNull($question);
-        //$this->setUpScenario1();
-        //Artisan::call('fix:isSubquestionTrueNonGroupMember');
-        //$this->checkScenario1();
-//        $question  = Question::find(23);
-//        dump($question);
-//        dump([env('DB_DATABASE'),env('DB_HOST'),config('database.default')]);
-        $this->setUpScenario2();
-        Artisan::call('fix:isSubquestionTrueNonGroupMember');
-        $this->checkScenario2();
+//        $question = Question::where('derived_question_id',11)->first();
+//        $this->assertNull($question);
+//        $this->setUpScenario1();
+//        Artisan::call('fix:isSubquestionTrueNonGroupMember');
+//        $this->checkScenario1();
+//
+//        $this->setUpScenario2();
+//        Artisan::call('fix:isSubquestionTrueNonGroupMember');
+//        $this->checkScenario2();
+
+//        Artisan::call('test:refreshdb');
+
+            $this->setUpScenario3();
+            Artisan::call('fix:isSubquestionTrueNonGroupMember');
+            $this->checkScenario3();
+
+//          $this->setUpScenario4();
+//          Artisan::call('fix:isSubquestionTrueNonGroupMember');
+//          $this->checkScenario4();
     }
 
-    //Test not taken. Question not in other tests
+    //Test not taken. Question not in other tests. Question is in answers
     private function setUpScenario1()
     {
         $questionId = 11;
@@ -53,7 +61,7 @@ class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
         $this->assertNull($test);
     }
 
-    //Test not taken. Question not in other tests
+    //Test not taken. Question not in other tests or answers
     private function setUpScenario2()
     {
         $questionId = 16;
@@ -72,6 +80,50 @@ class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
         $test = Test::where('derived_test_id',7)->first();
         $this->assertNull($test);
         $question = Question::find(16);
+        $this->assertFalse((bool) $question->getQuestionInstance()->is_subquestion);
+    }
+
+    //Test is taken. Question not in other tests or answers
+    private function setUpScenario3()
+    {
+        $questionId = 16;
+        $testId = 7;
+        $this->setIsSystemTestFalse($testId);
+        $this->setQuestionIsSubQuestion($questionId);
+        $this->removeOtherTestQuestions($questionId,$testId);
+        $this->setTestTakeStatus($testId,9);
+    }
+
+    //question is copied. Test is copied.
+    private function checkScenario3()
+    {
+        $question = Question::where('derived_question_id',16)->first();
+        $this->assertNotNull($question);
+        $test = Test::where('derived_test_id',7)->first();
+        $this->assertNotNull($test);
+        $this->assertFalse((bool) $question->getQuestionInstance()->is_subquestion);
+        $question = Question::find(16);
+        $this->assertTrue((bool) $question->getQuestionInstance()->is_subquestion);
+    }
+
+    //Test is taken. Question in other tests and answers
+    private function setUpScenario4()
+    {
+        $questionId = 16;
+        $testId = 7;
+        $this->setIsSystemTestFalse($testId);
+        $this->setQuestionIsSubQuestion($questionId);
+        $this->setTestTakeStatus($testId,9);
+    }
+
+    //question is copied. Test is not copied.
+    private function checkScenario4()
+    {
+        $question = Question::where('derived_question_id',16)->first();
+        $this->assertNotNull($question);
+        $test = Test::where('derived_test_id',7)->first();
+        $this->assertNotNull($test);
+        $question = Question::find(16);
 
 
         $this->assertFalse((bool) $question->getQuestionInstance()->is_subquestion);
@@ -87,6 +139,11 @@ class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
     private function removeOtherTestQuestions($questionId,$testId)
     {
         DB::table('test_questions')->where('test_id','!=',$testId)->where('question_id',$questionId)->delete();
+    }
+
+    private function setTestTakeStatus($testId,$status)
+    {
+        DB::table('test_takes')->where('test_id',$testId)->update(['test_take_status_id'=>$status]);
     }
 
     private function removeAllAnswers($questionId)

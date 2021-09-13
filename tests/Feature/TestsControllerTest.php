@@ -3,8 +3,10 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use tcCore\Question;
 use tcCore\Test;
 use tcCore\TestQuestion;
+use tcCore\TestTake;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,6 +16,7 @@ use Tests\Traits\OpenQuestionTrait;
 use Tests\Traits\TestTrait;
 use Tests\Traits\CompletionQuestionTrait;
 use Tests\Traits\GroupQuestionTrait;
+use Tests\Traits\TestTakeTrait;
 
 class TestsControllerTest extends TestCase
 {
@@ -23,6 +26,7 @@ class TestsControllerTest extends TestCase
     use OpenQuestionTrait;
     use CompletionQuestionTrait;
     use GroupQuestionTrait;
+    use TestTakeTrait;
 
     private $originalTestId;
     private $originalQuestionId;
@@ -212,6 +216,28 @@ class TestsControllerTest extends TestCase
         foreach ($groupTestQuestion->question->groupQuestionQuestions as $groupQuestionQuestion){
             $this->assertEquals(6,$groupQuestionQuestion->question->subject_id);
         }
+    }
+
+    /** @test */
+    public function it_should_copy_test_when_is_used_and_question_is_modified()
+    {
+        $testId = 1;
+        $questionId = 11;
+        $testQuestion = TestQuestion::where('question_id',$questionId)->where('test_id',$testId)->firstOrFail();
+        $uuidTestQuestion = $testQuestion->uuid;
+        $testTakeId = $this->initDefaultTestTake($testId);
+        //$testTake = TestTake::find($testTakeId);
+        //$testTakeUuid = $testTake->uuid;
+        //$this->initTestTakeForClass1($testTakeUuid);
+        $attributes = $this->getOpenQuestionAttributes(['test_id'=>$testId,'question'=>'open vraag van GM']);
+        //$this->editOpenQuestion($uuidTestQuestion,$attributes);
+//        $question = Question::where('derived_question_id',11)->first();
+//        $this->assertNotNull($question);
+//        $this->assertEquals('open vraag van GM',$question->getQuestionInstance()->question);
+        $test = Test::where('derived_test_id',1)->first();
+        $this->assertNotNull($test);
+        $question = Question::find(11);
+        $this->assertEquals('<p>Open kort</p>',trim($question->getQuestionInstance()->question));
     }
 
     private function setupScenario1(){
