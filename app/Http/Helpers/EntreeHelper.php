@@ -231,6 +231,13 @@ class EntreeHelper
         }
 
         if (!array_key_exists('mail', $this->attr) || !array_key_exists(0, $this->attr['mail'])) {
+            logger('No mail found');
+            logger('==== credentials ====');
+            $attr = $this->attr;
+            unset($attr['eckId']);
+            logger($attr);
+            logger('=======');
+
             throw new \Exception('no mail found in saml request');
         }
     }
