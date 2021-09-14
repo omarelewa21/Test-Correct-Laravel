@@ -163,6 +163,7 @@ trait TestTakeTrait
             "question_id"=> $questionId,
             "take_question_index"=> 0,
             "take_id"=> $takeId,
+            "close_action" => ''
         ];
         $response = $this->put(
             sprintf('api-c/test_participant/%s/answer2019/%s?',$testParticipantUuid,$answerUuid),
