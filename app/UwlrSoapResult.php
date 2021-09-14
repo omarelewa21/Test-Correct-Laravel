@@ -225,13 +225,19 @@ class UwlrSoapResult extends Model
         $leerling = (array) $leerling;
         if(array_key_exists('groep',$leerling)) {
             collect($leerling['groep'])->each(function ($groep) use ($leerling, $school, $repo) {
-
+                if(!$groep) {
+                    return;
+                }
                 $groepKey = $groep;
 
                 $klas = (array)$repo->get('groep')->first(function ($groep) use ($groepKey) {
                     $groep = (array)$groep;
                     return $groepKey === $groep['key'];
                 });
+
+                if(empty($klas)){
+                    return;
+                }
 
                 $leerkracht = (array)$repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
                     $teacher = (array)$teacher;
