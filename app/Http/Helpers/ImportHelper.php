@@ -12,8 +12,16 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
+use tcCore\Jobs\CountSchoolLocationActiveTeachers;
+use tcCore\Jobs\CountSchoolLocationQuestions;
+use tcCore\Jobs\CountSchoolLocationStudents;
+use tcCore\Jobs\CountSchoolLocationTeachers;
+use tcCore\Jobs\CountSchoolLocationTests;
+use tcCore\Jobs\CountSchoolLocationTestsTaken;
+use tcCore\Lib\Repositories\StatisticsRepository;
 use tcCore\User;
 use tcCore\Lib\User\Factory;
 use tcCore\Teacher;
@@ -231,6 +239,8 @@ class ImportHelper
 
     public function process()
     {
+
+        GlobalStateHelper::getInstance()->setQueueAllowed(false);
 
         $this->csv_data_lines = count($this->csv_data) - 1;// first row is header
 
@@ -750,6 +760,11 @@ class ImportHelper
                                 SchoolClass::withoutGlobalScope('visibleOnly')->where('id', $id['id'])->delete();
                             }
                         }
+
+                        GlobalStateHelper::getInstance()->setQueueAllowed(true);
+                        $schoolLocation = SchoolLocation::find($school_location_id);
+                        StatisticsRepository::runForSchoolLocationAndRole($schoolLocation,'student');
+                        StatisticsRepository::runForSchoolLocationAndRole($schoolLocation,'teacher');
                     }
                 }
             }
@@ -757,7 +772,11 @@ class ImportHelper
                 throw new \Exception('collected errors');
             }
         } catch (\Throwable $e) {
-            $failure_messages = [sprintf('Error detected: %s', $e->getMessage())];
+            $failure_messages = [sprintf('Error detected: %s', $e->getTraceAsString())];
+            $failure_messages[] = $e->getMessage();
+            $failure_messages[] = $e->getFile();
+            $failure_messages[] = $e->getLine();
+
             $failure_messages[] = 'Initiating rollback;';
             DB::rollback();
             $failure_messages[] = 'Rollback completed;';

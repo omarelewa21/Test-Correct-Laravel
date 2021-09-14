@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ImportHelper;
+use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\CountSchoolActiveTeachers;
 use tcCore\Jobs\CountSchoolLocationActiveTeachers;
@@ -37,6 +38,7 @@ use tcCore\Lib\Models\BaseModel;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use tcCore\Lib\Repositories\StatisticsRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
@@ -67,6 +69,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     protected $appends = ['has_text2speech', 'active_text2speech', 'external_id'];
 
+    protected $uniqueJobs = [];
+
     const STUDENT_IMPORT_EMAIL_PATTERN = 's_%d@test-correct.nl';
     const TEACHER_IMPORT_EMAIL_PATTERN = 't_%d@test-correct.nl';
 
@@ -83,6 +87,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
         'invited_by', 'account_verified'
     ];
+
 
 
     /**
@@ -642,47 +647,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $user->getKey() . ' - ' . $user->getAttribute('profile_image_name'));
             }
 
+            // Reload roles of this user!
+            $user->load('roles');
+            $roles = Roles::getUserRoles($user);
+
+            if($user->getAttribute('text2speech') !== $user->getOriginal('text2speech')){
+                if (in_array('Student', $roles)) {
+                    $user->addJobUnique(new CountSchoolLocationStudents($user->schoolLocation));
+                }
+            }
+
             //Trigger jobs
 //			if ($user->getAttribute('school_id') !== $user->getOriginal('school_id') || $user->getAttribute('school_location_id') !== $user->getOriginal('school_location_id')) {
             if ($user->getAttribute('school_id') !== $user->getOriginal('school_id') ||
-                $user->getAttribute('school_location_id') !== $user->getOriginal('school_location_id') ||
-                $user->getAttribute('text2speech') !== $user->getOriginal('text2speech')) {
+                $user->getAttribute('school_location_id') !== $user->getOriginal('school_location_id')) {
                 // Reload roles of this user!
                 $user->load('roles');
                 $roles = Roles::getUserRoles($user);
 
-                $school = $user->school;
-                $schoolLocation = $user->schoolLocation;
-
-                if ($user->getAttribute('school_id') !== $user->getOriginal('school_id')) {
-                    $prevSchool = School::find($user->getOriginal('school_id'));
-                } else {
-                    $prevSchool = null;
-                }
-
-                if ($user->getAttribute('school_location_id') !== $user->getOriginal('school_location_id')) {
-                    #MF 2020-11-17 changed School::find to SchoolLocation::find because of errors in jobs;
-                    $prevSchoolLocation = SchoolLocation::find($user->getOriginal('school_location_id'));
-                } else {
-                    $prevSchoolLocation = null;
-                }
 
                 if (in_array('Student', $roles)) {
-                    if ($school !== null) {
-                        Queue::push(new CountSchoolStudents($school));
-                    }
 
-                    if ($schoolLocation !== null) {
-                        Queue::push(new CountSchoolLocationStudents($schoolLocation));
-                    }
-
-                    if ($prevSchool !== null) {
-                        Queue::push(new CountSchoolStudents($prevSchool));
-                    }
-
-                    if ($prevSchoolLocation !== null) {
-                        Queue::push(new CountSchoolLocationStudents($prevSchoolLocation));
-                    }
+                    StatisticsRepository::runBasedOnUser($user);
 
                     //Delete from future test takes
                     TestParticipant::where('user_id', $user->getKey())->whereIn('test_take_id', function ($query) {
@@ -696,72 +682,39 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     })->delete();
                 }
 
-                if (in_array('Teacher', $roles)) {
-                    if ($school !== null) {
-                        Queue::push(new CountSchoolTeachers($school));
-                        Queue::push(new CountSchoolActiveTeachers($school));
-                        Queue::push(new CountSchoolQuestions($school));
-                        Queue::push(new CountSchoolTests($school));
-                        Queue::push(new CountSchoolTestsTaken($school));
-                    }
-
-                    if ($schoolLocation !== null) {
-                        Queue::push(new CountSchoolLocationTeachers($schoolLocation));
-                        Queue::push(new CountSchoolLocationActiveTeachers($schoolLocation));
-                        Queue::push(new CountSchoolLocationQuestions($schoolLocation));
-                        Queue::push(new CountSchoolLocationTests($schoolLocation));
-                        Queue::push(new CountSchoolLocationTestsTaken($schoolLocation));
-                    }
-
-                    if ($prevSchool !== null) {
-                        Queue::push(new CountSchoolTeachers($prevSchool));
-                        Queue::push(new CountSchoolActiveTeachers($prevSchool));
-                        Queue::push(new CountSchoolQuestions($prevSchool));
-                        Queue::push(new CountSchoolTests($prevSchool));
-                        Queue::push(new CountSchoolTestsTaken($prevSchool));
-                    }
-
-                    if ($prevSchoolLocation !== null) {
-                        Queue::push(new CountSchoolLocationTeachers($prevSchoolLocation));
-                        Queue::push(new CountSchoolLocationActiveTeachers($prevSchoolLocation));
-                        Queue::push(new CountSchoolLocationQuestions($prevSchoolLocation));
-                        Queue::push(new CountSchoolLocationTests($prevSchoolLocation));
-                        Queue::push(new CountSchoolLocationTestsTaken($prevSchoolLocation));
-                    }
-                }
             } else {
                 $school = $user->school;
                 $schoolLocation = $user->schoolLocation;
 
                 if ($user->getAttribute('count_last_test_taken') !== $user->getOriginal('count_last_test_taken')) {
                     if ($school !== null) {
-                        Queue::push(new CountSchoolActiveTeachers($school));
+                        $user->addJobUnique(new CountSchoolActiveTeachers($school));
                     } elseif ($schoolLocation !== null) {
-                        Queue::push(new CountSchoolLocationActiveTeachers($schoolLocation));
+                        $user->addJobUnique(new CountSchoolLocationActiveTeachers($schoolLocation));
                     }
                 }
 
                 if ($user->getAttribute('count_questions') !== $user->getOriginal('count_questions')) {
                     if ($school !== null) {
-                        Queue::push(new CountSchoolQuestions($school));
+                        $user->addJobUnique(new CountSchoolQuestions($school));
                     } elseif ($schoolLocation !== null) {
-                        Queue::push(new CountSchoolLocationQuestions($schoolLocation));
+                        $user->addJobUnique(new CountSchoolLocationQuestions($schoolLocation));
                     }
                 }
 
                 if ($user->getAttribute('count_tests') !== $user->getOriginal('count_tests')) {
                     if ($school !== null) {
-                        Queue::push(new CountSchoolTests($school));
+                        $user->addJobUnique(new CountSchoolTests($school));
                     } elseif ($schoolLocation !== null) {
-                        Queue::push(new CountSchoolLocationTests($schoolLocation));
+                        $user->addJobUnique(new CountSchoolLocationTests($schoolLocation));
                     }
                 }
 
                 if ($user->getAttribute('count_tests_taken') !== $user->getOriginal('count_tests_taken')) {
                     if ($school !== null) {
-                        Queue::push(new CountSchoolTestsTaken($school));
+                        $user->addJobUnique(new CountSchoolTestsTaken($school));
                     } elseif ($schoolLocation !== null) {
-                        Queue::push(new CountSchoolLocationTestsTaken($schoolLocation));
+                        $user->addJobUnique(new CountSchoolLocationTestsTaken($schoolLocation));
                     }
                 }
             }
@@ -789,76 +742,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 }
             }
 
-            //Trigger jobs
-            $roles = Roles::getUserRoles($user);
-
-            $school = $user->school;
-            $schoolLocation = $user->schoolLocation;
-
-            if ($user->getAttribute('school_id') !== $user->getOriginal('school_id')) {
-                $prevSchool = School::find($user->getOriginal('school_id'));
-            } else {
-                $prevSchool = null;
-            }
-
-            if ($user->getAttribute('school_location_id') !== $user->getOriginal('school_location_id')) {
-                $prevSchoolLocation = School::find($user->getOriginal('school_location_id'));
-            } else {
-                $prevSchoolLocation = null;
-            }
-
-            if (in_array('Student', $roles)) {
-                if ($school !== null) {
-                    Queue::push(new CountSchoolStudents($school));
-                }
-
-                if ($schoolLocation !== null) {
-                    Queue::push(new CountSchoolLocationStudents($schoolLocation));
-                }
-
-                if ($prevSchool !== null) {
-                    Queue::push(new CountSchoolStudents($prevSchool));
-                }
-
-                if ($prevSchoolLocation !== null) {
-                    Queue::push(new CountSchoolLocationStudents($prevSchoolLocation));
-                }
-            }
-
-            if (in_array('Teacher', $roles)) {
-                if ($school !== null) {
-                    Queue::push(new CountSchoolTeachers($school));
-                    Queue::push(new CountSchoolActiveTeachers($school));
-                    Queue::push(new CountSchoolQuestions($school));
-                    Queue::push(new CountSchoolTests($school));
-                    Queue::push(new CountSchoolTestsTaken($school));
-                }
-
-                if ($schoolLocation !== null) {
-                    Queue::push(new CountSchoolLocationTeachers($schoolLocation));
-                    Queue::push(new CountSchoolLocationActiveTeachers($schoolLocation));
-                    Queue::push(new CountSchoolLocationQuestions($schoolLocation));
-                    Queue::push(new CountSchoolLocationTests($schoolLocation));
-                    Queue::push(new CountSchoolLocationTestsTaken($schoolLocation));
-                }
-
-                if ($prevSchool !== null) {
-                    Queue::push(new CountSchoolTeachers($prevSchool));
-                    Queue::push(new CountSchoolActiveTeachers($prevSchool));
-                    Queue::push(new CountSchoolQuestions($prevSchool));
-                    Queue::push(new CountSchoolTests($prevSchool));
-                    Queue::push(new CountSchoolTestsTaken($prevSchool));
-                }
-
-                if ($prevSchoolLocation !== null) {
-                    Queue::push(new CountSchoolLocationTeachers($prevSchoolLocation));
-                    Queue::push(new CountSchoolLocationActiveTeachers($prevSchoolLocation));
-                    Queue::push(new CountSchoolLocationQuestions($prevSchoolLocation));
-                    Queue::push(new CountSchoolLocationTests($prevSchoolLocation));
-                    Queue::push(new CountSchoolLocationTestsTaken($prevSchoolLocation));
-                }
-            }
-
+            StatisticsRepository::runBasedOnUser($user);
         });
     }
 
@@ -1321,6 +1205,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function isToetsenbakker()
     {
         return (bool)FileManagement::where('handledby', $this->getKey())->where('type', 'testupload')->count();
+    }
+
+    public function isTestCorrectUser()
+    {
+        if(stristr($this->username,'@test-correct.nl')){
+            return true;
+        }
+        return false;
     }
 
     public function hasCitoToetsen()
@@ -2321,5 +2213,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function hasNoActiveLicense()
     {
         return $this->schoolLocation->licenses()->count() == 0 || $this->schoolLocation->licenses()->where('end', '>', Carbon::now())->count() == 0;
+    }
+
+    public function addJobUnique($job)
+    {
+        if(GlobalStateHelper::getInstance()->isQueueAllowed()) {
+            if (!in_array($job, $this->uniqueJobs)) {
+                Queue::push($job);
+                $this->uniqueJobs[] = $job;
+            }
+        }
     }
 }
