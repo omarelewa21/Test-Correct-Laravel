@@ -69,6 +69,8 @@ body {
     font-family: Nunito Regular, sans-serif !important;
     background: var(--light-grey) !important;
     color: var(--system-base);
+    touch-action: manipulation;
+    -ms-touch-action: manipulation;
 }
 
 svg {
