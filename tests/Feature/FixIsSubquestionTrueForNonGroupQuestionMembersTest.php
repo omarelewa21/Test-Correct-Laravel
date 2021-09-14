@@ -8,14 +8,17 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use tcCore\Question;
 use tcCore\Test;
+use tcCore\TestTake;
 use tcCore\User;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\TestTakeTrait;
 
 class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
 {
     use DatabaseTransactions;
+    use TestTakeTrait;
 
 
     /** @test */
@@ -26,7 +29,7 @@ class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
 //        $this->setUpScenario1();
 //        Artisan::call('fix:isSubquestionTrueNonGroupMember');
 //        $this->checkScenario1();
-//
+
 //        $this->setUpScenario2();
 //        Artisan::call('fix:isSubquestionTrueNonGroupMember');
 //        $this->checkScenario2();
@@ -41,6 +44,8 @@ class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
 //          Artisan::call('fix:isSubquestionTrueNonGroupMember');
 //          $this->checkScenario4();
     }
+
+
 
     //Test not taken. Question not in other tests. Question is in answers
     private function setUpScenario1()
@@ -91,7 +96,11 @@ class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
         $this->setIsSystemTestFalse($testId);
         $this->setQuestionIsSubQuestion($questionId);
         $this->removeOtherTestQuestions($questionId,$testId);
-        $this->setTestTakeStatus($testId,9);
+        $testTakeId = $this->initDefaultTestTake($testId);
+        $this->testTakeId = $testTakeId;
+        $testTake = TestTake::find($testTakeId);
+        $testTakeUuid = $testTake->uuid;
+        $this->initTestTakeForClass1($testTakeUuid);
     }
 
     //question is copied. Test is copied.
@@ -99,11 +108,10 @@ class FixIsSubquestionTrueForNonGroupQuestionMembersTest extends TestCase
     {
         $question = Question::where('derived_question_id',16)->first();
         $this->assertNotNull($question);
-        $test = Test::where('derived_test_id',7)->first();
-        $this->assertNotNull($test);
         $this->assertFalse((bool) $question->getQuestionInstance()->is_subquestion);
         $question = Question::find(16);
         $this->assertTrue((bool) $question->getQuestionInstance()->is_subquestion);
+
     }
 
     //Test is taken. Question in other tests and answers

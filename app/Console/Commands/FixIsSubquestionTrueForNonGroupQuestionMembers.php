@@ -47,14 +47,15 @@ class FixIsSubquestionTrueForNonGroupQuestionMembers extends Command
         $results = \DB::select(\DB::raw($this->getSQL()));
         try {
             foreach ($results as $resultObject) {
-                $this->copyTest($resultObject->question_id, $resultObject->test_id, $resultObject->test_question_id);
+                $this->updateOrCopyTestQuestion($resultObject->question_id, $resultObject->test_id, $resultObject->test_question_id);
+                $this->setSystemTestIdToNull($resultObject->test_id);
             }
         }catch(\Exception $e){
             $this->info($e->getMessage());
         }
     }
 
-    private function copyTest($questionId,$testId,$testQuestionId)
+    private function updateOrCopyTestQuestion($questionId,$testId,$testQuestionId)
     {
         $this->loginAuthor($questionId);
         $test = Test::find($testId);
@@ -68,16 +69,25 @@ class FixIsSubquestionTrueForNonGroupQuestionMembers extends Command
             'session_hash' => Auth::user()->session_hash,
             'user'         => Auth::user()->username,
             'id' => $testQuestionId,
-            'subject_id' => $test->subject_id,
-            'education_level_id' => $test->education_level_id,
-            'education_level_year' => $test->education_level_year,
-            'education_level_year' => $test->education_level_year,
+//            'subject_id' => $test->subject_id,
+//            'education_level_id' => $test->education_level_id,
+//            'education_level_year' => $test->education_level_year,
+//            'education_level_year' => $test->education_level_year,
             'is_subquestion' => 0,
         ];
         $testQuestionQuestionId = $questionId;
         $request->merge($params);
         $response = (new TestQuestionsController())->updateFromWithin($testQuestion,  $request);
         Auth::logout();
+    }
+
+    private function setSystemTestIdToNull($testId)
+    {
+        $test = Test::find($testId);
+        if(!is_null($test->system_test_id)){
+            $test->system_test_id = null;
+            $test->save();
+        }
     }
 
     private function getSQL()
@@ -88,7 +98,8 @@ class FixIsSubquestionTrueForNonGroupQuestionMembers extends Command
                             on tests.id = test_questions.test_id
                         left join `questions`	
                             on test_questions.question_id = questions.`id`
-                    where is_subquestion = 1 and questions.deleted_at is null
+                    where is_subquestion = 1 and questions.deleted_at is null and is_system_test = 0
+                    order by tests.id
                     ';
     }
 

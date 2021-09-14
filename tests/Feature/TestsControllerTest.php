@@ -219,25 +219,31 @@ class TestsControllerTest extends TestCase
     }
 
     /** @test */
-    public function it_should_copy_test_when_is_used_and_question_is_modified()
+    public function it_should_copy_test_when_test_is_taken()
     {
         $testId = 1;
         $questionId = 11;
+        $test = Test::find($testId);
+        $systemTestId = $test->system_test_id;
+        $this->assertNull($systemTestId);
+        $origCount = Test::where('name',$test->name)->count();
         $testQuestion = TestQuestion::where('question_id',$questionId)->where('test_id',$testId)->firstOrFail();
         $uuidTestQuestion = $testQuestion->uuid;
         $testTakeId = $this->initDefaultTestTake($testId);
-        //$testTake = TestTake::find($testTakeId);
-        //$testTakeUuid = $testTake->uuid;
-        //$this->initTestTakeForClass1($testTakeUuid);
-        $attributes = $this->getOpenQuestionAttributes(['test_id'=>$testId,'question'=>'open vraag van GM']);
-        //$this->editOpenQuestion($uuidTestQuestion,$attributes);
+        $testTake = TestTake::find($testTakeId);
+        $testTakeUuid = $testTake->uuid;
+        $this->initTestTakeForClass1($testTakeUuid);
+//        $attributes = $this->getOpenQuestionAttributes(['test_id'=>$testId,'question'=>'open vraag van GM']);
+//        $this->editOpenQuestion($uuidTestQuestion,$attributes);
 //        $question = Question::where('derived_question_id',11)->first();
 //        $this->assertNotNull($question);
 //        $this->assertEquals('open vraag van GM',$question->getQuestionInstance()->question);
-        $test = Test::where('derived_test_id',1)->first();
-        $this->assertNotNull($test);
-        $question = Question::find(11);
-        $this->assertEquals('<p>Open kort</p>',trim($question->getQuestionInstance()->question));
+        $systemTestId = Test::find($testId)->system_test_id;
+        $this->assertNotNull($systemTestId);
+        $newCount = Test::where('name',$test->name)->count();
+        $this->assertEquals(($origCount+1),$newCount);
+//        $question = Question::find(11);
+//        $this->assertEquals('<p>Open kort</p>',trim($question->getQuestionInstance()->question));
     }
 
     private function setupScenario1(){
