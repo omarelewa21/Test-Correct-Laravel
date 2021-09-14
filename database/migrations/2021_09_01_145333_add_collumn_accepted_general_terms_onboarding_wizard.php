@@ -13,7 +13,7 @@ class AddCollumnAcceptedGeneralTermsOnboardingWizard extends Migration
      */
     public function up()
     {
-        Schema::table('onboarding_wizard_reports', function (Blueprint $table) {
+        Schema::table('onboarding_wizard_reports ', function (Blueprint $table) {
             $table->dateTime('accepted_general_terms')->nullable();
         });
     }
