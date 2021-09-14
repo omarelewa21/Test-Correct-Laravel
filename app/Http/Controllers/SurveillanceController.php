@@ -11,29 +11,37 @@ use tcCore\User;
 
 class SurveillanceController extends Controller
 {
+    private $response;
+
     public function index()
     {
 
-        $dataset = $this->getTakesForSurveillance(Auth::user());
-
-
-        $response = [
+        $this->response = [
             'takes'        => [],
             'participants' => [],
             'time'         => now()->format('H:i'),
             'alerts'       => 0,
             'ipAlerts'     => 0,
         ];
+        $dataset = $this->getTakesForSurveillance(Auth::user());
 
-        $dataset->each(function ($testTake) use (&$response) {
-            $this->transformForService($testTake, $response['takes']);
+        $dataset->each(function ($testTake) {
+            $this->transformForService($testTake);
 
-            $this->transformParticipants($testTake, $response);
+            $this->transformParticipants($testTake);
         });
 
+        return $this->response;
+    }
 
-        return $response;
+    private function incrementAlerts()
+    {
+        $this->response['alerts']++;
+    }
 
+    private function incrementIpAlerts()
+    {
+        $this->response['ipAlerts']++;
     }
 
     private function getTakesForSurveillance(User $owner)
@@ -65,6 +73,10 @@ class SurveillanceController extends Controller
                         'allow_inbrowser_testing',
                         'ip_address',
                         'uuid'
+                    )->leftJoin( 'test_take_events', function($join) {
+                        $join->on('testparticipant.id', 'test_take_events.participant_id')
+                            ->where('')
+                        }
                     );
                 },
 
@@ -72,28 +84,31 @@ class SurveillanceController extends Controller
             ->get();
     }
 
-    private function transformForService(TestTake $testTake, &$target)
+    private function transformForService(TestTake $testTake)
     {
-        $testTake->schoolClasses()->get('uuid')->each(function ($schoolClass) use ($testTake, &$target) {
+        $testTake->schoolClasses()->get('uuid')->each(function ($schoolClass) use ($testTake) {
             $progress = 0;
-            $target[sprintf('progress_%s_%s', $testTake->uuid, $schoolClass->uuid)] = $progress;
+            $this->response['takes'][sprintf('progress_%s_%s', $testTake->uuid, $schoolClass->uuid)] = $progress;
         });
     }
 
-    private function transformParticipants($testTake, &$response)
+    private function transformParticipants($testTake)
     {
-        $testTake->testParticipants->each(function ($participant) use (&$response) {
+        $testTake->testParticipants->each(function ($participant) {
+            if ($alertStatus = $participant->getAlertStatus()) {
+                $this->incrementAlerts();
+            }
+
 //         dd($participant->allow_inbrowser_testing);
-            $response['participants'][$participant->uuid] = [
+            $this->response['participants'][$participant->uuid] = [
                 'percentage'              => 0,
                 'label'                   => $participant->label,
                 'text'                    => $participant->text,
-                'alert'                   => false,
+                'alert'                   => $alertStatus,
                 'ip'                      => true,
                 'status'                  => $participant->test_take_status_id,
                 'allow_inbrowser_testing' => $participant->allow_inbrowser_testing,
             ];
         });
-
     }
 }

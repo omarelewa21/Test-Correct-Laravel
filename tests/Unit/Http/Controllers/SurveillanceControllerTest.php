@@ -23,6 +23,21 @@ class SurveillanceControllerTest extends TestCase
         dd($response);
     }
 
+    /** @test */
+    public function it_should_reflect_the_correct_alertStatus()
+    {
+        Auth::login(self::getTeacherOne());
+
+        $response = ((new SurveillanceController)->index());
+
+        $this->assertEquals(
+            0,
+            $response['alerts']
+        );
+
+//        dd($response);
+    }
+
 
     /** @test */
     public function takes_key_should_contain_progress()
