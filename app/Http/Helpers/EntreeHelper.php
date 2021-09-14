@@ -223,6 +223,10 @@ class EntreeHelper
     private function validateAttributes()
     {
         if (!array_key_exists('eckId', $this->attr) || !array_key_exists(0, $this->attr['eckId'])) {
+            logger('No eckId found');
+            logger('==== credentials ====');
+            logger($this->attr);
+            logger('=======');
             throw new \Exception('no eckId found in saml request');
         }
 
