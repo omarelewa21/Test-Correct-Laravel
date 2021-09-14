@@ -265,7 +265,7 @@ class TestParticipant extends BaseModel
             ],
             2 => [
                 'label' => 'danger',
-                'text' => 'Niet gemaakt',
+                'text'  => 'Niet gemaakt',
             ],
             3 => [
                 'label' => 'success',
@@ -451,6 +451,11 @@ class TestParticipant extends BaseModel
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
             TestTakeForceTakenAway::dispatch($this);
         }
+    }
+
+    public function getAlertStatus()
+    {
+        return false;
     }
 
     private function isBrowserTestingActive()
