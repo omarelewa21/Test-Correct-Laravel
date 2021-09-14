@@ -101,7 +101,27 @@ class DemoHelper
             return false;
         }
 
+        self::moveSchoolLocationDemoClassToCurrentYearIfNeeded($user->schoolLocation, $schoolClass);
+
         return true;
+    }
+
+    public static function moveSchoolLocationDemoClassToCurrentYearIfNeeded(SchoolLocation $schoolLocation, $schoolClass = null)
+    {
+        $helper = new DemoHelper();
+
+        if($schoolClass == null){
+            $helper->setSchoolLocation($schoolLocation);
+            $schoolClass = $helper->getDemoClass();
+        }
+        if($schoolClass) {
+            $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+            if ($schoolYear != null) {
+                if ($schoolClass->schoolYear != $schoolYear) {
+                    $helper->moveDemoClassToNewSchoolYear($schoolClass, $schoolYear);
+                }
+            }
+        }
     }
 
     public function createDemoForTeacherIfNeeded(User $user)
