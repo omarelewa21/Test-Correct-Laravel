@@ -78,12 +78,13 @@ class FixIsSubquestionTrueForNonGroupQuestionMembers extends Command
         $testQuestionQuestionId = $questionId;
         $request->merge($params);
         $response = (new TestQuestionsController())->updateFromWithin($testQuestion,  $request);
+
         Auth::logout();
     }
 
     private function setSystemTestIdToNull($testId)
     {
-        $test = Test::find($testId);
+        $test = Test::withTrashed()->find($testId);
         if(!is_null($test->system_test_id)){
             $test->system_test_id = null;
             $test->save();
@@ -98,14 +99,14 @@ class FixIsSubquestionTrueForNonGroupQuestionMembers extends Command
                             on tests.id = test_questions.test_id
                         left join `questions`	
                             on test_questions.question_id = questions.`id`
-                    where is_subquestion = 1 and questions.deleted_at is null and is_system_test = 0
+                    where is_subquestion = 1 and questions.deleted_at is null and tests.deleted_at is null and test_questions.deleted_at is null and is_system_test = 0
                     order by tests.id
                     ';
     }
 
     private function loginAuthor($questionId)
     {
-        $author = QuestionAuthor::where('question_id',$questionId)->orderBy('created_at','desc')->firstOrFail();
-        Auth::login($author->user);
+        $author = QuestionAuthor::withTrashed()->where('question_id',$questionId)->orderBy('created_at','desc')->firstOrFail();
+        Auth::login($author->user()->withTrashed()->first());
     }
 }
