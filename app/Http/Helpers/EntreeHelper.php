@@ -186,6 +186,7 @@ class EntreeHelper
         if (array_key_exists('nlEduPersonHomeOrganizationId',
                 $this->attr) && $this->attr['nlEduPersonHomeOrganizationId'][0]) {
             return $this->attr['nlEduPersonHomeOrganizationId'][0];
+
         }
 
         return null;
