@@ -23,6 +23,7 @@ class SendOnboardingWelcomeMail extends Mailable
     protected $user;
     protected $url;
     protected $key;
+    public $queue = 'mail';
 
     /**
      * Create a new job instance.

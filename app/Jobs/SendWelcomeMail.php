@@ -19,6 +19,7 @@ class SendWelcomeMail extends Job implements ShouldQueue
     protected $userId;
     protected $url;
     protected $key;
+    public $queue = 'mail';
 
     public $testBody;
 

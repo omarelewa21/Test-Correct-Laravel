@@ -16,6 +16,7 @@ class SendNotifyInviterMail extends Mailable
 
     protected $inviter;
     protected $invitee;
+    public $queue = 'mail';
 
     /**
      * Create a new job instance.

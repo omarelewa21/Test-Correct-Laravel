@@ -14,6 +14,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     protected $testTakeId;
+    public $queue = 'mail';
 
     /**
      * Create a new job instance.

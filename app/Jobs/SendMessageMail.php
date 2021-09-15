@@ -15,6 +15,7 @@ class SendMessageMail extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     protected $messageId;
+    public $queue = 'mail';
 
     /**
      * Create a new job instance.
