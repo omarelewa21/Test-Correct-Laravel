@@ -655,11 +655,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
             $user = ActingAsHelper::getInstance()->getUser();
             if ($user->getAttribute('school_id') !== null && $user->getAttribute('school_location_id') !== null) {
                 $query->where(function ($query) use ($user) {
-                    $query->whereIn('id', $user->allowedSchoolLocations()->pluck('id'))
+                    $query->where('id', $user->getAttribute('school_location_id'))
                         ->orWhere('school_id', $user->getAttribute('school_id'));
                 });
             } elseif ($user->getAttribute('school_location_id') !== null) {
-                $query->whereIn('id', $user->allowedSchoolLocations()->pluck('id'));
+                $query->where('id', $user->getAttribute('school_location_id'));
             } elseif ($user->getAttribute('school_id') !== null) {
                 $query->where('school_id', $user->getAttribute('school_id'));
             }
