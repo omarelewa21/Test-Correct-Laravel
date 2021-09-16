@@ -2,6 +2,7 @@
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
@@ -265,8 +266,9 @@ class TestParticipant extends BaseModel
                 $testTakeEvent->setAttribute('test_take_event_type_id', $testTakeTypeStatus);
                 $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
                 $this->testTake->testTakeEvents()->save($testTakeEvent);
-    
+
                 $testTakeStartDate = $this->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $testTakeTypeStatus)->whereNull('test_participant_id')->max('created_at');
+
                 $timeLate = Carbon::createFromFormat('Y-m-d H:i:s', $testTakeStartDate)->addMinutes(5);
     
                 if ($timeLate->isPast()) {

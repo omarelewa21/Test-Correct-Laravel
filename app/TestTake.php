@@ -86,7 +86,6 @@ class TestTake extends BaseModel
             if ($test === null) {
                 return false;
             }
-
             if ($test->getAttribute('is_system_test') == 0) {
                 $systemTestId = $test->getAttribute('system_test_id');
                 if (empty($systemTestId)) {

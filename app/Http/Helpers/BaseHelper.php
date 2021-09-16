@@ -49,8 +49,7 @@ class BaseHelper
         if(app()->runningInConsole()) {
             // we are running in the console
             $argv = \Request::server('argv', null);
-
-            if($argv[0] == 'artisan' && \Illuminate\Support\Str::contains($argv[1],'refreshdb')) {
+            if(!is_null($argv)&&$argv[0] == 'artisan' && \Illuminate\Support\Str::contains($argv[1],'refreshdb')) {
                 return true;
             }
         }
