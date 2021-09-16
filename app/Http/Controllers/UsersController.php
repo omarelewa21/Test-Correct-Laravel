@@ -81,6 +81,7 @@ class UsersController extends Controller
                     AverageRatingRepository::getSubjectAveragesOfStudents($users);
                 }
                 $users->transform(function (User $u) {
+
                     $u->is_temp_teacher = $u->getIsTempTeacher();
                     return $u;
                 });

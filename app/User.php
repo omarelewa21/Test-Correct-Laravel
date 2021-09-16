@@ -459,6 +459,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getIsTempTeacher()
     {
+        if (!$this->schoolLocation) {
+            return false;
+        }
         return ($this->isA('Teacher') && $this->schoolLocation->getKey() == SchoolHelper::getTempTeachersSchoolLocation()->getKey());
     }
 
