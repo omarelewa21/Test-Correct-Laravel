@@ -15,9 +15,9 @@ trait WithPreviewAttachments
     public $questionId;
     public $attachmentType = '';
 
-    public function showAttachment(Attachment $attachment)
+    public function showAttachment($attachmentUuid)
     {
-        $this->attachment = $attachment;
+        $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
         $type = $this->attachmentBelongsToTypeQuestion($attachment);
         $this->questionId = $this->question->uuid;
         if($type=='group'){
