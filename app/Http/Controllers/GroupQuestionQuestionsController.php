@@ -164,10 +164,12 @@ class GroupQuestionQuestionsController extends Controller
 
                 $groupQuestionQuestion->setAttribute('group_question_id', $groupQuestion->getKey());
                 $subQuestion = $groupQuestionQuestion->question;
-                $subQuestionCopy = $subQuestion->duplicate([]);
-                $subQuestionCopy->getQuestionInstance()->setAttribute('is_subquestion', 1);
-                $groupQuestionQuestion->setAttribute('question_id', $subQuestionCopy->getKey());
-                $subQuestionCopy->getQuestionInstance()->save();
+                if($subQuestion->getQuestionInstance()->is_subquestion==0) {
+                    $subQuestionCopy = $subQuestion->duplicate([]);
+                    $subQuestionCopy->getQuestionInstance()->setAttribute('is_subquestion', 1);
+                    $groupQuestionQuestion->setAttribute('question_id', $subQuestionCopy->getKey());
+                    $subQuestionCopy->getQuestionInstance()->save();
+                }
 
                 if ($groupQuestionQuestion->save()) {
                     if(Question::usesDeleteAndAddAnswersMethods($request->get('type'))){
