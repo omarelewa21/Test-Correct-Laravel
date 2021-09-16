@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddCollumnAcceptedGeneralTermsOnboardingWizard extends Migration
+class AddColumnAcceptedGeneralTermsOnboardingWizard extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class AddCollumnAcceptedGeneralTermsOnboardingWizard extends Migration
      */
     public function up()
     {
-        Schema::table('onboarding_wizard_reports ', function (Blueprint $table) {
+        Schema::table('onboarding_wizard_reports', function (Blueprint $table) {
             $table->dateTime('accepted_general_terms')->nullable();
         });
     }
