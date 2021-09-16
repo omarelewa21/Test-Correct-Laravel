@@ -15,7 +15,7 @@ class SchoolLocationReportController extends Controller
     {
         
         // run realtime when not on production
-        if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
+        if (config('app.url_login') !== 'https://portal.test-correct.nl/' or config('app.url_login') !== 'https://testportal.test-correct.nl/') {
             \tcCore\SchoolLocationReport::updateAllLocationStats();
         }
 

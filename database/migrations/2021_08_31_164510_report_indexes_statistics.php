@@ -28,6 +28,15 @@ class ReportIndexesStatistics extends Migration
         Schema::table('questions', function (Blueprint $table) {
             $table->index('created_at');
         });
+        Schema::table('users', function (Blueprint $table) {
+            $table->index('deleted_at');
+        });
+        Schema::table('test_participants', function (Blueprint $table) {
+            $table->index('deleted_at');
+        });
+        Schema::table('user_roles', function (Blueprint $table) {
+            $table->index('deleted_at');
+        });
 
     }
 
