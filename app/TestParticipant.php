@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
+use tcCore\Events\BrowserTestingDisabledForParticipant;
 use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Events\TestTakeReopened;
 use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
@@ -89,6 +90,7 @@ class TestParticipant extends BaseModel
             $testParticipant->updatedRatingOrRetakeRating();
 
             $testParticipant->isTestTakenAway();
+            $testParticipant->isBrowserTestingActive();
         });
     }
 
@@ -347,11 +349,15 @@ class TestParticipant extends BaseModel
     public function startTestTake()
     {
         //Remaining startTestTake actions handled in TestParticipant boot method
-        if ($this->canStartTestTake()) {
-            $this->setAttribute('started_in_new_player', true)->save();
-            return true;
+        if (!$this->canStartTestTake()) {
+            return false;
         }
-        return false;
+        if (!$this->canUseBrowserTesting() && !$this->isUsingApp()) {
+            return false;
+        }
+
+        $this->setAttribute('started_in_new_player', true)->save();
+        return true;
     }
     public function canSeeOverviewPage()
     {
@@ -388,5 +394,27 @@ class TestParticipant extends BaseModel
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
             TestTakeForceTakenAway::dispatch($this);
         }
+    }
+
+    private function isBrowserTestingActive()
+    {
+        if ($this->allow_inbrowser_testing == false && $this->getOriginal('allow_inbrowser_testing') == true) {
+            BrowserTestingDisabledForParticipant::dispatch($this);
+        }
+    }
+
+    public function registerIfParticipantIsUsingAnAppOnSession($request)
+    {
+        session()->put('usingApp', $request->headers->has('tlc'));
+    }
+
+    public function canUseBrowserTesting()
+    {
+        return $this->allow_inbrowser_testing;
+    }
+
+    public function isUsingApp()
+    {
+        return session('usingApp', false);
     }
 }

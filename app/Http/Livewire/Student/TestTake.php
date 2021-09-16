@@ -18,6 +18,7 @@ class TestTake extends Component
     public $showTurnInModal = false;
     public $testParticipantId;
     public $forceTakenAwayModal = false;
+    public $browserTestingDisabledModal = false;
 
     /** @var int
      *  time in milliseconds a notification is shown
@@ -27,11 +28,12 @@ class TestTake extends Component
     protected function getListeners()
     {
         return [
-            'set-force-taken-away'                                                                  => 'setForceTakenAway',
-            'checkConfirmedEvents'                                                                  => 'checkConfirmedEvents',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeForceTakenAway' => 'setForceTakenAway',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeReopened'       => 'testTakeReopened',
-            'studentInactive'                                                                       => 'handleInactiveStudent'
+            'set-force-taken-away'                                                                                => 'setForceTakenAway',
+            'checkConfirmedEvents'                                                                                => 'checkConfirmedEvents',
+            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeForceTakenAway'               => 'setForceTakenAway',
+            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeReopened'                     => 'testTakeReopened',
+            'echo-private:TestParticipant.' . $this->testParticipantId . ',.BrowserTestingDisabledForParticipant' => 'browserTestingIsDisabled',
+            'studentInactive'                                                                                     => 'handleInactiveStudent'
         ];
     }
 
@@ -54,7 +56,7 @@ class TestTake extends Component
             //error handling
         }
 
-        $testParticipant->user->redirectToCakeWithTemporaryLogin();
+        $this->returnToDashboard();
     }
 
     public function createTestTakeEvent($event)
@@ -115,5 +117,23 @@ class TestTake extends Component
         session()->regenerateToken();
 
         $this->redirect(config('app.url_login'));
+    }
+
+    public function browserTestingIsDisabled()
+    {
+        $participant = TestParticipant::findOrFail($this->testParticipantId);
+
+        if(!$participant->canUseBrowserTesting() && !$participant->isUsingApp()) {
+            $options = TemporaryLogin::buildValidOptionObject(
+                'notification',
+                [__('student.browser_testing_disabled_notification') => 'error']
+            );
+            $this->returnToDashboard($options);
+        }
+    }
+
+    public function returnToDashboard($options = null)
+    {
+        Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 }

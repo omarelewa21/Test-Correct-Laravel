@@ -834,7 +834,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function temporaryLogin()
     {
-        return $this->belongsTo('tcCore\TemporaryLogin');
+        return $this->hasOne('tcCore\TemporaryLogin');
     }
 
     public function mentorSchoolClasses()
@@ -2048,9 +2048,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         }
     }
 
-    public function redirectToCakeWithTemporaryLogin()
+    public function redirectToCakeWithTemporaryLogin($options = null)
     {
-        $redirectUrl = $this->getTemporaryCakeLoginUrl();
+        $redirectUrl = $this->getTemporaryCakeLoginUrl($options);
 
         return redirect()->to($redirectUrl);
     }
@@ -2058,11 +2058,13 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     /**
      * @return mixed
      */
-    public function getTemporaryCakeLoginUrl()
+    public function getTemporaryCakeLoginUrl($options = null)
     {
-        $temporaryLogin = TemporaryLogin::create(
-            ['user_id' => $this->getKey()]
-        );
+        $temporaryLogin = TemporaryLogin::createForUser($this);
+        if($options) {
+            $temporaryLogin->setAttribute('options', $options)->save();
+        }
+
         return $temporaryLogin->createCakeUrl();
     }
 
