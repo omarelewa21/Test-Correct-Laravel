@@ -51,7 +51,10 @@ class FixIsSubquestionInGroupQuestionMembers extends Command
         try{
             $groupQuestionQuestion = GroupQuestionQuestion::withTrashed()->where('question_id',$questionId)->where('group_question_id',$groupQuestionQuestionId)->firstOrFail();
             $subQuestion = $groupQuestionQuestion->question()->withTrashed()->first();
-            $subQuestionCopy = $subQuestion->duplicate([]);
+            $subQuestionCopy = $subQuestion;
+            if(!$subQuestion->trashed()){
+                $subQuestionCopy = $subQuestion->duplicate([]);
+            }
             $subQuestionCopy->getQuestionInstance()->setAttribute('is_subquestion', 1);
             $groupQuestionQuestion->setAttribute('question_id', $subQuestionCopy->getKey());
             $subQuestionCopy->getQuestionInstance()->save();
