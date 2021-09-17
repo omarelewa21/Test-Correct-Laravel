@@ -85,6 +85,13 @@ class TestQuestionsController extends Controller {
                     $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'));
                 }
                 $totalData = array_merge($request->all(),$questionData);
+                $question = Question::find($request->get('question_id'));
+                if($question->is_subquestion){
+                    $questionCopy = $question->duplicate([]);
+                    $questionCopy->getQuestionInstance()->setAttribute('is_subquestion', 0);
+                    $totalData = array_merge($totalData,['question_id'=>$questionCopy->getKey()]);
+                    $questionCopy->getQuestionInstance()->save();
+                }
                 $testQuestion->fill($totalData);
 
 //                if($request->get('type') == 'CompletionQuestion') {
@@ -224,6 +231,7 @@ class TestQuestionsController extends Controller {
             $testQuestion->fill($request->all());
             $question->updateWithRequest($request,$testQuestion);
             $testQuestion->setAttribute('question_id', $question->getKeyAfterPossibleDuplicate());
+
             if ($testQuestion->save()) {
                 $testQuestion->refresh();
                 $question = $testQuestion->question;

@@ -18,6 +18,7 @@ class SendToetsenbakkerInviteMail extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     protected $fileManagementId;
+    public $queue = 'mail';
 
     /**
      * Create a new job instance.

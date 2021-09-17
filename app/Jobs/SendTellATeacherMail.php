@@ -18,6 +18,7 @@ class SendTellATeacherMail extends Mailable
     protected $inviteText;
     protected $receivingEmailAddress;
     protected $shortcode;
+    public $queue = 'mail';
 
     /**
      * Create a new job instance.

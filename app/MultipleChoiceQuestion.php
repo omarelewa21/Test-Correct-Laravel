@@ -86,7 +86,6 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
     public function duplicate(array $attributes, $ignore = null) {
         $question = $this->replicate();
-
         $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
         if ($question->parentInstance === false) {
             return false;

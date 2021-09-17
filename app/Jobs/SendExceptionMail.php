@@ -15,6 +15,7 @@ class SendExceptionMail extends Job implements ShouldQueue
     protected $file;
     protected $lineNr;
     protected $details;
+    public $queue = 'mail';
 
     protected $subject = 'test-correct exception';
 

@@ -218,13 +218,11 @@ class Attachment extends BaseModel
 
     private function isPartOfQuestionForThisAnswer($answer){
         $question = $answer->question;
-
-        if ($question->is_subquestion) {
-            $testId = $answer->testParticipant->testTake->test->getKey();
-            return $this->questionAttachments->pluck('question_id')->contains($question->getGroupQuestionIdByTest($testId));
+        if($this->questionAttachments->pluck('question_id')->contains($question->getKey())){
+            return true;
         }
-
-        return $this->questionAttachments->pluck('question_id')->contains($question->getKey());
+        $testId = $answer->testParticipant->testTake->test->getKey();
+        return $this->questionAttachments->pluck('question_id')->contains($question->getGroupQuestionIdByTest($testId));
     }
 
     public function audioIsPausable()
