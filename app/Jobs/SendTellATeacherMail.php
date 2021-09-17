@@ -18,7 +18,7 @@ class SendTellATeacherMail extends Mailable
     protected $inviteText;
     protected $receivingEmailAddress;
     protected $shortcode;
-    public $queue = 'mail';
+
 
     /**
      * Create a new job instance.
@@ -29,6 +29,7 @@ class SendTellATeacherMail extends Mailable
      */
     public function __construct(User $inviter, $inviteText, $receivingEmailAddress, $shortcode)
     {
+        $this->queue = 'mail';
         $this->inviter = $inviter;
         $this->inviteText = $inviteText;
         $this->receivingEmailAddress = $receivingEmailAddress;

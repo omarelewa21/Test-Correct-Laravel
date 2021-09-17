@@ -23,7 +23,6 @@ class SendOnboardingWelcomeMail extends Mailable
     protected $user;
     protected $url;
     protected $key;
-    public $queue = 'mail';
 
     /**
      * Create a new job instance.
@@ -34,6 +33,7 @@ class SendOnboardingWelcomeMail extends Mailable
      */
     public function __construct(User $user, $url = '')
     {
+        $this->queue = 'mail';
         $this->key = Str::random(5);
         $this->user = $user;
         /** @TODO this var should be removed because it is not used MF 9-6-2020 */
