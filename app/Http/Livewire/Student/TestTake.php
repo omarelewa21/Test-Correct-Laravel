@@ -123,7 +123,7 @@ class TestTake extends Component
     {
         $participant = TestParticipant::findOrFail($this->testParticipantId);
 
-        if(!$participant->canUseBrowserTesting() && !$participant->isUsingApp()) {
+        if(!$participant->canUseBrowserTesting() && $participant->isInBrowser()) {
             $options = TemporaryLogin::buildValidOptionObject(
                 'notification',
                 [__('student.browser_testing_disabled_notification') => 'error']
