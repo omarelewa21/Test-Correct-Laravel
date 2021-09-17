@@ -270,17 +270,19 @@ class AppVersionDetector
             )
         ) {
             return AllowedAppType::OK;
-        } elseif (
+        }
+
+        if (
             isset(self::$allowedVersions[$version["os"]]["needsUpdate"]) &&
             in_array(
                 $version["app_version"],
                 self::$allowedVersions[$version["os"]]["needsUpdate"]
-            )
-        ) {
+            )) {
+
             return AllowedAppType::NEEDSUPDATE;
-        } else {
-            return AllowedAppType::NOTALLOWED;
         }
+
+        return AllowedAppType::NOTALLOWED;
     }
 
     public static function getAllHeaders()
