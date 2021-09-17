@@ -78,6 +78,6 @@ class FixIsSubquestionInGroupQuestionMembers extends Command
     private function loginAuthor($questionId)
     {
         $author = QuestionAuthor::withTrashed()->where('question_id',$questionId)->orderBy('created_at','desc')->firstOrFail();
-        Auth::login($author->user);
+        Auth::login($author->user()->withTrashed()->firstOrFail());
     }
 }
