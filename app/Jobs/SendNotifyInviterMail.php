@@ -16,7 +16,6 @@ class SendNotifyInviterMail extends Mailable
 
     protected $inviter;
     protected $invitee;
-    public $queue = 'mail';
 
     /**
      * Create a new job instance.
@@ -27,6 +26,7 @@ class SendNotifyInviterMail extends Mailable
      */
     public function __construct(User $inviter, User $invitee)
     {
+        $this->queue = 'mail';
         $this->inviter = $inviter;
         $this->invitee = $invitee;
     }
