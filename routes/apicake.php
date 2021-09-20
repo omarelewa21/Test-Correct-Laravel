@@ -231,6 +231,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('answer', 'AnswersController', ['only' => ['index', 'show']]);
 
 	// Users
+    Route::get('user/{user}/verify_password', 'UsersController@verifyPassword')->name('user.verify_password');
     Route::get('user/{user}/profile_image', ['as' => 'user.profile_image', 'uses' => 'UsersController@profileImage']);
     Route::get('user/send_welcome_email', ['as' => 'user.send_welcome_email', 'uses' => 'UsersController@sendWelcomeEmail']);
     Route::get('user/is_account_verified', ['as' => 'user.is_account_verified', 'uses' => 'UsersController@isAccountVerified']);

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -459,6 +460,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getIsTempTeacher()
     {
+        if (!$this->schoolLocation) {
+            return false;
+        }
         return ($this->isA('Teacher') && $this->schoolLocation->getKey() == SchoolHelper::getTempTeachersSchoolLocation()->getKey());
     }
 
@@ -1385,7 +1389,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         $roles = Roles::getUserRoles();
         // you are an Account manager
-        if (!in_array('Administrator', $roles)) {
+        if (!in_array('Administrator', $roles) && !in_array('Support', $roles)) {
             $query->where(function ($query) use ($roles) {
                 if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
 //                    logger(__LINE__);
@@ -2223,5 +2227,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $this->uniqueJobs[] = $job;
             }
         }
+    }
+
+    public function verifyPassword($attemptedPassword)
+    {
+        return Hash::check($attemptedPassword, $this->password);
     }
 }
