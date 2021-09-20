@@ -32,7 +32,7 @@ class TestTake extends Component
             'checkConfirmedEvents'                                                                                => 'checkConfirmedEvents',
             'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeForceTakenAway'               => 'setForceTakenAway',
             'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeReopened'                     => 'testTakeReopened',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.BrowserTestingDisabledForParticipant' => 'browserTestingIsDisabled',
+            'echo-private:TestParticipant.' . $this->testParticipantId . ',.BrowserTestingDisabledForParticipant' => 'checkIfParticipantCanContinueWithoutApp',
             'studentInactive'                                                                                     => 'handleInactiveStudent'
         ];
     }
@@ -119,16 +119,21 @@ class TestTake extends Component
         $this->redirect(config('app.url_login'));
     }
 
-    public function browserTestingIsDisabled()
+    private function browserTestingIsDisabled()
+    {
+        $options = TemporaryLogin::buildValidOptionObject(
+            'notification',
+            [__('student.browser_testing_disabled_notification') => 'error']
+        );
+        $this->returnToDashboard($options);
+    }
+
+    public function checkIfParticipantCanContinueWithoutApp()
     {
         $participant = TestParticipant::findOrFail($this->testParticipantId);
 
         if(!$participant->canUseBrowserTesting() && $participant->isInBrowser()) {
-            $options = TemporaryLogin::buildValidOptionObject(
-                'notification',
-                [__('student.browser_testing_disabled_notification') => 'error']
-            );
-            $this->returnToDashboard($options);
+            $this->browserTestingIsDisabled();
         }
     }
 
