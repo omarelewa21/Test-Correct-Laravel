@@ -21,7 +21,7 @@ class AppDetection
         //Only check when it's a Livewire request because the TLC iPad headers aren't send with the initial request,
         //they are added with injected JS.
 
-        if (Livewire::isLivewireRequest()) {
+        if (Livewire::isDefinitelyLivewireRequest()) {
             Session::put('isInBrowser', AppVersionDetector::isInBrowser());
         }
 
