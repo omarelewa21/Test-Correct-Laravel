@@ -352,9 +352,9 @@ class TestParticipant extends BaseModel
         if (!$this->canStartTestTake()) {
             return false;
         }
-        if (!$this->canUseBrowserTesting() && $this->isInBrowser()) {
-            return false;
-        }
+//        if (!$this->canUseBrowserTesting() && $this->isInBrowser()) {
+//            return false;
+//        }
 
         $this->setAttribute('started_in_new_player', true)->save();
         return true;
