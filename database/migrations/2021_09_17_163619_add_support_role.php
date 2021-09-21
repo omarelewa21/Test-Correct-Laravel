@@ -22,8 +22,9 @@ class AddSupportRole extends Migration
 
         $userFactory = new Factory(new User());
         $user = $userFactory->generate([
-            'username' => 'support@test-correct.nl',
-            'name_first' => 'Support',
+            'username' => 'sobitbv+support@hotmail.com',
+            'name_first' => 'Sobit',
+            'name_suffix' => 'bv',
             'name' => 'Support',
             'user_roles' => [11],
         ]);
