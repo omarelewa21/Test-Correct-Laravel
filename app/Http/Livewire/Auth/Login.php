@@ -20,6 +20,8 @@ use tcCore\User;
 
 class Login extends Component
 {
+    public $doIHaveATcAccount = null;
+
     public $username = '';
     public $password = '';
     public $captcha = '';
@@ -272,6 +274,19 @@ class Login extends Component
         }
     }
 
+    public function samlMessageValid() {
+        $message =  SamlMessage::whereUuid($this->uuid)->first();
+        if ($message == null) {
+            return false;
+        }
+
+        if($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
+            return false;
+        }
+
+        return true;
+    }
+
 
     public function entreeForm()
     {
@@ -307,5 +322,43 @@ class Login extends Component
         $message->delete();
         $user->save();
         $user->redirectToCakeWithTemporaryLogin();
+    }
+
+    public function loginForNoMailPresent(){
+        $message = SamlMessage::whereUuid($this->uuid)->first();
+
+        if ($message == null) {
+            return $this->addError('entree_error', __('auth.no_saml_message_found'));
+        }
+
+        $this->resetErrorBag();
+        $this->entree_error_message = '';
+
+        if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
+            $this->requireCaptcha = true;
+            return;
+        }
+        if ($this->captcha && !$this->validateCaptcha()) {
+            return;
+        }
+
+        $credentials = $this->validate();
+        if (!auth()->attempt($credentials)) {
+            if($this->requireCaptcha) {
+                $this->reset('captcha');
+                $this->emit('refresh-captcha');
+                return;
+            }
+            $this->createFailedLogin();
+            $this->addError('invalid_user', __('auth.failed'));
+            return;
+        }
+
+        if(EntreeHelper::tryAccountMatchingWhenNoMailAttributePresent(auth()->user(), $message)) {
+            auth()->user()->redirectToCakeWithTemporaryLogin();
+        } else {
+            dd('this does not seem to work please contact the helpdesk');
+        }
+
     }
 }
