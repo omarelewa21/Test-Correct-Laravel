@@ -20,17 +20,19 @@ class AddSupportRole extends Migration
         $support->id = 11;
         $support->save();
 
-        $userFactory = new Factory(new User());
-        $user = $userFactory->generate([
-            'username' => 'sobitbv+support@hotmail.com',
-            'name_first' => 'Sobit',
-            'name_suffix' => 'bv',
-            'name' => 'Support',
-            'user_roles' => [11],
-        ]);
+        if (config('app.env', 'local') == 'local') {
+            $userFactory = new Factory(new User());
+            $user = $userFactory->generate([
+                'username' => 'sobitbv+support@hotmail.com',
+                'name_first' => 'Sobit',
+                'name_suffix' => 'bv',
+                'name' => 'Support',
+                'user_roles' => [11],
+            ]);
 
-        $user->password = '$2y$10$09COG9gAoSoOCG/PlzQw7ePKPX6xD6EkvOvz42H1vUiFAz5zXr.Aq';
-        $user->save();
+            $user->password = '$2y$10$09COG9gAoSoOCG/PlzQw7ePKPX6xD6EkvOvz42H1vUiFAz5zXr.Aq';
+            $user->save();
+        }
     }
 
     /**
