@@ -388,7 +388,7 @@ class Login extends Component
             route('auth.login',
                 [
                     'tab'                 => 'fatalError',
-                    'fatalErrorMessage' => 'auth.error_please_contact_service_desk',
+                    'fatal_error_message' => 'auth.error_please_contact_service_desk',
                 ]
             )
         );
