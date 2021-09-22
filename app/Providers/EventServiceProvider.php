@@ -43,6 +43,8 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->redirectIfBrinNotSso();
 
+            $entreeHelper->blockIfSchoolLvsActiveNoMailNotAllowedWhenMailAttributeIsNotPresent();
+
             $entreeHelper->redirectIfUserWasNotFoundForEckIdAndActiveLVS();
 
             $entreeHelper->redirectIfUserNotHasSameRole();
@@ -53,6 +55,8 @@ class EventServiceProvider extends ServiceProvider {
             $entreeHelper->redirectIfNoUserWasFoundForEckId();
 
             $entreeHelper->redirectIfUserNotInSameSchool();
+
+            $entreeHelper->redirectIfNoMailPresentScenario();
 
             $entreeHelper->handleScenario2IfAddressIsKnownInOtherAccount();
 

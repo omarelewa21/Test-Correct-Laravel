@@ -7,6 +7,7 @@ namespace Tests\Unit\Http\Helpers;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use tcCore\Http\Helpers\EntreeHelper;
+use tcCore\SamlMessage;
 use tcCore\SchoolLocation;
 use tcCore\User;
 use Tests\TestCase;
@@ -152,7 +153,7 @@ class EntreeHelperTest extends TestCase
             'abcd'
         );
         $this->assertStringContainsString(
-            route('auth.login', ['tab' => 'entree', 'entree_error_message' => 'auth.user_not_in_same_school']),
+            route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.user_not_in_same_school']),
             $helper->redirectIfUserNotInSameSchool()
         );
     }
@@ -264,7 +265,7 @@ class EntreeHelperTest extends TestCase
             'abcd'
         );
 
-       $helper->handleScenario2IfAddressIsKnownInOtherAccount();
+        $helper->handleScenario2IfAddressIsKnownInOtherAccount();
 
         $this->assertEquals(
             'eckid_L2',
@@ -359,7 +360,8 @@ class EntreeHelperTest extends TestCase
     }
 
     /** @test */
-    public function it_should_handle_scenario2_when_email_addres_is_found_in_other_teacher_account_within_the_same_koepel_but_different_location()
+    public function it_should_handle_scenario2_when_email_addres_is_found_in_other_teacher_account_within_the_same_koepel_but_different_location(
+    )
     {
         $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
         $location2 = SchoolLocation::where('external_main_code', '8888')->where('external_sub_code', '00')->first();
@@ -687,8 +689,7 @@ class EntreeHelperTest extends TestCase
     }
 
     /** @test */
-    public function it_should_rollback_and_redirect_when_exception_in_scenario2_within_the_same_school_location(
-    )
+    public function it_should_rollback_and_redirect_when_exception_in_scenario2_within_the_same_school_location()
     {
         $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
 
@@ -722,6 +723,89 @@ class EntreeHelperTest extends TestCase
                 ['tab' => 'login', 'entree_error_message' => 'auth.error_while_syncing_please_contact_helpdesk']
             ),
             $helper->handleScenario2IfAddressIsKnownInOtherAccount()
+        );
+    }
+
+    /** @test */
+    public function if_no_mail_is_found_it_should_block_if_school_lvs_active_no_mail_not_allowed()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
+
+        // dit is de geimporteerde docent
+        $teacher = $this->createTeacher('meOkayOrso', $location, null, 'abcdefg');
+        $teacher->eckId = 'eckid_T2';
+        $teacher->save();
+
+        $this->assertCount(1, $teacher->teacher);
+
+
+        $helper = new EntreeHelper(
+            [
+                'nlEduPersonHomeOrganizationBranchId' => ['99DE00'],
+                'eckId'                               => ['eckid_T2'],
+                'eduPersonAffiliation'                => ['Teacher'],
+            ],
+            'abcd'
+        );
+
+        $this->assertEquals(
+            route('auth.login',
+                ['tab'                  => 'login',
+                 'entree_error_message' => 'auth.no_mail_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'
+                ]
+            ),
+
+            $helper->blockIfSchoolLvsActiveNoMailNotAllowedWhenMailAttributeIsNotPresent()
+        );
+
+
+    }
+
+    /** @test */
+    public function it_should_not_block_if_mail_is_not_present_and_school_lvs_active_no_mail_is_allowed()
+    {
+        $location = SchoolLocation::where('external_main_code', '99DE')->where('external_sub_code', '00')->first();
+        $location->lvs_active_no_mail_allowed = true;
+        $location->save();
+
+        // dit is de geimporteerde docent
+        $teacher = $this->createTeacher('meOkayOrso', $location, null, 'abcdefg');
+        $teacher->eckId = 'eckid_T2';
+        $teacher->save();
+
+        $this->assertCount(1, $teacher->teacher);
+
+        $helper = new EntreeHelper(
+            [
+                'nlEduPersonHomeOrganizationBranchId' => ['99DE00'],
+                'eckId'                               => ['eckid_T2'],
+                'eduPersonAffiliation'                => ['Teacher'],
+            ],
+            'abcd'
+        );
+
+        $helper->redirectIfBrinUnknown();
+
+        $this->assertNotEquals(
+            route('auth.login',
+                ['tab'                  => 'login',
+                 'entree_error_message' => 'auth.no_mail_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'
+                ]
+            ),
+
+            $helper->blockIfSchoolLvsActiveNoMailNotAllowedWhenMailAttributeIsNotPresent()
+        );
+
+        $startCount = SamlMessage::count();
+
+        $url = $helper->redirectIfNoMailPresentScenario();
+        $this->assertEquals($startCount+1, SamlMessage::count());
+
+        $message = SamlMessage::latest()->first();
+
+        $this->assertEquals(
+            route('auth.login', ['tab' => 'no_mail_present', 'uuid' => $message->uuid]),
+            $url
         );
     }
 }

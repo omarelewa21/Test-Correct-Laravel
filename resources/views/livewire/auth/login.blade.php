@@ -8,6 +8,8 @@
      wire:ignore.self
 >
     <div class="w-full max-w-[800px] space-y-4 mx-4 py-4">
+
+
         @if($tab == 'login')
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <div class="flex items-center space-x-2.5">
@@ -24,15 +26,15 @@
                     <div class="flex w-full space-x-6 mb-5 border-b border-light-grey">
                         <div :class="{'border-b-2 border-primary -mb-px' : openTab === 1}">
                             <x-button.text-button class="primary"
-{{--                                                  @click="openTab = 1"--}}
+                                {{--                                                  @click="openTab = 1"--}}
                             >
                                 {{ __('auth.log_in_verb') }}
                             </x-button.text-button>
                         </div>
-{{--                        <div class="" :class="{'border-b-2 border-primary -mb-px' : openTab === 2}">--}}
+                        {{--                        <div class="" :class="{'border-b-2 border-primary -mb-px' : openTab === 2}">--}}
                         <div>
                             <x-button.text-button class="disabled" disabled
-{{--                                                  @click="openTab = 2;"--}}
+                                {{--                                                  @click="openTab = 2;"--}}
                             >
                                 {{ __('auth.log_in_with_temporary_student_login') }}
                             </x-button.text-button>
@@ -64,10 +66,11 @@
 
                                         <span class="bold ml-2 mr-4">{{ __('auth.go_to_test_directly') }}</span>
 
-                                        <div class="flex relative justify-center items-center mr-2 base bg-blue-grey rounded-full "
-                                             style="width: 22px; height: 22px"
-                                             x-on:mouseenter="tooltip = true"
-                                             x-on:mouseleave="tooltip = false"
+                                        <div
+                                            class="flex relative justify-center items-center mr-2 base bg-blue-grey rounded-full "
+                                            style="width: 22px; height: 22px"
+                                            x-on:mouseenter="tooltip = true"
+                                            x-on:mouseleave="tooltip = false"
                                         >
                                             <x-icon.questionmark class="transform scale-75"/>
                                             <div class="absolute p-4 top-8 rounded-10 bg-off-white w-60 z-10 shadow-lg"
@@ -134,7 +137,8 @@
                                 @enderror
 
                                 @if($requireCaptcha)
-                                    <div x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
+                                    <div
+                                        x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
                                         <div class="notification error stretched mt-4">
                                             <div class="flex items-center space-x-3">
                                                 <x-icon.exclamation/>
@@ -165,7 +169,8 @@
                             {{-- With forgot_password button, ml_auto can be switched justify-between on the parent --}}
                             <div class="flex mt-auto pt-4 justify-between">
                                 <div class="flex order-2 space-x-4">
-                                    <x-button.primary type="link" class="bg-[#2e3192]" size="md" href="{{ route('saml2_login', 'entree') }}">
+                                    <x-button.primary type="link" class="bg-[#2e3192]" size="md"
+                                                      href="{{ route('saml2_login', 'entree') }}">
                                         <x-icon.entreefederatie/>
                                         <span>{{ __('auth.login_with_entree') }}</span>
                                     </x-button.primary>
@@ -173,7 +178,8 @@
                                         <span>{{ __('auth.log_in_verb') }}</span>
                                     </x-button.cta>
                                 </div>
-                                <x-button.text-button class="order-1" wire:click.prevent="$set('tab', 'forgotPassword')">
+                                <x-button.text-button class="order-1"
+                                                      wire:click.prevent="$set('tab', 'forgotPassword')">
                                     <span class="text-base">{{__('auth.forgot_password_long')}}</span>
                                     <x-icon.arrow/>
                                 </x-button.text-button>
@@ -256,11 +262,13 @@
                                 <div class="body">
                                     <span>{{ __('auth.forgot_password_email_send_text') }}</span>
                                     <div class="flex space-x-4">
-                                        <x-button.text-button class="text-sm primary space-x-1" wire:click.prevent="sendForgotPasswordEmail()">
+                                        <x-button.text-button class="text-sm primary space-x-1"
+                                                              wire:click.prevent="sendForgotPasswordEmail()">
                                             <span>{{ __('auth.send_mail_again') }}</span>
                                             <x-icon.arrow-small/>
                                         </x-button.text-button>
-                                        <x-button.text-button class="text-sm primary space-x-1" type="link" href="https://test-correct.nl/support" target="_blank">
+                                        <x-button.text-button class="text-sm primary space-x-1" type="link"
+                                                              href="https://test-correct.nl/support" target="_blank">
                                             <span>{{ __('auth.find_support') }}</span>
                                             <x-icon.arrow-small/>
                                         </x-button.text-button>
@@ -278,7 +286,8 @@
                                     <span>{{ __('auth.send_email') }}</span>
                                 </x-button.cta>
                             @endif
-                            <x-button.text-button class="order-1 rotate-svg-180" wire:click.prevent="$set('tab', 'login')">
+                            <x-button.text-button class="order-1 rotate-svg-180"
+                                                  wire:click.prevent="$set('tab', 'login')">
                                 <x-icon.arrow/>
                                 <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>
@@ -286,6 +295,162 @@
                     </div>
                 </form>
             </div>
+        @elseif($tab == 'no_mail_present')
+            <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
+
+                    <div class="flex items-center space-x-2.5 mb-5">
+                        <div class="flex">
+                            <x-stickers.login/>
+                        </div>
+                        <div>
+                            <h1>{{ __('auth.no_mail_present') }}</h1>
+                        </div>
+                    </div>
+                @if(!$this->samlMessageValid())
+                    <div class="flex flex-col flex-1 h-full">
+                        {{ __('auth.no_saml_message_found') }}
+                    </div>
+                @else
+
+                @if($this->doIHaveATcAccount === null)
+                        <div class="flex flex-col flex-1 h-full">
+                            Heb je al een TC account?
+                            <div class="mt-4 flex space-x-3 ">
+
+                                <x-button.cta class="order-1 ml" size="md"
+                                              wire:click="$set('doIHaveATcAccount', false)">
+                                    <span>{{ __('Nee') }}</span>
+                                </x-button.cta>
+                                <x-button.primary class="order-2" size="md"
+                                                  wire:click="$set('doIHaveATcAccount', true)">
+                                    <span>{{ __('Ja') }}</span>
+                                </x-button.primary>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($this->doIHaveATcAccount === true)
+                        <div class="flex flex-col flex-1 h-full">
+                            login met je reeds bestaande account zodat we deze kunnen mergen.
+                            <div class="flex flex-col flex-1" x-show="openTab === 1">
+                                <form wire:submit.prevent="loginForNoMailPresent" action="#" method="POST"
+                                      class="flex-col flex flex-1">
+                                    <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
+                                        <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
+                                            <x-input.text wire:model.lazy="username" autofocus></x-input.text>
+                                        </x-input.group>
+                                        <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
+                                            <x-input.text wire:model.lazy="password"
+                                                          x-bind:type="showPassword ? 'text' : 'password'"
+                                                          class="pr-12 overflow-ellipsis"
+                                            >
+                                            </x-input.text>
+                                            <x-icon.preview
+                                                class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
+                                                @click="showPassword = !showPassword"/>
+                                        </x-input.group>
+                                    </div>
+                                    <div class="error-section">
+                                        @error('entree_error')
+                                        <div class="notification error stretched mt-4">
+                                            <span class="title">{{ $message }}</span>
+                                        </div>
+                                        @enderror
+                                        @error('username')
+                                        <div class="notification error stretched mt-4">
+                                            <span class="title">{{ $message }}</span>
+                                        </div>
+                                        @enderror
+                                        @error('password')
+                                        <div class="notification error stretched mt-4">
+                                            <span class="title">{{ $message }}</span>
+                                        </div>
+                                        @enderror
+                                        @error('invalid_user')
+                                        <div class="notification error stretched mt-4">
+                                            <div class="flex items-center space-x-3">
+                                                <x-icon.exclamation/>
+                                                <span class="title">{{ __('auth.incorrect_credentials') }}</span>
+                                            </div>
+                                            <span class="body">{{ __('auth.incorrect_credentials_long') }}</span>
+                                        </div>
+                                        @enderror
+
+
+                                        @if($requireCaptcha)
+                                            <div
+                                                x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
+                                                <div class="notification error stretched mt-4">
+                                                    <div class="flex items-center space-x-3">
+                                                        <x-icon.exclamation/>
+                                                        <span class="title">{{ __('auth.require_captcha') }}</span>
+                                                    </div>
+                                                    <span class="body">{{ __('auth.require_captcha_long') }}</span>
+                                                </div>
+                                                <div class="mt-2 inline-flex flex-col items-center space-y-1">
+                                                    <div x-ref="captcha" wire:ignore>
+                                                        @captcha
+                                                    </div>
+                                                    <input type="text" id="captcha"
+                                                           class="form-input @error('captcha') border-all-red @enderror"
+                                                           name="captcha"
+                                                           wire:model="captcha" autocomplete="off"
+                                                           style="width: 180px"/>
+                                                </div>
+                                            </div>
+                                        @endif
+                                        @error('captcha')
+                                        <span class="text-sm all-red">{{ __('auth.incorrect_captcha') }}</span>
+                                        @enderror
+                                        @error('invalid_test_code')
+                                        <div class="notification error stretched mt-4">
+                                            <span class="title">{{ $message }}</span>
+                                        </div>
+                                        @enderror
+                                    </div>
+                                    {{-- With forgot_password button, ml_auto can be switched justify-between on the parent --}}
+                                    <div class="flex mt-auto pt-4 justify-between">
+                                        <div class="flex order-2 space-x-4">
+                                            <x-button.cta class="" size="md">
+                                                <span>{{ __('auth.log_in_verb') }}</span>
+                                            </x-button.cta>
+                                        </div>
+                                        <x-button.text-button class="order-1"
+                                                              wire:click.prevent="$set('tab', 'forgotPassword')">
+                                            <span class="text-base">{{__('auth.forgot_password_long')}}</span>
+                                            <x-icon.arrow/>
+                                        </x-button.text-button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($this->doIHaveATcAccount === false)
+                        <div class="flex flex-col flex-1 h-full">
+
+                            <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
+                                <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
+                                    <x-input.text wire:model.lazy="username" autofocus></x-input.text>
+                                </x-input.group>
+
+                            </div>
+                            {{-- With forgot_password button, ml_auto can be switched justify-between on the parent --}}
+                            <div class="flex mt-auto pt-4 justify-between">
+                                <div class="flex order-2 space-x-4">
+                                    <x-button.cta class="" size="md">
+                                        <span>{{ __('auth.send') }}</span>
+                                    </x-button.cta>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    @endif
+                @endif
+            </div>
+
         @elseif($tab == 'fatalError')
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <form wire:submit.prevent="entreeForm" action="#" method="POST"

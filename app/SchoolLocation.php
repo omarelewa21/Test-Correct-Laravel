@@ -45,13 +45,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     const SSO_ENTREE = 'Entreefederatie';
 
     protected $casts = [
-        'uuid'                    => EfficientUuid::class,
-        'allow_inbrowser_testing' => 'boolean',
-        'intense'                 => 'boolean',
-        'lvs'                     => 'boolean',
-        'lvs_active'              => 'boolean',
-        'sso'                     => 'boolean',
-        'sso_active'              => 'boolean',
+        'uuid'                       => EfficientUuid::class,
+        'allow_inbrowser_testing'    => 'boolean',
+        'intense'                    => 'boolean',
+        'lvs'                        => 'boolean',
+        'lvs_active'                 => 'boolean',
+        'sso'                        => 'boolean',
+        'sso_active'                 => 'boolean',
+        'lvs_active_no_mail_allowed' => 'boolean',
     ];
 
     /**
@@ -973,12 +974,12 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         }
 
         return $query->whereNotIn('id',
-            Period::where(function($query) use ($date) {
+            Period::where(function ($query) use ($date) {
                 return $query
-                    ->where( 'start_date', '>=', $date)
+                    ->where('start_date', '>=', $date)
                     ->orWhere('end_date', '>=', $date);
             })
-                ->join('school_years', 'school_year_id','school_years.id')
+                ->join('school_years', 'school_year_id', 'school_years.id')
                 ->join('school_location_school_years', 'school_location_school_years.school_year_id', 'school_years.id')
                 ->select('school_location_id')
         );
