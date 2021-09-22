@@ -353,12 +353,10 @@ class Login extends Component
             $this->addError('invalid_user', __('auth.failed'));
             return;
         }
+        $this->doLoginProcedure();
 
-        if(EntreeHelper::tryAccountMatchingWhenNoMailAttributePresent(auth()->user(), $message)) {
+        if(EntreeHelper::initWithMessage($message)->tryAccountMatchingWhenNoMailAttributePresent(auth()->user())) {
             auth()->user()->redirectToCakeWithTemporaryLogin();
-        } else {
-            dd('this does not seem to work please contact the helpdesk');
         }
-
     }
 }

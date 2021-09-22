@@ -315,15 +315,16 @@
                 @if($this->doIHaveATcAccount === null)
                         <div class="flex flex-col flex-1 h-full">
                             Heb je al een TC account?
-                            <div class="mt-auto flex w-full">
-                                <x-button.cta class="order-2 ml-auto" size="md"
-                                              wire:click="$set('doIHaveATcAccount', true)">
-                                    <span>{{ __('Ja') }}</span>
-                                </x-button.cta>
-                                <x-button.cta class="order-2 ml-auto" size="md"
+                            <div class="mt-4 flex space-x-3 ">
+
+                                <x-button.cta class="order-1 ml" size="md"
                                               wire:click="$set('doIHaveATcAccount', false)">
                                     <span>{{ __('Nee') }}</span>
                                 </x-button.cta>
+                                <x-button.primary class="order-2" size="md"
+                                                  wire:click="$set('doIHaveATcAccount', true)">
+                                    <span>{{ __('Ja') }}</span>
+                                </x-button.primary>
                             </div>
                         </div>
                     @endif

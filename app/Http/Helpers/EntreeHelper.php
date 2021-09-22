@@ -40,6 +40,17 @@ class EntreeHelper
         $this->messageId = $messageId;
     }
 
+    public static function initWithMessage(SamlMessage $message)
+    {
+        $instance = new self([], '');
+        $eckId = Crypt::decryptString($message->eck_id);
+        $instance->laravelUser = User::findByEckId($eckId)->first();
+
+        $instance->attr['eckId'] = [$eckId];
+
+        return $instance;
+    }
+
     protected function transformAttributesIfNeededAndReturn($attr)
     {
         // we may get employee, then we transfer it to teacher
@@ -51,9 +62,46 @@ class EntreeHelper
         return $attr;
     }
 
-    public static function tryAccountMatchingWhenNoMailAttributePresent(User $user, SamlMessage $message)
+    public function tryAccountMatchingWhenNoMailAttributePresent(User $oldUserWhereWeWouldLikeToMergeTheImportAccountTo)
     {
-        return true;
+        if (null == $this->laravelUser) {
+            $this->setLaravelUser();
+        }
+
+        if (null == $this->laravelUser) {
+            $this->addLogRows('tryAccountMatchingWhenNoMailAttributePresent');
+            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+            return $this->redirectToUrlAndExit($url);
+        }
+
+
+        if ($this->laravelUser->isA('Student')) {
+            if (!$this->laravelUser->inSchoolLocationAsUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                $url = route('auth.login', [
+                    'tab'                  => 'entree',
+                    'entree_error_message' => 'auth.student_account_not_found_in_this_location'
+                ]);
+                return $this->redirectToUrlAndExit($url);
+            } else {
+                return $this->handleMatchingWithinSchoolLocation($oldUserWhereWeWouldLikeToMergeTheImportAccountTo,
+                    $this->laravelUser);
+            }
+        } elseif ($this->laravelUser->isA('Teacher') && $oldUserWhereWeWouldLikeToMergeTheImportAccountTo->isA('Teacher')) {
+            ActingAsHelper::getInstance()->setUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo);
+            if ($this->laravelUser->inSchoolLocationAsUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                return $this->handleMatchingWithinSchoolLocation($oldUserWhereWeWouldLikeToMergeTheImportAccountTo,
+                    $this->laravelUser);
+            } elseif ($this->laravelUser->inSameKoepelAsUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                return $this->handleMatchingTeachersInKoepel($oldUserWhereWeWouldLikeToMergeTheImportAccountTo,
+                    $this->laravelUser);
+            }
+        }
+        $url = route('auth.login', [
+            'tab' => 'entree', 'entree_error_message' => 'auth.email_already_in_use_in_different_school_location'
+        ]);
+
+        return $this->redirectToUrlAndExit($url);
+
     }
 
     public function redirectIfBrinUnknown()
@@ -251,7 +299,7 @@ class EntreeHelper
         }
 
         if (!$this->emailMaybeEmpty && (!array_key_exists('mail', $this->attr) || !array_key_exists(0,
-                $this->attr['mail']))) {
+                    $this->attr['mail']))) {
             logger('No mail found');
             logger('==== credentials ====');
             $attr = $this->attr;
@@ -620,14 +668,17 @@ class EntreeHelper
 
     public function redirectIfNoMailPresentScenario()
     {
-        $samlMessage = $this->createSamlMessageWithEmptyEmail();
+        $userFromSamlRequest = User::findByEckId($this->getEckIdFromAttributes())->first();
+        if (optional($userFromSamlRequest)->hasImportMailAddress()) {
+            $samlMessage = $this->createSamlMessageWithEmptyEmail();
 
-        $url = route('auth.login',[
-            'tab' => 'no_mail_present',
-            'uuid' => $samlMessage->uuid
-            ]
-        );
-        return $this->redirectToUrlAndExit($url);
+            $url = route('auth.login', [
+                    'tab'  => 'no_mail_present',
+                    'uuid' => $samlMessage->uuid
+                ]
+            );
+            return $this->redirectToUrlAndExit($url);
+        }
     }
 
 

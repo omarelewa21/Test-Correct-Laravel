@@ -56,7 +56,7 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->redirectIfUserNotInSameSchool();
 
-            $entreeHelper->redirectIfNoMailPresent();
+            $entreeHelper->redirectIfNoMailPresentScenario();
 
             $entreeHelper->handleScenario2IfAddressIsKnownInOtherAccount();
 
