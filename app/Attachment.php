@@ -186,15 +186,17 @@ class Attachment extends BaseModel
         preg_match($youtubeRegex, $this->link, $matches);
         if (!empty($matches['video_id'])) {
             $parts = parse_url($this->link);
-            parse_str($parts['query'], $query);
             $t = 0;
-            switch (true) {
-                case isset($query['t']):
-                    $t = $query['t'];
-                    break;
-                case isset($query['start']):
-                    $t = $query['start'];
-                    break;
+            if (!empty($parts['query'])) {
+                parse_str($parts['query'], $query);
+                switch (true) {
+                    case isset($query['t']):
+                        $t = $query['t'];
+                        break;
+                    case isset($query['start']):
+                        $t = $query['start'];
+                        break;
+                }
             }
             return sprintf('https://www.youtube.com/embed/%s?rel=0&start=%d', $matches['video_id'], $t);
         }
