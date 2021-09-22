@@ -89,9 +89,11 @@ class EntreeHelper
         } elseif ($this->laravelUser->isA('Teacher') && $oldUserWhereWeWouldLikeToMergeTheImportAccountTo->isA('Teacher')) {
             ActingAsHelper::getInstance()->setUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo);
             if ($this->laravelUser->inSchoolLocationAsUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($oldUserWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
                 return $this->handleMatchingWithinSchoolLocation($oldUserWhereWeWouldLikeToMergeTheImportAccountTo,
                     $this->laravelUser);
             } elseif ($this->laravelUser->inSameKoepelAsUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($oldUserWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
                 return $this->handleMatchingTeachersInKoepel($oldUserWhereWeWouldLikeToMergeTheImportAccountTo,
                     $this->laravelUser);
             }
