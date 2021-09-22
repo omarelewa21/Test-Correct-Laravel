@@ -685,5 +685,13 @@ class EntreeHelper
         }
     }
 
+    public static function handleNewEmailForUserWithoutEmailAttribute($message, string $username)
+    {
+        if ($user = User::findByEckId(Crypt::decrypt($message->eck_id))->first()) {
+            $user->username = $username;
+            $user->save();
+        }
 
+        return $user;
+    }
 }

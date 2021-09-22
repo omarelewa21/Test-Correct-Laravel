@@ -37,11 +37,13 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab', 'uuid', 'entree_error_message'];
+    protected $queryString = ['tab', 'uuid', 'entree_error_message', 'fatal_error_message'];
 
-    public $tab = 'login';
+    public $tab = 'fatalError';
 
     public $uuid = '';
+
+    public $fatal_error_message = false;
 
     public $entree_error_message = '';
 
@@ -100,7 +102,7 @@ class Login extends Component
 
         $credentials = $this->validate();
         if (!auth()->attempt($credentials)) {
-            if($this->requireCaptcha) {
+            if ($this->requireCaptcha) {
                 $this->reset('captcha');
                 $this->emit('refresh-captcha');
                 return;
@@ -110,7 +112,7 @@ class Login extends Component
             return;
         }
 
-        if((Auth()->user()->isA('teacher') || Auth()->user()->isA('student')) && EntreeHelper::shouldPromptForEntree(auth()->user())) {
+        if ((Auth()->user()->isA('teacher') || Auth()->user()->isA('student')) && EntreeHelper::shouldPromptForEntree(auth()->user())) {
             auth()->logout();
             return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
@@ -187,7 +189,7 @@ class Login extends Component
 
         $this->guestLoginButtonDisabled = !(filled($this->firstName) && filled($this->lastName) && count($this->testTakeCode) == 6);
 
-        if($this->couldBeEmail($this->entreeEmail) && filled($this->entreePassword)) {
+        if ($this->couldBeEmail($this->entreeEmail) && filled($this->entreePassword)) {
             $this->connectEntreeButtonDisabled = false;
         }
 
@@ -212,11 +214,11 @@ class Login extends Component
         $user = User::whereUsername($this->forgotPasswordEmail)->first();
         if ($user) {
             $token = Password::getRepository()->create($user);
-            $url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
+            $url = sprintf('%spassword-reset/?token=%%s', config('app.base_url'));
             $urlLogin = route('auth.login');
 
             try {
-                Mail::to($user->username)->send(new SendForgotPasswordMail($user,$token,$url,$urlLogin));
+                Mail::to($user->username)->send(new SendForgotPasswordMail($user, $token, $url, $urlLogin));
             } catch (\Throwable $th) {
                 Bugsnag::notifyException($th);
             }
@@ -227,7 +229,7 @@ class Login extends Component
 
     private function isTestTakeCodeValid(): bool
     {
-        foreach ($this->testTakeCode as $key => $value){
+        foreach ($this->testTakeCode as $key => $value) {
             if (!$value) {
                 $this->addError('invalid_test_code', __('auth.test_code_invalid'));
                 return false;
@@ -274,13 +276,14 @@ class Login extends Component
         }
     }
 
-    public function samlMessageValid() {
-        $message =  SamlMessage::whereUuid($this->uuid)->first();
+    public function samlMessageValid()
+    {
+        $message = SamlMessage::whereUuid($this->uuid)->first();
         if ($message == null) {
             return false;
         }
 
-        if($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
+        if ($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
             return false;
         }
 
@@ -303,7 +306,7 @@ class Login extends Component
             return $this->addError('entree_error', __('auth.no_saml_message_found'));
         }
 
-        if($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
+        if ($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
             return $this->addError('entree_error', __('auth.saml_message_to_old'));
         }
 
@@ -313,7 +316,7 @@ class Login extends Component
         }
         $user = auth::user();
 
-        if (! empty($user->eckId)) {
+        if (!empty($user->eckId)) {
             return $this->addError('entree_error', __('auth.eck_id_already_set_for_user'));
         }
 
@@ -324,7 +327,8 @@ class Login extends Component
         $user->redirectToCakeWithTemporaryLogin();
     }
 
-    public function loginForNoMailPresent(){
+    public function loginForNoMailPresent()
+    {
         $message = SamlMessage::whereUuid($this->uuid)->first();
 
         if ($message == null) {
@@ -344,7 +348,7 @@ class Login extends Component
 
         $credentials = $this->validate();
         if (!auth()->attempt($credentials)) {
-            if($this->requireCaptcha) {
+            if ($this->requireCaptcha) {
                 $this->reset('captcha');
                 $this->emit('refresh-captcha');
                 return;
@@ -355,8 +359,40 @@ class Login extends Component
         }
         $this->doLoginProcedure();
 
-        if(EntreeHelper::initWithMessage($message)->tryAccountMatchingWhenNoMailAttributePresent(auth()->user())) {
+        if (EntreeHelper::initWithMessage($message)->tryAccountMatchingWhenNoMailAttributePresent(auth()->user())) {
             auth()->user()->redirectToCakeWithTemporaryLogin();
         }
+    }
+
+    public function emailEnteredForNoMailPresent()
+    {
+        // validate entered emailaddress
+        $this->validateOnly('username');
+        if (User::where('username', $this->username)->exists()) {
+            return $this->addError('username', __('auth.email_already_in_use'));
+        }
+        $message = SamlMessage::whereUuid($this->uuid)->first();
+
+        if ($message == null) {
+            return $this->addError('entree_error', __('auth.no_saml_message_found'));
+        }
+
+
+        if ($user = EntreeHelper::handleNewEmailForUserWithoutEmailAttribute($message, $this->username)) {
+            auth()->login($user);
+            $this->doLoginProcedure();
+            return $user->redirectToCakeWithTemporaryLogin();
+        }
+
+        return redirect()->to(
+            route('auth.login',
+                [
+                    'tab'                 => 'fatalError',
+                    'fatalErrorMessage' => 'auth.error_please_contact_service_desk',
+                ]
+            )
+        );
+
+
     }
 }
