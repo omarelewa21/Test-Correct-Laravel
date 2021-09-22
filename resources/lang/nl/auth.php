@@ -74,4 +74,6 @@ return [
     'brin_four_detected'                                                                           => 'Uw Entree account bevat een 4 cijferige brincode. We kunnen uw account niet aan een schoollocatie linken, neem contact op met de helpdesk.',
     'no_mail_attribute_found_in_saml_request_school_location_does_not_support_login_without_email' => 'Geen mail attribute gevonden in saml message, neem contact op met de helpdesk.',
     'send'                                                                                         => 'Verzenden',
+    'email_already_in_use'                                                                         => 'Email bestaat al, weet je zeker dat je geen bestaand Test-Correct account hebt?',
+    'error_please_contact_service_desk'                                                            => 'Dit is een rare fout bij het syncen van je emailadress met je import account, neem contact op met de helpdesk.',
 ];

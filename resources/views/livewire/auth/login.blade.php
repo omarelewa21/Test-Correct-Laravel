@@ -298,21 +298,21 @@
         @elseif($tab == 'no_mail_present')
             <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
 
-                    <div class="flex items-center space-x-2.5 mb-5">
-                        <div class="flex">
-                            <x-stickers.login/>
-                        </div>
-                        <div>
-                            <h1>{{ __('auth.no_mail_present') }}</h1>
-                        </div>
+                <div class="flex items-center space-x-2.5 mb-5">
+                    <div class="flex">
+                        <x-stickers.login/>
                     </div>
+                    <div>
+                        <h1>{{ __('auth.no_mail_present') }}</h1>
+                    </div>
+                </div>
                 @if(!$this->samlMessageValid())
                     <div class="flex flex-col flex-1 h-full">
                         {{ __('auth.no_saml_message_found') }}
                     </div>
                 @else
 
-                @if($this->doIHaveATcAccount === null)
+                    @if($this->doIHaveATcAccount === null)
                         <div class="flex flex-col flex-1 h-full">
                             Heb je al een TC account?
                             <div class="mt-4 flex space-x-3 ">
@@ -428,22 +428,31 @@
 
                     @if($this->doIHaveATcAccount === false)
                         <div class="flex flex-col flex-1 h-full">
+                            <form wire:submit.prevent="emailEnteredForNoMailPresent" action="#" method="POST"
+                                  class="flex-col flex flex-1">
 
-                            <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
-                                <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                    <x-input.text wire:model.lazy="username" autofocus></x-input.text>
-                                </x-input.group>
+                                <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
+                                    <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
+                                        <x-input.text wire:model.lazy="username" autofocus></x-input.text>
+                                    </x-input.group>
 
-                            </div>
-                            {{-- With forgot_password button, ml_auto can be switched justify-between on the parent --}}
-                            <div class="flex mt-auto pt-4 justify-between">
-                                <div class="flex order-2 space-x-4">
-                                    <x-button.cta class="" size="md">
-                                        <span>{{ __('auth.send') }}</span>
-                                    </x-button.cta>
                                 </div>
+                                <div class="error-section">
+                                    @error('username')
+                                    <div class="notification error stretched mt-4">
+                                        <span class="title">{{ $message }}</span>
+                                    </div>
+                                    @enderror
+                                </div>
+                                <div class="flex mt-4 pt-4 justify-between">
+                                    <div class="flex order-2 space-x-4 w-full">
+                                        <x-button.cta class="ml-auto" size="md">
+                                            <span>{{ __('auth.send') }}</span>
+                                        </x-button.cta>
+                                    </div>
 
-                            </div>
+                                </div>
+                            </form>
 
 
                         </div>
@@ -468,7 +477,7 @@
 
                         <div class="flex">
                             <div class="notification error stretched mt-4">
-                                <span class="title">{{ $fatalErrorMessage }}</span>
+                                <span class="title">{{ $fatal_error_message }}</span>
                             </div>
                         </div>
 
