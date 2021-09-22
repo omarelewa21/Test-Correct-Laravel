@@ -477,7 +477,7 @@
 
                         <div class="flex">
                             <div class="notification error stretched mt-4">
-                                <span class="title">{{ $fatal_error_message }}</span>
+                                <span class="title">{!!  __($fatal_error_message) !!}</span>
                             </div>
                         </div>
 
