@@ -2173,7 +2173,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                         Bugsnag::notifyException($th);
                     }
                     if (!$done) {
-                        $this->teacher()->save($tRecord);
+                        try {
+                            $this->teacher()->save($tRecord);
+                        } catch (\Throwable $e) {
+                            // could be that the teacher class already exists, then you get a database integrity constraint, that's okay we don't do
+                            // anything with it
+                        }
                     }
                 }
             });
