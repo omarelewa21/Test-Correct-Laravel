@@ -320,6 +320,10 @@ class UsersController extends Controller
 
         }
 
+        if (is_array($request->get('with')) && in_array('sessionHash', $request->get('with'))) {
+            $user->makeVisible('session_hash');
+        }
+
         if($this->hasTeacherRole($user)){
             $externalId = $this->getExternalIdForSchoolLocationOfLoggedInUser($user);
             $user->teacher_external_id = $externalId;
