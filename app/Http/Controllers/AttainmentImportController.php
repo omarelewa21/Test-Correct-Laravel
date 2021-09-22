@@ -124,7 +124,7 @@ class AttainmentImportController extends Controller
 
     }
 
-    public function importForUpdateOrCreate(Requests\AttainmentImportRequest $request)
+    public function importForUpdateOrCreate(Request $request)
     {
         $excelFile = $request->file('attainments');
         $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($excelFile);
