@@ -2179,6 +2179,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                             // could be that the teacher class already exists, then you get a database integrity constraint, that's okay we don't do
                             // anything with it
                         }
+                        $tRecord->delete();
                     }
                 }
             });
