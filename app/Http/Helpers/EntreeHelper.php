@@ -84,7 +84,7 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->addLogRows('tryAccountMatchingWhenNoMailAttributePresent');
-            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true]);
+            $url = route('auth.login', ['tab' => 'fatal_error', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true,]);
             return $this->redirectToUrlAndExit($url);
         }
 
@@ -467,7 +467,7 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->addLogRows('handleScenario1');
-            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true]);
             return $this->redirectToUrlAndExit($url);
         }
 
@@ -487,7 +487,7 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->addLogRows('handleScenario2IfAddressIsKnownInOtherAccount');
-            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true]);
+            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
             return $this->redirectToUrlAndExit($url);
         }
 
@@ -517,7 +517,7 @@ class EntreeHelper
         if ($rolePass === false) {
             return $this->redirectToUrlAndExit(
                     route('auth.login', [
-                        'tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true
+                        'tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true,
                     ])
                 );
         }
@@ -724,8 +724,7 @@ class EntreeHelper
                     $this->laravelUser);
             } elseif ($this->laravelUser->inSameKoepelAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
                 DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($userWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
-                return $this->handleMatchingTeachersInKoepel(
-                    $userWhereWeWouldLikeToMergeTheImportAccountTo,
+                return $this->handleMatchingTeachersInKoepel($userWhereWeWouldLikeToMergeTheImportAccountTo,
                     $this->laravelUser);
             }
         }
