@@ -353,5 +353,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('/convert/html/pdf','PdfController@HtmlToPdf')->name('convert.htmltopdf');
 
     Route::put('support/register_take_over/{user}','SupportTakeOverLogController@store')->name('support_take_over_log.store');
+    Route::get('support/show/{user}','SupportTakeOverLogController@show')->name('support_take_over_log.show');
+    Route::get('support/index','SupportTakeOverLogController@index')->name('support_take_over_log.index');
 
 });

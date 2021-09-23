@@ -18,12 +18,6 @@ class SupportTakeOverLog extends Model
     protected $casts = [
         'uuid' => EfficientUuid::class,
     ];
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * The attributes that are mass assignable.

@@ -477,6 +477,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $this->hasMany(LoginLog::class);
     }
 
+    public function supportTakeOverLogs()
+    {
+        return $this->hasMany(SupportTakeOverLog::class, 'support_user_id');
+    }
+
     public function appVersionInfos()
     {
         return $this->hasMany(AppVersionInfo::class);
