@@ -359,7 +359,7 @@ class Login extends Component
         }
         $this->doLoginProcedure();
 
-        if (EntreeHelper::initWithMessage($message)->tryAccountMatchingWhenNoMailAttributePresent(auth()->user())) {
+        if (EntreeHelper::initWithMessage($message)->setContext('livewire')->tryAccountMatchingWhenNoMailAttributePresent(auth()->user()) === true) {
             auth()->user()->redirectToCakeWithTemporaryLogin();
         }
     }
