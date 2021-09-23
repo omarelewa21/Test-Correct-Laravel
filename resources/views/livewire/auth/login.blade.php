@@ -351,6 +351,15 @@
                                         </x-input.group>
                                     </div>
                                     <div class="error-section">
+                                        @if($this->entree_error_message)
+                                            <div class="notification error stretched mt-4">
+                                                <div class="flex items-center space-x-3">
+                                                    <x-icon.exclamation/>
+                                                    <span class="title">{{ __('auth.entree_error') }}</span>
+                                                </div>
+                                                <span class="body">{{ __($this->entree_error_message) }}</span>
+                                            </div>
+                                        @endif
                                         @error('entree_error')
                                         <div class="notification error stretched mt-4">
                                             <span class="title">{{ $message }}</span>
