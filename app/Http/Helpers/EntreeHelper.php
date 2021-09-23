@@ -517,7 +517,7 @@ class EntreeHelper
         if ($rolePass === false) {
             return $this->redirectToUrlAndExit(
                     route('auth.login', [
-                        'tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up',
+                        'tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true
                     ])
                 );
         }
@@ -724,7 +724,8 @@ class EntreeHelper
                     $this->laravelUser);
             } elseif ($this->laravelUser->inSameKoepelAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
                 DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($userWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
-                return $this->handleMatchingTeachersInKoepel($userWhereWeWouldLikeToMergeTheImportAccountTo,
+                return $this->handleMatchingTeachersInKoepel(
+                    $userWhereWeWouldLikeToMergeTheImportAccountTo,
                     $this->laravelUser);
             }
         }
