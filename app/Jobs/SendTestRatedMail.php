@@ -14,7 +14,7 @@ class SendTestRatedMail extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     protected $testTake;
-    public $queue = 'mail';
+
 
     /**
      * Create a new job instance.
@@ -24,6 +24,7 @@ class SendTestRatedMail extends Job implements ShouldQueue
      */
     public function __construct(TestTake $testTake)
     {
+        $this->queue = 'mail';
         $this->testTake = $testTake;
     }
 
