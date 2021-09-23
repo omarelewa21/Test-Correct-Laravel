@@ -37,13 +37,15 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab', 'uuid', 'entree_error_message', 'fatal_error_message'];
+    protected $queryString = ['tab', 'uuid', 'entree_error_message', 'fatal_error_message','block_back'];
 
     public $tab = 'login';
 
     public $uuid = '';
 
     public $fatal_error_message = false;
+
+    public $block_back = false;
 
     public $entree_error_message = '';
 

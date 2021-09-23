@@ -491,10 +491,12 @@
                         </div>
 
                         <div class="mt-auto flex w-full">
+                            @if(!$block_back)
                             <x-button.text-button class="rotate-svg-180" wire:click.prevent="$set('tab', 'login')">
                                 <x-icon.arrow/>
                                 <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>
+                            @endif
                         </div>
                     </div>
                 </form>
