@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use tcCore\SamlMessage;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\TestParticipant;
 use tcCore\User;
 
 class EntreeHelper
@@ -75,34 +76,7 @@ class EntreeHelper
         }
 
 
-        if ($this->laravelUser->isA('Student')) {
-            if (!$this->laravelUser->inSchoolLocationAsUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo)) {
-                $url = route('auth.login', [
-                    'tab'                  => 'entree',
-                    'entree_error_message' => 'auth.student_account_not_found_in_this_location'
-                ]);
-                return $this->redirectToUrlAndExit($url);
-            } else {
-                return $this->handleMatchingWithinSchoolLocation($oldUserWhereWeWouldLikeToMergeTheImportAccountTo,
-                    $this->laravelUser);
-            }
-        } elseif ($this->laravelUser->isA('Teacher') && $oldUserWhereWeWouldLikeToMergeTheImportAccountTo->isA('Teacher')) {
-            ActingAsHelper::getInstance()->setUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo);
-            if ($this->laravelUser->inSchoolLocationAsUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo)) {
-                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($oldUserWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
-                return $this->handleMatchingWithinSchoolLocation($oldUserWhereWeWouldLikeToMergeTheImportAccountTo,
-                    $this->laravelUser);
-            } elseif ($this->laravelUser->inSameKoepelAsUser($oldUserWhereWeWouldLikeToMergeTheImportAccountTo)) {
-                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($oldUserWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
-                return $this->handleMatchingTeachersInKoepel($oldUserWhereWeWouldLikeToMergeTheImportAccountTo,
-                    $this->laravelUser);
-            }
-        }
-        $url = route('auth.login', [
-            'tab' => 'entree', 'entree_error_message' => 'auth.email_already_in_use_in_different_school_location'
-        ]);
-
-        return $this->redirectToUrlAndExit($url);
+        return $this->mergeAccountStrategies($oldUserWhereWeWouldLikeToMergeTheImportAccountTo);
 
     }
 
@@ -510,41 +484,40 @@ class EntreeHelper
             ->where('id', '<>', $this->laravelUser->id)
             ->first();
         if ($otherUserWithEmailAddress) {
-            if ($this->laravelUser->isA('Student')) {
-                if (!$this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
-                    $url = route('auth.login', [
-                        'tab'                  => 'entree',
-                        'entree_error_message' => 'auth.student_account_not_found_in_this_location'
-                    ]);
-                    return $this->redirectToUrlAndExit($url);
-                } else {
-                    return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
-                }
-            } elseif ($this->laravelUser->isA('Teacher') && $otherUserWithEmailAddress->isA('Teacher')) {
-                ActingAsHelper::getInstance()->setUser($otherUserWithEmailAddress);
-                if ($this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
-                    DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($otherUserWithEmailAddress->schoolLocation);
-                    return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
-                } elseif ($this->laravelUser->inSameKoepelAsUser($otherUserWithEmailAddress)) {
-                    DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($otherUserWithEmailAddress->schoolLocation);
-                    return $this->handleMatchingTeachersInKoepel($otherUserWithEmailAddress, $this->laravelUser);
-                }
-            }
-            $url = route('auth.login', [
-                'tab' => 'entree', 'entree_error_message' => 'auth.email_already_in_use_in_different_school_location'
-            ]);
-
-            return $this->redirectToUrlAndExit($url);
+            return $this->mergeAccountStrategies($otherUserWithEmailAddress);
         }
 
         return false;
     }
 
+    private function redirectIfRolesDontMatch(User $userOne, User $userTwo)
+    {
+        $rolePass = false;
+
+        if ($userOne->isA('teacher') && $userTwo->isA('teacher')) {
+            $rolePass = true;
+        }
+
+        if ($userOne->isA('student') && $userTwo->isA('student')) {
+            $rolePass = true;
+        }
+
+        if ($rolePass === false) {
+            return $this->redirectToUrlAndExit(
+                route('auth.login', [
+                    'tab' => 'entree', 'entree_error_message' => 'auth.roles_do_not_match_up'
+                ])
+            );
+        }
+    }
+
     private function handleMatchingWithinSchoolLocation(User $oldUser, User $user)
     {
+        $this->redirectIfRolesDontMatch($oldUser, $user);
+
         try {
             DB::beginTransaction();
-            $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
+            $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser($oldUser, $user);
             if ($this->shouldThrowAnErrorDuringTransaction) {
                 throw new \Exception('Simmulating error during matching procedure');
             }
@@ -560,8 +533,11 @@ class EntreeHelper
         return true;
     }
 
-    private function copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser(User $oldUser, User $user)
+    private function copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser(User $oldUser, User $user)
     {
+        // move test participant to old user
+        TestParticipant::where('user_id',$user->getKey())->update(['user_id',$oldUser->getKey()]);
+
         $eckId = $user->eckId;
         $user->removeEckId();
         $oldUser->setEckidAttribute($eckId);
@@ -576,11 +552,13 @@ class EntreeHelper
 
     private function handleMatchingTeachersInKoepel(User $oldUser, User $user)
     {
+        $this->redirectIfRolesDontMatch($oldUser, $user);
+
         if ($oldUser->isA('teacher')) {
             try {
                 DB::beginTransaction();
                 $oldUser->addSchoolLocation($user->schoolLocation);
-                $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
+                $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser($oldUser, $user);
                 if ($this->shouldThrowAnErrorDuringTransaction) {
                     throw new \Exception('Simmulating error during matching procedure');
                 }
@@ -693,5 +671,37 @@ class EntreeHelper
         }
 
         return $user;
+    }
+
+    private function mergeAccountStrategies(User $userWhereWeWouldLikeToMergeTheImportAccountTo)
+    {
+        if ($this->laravelUser->isA('Student')) {
+            if (!$this->laravelUser->inSchoolLocationAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                $url = route('auth.login', [
+                    'tab'                  => 'entree',
+                    'entree_error_message' => 'auth.student_account_not_found_in_this_location'
+                ]);
+                return $this->redirectToUrlAndExit($url);
+            } else {
+                return $this->handleMatchingWithinSchoolLocation($userWhereWeWouldLikeToMergeTheImportAccountTo,
+                    $this->laravelUser);
+            }
+        } elseif ($this->laravelUser->isA('Teacher') && $userWhereWeWouldLikeToMergeTheImportAccountTo->isA('Teacher')) {
+            ActingAsHelper::getInstance()->setUser($userWhereWeWouldLikeToMergeTheImportAccountTo);
+            if ($this->laravelUser->inSchoolLocationAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($userWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
+                return $this->handleMatchingWithinSchoolLocation($userWhereWeWouldLikeToMergeTheImportAccountTo,
+                    $this->laravelUser);
+            } elseif ($this->laravelUser->inSameKoepelAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($userWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
+                return $this->handleMatchingTeachersInKoepel($userWhereWeWouldLikeToMergeTheImportAccountTo,
+                    $this->laravelUser);
+            }
+        }
+        $url = route('auth.login', [
+            'tab' => 'entree', 'entree_error_message' => 'auth.email_already_in_use_in_different_school_location'
+        ]);
+
+        return $this->redirectToUrlAndExit($url);
     }
 }
