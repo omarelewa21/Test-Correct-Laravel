@@ -328,7 +328,7 @@ class EntreeHelper
     {
         $this->validateAttributes();
         if ($url = $this->redirectIfBrinNotSso()) {
-            return $url;
+            return $this->redirectToUrlAndExit($url);
         }
 
         if ($this->isTeacherBasedOnAttributes()) {
