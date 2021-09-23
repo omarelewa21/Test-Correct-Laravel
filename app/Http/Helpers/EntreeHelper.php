@@ -38,6 +38,8 @@ class EntreeHelper
 
     protected $context = null;
 
+    protected $messageUuid = null;
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
@@ -50,6 +52,7 @@ class EntreeHelper
         $eckId = Crypt::decryptString($message->eck_id);
         $instance->laravelUser = User::findByEckId($eckId)->first();
         $instance->location = $instance->laravelUser->schoolLocation;
+        $instance->messageUuid = $message->uuid;
 
         $instance->attr['eckId'] = [$eckId];
 
@@ -81,7 +84,7 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->addLogRows('tryAccountMatchingWhenNoMailAttributePresent');
-            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+            $url = route('auth.login', ['tab' => 'no_mail_present', 'entree_error_message' => 'auth.roles_do_not_match_up']);
             return $this->redirectToUrlAndExit($url);
         }
 
@@ -513,10 +516,10 @@ class EntreeHelper
 
         if ($rolePass === false) {
             return $this->redirectToUrlAndExit(
-                route('auth.login', [
-                    'tab' => 'entree', 'entree_error_message' => 'auth.roles_do_not_match_up'
-                ])
-            );
+                    route('auth.login', [
+                        'tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up',
+                    ])
+                );
         }
         return true;
     }
