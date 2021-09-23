@@ -126,7 +126,7 @@ class AttainmentImportController extends Controller
 
     public function importForUpdateOrCreate(Request $request)
     {
-        $excelFile = $request->file('attainments');
+        $excelFile = $request->attainments;
         $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($excelFile);
         $added = 0;
         $updated = 0;
@@ -136,6 +136,8 @@ class AttainmentImportController extends Controller
             $this->attainmentsCollection = collect($attainmentManifest->getAttainmentResources());
             $this->checkBaseSubjectsIntegrity();
             $this->checkEducationLevelIntegrity();
+            $this->checkLevelCodeSubcodeSubsubcodeCombination();
+            $this->fillInParents();
             $this->attainmentsCollection->each(function ($resource) use (&$added,&$updated) {
                 if(is_null($resource->id)){
                     $parentId = $this->findParent($resource);
@@ -158,9 +160,9 @@ class AttainmentImportController extends Controller
 
     protected function checkBaseSubjectsIntegrity()
     {
-        $baseSubjects = BaseSubject::all()->pluck(['id', 'name'])->toArray();
+        $baseSubjects = BaseSubject::all()->pluck('name','id')->toArray();
         foreach ($this->attainmentsCollection as $attainmentResource) {
-            if (is_null($attainmentResource->id)) {
+            if (is_null($attainmentResource->base_subject_id)) {
                 continue;
             }
             if (!array_key_exists($attainmentResource->base_subject_id, $baseSubjects)) {
@@ -168,7 +170,7 @@ class AttainmentImportController extends Controller
                     'unknown base_subject_id:' . $attainmentResource->base_subject_id . ' attainment:' . json_encode($attainmentResource)
                 );
             }
-            if (strtolower($baseSubjects[$attainmentResource->id]) != strtolower($attainmentResource->base_subject_name)) {
+            if (strtolower($baseSubjects[$attainmentResource->base_subject_id]) != strtolower($attainmentResource->base_subject_name)) {
                 throw new \Exception(
                     'base_subject_is with wrong name base_subject_id:' . $attainmentResource->base_subject_id . ' base_subject_name:' . $attainmentResource->base_subject_name . ' attainment:' . json_encode($attainmentResource)
                 );
@@ -179,19 +181,19 @@ class AttainmentImportController extends Controller
 
     protected function checkEducationLevelIntegrity()
     {
-        $educationLevels = EducationLevel::all()->pluck(['id', 'name'])->toArray();
+        $educationLevels = EducationLevel::all()->pluck('name','id')->toArray();
         foreach ($this->attainmentsCollection as $attainmentResource) {
-            if (is_null($attainmentResource->id)) {
+            if (is_null($attainmentResource->education_level_id)) {
                 continue;
             }
-            if (!array_key_exists($attainmentResource->eduction_level_id, $educationLevels)) {
+            if (!array_key_exists($attainmentResource->education_level_id, $educationLevels)) {
                 throw new \Exception(
-                    'unknown eduction_level_id:' . $attainmentResource->eduction_level_id . ' attainment:' . json_encode($attainmentResource)
+                    'unknown education_level_id:' . $attainmentResource->education_level_id . ' attainment:' . json_encode($attainmentResource)
             );
             }
-            if (strtolower($educationLevels[$attainmentResource->id]) != strtolower($attainmentResource->education_level_name)) {
+            if (strtolower($educationLevels[$attainmentResource->education_level_id]) != strtolower($attainmentResource->education_level_name)) {
                 throw new \Exception(
-                    'base_subject_is with wrong name eduction_level_id:' . $attainmentResource->eduction_level_id . ' education_level_name:' . $attainmentResource->education_level_name . ' attainment:' . json_encode($attainmentResource)
+                    'base_subject_is with wrong name education_level_id:' . $attainmentResource->education_level_id . ' education_level_name:' . $attainmentResource->education_level_name . ' attainment:' . json_encode($attainmentResource)
                 );
             }
         }
@@ -232,8 +234,20 @@ class AttainmentImportController extends Controller
         $attainment->save();
     }
 
+    protected function checkLevelCodeSubcodeSubsubcodeCombination()
+    {
+        $checkArr = $this->attainmentsCollection->map(function ($item, $key) {
+            return $item->base_subject_name.';'.$item->education_level_id.';'.$item->code.';'.$item->subcode.';'.$item->subsubcode;
+        })->toArray();
+        if(count($checkArr)!=count(array_unique($checkArr))){
+            $diff = array_unique( array_diff_assoc($checkArr,array_unique($checkArr)));
+            throw new \Exception('duplicate education_level_id/code/subcode/subsubcode' . json_encode($diff));
+        }
+    }
+
     protected function findParent($resource)
     {
+
         if(!is_null($resource->id)){
             return $resource->attainment_id;
         }
@@ -247,6 +261,7 @@ class AttainmentImportController extends Controller
             throw new \Exception('cannot identify attainment_id for entry with a subcode. parent_temp_id is empty. attainment:' . json_encode($resource));
         }
         $parent = $this->attainmentsCollection->where('temp_id',$resource->parent_temp_id)->first();
+
         if(is_null($parent)){
             throw new \Exception('cannot identify attainment_id for entry with a subcode. cannot find entry with temp_id:'.$resource->parent_temp_id.'. attainment:' . json_encode($resource));
         }
@@ -254,6 +269,62 @@ class AttainmentImportController extends Controller
             throw new \Exception('cannot identify attainment_id for entry with a subcode. entry with temp_id:'.$resource->parent_temp_id.' has not yet an id. attainment:' . json_encode($resource));
         }
         return $parent->id;
+    }
+
+    protected function fillInParents()
+    {
+        $this->assignTempIds();
+        foreach ($this->attainmentsCollection as $key => $attainmentResource) {
+            if(!is_null($attainmentResource->attainment_id)){
+                continue;
+            }
+            if(!is_null($attainmentResource->subcode)&&is_null($attainmentResource->subsubcode)){
+                $this->assignParentTempIdToSub($attainmentResource,$key);
+            }
+            if(!is_null($attainmentResource->subcode)&&!is_null($attainmentResource->subsubcode)){
+                $this->assignParentTempIdToSubsub($attainmentResource,$key);
+            }
+        }
+    }
+
+    protected function assignTempIds()
+    {
+        foreach ($this->attainmentsCollection as $key => $attainmentResource) {
+            $attainmentResource->temp_id = $key;
+        }
+    }
+
+    protected function assignParentTempIdToSub(&$attainmentResource,$key)
+    {
+        $handled = false;
+
+        while(!$handled){
+            $prevAttainment = $this->attainmentsCollection[$key];
+            if(is_null($prevAttainment->subcode)){
+                $attainmentResource->parent_temp_id = $key;
+                $handled = true;
+            }
+            $key--;
+            if($key<0){
+                throw new \Exception('cannot identify parent_temp_id for entry with a subcode.  attainment:' . json_encode($attainmentResource));
+            }
+        }
+    }
+
+    protected function assignParentTempIdToSubsub(&$attainmentResource,$key)
+    {
+        $handled = false;
+        while(!$handled){
+            $prevAttainment = $this->attainmentsCollection[$key];
+            if(is_null($prevAttainment->subsubcode)){
+                $attainmentResource->parent_temp_id = $key;
+                $handled = true;
+            }
+            $key--;
+            if($key<0){
+                throw new \Exception('cannot identify parent_temp_id for entry with a subsubcode.  attainment:' . json_encode($attainmentResource));
+            }
+        }
     }
 
 }
