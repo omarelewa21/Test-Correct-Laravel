@@ -39,7 +39,7 @@ class Login extends Component
 
     protected $queryString = ['tab', 'uuid', 'entree_error_message', 'fatal_error_message'];
 
-    public $tab = 'fatalError';
+    public $tab = 'login';
 
     public $uuid = '';
 
