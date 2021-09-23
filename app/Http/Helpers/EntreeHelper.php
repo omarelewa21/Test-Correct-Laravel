@@ -84,7 +84,7 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->addLogRows('tryAccountMatchingWhenNoMailAttributePresent');
-            $url = route('auth.login', ['tab' => 'no_mail_present', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true]);
             return $this->redirectToUrlAndExit($url);
         }
 
@@ -487,7 +487,7 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->addLogRows('handleScenario2IfAddressIsKnownInOtherAccount');
-            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true]);
             return $this->redirectToUrlAndExit($url);
         }
 
