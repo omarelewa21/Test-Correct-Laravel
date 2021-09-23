@@ -87,6 +87,9 @@ class SchoolLocationsController extends Controller {
      */
     public function update(SchoolLocation $schoolLocation, UpdateSchoolLocationRequest $request)
     {
+        if($request->school_id != $schoolLocation->school_id){
+            $schoolLocation->sharedSections()->detach();
+        }
         $schoolLocation->fill($request->all());
 
         if ($schoolLocation->save() !== false) {
@@ -105,6 +108,7 @@ class SchoolLocationsController extends Controller {
     public function destroy(SchoolLocation $schoolLocation)
     {
         if ($schoolLocation->delete()) {
+            $schoolLocation->sharedSections()->detach();
             return Response::make($schoolLocation, 200);
         } else {
             return Response::make('Failed to delete school location', 500);
