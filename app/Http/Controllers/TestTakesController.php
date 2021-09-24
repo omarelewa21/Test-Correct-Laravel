@@ -1366,7 +1366,7 @@ class TestTakesController extends Controller {
 
     public function withTemporaryLogin(TestTake $testTake) {
         $response = new \stdClass;
-        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
         $relativeUrl = sprintf('%s?redirect=%s',
             route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
