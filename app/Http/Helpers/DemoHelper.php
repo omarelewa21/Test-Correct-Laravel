@@ -148,6 +148,8 @@ class DemoHelper
 
     public function prepareDemoForNewTeacher(SchoolLocation $schoolLocation, SchoolYear $schoolYear, User $user)
     {
+        $currentQueueState = GlobalStateHelper::getInstance()->isQueueAllowed();
+        GlobalStateHelper::getInstance()->setQueueAllowed(false);
         $this->setSchoolLocation($schoolLocation);
         $schoolClass = $this->createDemoClassForSchoolLocationAndPopulate($schoolLocation, $schoolYear);
         $teacher = $this->addTeacherToDemoClassIfNeeded($user, $schoolClass);
@@ -155,6 +157,7 @@ class DemoHelper
         $baseDemoTest = $this->getBaseDemoTest();
         $returnData = $this->createDemoTestsForTeacher($teacher, $students, $baseDemoTest, $schoolClass);
         $returnData['teacher'] = $teacher;
+        GlobalStateHelper::getInstance()->setQueueAllowed($currentQueueState);
         return $returnData;
     }
 

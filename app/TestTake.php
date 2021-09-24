@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -275,7 +276,9 @@ class TestTake extends BaseModel
             }
 
             if ($testTake->testTakeStatus->name === 'Rated' && $originalTestTakeStatus !== null && $originalTestTakeStatus->name !== 'Rated') {
-                Queue::later(300, new SendTestRatedMail($testTake));
+                if(GlobalStateHelper::getInstance()->isQueueAllowed()) {
+                    Queue::later(300, new SendTestRatedMail($testTake));
+                }
             }
 
             if ($testTake->getAttribute('is_discussed') != $testTake->getOriginal('is_discussed')) {
@@ -307,8 +310,9 @@ class TestTake extends BaseModel
             if ($testTake->schoolClasses !== null) {
                 $testTake->saveSchoolClassTestTakeParticipants();
             }
-
-            Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
+            if(GlobalStateHelper::getInstance()->isQueueAllowed()) {
+                Queue::later(300, new SendTestPlannedMail($testTake->getKey()));
+            }
         });
 
         static::deleted(function (TestTake $testTake) {
