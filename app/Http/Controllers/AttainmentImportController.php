@@ -20,6 +20,7 @@ use tcCore\Http\Controllers\Controller;
 use tcCore\Http\Requests\SchoolClassesStudentImportRequest;
 use tcCore\SchoolLocation;
 use tcCore\User;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AttainmentImportController extends Controller
 {
@@ -133,7 +134,9 @@ class AttainmentImportController extends Controller
         DB::beginTransaction();
         try {
             $this->checkDeleteRoutineHasAlreadyBeenExecuted();
+            $this->checkSheetsIntegrity($attainmentManifest);
             $this->attainmentsCollection = collect($attainmentManifest->getAttainmentResources());
+            $this->checkAttainmentCollection();
             $this->checkBaseSubjectsIntegrity();
             $this->checkEducationLevelIntegrity();
             $this->checkLevelCodeSubcodeSubsubcodeCombination();
@@ -172,7 +175,7 @@ class AttainmentImportController extends Controller
             }
             if (strtolower($baseSubjects[$attainmentResource->base_subject_id]) != strtolower($attainmentResource->base_subject_name)) {
                 throw new \Exception(
-                    'base_subject_is with wrong name base_subject_id:' . $attainmentResource->base_subject_id . ' base_subject_name:' . $attainmentResource->base_subject_name . ' attainment:' . json_encode($attainmentResource)
+                    'base_subject_is with wrong name. base_subject_id:' . $attainmentResource->base_subject_id . ' base_subject_name:' . $attainmentResource->base_subject_name . ' attainment:' . json_encode($attainmentResource)
                 );
             }
         }
@@ -193,9 +196,18 @@ class AttainmentImportController extends Controller
             }
             if (strtolower($educationLevels[$attainmentResource->education_level_id]) != strtolower($attainmentResource->education_level_name)) {
                 throw new \Exception(
-                    'base_subject_is with wrong name education_level_id:' . $attainmentResource->education_level_id . ' education_level_name:' . $attainmentResource->education_level_name . ' attainment:' . json_encode($attainmentResource)
+                    'education_level_id with wrong name. education_level_id:' . $attainmentResource->education_level_id . ' education_level_name:' . $attainmentResource->education_level_name . ' attainment:' . json_encode($attainmentResource)
                 );
             }
+        }
+    }
+
+    protected function checkAttainmentCollection()
+    {
+        if($this->attainmentsCollection->count()==0){
+            throw new \Exception(
+                'attainmentsCollection is empty. There is probably a problem with your excel file. Make sure that every sheet starts with headers'
+            );
         }
     }
 
@@ -325,6 +337,40 @@ class AttainmentImportController extends Controller
                 throw new \Exception('cannot identify parent_temp_id for entry with a subsubcode.  attainment:' . json_encode($attainmentResource));
             }
         }
+    }
+
+    protected function checkSheetsIntegrity($attainmentManifest)
+    {
+        $data = $attainmentManifest->getData();
+        foreach ($data as $key => $sheet) {
+            if(count($sheet)==0){
+                break;
+            }
+            $row = $sheet[0];
+            $expectedHeaders = collect($this->expectedHeaders());
+            $expectedHeaders->each(function($item,$key) use($row){
+                if(!array_key_exists($item,$row)){
+                    throw new \Exception('integrity violation sheet index:'.$key.'; header:' . $item);
+                }
+            });
+        }
+    }
+
+    protected function expectedHeaders()
+    {
+        return [
+            'id',
+            'base_subject_id',
+            'base_subject_name',
+            'education_level_name',
+            'education_level_id',
+            'attainment_id',
+            'code',
+            'subcode',
+            'subsubcode',
+            'description',
+            'status',
+        ];
     }
 
 }

@@ -67,6 +67,106 @@ class ImportAttainmentTest extends TestCase
         $this->logoutAdmin();
     }
 
+    /** @test */
+    public function it_should_fail_on_corrupt_base_subject_id()
+    {
+        $this->loginAdmin();
+        $this->removeOnAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_attainments_corrupt_base_subject.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(500,$response->getStatusCode());
+        $this->assertStringContainsString('base_subject_is with wrong name. base_subject_id',$response->getContent());
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function it_should_fail_on_corrupt_education_level_id()
+    {
+        $this->loginAdmin();
+        $this->removeOnAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_attainments_corrupt_eduction_level.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(500,$response->getStatusCode());
+        $this->assertStringContainsString('education_level_id with wrong name',$response->getContent());
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function it_should_fail_on_corrupt_file()
+    {
+        $this->loginAdmin();
+        $this->removeOnAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_attainments_corrupt_sheet.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(500,$response->getStatusCode());
+        $this->assertStringContainsString('integrity violation sheet index',$response->getContent());
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function it_should_fail_on_corrupt_file_header()
+    {
+        $this->loginAdmin();
+        $this->removeOnAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_attainments_corrupt_sheet_header.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(500,$response->getStatusCode());
+        $this->assertStringContainsString('integrity violation sheet index',$response->getContent());
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function it_should_fail_on_corrupt_inheritance()
+    {
+        $this->loginAdmin();
+        $this->removeOnAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_attainments_corrupt_inheritance.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(500,$response->getStatusCode());
+        $this->assertStringContainsString('duplicate education_level_id',$response->getContent());
+        $this->logoutAdmin();
+    }
+
     private function removeOnAttainmentToMakeImportPossible()
     {
         $attainment = Attainment::first();

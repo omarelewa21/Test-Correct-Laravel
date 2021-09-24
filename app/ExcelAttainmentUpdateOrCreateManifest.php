@@ -24,6 +24,11 @@ class ExcelAttainmentUpdateOrCreateManifest extends ExcelAttainmentManifest
         $this->data = Excel::toArray(new ExcelAttainmentResourceImport, $excelFile);
     }
 
+    public function getData()
+    {
+        return $this->data;
+    }
+
     public function getAttainmentResources()
     {
         $result = [];
