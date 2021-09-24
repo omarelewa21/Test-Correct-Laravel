@@ -2084,9 +2084,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             return true;
         }
 
-        if ($user->isAllowedToSwitchToSchoolLocation($user->schoolLocation)) {
-            return true;
-        }
+//        if ($user->isAllowedToSwitchToSchoolLocation($user->schoolLocation)) {
+//            return true;
+//        }
 
         return false;
     }
