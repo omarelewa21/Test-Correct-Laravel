@@ -60,7 +60,8 @@ class TemporaryLogin extends Model
         $temporary_login = self::whereUuid($uuid)->first();
 
         if ($temporary_login && Carbon::now()->diffInSeconds($temporary_login->created_at) < self::MAX_VALID_IN_SECONDS) {
-            $result = $temporary_login->user_id;
+            $result['user'] = $temporary_login->user_id;
+            $result['options'] = $temporary_login->options;
             // only valid once;
             $temporary_login->forceDelete();
         }
