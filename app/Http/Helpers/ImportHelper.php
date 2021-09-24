@@ -510,6 +510,7 @@ class ImportHelper
                         'username'           => $student_email, // moet email zijn?
                         'school_location_id' => $school_location_id,
                         'user_roles'         => [3],
+                        'send_welcome_email' => 1,
 
                     ];
 
@@ -595,7 +596,8 @@ class ImportHelper
                                 'name'               => $teacher_name_last,
                                 'username'           => $teacher_email,
                                 'school_location_id' => $school_location_id,
-                                'user_roles'         => [1]
+                                'user_roles'         => [1],
+                                'send_welcome_email' => 1,
                             ];
 
                             $user_id = $this->createOrRestoreUser($user_data, 'teacher');
