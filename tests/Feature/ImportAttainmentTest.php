@@ -36,6 +36,27 @@ class ImportAttainmentTest extends TestCase
     }
 
     /** @test */
+    public function it_should_do_complete_import_without_errors()
+    {
+        $this->loginAdmin();
+        $this->removeOnAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_existing_attainments.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+
+        $this->logoutAdmin();
+    }
+
+    /** @test */
     public function it_should_import_attainments_and_store_them_in_db()
     {
         $this->loginAdmin();
@@ -108,6 +129,26 @@ class ImportAttainmentTest extends TestCase
     }
 
     /** @test */
+    public function it_should_fail_on_missing_code()
+    {
+        $this->loginAdmin();
+        $this->removeOnAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_attainments_missing_code.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(500,$response->getStatusCode());
+        $this->assertStringContainsString('missing code attainment',$response->getContent());
+        $this->logoutAdmin();
+    }
+
+    /** @test */
     public function it_should_fail_on_corrupt_file()
     {
         $this->loginAdmin();
@@ -169,7 +210,11 @@ class ImportAttainmentTest extends TestCase
 
     private function removeOnAttainmentToMakeImportPossible()
     {
-        $attainment = Attainment::first();
+        $attainment = Attainment::create([  'base_subject_id' => 1,
+                                            'education_level_id' => 1,
+                                            'code' => 'A',
+                                            'subcode' => 1,
+                                            'description' => 'Dummy']);
         $attainment->delete();
     }
 

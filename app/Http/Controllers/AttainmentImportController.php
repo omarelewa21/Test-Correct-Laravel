@@ -139,6 +139,7 @@ class AttainmentImportController extends Controller
             $this->checkAttainmentCollection();
             $this->checkBaseSubjectsIntegrity();
             $this->checkEducationLevelIntegrity();
+            $this->checkCodeIntegrity();
             $this->checkLevelCodeSubcodeSubsubcodeCombination();
             $this->fillInParents();
             $this->attainmentsCollection->each(function ($resource) use (&$added,&$updated) {
@@ -166,7 +167,9 @@ class AttainmentImportController extends Controller
         $baseSubjects = BaseSubject::all()->pluck('name','id')->toArray();
         foreach ($this->attainmentsCollection as $attainmentResource) {
             if (is_null($attainmentResource->base_subject_id)) {
-                continue;
+                throw new \Exception(
+                    'missing base_subject_id attainment:' . json_encode($attainmentResource)
+                );
             }
             if (!array_key_exists($attainmentResource->base_subject_id, $baseSubjects)) {
                 throw new \Exception(
@@ -187,7 +190,9 @@ class AttainmentImportController extends Controller
         $educationLevels = EducationLevel::all()->pluck('name','id')->toArray();
         foreach ($this->attainmentsCollection as $attainmentResource) {
             if (is_null($attainmentResource->education_level_id)) {
-                continue;
+                throw new \Exception(
+                    'missing education_level_id attainment:' . json_encode($attainmentResource)
+                );
             }
             if (!array_key_exists($attainmentResource->education_level_id, $educationLevels)) {
                 throw new \Exception(
@@ -199,6 +204,18 @@ class AttainmentImportController extends Controller
                     'education_level_id with wrong name. education_level_id:' . $attainmentResource->education_level_id . ' education_level_name:' . $attainmentResource->education_level_name . ' attainment:' . json_encode($attainmentResource)
                 );
             }
+        }
+    }
+
+    protected function checkCodeIntegrity()
+    {
+        foreach ($this->attainmentsCollection as $attainmentResource) {
+            if (is_null($attainmentResource->code)) {
+                throw new \Exception(
+                    'missing code attainment:' . json_encode($attainmentResource)
+                );
+            }
+
         }
     }
 
@@ -241,7 +258,9 @@ class AttainmentImportController extends Controller
     protected function updateAttainment($resource)
     {
         $data = collect($resource)->toArray();
+
         $attainment = Attainment::findOrFail($resource->id);
+
         $attainment->fill($data);
         $attainment->save();
     }
@@ -348,7 +367,7 @@ class AttainmentImportController extends Controller
             }
             $row = $sheet[0];
             $expectedHeaders = collect($this->expectedHeaders());
-            $expectedHeaders->each(function($item,$key) use($row){
+            $expectedHeaders->each(function($item,$key2) use($row,$key){
                 if(!array_key_exists($item,$row)){
                     throw new \Exception('integrity violation sheet index:'.$key.'; header:' . $item);
                 }
