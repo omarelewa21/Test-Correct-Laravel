@@ -294,10 +294,6 @@ class TestTake extends BaseModel
                     Queue::push(new CountTeacherTestDiscussed($user));
                 }
             }
-
-            if ($testTake->getAttribute('allow_inbrowser_testing') != $testTake->getOriginal('allow_inbrowser_testing')) {
-                TestParticipant::where('test_take_id', $testTake->getKey())->update(['allow_inbrowser_testing' => $testTake->getAttribute('allow_inbrowser_testing')]);
-            }
         });
 
         static::creating(function(TestTake $testTake) {
