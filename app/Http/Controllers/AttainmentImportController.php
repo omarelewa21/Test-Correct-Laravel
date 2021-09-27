@@ -99,6 +99,13 @@ class AttainmentImportController extends Controller
         return response()->json(['data' => $added . ' nieuwe leerdoelen zijn toegevoegd, ' . $existed . ' bestonden er al voor dit vak'], 200);
     }
 
+    public function upload(Requests\AttainmentUploadRequest $request)
+    {
+        $excelFile = $request->file('attainments')->storeAs(
+            'attainments_upload', 'attainments.xlsx'
+        );
+        return response()->json(['data' => 'Bestand staat op de server. Voer php artisan import:attainments uit om te importeren'], 200);
+    }
     public function deleteAttainmentsNotPresentInImport(Requests\AttainmentImportRequest $request)
     {
         DB::beginTransaction();

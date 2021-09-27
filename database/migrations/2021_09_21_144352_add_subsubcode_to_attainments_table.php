@@ -14,7 +14,7 @@ class AddSubsubcodeToAttainmentsTable extends Migration
     public function up()
     {
         Schema::table('attainments', function (Blueprint $table) {
-            $table->string('subsubcode')->nullable();
+            $table->string('subsubcode')->nullable()->after('subcode');
         });
     }
 
