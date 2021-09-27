@@ -169,7 +169,7 @@
                         }
                     });
 
-                    if(nrButtonsFound === count(elementsToHide)){
+                    if(nrButtonsFound === elementsToHide.length){
                         hideButtonsFound = true;
                     }
 
