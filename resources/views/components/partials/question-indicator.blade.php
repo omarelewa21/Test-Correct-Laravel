@@ -218,7 +218,7 @@
                     BrowseAloud.panel.toggleBar(!0);
                     setTimeout(function () {
                         hideBrowseAloudButtons();
-                    }, 250);
+                    }, 1000);
                 }
             </script>
         @endpush
