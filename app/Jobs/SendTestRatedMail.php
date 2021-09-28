@@ -39,6 +39,9 @@ class SendTestRatedMail extends Job implements ShouldQueue
         $urlLogin = getenv('URL_LOGIN');
         if ($this->testTake->testTakeStatus->name === 'Rated') {
             foreach ($this->testTake->testParticipants as $testParticipant) {
+                if(null == $testParticipant->user || $testParticipant->user->hasImportMailAddress()) {
+                    continue;
+                }
                 if ($testParticipant->getAttribute('rating') === null) {
                     continue;
                 }
