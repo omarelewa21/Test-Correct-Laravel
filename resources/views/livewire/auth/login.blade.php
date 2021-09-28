@@ -296,14 +296,20 @@
                 </form>
             </div>
         @elseif($tab == 'no_mail_present')
-            <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
+            <div class="content-section p-10 shadow-xl flex flex-col " style="min-height: 550px"
+                 x-data="{hoverAccount: false, hoverNoAccount: false, hasAccount: @entangle('doIHaveATcAccountChoice'), showPasswordNoEmail: false}"
+            >
 
                 <div class="flex items-center space-x-2.5 mb-5">
                     <div class="flex">
-                        <x-stickers.login/>
+                        <x-stickers.entreefederatie/>
                     </div>
                     <div>
-                        <h1>{{ __('auth.no_mail_present') }}</h1>
+                        @if($this->doIHaveATcAccount === 1)
+                            <h4>{{ __('auth.no_email_found_in_entree') }}</h4>
+                        @else
+                            <h4>{{ __('auth.link_email_to_entree') }}</h4>
+                        @endif
                     </div>
                 </div>
                 @if(!$this->samlMessageValid())
@@ -312,27 +318,69 @@
                     </div>
                 @else
 
-                    @if($this->doIHaveATcAccount === null)
-                        <div class="flex flex-col flex-1 h-full">
-                            Heb je al een TC account?
+                    @if($this->doIHaveATcAccount === 1)
+                        <div class="flex flex-col flex-1 h-full"
+                        >
+                            <span class="text-lg">{{ __('auth.no_email_found_in_entree_long') }}</span>
                             <div class="mt-4 flex space-x-3 ">
+                                <div wire:click="$set('doIHaveATcAccountChoice', 2)"
+                                     @mouseenter="hoverAccount = true"
+                                     @mouseleave="hoverAccount = false"
+                                     class="flex p-4 flex-1 border-2 h-full rounded-10 cursor-pointer transition-all relative space-x-4"
+                                     :class="hoverAccount || hasAccount === 2 ? 'primary border-primary bg-off-white': 'mid-grey border-blue-grey'"
+                                >
+                                    <div class="flex">
+                                        <x-icon.account/>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="body2" :class="hoverAccount || hasAccount === 2 ? 'primary bold': 'base'">
+                                            {{ __('auth.i_have_a_tc_account') }}
+                                        </span>
+                                        <span class="mid-grey text-sm">{{ __('auth.choose_this_if_you_already_have_an_account') }}</span>
 
-                                <x-button.cta class="order-1 ml" size="md"
-                                              wire:click="$set('doIHaveATcAccount', false)">
-                                    <span>{{ __('Nee') }}</span>
-                                </x-button.cta>
-                                <x-button.primary class="order-2" size="md"
-                                                  wire:click="$set('doIHaveATcAccount', true)">
-                                    <span>{{ __('Ja') }}</span>
+                                    </div>
+                                    <template x-if="hasAccount === 2">
+                                        <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
+                                    </template>
+                                </div>
+
+                                <div wire:click="$set('doIHaveATcAccountChoice', 3)"
+                                     @mouseenter="hoverNoAccount = true"
+                                     @mouseleave="hoverNoAccount = false"
+                                     class="flex p-4 flex-1 border-2 h-full rounded-10 cursor-pointer transition-all relative space-x-4"
+                                     :class="hoverNoAccount || hasAccount === 3 ? 'primary border-primary bg-off-white ': 'mid-grey border-blue-grey '"
+                                >
+                                    <div class="flex">
+                                        <x-icon.no-account/>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="body2" :class="hoverNoAccount || hasAccount === 3 ? 'primary bold': 'base'">
+                                            {{ __('auth.i_have_no_tc_account') }}
+                                        </span>
+                                        <span class="mid-grey text-sm">{{ __('auth.choose_this_if_you_have_no_account') }}</span>
+
+                                    </div>
+                                    <template x-if="hasAccount === 3">
+                                        <x-icon.checkmark class="absolute top-2 right-2 overflow-visible"/>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="flex w-full justify-between mt-auto">
+                                <x-button.text-button type="link" href="{{ route('auth.login') }}" class="rotate-svg-180">
+                                    <x-icon.arrow/>
+                                    <span>Terug naar inloggen</span>
+                                </x-button.text-button>
+                                <x-button.primary wire:click="noEntreeEmailNextStep" x-bind:disabled="hasAccount == null" size="md">
+                                    Volgende stap
                                 </x-button.primary>
                             </div>
                         </div>
                     @endif
 
-                    @if($this->doIHaveATcAccount === true)
+                    @if($this->doIHaveATcAccount === 2)
                         <div class="flex flex-col flex-1 h-full">
-                            login met je reeds bestaande account zodat we deze kunnen mergen.
-                            <div class="flex flex-col flex-1" x-show="openTab === 1">
+                            <span class="text-lg">{{ __('auth.log_in_with_existing_tc_account') }}</span>
+                            <div class="flex flex-col flex-1 mt-4">
                                 <form wire:submit.prevent="loginForNoMailPresent" action="#" method="POST"
                                       class="flex-col flex flex-1">
                                     <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
@@ -341,13 +389,13 @@
                                         </x-input.group>
                                         <x-input.group label="{{ __('auth.password')}}" class="flex-1 relative">
                                             <x-input.text wire:model.lazy="password"
-                                                          x-bind:type="showPassword ? 'text' : 'password'"
+                                                          x-bind:type="showPasswordNoEmail ? 'text' : 'password'"
                                                           class="pr-12 overflow-ellipsis"
                                             >
                                             </x-input.text>
                                             <x-icon.preview
-                                                class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
-                                                @click="showPassword = !showPassword"/>
+                                                    class="absolute bottom-3 right-3.5 primary-hover cursor-pointer"
+                                                    @click="showPasswordNoEmail = !showPasswordNoEmail"/>
                                         </x-input.group>
                                     </div>
                                     <div class="error-section">
@@ -388,7 +436,7 @@
 
                                         @if($requireCaptcha)
                                             <div
-                                                x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
+                                                    x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
                                                 <div class="notification error stretched mt-4">
                                                     <div class="flex items-center space-x-3">
                                                         <x-icon.exclamation/>
@@ -421,13 +469,16 @@
                                     <div class="flex mt-auto pt-4 justify-between">
                                         <div class="flex order-2 space-x-4">
                                             <x-button.cta class="" size="md">
-                                                <span>{{ __('auth.log_in_verb') }}</span>
+                                                <x-icon.entreefederatie/>
+                                                <span>{{ __('auth.make_link') }}</span>
                                             </x-button.cta>
                                         </div>
-                                        <x-button.text-button class="order-1"
-                                                              wire:click.prevent="$set('tab', 'forgotPassword')">
-                                            <span class="text-base">{{__('auth.forgot_password_long')}}</span>
+                                        <x-button.text-button class="order-1 rotate-svg-180"
+                                                              wire:click.prevent="backToNoEmailChoice"
+                                                              @click="$nextTick(() => { $dispatch('remove-classse') })"
+                                        >
                                             <x-icon.arrow/>
+                                            <span class="">{{__('auth.back_to_make_choice')}}</span>
                                         </x-button.text-button>
                                     </div>
                                 </form>
@@ -435,35 +486,45 @@
                         </div>
                     @endif
 
-                    @if($this->doIHaveATcAccount === false)
+                    @if($this->doIHaveATcAccount === 3)
                         <div class="flex flex-col flex-1 h-full">
-                            <form wire:submit.prevent="emailEnteredForNoMailPresent" action="#" method="POST"
-                                  class="flex-col flex flex-1">
+                            <span class="text-lg">{{ __('auth.submit_mail_to_link_entree_to_tc') }}</span>
+                            <div class="flex-col flex flex-1 mt-4">
+                                <form wire:submit.prevent="emailEnteredForNoMailPresent" action="#" method="POST"
+                                      class="flex-col flex flex-1">
 
-                                <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
-                                    <x-input.group label="{{ __('auth.emailaddress')}}" class="flex-1">
-                                        <x-input.text wire:model.lazy="username" autofocus></x-input.text>
-                                    </x-input.group>
+                                    <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
+                                        <x-input.group label="{{ __('auth.emailaddress')}}" class="w-full md:w-1/2">
+                                            <x-input.text wire:model.lazy="username" autofocus></x-input.text>
+                                        </x-input.group>
 
-                                </div>
-                                <div class="error-section">
-                                    @error('username')
-                                    <div class="notification error stretched mt-4">
-                                        <span class="title">{{ $message }}</span>
                                     </div>
-                                    @enderror
-                                </div>
-                                <div class="flex mt-4 pt-4 justify-between">
-                                    <div class="flex order-2 space-x-4 w-full">
-                                        <x-button.cta class="ml-auto" size="md">
-                                            <span>{{ __('auth.send') }}</span>
-                                        </x-button.cta>
+                                    <div class="error-section">
+                                        @error('username')
+                                        <div class="notification error stretched mt-4">
+                                                <span class="title flex items-center">
+                                                    <x-icon.exclamation class="mr-2"/>
+                                                    <span>{{ $message }}</span>
+                                                </span>
+                                            <span class="body">{{ __('auth.are_you_sure_you_have_no_account') }}</span>
+                                        </div>
+                                        @enderror
                                     </div>
-
-                                </div>
-                            </form>
-
-
+                                    <div class="flex mt-auto pt-4 justify-between">
+                                        <div class="flex order-2 space-x-4">
+                                            <x-button.cta class="" size="md">
+                                                <x-icon.entreefederatie/>
+                                                <span>{{ __('auth.make_link') }}</span>
+                                            </x-button.cta>
+                                        </div>
+                                        <x-button.text-button class="order-1 rotate-svg-180"
+                                                              wire:click.prevent="backToNoEmailChoice">
+                                            <x-icon.arrow/>
+                                            <span class="">{{__('auth.back_to_make_choice')}}</span>
+                                        </x-button.text-button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     @endif
                 @endif

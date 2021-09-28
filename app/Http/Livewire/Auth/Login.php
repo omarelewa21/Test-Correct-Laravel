@@ -20,7 +20,8 @@ use tcCore\User;
 
 class Login extends Component
 {
-    public $doIHaveATcAccount = null;
+    public $doIHaveATcAccount = 1;
+    public $doIHaveATcAccountChoice = null;
 
     public $username = '';
     public $password = '';
@@ -396,5 +397,17 @@ class Login extends Component
         );
 
 
+    }
+
+    public function noEntreeEmailNextStep()
+    {
+        $this->doIHaveATcAccount = $this->doIHaveATcAccountChoice;
+    }
+
+    public function backToNoEmailChoice()
+    {
+        $this->doIHaveATcAccountChoice = null;
+        $this->doIHaveATcAccount = 1;
+        $this->dispatchBrowserEvent('remove-classes');
     }
 }
