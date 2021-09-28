@@ -33,7 +33,7 @@ class AddLvsAuthorizationCodeToSchoolLocation extends Migration
     public function down()
     {
         Schema::table('school_locations', function (Blueprint $table) {
-            $table->removeColumn('lvs_authorization_key');
+            $table->dropColumn('lvs_authorization_key');
         });
     }
 }

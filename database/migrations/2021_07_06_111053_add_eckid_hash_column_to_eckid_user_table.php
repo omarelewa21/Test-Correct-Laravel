@@ -27,7 +27,7 @@ class AddEckidHashColumnToEckidUserTable extends Migration
     public function down()
     {
         Schema::table('eckid_user', function (Blueprint $table) {
-            $table->removeColumn(['eckid_hash']);
+            $table->dropColumn(['eckid_hash']);
         });
     }
 }

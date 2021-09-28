@@ -13,6 +13,7 @@ use tcCore\Question;
 use tcCore\QuestionAuthor;
 use tcCore\Role;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationReport;
 use tcCore\SchoolLocationSchoolYear;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\TestTake;
@@ -43,7 +44,6 @@ class ReportHelper
         if ($this->type === self::SCHOOLLOCATION) {
             $this->setCurrentPeriod();
         }
-
     }
 
     protected function setCurrentPeriod()
@@ -223,6 +223,46 @@ class ReportHelper
     public function nrColearningSessions($days)
     {
         return $this->nrTestTakesByStatusIdAndDays(7, $days);
+    }
+
+    public function getSSOType(SchoolLocation $schoolLocation)
+    {
+        return $schoolLocation->sso_type;
+    }
+
+    public function getCustomerCode(SchoolLocation $schoolLocation)
+    {
+        return $schoolLocation->customer_code;
+    }
+
+    public function getLVSType(SchoolLocation $schoolLocation)
+    {
+        return $schoolLocation->lvs_type;
+    }
+
+    public function getSSOActive(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->sso_active === true) ? "true" : "false";
+    }
+
+    public function getIntense(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->intense === true) ? "true" : "false";
+    }
+
+    public function getLVSActiveNoMailAllowed(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->lvs_active_no_mail_allowed === true) ? "true" : "false";
+    }
+
+    public function getAllowInbrowserTesting(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->allow_inbrowser_testing === true) ? "true" : "false";
+    }
+
+    public function getLVSActive(SchoolLocation $schoolLocation)
+    {
+        return ($schoolLocation->lvs_active === true) ? "true" : "false";
     }
 
     public function nrParticipantsTakenTest($days)
