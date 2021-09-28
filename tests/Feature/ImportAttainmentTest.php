@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
 use tcCore\Http\Controllers\AttainmentImportController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -20,7 +21,7 @@ class ImportAttainmentTest extends TestCase
     public function it_should_import_attainments_without_errors()
     {
         $this->loginAdmin();
-        $this->removeOnAttainmentToMakeImportPossible();
+        $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_attainments_default.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
@@ -39,8 +40,95 @@ class ImportAttainmentTest extends TestCase
     public function it_should_do_complete_import_without_errors()
     {
         $this->loginAdmin();
-        $this->removeOnAttainmentToMakeImportPossible();
+        $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_existing_attainments.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+
+    public function showAttainmentsNotPresentInImportTest()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_existing_attainments_revised.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->showAttainmentsNotPresentInImport($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+    }
+
+
+
+    /** @test */
+
+    public function setAttainmentsInactiveNotPresentInImportTest()
+    {
+        $oldAttainmentsCount = Attainment::where('status','OLD')->count();
+        $this->assertEquals(0,$oldAttainmentsCount);
+        $this->loginAdmin();
+        $testXslx = __DIR__.'/../files/import_existing_attainments_revised.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->setAttainmentsInactiveNotPresentInImport($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+        $oldAttainmentsCount = Attainment::where('status','OLD')->count();
+        $this->assertGreaterThan(0,$oldAttainmentsCount);
+    }
+
+    /** @test */
+    public function attainments_file_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_existing_attainments_revised.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function new_attainments_file_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_new_attainments.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
         $params = [
@@ -60,7 +148,7 @@ class ImportAttainmentTest extends TestCase
     public function it_should_import_attainments_and_store_them_in_db()
     {
         $this->loginAdmin();
-        $this->removeOnAttainmentToMakeImportPossible();
+        $this->inactivateAttainmentToMakeImportPossible();
         $attainment = Attainment::where('description','like','%concepten DNA en eiwitsynthese%')->first();
         $this->assertNull($attainment);
         $attainment = Attainment::where('description','Basisvaardigheden')->where('code','AK/K/2')->where('education_level_id','7')->first();
@@ -92,7 +180,7 @@ class ImportAttainmentTest extends TestCase
     public function it_should_fail_on_corrupt_base_subject_id()
     {
         $this->loginAdmin();
-        $this->removeOnAttainmentToMakeImportPossible();
+        $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_attainments_corrupt_base_subject.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
@@ -112,7 +200,7 @@ class ImportAttainmentTest extends TestCase
     public function it_should_fail_on_corrupt_education_level_id()
     {
         $this->loginAdmin();
-        $this->removeOnAttainmentToMakeImportPossible();
+        $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_attainments_corrupt_eduction_level.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
@@ -132,7 +220,7 @@ class ImportAttainmentTest extends TestCase
     public function it_should_fail_on_missing_code()
     {
         $this->loginAdmin();
-        $this->removeOnAttainmentToMakeImportPossible();
+        $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_attainments_missing_code.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
@@ -152,7 +240,7 @@ class ImportAttainmentTest extends TestCase
     public function it_should_fail_on_corrupt_file()
     {
         $this->loginAdmin();
-        $this->removeOnAttainmentToMakeImportPossible();
+        $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_attainments_corrupt_sheet.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
@@ -172,7 +260,7 @@ class ImportAttainmentTest extends TestCase
     public function it_should_fail_on_corrupt_file_header()
     {
         $this->loginAdmin();
-        $this->removeOnAttainmentToMakeImportPossible();
+        $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_attainments_corrupt_sheet_header.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
@@ -192,7 +280,7 @@ class ImportAttainmentTest extends TestCase
     public function it_should_fail_on_corrupt_inheritance()
     {
         $this->loginAdmin();
-        $this->removeOnAttainmentToMakeImportPossible();
+        $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_attainments_corrupt_inheritance.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
@@ -208,14 +296,15 @@ class ImportAttainmentTest extends TestCase
         $this->logoutAdmin();
     }
 
-    private function removeOnAttainmentToMakeImportPossible()
+    private function inactivateAttainmentToMakeImportPossible()
     {
         $attainment = Attainment::create([  'base_subject_id' => 1,
                                             'education_level_id' => 1,
                                             'code' => 'A',
                                             'subcode' => 1,
-                                            'description' => 'Dummy']);
-        $attainment->delete();
+                                            'description' => 'Dummy',
+                                            'status' => 'OLD'
+                                        ]);
     }
 
     private function loginAdmin()

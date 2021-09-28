@@ -106,20 +106,24 @@ class AttainmentImportController extends Controller
         );
         return response()->json(['data' => 'Bestand staat op de server. Voer php artisan import:attainments uit om te importeren'], 200);
     }
-    public function deleteAttainmentsNotPresentInImport(Requests\AttainmentImportRequest $request)
+
+    public function showAttainmentsNotPresentInImport(Request $request)
     {
-        DB::beginTransaction();
         $deleted = 0;
+        $attainments = [];
         try{
-            $this->checkDeleteRoutineHasNotYetBeenExecuted();
-            $attainmentsDbIds = Attainment::withTrashed()->get()->pluck('id');
-            $excelFile = $request->file('attainments');
+            $attainmentsDbIds = Attainment::withTrashed()->get()->pluck('id')->toArray();
+            dump(count($attainmentsDbIds));
+            $excelFile = $request->attainments;
             $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($excelFile);
             $attainmentsImportIds = collect($attainmentManifest->getAttainmentResources())->pluck('id');
+            $attainmentsImportIds = $attainmentsImportIds->filter(function ($value, $key) {
+                return !is_null($value);
+            })->toArray();
             $diffIds = array_diff($attainmentsDbIds,$attainmentsImportIds);
             foreach ($diffIds as $id){
                 $attainment = Attainment::findOrFail($id);
-                $attainment->delete();
+                $attainments[] = $attainment;
             }
         } catch (\Exception $e) {
             DB::rollback();
@@ -127,20 +131,48 @@ class AttainmentImportController extends Controller
             logger($e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
-        DB::commit();
-        return response()->json(['data' => $deleted.' attainments soft deleted'], 200);
+        return response()->json(['data' => $attainments], 200);
+    }
 
+    public function setAttainmentsInactiveNotPresentInImport(Request $request)
+    {
+        $this->checkInactivateRoutineHasNotYetBeenExecuted();
+        $updated = 0;
+        $attainments = [];
+        try{
+            $attainmentsDbIds = Attainment::withTrashed()->get()->pluck('id')->toArray();
+            $excelFile = $request->attainments;
+            $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($excelFile);
+            $attainmentsImportIds = collect($attainmentManifest->getAttainmentResources())->pluck('id');
+            $attainmentsImportIds = $attainmentsImportIds->filter(function ($value, $key) {
+                return !is_null($value);
+            })->toArray();
+            $diffIds = array_diff($attainmentsDbIds,$attainmentsImportIds);
+            foreach ($diffIds as $id){
+                $attainment = Attainment::findOrFail($id);
+                $attainment->status = 'OLD';
+                $attainment->save();
+                $attainments[] = $attainment;
+                $updated++;
+            }
+        } catch (\Exception $e) {
+            DB::rollback();
+            logger($e);
+            logger($e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+        return response()->json(['data' => $updated.' set inactive'], 200);
     }
 
     public function importForUpdateOrCreate(Request $request)
     {
+        $this->checkInactivateRoutineHasAlreadyBeenExecuted();
         $excelFile = $request->attainments;
         $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($excelFile);
         $added = 0;
         $updated = 0;
         DB::beginTransaction();
         try {
-            $this->checkDeleteRoutineHasAlreadyBeenExecuted();
             $this->checkSheetsIntegrity($attainmentManifest);
             $this->attainmentsCollection = collect($attainmentManifest->getAttainmentResources());
             $this->checkAttainmentCollection();
@@ -235,19 +267,19 @@ class AttainmentImportController extends Controller
         }
     }
 
-    protected function checkDeleteRoutineHasAlreadyBeenExecuted()
+    protected function checkInactivateRoutineHasAlreadyBeenExecuted()
     {
-        $attainmentsDbIds = Attainment::onlyTrashed()->get()->pluck('id');
+        $attainmentsDbIds = Attainment::where('status','OLD')->get()->pluck('id');
         if(count($attainmentsDbIds)==0){
-            throw new \Exception('deleteAttainmentsNotPresentInImport has not yet run, no soft deleted records in db');
+            throw new \Exception('setAttainmentsInactiveNotPresentInImport has not yet run, no inactive records in db');
         }
     }
 
-    protected function checkDeleteRoutineHasNotYetBeenExecuted()
+    protected function checkInactivateRoutineHasNotYetBeenExecuted()
     {
-        $attainmentsDbIds = Attainment::onlyTrashed()->get()->pluck('id');
+        $attainmentsDbIds = Attainment::where('status','OLD')->get()->pluck('id');
         if(count($attainmentsDbIds)>0){
-            throw new \Exception('deleteAttainmentsNotPresentInImport has already run, soft deleted records in db');
+            throw new \Exception('setAttainmentsInactiveNotPresentInImport has already run, inactive records in db');
         }
     }
 
@@ -341,6 +373,7 @@ class AttainmentImportController extends Controller
             if(is_null($prevAttainment->subcode)){
                 $attainmentResource->parent_temp_id = $key;
                 $handled = true;
+                break;
             }
             $key--;
             if($key<0){
