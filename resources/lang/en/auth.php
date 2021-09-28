@@ -70,4 +70,12 @@ return [
     'link_email_to_entree'                       => 'Link e-mailaddress to Entree Federatie',
     'are_you_sure_you_have_no_account'           => 'Are you sure you do not already have a Test-Correct account?',
     'submit_mail_to_link_entree_to_tc'           => 'You do not have a Test-Correct account to link your Entree Federatie account to. Please submit your e-mailaddress to create your Test-Correct account. After this you can log in to Test-Correct with Entree.',
+    'congratulations_linked'                     => 'Congratulations! You have been linked',
+    'information_being_processed'                => 'Your information is being processed...',
+    'linked_email_no_account_verify'             => 'You just linked your Entree Federatie acount to this e-mailaddress. You did not have a Test-Correct account yet. That is why we are asking you to verify your e-mailaddress.',
+    'linked_email_with_account'                  => 'You just linked your Entree Federatie account to your Test-Correct account. You can now log in directly with Entree.',
+    'information_processed'                      => 'Your information has been processed',
+    'connect_entree_error'                       => 'Something went wrong while linking your account.',
+    'next_step'                                  => 'Next step',
+
 ];

@@ -88,4 +88,11 @@ return [
     'link_email_to_entree'                                                                         => 'Koppel e-mailadres aan Entree Federatie',
     'are_you_sure_you_have_no_account'                                                             => 'Weet je zeker dat je niet al een Test-Correct account hebt?',
     'submit_mail_to_link_entree_to_tc'                                                             => 'Je hebt nog geen Test-Correct account om jouw Entree Federatie account aan te koppelen. Geef een e-mailadres op om jouw Test-Correct account aan te maken. Daarna kun je inloggen op Test-Correct met Entree.',
+    'congratulations_linked'                                                                       => 'Gefeliciteerd! Je bent gekoppeld',
+    'information_being_processed'                                                                  => 'Je gegevens worden nu verwerkt...',
+    'linked_email_no_account_verify'                                                               => 'Je hebt zojuist jouw Entreefederatie account gekoppeld aan dit e-mailadres. Je had nog geen Test-Correct account. Daarom vragen wij je om je e-mailadres te verifiëren.',
+    'linked_email_with_account'                                                                    => 'Je hebt zojuist jouw Entreefederatie account gekoppeld aan je Test-Correct account. Je kunt vanaf nu rechtstreeks inloggen via Entree. ',
+    'information_processed'                                                                        => 'Je gegevens zijn verwerkt',
+    'connect_entree_error'                                                                         => 'Fout tijdens koppelen.',
+    'next_step'                                                                                    => 'Volgende stap',
 ];

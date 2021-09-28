@@ -481,6 +481,10 @@
 .matching-question .classify .dropzone-height {
     min-height: 220px;
 }
+
+.Wirisformula {
+    display: inline;
+}
 .form-input {
     padding: 0 10px 0 10px;
     height: 40px;
@@ -773,6 +777,13 @@ input[type=number] {
 
 .test-take-code-component .form-input.disabled {
     color: var(--mid-grey);
+}
+.primary-gradient {
+    background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
+}
+
+.cta-gradient {
+    background: linear-gradient(to right, var(--cta-primary-mid-dark) 0%, var(--cta-primary) 98%), linear-gradient(to bottom, var(--light-grey), #c8d0e2 80%);
 }
 /*! tailwindcss v2.2.7 | MIT License | https://tailwindcss.com */
 
@@ -2268,6 +2279,10 @@ video {
 	--tw-bg-opacity: 1;
 	background-color: rgba(243, 244, 246, var(--tw-bg-opacity));
 }
+.bg-red-200{
+	--tw-bg-opacity: 1;
+	background-color: rgba(254, 202, 202, var(--tw-bg-opacity));
+}
 .bg-\[\#2e3192\]{
 	--tw-bg-opacity: 1;
 	background-color: rgba(46, 49, 146, var(--tw-bg-opacity));
@@ -2465,6 +2480,9 @@ video {
 }
 .pl-2\.5{
 	padding-left: 0.625rem;
+}
+.pt-8{
+	padding-top: 2rem;
 }
 .pb-8{
 	padding-bottom: 2rem;
@@ -2721,6 +2739,7 @@ video {
     --cta-secondary: #004DF5;
     --primary: #004df5;
     --primary-light: #e6edfa;
+    --teacher-primary-light: #4781ff;
     --secondary: #ECDB00;
     --highlight-primary: #ECDB00;
     --highlight-primary-mid-dark: #dec802;

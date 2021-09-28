@@ -371,7 +371,8 @@
                                     <span>Terug naar inloggen</span>
                                 </x-button.text-button>
                                 <x-button.primary wire:click="noEntreeEmailNextStep" x-bind:disabled="hasAccount == null" size="md">
-                                    Volgende stap
+                                    <span>{{ __('auth.next_step') }}</span>
+                                    <x-icon.chevron/>
                                 </x-button.primary>
                             </div>
                         </div>
@@ -474,9 +475,7 @@
                                             </x-button.cta>
                                         </div>
                                         <x-button.text-button class="order-1 rotate-svg-180"
-                                                              wire:click.prevent="backToNoEmailChoice"
-                                                              @click="$nextTick(() => { $dispatch('remove-classse') })"
-                                        >
+                                                              wire:click.prevent="backToNoEmailChoice">
                                             <x-icon.arrow/>
                                             <span class="">{{__('auth.back_to_make_choice')}}</span>
                                         </x-button.text-button>

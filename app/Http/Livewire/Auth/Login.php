@@ -363,7 +363,8 @@ class Login extends Component
         $this->doLoginProcedure();
 
         if (EntreeHelper::initWithMessage($message)->setContext('livewire')->tryAccountMatchingWhenNoMailAttributePresent(auth()->user()) === true) {
-            auth()->user()->redirectToCakeWithTemporaryLogin();
+            return redirect(route('entree-link', ['linked' => auth()->user()->uuid, 'with_account' => true]));
+//            auth()->user()->redirectToCakeWithTemporaryLogin();
         }
     }
 
@@ -384,7 +385,9 @@ class Login extends Component
         if ($user = EntreeHelper::handleNewEmailForUserWithoutEmailAttribute($message, $this->username)) {
             auth()->login($user);
             $this->doLoginProcedure();
-            return $user->redirectToCakeWithTemporaryLogin();
+
+            return redirect(route('entree-link', ['linked' => $user->uuid, 'with_account' => false]));
+//            return $user->redirectToCakeWithTemporaryLogin();
         }
 
         return redirect()->to(
@@ -408,6 +411,6 @@ class Login extends Component
     {
         $this->doIHaveATcAccountChoice = null;
         $this->doIHaveATcAccount = 1;
-        $this->dispatchBrowserEvent('remove-classes');
+        $this->resetErrorBag();
     }
 }

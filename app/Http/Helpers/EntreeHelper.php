@@ -84,7 +84,7 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->addLogRows('tryAccountMatchingWhenNoMailAttributePresent');
-            $url = route('auth.login', ['tab' => 'fatal_error', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true,]);
+            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true,]);
             return $this->redirectToUrlAndExit($url);
         }
 
@@ -708,8 +708,9 @@ class EntreeHelper
         if ($this->laravelUser->isA('Student')) {
             if (!$this->laravelUser->inSchoolLocationAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
                 $url = route('auth.login', [
-                    'tab' => 'entree',
-                    'entree_error_message' => 'auth.student_account_not_found_in_this_location'
+                    'tab' => 'fatalError',
+                    'fatal_error_message' => 'auth.student_account_not_found_in_this_location',
+                    'block_back' => true
                 ]);
                 return $this->redirectToUrlAndExit($url);
             } else {
@@ -719,7 +720,7 @@ class EntreeHelper
         } elseif ($this->laravelUser->isA('Teacher')) {
             ActingAsHelper::getInstance()->setUser($userWhereWeWouldLikeToMergeTheImportAccountTo);
             if ($this->laravelUser->inSchoolLocationAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
-//                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($userWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
+                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($userWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
                 return $this->handleMatchingWithinSchoolLocation($userWhereWeWouldLikeToMergeTheImportAccountTo,
                     $this->laravelUser);
             } elseif ($this->laravelUser->inSameKoepelAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
