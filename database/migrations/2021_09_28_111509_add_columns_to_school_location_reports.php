@@ -33,14 +33,16 @@ class AddColumnsToSchoolLocationReports extends Migration
     public function down()
     {
         Schema::table('school_location_reports', function (Blueprint $table) {
-            $table->dropColumn('lvs_type');
-            $table->dropColumn('lvs_active');
-            $table->dropColumn('lvs_active_no_mail_allowed');
-            $table->dropColumn('sso_type');
-            $table->dropColumn('sso_active');
-            $table->dropColumn('allow_inbrowser_testing');
-            $table->dropColumn('intense');
-            $table->dropColumn('klantcode_schoollocatie');
+            $table->dropColumn([
+                'lvs_type',
+                'lvs_active',
+                'lvs_active_no_mail_allowed',
+                'sso_type',
+                'sso_active',
+                'allow_inbrowser_testing',
+                'intense',
+                'klantcode_schoollocatie'
+            ]);
         });
     }
 }
