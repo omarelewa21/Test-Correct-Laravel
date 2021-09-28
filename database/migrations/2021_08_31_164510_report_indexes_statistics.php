@@ -62,5 +62,14 @@ class ReportIndexesStatistics extends Migration
         Schema::table('questions', function (Blueprint $table) {
             $table->dropIndex('questions_created_at_index');
         });
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropIndex('users_deleted_at_index');
+        });
+        Schema::table('test_participants', function (Blueprint $table) {
+            $table->dropIndex('test_participants_deleted_at_index');
+        });
+        Schema::table('user_roles', function (Blueprint $table) {
+            $table->dropIndex('user_roles_deleted_at_index');
+        });
     }
 }
