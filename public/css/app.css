@@ -481,6 +481,10 @@
 .matching-question .classify .dropzone-height {
     min-height: 220px;
 }
+
+.Wirisformula {
+    display: inline;
+}
 .form-input {
     padding: 0 10px 0 10px;
     height: 40px;
@@ -774,9 +778,16 @@ input[type=number] {
 .test-take-code-component .form-input.disabled {
     color: var(--mid-grey);
 }
-/*! tailwindcss v2.0.4 | MIT License | https://tailwindcss.com */
+.primary-gradient {
+    background: linear-gradient(to right, var(--primary) 0%, var(--teacher-primary-light) 100%);
+}
 
-/*! modern-normalize v1.0.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
+.cta-gradient {
+    background: linear-gradient(to right, var(--cta-primary-mid-dark) 0%, var(--cta-primary) 98%), linear-gradient(to bottom, var(--light-grey), #c8d0e2 80%);
+}
+/*! tailwindcss v2.2.7 | MIT License | https://tailwindcss.com */
+
+/*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
 
 /*
 Document
@@ -788,8 +799,8 @@ Use a better box model (opinionated).
 */
 
 *,
-*::before,
-*::after {
+::before,
+::after {
 	box-sizing: border-box;
 }
 
@@ -797,7 +808,7 @@ Use a better box model (opinionated).
 Use a more readable tab size (opinionated).
 */
 
-:root {
+html {
 	-moz-tab-size: 4;
 	-o-tab-size: 4;
 	   tab-size: 4;
@@ -1108,16 +1119,6 @@ button {
   background-image: none;
 }
 
-/**
- * Work around a Firefox/IE bug where the transparent `button` background
- * results in a loss of the default `button` focus styles.
- */
-
-button:focus {
-  outline: 1px dotted;
-  outline: 5px auto -webkit-focus-ring-color;
-}
-
 fieldset {
   margin: 0;
   padding: 0;
@@ -1188,7 +1189,7 @@ body {
   box-sizing: border-box; /* 1 */
   border-width: 0; /* 2 */
   border-style: solid; /* 2 */
-  border-color: #e5e7eb; /* 2 */
+  border-color: currentColor; /* 2 */
 }
 
 /*
@@ -1295,11 +1296,20 @@ samp {
 }
 
 /**
- * Make replaced elements `display: block` by default as that's
- * the behavior you want almost all of the time. Inspired by
- * CSS Remedy, with `svg` added as well.
+ * 1. Make replaced elements `display: block` by default as that's
+ *    the behavior you want almost all of the time. Inspired by
+ *    CSS Remedy, with `svg` added as well.
  *
- * https://github.com/mozdevs/cssremedy/issues/14
+ *    https://github.com/mozdevs/cssremedy/issues/14
+ * 
+ * 2. Add `vertical-align: middle` to align replaced elements more
+ *    sensibly by default when overriding `display` by adding a
+ *    utility like `inline`.
+ *
+ *    This can trigger a poorly considered linting error in some
+ *    tools but is included by design.
+ * 
+ *    https://github.com/jensimmons/cssremedy/issues/14#issuecomment-634934210
  */
 
 img,
@@ -1310,13 +1320,13 @@ audio,
 iframe,
 embed,
 object {
-  display: block;
-  vertical-align: middle;
+  display: block; /* 1 */
+  vertical-align: middle; /* 2 */
 }
 
 /**
  * Constrain images and videos to the parent width and preserve
- * their instrinsic aspect ratio.
+ * their intrinsic aspect ratio.
  *
  * https://github.com/mozdevs/cssremedy/issues/14
  */
@@ -1327,14 +1337,38 @@ video {
   height: auto;
 }
 
-*{
-	--tw-shadow: 0 0 #0000;
-	--tw-ring-inset: var(--tw-empty,/*!*/ /*!*/);
-	--tw-ring-offset-width: 0px;
-	--tw-ring-offset-color: #fff;
-	--tw-ring-color: rgba(59, 130, 246, 0.5);
+/**
+ * Ensure the default browser behavior of the `hidden` attribute.
+ */
+
+[hidden] {
+  display: none;
+}
+
+*, ::before, ::after{
+	--tw-translate-x: 0;
+	--tw-translate-y: 0;
+	--tw-rotate: 0;
+	--tw-skew-x: 0;
+	--tw-skew-y: 0;
+	--tw-scale-x: 1;
+	--tw-scale-y: 1;
+	--tw-transform: translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+	--tw-border-opacity: 1;
+	border-color: rgba(229, 231, 235, var(--tw-border-opacity));
 	--tw-ring-offset-shadow: 0 0 #0000;
 	--tw-ring-shadow: 0 0 #0000;
+	--tw-shadow: 0 0 #0000;
+	--tw-blur: var(--tw-empty,/*!*/ /*!*/);
+	--tw-brightness: var(--tw-empty,/*!*/ /*!*/);
+	--tw-contrast: var(--tw-empty,/*!*/ /*!*/);
+	--tw-grayscale: var(--tw-empty,/*!*/ /*!*/);
+	--tw-hue-rotate: var(--tw-empty,/*!*/ /*!*/);
+	--tw-invert: var(--tw-empty,/*!*/ /*!*/);
+	--tw-saturate: var(--tw-empty,/*!*/ /*!*/);
+	--tw-sepia: var(--tw-empty,/*!*/ /*!*/);
+	--tw-drop-shadow: var(--tw-empty,/*!*/ /*!*/);
+	--tw-filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
 }
 .container{
 	width: 100%;
@@ -1389,17 +1423,17 @@ video {
 .invisible{
 	visibility: hidden;
 }
+.static{
+	position: static;
+}
 .fixed{
 	position: fixed;
-}
-.relative{
-	position: relative;
 }
 .absolute{
 	position: absolute;
 }
-.static{
-	position: static;
+.relative{
+	position: relative;
 }
 .inset-0{
 	top: 0px;
@@ -1423,9 +1457,6 @@ video {
 }
 .right-0{
 	right: 0px;
-}
-.top-1\/2{
-	top: 50%;
 }
 .bottom-0{
 	bottom: 0px;
@@ -1465,6 +1496,9 @@ video {
 }
 .top-8{
 	top: 2rem;
+}
+.top-1\/2{
+	top: 50%;
 }
 .-bottom-1{
 	bottom: -0.25rem;
@@ -1659,20 +1693,8 @@ video {
 .-ml-px{
 	margin-left: -1px;
 }
-.grid{
-	display: grid;
-}
 .block{
 	display: block;
-}
-.table{
-	display: table;
-}
-.flex{
-	display: flex;
-}
-.inline-flex{
-	display: inline-flex;
 }
 .inline-block{
 	display: inline-block;
@@ -1680,11 +1702,23 @@ video {
 .inline{
 	display: inline;
 }
+.flex{
+	display: flex;
+}
+.inline-flex{
+	display: inline-flex;
+}
+.table{
+	display: table;
+}
 .table-cell{
 	display: table-cell;
 }
 .table-row{
 	display: table-row;
+}
+.grid{
+	display: grid;
 }
 .hidden{
 	display: none;
@@ -1888,48 +1922,46 @@ video {
 .border-collapse{
 	border-collapse: collapse;
 }
-.transform{
-	--tw-translate-x: 0;
-	--tw-translate-y: 0;
-	--tw-rotate: 0;
-	--tw-skew-x: 0;
-	--tw-skew-y: 0;
-	--tw-scale-x: 1;
-	--tw-scale-y: 1;
-	transform: translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
 .origin-top-right{
 	transform-origin: top right;
 }
-.-translate-y-1\/2{
-	--tw-translate-y: -50%;
+.translate-y-4{
+	--tw-translate-y: 1rem;
+	transform: var(--tw-transform);
 }
 .translate-y-0{
 	--tw-translate-y: 0px;
-}
-.translate-y-4{
-	--tw-translate-y: 1rem;
+	transform: var(--tw-transform);
 }
 .translate-y-2{
 	--tw-translate-y: 0.5rem;
+	transform: var(--tw-transform);
 }
 .-translate-y-1{
 	--tw-translate-y: -0.25rem;
+	transform: var(--tw-transform);
 }
 .translate-y-1\/2{
 	--tw-translate-y: 50%;
+	transform: var(--tw-transform);
 }
 .scale-95{
 	--tw-scale-x: .95;
 	--tw-scale-y: .95;
+	transform: var(--tw-transform);
 }
 .scale-100{
 	--tw-scale-x: 1;
 	--tw-scale-y: 1;
+	transform: var(--tw-transform);
 }
 .scale-75{
 	--tw-scale-x: .75;
 	--tw-scale-y: .75;
+	transform: var(--tw-transform);
+}
+.transform{
+	transform: var(--tw-transform);
 }
 .cursor-pointer{
 	cursor: pointer;
@@ -1960,11 +1992,11 @@ video {
 .grid-cols-2{
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.flex-col{
-	flex-direction: column;
-}
 .flex-row{
 	flex-direction: row;
+}
+.flex-col{
+	flex-direction: column;
 }
 .flex-wrap{
 	flex-wrap: wrap;
@@ -1972,26 +2004,26 @@ video {
 .content-center{
 	align-content: center;
 }
-.items-center{
-	align-items: center;
+.items-start{
+	align-items: flex-start;
 }
 .items-end{
 	align-items: flex-end;
 }
+.items-center{
+	align-items: center;
+}
 .items-stretch{
 	align-items: stretch;
 }
-.items-start{
-	align-items: flex-start;
+.justify-end{
+	justify-content: flex-end;
 }
 .justify-center{
 	justify-content: center;
 }
 .justify-between{
 	justify-content: space-between;
-}
-.justify-end{
-	justify-content: flex-end;
 }
 .gap-4{
 	gap: 1rem;
@@ -2094,23 +2126,23 @@ video {
 	border-top-width: calc(2px * calc(1 - var(--tw-divide-y-reverse)));
 	border-bottom-width: calc(2px * var(--tw-divide-y-reverse));
 }
-.overflow-y-hidden{
-	overflow-y: hidden;
-}
-.overflow-y-auto{
-	overflow-y: auto;
+.overflow-auto{
+	overflow: auto;
 }
 .overflow-hidden{
 	overflow: hidden;
-}
-.overflow-auto{
-	overflow: auto;
 }
 .overflow-visible{
 	overflow: visible;
 }
 .overflow-x-auto{
 	overflow-x: auto;
+}
+.overflow-y-auto{
+	overflow-y: auto;
+}
+.overflow-y-hidden{
+	overflow-y: hidden;
 }
 .truncate{
 	overflow: hidden;
@@ -2246,6 +2278,10 @@ video {
 .bg-gray-100{
 	--tw-bg-opacity: 1;
 	background-color: rgba(243, 244, 246, var(--tw-bg-opacity));
+}
+.bg-red-200{
+	--tw-bg-opacity: 1;
+	background-color: rgba(254, 202, 202, var(--tw-bg-opacity));
 }
 .bg-\[\#2e3192\]{
 	--tw-bg-opacity: 1;
@@ -2445,6 +2481,9 @@ video {
 .pl-2\.5{
 	padding-left: 0.625rem;
 }
+.pt-8{
+	padding-top: 2rem;
+}
 .pb-8{
 	padding-bottom: 2rem;
 }
@@ -2466,20 +2505,20 @@ video {
 .pt-16{
 	padding-top: 4rem;
 }
-.text-right{
-	text-align: right;
+.text-left{
+	text-align: left;
 }
 .text-center{
 	text-align: center;
 }
-.text-left{
-	text-align: left;
-}
-.align-middle{
-	vertical-align: middle;
+.text-right{
+	text-align: right;
 }
 .align-top{
 	vertical-align: top;
+}
+.align-middle{
+	vertical-align: middle;
 }
 .font-sans{
 	font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -2639,8 +2678,13 @@ video {
 	outline: 2px solid transparent;
 	outline-offset: 2px;
 }
+.filter{
+	filter: var(--tw-filter);
+}
 .transition{
-	transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+	transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
+	transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+	transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
 	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 	transition-duration: 150ms;
 }
@@ -2669,9 +2713,6 @@ video {
 .duration-75{
 	transition-duration: 75ms;
 }
-.duration{
-	transition-duration: 150ms;
-}
 .duration-300{
 	transition-duration: 300ms;
 }
@@ -2698,6 +2739,7 @@ video {
     --cta-secondary: #004DF5;
     --primary: #004df5;
     --primary-light: #e6edfa;
+    --teacher-primary-light: #4781ff;
     --secondary: #ECDB00;
     --highlight-primary: #ECDB00;
     --highlight-primary-mid-dark: #dec802;
@@ -3193,6 +3235,7 @@ body.modal-open {
 .hover\:scale-110:hover{
 	--tw-scale-x: 1.1;
 	--tw-scale-y: 1.1;
+	transform: var(--tw-transform);
 }
 
 .hover\:border-gray-300:hover{
@@ -3358,12 +3401,12 @@ body.modal-open {
 		margin-left: 1rem;
 	}
 
-	.sm\:flex{
-		display: flex;
-	}
-
 	.sm\:block{
 		display: block;
+	}
+
+	.sm\:flex{
+		display: flex;
 	}
 
 	.sm\:hidden{
@@ -3432,24 +3475,29 @@ body.modal-open {
 
 	.sm\:translate-y-0{
 		--tw-translate-y: 0px;
+		transform: var(--tw-transform);
 	}
 
 	.sm\:translate-x-2{
 		--tw-translate-x: 0.5rem;
+		transform: var(--tw-transform);
 	}
 
 	.sm\:translate-x-0{
 		--tw-translate-x: 0px;
+		transform: var(--tw-transform);
 	}
 
 	.sm\:scale-95{
 		--tw-scale-x: .95;
 		--tw-scale-y: .95;
+		transform: var(--tw-transform);
 	}
 
 	.sm\:scale-100{
 		--tw-scale-x: 1;
 		--tw-scale-y: 1;
+		transform: var(--tw-transform);
 	}
 
 	.sm\:items-start{
@@ -3637,12 +3685,12 @@ body.modal-open {
 		margin-left: 1rem;
 	}
 
-	.lg\:table-cell{
-		display: table-cell;
-	}
-
 	.lg\:flex{
 		display: flex;
+	}
+
+	.lg\:table-cell{
+		display: table-cell;
 	}
 
 	.lg\:hidden{

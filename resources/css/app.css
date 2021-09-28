@@ -5,6 +5,7 @@
 @import url("components/table.css");
 @import url("test-take.css");
 @import url("forms.css");
+@import url("pages.css");
 
 @tailwind base;
 @tailwind components;
@@ -17,6 +18,7 @@
     --cta-secondary: #004DF5;
     --primary: #004df5;
     --primary-light: #e6edfa;
+    --teacher-primary-light: #4781ff;
     --secondary: #ECDB00;
     --highlight-primary: #ECDB00;
     --highlight-primary-mid-dark: #dec802;
