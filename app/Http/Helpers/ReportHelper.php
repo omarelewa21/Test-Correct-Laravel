@@ -304,6 +304,10 @@ class ReportHelper
         return $builder->count();
     }
 
+    public function dateGeneralTermsAccepted()
+    {
+        return GeneralTermsLog::whereUserId($this->reference->getKey())->value('accepted_at');
+    }
 
     public function nrUniqueStudentsTakenTest($days, $returnBuilder = false)
     {

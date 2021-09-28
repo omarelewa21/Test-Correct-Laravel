@@ -102,8 +102,8 @@ class SchoolLocationReport extends Model
                     'lvs_active_no_mail_allowed'=> $helper->getLVSActiveNoMailAllowed(),
 
         ]);
-
-
+        
+             
     }
 
 
