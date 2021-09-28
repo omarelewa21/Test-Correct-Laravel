@@ -28,19 +28,8 @@ class SectionsController extends Controller {
                 break;
             case 'paginate':
             default:
+                $_schoolSections->with('schoolLocations','sharedSchoolLocations','subjects','subjects.baseSubject');
                 $schoolSections = $_schoolSections->paginate(15);
-                foreach($schoolSections as $schoolSection){
-                    $schoolSection['subjects'] = Subject::where('section_id', $schoolSection['id'])->get();
-                    $baseSubjects = [];
-                    $sharedLocations = [];
-                    foreach($schoolSection['subjects'] as $schoolSubject){
-                        $baseSubjects[] = BaseSubject::find($schoolSubject->base_subject_id);
-                        $schoolSection['base_subjects'] = $baseSubjects;
-                        
-                        $sharedLocations[] = $schoolSection->sharedSchoolLocations;
-                        $section['sharedSchoolLocations'] = $sharedLocations;
-                    }
-                }
                 return Response::make($schoolSections, 200);
                 break;
             }
