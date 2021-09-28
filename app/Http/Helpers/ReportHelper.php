@@ -13,6 +13,7 @@ use tcCore\Question;
 use tcCore\QuestionAuthor;
 use tcCore\Role;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationReport;
 use tcCore\SchoolLocationSchoolYear;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\TestTake;
@@ -43,7 +44,6 @@ class ReportHelper
         if ($this->type === self::SCHOOLLOCATION) {
             $this->setCurrentPeriod();
         }
-
     }
 
     protected function setCurrentPeriod()
@@ -225,6 +225,66 @@ class ReportHelper
         return $this->nrTestTakesByStatusIdAndDays(7, $days);
     }
 
+    public function getSSOType()
+    {
+        return SchoolLocation::whereUserId($this->reference->getKey())->value('sso_type');
+    }
+
+    public function getCustomerCode()
+    {
+        return SchoolLocation::whereUserId($this->reference->getKey())->value('customer_code');
+    }
+
+    public function getLVSType()
+    {
+        return SchoolLocation::whereUserId($this->reference->getKey())->value('lvs_type');
+    }
+
+    public function getSSOActive()
+    {
+        if (SchoolLocation::whereUserId($this->reference->getKey())->value('sso_active') === true){
+            return "true";
+        }
+        return "false";
+    }
+
+    public function getIntense()
+    {
+        if (SchoolLocation::whereUserId($this->reference->getKey())->value('intense') === true){
+            return "true";
+        }
+        return "false";
+    }
+
+    public function getLVSActiveNoMailAllowed()
+    {
+        if (SchoolLocation::whereUserId($this->reference->getKey())->value('lvs_active_no_mail_allowed') === true){
+            return "true";
+        }
+        return "false";
+    }
+
+    public function getAllowInbrowserTesting()
+    {
+        if (SchoolLocation::whereUserId($this->reference->getKey())->value('allow_inbrowser_testing') === true){
+            return "true";
+        }
+        return "false";
+    }
+
+    public function getLVSActive()
+    {
+        if (SchoolLocation::whereUserId($this->reference->getKey())->value('lvs_active') === true){
+            return "true";
+        }
+        return "false";
+    }
+
+    public function dateGeneralTermsAccepted()
+    {
+        return GeneralTermsLog::whereUserId($this->reference->getKey())->value('accepted_at');
+    }
+
     public function nrParticipantsTakenTest($days)
     {
 
@@ -244,10 +304,6 @@ class ReportHelper
         return $builder->count();
     }
 
-    public function dateGeneralTermsAccepted()
-    {
-        return GeneralTermsLog::whereUserId($this->reference->getKey())->value('accepted_at');
-    }
 
     public function nrUniqueStudentsTakenTest($days, $returnBuilder = false)
     {

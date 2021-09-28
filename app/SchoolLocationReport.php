@@ -92,9 +92,18 @@ class SchoolLocationReport extends Model
                     'nr_participants_taken_test_90' => $helper->nrParticipantsTakenTest(90), // 4.a.9
                     'nr_participants_taken_test_365' => $helper->nrParticipantsTakenTest(365), // 4.a.9
                     'nr_participants_taken_test_total' => $helper->nrParticipantsTakenTest(0), // 4.a.10
+                    'lvs_type' => $helper->getLVSType(), // 4.a.10
+                    'lvs_active' => $helper->getLVSActive(),
+                    'sso_type' => $helper->getSSOType(),
+                    'sso_active' => $helper->getSSOActive(), // 4.a.10
+                    'intense' => $helper->getIntense(),
+                    'allow_inbrowser_testing' => $helper->getAllowInbrowserTesting(),
+                    'klantcode_schoollocatie' => $helper->getCustomerCode(),
+                    'lvs_active_no_mail_allowed'=> $helper->getLVSActiveNoMailAllowed(),
+
         ]);
-        
-             
+
+
     }
 
 

@@ -90,7 +90,7 @@ class OnboardingWizardReport extends Model
             'nr_tests_taken_60'                           => $helper->nrTestsTaken(60), // 3.a.1
             'nr_tests_taken_90'                           => $helper->nrTestsTaken(90), // 3.a.1
             'nr_tests_taken_365'                           => $helper->nrTestsTaken(365), // 3.a.1
-            'nr_test_taken_total'                         => $helper->nrTestsTaken(0), // 3.a.2
+            'nr_test_taken_total'                         => self::getTestsTakenAmount($user), // 3.a.2
 //            'nr_tests_checked_7'                          => $helper->nrTestsChecked(7), // 3.a.1
 //            'nr_tests_checked_30'                         => $helper->nrTestsChecked(30), // 3.a.1
 //            'nr_tests_checked_60'                         => $helper->nrTestsChecked(60), // 3.a.1
