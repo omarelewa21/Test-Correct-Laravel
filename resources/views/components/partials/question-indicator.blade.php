@@ -169,7 +169,7 @@
                         }
                     });
 
-                    if(nrButtonsFound === count(elementsToHide)){
+                    if(nrButtonsFound === elementsToHide.length){
                         hideButtonsFound = true;
                     }
 
@@ -218,7 +218,7 @@
                     BrowseAloud.panel.toggleBar(!0);
                     setTimeout(function () {
                         hideBrowseAloudButtons();
-                    }, 250);
+                    }, 1000);
                 }
             </script>
         @endpush
