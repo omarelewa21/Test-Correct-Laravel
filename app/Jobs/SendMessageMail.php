@@ -38,6 +38,9 @@ class SendMessageMail extends Job implements ShouldQueue
         $urlLogin = config('app.url_login');
 
         foreach ($message->messageReceivers as $messageReceiver) {
+            if(null == $messageReceiver->user || $messageReceiver->user->hasImportMailAddress()) {
+                continue;
+            }
             $email = $messageReceiver->user->getEmailForPasswordReset();
             $name = $messageReceiver->user->getNameFullAttribute();
 
