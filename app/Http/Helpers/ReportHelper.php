@@ -225,64 +225,44 @@ class ReportHelper
         return $this->nrTestTakesByStatusIdAndDays(7, $days);
     }
 
-    public function getSSOType()
+    public function getSSOType(SchoolLocation $schoolLocation)
     {
-        return SchoolLocation::whereUserId($this->reference->getKey())->value('sso_type');
+        return $schoolLocation->sso_type;
     }
 
-    public function getCustomerCode()
+    public function getCustomerCode(SchoolLocation $schoolLocation)
     {
-        return SchoolLocation::whereUserId($this->reference->getKey())->value('customer_code');
+        return $schoolLocation->customer_code;
     }
 
-    public function getLVSType()
+    public function getLVSType(SchoolLocation $schoolLocation)
     {
-        return SchoolLocation::whereUserId($this->reference->getKey())->value('lvs_type');
+        return $schoolLocation->lvs_type;
     }
 
-    public function getSSOActive()
+    public function getSSOActive(SchoolLocation $schoolLocation)
     {
-        if (SchoolLocation::whereUserId($this->reference->getKey())->value('sso_active') === true){
-            return "true";
-        }
-        return "false";
+        return ($schoolLocation->sso_active === true) ? "true" : "false";
     }
 
-    public function getIntense()
+    public function getIntense(SchoolLocation $schoolLocation)
     {
-        if (SchoolLocation::whereUserId($this->reference->getKey())->value('intense') === true){
-            return "true";
-        }
-        return "false";
+        return ($schoolLocation->intense === true) ? "true" : "false";
     }
 
-    public function getLVSActiveNoMailAllowed()
+    public function getLVSActiveNoMailAllowed(SchoolLocation $schoolLocation)
     {
-        if (SchoolLocation::whereUserId($this->reference->getKey())->value('lvs_active_no_mail_allowed') === true){
-            return "true";
-        }
-        return "false";
+        return ($schoolLocation->lvs_active_no_mail_allowed === true) ? "true" : "false";
     }
 
-    public function getAllowInbrowserTesting()
+    public function getAllowInbrowserTesting(SchoolLocation $schoolLocation)
     {
-        if (SchoolLocation::whereUserId($this->reference->getKey())->value('allow_inbrowser_testing') === true){
-            return "true";
-        }
-        return "false";
+        return ($schoolLocation->allow_inbrowser_testing === true) ? "true" : "false";
     }
 
-    public function getLVSActive()
+    public function getLVSActive(SchoolLocation $schoolLocation)
     {
-        if (SchoolLocation::whereUserId($this->reference->getKey())->value('lvs_active') === true){
-            return "true";
-        }
-        return "false";
-    }
-
-    public function dateGeneralTermsAccepted()
-    {
-        return GeneralTermsLog::whereUserId($this->reference->getKey())->value('accepted_at');
+        return ($schoolLocation->lvs_active === true) ? "true" : "false";
     }
 
     public function nrParticipantsTakenTest($days)

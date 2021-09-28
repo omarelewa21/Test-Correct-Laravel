@@ -13,7 +13,7 @@ class AddColumnsToSchoolLocationReports extends Migration
      */
     public function up()
     {
-        Schema::table('school_location_reports', function (Blueprint $table) {
+         Schema::table('school_location_reports', function (Blueprint $table) {
             $table->text('lvs_type')->nullable();
             $table->text('lvs_active')->nullable();
             $table->text('lvs_active_no_mail_allowed')->nullable();

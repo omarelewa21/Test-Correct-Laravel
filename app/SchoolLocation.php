@@ -45,13 +45,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     const SSO_ENTREE = 'Entreefederatie';
 
     protected $casts = [
-        'uuid'                    => EfficientUuid::class,
-        'allow_inbrowser_testing' => 'boolean',
-        'intense'                 => 'boolean',
-        'lvs'                     => 'boolean',
-        'lvs_active'              => 'boolean',
-        'sso'                     => 'boolean',
-        'sso_active'              => 'boolean',
+        'uuid'                     => EfficientUuid::class,
+        'allow_inbrowser_testing'  => 'boolean',
+        'intense'                  => 'boolean',
+        'lvs'                      => 'boolean',
+        'lvs_active'               => 'boolean',
+        'sso'                      => 'boolean',
+        'sso_active'               => 'boolean',
+        'lvs_active_no_mail_allowed' => 'boolean',
     ];
 
     /**
