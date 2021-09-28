@@ -4,6 +4,7 @@
         addRelativePaddingToBody('planned-body');
         makeHeaderMenuActive('student-header-tests');
      "
+     x-ref="root"
      x-cloak
      class="w-full flex flex-col items-center student-bg"
      :class="{'overflow-hidden h-screen' : startCountdown}"
@@ -68,7 +69,7 @@
                 <div class="flex flex-col mb-4">
                     <span class="-mb-2">{{ __('student.planned_test') }}</span>
                     <x-button.text-button class="rotate-svg-180"
-                                          x-on:click="startCountdown = false; stopCountdownTimer($el.__x.$data)">
+                                          x-on:click="startCountdown = false; stopCountdownTimer($refs.root._x_dataStack[0])">
                         <x-icon.arrow/>
                         <span class="text-[32px]">{{ $waitingTestTake->test->name }}</span>
                     </x-button.text-button>

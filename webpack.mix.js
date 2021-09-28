@@ -18,7 +18,7 @@ const { execSync } = require('child_process');
 
 mix.postCss("resources/css/app.css", "public/css").options({
     postCss: [
-        require("@tailwindcss/jit"),
+        require("tailwindcss"),
     ],
 }).js('resources/js/app.js', 'public/js');
 
