@@ -496,6 +496,7 @@
                                         <x-input.group label="{{ __('auth.emailaddress')}}" class="w-full md:w-1/2">
                                             <x-input.text wire:model.lazy="username" autofocus></x-input.text>
                                         </x-input.group>
+                                        {{ $schoolLocation }}
 
                                     </div>
                                     <div class="error-section">

@@ -70,6 +70,8 @@ class Login extends Component
     public $authModalRoleType;
     public $showSendForgotPasswordNotification = false;
 
+    public $schoolLocation;
+
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
     protected $listeners = ['open-auth-modal' => 'openAuthModal'];
@@ -377,6 +379,8 @@ class Login extends Component
     public function emailEnteredForNoMailPresent()
     {
         // validate entered emailaddress
+        $this->rules['username'] = $this->getSchoolLocationAccptedEmailDomainRule();
+
         $this->validateOnly('username');
         if (User::where('username', $this->username)->exists()) {
             return $this->addError('username', __('auth.email_already_in_use'));
@@ -424,4 +428,69 @@ class Login extends Component
     {
 
     }
+
+    private function getSchoolLocationAccptedEmailDomainRule()
+    {
+        $return = $this->rules['username'];
+        if ($this->uuid) {
+            $eckId = optional(SamlMessage::whereUuid($this->uuid)->first())->eck_id;
+
+            if ($eckId) {
+                $user = User::findByEckId(Crypt::decryptString($eckId))->first();
+
+                if (strlen($user->schoolLocation->accepted_mail_domain) > 0) {
+                    $callback = function ($attribute, $value, $fail) use ($user) {
+                        $mail_domains = explode(';', $user->schoolLocation->accepted_mail_domain);
+                        $validated = false;
+                        $validDomains = [];
+
+                        foreach ($mail_domains as $mail_domain) {
+                            if (str_starts_with( $mail_domain, '@')) {
+                                $validDomains[] = $mail_domain;
+                                if (str_ends_with($value, $mail_domain)) {
+                                    $validated = true;
+                                }
+                            } elseif (str_starts_with( $mail_domain, '*')) {
+                                $mail_domain = substr($mail_domain, 1);
+                                if (str_starts_with($mail_domain, '.')) {
+
+                                }
+
+
+                                if (str_ends_with($value, $mail_domain)) {
+                                    $validated = true;
+                                    $validDomains[] = $mail_domain;
+                                } elseif (str_ends_with($value, $mail_domain)) {
+                                    $validated = true;
+                                    $validDomains[] = $mail_domain;
+                                } else {
+                                    $validDomains[] = '@'.$mail_domain;
+                                    $validDomains[] = '.'.$mail_domain;
+                                }
+
+                            } else {
+                                $validDomains[] = '@'. $mail_domain;
+                                if (str_ends_with($value, '@'.$mail_domain)) {
+                                    $validated = true;
+                                }
+                            }
+                        }
+                        if ($validated == false) {
+                            $fail(
+                                sprintf(
+                                    'Het emailadres moet eindigen op: %s.',
+                                    implode(' of ', $validDomains)
+                                )
+                            );
+                        }
+                    };
+
+                    $return = array_merge(explode('|', $this->rules['username']), [$callback]);
+                }
+            }
+
+        }
+        return $return;
+    }
+
 }
