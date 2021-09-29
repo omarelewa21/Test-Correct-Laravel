@@ -422,6 +422,6 @@ class Login extends Component
 
     public function returnToLogin()
     {
-        $this->reset();
+
     }
 }

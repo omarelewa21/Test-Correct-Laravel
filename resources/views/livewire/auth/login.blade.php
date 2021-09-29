@@ -553,7 +553,7 @@
                         @endif
                         <div class="mt-auto flex w-full">
 
-                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="returnToLogin">
+                            <x-button.text-button class="rotate-svg-180" type="link" href="{{ route('saml2_login', 'entree') }}">
                                 <x-icon.arrow/>
                                 <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>
