@@ -38,7 +38,13 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab', 'uuid', 'entree_error_message', 'fatal_error_message','block_back'];
+    protected $queryString = [
+        'tab'                  => ['except' => 'login'],
+        'uuid'                 => ['except' => ''],
+        'entree_error_message' => ['except' => ''],
+        'fatal_error_message'  => ['except' => false],
+        'block_back'           => ['except' => false]
+    ];
 
     public $tab = 'login';
 
@@ -412,5 +418,10 @@ class Login extends Component
         $this->doIHaveATcAccountChoice = null;
         $this->doIHaveATcAccount = 1;
         $this->resetErrorBag();
+    }
+
+    public function returnToLogin()
+    {
+        $this->reset();
     }
 }
