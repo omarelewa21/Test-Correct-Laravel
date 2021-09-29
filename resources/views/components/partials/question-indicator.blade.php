@@ -137,6 +137,14 @@
     </div>
 
     @if(Auth::user()->text2speech)
+        @push('styling')
+            <style>
+                #th_toolbar{
+                    display:none;
+                }
+            </style>
+        @endpush
+
         @push('scripts')
             <script>
                 function toggleBrowseAloud() {
@@ -173,7 +181,7 @@
 
                     var toolbar = shadowRoot.getElementById('th_toolbar');
                     if (toolbar !== null) {
-                        toolbar.setAttribute('style', 'background-color: #fff');
+                        toolbar.setAttribute('style', 'background-color: #fff;display:inline-block');
                     }
 
                     [...shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function (item) {
