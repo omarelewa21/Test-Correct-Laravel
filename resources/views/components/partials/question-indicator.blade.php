@@ -187,7 +187,7 @@
                     [...shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function (item) {
                         item.setAttribute('style', 'fill : #515151');
                     });
-                    if(!hideButtonsFound && hideButtonsIterator < 10){
+                    if(!hideButtonsFound && hideButtonsIterator < 20){
                         setTimeout(function(){
                             hideButtonsIterator++;
                             hideBrowseAloudButtons();
@@ -210,7 +210,7 @@
                             _toggleBA();
                         } catch (e) {
                             tryIterator++;
-                            if (tryIterator < 10) { // just stop when it still fails after 10 tries;
+                            if (tryIterator < 20) { // just stop when it still fails after 20 tries;
                                 setTimeout(function () {
                                         waitForBrowseAloudAndThenRun();
                                     },
