@@ -3282,6 +3282,11 @@ body.modal-open {
 	color: rgba(156, 163, 175, var(--tw-text-opacity));
 }
 
+.hover\:shadow-md:hover{
+	--tw-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
 .focus\:z-10:focus{
 	z-index: 10;
 }

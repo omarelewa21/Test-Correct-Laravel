@@ -326,7 +326,7 @@
                                 <div wire:click="$set('doIHaveATcAccountChoice', 2)"
                                      @mouseenter="hoverAccount = true"
                                      @mouseleave="hoverAccount = false"
-                                     class="flex p-4 flex-1 border-2 h-full rounded-10 cursor-pointer transition-all relative space-x-4"
+                                     class="flex p-4 flex-1 border-2 h-full rounded-10 cursor-pointer transition-all relative space-x-4 hover:shadow-md"
                                      :class="hoverAccount || hasAccount === 2 ? 'primary border-primary bg-off-white': 'mid-grey border-blue-grey'"
                                 >
                                     <div class="flex">
@@ -347,7 +347,7 @@
                                 <div wire:click="$set('doIHaveATcAccountChoice', 3)"
                                      @mouseenter="hoverNoAccount = true"
                                      @mouseleave="hoverNoAccount = false"
-                                     class="flex p-4 flex-1 border-2 h-full rounded-10 cursor-pointer transition-all relative space-x-4"
+                                     class="flex p-4 flex-1 border-2 h-full rounded-10 cursor-pointer transition-all relative space-x-4 hover:shadow-md"
                                      :class="hoverNoAccount || hasAccount === 3 ? 'primary border-primary bg-off-white ': 'mid-grey border-blue-grey '"
                                 >
                                     <div class="flex">
@@ -368,7 +368,7 @@
                             <div class="flex w-full justify-between mt-auto">
                                 <x-button.text-button type="link" href="{{ route('auth.login') }}" class="rotate-svg-180">
                                     <x-icon.arrow/>
-                                    <span>Terug naar inloggen</span>
+                                    <span>{{ __('auth.back_to_login') }}</span>
                                 </x-button.text-button>
                                 <x-button.primary wire:click="noEntreeEmailNextStep" x-bind:disabled="hasAccount == null" size="md">
                                     <span>{{ __('auth.next_step') }}</span>
@@ -544,19 +544,20 @@
                     <div class="flex flex-col flex-1 h-full">
                         <p class="mb-4 body1">{{ __('auth.connect_entree_error') }}</p>
 
+                        @if($fatal_error_message)
                         <div class="flex">
                             <div class="notification error stretched mt-4">
                                 <span class="title">{!!  __($fatal_error_message) !!}</span>
                             </div>
                         </div>
-
+                        @endif
                         <div class="mt-auto flex w-full">
-                            @if(!$block_back)
-                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="$set('tab', 'login')">
+
+                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="returnToLogin">
                                 <x-icon.arrow/>
                                 <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>
-                            @endif
+
                         </div>
                     </div>
                 </form>
@@ -610,7 +611,7 @@
                         </div>
 
                         <div class="mt-auto flex w-full">
-                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="$set('tab', 'login')">
+                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="returnToLogin">
                                 <x-icon.arrow/>
                                 <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>
