@@ -30,21 +30,29 @@ use Tests\Unit\Http\Helpers\OnboardingTestHelper;
 
 class EmailaddressValidatorTest extends TestCase
 {
-
-    /** @test */
-    public function it_can_validate_an_email_address()
+    /**
+     * @test
+     * @dataProvider provideData
+     */
+    public function it_can_validate_a_star_domain($domain, $mail, $passes, $message)
     {
-        $validator = new EmailValidatorService('aap.nl', 'martin@aap.nl');
+        $validator = new EmailValidatorService($domain, $mail);
 
-        $this->assertFalse($validator->passes());
+        $this->assertEquals($passes, $validator->passes());
 
-        $this->assertEquals('', $validator->getMessage());
-    }
-    
-    /** @test */
-    public function it_can_handle()
-    {
-        
+        $this->assertEquals($message, $validator->getMessage());
     }
 
+    public function provideData()
+    {
+        return [
+            ['.aap.nl', 'martin@aap.nl', false, ['.aap.nl']],
+            ['@aap.nl', 'martin@*aap.nl', false, ['@aap.nl']],
+            ['@aap.nl;@me.nl', 'martin@sobit.nl', false, ['@aap.nl', '@me.nl']],
+            ['*@aap.nl', 'martin@else.nl', false, ['@aap.nl']],
+            ['*aap.nl', 'martin@aap.nl', true, ''],
+            ['*.aap.nl', 'martin@student.aap.nl', true, ''],
+            ['@aap.nl', 'martin@aap.nl', true, ''],
+        ];
+    }
 }

@@ -16,6 +16,7 @@ use tcCore\FailedLogin;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\SamlMessage;
+use tcCore\Services\EmailValidatorService;
 use tcCore\User;
 
 class Login extends Component
@@ -431,7 +432,6 @@ class Login extends Component
 
     private function getSchoolLocationAccptedEmailDomainRule()
     {
-        $return = $this->rules['username'];
         if ($this->uuid) {
             $eckId = optional(SamlMessage::whereUuid($this->uuid)->first())->eck_id;
 
@@ -440,57 +440,29 @@ class Login extends Component
 
                 if (strlen($user->schoolLocation->accepted_mail_domain) > 0) {
                     $callback = function ($attribute, $value, $fail) use ($user) {
-                        $mail_domains = explode(';', $user->schoolLocation->accepted_mail_domain);
-                        $validated = false;
-                        $validDomains = [];
+                        $validator = new EmailValidatorService(
+                            $user->schoolLocation->accepted_mail_domain,
+                            $value
+                        );
 
-                        foreach ($mail_domains as $mail_domain) {
-                            if (str_starts_with( $mail_domain, '@')) {
-                                $validDomains[] = $mail_domain;
-                                if (str_ends_with($value, $mail_domain)) {
-                                    $validated = true;
-                                }
-                            } elseif (str_starts_with( $mail_domain, '*')) {
-                                $mail_domain = substr($mail_domain, 1);
-                                if (str_starts_with($mail_domain, '.')) {
-
-                                }
-
-
-                                if (str_ends_with($value, $mail_domain)) {
-                                    $validated = true;
-                                    $validDomains[] = $mail_domain;
-                                } elseif (str_ends_with($value, $mail_domain)) {
-                                    $validated = true;
-                                    $validDomains[] = $mail_domain;
-                                } else {
-                                    $validDomains[] = '@'.$mail_domain;
-                                    $validDomains[] = '.'.$mail_domain;
-                                }
-
-                            } else {
-                                $validDomains[] = '@'. $mail_domain;
-                                if (str_ends_with($value, '@'.$mail_domain)) {
-                                    $validated = true;
-                                }
-                            }
-                        }
-                        if ($validated == false) {
+                        if ($validator->passes() == false) {
                             $fail(
                                 sprintf(
                                     'Het emailadres moet eindigen op: %s.',
-                                    implode(' of ', $validDomains)
+                                    implode(' of ',$validator->getMessage())
                                 )
                             );
                         }
                     };
 
-                    $return = array_merge(explode('|', $this->rules['username']), [$callback]);
+                    return array_merge(
+                        explode('|', $this->rules['username']),
+                        [$callback]
+                    );
                 }
             }
-
         }
-        return $return;
-    }
 
+        return $this->rules['username'];
+    }
 }

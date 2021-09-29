@@ -7,6 +7,8 @@ class EmailValidatorService
 
     private $mail;
 
+    private $messages = [];
+
 
     public function __construct($strDomain, $mail) {
         $this->domains = explode(';', $strDomain);
@@ -14,11 +16,36 @@ class EmailValidatorService
     }
 
     public function passes() {
-        return false;
+        $fail = true;
+        foreach($this->domains as $domain) {
+            if (str_starts_with($domain, '*')) {
+                $domain = substr( $domain, 1);
+            }
+            if (str_ends_with($this->mail, $domain)) {
+                $fail = false;
+            }
+        }
+        return ! $fail;
     }
 
     public function getMessage() {
-        return '';
+        if ($this->passes()) return '';
+
+        $messages = [];
+        foreach($this->domains as $domain) {
+            if (str_starts_with($domain, '*')) {
+                $domain = substr($domain, 1);
+            }
+            if (str_starts_with($domain, '.')) {
+               $messages[] = $domain;
+            } elseif (str_starts_with($domain, '@')) {
+                $messages[] = $domain;
+            } else {
+                $messages[] = "@".$domain;
+            }
+        }
+
+        return  $messages;
     }
 
 
