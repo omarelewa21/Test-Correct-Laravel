@@ -16,6 +16,7 @@ use tcCore\FailedLogin;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\SamlMessage;
+use tcCore\Services\EmailValidatorService;
 use tcCore\User;
 
 class Login extends Component
@@ -69,6 +70,8 @@ class Login extends Component
     public $showAuthModal = false;
     public $authModalRoleType;
     public $showSendForgotPasswordNotification = false;
+
+    public $schoolLocation;
 
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
@@ -377,6 +380,8 @@ class Login extends Component
     public function emailEnteredForNoMailPresent()
     {
         // validate entered emailaddress
+        $this->rules['username'] = $this->getSchoolLocationAccptedEmailDomainRule();
+
         $this->validateOnly('username');
         if (User::where('username', $this->username)->exists()) {
             return $this->addError('username', __('auth.email_already_in_use'));
@@ -422,6 +427,42 @@ class Login extends Component
 
     public function returnToLogin()
     {
-        $this->reset();
+
+    }
+
+    private function getSchoolLocationAccptedEmailDomainRule()
+    {
+        if ($this->uuid) {
+            $eckId = optional(SamlMessage::whereUuid($this->uuid)->first())->eck_id;
+
+            if ($eckId) {
+                $user = User::findByEckId(Crypt::decryptString($eckId))->first();
+
+                if (strlen($user->schoolLocation->accepted_mail_domain) > 0) {
+                    $callback = function ($attribute, $value, $fail) use ($user) {
+                        $validator = new EmailValidatorService(
+                            $user->schoolLocation->accepted_mail_domain,
+                            $value
+                        );
+
+                        if ($validator->passes() == false) {
+                            $fail(
+                                sprintf(
+                                    'Het emailadres moet eindigen op: %s.',
+                                    implode(' of ',$validator->getMessage())
+                                )
+                            );
+                        }
+                    };
+
+                    return array_merge(
+                        explode('|', $this->rules['username']),
+                        [$callback]
+                    );
+                }
+            }
+        }
+
+        return $this->rules['username'];
     }
 }

@@ -496,6 +496,7 @@
                                         <x-input.group label="{{ __('auth.emailaddress')}}" class="w-full md:w-1/2">
                                             <x-input.text wire:model.lazy="username" autofocus></x-input.text>
                                         </x-input.group>
+                                        {{ $schoolLocation }}
 
                                     </div>
                                     <div class="error-section">
@@ -553,7 +554,7 @@
                         @endif
                         <div class="mt-auto flex w-full">
 
-                            <x-button.text-button class="rotate-svg-180" wire:click.prevent="returnToLogin">
+                            <x-button.text-button class="rotate-svg-180" type="link" href="{{ route('saml2_login', 'entree') }}">
                                 <x-icon.arrow/>
                                 <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>
