@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Mail\SendSamlNoMailAddressInRequestDetectedMail;
 use tcCore\Traits\UuidTrait;
 
 class SchoolLocation extends BaseModel implements AccessCheckable
@@ -60,7 +62,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
      *
      * @var array
      */
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at', 'no_mail_request_detected'];
 
     /**
      * The database table used by the model.
@@ -953,8 +955,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $periodLocation = (new Period());
         $periodLocation->fill([
             'school_year_id'     => $schoolYear->getKey(),
-            'name'               => sprintf('%d-%d',\Carbon\Carbon::parse($startDate)->year,  \Carbon\Carbon::parse($endDate)->year),
-            'school_location_id' =>  $this->getKey(),
+            'name'               => sprintf('%d-%d', \Carbon\Carbon::parse($startDate)->year,
+                \Carbon\Carbon::parse($endDate)->year),
+            'school_location_id' => $this->getKey(),
             'start_date'         => Carbon::parse($startDate),
             'end_date'           => Carbon::parse($endDate),
         ]);
@@ -983,5 +986,29 @@ class SchoolLocation extends BaseModel implements AccessCheckable
                 ->join('school_location_school_years', 'school_location_school_years.school_year_id', 'school_years.id')
                 ->select('school_location_id')
         );
+    }
+
+    private function canSendSamlNoMailAddressInRequestDetectedMail()
+    {
+        if (empty ($this->no_mail_request_detected)) {
+            return true;
+        }
+
+        return ($this->no_mail_request_detected->diffInHours(now()) > 23);
+
+
+    }
+
+    public function sendSamlNoMailAddresInRequestDetectedMailIfAppropriate()
+    {
+        if ($this->canSendSamlNoMailAddressInRequestDetectedMail() && $this->lvs_active_no_mail_allowed == false) {
+            Mail::to('support@test-correct.nl')
+                ->subject(
+                    sprintf('Waarschuwing gebruiker van %s probeert in te loggen via Entree zonder emailadres.', $this->name)
+                )
+                ->send(new SendSamlNoMailAddressInRequestDetectedMail($this->name));
+            $this->no_mail_request_detected = now();
+            $this->save();
+        }
     }
 }

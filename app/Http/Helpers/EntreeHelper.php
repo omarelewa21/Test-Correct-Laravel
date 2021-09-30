@@ -294,7 +294,8 @@ class EntreeHelper
             unset($attr['eckId']);
             logger($attr);
             logger('=======');
-            //@TODO hier kan nog een mail komen
+
+            $this->location->sendSamlNoMailAddresInRequestDetectedMailIfAppropriate();
 
 //            throw new \Exception('no mail found in saml request');
         }
