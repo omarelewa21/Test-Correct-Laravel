@@ -46,11 +46,16 @@ class EmailaddressValidatorTest extends TestCase
     public function provideData()
     {
         return [
+            ['mail.com', 'martin@hotmail.com', false, ['@mail.com']],
             ['.aap.nl', 'martin@aap.nl', false, ['.aap.nl']],
             ['@aap.nl', 'martin@*aap.nl', false, ['@aap.nl']],
             ['@aap.nl;@me.nl', 'martin@sobit.nl', false, ['@aap.nl', '@me.nl']],
             ['*@aap.nl', 'martin@else.nl', false, ['@aap.nl']],
             ['*aap.nl', 'martin@aap.nl', true, ''],
+            ['*aap.nl', 'martin@testaap.nl', true, ''],
+            ['*aap.nl', 'martin@hotmail.nl', false, ['*aap.nl']],
+            ['aap.nl', 'martin@aap.nl', true, ''],
+            ['ap.nl', 'martin@aap.nl', false, ['@ap.nl']],
             ['*.aap.nl', 'martin@student.aap.nl', true, ''],
             ['*.aap.nl', 'martin@aap.nl', false, ['.aap.nl']],
             ['@aap.nl', 'martin@aap.nl', true, ''],

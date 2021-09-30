@@ -1,4 +1,5 @@
 <?php namespace tcCore\Services;
+
 ;
 
 class EmailValidatorService
@@ -10,44 +11,64 @@ class EmailValidatorService
     private $messages = [];
 
 
-    public function __construct($strDomain, $mail) {
+    public function __construct($strDomain, $mail)
+    {
         $this->domains = explode(';', $strDomain);
         $this->mail = $mail;
     }
 
-    public function passes() {
+    public function passes()
+    {
         $fail = true;
-        foreach($this->domains as $domain) {
+        foreach ($this->domains as $domain) {
+            if (!str_starts_with($domain, '*') && !str_starts_with($domain, '.') && !str_starts_with($domain, '@')) {
+                $domain = '@'.$domain;
+            }
+
             if (str_starts_with($domain, '*')) {
-                $domain = substr( $domain, 1);
+                $domain = substr($domain, 1);
             }
             if (str_ends_with($this->mail, $domain)) {
                 $fail = false;
             }
         }
-        return ! $fail;
+        return !$fail;
     }
 
-    public function getMessage() {
-        if ($this->passes()) return '';
+    public function getMessage()
+    {
+        if ($this->passes()) {
+            return '';
+        }
 
         $messages = [];
-        foreach($this->domains as $domain) {
+        foreach ($this->domains as $domain) {
+            if (!str_starts_with($domain, '*') && !str_starts_with($domain, '.') && !str_starts_with($domain, '@')) {
+                $domain = '@'.$domain;
+            }
+
             if (str_starts_with($domain, '*')) {
                 $domain = substr($domain, 1);
-            }
-            if (str_starts_with($domain, '.')) {
-               $messages[] = $domain;
-            } elseif (str_starts_with($domain, '@')) {
-                $messages[] = $domain;
+                if (str_starts_with($domain, '.')) {
+                    $messages[] = $domain;
+                } elseif (str_starts_with($domain, '@')) {
+                    $messages[] = $domain;
+                } else {
+                    $messages[] = "*".$domain;
+                }
             } else {
-                $messages[] = "@".$domain;
+                if (str_starts_with($domain, '.')) {
+                    $messages[] = $domain;
+                } elseif (str_starts_with($domain, '@')) {
+                    $messages[] = $domain;
+                } else {
+                    $messages[] = "@".$domain;
+                }
             }
         }
 
-        return  $messages;
+        return $messages;
     }
-
 
 
 }
