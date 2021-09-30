@@ -295,7 +295,7 @@ class EntreeHelper
             logger($attr);
             logger('=======');
 
-            $this->location->sendSamlNoMailAddresInRequestDetectedMailIfAppropriate();
+            optional($this->location)->sendSamlNoMailAddresInRequestDetectedMailIfAppropriate();
 
 //            throw new \Exception('no mail found in saml request');
         }
@@ -660,6 +660,19 @@ class EntreeHelper
                     )->first();
                 }
             }
+        }
+    }
+
+    public function blockIfEckIdAttributeIsNotPresent()
+    {
+        if(!array_key_exists('eckId', $this->attr) || !array_key_exists(0, $this->attr['eckId'])){
+            $url = route('auth.login',
+                [
+                    'tab' => 'login',
+                    'entree_error_message' => 'auth.no_eck_id_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'
+                ]
+            );
+            return $this->redirectToUrlAndExit($url);
         }
     }
 

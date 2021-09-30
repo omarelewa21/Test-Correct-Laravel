@@ -39,6 +39,8 @@ class EventServiceProvider extends ServiceProvider {
 
             $entreeHelper->blockIfReplayAttackDetected();
 
+            $this->blockIfEckIdAttributeIsNotPresent();
+
             $entreeHelper->redirectIfBrinUnknown();
 
             $entreeHelper->redirectIfBrinNotSso();
