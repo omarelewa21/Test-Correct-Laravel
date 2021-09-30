@@ -52,6 +52,7 @@ class EmailaddressValidatorTest extends TestCase
             ['*@aap.nl', 'martin@else.nl', false, ['@aap.nl']],
             ['*aap.nl', 'martin@aap.nl', true, ''],
             ['*.aap.nl', 'martin@student.aap.nl', true, ''],
+            ['*.aap.nl', 'martin@aap.nl', false, ['.aap.nl']],
             ['@aap.nl', 'martin@aap.nl', true, ''],
         ];
     }
