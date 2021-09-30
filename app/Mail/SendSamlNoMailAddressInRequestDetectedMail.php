@@ -13,16 +13,18 @@ class SendSamlNoMailAddressInRequestDetectedMail extends Mailable
 
     public $schoolName;
     public $timeDetected;
+    public $subject;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($schoolName)
+    public function __construct($schoolName, $subject)
     {
         $this->schoolName = $schoolName;
         $this->timeDetected = now();
+        $this->subject = $subject;
     }
 
     /**
@@ -32,6 +34,7 @@ class SendSamlNoMailAddressInRequestDetectedMail extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.saml_no_mailaddress_in_request_detected');
+        return $this->view('emails.saml_no_mailaddress_in_request_detected')
+            ->subject($this->subject);
     }
 }
