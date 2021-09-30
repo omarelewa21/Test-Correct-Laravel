@@ -12,7 +12,7 @@
 
             Met vriendelijke groet,<BR>
             Tech,<BR>
-            PS deze mail dient maar een keer per dag per school verstuurd te worden.<BR>
+            PS, deze mail wordt maar 1 keer per dag per school verstuurd.<BR>
         </td>
     </tr>
 @stop
