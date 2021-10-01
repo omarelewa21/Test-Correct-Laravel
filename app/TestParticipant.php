@@ -412,4 +412,16 @@ class TestParticipant extends BaseModel
     {
         return session('isInBrowser', true);
     }
+
+    public function isRejoiningTestTake($newStatus)
+    {
+        if ($newStatus === $this->test_take_status_id) {
+            $this->testTake->testTakeEvents()->create([
+                'test_take_event_type_id' => TestTakeEventType::where('reason', '=', 'rejoined')->value('id'),
+                'test_participant_id' => $this->getKey()
+            ]);
+            return true;
+        }
+        return false;
+    }
 }
