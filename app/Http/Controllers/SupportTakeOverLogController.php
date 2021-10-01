@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Http\Request;
 use tcCore\SupportTakeOverLog;
 use tcCore\User;
 
@@ -29,16 +30,20 @@ class SupportTakeOverLogController extends Controller
         return Response::make($logs, 200);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $logs = SupportTakeOverLog::with('user:id,name,name_suffix,name_first', 'user.roles:id,name', 'supportUser:id,name,name_suffix,name_first')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->when(array_key_exists('created_at',$request->get('order')), function ($query) use ($request) {
+                collect($request->get('order'))->each(function($order, $key) use ($query) {
+                    $query->orderBy($key, $order);
+                });
+            })
+            ->paginate(15);
 
-        $logs->each(function($log) {
+        foreach ($logs->items() as $log) {
             $log->user->setAttribute('fullname', $log->user->getNameFullAttribute());
             $log->supportUser->setAttribute('fullname', $log->supportUser->getNameFullAttribute());
-        });
+        };
 
         return Response::make($logs, 200);
     }
