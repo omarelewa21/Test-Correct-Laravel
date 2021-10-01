@@ -493,7 +493,7 @@ class EntreeHelper
         }
 
         $otherUserWithEmailAddress = User::where('username', $this->getEmailFromAttributes())
-            ->whereNull('username') // in case of no mail address from entree
+            ->whereNotNull('username') // in case of no mail address from entree
             ->where('id', '<>', $this->laravelUser->id)
             ->first();
         if ($otherUserWithEmailAddress) {
@@ -695,7 +695,7 @@ class EntreeHelper
     public function redirectIfNoMailPresentScenario()
     {
         $userFromSamlRequest = User::findByEckId($this->getEckIdFromAttributes())->first();
-        if (optional($userFromSamlRequest)->hasImportMailAddress()) {
+        if ($this->emailMaybeEmpty && empty($this->getEmailFromAttributes()) && optional($userFromSamlRequest)->hasImportMailAddress()) {
             $samlMessage = $this->createSamlMessageWithEmptyEmail();
 
             $url = route('auth.login', [
