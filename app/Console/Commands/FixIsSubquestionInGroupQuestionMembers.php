@@ -50,8 +50,11 @@ class FixIsSubquestionInGroupQuestionMembers extends Command
         $groupQuestionQuestionId = $this->argument('groupQuestionQuestionId');
         try{
             $groupQuestionQuestion = GroupQuestionQuestion::withTrashed()->where('question_id',$questionId)->where('group_question_id',$groupQuestionQuestionId)->firstOrFail();
-            $subQuestion = $groupQuestionQuestion->question;
-            $subQuestionCopy = $subQuestion->duplicate([]);
+            $subQuestion = $groupQuestionQuestion->question()->withTrashed()->first();
+            $subQuestionCopy = $subQuestion;
+            if(!$subQuestion->trashed()){
+                $subQuestionCopy = $subQuestion->duplicate([]);
+            }
             $subQuestionCopy->getQuestionInstance()->setAttribute('is_subquestion', 1);
             $groupQuestionQuestion->setAttribute('question_id', $subQuestionCopy->getKey());
             $subQuestionCopy->getQuestionInstance()->save();
@@ -75,6 +78,7 @@ class FixIsSubquestionInGroupQuestionMembers extends Command
     private function loginAuthor($questionId)
     {
         $author = QuestionAuthor::withTrashed()->where('question_id',$questionId)->orderBy('created_at','desc')->firstOrFail();
-        Auth::login($author->user);
+        $user = $author->user()->withTrashed()->first();
+        Auth::login($user);
     }
 }

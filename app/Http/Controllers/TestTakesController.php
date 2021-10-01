@@ -1366,7 +1366,7 @@ class TestTakesController extends Controller {
 
     public function withTemporaryLogin(TestTake $testTake) {
         $response = new \stdClass;
-        $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
         $relativeUrl = sprintf('%s?redirect=%s',
             route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
@@ -1390,7 +1390,12 @@ class TestTakesController extends Controller {
     {
         $allow_inbrowser_testing = $testTake->allow_inbrowser_testing;
         $testTake->setAttribute('allow_inbrowser_testing', !$allow_inbrowser_testing)->save();
-        TestParticipant::where('test_take_id', $testTake->getKey())->update(['allow_inbrowser_testing' => !$allow_inbrowser_testing]);
+
+        TestParticipant::where('test_take_id', $testTake->getKey())
+            ->get()
+            ->each(function ($participant) use ($allow_inbrowser_testing) {
+                $participant->setAttribute('allow_inbrowser_testing', !$allow_inbrowser_testing)->save();
+            });
     }
 
     public function isAllowedInbrowserTesting(TestTake $testTake)

@@ -15,6 +15,8 @@ trait WithAttachments
     public $timeout;
     public $answerId;
     public $attachmentType = '';
+    public $positionTop;
+    public $positionLeft;
 
     public function mountWithAttachments()
     {
@@ -22,11 +24,11 @@ trait WithAttachments
         $this->question->loadMissing('attachments');
     }
 
-    public function showAttachment(Attachment $attachment)
+    public function showAttachment($attachment)
     {
-        $this->attachment = $attachment;
+        $this->attachment = Attachment::whereUuid($attachment)->first();
         $this->timeout = $this->attachment->audioTimeoutTime();
-        $this->attachmentType = $this->getAttachmentType($attachment);
+        $this->attachmentType = $this->getAttachmentType($this->attachment);
     }
 
     public function closeAttachmentModal()
@@ -55,14 +57,14 @@ trait WithAttachments
         $this->attachment = null;
     }
 
-    public function audioIsPlayedOnce(Attachment $attachment)
+    public function audioIsPlayedOnce()
     {
-        $attachment->audioIsPlayedOnce();
+        $this->attachment->audioIsPlayedOnce();
     }
 
-    public function audioStoreCurrentTime(Attachment $attachment, $currentTime)
+    public function audioStoreCurrentTime($currentTime)
     {
-        $sessionValue = 'attachment_' . $attachment->getKey() . '_currentTime';
+        $sessionValue = 'attachment_' . $this->attachment->uuid . '_currentTime';
         session()->put($sessionValue, $currentTime);
     }
 

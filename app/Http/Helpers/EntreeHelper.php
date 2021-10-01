@@ -13,9 +13,11 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use tcCore\Exceptions\RedirectAndExitException;
 use tcCore\SamlMessage;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\TestParticipant;
 use tcCore\User;
 
 class EntreeHelper
@@ -34,20 +36,60 @@ class EntreeHelper
 
     protected $rolesToTransformToTeacher = ['employee'];
 
+    protected $context = null;
+
+    protected $messageUuid = null;
+
     public function __construct($attr, $messageId)
     {
         $this->attr = $this->transformAttributesIfNeededAndReturn($attr);
         $this->messageId = $messageId;
     }
 
+    public static function initWithMessage(SamlMessage $message)
+    {
+        $instance = new self([], '');
+        $eckId = Crypt::decryptString($message->eck_id);
+        $instance->laravelUser = User::findByEckId($eckId)->first();
+        $instance->location = $instance->laravelUser->schoolLocation;
+        $instance->messageUuid = $message->uuid;
+
+        $instance->attr['eckId'] = [$eckId];
+
+        return $instance;
+    }
+
+    public function setContext($context)
+    {
+        $this->context = $context;
+        return $this;
+    }
+
     protected function transformAttributesIfNeededAndReturn($attr)
     {
         // we may get employee, then we transfer it to teacher
-        if (array_key_exists('eduPersonAffiliation', $attr) && in_array(strtolower($attr['eduPersonAffiliation'][0]), $this->rolesToTransformToTeacher)) {
+        if (array_key_exists('eduPersonAffiliation', $attr) && in_array(strtolower($attr['eduPersonAffiliation'][0]),
+                $this->rolesToTransformToTeacher)) {
             $attr['eduPersonAffiliation'][0] = 'teacher';
         }
 
         return $attr;
+    }
+
+    public function tryAccountMatchingWhenNoMailAttributePresent(User $oldUserWhereWeWouldLikeToMergeTheImportAccountTo)
+    {
+        if (null == $this->laravelUser) {
+            $this->setLaravelUser();
+        }
+
+        if (null == $this->laravelUser) {
+            $this->addLogRows('tryAccountMatchingWhenNoMailAttributePresent');
+            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true,]);
+            return $this->redirectToUrlAndExit($url);
+        }
+
+        return $this->mergeAccountStrategies($oldUserWhereWeWouldLikeToMergeTheImportAccountTo);
+
     }
 
     public function redirectIfBrinUnknown()
@@ -65,7 +107,7 @@ class EntreeHelper
 
     private function setLocationWithSamlAttributes()
     {
-        if(null !== $this->location){
+        if (null !== $this->location) {
             // we did run this method before
             return true;
         }
@@ -93,23 +135,25 @@ class EntreeHelper
                     ->where('sso_active', 1)
                     ->get();
                 if ($locations->count() > 0) {
-                    if($this->isTeacherBasedOnAttributes()){
+                    if ($this->isTeacherBasedOnAttributes()) {
                         // teacher (later on there will be a match on role)
-                        $allowedLocations = $locations->filter(function(SchoolLocation $sl){
-                            return User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
+                        $allowedLocations = $locations->filter(function (SchoolLocation $sl) {
+                            return User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(),
+                                    $sl->getKey())->first() != null;
                         });
-                        if($allowedLocations->count() > 0){
+                        if ($allowedLocations->count() > 0) {
                             // the locations for which the teacher is allowed to access
-                            if($allowedLocations->count() === 1){
+                            if ($allowedLocations->count() === 1) {
                                 $this->location = $allowedLocations->first();
                                 return true;
                             } else {
                                 // search the school location where the teacher was logged in last if available
-                                $lastLocation = $allowedLocations->first(function(SchoolLocation $sl){
-                                    return User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $sl->getKey())
-                                            ->where('users.school_location_id',$sl->getKey())->first() != null;
+                                $lastLocation = $allowedLocations->first(function (SchoolLocation $sl) {
+                                    return User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(),
+                                            $sl->getKey())
+                                            ->where('users.school_location_id', $sl->getKey())->first() != null;
                                 });
-                                if($lastLocation->count() === 1){
+                                if ($lastLocation->count() === 1) {
                                     // there was a location for which the teacher was logged in last
                                     $this->location = $lastLocation->first();
                                     return true;
@@ -120,7 +164,7 @@ class EntreeHelper
                                     $u = User::filterByEckid($this->getEckIdFromAttributes())->first();
                                     $u->school_location_id = $this->location->getKey();
                                     $u->save();
-                                    if(null != $this->laravelUser){
+                                    if (null != $this->laravelUser) {
                                         $this->laravelUser->school_location_id = $this->location->getKey();
                                     }
 
@@ -130,12 +174,13 @@ class EntreeHelper
                         }
                     } else {
                         // student (later on there will be a match on role)
-                        $allowedLocations = $locations->filter(function(SchoolLocation $sl){
-                            return User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $sl->getKey())->first() != null;
+                        $allowedLocations = $locations->filter(function (SchoolLocation $sl) {
+                            return User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(),
+                                    $sl->getKey())->first() != null;
                         });
-                        if($allowedLocations->count() > 0){
+                        if ($allowedLocations->count() > 0) {
                             // the locations for which the user is allowed to access
-                            if($allowedLocations->count() === 1){
+                            if ($allowedLocations->count() === 1) {
                                 $this->location = $allowedLocations->first();
                                 return true;
                             } else {
@@ -157,16 +202,16 @@ class EntreeHelper
 //            // indien meerdere met 4 code dan gebruiker zoeken en locatie daarbij zoeken
 ////            User::findByEckId($this->getEckIdFromAttributes())
 
+            $this->brinFourErrorDetected = true;
         }
-        $this->brinFourErrorDetected = true;
     }
 
     public static function shouldPromptForEntree(User $user)
     {
-        if($user->isToetsenbakker()){
+        if ($user->isToetsenbakker()) {
             return false;
         }
-        if($user->isTestCorrectUser()){
+        if ($user->isTestCorrectUser()) {
             return false;
         }
         return (optional($user->schoolLocation)->lvs_active && empty($user->eck_id));
@@ -220,6 +265,17 @@ class EntreeHelper
         ]);
     }
 
+    private function createSamlMessageWithEmptyEmail()
+    {
+        $this->validateAttributes();
+
+        return SamlMessage::create([
+            'message_id' => $this->messageId,
+            'eck_id' => Crypt::encryptString($this->getEckIdFromAttributes()),
+            'email' => '',
+        ]);
+    }
+
     private function validateAttributes()
     {
         if (!array_key_exists('eckId', $this->attr) || !array_key_exists(0, $this->attr['eckId'])) {
@@ -230,14 +286,18 @@ class EntreeHelper
             throw new \Exception('no eckId found in saml request');
         }
 
-        if (!array_key_exists('mail', $this->attr) || !array_key_exists(0, $this->attr['mail'])) {
+        if (!$this->emailMaybeEmpty && (!array_key_exists('mail', $this->attr) || !array_key_exists(0,
+                    $this->attr['mail']))) {
             logger('No mail found');
             logger('==== credentials ====');
             $attr = $this->attr;
             unset($attr['eckId']);
             logger($attr);
             logger('=======');
-            throw new \Exception('no mail found in saml request');
+
+            optional($this->location)->sendSamlNoMailAddresInRequestDetectedMailIfAppropriate();
+
+//            throw new \Exception('no mail found in saml request');
         }
     }
 
@@ -256,9 +316,9 @@ class EntreeHelper
 
     public function redirectIfscenario5()
     {
-            if($this->hasLVS()){
-                return true;
-            }
+        if ($this->hasLVS()) {
+            return true;
+        }
 //        if ($this->location->lvs_active) {
 //            return true;
 //        }
@@ -273,9 +333,11 @@ class EntreeHelper
         }
 
         if ($this->isTeacherBasedOnAttributes()) {
-            $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $this->location->getKey())->first();
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(),
+                $this->location->getKey())->first();
         } else {
-            $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $this->location->getKey())->first();
+            $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(),
+                $this->location->getKey())->first();
         }
 
 //        $this->laravelUser = User::findByEckId($this->attr['eckId'][0])->first();
@@ -316,7 +378,7 @@ class EntreeHelper
         if ($this->laravelUser) {
             return true;
         }
-        if(null != $this->location && empty($this->location->lvs_type)){
+        if (null != $this->location && empty($this->location->lvs_type)) {
             return true;
         }
 
@@ -348,9 +410,9 @@ class EntreeHelper
         if (null == $this->laravelUser) {
             $this->setLaravelUser();
         }
-        if(null != $this->laravelUser) {
+        if (null != $this->laravelUser) {
             if ($this->isTeacherBasedOnAttributes()) {
-                if($this->laravelUser->allowedSchoolLocations->contains($this->location->getKey())){
+                if ($this->laravelUser->allowedSchoolLocations->contains($this->location->getKey())) {
                     $this->laravelUser->school_location_id = $this->location->getKey();
                     $this->laravelUser->save();
                     return true;
@@ -375,7 +437,7 @@ class EntreeHelper
             $this->setLaravelUser();
         }
 
-        if(null == $this->laravelUser){
+        if (null == $this->laravelUser) {
             return true;//$this->redirectIfNoUserWasFoundForEckId(); // removed otherwise never gona get a scenario5 and no user is catched later on as well
         }
 
@@ -406,7 +468,7 @@ class EntreeHelper
 
         if (null == $this->laravelUser) {
             $this->addLogRows('handleScenario1');
-            $url = route('auth.login', ['tab' => 'login', 'entree_error_message' => 'auth.roles_do_not_match_up']);
+            $url = route('auth.login', ['tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true]);
             return $this->redirectToUrlAndExit($url);
         }
 
@@ -431,46 +493,48 @@ class EntreeHelper
         }
 
         $otherUserWithEmailAddress = User::where('username', $this->getEmailFromAttributes())
+            ->whereNull('username') // in case of no mail address from entree
             ->where('id', '<>', $this->laravelUser->id)
             ->first();
         if ($otherUserWithEmailAddress) {
-            if ($this->laravelUser->isA('Student')) {
-                if (!$this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
-                    $url = route('auth.login', [
-                        'tab' => 'entree',
-                        'entree_error_message' => 'auth.student_account_not_found_in_this_location'
-                    ]);
-                    return $this->redirectToUrlAndExit($url);
-                } else {
-                    return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
-                }
-            } elseif ($this->laravelUser->isA('Teacher') && $otherUserWithEmailAddress->isA('Teacher')) {
-                ActingAsHelper::getInstance()->setUser($otherUserWithEmailAddress);
-                if ($this->laravelUser->inSchoolLocationAsUser($otherUserWithEmailAddress)) {
-                    return $this->handleMatchingWithinSchoolLocation($otherUserWithEmailAddress, $this->laravelUser);
-                } elseif ($this->laravelUser->inSameKoepelAsUser($otherUserWithEmailAddress)) {
-                    return $this->handleMatchingTeachersInKoepel($otherUserWithEmailAddress, $this->laravelUser);
-                }
-            }
-            $url = route('auth.login', [
-                'tab' => 'entree', 'entree_error_message' => 'auth.email_already_in_use_in_different_school_location'
-            ]);
-
-            if (App::runningUnitTests()) {
-                return $url;
-            }
-            header('Location: $url');
-            exit;
+            return $this->mergeAccountStrategies($otherUserWithEmailAddress);
         }
 
         return false;
     }
 
+    private function redirectIfRolesDontMatch(User $userOne, User $userTwo)
+    {
+        $rolePass = false;
+
+        if ($userOne->isA('teacher') && $userTwo->isA('teacher')) {
+            $rolePass = true;
+        }
+
+        if ($userOne->isA('student') && $userTwo->isA('student')) {
+            $rolePass = true;
+        }
+
+        if ($rolePass === false) {
+            return $this->redirectToUrlAndExit(
+                    route('auth.login', [
+                        'tab' => 'fatalError', 'fatal_error_message' => 'auth.roles_do_not_match_up','block_back' => true,
+                    ])
+                );
+        }
+        return true;
+    }
+
     private function handleMatchingWithinSchoolLocation(User $oldUser, User $user)
     {
+        $result = $this->redirectIfRolesDontMatch($oldUser, $user);
+        if($result !== true){
+            return $result;
+        }
+
         try {
             DB::beginTransaction();
-            $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
+            $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser($oldUser, $user);
             if ($this->shouldThrowAnErrorDuringTransaction) {
                 throw new \Exception('Simmulating error during matching procedure');
             }
@@ -486,8 +550,11 @@ class EntreeHelper
         return true;
     }
 
-    private function copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser(User $oldUser, User $user)
+    private function copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser(User $oldUser, User $user)
     {
+        // move test participant to old user
+        TestParticipant::where('user_id', $user->getKey())->update(['user_id' => $oldUser->getKey()]);
+
         $eckId = $user->eckId;
         $user->removeEckId();
         $oldUser->setEckidAttribute($eckId);
@@ -502,11 +569,16 @@ class EntreeHelper
 
     private function handleMatchingTeachersInKoepel(User $oldUser, User $user)
     {
+        $result = $this->redirectIfRolesDontMatch($oldUser, $user);
+        if($result !== true){
+            return $result;
+        }
+
         if ($oldUser->isA('teacher')) {
             try {
                 DB::beginTransaction();
                 $oldUser->addSchoolLocation($user->schoolLocation);
-                $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesAndDeleteUser($oldUser, $user);
+                $this->copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser($oldUser, $user);
                 if ($this->shouldThrowAnErrorDuringTransaction) {
                     throw new \Exception('Simmulating error during matching procedure');
                 }
@@ -552,29 +624,129 @@ class EntreeHelper
         if (App::runningUnitTests()) {
             return $url;
         }
-        header("Location: $url");
+        if($this->context === 'livewire'){
+            return redirect()->to($url);
+        }
+        header('location: '.$url);
         exit;
     }
 
     public function setLaravelUser(): void
     {
-        if(null == $this->laravelUser) {
+        if (null == $this->laravelUser) {
             if (strtolower($this->getRoleFromAttributes()) == 'teacher') {
-                $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $this->location->getKey())->first();
+                $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher(
+                    $this->getEckIdFromAttributes(),
+                    $this->location->getKey()
+                )->first();
             } else {
-                $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $this->location->getKey())->first();
+                $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser(
+                    $this->getEckIdFromAttributes(),
+                    $this->location->getKey()
+                )->first();
             }
 
             if (null == $this->laravelUser) {
                 // could be that they have the wrong role, so check the other way around (somewhere else there's the role check);
                 if (strtolower($this->getRoleFromAttributes()) != 'teacher') {
-                    $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher($this->getEckIdFromAttributes(), $this->location->getKey())->first();
+                    $this->laravelUser = User::findByEckidAndSchoolLocationIdForTeacher(
+                        $this->getEckIdFromAttributes(),
+                        $this->location->getKey()
+                    )->first();
                 } else {
-                    $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser($this->getEckIdFromAttributes(), $this->location->getKey())->first();
+                    $this->laravelUser = User::findByEckidAndSchoolLocationIdForUser(
+                        $this->getEckIdFromAttributes(),
+                        $this->location->getKey()
+                    )->first();
                 }
             }
         }
     }
 
+    public function blockIfEckIdAttributeIsNotPresent()
+    {
+        if(!array_key_exists('eckId', $this->attr) || !array_key_exists(0, $this->attr['eckId'])){
+            $url = route('auth.login',
+                [
+                    'tab' => 'login',
+                    'entree_error_message' => 'auth.no_eck_id_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'
+                ]
+            );
+            return $this->redirectToUrlAndExit($url);
+        }
+    }
 
+    public function blockIfSchoolLvsActiveNoMailNotAllowedWhenMailAttributeIsNotPresent()
+    {
+        $this->emailMaybeEmpty = optional($this->location)->lvs_active_no_mail_allowed;
+        $this->validateAttributes();
+
+        if (!$this->emailMaybeEmpty && empty($this->getEmailFromAttributes())) {
+            $url = route('auth.login',
+                [
+                    'tab' => 'login',
+                    'entree_error_message' => 'auth.no_mail_attribute_found_in_saml_request_school_location_does_not_support_login_without_email'
+                ]
+            );
+            return $this->redirectToUrlAndExit($url);
+        }
+    }
+
+    public function redirectIfNoMailPresentScenario()
+    {
+        $userFromSamlRequest = User::findByEckId($this->getEckIdFromAttributes())->first();
+        if (optional($userFromSamlRequest)->hasImportMailAddress()) {
+            $samlMessage = $this->createSamlMessageWithEmptyEmail();
+
+            $url = route('auth.login', [
+                    'tab' => 'no_mail_present',
+                    'uuid' => $samlMessage->uuid
+                ]
+            );
+            return $this->redirectToUrlAndExit($url);
+        }
+    }
+
+    public static function handleNewEmailForUserWithoutEmailAttribute($message, string $username)
+    {
+        if ($user = User::findByEckId(Crypt::decryptString($message->eck_id))->first()) {
+            $user->username = $username;
+            $user->save();
+        }
+
+        return $user;
+    }
+
+    private function mergeAccountStrategies(User $userWhereWeWouldLikeToMergeTheImportAccountTo)
+    {
+        if ($this->laravelUser->isA('Student')) {
+            if (!$this->laravelUser->inSchoolLocationAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                $url = route('auth.login', [
+                    'tab' => 'fatalError',
+                    'fatal_error_message' => 'auth.student_account_not_found_in_this_location',
+                    'block_back' => true
+                ]);
+                return $this->redirectToUrlAndExit($url);
+            } else {
+                return $this->handleMatchingWithinSchoolLocation($userWhereWeWouldLikeToMergeTheImportAccountTo,
+                    $this->laravelUser);
+            }
+        } elseif ($this->laravelUser->isA('Teacher')) {
+            ActingAsHelper::getInstance()->setUser($userWhereWeWouldLikeToMergeTheImportAccountTo);
+            if ($this->laravelUser->inSchoolLocationAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($userWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
+                return $this->handleMatchingWithinSchoolLocation($userWhereWeWouldLikeToMergeTheImportAccountTo,
+                    $this->laravelUser);
+            } elseif ($this->laravelUser->inSameKoepelAsUser($userWhereWeWouldLikeToMergeTheImportAccountTo)) {
+                DemoHelper::moveSchoolLocationDemoClassToCurrentYearIfNeeded($userWhereWeWouldLikeToMergeTheImportAccountTo->schoolLocation);
+                return $this->handleMatchingTeachersInKoepel($userWhereWeWouldLikeToMergeTheImportAccountTo,
+                    $this->laravelUser);
+            }
+        }
+        $url = route('auth.login', [
+            'tab' => 'entree', 'entree_error_message' => 'auth.email_already_in_use_in_different_school_location'
+        ]);
+
+        return $this->redirectToUrlAndExit($url);
+    }
 }

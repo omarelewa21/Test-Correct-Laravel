@@ -139,12 +139,12 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         // er zitten 5 scholen in die van een nieuwe periode moeten worden voorzien;
 
         $this->assertEquals(
-            $startCountPeriod+5,
+            $startCountPeriod + 5,
             Period::count()
         );
 
         $this->assertEquals(
-            $startCountSchoolYear+5,
+            $startCountSchoolYear + 5,
             SchoolYear::count()
         );
     }
@@ -159,7 +159,7 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         });
         $this->assertCount(0, $set);
     }
-    
+
     /** @test */
     public function it_should_return_a_correct_query()
     {
@@ -175,6 +175,7 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
     }
 
 
+
     /** @test */
     public function when_running_the_command_it_should_add_5_periods_and_school_years()
     {
@@ -186,12 +187,12 @@ class AddActiveSchoolYearToSchoolsWithEducationLevelVOTest extends TestCase
         // er zitten 11 scholen in die van een nieuwe periode moeten worden voorzien;
 
         $this->assertEquals(
-            $startCountPeriod+11,
+            $startCountPeriod + 11,
             Period::count()
         );
 
         $this->assertEquals(
-            $startCountSchoolYear+11,
+            $startCountSchoolYear + 11,
             SchoolYear::count()
         );
     }

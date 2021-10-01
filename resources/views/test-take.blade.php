@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <div class="w-full flex flex-col mb-5"  selid="testtake-layout">
+    <div class="w-full flex flex-col mb-5 select-none"  selid="testtake-layout">
         @if($testParticipant->intense)
             <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
         @endif

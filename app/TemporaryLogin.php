@@ -30,7 +30,7 @@ class TemporaryLogin extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id', 'uuid'];
+    protected $fillable = ['user_id', 'uuid', 'options'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -60,11 +60,56 @@ class TemporaryLogin extends Model
         $temporary_login = self::whereUuid($uuid)->first();
 
         if ($temporary_login && Carbon::now()->diffInSeconds($temporary_login->created_at) < self::MAX_VALID_IN_SECONDS) {
-            $result = $temporary_login->user_id;
+            $result['user'] = $temporary_login->user_id;
+            $result['options'] = $temporary_login->options;
             // only valid once;
             $temporary_login->forceDelete();
         }
 
         return $result;
+    }
+
+    public static function createWithOptionsForUser($option, $optionValue, User $user)
+    {
+        $temporaryLogin = self::createForUser($user);
+
+        if($options = self::buildValidOptionObject($option, $optionValue)) {
+            $temporaryLogin->setAttribute('options', $options)->save();
+        }
+        return $temporaryLogin;
+    }
+
+
+    /**
+     * @param $option
+     * @param $optionValue
+     * @param bool $toJson
+     * @return array|null
+     */
+    public static function buildValidOptionObject($option, $optionValue, $toJson = true)
+    {
+        if (is_array($option)) {
+            if (!is_array($optionValue) || count($option) != count($optionValue)) {
+                return null;
+            }
+
+            $options = [];
+            foreach ($option as $key => $value) {
+                $options[$value] = $optionValue[$key];
+            }
+
+            return $toJson ? json_encode($options) : $options;
+        }
+
+        if (is_array($optionValue) && (isset($optionValue[0]) && is_array($optionValue[0]))) {
+            return null;
+        }
+
+        return $toJson ? json_encode([$option => $optionValue]) : [$option => $optionValue];
+    }
+
+    public static function getOptionsForUser(User $user)
+    {
+        return TemporaryLogin::whereUserId($user->getKey())->value('options');
     }
 }

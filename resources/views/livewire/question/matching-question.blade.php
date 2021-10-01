@@ -42,7 +42,7 @@
                                             @if($answerStruct[$option->id] == $group->id)
                                                 <x-drag-item id="drag_item{{$question->getKey()}}-{{$option->id}}"
                                                              wire:key="option-{{ $option->id }}" sortableHandle="false"
-                                                             wire:sortable-group.item="{{ $option->id }}">
+                                                             wire:sortable-group.item="{{ $option->id }}" selid="drag-block">
                                                     {{ $option->answer }}
                                                 </x-drag-item>
                                             @endif
@@ -101,7 +101,7 @@
                                                                 id="drag_item{{$question->getKey()}}-{{$option->id}}"
                                                                 wire:key="option-{{ $option->id }}"
                                                                 sortableHandle="false"
-                                                                wire:sortable-group.item="{{ $option->id }}">
+                                                                wire:sortable-group.item="{{ $option->id }}" selid="drag-block">
                                                             {{ $option->answer }}
                                                         </x-drag-item>
                                                     @endif

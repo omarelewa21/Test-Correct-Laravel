@@ -8,6 +8,7 @@ use tcCore\Http\Requests;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Subject;
+use tcCore\BaseSubject;
 use tcCore\Http\Requests\CreateSubjectRequest;
 use tcCore\Http\Requests\UpdateSubjectRequest;
 

@@ -14,7 +14,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     protected $testTakeId;
-    public $queue = 'mail';
+
 
     /**
      * Create a new job instance.
@@ -25,6 +25,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
      */
     public function __construct($testTakeId)
     {
+        $this->queue = 'mail';
         $this->testTakeId = $testTakeId;
     }
 
@@ -43,6 +44,9 @@ class SendTestPlannedMail extends Job implements ShouldQueue
 
         if ($testTake->testTakeStatus->name === 'Planned') {
             foreach($testTake->testParticipants as $testParticipant) {
+                if(null == $testParticipant->user || $testParticipant->user->hasImportMailAddress()) {
+                    continue;
+                }
                 $mailer->send('emails.test_planned', ['testParticipant' => $testParticipant], function ($mail) use ($testParticipant) {
                     $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject('Toetsafname ingepland.');
                 });
