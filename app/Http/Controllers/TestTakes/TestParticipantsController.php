@@ -341,6 +341,7 @@ class TestParticipantsController extends Controller
      */
     public function update(TestTake $testTake, TestParticipant $testParticipant, UpdateTestParticipantRequest $request)
     {
+        $testParticipant->isRejoiningTestTake($request->get('test_take_status_id'));
         $testParticipant->fill($request->all());
         if ($testTake->testParticipants()->save($testParticipant) !== false) {
             return Response::make($testParticipant, 200);
