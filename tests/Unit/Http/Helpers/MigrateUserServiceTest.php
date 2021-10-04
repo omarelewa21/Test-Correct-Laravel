@@ -83,6 +83,16 @@ class MigrateUserServiceTest extends TestCase
         $oldUser = $this->createStudent('abc', SchoolLocation::find(1), null, 'abcdef');
         $user = $this->createTeacher('abc', SchoolLocation::find(1), null, 'abcdef');
 
+        $user->save();
+        $user->name = 'same';
+        $user->name_first = 'same_first';
+        $oldUser->name = 'same';
+        $oldUser->name_first = 'same_first';
+        $user->username = $user->generateMissingEmailAddress();
+
+        $oldUser->save();
+        $user->save();
+
         $this->assertEquals(
             'An error occured: Roles are not the same.',
             (new MigrateUserService($oldUser->getKey(), $user->getKey()))->handle()
