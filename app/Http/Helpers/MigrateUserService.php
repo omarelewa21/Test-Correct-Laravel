@@ -29,10 +29,10 @@ class MigrateUserService
             $this->findOrFailUser();
 
             $this->testUsersAreInSameSchoolLocation();
-            $this->testUsersHaveSameRole();
             $this->testUserNameAttributesShouldMatch();
             $this->testUserNameFirstAttributesShouldMatch();
             $this->testEmailAdressIsImportAddressForUser();
+            $this->testUsersHaveSameRole();
 
 
             $this->entreeHelper->copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser(
