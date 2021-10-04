@@ -24,7 +24,7 @@ class SupportTakeOverLogController extends Controller
                 'user:id,name,name_suffix,name_first',
                 'user.roles:id,name'
             )
-            ->orderBy('created_at', 'desc')
+            ->latest()
             ->get();
 
         return Response::make($logs, 200);
