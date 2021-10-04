@@ -28,6 +28,8 @@ class MigrateUserService
             $this->findOrFailOldUser();
             $this->findOrFailUser();
 
+            ActingAsHelper::getInstance()->setUser($this->user);
+
             $this->testUsersAreInSameSchoolLocation();
             $this->testUserNameAttributesShouldMatch();
             $this->testUserNameFirstAttributesShouldMatch();
