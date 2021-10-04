@@ -10,10 +10,10 @@ use tcCore\User;
 
 class SupportTakeOverLogController extends Controller
 {
-    public function store(User $user)
+    public function store(User $user, Request $request)
     {
         return Response::make(
-            SupportTakeOverLog::createForUserWithSupportUserAndLocation($user, Auth::user(), \Request::ip())
+            SupportTakeOverLog::createForUserWithSupportUserAndIp($user, Auth::user(), $request->get('ip'))
         );
     }
 

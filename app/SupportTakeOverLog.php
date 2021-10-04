@@ -36,7 +36,7 @@ class SupportTakeOverLog extends Model
         return $this->belongsTo(User::class, 'support_user_id');
     }
 
-    public static function createForUserWithSupportUserAndLocation(User $user, User $supportUser, $ip)
+    public static function createForUserWithSupportUserAndIp(User $user, User $supportUser, $ip)
     {
         return self::create([
             'user_id' => $user->getKey(),
