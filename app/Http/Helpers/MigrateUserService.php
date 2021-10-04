@@ -10,6 +10,9 @@ class MigrateUserService
     private $oldId;
     private $id;
 
+    private $oldUser;
+    private $user;
+
     public function __construct($oldId, $id)
     {
         $this->oldId = $oldId;
@@ -22,17 +25,24 @@ class MigrateUserService
     {
         try {
             $this->testOldIdNotEqualId();
-            $this->testOldIdNotBiggerId();
+            $this->findOrFailOldUser();
+            $this->findOrFailUser();
 
-            $oldUser= $this->findOrFailOldUser();
-            $user= $this->findOrFailUser();
+            $this->testUsersAreInSameSchoolLocation();
+            $this->testUsersHaveSameRole();
+            $this->testUserNameAttributesShouldMatch();
+            $this->testUserNameFirstAttributesShouldMatch();
+            $this->testEmailAdressIsImportAddressForUser();
 
 
-            $this->entreeHelper->copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser($oldUser,
-                $user);
+            $this->entreeHelper->copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser(
+                $this->oldUser,
+                $this->user
+            );
         } catch (\Exception $e) {
             return sprintf('An error occured: %s', $e->getMessage());
         }
+        return true;
     }
 
     private function testOldIdNotEqualId(): void
@@ -44,32 +54,86 @@ class MigrateUserService
         }
     }
 
-    private function testOldIdNotBiggerId(): void
-    {
-        if ($this->oldId > $this->id) {
-            throw new \Exception(
-                sprintf('oldId should be smaller then the new Id (%d, %d)', $this->oldId, $this->id)
-            );
-        }
-    }
 
     private function findOrFailOldUser()
     {
         try {
-            $oldUser = User::findOrFail($this->oldId);
+            $this->oldUser = User::findOrFail($this->oldId);
         } catch (\Exception $e) {
             throw new \Exception(sprintf('oldId %d is not a propper user_id', $this->oldId));
         }
-        return $oldUser;
+        return $this->oldUser;
     }
 
     private function findOrFailUser()
     {
         try {
-            $user = User::findOrFail($this->id);
+            $this->user = User::findOrFail($this->id);
         } catch (\Exception $e) {
             throw new \Exception(sprintf('id %d is not a propper user_id', $this->id));
         }
-        return $user;
+        return $this->user;
     }
+
+    private function testUsersAreInSameSchoolLocation()
+    {
+        if ($this->user->inSchoolLocationAsUser($this->oldUser)) {
+            return true;
+        }
+
+        throw new \Exception('SchoolLocation are not the same');
+    }
+
+    private function testUsersHaveSameRole()
+    {
+        if ($this->user->isA('teacher') && ($this->oldUser->isA('teacher'))) {
+            return true;
+        }
+
+        if ($this->user->isA('student') && ($this->oldUser->isA('student'))) {
+            return true;
+        }
+
+        throw new \Exception('Roles are not the same.');
+    }
+
+    private function testUserNameAttributesShouldMatch()
+    {
+        if ($this->user->name === $this->oldUser->name) {
+            return true;
+        }
+
+        throw new \Exception (
+            sprintf(
+                'names are not the same [%s] , [%s].',
+                $this->oldUser->name,
+                $this->user->name
+            )
+        );
+    }
+
+    private function testUserNameFirstAttributesShouldMatch()
+    {
+        if ($this->user->name_first === $this->oldUser->name_first) {
+            return true;
+        }
+
+        throw new \Exception (
+            sprintf(
+                'first names are not the same [%s] , [%s].',
+                $this->oldUser->name_first,
+                $this->user->name_first
+            )
+        );
+    }
+
+    private function testEmailAdressIsImportAddressForUser()
+    {
+        if ($this->user->hasImportMailAddress()) {
+            return true;
+        }
+        throw new \Exception('user should have importMailAddress.');
+    }
+
+
 }
