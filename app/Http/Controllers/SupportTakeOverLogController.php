@@ -37,6 +37,8 @@ class SupportTakeOverLogController extends Controller
                 collect($request->get('order'))->each(function($order, $key) use ($query) {
                     $query->orderBy($key, $order);
                 });
+            }, function($query) {
+                $query->latest();
             })
             ->paginate(15);
 
