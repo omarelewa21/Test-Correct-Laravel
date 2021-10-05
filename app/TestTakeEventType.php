@@ -34,7 +34,7 @@ class TestTakeEventType extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'requires_confirming','reason'];
 
     /**
      * The attributes excluded from the model's JSON form.
