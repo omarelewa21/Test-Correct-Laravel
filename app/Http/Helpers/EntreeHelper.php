@@ -550,7 +550,9 @@ class EntreeHelper
         return true;
     }
 
-    private function copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser(User $oldUser, User $user)
+
+
+    public function copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser(User $oldUser, User $user)
     {
         // move test participant to old user
         TestParticipant::where('user_id', $user->getKey())->update(['user_id' => $oldUser->getKey()]);
