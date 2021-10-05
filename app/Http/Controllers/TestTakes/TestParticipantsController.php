@@ -381,9 +381,7 @@ class TestParticipantsController extends Controller
              ], 500);
          }
 
-        $answer_id = (int) $testTake->getKey();
-
-         if ($testParticipant->test_take_id !== $answer_id) {//$testTake->getKey()) {
+         if ($testParticipant->test_take_id !== $testTake->getKey()) {//$testTake->getKey()) {
             return Response::make('Test participant not found', 404);
         }
 //        $testParticipant->load('testTake', 'testTake.discussingParentQuestions', 'testTake.testTakeStatus', 'testTakeStatus', 'testTakeEvents', 'testTakeEvents.testTakeEventType');
@@ -392,8 +390,8 @@ class TestParticipantsController extends Controller
         $testParticipant->setAttribute('ip_address', $request->get('ip_address'));
 
 
-        if ($request->filled('answer_id')) {
-            $testParticipant->setAttribute('answer_id', $answer_id);
+        if ($request->filled('answer_id') && $answerId = Answer::whereUUid($request->get('answer_id'))->value('id')) {
+            $testParticipant->setAttribute('answer_id', $answerId);
         }
 
         if ($testParticipant->save() !== false) {
