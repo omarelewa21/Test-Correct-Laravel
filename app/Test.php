@@ -548,6 +548,140 @@ class Test extends BaseModel
         return $query;
     }
 
+    public function scopeFiltered2($query, $filters = [], $sorting = [])
+    {
+        $user = Auth::user();
+        $roles = $this->getUserRoles();
+        $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
+
+        $query->selectRaw('distinct tests.*');
+
+        if (in_array('Teacher', $roles)) {
+            $query->leftJoin('subjects', function ($join) {
+                $join->on('tests.subject_id', '=', 'subjects.id');
+            });
+            $query->leftJoin('teachers as teachers_self', function ($join) {
+                $join->on('subjects.id', '=', 'teachers_self.subject_id');
+            });
+            $query->leftJoin('test_authors', function ($join) {
+                $join->on('tests.author_id', '=', 'test_authors.user_id');
+            });
+            $query->leftJoin('teachers as teachers_other', function ($join) {
+                $join->on('test_authors.user_id', '=', 'teachers_other.user_id');
+            });
+            $query->leftJoin('users', function ($join) {
+                $join->on('teachers_other.user_id', '=', 'users.id');
+            });
+            $query->leftJoin(DB::raw('(select distinct subject_id from teachers where user_id = '.$user->id.') as s2'), function ($join) {
+                $join->on('teachers_other.subject_id', '=', 's2.subject_id');
+            });
+            $query->whereNull('subjects.deleted_at');
+            $query->whereNull('teachers_self.deleted_at');
+            $query->where('teachers_self.user_id','=',$user->id);
+            $query->whereNull('teachers_other.deleted_at');
+            $query->where('users.school_location_id','=',$user->school_location_id);
+            // TC-158  don't show demo tests from other users
+            $query->where(function ($q) use ($user) {
+                $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
+                $q->where(function ($query) use ($user, $subject) {
+                    $query->where('tests.subject_id', $subject->getKey())->where('author_id', $user->getKey());
+                })
+                    ->orWhere('tests.subject_id', '<>', $subject->getKey());
+            });
+        }
+
+        if (!array_key_exists('is_system_test', $filters)) {
+            $query->where('is_system_test', '=', 0);
+        }
+
+        foreach ($filters as $key => $value) {
+            switch ($key) {
+                case 'nameOrAbbreviation':
+                    $query->where(function ($query) use ($value) {
+                        $query->where('tests.name', 'LIKE', '%' . $value . '%')->orWhere('abbreviation', 'LIKE', '%' . $value . '%');
+                    });
+                    break;
+                case 'name':
+                    $query->where('tests.name', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'abbreviation':
+                    $query->where('abbreviation', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'subject_id':
+                    if (is_array($value)) {
+                        $query->whereIn('tests.subject_id', $value);
+                    } else {
+                        $query->where('tests.subject_id', '=', $value);
+                    }
+                    break;
+                case 'education_level_id':
+                    if (is_array($value)) {
+                        $query->whereIn('education_level_id', $value);
+                    } else {
+                        $query->where('education_level_id', '=', $value);
+                    }
+                    break;
+                case 'education_level_year':
+                    if (is_array($value)) {
+                        $query->whereIn('education_level_year', $value);
+                    } else {
+                        $query->where('education_level_year', '=', $value);
+                    }
+                    break;
+                case 'period_id':
+                    if (is_array($value)) {
+                        $query->whereIn('period_id', $value);
+                    } else {
+                        $query->where('period_id', '=', $value);
+                    }
+                    break;
+                case 'test_kind_id':
+                    if (is_array($value)) {
+                        $query->whereIn('test_kind_id', $value);
+                    } else {
+                        $query->where('test_kind_id', '=', $value);
+                    }
+                    break;
+                case 'status':
+                    $query->where('status', $value);
+                    break;
+                case 'created_at_start':
+                    $query->where('created_at', '>=', $value);
+                    break;
+                case 'created_at_end':
+                    $query->where('created_at', '<=', $value);
+                    break;
+                case 'is_system_test':
+                    $query->where('is_system_test', '=', $value);
+                    break;
+                case 'author_id':
+                    if (is_array($value)) {
+                        $query->whereIn('author_id', $value);
+                    } else {
+                        $query->where('author_id', '=', $value);
+                    }
+                    break;
+            }
+        }
+
+
+
+        //$this->handleFilteredSorting($query, $sorting);
+
+        if ($user->isA('teacher')) {
+            // don't show demo tests from other teachers
+            $query->where(function ($query) use ($user) {
+                $query->where(function ($query) use ($user) {
+                    $query->where('tests.demo', 1)
+                        ->where('author_id', $user->getKey());
+                })
+                    ->orWhere('tests.demo', 0);
+            });
+        }
+
+        return $query;
+    }
+
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
@@ -602,7 +736,6 @@ class Test extends BaseModel
             }
 
         } elseif (in_array('Teacher', $roles)) {
-
             $query->whereIn('subject_id', function ($query) use ($user) {
                 $user->subjects($query)->select('id');
             });
