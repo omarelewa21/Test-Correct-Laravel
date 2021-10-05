@@ -100,6 +100,8 @@ class ImportAttainmentTest extends TestCase
         $this->assertEquals(200,$response->getStatusCode());
         $oldAttainmentsCount = Attainment::where('status','OLD')->count();
         $this->assertGreaterThan(0,$oldAttainmentsCount);
+        $attainments = Attainment::where('status','OLD')->pluck('id');
+        dump($attainments);
     }
 
     /** @test */
