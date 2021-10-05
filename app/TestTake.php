@@ -333,6 +333,11 @@ class TestTake extends BaseModel
         return $this->belongsTo('tcCore\Test');
     }
 
+    public function testTakeCode()
+    {
+        return $this->hasOne(TestTakeCode::class);
+    }
+
     public function user()
     {
         return $this->belongsTo('tcCore\User');

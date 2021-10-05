@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
 use tcCore\Http\Helpers\EntreeHelper;
+use tcCore\Http\Helpers\TestCodeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
@@ -143,9 +144,15 @@ class Login extends Component
 
     public function guestLogin()
     {
-//        if($this->isTestTakeCodeValid()) {
-//
-//        }
+        $this->isTestTakeCodeValid();
+
+        $testCodeHelper = new TestCodeHelper();
+        $isValid = $testCodeHelper->validateCode($this->testTakeCode);
+
+        if (!$isValid) {
+            return $this->addError('invalid_test_code', __('auth.test_code_invalid'));
+        }
+
     }
 
     public function render()
@@ -241,7 +248,7 @@ class Login extends Component
 
     private function isTestTakeCodeValid(): bool
     {
-        foreach ($this->testTakeCode as $key => $value) {
+        foreach ($this->testTakeCode as $value) {
             if (!$value) {
                 $this->addError('invalid_test_code', __('auth.test_code_invalid'));
                 return false;
