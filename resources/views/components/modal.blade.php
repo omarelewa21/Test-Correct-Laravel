@@ -81,7 +81,7 @@
                 @if ($showCancelButton)
                 <x-button.text-button @click="show = false" class="rotate-svg-180">
                     <x-icon.chevron/>
-                    <span>Terug</span>
+                    <span>{{ __("modal.Terug") }}</span>
                 </x-button.text-button>
                 @endif
                 {{ $actionButton }}

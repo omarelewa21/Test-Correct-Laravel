@@ -19,7 +19,7 @@ Error: {{ $errMessage }}<br/>
 </ul>
 @endif
 <br />
-    <b>Server gegevens</b><br />
+    <b>{{ __("exception.Server gegevens") }}</b><br />
     <ul>
         @foreach($server as $key => $value)
             <li>
