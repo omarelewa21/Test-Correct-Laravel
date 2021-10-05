@@ -12,7 +12,7 @@
 		"betterapp/laravel-db-encrypter": "^1.0",
 		"bonecms/laravel-captcha": "^2.2",
 		"bugsnag/bugsnag-laravel": "^2.0",
-		"doctrine/dbal": "^2.13",
+		"doctrine/dbal": "^2.9",
 		"dyrynda/laravel-efficient-uuid": "^4.1",
 		"dyrynda/laravel-model-uuid": "^6.2",
 		"facade/ignition": "^2.0",
