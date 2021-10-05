@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 class ImportAttainmentTest extends TestCase
 {
-    use DatabaseTransactions;
+    //use DatabaseTransactions;
 
     /** @test */
     public function it_should_import_attainments_without_errors()

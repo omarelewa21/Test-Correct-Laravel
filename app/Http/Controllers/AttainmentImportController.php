@@ -120,10 +120,13 @@ class AttainmentImportController extends Controller
             $attainmentsImportIds = $attainmentsImportIds->filter(function ($value, $key) {
                 return !is_null($value);
             })->toArray();
+            dump(count($attainmentsImportIds));
             $diffIds = array_diff($attainmentsDbIds,$attainmentsImportIds);
             foreach ($diffIds as $id){
                 $attainment = Attainment::findOrFail($id);
                 $attainments[] = $attainment;
+                dump($attainment->toArray());
+                DB::table('attainments_old')->insert($attainment->toArray());
             }
         } catch (\Exception $e) {
             DB::rollback();
