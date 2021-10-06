@@ -638,7 +638,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();
-        if (!in_array('Administrator', $roles) && (in_array('Account manager', $roles) || in_array('Support', $roles))) {
+        if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
             $userId = Auth::user()->getKey();
 
             $schoolIds = School::where(function ($query) use ($userId) {
