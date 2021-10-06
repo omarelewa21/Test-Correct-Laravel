@@ -31,7 +31,7 @@
         <a x-on:touchend.prevent="$wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());document.getElementById('body').classList.remove('modal-open');"
            x-on:click="$wire.set('answer', {{ $this->playerInstance }}.getActiveImageBase64Encoded());document.getElementById('body').classList.remove('modal-open');"
            class="btn highlight small ml5 pull-right" style="cursor: pointer;">
-            <span class="fa fa-check"></span> Opslaan
+            <span class="fa fa-check"></span> {{ __("drawing-modal.Opslaan") }}
         </a>
         <a class="btn grey small ml5 pull-right" style="cursor:pointer;" @click="opened = false;"
            x-on:click="document.getElementById('body').classList.remove('modal-open')"

@@ -23,7 +23,7 @@
             @else
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <x-dropdown.item onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
-                    Inleveren
+                    {{ __("app.Inleveren") }}
                 </x-dropdown.item>
             </x-dropdown>
             @endif

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
@@ -320,6 +321,10 @@ class UsersController extends Controller
 
         }
 
+        if (Auth::user()->isA('Support') && is_array($request->get('with')) && in_array('sessionHash', $request->get('with'))) {
+            $user->makeVisible('session_hash');
+        }
+
         if($this->hasTeacherRole($user)){
             $externalId = $this->getExternalIdForSchoolLocationOfLoggedInUser($user);
             $user->teacher_external_id = $externalId;
@@ -547,5 +552,13 @@ class UsersController extends Controller
     {
         $user->generalTermsLog()->update(['accepted_at' => Carbon::now()]);
         return Response::make(true, 200);
+    }
+
+    public function verifyPassword(User $user)
+    {
+        if ($user->verifyPassword(request()->get('password'))) {
+            return Response::make($user, 200);
+        }
+        return Response::make('refused', 403);
     }
 }

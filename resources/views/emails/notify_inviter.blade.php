@@ -258,11 +258,10 @@
                     </tr>
                     <tr>
                         <td style="width:500px;padding-left: 40px;padding-right: 40px;padding-bottom: 40px">
-                            <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">Je
-                                collega {{$invitee->getNameFullAttribute()}} heeft een Test-Correct account aangemaakt</h5>
+                            <h5 style="color: #fff; font-size: 20px; font-weight:700; padding-bottom: 16px">{{ __("notify_inviter.Je collega") }} {{$invitee->getNameFullAttribute()}} {{ __("notify_inviter.heeft een Test-Correct account aangemaakt") }}</h5>
                             <table>
                                 <tr>
-                                    <td style="width: 100%; color: #ffffff">Samen met je collega's kun je:</td>
+                                    <td style="width: 100%; color: #ffffff">{{ __("notify_inviter.Samen met je collega's kun je") }}:</td>
                                 </tr>
                                 <tr>
                                     <td>
@@ -273,9 +272,7 @@
                                                          src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
                                                          alt=""/>
                                                 </td>
-                                                <td style="color: #ffffff">
-                                                    <span style="margin-bottom: 8px">Overleggen over de voortgang van jouw studenten en ervaringen
-                                                    delen.</span>
+                                                <td style="color: #ffffff">{{ __("notify_inviter.delen") }}.</span>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -284,7 +281,7 @@
                                                          src="{{config('app.base_url')}}img/icons/checkmark-small-white.png"
                                                          alt=""/>
                                                 </td>
-                                                <td style="color: #ffffff"><span>Gebruikmaken van elkaars toetsen en toetsvragen.</span>
+                                                <td style="color: #ffffff"><span>{{ __("notify_inviter.Gebruikmaken van elkaars toetsen en toetsvragen") }}.</span>
                                                 </td>
                                             </tr>
                                         </table>
@@ -306,7 +303,7 @@
             border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
             border-top: 0px;">
-            <p style="color: #041F74;font-size: 16px ">Dit account is aangemaakt door jouw collega nadat je hem/haar had uitgenodigd via de Test-Correct functie &#39;Nodig een collega uit&#39;. Zodra het account van je collega is geauthoriseerd door ons en diegene binnen hetzelfde schooldomein valt, dan wordt je collega in dezelfde school geplaatst en kunnen jullie samenwerken aan dezelfde items.</p>
+            <p style="color: #041F74;font-size: 16px ">{{ __("notify_inviter.Dit account is aangemaakt door jouw collega nadat je hem/haar had uitgenodigd via de Test-Correct functie &#39;Nodig een collega uit&#39;. Zodra het account van je collega is geauthoriseerd door ons en diegene binnen hetzelfde schooldomein valt, dan wordt je collega in dezelfde school geplaatst en kunnen jullie samenwerken aan dezelfde items.") }}</p>
         </td>
     </tr>
     </tbody>
