@@ -26,4 +26,3 @@
 
 			'Verifieer je e-mailadres' => 'Please verify your email address'
 		];
-?>

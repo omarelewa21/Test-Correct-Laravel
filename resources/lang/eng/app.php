@@ -2,4 +2,3 @@
 	return [
 			'Inleveren' => 'Hand in'
 ];
-?>

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
     return[
         'Maak een nieuw wachtwoord' => 'Create a new password',
@@ -16,7 +16,5 @@
         'Log in' => 'Log in',
         'Ben je een student?' => 'Are you a student?',
         'Kijk hier' => 'Look here',
-        
-    ];
 
-?>
+    ];

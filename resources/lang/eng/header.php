@@ -20,4 +20,3 @@ return [
 
     'Becijferd' => 'Numerated',
 ];
-?>

@@ -31,5 +31,4 @@
 			'Met vriendelijke groet' => 'Met vriendelijke groet',
 
 			'Test-Correct supportteam' => 'Test-Correct supportteam'
-	]
-?>
+	];

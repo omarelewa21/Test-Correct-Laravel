@@ -42,4 +42,3 @@
 
 			'Nieuwe verzoek opsturen' => 'Nieuwe verzoek opsturen'
 ];
-?>

@@ -14,4 +14,3 @@
 
 			'Loginscherm' => 'Login screen'
 ];
-?>

@@ -12,5 +12,4 @@
 
 			'Antwoord tekenen' => 'Answer signs'
 ];
-?>
-			
+

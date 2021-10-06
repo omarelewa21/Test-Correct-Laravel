@@ -1,8 +1,6 @@
 <?php
 return [
-    'Vorige vraag' => 'Previous question',
-
+    'Vorige vraag'   => 'Previous question',
     'Volgende vraag' => 'Next question',
-    ]
-?>
+];
 

@@ -44,4 +44,3 @@
 
 			'Volgende' => 'Next one'
 ];
-?>

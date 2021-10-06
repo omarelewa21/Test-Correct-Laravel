@@ -2,4 +2,3 @@
     return[
         'Terug' => 'Back'
 ];
-?>

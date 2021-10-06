@@ -2,4 +2,3 @@
 	return [
 			'Server gegevens' => 'Server data'
 ];
-?>

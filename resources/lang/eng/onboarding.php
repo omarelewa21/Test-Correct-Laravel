@@ -103,4 +103,3 @@
 			'Kijk hier' => 'Look here',
 
 		];
-?>

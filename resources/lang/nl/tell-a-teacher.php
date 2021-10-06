@@ -11,5 +11,4 @@
 			'Gebruikmaken van elkaars toetsen en toetsvragen' => 'Gebruikmaken van elkaars toetsen en toetsvragen',
 
 			'Maak jouw account aan' => 'Maak jouw account aan',
-	]
-?>
+	];

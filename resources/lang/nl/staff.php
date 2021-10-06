@@ -1,6 +1,6 @@
 <?php
 	return [
-	
+
 		'Beste' => 'Best',
 
 		'heeft u via Test-Correct het volgende bericht gestuurd' => 'heeft u via Test-Correct het volgende bericht gestuurd',
@@ -32,7 +32,7 @@
 		'Wachtwoord' => 'Wachtwoord',
 
 		'Met vriendelijke groet' => 'Met vriendelijke groet',
-		
+
 		'Login en start demo' => 'Login en start demo',
 
 		'E-mail:' => 'E-mail:',
@@ -45,6 +45,5 @@
 
 		'Met vriendelijke groet' => 'Met vriendelijke groet',
 
-		
-	]
-?>
+
+	];

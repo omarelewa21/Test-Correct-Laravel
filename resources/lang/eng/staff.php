@@ -1,6 +1,6 @@
 <?php
 	return [
-	
+
 		'Beste' => 'Best',
 
 		'heeft u via Test-Correct het volgende bericht gestuurd' => 'has sent you the following message via Test-Correct',
@@ -45,6 +45,5 @@
 
 		'Met vriendelijke groet' => 'Sincerely',
 
-		
-	]
-?>
+
+	];
