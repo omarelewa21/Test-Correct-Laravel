@@ -223,6 +223,21 @@
                                     <span class="title">{{ $message }}</span>
                                 </div>
                                 @enderror
+                                @error('no_test_found_with_code')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
+                                @error('empty_guest_first_name')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
+                                @error('empty_guest_last_name')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
 
                             </div>
 

@@ -16,6 +16,7 @@ class CreateTestCodesTable extends Migration
         Schema::create('test_take_codes', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
+            $table->softDeletes();
             $table->integer('test_take_id');
             $table->integer('code');
             $table->string('prefix', 10);

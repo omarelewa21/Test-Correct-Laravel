@@ -77,5 +77,5 @@ return [
     'information_processed'                      => 'Your information has been processed',
     'connect_entree_error'                       => 'Something went wrong while linking your account.',
     'next_step'                                  => 'Next step',
-
+    'no_test_found_with_code'                    => 'No test found for this code.',
 ];

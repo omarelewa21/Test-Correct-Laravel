@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
 use tcCore\Http\Helpers\EntreeHelper;
-use tcCore\Http\Helpers\TestCodeHelper;
+use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
@@ -144,15 +144,21 @@ class Login extends Component
 
     public function guestLogin()
     {
-        $this->isTestTakeCodeValid();
+        if (!$this->filledInNecessaryGuestInformation()) {
+            return false;
+        }
 
-        $testCodeHelper = new TestCodeHelper();
-        $isValid = $testCodeHelper->validateCode($this->testTakeCode);
-
-        if (!$isValid) {
+        if (!$this->isTestTakeCodeCorrectFormat()) {
             return $this->addError('invalid_test_code', __('auth.test_code_invalid'));
         }
 
+        $testCodeHelper = new TestTakeCodeHelper();
+
+        if (!$testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode)) {
+            return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
+        }
+
+        $guestUser = $testCodeHelper->createUserByTestTakeCode($testTakeCode);
     }
 
     public function render()
@@ -246,11 +252,15 @@ class Login extends Component
         $this->showSendForgotPasswordNotification = true;
     }
 
-    private function isTestTakeCodeValid(): bool
+    private function isTestTakeCodeCorrectFormat(): bool
     {
-        foreach ($this->testTakeCode as $value) {
-            if (!$value) {
-                $this->addError('invalid_test_code', __('auth.test_code_invalid'));
+        if (count($this->testTakeCode) != 6) {
+            return false;
+        }
+
+        foreach ($this->testTakeCode as $key => $value) {
+            $value = (int) $value;
+            if (!$value || !is_int($value) || Str::length($value) != 1) {
                 return false;
             }
         }
@@ -471,5 +481,20 @@ class Login extends Component
         }
 
         return $this->rules['username'];
+    }
+
+    private function filledInNecessaryGuestInformation()
+    {
+        $hasNoError = true;
+        if(blank($this->firstName)) {
+            $this->addError('empty_guest_first_name', __('auth.empty_guest_first_name'));
+            $hasNoError = false;
+        }
+        if(blank($this->lastName)) {
+            $this->addError('empty_guest_last_name', __('auth.empty_guest_last_name'));
+            $hasNoError = false;
+        }
+
+        return $hasNoError;
     }
 }
