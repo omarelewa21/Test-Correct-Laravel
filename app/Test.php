@@ -548,43 +548,92 @@ class Test extends BaseModel
         return $query;
     }
 
-    public function scopeFiltered2($query, $filters = [], $sorting = [])
+    public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
         $roles = $this->getUserRoles();
         $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
 
-        $query->selectRaw('distinct tests.*');
+        $query->select();
 
-        if (in_array('Teacher', $roles)) {
-            $query->leftJoin('subjects', function ($join) {
-                $join->on('tests.subject_id', '=', 'subjects.id');
-            });
-            $query->leftJoin('teachers as teachers_self', function ($join) {
-                $join->on('subjects.id', '=', 'teachers_self.subject_id');
-            });
-            $query->leftJoin('test_authors', function ($join) {
-                $join->on('tests.author_id', '=', 'test_authors.user_id');
-            });
-            $query->leftJoin('teachers as teachers_other', function ($join) {
-                $join->on('test_authors.user_id', '=', 'teachers_other.user_id');
-            });
-            $query->leftJoin('users', function ($join) {
-                $join->on('teachers_other.user_id', '=', 'users.id');
-            });
-            $query->leftJoin(DB::raw('(select distinct subject_id from teachers where user_id = '.$user->id.') as s2'), function ($join) {
-                $join->on('teachers_other.subject_id', '=', 's2.subject_id');
-            });
-            $query->whereNull('subjects.deleted_at');
-            $query->whereNull('teachers_self.deleted_at');
-            $query->where('teachers_self.user_id','=',$user->id);
-            $query->whereNull('teachers_other.deleted_at');
-            $query->where('users.school_location_id','=',$user->school_location_id);
+        if ($schoolLocation->is_allowed_to_view_open_source_content == 1) {
+            // @TODO WHY IS THIS ONLY ON THE FIRST BASE SUBJECT????????
+            $baseSubjectId = $user->subjects()->select('base_subject_id')->first();
+            $subjectIds = BaseSubject::find($baseSubjectId['base_subject_id'])->subjects()->select('id')->get();
+
+            $query->whereIn('subject_id', $subjectIds);
+
+            if (isset($filters['is_open_sourced_content']) && $filters['is_open_sourced_content'] == 1) {
+                $query->where('is_open_source_content', '=', 1);
+            } else {
+
+                if (!isset($filters['is_open_sourced_content'])) {
+                    $opensource = 1;
+                } else {
+                    $opensource = 0;
+                }
+
+                $query->where('is_open_source_content', '=', $opensource)->orWhereIn('author_id', function ($query) use ($user) {
+                    $query->select('user_id')
+                        ->from(with(new Teacher())->getTable())
+                        ->whereIn('subject_id', function ($query) use ($user) {
+                            $query->select('id')
+                                ->from(with(new Subject())->getTable())
+                                ->whereIn('section_id', function ($query) use ($user) {
+                                    $user->sections($query)->select('id');
+                                });
+                        });
+
+                    $query->join($user->getTable(), with(new Teacher())->getTable() . '.user_id', '=', $user->getTable() . '.' . $user->getKeyName());
+
+                    $schoolId = $user->getAttribute('school_id');
+                    $schoolLocationId = $user->getAttribute('school_location_id');
+                    if ($schoolId && $schoolLocationId) {
+                        $query->where(function ($query) use ($schoolId, $schoolLocationId) {
+                            $query->where('school_id', $schoolId)
+                                ->orWhere('school_location_id', $schoolLocationId);
+                        });
+                    } elseif ($schoolId !== null) {
+                        $query->where('school_id', $schoolId);
+                    } elseif ($schoolLocationId !== null) {
+                        $query->where('school_location_id', $schoolLocationId);
+                    }
+                });
+            }
+
+        } elseif (in_array('Teacher', $roles)) {
+
+            $query->join(DB::raw(sprintf('(select distinct t2.id as t2_id
+                                            from
+                                                `tests` as t2
+                                                    inner join subjects
+                                                               on t2.subject_id = subjects.id
+                                                    left join `teachers` as teachers_self
+                                                              on subjects.id = teachers_self.subject_id
+                                                    inner join test_authors
+                                                               on t2.id = test_authors.test_id
+                                                    left join teachers as teachers_other
+                                                              on test_authors.user_id = teachers_other.user_id
+                                                    left join users
+                                                              on teachers_other.user_id = users.id
+                                                    inner join (select distinct subject_id from teachers where user_id = %d) as s2
+                                                               on teachers_other.subject_id = s2.subject_id
+                                            where
+                                                subjects.deleted_at is null
+                                                        and
+                                                        teachers_self.deleted_at is null
+                                                        and
+                                                        teachers_self.user_id = %d
+                                                        and users.school_location_id = %d
+                                                        ) as t1',$user->id,$user->id,$schoolLocation->id) ), function ($join) {
+                                                            $join->on('tests.id', '=', 't1.t2_id');
+                                                        });
+
             // TC-158  don't show demo tests from other users
             $query->where(function ($q) use ($user) {
                 $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
                 $q->where(function ($query) use ($user, $subject) {
-                    $query->where('tests.subject_id', $subject->getKey())->where('author_id', $user->getKey());
+                    $query->where('tests.subject_id', $subject->getKey())->where('tests.author_id', $user->getKey());
                 })
                     ->orWhere('tests.subject_id', '<>', $subject->getKey());
             });
@@ -666,7 +715,7 @@ class Test extends BaseModel
 
 
 
-        //$this->handleFilteredSorting($query, $sorting);
+        $this->handleFilteredSorting($query, $sorting);
 
         if ($user->isA('teacher')) {
             // don't show demo tests from other teachers
@@ -682,7 +731,8 @@ class Test extends BaseModel
         return $query;
     }
 
-    public function scopeFiltered($query, $filters = [], $sorting = [])
+
+    public function scopeFiltered_to_be_removed($query, $filters = [], $sorting = [])
     {
         $user = Auth::user();
         $roles = $this->getUserRoles();
@@ -1116,5 +1166,45 @@ class Test extends BaseModel
         });
 
         return $query;
+    }
+
+    private function getSubQueryForScopeFiltered($user)
+    {
+        $schoolId = $user->getAttribute('school_id');
+        $schoolLocationId = $user->getAttribute('school_location_id');
+        if ($schoolId && $schoolLocationId) {
+            $schoolLocationWhere = sprintf('and (users.school_id = %d or users.school_location_id = %d) ',$schoolId,$schoolLocationId);
+        }elseif ($schoolId !== null) {
+            $schoolLocationWhere = sprintf('and users.school_id = %d ) ',$schoolId);
+        }elseif ($schoolLocationId !== null) {
+            $schoolLocationWhere = sprintf('and (school_location_user.school_location_id in 
+                                                            ( select school_location_id from school_location_user where user_id = %d) 
+                                                        or users.school_location_id = %d) ',$user->id,$schoolLocationId);
+        }
+        $schoolLocationWhere = sprintf('and (users.school_location_id = %d ) ',$schoolLocationId);
+        return sprintf('(select distinct t2.id as t2_id
+                                            from
+                                                `tests` as t2
+                                                    inner join subjects
+                                                               on t2.subject_id = subjects.id
+                                                    left join `teachers` as teachers_self
+                                                              on subjects.id = teachers_self.subject_id
+                                                    inner join test_authors
+                                                               on t2.id = test_authors.test_id
+                                                    left join teachers as teachers_other
+                                                              on test_authors.user_id = teachers_other.user_id
+                                                    left join users
+                                                              on teachers_other.user_id = users.id
+                                                    left join school_location_user
+                                                              on users.id = school_location_user.user_id
+                                                    inner join (select distinct subject_id from teachers where user_id = %d) as s2
+                                                               on teachers_other.subject_id = s2.subject_id
+                                            where
+                                                subjects.deleted_at is null
+                                                        and
+                                                        teachers_self.deleted_at is null
+                                                        and
+                                                        teachers_self.user_id = %d
+                                                        %s) as t1',$user->id,$user->id,$schoolLocationWhere);
     }
 }
