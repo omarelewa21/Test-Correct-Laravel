@@ -30,7 +30,7 @@
             </div>
             @guest
                 <div class="flex sm:ml-auto items-center space-x-3" x-data="{}">
-                    <x-button.cta size="sm" @click="Livewire.emit('open-auth-modal')">{{ __('auth.Maak account' }}</x-button.cta>
+                    <x-button.cta size="sm" @click="Livewire.emit('open-auth-modal')">{{ __('auth.Maak account') }}</x-button.cta>
                     <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}">{{  __('auth.login') }}</x-button.primary>
                 </div>
             @endguest
