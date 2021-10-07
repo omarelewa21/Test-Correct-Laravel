@@ -12,6 +12,8 @@
         $lang = 'eng';
     }
 
+    $lang = 'nl'; // just to see if it works in dutch
+
 return [
 
     'url_login' => env('URL_LOGIN'),
