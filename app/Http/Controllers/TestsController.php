@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\DuplicateTestRequest;
@@ -34,7 +35,7 @@ class TestsController extends Controller {
         try { // added for compatibility with mariadb
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
         } catch (\Exception $e){}
-        if(Auth::user()->intense){
+        if(Auth::user()->intense && BaseHelper::notProduction()){
             $message = 'GM says at october 9th 2021: TestsController@index, this message should only appear on the test environment. In production this if statement should be removed.';
             Bugsnag::notifyException(new \Exception($message));
             $tests = Test::filtered_to_be_removed($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
