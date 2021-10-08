@@ -1184,44 +1184,21 @@ class Test extends BaseModel
                                                         %s) as t1',$user->id,$user->id,$schoolLocationWhere);
     }
 
-    private function getSubQueryForScopeFiltered2($user)
+    private function getSubQueryWithOtherSubjectsFromSectionsForScopeFiltered($user)
     {
-        $schoolId = $user->getAttribute('school_id');
-        $schoolLocationId = $user->getAttribute('school_location_id');
-        if ($schoolId && $schoolLocationId) {
-            $schoolLocationWhere = sprintf('and (users.school_id = %d or users.school_location_id = %d) ',$schoolId,$schoolLocationId);
-        }elseif ($schoolId !== null) {
-            $schoolLocationWhere = sprintf('and users.school_id = %d ) ',$schoolId);
-        }elseif ($schoolLocationId !== null) {
-            $schoolLocationWhere = sprintf('and (school_location_user.school_location_id in 
-                                                            ( select school_location_id from school_location_user where user_id = %d) 
-                                                        or users.school_location_id = %d) ',$user->id,$schoolLocationId);
-        }
         return sprintf('(select distinct t2.id as t2_id
                                             from
                                                 `tests` as t2
-                                                    left join ( select id from subjects where section_id in (
-                                                                    select distinct section_id from teachers left join subjects on teachers.subject_id = subjects.id where user_id = %d
+                                                    left join ( select distinct id from subjects where section_id in (
+                                                                    select distinct section_id 
+                                                                        from teachers 
+                                                                            left join subjects on teachers.subject_id = subjects.id 
+                                                                    where user_id = %d
+                                                                        and teachers.deleted_at is null
                                                                 )
-                         
+                                                                and subjects.deleted_at is null                     
                                                     ) as allowed_subjects
                                                                 on t2.subject_id = allowed_subjects.id
-                                                    inner join test_authors
-                                                               on t2.id = test_authors.test_id
-                                                    left join teachers as teachers_other
-                                                              on test_authors.user_id = teachers_other.user_id
-                                                    left join users
-                                                              on teachers_other.user_id = users.id
-                                                    left join school_location_user
-                                                              on users.id = school_location_user.user_id
-                                                    inner join (select distinct subject_id from teachers where user_id = %d) as s2
-                                                               on teachers_other.subject_id = s2.subject_id
-                                            where
-                                                subjects.deleted_at is null
-                                                        and
-                                                        teachers_self.deleted_at is null
-                                                        and
-                                                        teachers_self.user_id = %d
-                                                        %s) as t1',$user->id,$user->id,$schoolLocationWhere);
+                                            ) as t1',$user->id);
     }
 }

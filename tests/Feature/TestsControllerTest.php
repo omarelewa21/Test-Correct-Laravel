@@ -265,24 +265,7 @@ class TestsControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /** @test */
 
-    public function itShouldShowTestsFromSameSection()
-    {
-        $attributes = [ "results"    => "60",
-            "page"      => "1",
-            "order"     => [
-                "id" => "desc"
-            ]
-        ];
-        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
-        $response->assertStatus(200);
-        $user = User::where('username', 'd1@test-correct.nl')->first();
-        $user->school_id = 1;
-        $user->save();
-        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
-        $response->assertStatus(200);
-    }
 
     private function setupScenario1(){
         $attributes = $this->getAttributesForTest1();
