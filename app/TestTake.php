@@ -162,11 +162,15 @@ class TestTake extends BaseModel
                     // If school location of the test participant is not activated, do not allow switching to state Taking test of Discussing.
                     $activated = $testParticipant->schoolClass->schoolLocation->getAttribute('activated');
 
-                    if ($activated == true && $testParticipant->getAttribute('heartbeat_at') !== null && $testParticipant->getAttribute('heartbeat_at') >= $heartbeatDate) {
-                        $testParticipant->setAttribute('test_take_status_id', $testParticipantTestTakeStatus);
-                    } else {
-                        $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
-                    }
+                    //Disabled setting TestParticipant status to 3 if there is an recent heartbeat.
+                    // As this is done by the testparticipant actively the moment the student chooses a player
+                    //-Roan 20211008
+//                    if ($activated == true && $testParticipant->getAttribute('heartbeat_at') !== null && $testParticipant->getAttribute('heartbeat_at') >= $heartbeatDate) {
+//                        $testParticipant->setAttribute('test_take_status_id', $testParticipantTestTakeStatus);
+//                    } else {
+//                        $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
+//                    }
+                    $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
 
                     $testParticipant->save();
                 }
