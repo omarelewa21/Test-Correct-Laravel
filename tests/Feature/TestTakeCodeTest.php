@@ -10,6 +10,7 @@ use Livewire\Livewire;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Http\Livewire\Auth\Login;
 use tcCore\TestTakeCode;
+use tcCore\User;
 use Tests\TestCase;
 
 class TestTakeCodeTest extends TestCase
@@ -100,5 +101,23 @@ class TestTakeCodeTest extends TestCase
 
         $this->assertNotNull($this->codeHelper->getTestTakeCodeIfExists($codeToEnterOnLoginScreenAsArray));
         $this->assertNotNull($this->codeHelper->getTestTakeCodeIfExists($codeToEnterOnLoginScreenAsString));
+    }
+
+    /**
+     * @test
+     */
+    public function code_helper_can_create_user_by_test_take_code()
+    {
+        $testTakeCode = TestTakeCode::create(['test_take_id' => 22]);
+        $userData = [
+            'name_first' => 'Piet',
+            'name' => 'Jansen'
+        ];
+
+        $createdUser = $this->codeHelper->createUserByTestTakeCode($userData, $testTakeCode);
+        $latestUser = User::latest()->first();
+
+        $this->assertNotNull($createdUser);
+        $this->assertEquals($createdUser->getKey(), $latestUser->getKey());
     }
 }

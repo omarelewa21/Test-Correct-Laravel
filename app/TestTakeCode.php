@@ -49,4 +49,11 @@ class TestTakeCode extends Model
     {
         return $this->belongsTo(TestTake::class);
     }
+
+    public function getSchoolLocationFromTestTakeCode()
+    {
+        return User::join('test_takes', 'test_takes.user_id', '=', 'users.id')
+            ->where('test_takes.id', $this->test_take_id)
+            ->value('users.school_location_id');
+    }
 }

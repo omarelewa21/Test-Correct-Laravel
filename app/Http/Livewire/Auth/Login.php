@@ -132,9 +132,9 @@ class Login extends Component
 
         $this->doLoginProcedure();
 
-//        if (auth()->user()->isA('Student')) {
-//            return redirect()->intended(route('student.dashboard'));
-//        }
+        if (auth()->user()->isA('Student')) {
+            return redirect()->intended(route('student.dashboard'));
+        }
         if (auth()->user()->isA('Account manager')) {
             return redirect()->intended(route('uwlr.grid'));
         }
@@ -154,11 +154,24 @@ class Login extends Component
 
         $testCodeHelper = new TestTakeCodeHelper();
 
-        if (!$testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode)) {
+        $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
+        if (!$testTakeCode) {
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
-        $guestUser = $testCodeHelper->createUserByTestTakeCode($testTakeCode);
+        $guestData = $this->gatherGuestData();
+
+        $guestUser = $testCodeHelper->createUserByTestTakeCode($guestData, $testTakeCode);
+        $guestParticipant = $testCodeHelper->createTestParticipantForGuestUserByTestTakeCode($guestUser, $testTakeCode);
+
+        if ($guestUser && $guestParticipant) {
+            Auth::login($guestUser);
+
+            if (auth()->user()->isA('Student')) {
+                return redirect()->intended(route('student.waiting-room', ['take' => $testTakeCode->testTake->uuid]));
+            }
+        }
+        dd('Er ging iets mis');
     }
 
     public function render()
@@ -259,7 +272,7 @@ class Login extends Component
         }
 
         foreach ($this->testTakeCode as $key => $value) {
-            $value = (int) $value;
+            $value = (int)$value;
             if (!$value || !is_int($value) || Str::length($value) != 1) {
                 return false;
             }
@@ -466,7 +479,7 @@ class Login extends Component
                             $fail(
                                 sprintf(
                                     'Het emailadres moet eindigen op: %s.',
-                                    implode(' of ',$validator->getMessage())
+                                    implode(' of ', $validator->getMessage())
                                 )
                             );
                         }
@@ -486,15 +499,24 @@ class Login extends Component
     private function filledInNecessaryGuestInformation()
     {
         $hasNoError = true;
-        if(blank($this->firstName)) {
+        if (blank($this->firstName)) {
             $this->addError('empty_guest_first_name', __('auth.empty_guest_first_name'));
             $hasNoError = false;
         }
-        if(blank($this->lastName)) {
+        if (blank($this->lastName)) {
             $this->addError('empty_guest_last_name', __('auth.empty_guest_last_name'));
             $hasNoError = false;
         }
 
         return $hasNoError;
+    }
+
+    private function gatherGuestData()
+    {
+        return [
+            'name_first'  => $this->firstName,
+            'name_suffix' => $this->suffix,
+            'name'        => $this->lastName
+        ];
     }
 }

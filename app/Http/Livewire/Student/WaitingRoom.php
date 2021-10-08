@@ -44,6 +44,11 @@ class WaitingRoom extends Component
 
     public function startTestTake()
     {
+        if ($this->waitingTestTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
+            $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+            $this->testParticipant->save();
+        }
+
         $this->redirectRoute('student.test-take-laravel', $this->take);
     }
 
