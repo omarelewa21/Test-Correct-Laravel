@@ -2,10 +2,12 @@
 
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
+use tcCore\Events\BrowserTestingDisabledForParticipant;
 use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Events\TestTakeReopened;
 use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
@@ -88,6 +90,7 @@ class TestParticipant extends BaseModel
             $testParticipant->updatedRatingOrRetakeRating();
 
             $testParticipant->isTestTakenAway();
+            $testParticipant->isBrowserTestingActive();
         });
     }
 
@@ -265,8 +268,9 @@ class TestParticipant extends BaseModel
                 $testTakeEvent->setAttribute('test_take_event_type_id', $testTakeTypeStatus);
                 $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
                 $this->testTake->testTakeEvents()->save($testTakeEvent);
-    
+
                 $testTakeStartDate = $this->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $testTakeTypeStatus)->whereNull('test_participant_id')->max('created_at');
+
                 $timeLate = Carbon::createFromFormat('Y-m-d H:i:s', $testTakeStartDate)->addMinutes(5);
     
                 if ($timeLate->isPast()) {
@@ -345,11 +349,15 @@ class TestParticipant extends BaseModel
     public function startTestTake()
     {
         //Remaining startTestTake actions handled in TestParticipant boot method
-        if ($this->canStartTestTake()) {
-            $this->setAttribute('started_in_new_player', true)->save();
-            return true;
+        if (!$this->canStartTestTake()) {
+            return false;
         }
-        return false;
+//        if (!$this->canUseBrowserTesting() && $this->isInBrowser()) {
+//            return false;
+//        }
+
+        $this->setAttribute('started_in_new_player', true)->save();
+        return true;
     }
     public function canSeeOverviewPage()
     {
@@ -386,5 +394,34 @@ class TestParticipant extends BaseModel
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
             TestTakeForceTakenAway::dispatch($this);
         }
+    }
+
+    private function isBrowserTestingActive()
+    {
+        if ($this->allow_inbrowser_testing == false && $this->getOriginal('allow_inbrowser_testing') == true) {
+            BrowserTestingDisabledForParticipant::dispatch($this);
+        }
+    }
+
+    public function canUseBrowserTesting()
+    {
+        return $this->allow_inbrowser_testing;
+    }
+
+    public function isInBrowser()
+    {
+        return session('isInBrowser', true);
+    }
+
+    public function isRejoiningTestTake($newStatus)
+    {
+        if ($newStatus === $this->test_take_status_id) {
+            $this->testTake->testTakeEvents()->create([
+                'test_take_event_type_id' => TestTakeEventType::where('reason', '=', 'rejoined')->value('id'),
+                'test_participant_id' => $this->getKey()
+            ]);
+            return true;
+        }
+        return false;
     }
 }

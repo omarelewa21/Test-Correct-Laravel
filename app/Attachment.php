@@ -1,14 +1,20 @@
 <?php namespace tcCore;
 
+use Dyrynda\Database\Casts\EfficientUuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\File;
+use tcCore\Traits\UuidTrait;
 
 class Attachment extends BaseModel
 {
 
-    use SoftDeletes;
+    use SoftDeletes, UuidTrait;
+
+    protected $casts = [
+        'uuid' => EfficientUuid::class,
+    ];
 
     /**
      * The attributes that should be mutated to dates.
@@ -59,6 +65,11 @@ class Attachment extends BaseModel
                 }
             }
         });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
     }
 
     public function getOriginalPath()
@@ -186,15 +197,17 @@ class Attachment extends BaseModel
         preg_match($youtubeRegex, $this->link, $matches);
         if (!empty($matches['video_id'])) {
             $parts = parse_url($this->link);
-            parse_str($parts['query'], $query);
             $t = 0;
-            switch (true) {
-                case isset($query['t']):
-                    $t = $query['t'];
-                    break;
-                case isset($query['start']):
-                    $t = $query['start'];
-                    break;
+            if (!empty($parts['query'])) {
+                parse_str($parts['query'], $query);
+                switch (true) {
+                    case isset($query['t']):
+                        $t = $query['t'];
+                        break;
+                    case isset($query['start']):
+                        $t = $query['start'];
+                        break;
+                }
             }
             return sprintf('https://www.youtube.com/embed/%s?rel=0&start=%d', $matches['video_id'], $t);
         }
@@ -218,13 +231,11 @@ class Attachment extends BaseModel
 
     private function isPartOfQuestionForThisAnswer($answer){
         $question = $answer->question;
-
-        if ($question->is_subquestion) {
-            $testId = $answer->testParticipant->testTake->test->getKey();
-            return $this->questionAttachments->pluck('question_id')->contains($question->getGroupQuestionIdByTest($testId));
+        if($this->questionAttachments->pluck('question_id')->contains($question->getKey())){
+            return true;
         }
-
-        return $this->questionAttachments->pluck('question_id')->contains($question->getKey());
+        $testId = $answer->testParticipant->testTake->test->getKey();
+        return $this->questionAttachments->pluck('question_id')->contains($question->getGroupQuestionIdByTest($testId));
     }
 
     public function audioIsPausable()

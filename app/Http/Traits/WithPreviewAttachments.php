@@ -15,10 +15,15 @@ trait WithPreviewAttachments
     public $questionId;
     public $attachmentType = '';
 
-    public function showAttachment(Attachment $attachment)
+    public function showAttachment($attachmentUuid)
     {
-        $this->attachment = $attachment;
-        $this->questionId = $this->group ? $this->group->uuid : $this->question->uuid;
+        $this->attachment = Attachment::whereUuid($attachmentUuid)->first();
+        $attachment = $this->attachment;
+        $type = $this->attachmentBelongsToTypeQuestion($attachment);
+        $this->questionId = $this->question->uuid;
+        if($type=='group'){
+            $this->questionId = $this->group->uuid;
+        }
         $this->timeout = $this->attachment->audioTimeoutTime();
         $this->attachmentType = $this->getAttachmentType($attachment);
     }
@@ -99,5 +104,17 @@ trait WithPreviewAttachments
         }
 
         return 'w-5/6 lg:w-4/6';
+    }
+
+    private function attachmentBelongsToTypeQuestion($attachment)
+    {
+        if(is_null($this->group)){
+            return 'question';
+        }
+        $questions = $attachment->questions()->where('question_id',$this->group->getKey());
+        if($questions->count()>0){
+            return 'group';
+        }
+        return 'question';
     }
 }

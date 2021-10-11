@@ -136,6 +136,13 @@ class Subject extends BaseModel implements AccessCheckable
                         }
                     });
                     break;
+                case 'show_in_onboarding' :
+                    $query->whereNotIn('base_subject_id',function($query) use ($value) {
+                        $query->select('id')
+                            ->from(with(new BaseSubject())->getTable())
+                            ->where('show_in_onboarding', $value);
+                    });
+                    break;
             }
         }
 

@@ -25,6 +25,7 @@ class Handler extends ExceptionHandler
         HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
+        DeploymentMaintenanceException::class,
     ];
 
     /**
@@ -56,8 +57,6 @@ class Handler extends ExceptionHandler
                 return response()
                     ->view('errors.deployment-maintenance', ['deployment' => $e->deployment], 503);
             }
-        } else if($e instanceof LivewireTestTakeClosedException){
-            return response()->make('Test taken away', 406);
         } else if ($this->isHttpException($e)) {
             return $this->renderHttpException($e);
         } else if ($e instanceof QuestionException) {

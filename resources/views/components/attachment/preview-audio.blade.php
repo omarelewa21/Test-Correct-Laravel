@@ -1,7 +1,7 @@
 <div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10"
      x-data="{attachment: null}"
      x-init="
-        attachment = {{ $attachment->getKey() }}
+        attachment = '{{ $attachment->uuid }}';
              $refs.player.currentTime = {{ $attachment->audioHasCurrentTime() }}"
 >
     <div class="text-center">
@@ -21,7 +21,7 @@
         @endif
     </div>
     <div>
-        <audio id="player" src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->getKey(), 'question' => $questionId], false) }}"
+        <audio id="player" src="{{ route('teacher.preview.question-attachment-show', ['attachment' => $attachment->uuid, 'question' => $questionId], false) }}"
                x-ref="player"
                @if($attachment->audioOnlyPlayOnce())
                     x-on:ended="@this.audioIsPlayedOnce(attachment);"

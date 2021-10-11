@@ -101,7 +101,27 @@ class DemoHelper
             return false;
         }
 
+        self::moveSchoolLocationDemoClassToCurrentYearIfNeeded($user->schoolLocation, $schoolClass);
+
         return true;
+    }
+
+    public static function moveSchoolLocationDemoClassToCurrentYearIfNeeded(SchoolLocation $schoolLocation, $schoolClass = null)
+    {
+        $helper = new DemoHelper();
+
+        if($schoolClass == null){
+            $helper->setSchoolLocation($schoolLocation);
+            $schoolClass = $helper->getDemoClass();
+        }
+        if($schoolClass) {
+            $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+            if ($schoolYear != null) {
+                if ($schoolClass->schoolYear != $schoolYear) {
+                    $helper->moveDemoClassToNewSchoolYear($schoolClass, $schoolYear);
+                }
+            }
+        }
     }
 
     public function createDemoForTeacherIfNeeded(User $user)
@@ -148,6 +168,8 @@ class DemoHelper
 
     public function prepareDemoForNewTeacher(SchoolLocation $schoolLocation, SchoolYear $schoolYear, User $user)
     {
+        $currentQueueState = GlobalStateHelper::getInstance()->isQueueAllowed();
+        GlobalStateHelper::getInstance()->setQueueAllowed(false);
         $this->setSchoolLocation($schoolLocation);
         $schoolClass = $this->createDemoClassForSchoolLocationAndPopulate($schoolLocation, $schoolYear);
         $teacher = $this->addTeacherToDemoClassIfNeeded($user, $schoolClass);
@@ -155,6 +177,7 @@ class DemoHelper
         $baseDemoTest = $this->getBaseDemoTest();
         $returnData = $this->createDemoTestsForTeacher($teacher, $students, $baseDemoTest, $schoolClass);
         $returnData['teacher'] = $teacher;
+        GlobalStateHelper::getInstance()->setQueueAllowed($currentQueueState);
         return $returnData;
     }
 

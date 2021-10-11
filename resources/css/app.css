@@ -5,6 +5,7 @@
 @import url("components/table.css");
 @import url("test-take.css");
 @import url("forms.css");
+@import url("pages.css");
 
 @tailwind base;
 @tailwind components;
@@ -17,6 +18,7 @@
     --cta-secondary: #004DF5;
     --primary: #004df5;
     --primary-light: #e6edfa;
+    --teacher-primary-light: #4781ff;
     --secondary: #ECDB00;
     --highlight-primary: #ECDB00;
     --highlight-primary-mid-dark: #dec802;
@@ -69,6 +71,8 @@ body {
     font-family: Nunito Regular, sans-serif !important;
     background: var(--light-grey) !important;
     color: var(--system-base);
+    touch-action: manipulation;
+    -ms-touch-action: manipulation;
 }
 
 svg {
@@ -481,4 +485,19 @@ body.modal-open {
 .attachment-iframe-wrapper {
     -webkit-overflow-scrolling: touch;
     overflow: auto;
+}
+
+ol {
+    list-style: disk!important;
+    padding-left: 20px!important;
+}
+ul {
+    list-style: initial!important;
+    padding-left: 20px!important;
+}
+ul ul {
+    list-style: circle!important;
+}
+ul ul ul {
+    list-style: square!important;
 }

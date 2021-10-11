@@ -381,7 +381,7 @@ var App = function (prefix, width, backgroundImage) {
         };
     }
 
-    if (backgroundImage !== null) {
+    if (backgroundImage !== '') {
         var img = new Image(), element = canvas.getCanvas();
 
         img.src = backgroundImage;

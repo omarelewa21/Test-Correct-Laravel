@@ -16,10 +16,14 @@ use tcCore\FailedLogin;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\SamlMessage;
+use tcCore\Services\EmailValidatorService;
 use tcCore\User;
 
 class Login extends Component
 {
+    public $doIHaveATcAccount = 1;
+    public $doIHaveATcAccountChoice = null;
+
     public $username = '';
     public $password = '';
     public $captcha = '';
@@ -35,11 +39,21 @@ class Login extends Component
     public $requireCaptcha = false;
     public $testTakeCode = [];
 
-    protected $queryString = ['tab', 'uuid', 'entree_error_message'];
+    protected $queryString = [
+        'tab'                  => ['except' => 'login'],
+        'uuid'                 => ['except' => ''],
+        'entree_error_message' => ['except' => ''],
+        'fatal_error_message'  => ['except' => false],
+        'block_back'           => ['except' => false]
+    ];
 
     public $tab = 'login';
 
     public $uuid = '';
+
+    public $fatal_error_message = false;
+
+    public $block_back = false;
 
     public $entree_error_message = '';
 
@@ -56,6 +70,8 @@ class Login extends Component
     public $showAuthModal = false;
     public $authModalRoleType;
     public $showSendForgotPasswordNotification = false;
+
+    public $schoolLocation;
 
     public $studentDownloadUrl = 'https://www.test-correct.nl/student/';
 
@@ -98,7 +114,7 @@ class Login extends Component
 
         $credentials = $this->validate();
         if (!auth()->attempt($credentials)) {
-            if($this->requireCaptcha) {
+            if ($this->requireCaptcha) {
                 $this->reset('captcha');
                 $this->emit('refresh-captcha');
                 return;
@@ -108,7 +124,7 @@ class Login extends Component
             return;
         }
 
-        if((Auth()->user()->isA('teacher') || Auth()->user()->isA('student')) && EntreeHelper::shouldPromptForEntree(auth()->user())) {
+        if ((Auth()->user()->isA('teacher') || Auth()->user()->isA('student')) && EntreeHelper::shouldPromptForEntree(auth()->user())) {
             auth()->logout();
             return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
@@ -185,7 +201,7 @@ class Login extends Component
 
         $this->guestLoginButtonDisabled = !(filled($this->firstName) && filled($this->lastName) && count($this->testTakeCode) == 6);
 
-        if($this->couldBeEmail($this->entreeEmail) && filled($this->entreePassword)) {
+        if ($this->couldBeEmail($this->entreeEmail) && filled($this->entreePassword)) {
             $this->connectEntreeButtonDisabled = false;
         }
 
@@ -210,11 +226,11 @@ class Login extends Component
         $user = User::whereUsername($this->forgotPasswordEmail)->first();
         if ($user) {
             $token = Password::getRepository()->create($user);
-            $url = sprintf('%spassword-reset/?token=%%s',config('app.base_url'));
+            $url = sprintf('%spassword-reset/?token=%%s', config('app.base_url'));
             $urlLogin = route('auth.login');
 
             try {
-                Mail::to($user->username)->send(new SendForgotPasswordMail($user,$token,$url,$urlLogin));
+                Mail::to($user->username)->send(new SendForgotPasswordMail($user, $token, $url, $urlLogin));
             } catch (\Throwable $th) {
                 Bugsnag::notifyException($th);
             }
@@ -225,7 +241,7 @@ class Login extends Component
 
     private function isTestTakeCodeValid(): bool
     {
-        foreach ($this->testTakeCode as $key => $value){
+        foreach ($this->testTakeCode as $key => $value) {
             if (!$value) {
                 $this->addError('invalid_test_code', __('auth.test_code_invalid'));
                 return false;
@@ -272,6 +288,20 @@ class Login extends Component
         }
     }
 
+    public function samlMessageValid()
+    {
+        $message = SamlMessage::whereUuid($this->uuid)->first();
+        if ($message == null) {
+            return false;
+        }
+
+        if ($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
+            return false;
+        }
+
+        return true;
+    }
+
 
     public function entreeForm()
     {
@@ -288,7 +318,7 @@ class Login extends Component
             return $this->addError('entree_error', __('auth.no_saml_message_found'));
         }
 
-        if($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
+        if ($message->created_at < Carbon::now()->subMinutes(5)->toDateTimeString()) {
             return $this->addError('entree_error', __('auth.saml_message_to_old'));
         }
 
@@ -298,7 +328,7 @@ class Login extends Component
         }
         $user = auth::user();
 
-        if (! empty($user->eckId)) {
+        if (!empty($user->eckId)) {
             return $this->addError('entree_error', __('auth.eck_id_already_set_for_user'));
         }
 
@@ -307,5 +337,132 @@ class Login extends Component
         $message->delete();
         $user->save();
         $user->redirectToCakeWithTemporaryLogin();
+    }
+
+    public function loginForNoMailPresent()
+    {
+        $message = SamlMessage::whereUuid($this->uuid)->first();
+
+        if ($message == null) {
+            return $this->addError('entree_error', __('auth.no_saml_message_found'));
+        }
+
+        $this->resetErrorBag();
+        $this->entree_error_message = '';
+
+        if (!$this->captcha && FailedLogin::doWeNeedExtraSecurityLayer($this->username)) {
+            $this->requireCaptcha = true;
+            return;
+        }
+        if ($this->captcha && !$this->validateCaptcha()) {
+            return;
+        }
+
+        $credentials = $this->validate();
+        if (!auth()->attempt($credentials)) {
+            if ($this->requireCaptcha) {
+                $this->reset('captcha');
+                $this->emit('refresh-captcha');
+                return;
+            }
+            $this->createFailedLogin();
+            $this->addError('invalid_user', __('auth.failed'));
+            return;
+        }
+        $this->doLoginProcedure();
+
+        if (EntreeHelper::initWithMessage($message)->setContext('livewire')->tryAccountMatchingWhenNoMailAttributePresent(auth()->user()) === true) {
+            return redirect(route('entree-link', ['linked' => auth()->user()->uuid, 'with_account' => true]));
+//            auth()->user()->redirectToCakeWithTemporaryLogin();
+        }
+    }
+
+    public function emailEnteredForNoMailPresent()
+    {
+        // validate entered emailaddress
+        $this->rules['username'] = $this->getSchoolLocationAccptedEmailDomainRule();
+
+        $this->validateOnly('username');
+        if (User::where('username', $this->username)->exists()) {
+            return $this->addError('username', __('auth.email_already_in_use'));
+        }
+        $message = SamlMessage::whereUuid($this->uuid)->first();
+
+        if ($message == null) {
+            return $this->addError('entree_error', __('auth.no_saml_message_found'));
+        }
+
+
+        if ($user = EntreeHelper::handleNewEmailForUserWithoutEmailAttribute($message, $this->username)) {
+            auth()->login($user);
+            $this->doLoginProcedure();
+
+            return redirect(route('entree-link', ['linked' => $user->uuid, 'with_account' => false]));
+//            return $user->redirectToCakeWithTemporaryLogin();
+        }
+
+        return redirect()->to(
+            route('auth.login',
+                [
+                    'tab'                 => 'fatalError',
+                    'fatal_error_message' => 'auth.error_please_contact_service_desk',
+                ]
+            )
+        );
+
+
+    }
+
+    public function noEntreeEmailNextStep()
+    {
+        $this->doIHaveATcAccount = $this->doIHaveATcAccountChoice;
+    }
+
+    public function backToNoEmailChoice()
+    {
+        $this->doIHaveATcAccountChoice = null;
+        $this->doIHaveATcAccount = 1;
+        $this->resetErrorBag();
+    }
+
+    public function returnToLogin()
+    {
+
+    }
+
+    private function getSchoolLocationAccptedEmailDomainRule()
+    {
+        if ($this->uuid) {
+            $eckId = optional(SamlMessage::whereUuid($this->uuid)->first())->eck_id;
+
+            if ($eckId) {
+                $user = User::findByEckId(Crypt::decryptString($eckId))->first();
+
+                if (strlen($user->schoolLocation->accepted_mail_domain) > 0) {
+                    $callback = function ($attribute, $value, $fail) use ($user) {
+                        $validator = new EmailValidatorService(
+                            $user->schoolLocation->accepted_mail_domain,
+                            $value
+                        );
+
+                        if ($validator->passes() == false) {
+                            $fail(
+                                sprintf(
+                                    'Het emailadres moet eindigen op: %s.',
+                                    implode(' of ',$validator->getMessage())
+                                )
+                            );
+                        }
+                    };
+
+                    return array_merge(
+                        explode('|', $this->rules['username']),
+                        [$callback]
+                    );
+                }
+            }
+        }
+
+        return $this->rules['username'];
     }
 }

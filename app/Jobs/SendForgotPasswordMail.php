@@ -15,10 +15,10 @@ class SendForgotPasswordMail extends Mailable
     protected $token;
     protected $url;
     protected $urlLogin;
-    public $queue = 'mail';
 
     public function __construct(User $user, $token, $url, $urlLogin)
     {
+        $this->queue = 'mail';
         $this->user = $user;
         $this->token = $token;
         $this->url = $url;

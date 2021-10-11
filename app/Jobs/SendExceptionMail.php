@@ -15,7 +15,6 @@ class SendExceptionMail extends Job implements ShouldQueue
     protected $file;
     protected $lineNr;
     protected $details;
-    public $queue = 'mail';
 
     protected $subject = 'test-correct exception';
 
@@ -30,6 +29,7 @@ class SendExceptionMail extends Job implements ShouldQueue
      */
     public function __construct($errMessage, $file, $lineNr, $details = [], $subject = null)
     {
+        $this->queue = 'mail';
         $this->errMessage = $errMessage;
         $this->file = $file;
         $this->lineNr = $lineNr;

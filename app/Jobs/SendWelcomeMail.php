@@ -19,7 +19,7 @@ class SendWelcomeMail extends Job implements ShouldQueue
     protected $userId;
     protected $url;
     protected $key;
-    public $queue = 'mail';
+
 
     public $testBody;
 
@@ -32,6 +32,7 @@ class SendWelcomeMail extends Job implements ShouldQueue
      */
     public function __construct($userId, $url = '')
     {
+        $this->queue = 'mail';
         $this->key = Str::random(5);
         $this->userId = $userId;
 
@@ -47,6 +48,10 @@ class SendWelcomeMail extends Job implements ShouldQueue
     public function handle(Mailer $mailer)
     {
         $user = User::findOrFail($this->userId);
+        // should never mail import users with t_ or s_ @test-correct.nl
+        if($user->hasImportMailAddress()) {
+            return;
+        }
         $user->setAttribute('send_welcome_email', true);
         $factory = new Factory($user);
         //$password = $factory->generateNewPassword();

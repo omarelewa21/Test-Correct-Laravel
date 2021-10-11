@@ -13,7 +13,7 @@
     'button' => 'dropdown-button',
 ])
 
-<div x-data="{ open: false }" @keydown.window.escape="open = false" @click.away="open = false"
+<div x-data="{ open: false }" @keydown.window.escape="open = false" @click.outside="open = false"
      class="relative inline-block text-left z-10">
     <div>
         <span class="rounded-md">
