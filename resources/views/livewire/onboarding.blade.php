@@ -565,7 +565,7 @@
                         <div class="content-form">
                             {{--content header--}}
                             <div class="mb-4 relative">
-                                <h1> class=""{{ __("onboarding.Er is helaas iets fout gegaan") }}...</h1>
+                                <h1> {{ __("onboarding.Er is helaas iets fout gegaan") }}...</h1>
                             </div>
                             <div class="flex-grow">
                                 <div class="body1 h-full relative">

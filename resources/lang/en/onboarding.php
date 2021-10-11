@@ -45,13 +45,13 @@
 			'of' => 'or',
 			'zoek ondersteuning' => 'seek support',
 			'Inloggen op Test-Correct' => 'Log in to Test-Correct',
-			'>Er is helaas iets fout gegaan' => '> Unfortunately something went wrong',
+			'Er is helaas iets fout gegaan' => 'Unfortunately something went wrong',
 			'Neem contact op met de helpdesk voor' => 'Please contact the help desk for this',
 			'Heb je al een account' => 'Do you already have an account',
 			'Log in' => 'Log in',
 			'Ben je een student' => 'Are you a student',
 			'Kijk hier' => 'Look here',
 			'Jouw vak(ken)' => 'Your subject(s)',
-			'Selecteer vak....' => 'Select box....'
+			'Selecteer vak....' => 'Select subject....'
 		];
 ?>
