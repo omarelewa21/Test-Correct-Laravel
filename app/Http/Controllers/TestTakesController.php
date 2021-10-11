@@ -189,7 +189,8 @@ class TestTakesController extends Controller {
             'user',
             'testTakeStatus',
             'invigilatorUsers',
-            'testParticipants'
+            'testParticipants',
+            'testTakeCode'
         ]);
 
         $isInvigilator = false;
@@ -1401,6 +1402,7 @@ class TestTakesController extends Controller {
     public function isAllowedInbrowserTesting(TestTake $testTake)
     {
         $response['allowed'] = $testTake->allow_inbrowser_testing;
+        $response['guests'] = $testTake->guest_accounts;
         return $response;
     }
 }

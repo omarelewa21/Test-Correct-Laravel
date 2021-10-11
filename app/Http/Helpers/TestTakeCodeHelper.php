@@ -4,6 +4,7 @@ namespace tcCore\Http\Helpers;
 
 use tcCore\Lib\TestParticipant\Factory as ParticipantFactory;
 use tcCore\Lib\User\Factory as UserFactory;
+use tcCore\SchoolClass;
 use tcCore\TestParticipant;
 use tcCore\TestTakeCode;
 use tcCore\TestTakeStatus;
@@ -43,12 +44,17 @@ class TestTakeCodeHelper extends BaseHelper
     {
         $testTake = $testTakeCode->testTake;
 
+        $schoolClass = SchoolClass::whereTestTakeId($testTake->getKey())->first();
+        if (!$schoolClass) {
+            $schoolClass = SchoolClass::createGuestClassForTestTake($testTake);
+        }
+
         $participantData = [
             'test_take_id'            => $testTake->getKey(),
             'user_id'                 => $guestUser->getKey(),
             'test_take_status_id'     => $this->getTestTakeStatusIdForNewParticipant($testTake),
             'allow_inbrowser_testing' => $testTake->allow_inbrowser_testing,
-            'school_class_id'         => $testTake->schoolClasses()->first()->value('id'),
+            'school_class_id'         => $schoolClass->getKey(),
         ];
 
         $testParticipantFactory = new ParticipantFactory(new TestParticipant());

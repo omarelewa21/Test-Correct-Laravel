@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
+use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -56,7 +57,7 @@ class TestTake extends BaseModel
      * @var array
      */
 
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -294,6 +295,8 @@ class TestTake extends BaseModel
                     Queue::push(new CountTeacherTestDiscussed($user));
                 }
             }
+
+            $testTake->handleGuestAccountsStatus();
         });
 
         static::creating(function(TestTake $testTake) {
@@ -864,5 +867,13 @@ class TestTake extends BaseModel
     public function getExportedToRttiFormatedAttribute()
     {
         return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
+    }
+
+    private function handleGuestAccountsStatus()
+    {
+        if ($this->guest_accounts && $this->testTakeCode()->count() === 0) {
+            $this->testTakeCode()->create();
+            SchoolClass::createGuestClassForTestTake($this);
+        }
     }
 }
