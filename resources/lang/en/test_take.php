@@ -67,5 +67,4 @@ return [
     'time_left_to_answer_after_closing_attachment' => 'You have :timeout seconds to answer the question after closing this attachment.',
     'matrix_question'                              => 'Matrix question',
     'attachment'                                   => 'Attachment',
-
 ];

@@ -27,7 +27,7 @@ class PasswordReset extends Component
                 return 'nl';
             }
         }
-        return 'eng';
+        return 'en';
     }
 
     protected function messages(){
