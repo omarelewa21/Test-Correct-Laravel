@@ -86,5 +86,5 @@ return [
     'information_processed'                      => 'Your information has been processed',
     'connect_entree_error'                       => 'Something went wrong while linking your account.',
     'next_step'                                  => 'Next step',
-
+    'Inloggen op Test-Correct'                   => 'Log in to Test-Correct',
 ];

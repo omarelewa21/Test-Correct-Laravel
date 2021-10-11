@@ -38,7 +38,7 @@
 
                 <div class="flex mt-auto w-full justify-end">
                     <x-button.cta size="md" x-bind:disabled="processing" wire:click="logInToTC">
-                        <span>Inloggen op Test-Correct</span>
+                        <span>{{ __('auth.Inloggen op Test-Correct') }}</span>
                         <x-icon.arrow/>
                     </x-button.cta>
                 </div>
