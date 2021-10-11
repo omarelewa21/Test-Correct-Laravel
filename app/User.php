@@ -94,7 +94,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
      *
      * @var array
      */
-    protected $hidden = ['password', 'remember_token', 'session_hash', 'api_key', 'login_logs', 'roles','userRoles'];
+    protected $hidden = ['password', 'remember_token', 'session_hash', 'api_key', 'login_logs'];
 
     /**
      * @var string in case of external id which needs to be updated
