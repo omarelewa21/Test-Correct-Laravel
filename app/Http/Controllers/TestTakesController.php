@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
 use tcCore\GroupQuestion;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\NormalizeTestTakeRequest;
@@ -1365,20 +1366,11 @@ class TestTakesController extends Controller {
     }
 
     public function withTemporaryLogin(TestTake $testTake) {
-        $response = new \stdClass;
+
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
-        $relativeUrl = sprintf('%s?redirect=%s',
-            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
-            rawurlencode(route('student.test-take-laravel', $testTake->uuid,false))
-        );
-        if(Str::startsWith($relativeUrl,'/')) {
-            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
-        }
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('student.test-take-laravel', $testTake->uuid,false));
 
-        $response->url = sprintf('%s%s',config('app.base_url'), $relativeUrl);
-
-        return  response()->json($response);
     }
 
     public function hasCarouselQuestion(TestTake $testTake)
