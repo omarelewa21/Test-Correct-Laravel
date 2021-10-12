@@ -1232,10 +1232,13 @@ class ImportHelper
 
             return $teacher;
         }
-        $teacher = Teacher::withTrashed()
-            ->where('class_id', $teacher_data['class_id'])
-            ->where('user_id', $teacher_data['user_id'])
-            ->first();
+
+        $builder = Teacher::where('class_id', $teacher_data['class_id'])
+                    ->where('user_id', $teacher_data['user_id']);
+        $teacher = $builder->first();
+        if(null === $teacher){
+            $teacher = $builder->withTrashed()->first();
+        }
 
         if ($this->can_find_teacher_only_by_class_id && $teacher != null) {
             $teacher->restore();
@@ -1347,13 +1350,18 @@ class ImportHelper
     public static function getOldSchoolClassByNameOptionalyLeaveCurrentOut($schooLlocationId, $name, $currentId = null)
     {
         $builder = SchoolClass::withoutGlobalScope('visibleOnly')
-            ->withTrashed()
+//            ->withTrashed()
             ->where('school_location_id', $schooLlocationId)
             ->where('name', $name)
             ->orderBy('created_at', 'desc');
         if($currentId){
             $builder->where('id','<>',$currentId);
         }
+        $model = $builder->first();
+        if(null !== $model){
+            return $model;
+        }
+        $builder->withTrashed();
         return $builder->first();
     }
 
