@@ -77,6 +77,10 @@ class Teacher extends BaseModel {
         return $this->belongsTo('tcCore\SchoolClass', 'class_id');
     }
 
+    public function schoolClassWithoutVisibleOnlyScope() {
+        return $this->belongsTo('tcCore\SchoolClass', 'class_id')->withoutGlobalScope("visibleOnly");
+    }
+
     public function subject() {
         return $this->belongsTo('tcCore\Subject');
     }

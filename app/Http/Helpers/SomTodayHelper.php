@@ -86,6 +86,7 @@ class SomTodayHelper
                         'xsdversie' => self::XSD_VERSION,
                     ]
                 ]);
+
             } catch(\Exception $e){
                 $this->soapError = $e->getMessage();
                 $this->soapException = $e;
