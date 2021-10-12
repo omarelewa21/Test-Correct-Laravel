@@ -245,7 +245,7 @@
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
                                                 <div >
                                                 <label for="subjects" id="subjects_label"
-                                                       class="transition ease-in-out duration-150">{{__('Jouw vak(ken)')}}</label>
+                                                       class="transition ease-in-out duration-150">{{__('onboarding.Jouw vak(ken)')}}</label>
                                                 </div>
                                                 <template x-for="(subject, index) in subjects">
 
@@ -272,7 +272,7 @@
                                                             class="responsive subject_select_div" @keydown.enter.prevent="addSubject(textInput)"
                                                 >
 
-                                                    <div class="select-search-header" x-on:click="toggleSubjects()">Selecteer vak....
+                                                    <div class="select-search-header" x-on:click="toggleSubjects()">{{ __('onboarding.Selecteer vak....') }}
                                                         <img x-show="!show"
                                                              src="img/icons/icons-chevron-down-small.svg"
                                                              class="iconschevron-down-small icons-chevron float-right"
@@ -565,7 +565,7 @@
                         <div class="content-form">
                             {{--content header--}}
                             <div class="mb-4 relative">
-                                <h1> class=""{{ __("onboarding.Er is helaas iets fout gegaan") }}...</h1>
+                                <h1> {{ __("onboarding.Er is helaas iets fout gegaan") }}...</h1>
                             </div>
                             <div class="flex-grow">
                                 <div class="body1 h-full relative">
