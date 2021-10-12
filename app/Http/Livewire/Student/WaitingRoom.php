@@ -16,7 +16,14 @@ class WaitingRoom extends Component
 {
     use WithStudentTestTakes;
 
-    protected $listeners = ['start-test-take' => 'startTestTake'];
+    protected function getListeners()
+    {
+        return [
+            'start-test-take'                                                                                   => 'startTestTake',
+            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.TestTakeOpenForInteraction' => 'isTestTakeOpen',
+        ];
+    }
+
     protected $queryString = ['take'];
     public $take;
     public $waitingTestTake;
@@ -103,7 +110,7 @@ class WaitingRoom extends Component
         $discuss = [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING];
         $review = [TestTakeStatus::STATUS_DISCUSSED];
         $graded = [TestTakeStatus::STATUS_RATED];
-        
+
         if (in_array($status, $planned)) return 'planned';
         if (in_array($status, $discuss)) return 'discuss';
         if (in_array($status, $review)) return 'review';

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
@@ -170,6 +171,8 @@ class TestTake extends BaseModel
                     }
 
                     $testParticipant->save();
+
+                    TestTakeOpenForInteraction::dispatch($testParticipant, $testParticipantTestTakeStatus);
                 }
             }
 

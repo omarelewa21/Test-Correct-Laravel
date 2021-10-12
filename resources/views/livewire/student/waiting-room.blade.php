@@ -11,7 +11,7 @@
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('planned-body')"
      wire:ignore.self
      @if($testTakeStatusStage != 'graded')
-     wire:poll.5000ms="isTestTakeOpen"
+{{--     wire:poll.5000ms="isTestTakeOpen"--}}
      @endif
      wire:init="isTestTakeOpen"
 >
@@ -90,6 +90,7 @@
 
     @push('scripts')
         <script>
+            Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
             let countdownTimer;
 
             function startCountdownTimer(data) {

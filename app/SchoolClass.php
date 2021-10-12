@@ -445,7 +445,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     public static function createGuestClassForTestTake(TestTake $testTake)
     {
         $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
-        $testTake->load('test:id,education_level_id, education_level_year');
+        $testTake->load('test:id,education_level_id,education_level_year');
 
         return SchoolClass::create([
             'name'                 => 'guest_class_' . $testTake->getKey(),
