@@ -2145,7 +2145,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $done = false;
                     try {
                         $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id,
-                            $tRecord->schoolClass->name, $tRecord->class_id);
+                            $tRecord->schoolClassWithoutVisibleOnlyScope->name, $tRecord->class_id);
                         if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
 
                             $subjects = $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
