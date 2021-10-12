@@ -40,7 +40,7 @@ class WaitingRoom extends Component
         }
         $this->waitingTestTake = $this->getWaitingRoomTestTake();
         $this->testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->first();
-        $this->testTakeStatusStage = $this->determineTestTakeStatusStage();
+        $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
     }
 
     public function render()
@@ -100,20 +100,5 @@ class WaitingRoom extends Component
             ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
             ->where('test_takes.id', TestTake::whereUuid($this->take)->value('id'))
             ->first();
-    }
-
-    private function determineTestTakeStatusStage(): string
-    {
-        $status = $this->waitingTestTake->test_take_status_id;
-
-        $planned = [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TEST_NOT_TAKEN, TestTakeStatus::STATUS_TAKING_TEST];
-        $discuss = [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING];
-        $review = [TestTakeStatus::STATUS_DISCUSSED];
-        $graded = [TestTakeStatus::STATUS_RATED];
-
-        if (in_array($status, $planned)) return 'planned';
-        if (in_array($status, $discuss)) return 'discuss';
-        if (in_array($status, $review)) return 'review';
-        if (in_array($status, $graded)) return 'graded';
     }
 }

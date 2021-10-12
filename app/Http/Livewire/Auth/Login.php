@@ -159,19 +159,22 @@ class Login extends Component
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
-        $guestData = $this->gatherGuestData();
+        $testTakeStage = $testTakeCode->testTake->determineTestTakeStage();
 
-        $guestUser = $testCodeHelper->createUserByTestTakeCode($guestData, $testTakeCode);
-        $guestParticipant = $testCodeHelper->createTestParticipantForGuestUserByTestTakeCode($guestUser, $testTakeCode);
-
-        if ($guestUser && $guestParticipant) {
-            Auth::login($guestUser);
-
-            if (auth()->user()->isA('Student')) {
+        if ($testTakeStage === 'planned') {
+            $guestData = $this->gatherGuestData();
+            $guestUser = $testCodeHelper->createUserByTestTakeCode($guestData, $testTakeCode);
+            $guestParticipant = $testCodeHelper->createTestParticipantForGuestUserByTestTakeCode($guestUser, $testTakeCode);
+            if ($guestUser && $guestParticipant) {
+                Auth::login($guestUser);
                 return redirect()->intended(route('student.waiting-room', ['take' => $testTakeCode->testTake->uuid]));
             }
         }
-        dd('Er ging iets mis');
+
+        if ($testTakeStage === 'discuss') {
+            session()->put('guest_take', $testTakeCode->testTake->uuid);
+            return redirect(route('guest-choice', ['take' => $testTakeCode->testTake->uuid]));
+        }
     }
 
     public function render()

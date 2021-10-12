@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Livewire\Livewire;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Http\Livewire\Auth\Login;
+use tcCore\TestParticipant;
 use tcCore\TestTakeCode;
 use tcCore\User;
 use Tests\TestCase;
@@ -119,5 +120,25 @@ class TestTakeCodeTest extends TestCase
 
         $this->assertNotNull($createdUser);
         $this->assertEquals($createdUser->getKey(), $latestUser->getKey());
+    }
+
+    /**
+     * @test
+     */
+    public function code_helper_can_create_participant_by_test_take_code_for_user()
+    {
+        $testTakeCode = TestTakeCode::create(['test_take_id' => 22]);
+        $userData = [
+            'name_first' => 'Piet',
+            'name' => 'Jansen'
+        ];
+
+        $createdUser = $this->codeHelper->createUserByTestTakeCode($userData, $testTakeCode);
+        $createdParticipant = $this->codeHelper->createTestParticipantForGuestUserByTestTakeCode($createdUser, $testTakeCode);
+
+        $databaseParticipant = TestParticipant::whereTestTakeId($testTakeCode->test_take_id)->whereUserId($createdUser->getKey())->first();
+
+        $this->assertNotNull($createdParticipant);
+        $this->assertEquals($createdParticipant->getKey(), $databaseParticipant->getKey());
     }
 }

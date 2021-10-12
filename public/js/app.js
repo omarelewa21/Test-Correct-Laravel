@@ -5086,7 +5086,7 @@ setTitlesOnLoad = function setTitlesOnLoad(el) {
   }
 };
 
-initializeIntenseWrapper = function initializeIntenseWrapper(app_key, debug) {
+initializeIntenseWrapper = function initializeIntenseWrapper(app_key, debug, deviceId, sessionId, code) {
   addScript('https://education.intense.solutions/collector/latest.uncompressed.js');
   var initializeInterval = setInterval(function () {
     if (typeof IntenseWrapper !== 'undefined') {
@@ -5147,6 +5147,79 @@ initializeIntenseWrapper = function initializeIntenseWrapper(app_key, debug) {
     var s = document.createElement('script');
     s.setAttribute('src', src);
     document.body.appendChild(s);
+  }
+};
+
+dragElement = function dragElement(element) {
+  var pos1 = 0,
+      pos2 = 0,
+      pos3 = 0,
+      pos4 = 0;
+  var uuid = element.id.replace('attachment-', '');
+  var newTop, newLeft;
+
+  if (document.getElementById(element.id + "drag")) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(element.id + "drag").onmousedown = dragMouseDown;
+    document.getElementById(element.id + "drag").ontouchstart = dragMouseDown;
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    element.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event; // get the mouse cursor position at startup:
+
+    if (e.type === 'touchstart') {
+      pos3 = e.touches[0].clientX;
+      pos4 = e.touches[0].clientY;
+    } else {
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+    }
+
+    document.onmouseup = closeDragElement;
+    document.ontouchend = closeDragElement; // call a function whenever the cursor moves:
+
+    document.onmousemove = elementDrag;
+    document.ontouchmove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event; // calculate the new cursor position:
+
+    if (e.type === 'touchmove') {
+      pos1 = pos3 - e.touches[0].clientX;
+      pos2 = pos4 - e.touches[0].clientY;
+      pos3 = e.touches[0].clientX;
+      pos4 = e.touches[0].clientY;
+    } else {
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+    } // set the element's new position:
+
+
+    newTop = element.offsetTop - pos2;
+    newLeft = element.offsetLeft - pos1;
+    element.style.top = newTop + "px";
+    element.style.left = newLeft + "px";
+  }
+
+  function closeDragElement(e) {
+    // stop moving when mouse button is released:
+    window.dispatchEvent(new CustomEvent('set-new-position', {
+      'detail': {
+        'uuid': uuid,
+        'x': newTop,
+        'y': newLeft
+      }
+    }));
+    document.onmouseup = null;
+    document.ontouchend = null;
+    document.onmousemove = null;
+    document.ontouchmove = null;
   }
 };
 
@@ -5224,6 +5297,8 @@ Core = {
   lostFocus: function lostFocus(reason) {
     if (reason == "printscreen") {
       Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
+    } else if (reason == 'illegal-programs') {
+      Notify.notify('Er staan applicaties op de achtergrond aan die niet zijn toegestaan', 'error');
     } else {
       Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
     }

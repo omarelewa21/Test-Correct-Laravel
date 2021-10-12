@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use Ramsey\Uuid\Uuid;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
@@ -878,5 +879,34 @@ class TestTake extends BaseModel
             $this->testTakeCode()->create();
             SchoolClass::createGuestClassForTestTake($this);
         }
+    }
+
+    public function determineTestTakeStage()
+    {
+        $status = $this->test_take_status_id;
+
+        $planned = [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TEST_NOT_TAKEN, TestTakeStatus::STATUS_TAKING_TEST];
+        $discuss = [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING];
+        $review = [TestTakeStatus::STATUS_DISCUSSED];
+        $graded = [TestTakeStatus::STATUS_RATED];
+
+        if (in_array($status, $planned)) return 'planned';
+        if (in_array($status, $discuss)) return 'discuss';
+        if (in_array($status, $review)) return 'review';
+        if (in_array($status, $graded)) return 'graded';
+
+        return null;
+    }
+
+    public static function getTestTakeWithSubjectNameAndTestName($testTakeId)
+    {
+        if (Uuid::isValid($testTakeId)) {
+            $testTakeId = TestTake::whereUuid($testTakeId)->value('id');
+        }
+        return TestTake::select('test_takes.*', 'subjects.name as subject_name', 'tests.name as test_name')
+            ->join('tests', 'test_takes.test_id', '=', 'tests.id')
+            ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
+            ->where('test_takes.id', $testTakeId)
+            ->first();
     }
 }
