@@ -28,13 +28,14 @@ class TestsController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-
-        // @@ see TC-160
+         // @@ see TC-160
         // we now alwas change the setting to make it faster and don't reverse it anymore
         // as on a new server we might forget to update this setting and it doesn't do any harm to do this extra query
         try { // added for compatibility with mariadb
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
         } catch (\Exception $e){}
+
+
         if(Auth::user()->intense && BaseHelper::notProduction()){
             $message = 'GM says at october 9th 2021: TestsController@index, this message should only appear on the test environment. In production this if statement should be removed.';
             Bugsnag::notifyException(new \Exception($message));

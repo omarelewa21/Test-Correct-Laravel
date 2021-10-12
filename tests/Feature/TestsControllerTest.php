@@ -256,13 +256,21 @@ class TestsControllerTest extends TestCase
                                         "id" => "desc"
                                         ]
                         ];
-        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
+        $getRequest = self::authUserGetRequest(
+            'api-c/test',
+            $attributes,
+            User::where('username', 'm.grunbauer@atscholen.nl')->first()
+        );
+        $response = $this->get($getRequest);
         $response->assertStatus(200);
-        $user = User::where('username', 'd1@test-correct.nl')->first();
-        $user->school_id = 1;
-        $user->save();
-        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
-        $response->assertStatus(200);
+//        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
+//        $response->assertStatus(200);
+//        $user = User::where('username', 'd1@test-correct.nl')->first();
+//
+//        $user->school_id = 1;
+//        $user->save();
+//        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
+//        $response->assertStatus(200);
     }
 
 

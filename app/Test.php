@@ -550,7 +550,9 @@ class Test extends BaseModel
 
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
+        DB::enableQueryLog();
         $user = Auth::user();
+
         $roles = $this->getUserRoles();
         $schoolLocation = SchoolLocation::find($user->getAttribute('school_location_id'));
 
@@ -602,19 +604,23 @@ class Test extends BaseModel
             }
 
         } elseif (in_array('Teacher', $roles)) {
-            $query->join(DB::raw($this->getSubQueryForScopeFiltered($user)), function ($join) {
-                                                            $join->on('tests.id', '=', 't1.t2_id');
-                                                        });
+
+            $query->join($this->getSubQueryForScopeFiltered($user), function ($join) {
+                                                                            $join->on('tests.id', '=', 't1.t2_id');
+                                                                        });
+
 
             // TC-158  don't show demo tests from other users
-            $query->where(function ($q) use ($user) {
-                $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-                $q->where(function ($query) use ($user, $subject) {
-                    $query->where('tests.subject_id', $subject->getKey())->where('tests.author_id', $user->getKey());
-                })
-                    ->orWhere('tests.subject_id', '<>', $subject->getKey());
-            });
-        }
+            $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
+            if(!is_null($subject)){
+                $query->where(function ($q) use ($user,$subject) {
+                    $q->where(function ($query) use ($user, $subject) {
+                        $query->where('tests.subject_id', $subject->getKey())->where('tests.author_id', $user->getKey());
+                    })->orWhere('tests.subject_id', '<>', $subject->getKey());
+                });
+            }
+
+         }
 
         if (!array_key_exists('is_system_test', $filters)) {
             $query->where('is_system_test', '=', 0);
@@ -688,6 +694,7 @@ class Test extends BaseModel
                     }
                     break;
             }
+
         }
 
 
@@ -1147,18 +1154,40 @@ class Test extends BaseModel
 
     private function getSubQueryForScopeFiltered($user)
     {
+        return DB::raw(sprintf('(select distinct t2.id as t2_id
+                                            from
+                                                `tests` as t2
+                                                    inner join subjects
+                                                               on t2.subject_id = subjects.id
+                                                    left join `teachers` as teachers_self
+                                                              on subjects.id = teachers_self.subject_id
+                                                    inner join (select distinct subject_id from teachers where user_id = %d) as s2
+                                                               on t2.subject_id = s2.subject_id
+                                            where
+                                                subjects.deleted_at is null
+                                                and
+                                                teachers_self.deleted_at is null
+                                                and
+                                                teachers_self.user_id = %d
+                                                        ) as t1',$user->id,$user->id) );
+    }
+
+    private function getSubQueryForScopeFilteredOriginalStructureVerySlow($user)
+    {
         $schoolId = $user->getAttribute('school_id');
         $schoolLocationId = $user->getAttribute('school_location_id');
+        $schoolLocationWhere = '';
         if ($schoolId && $schoolLocationId) {
             $schoolLocationWhere = sprintf('and (users.school_id = %d or users.school_location_id = %d) ',$schoolId,$schoolLocationId);
         }elseif ($schoolId !== null) {
             $schoolLocationWhere = sprintf('and users.school_id = %d ) ',$schoolId);
         }elseif ($schoolLocationId !== null) {
             $schoolLocationWhere = sprintf('and (school_location_user.school_location_id in 
-                                                            ( select school_location_id from school_location_user where user_id = %d) 
-                                                        or users.school_location_id = %d) ',$user->id,$schoolLocationId);
+                                                                ( select school_location_id from school_location_user where user_id = %d) 
+                                                            or users.school_location_id = %d) ',$user->id,$schoolLocationId);
         }
-        return sprintf('(select distinct t2.id as t2_id
+
+        return DB::raw(sprintf('(select distinct t2.id as t2_id
                                             from
                                                 `tests` as t2
                                                     inner join subjects
@@ -1172,21 +1201,22 @@ class Test extends BaseModel
                                                     left join users
                                                               on teachers_other.user_id = users.id
                                                     left join school_location_user
-                                                              on users.id = school_location_user.user_id
+                                                              on teachers_other.user_id = school_location_user.user_id
                                                     inner join (select distinct subject_id from teachers where user_id = %d) as s2
                                                                on teachers_other.subject_id = s2.subject_id
                                             where
                                                 subjects.deleted_at is null
-                                                        and
-                                                        teachers_self.deleted_at is null
-                                                        and
-                                                        teachers_self.user_id = %d
-                                                        %s) as t1',$user->id,$user->id,$schoolLocationWhere);
+                                                and
+                                                teachers_self.deleted_at is null
+                                                and
+                                                teachers_self.user_id = %d
+                                                %s
+                                                        ) as t1',$user->id,$user->id,$schoolLocationWhere) );
     }
 
     private function getSubQueryWithOtherSubjectsFromSectionsForScopeFiltered($user)
     {
-        return sprintf('(select distinct t2.id as t2_id
+        return DB::raw(sprintf('(select distinct t2.id as t2_id
                                             from
                                                 `tests` as t2
                                                     left join ( select distinct id from subjects where section_id in (
@@ -1199,6 +1229,6 @@ class Test extends BaseModel
                                                                 and subjects.deleted_at is null                     
                                                     ) as allowed_subjects
                                                                 on t2.subject_id = allowed_subjects.id
-                                            ) as t1',$user->id);
+                                            ) as t1',$user->id));
     }
 }
