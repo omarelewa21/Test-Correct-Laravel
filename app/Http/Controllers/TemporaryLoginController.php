@@ -6,6 +6,8 @@ namespace tcCore\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TemporaryLogin;
 use tcCore\User;
 
@@ -25,7 +27,19 @@ class TemporaryLoginController extends Controller
 
     public function create(Request $request)
     {
-        return TemporaryLogin::createForUser(Auth::user());
-    }
+        if($request->has('options')){
+            if(is_array($request->get('options'))){
+                $options = $request->get('options');
+                $t = TemporaryLogin::createWithOptionsForUser(array_keys($options),array_values($options),Auth::user());
+            }
+        } else {
+            $t = TemporaryLogin::createForUser(Auth::user());
+        }
 
+        $redirect = '/';
+        if($request->has('redirect')){
+            $redirect = $request->get('redirect');
+        }
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($t->uuid,$redirect);
+    }
 }
