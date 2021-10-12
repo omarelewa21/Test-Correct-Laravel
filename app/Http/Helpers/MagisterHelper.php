@@ -105,7 +105,6 @@ class MagisterHelper
 </soapenv:Envelope>
         ');
 
-        dd($xml);
 
         $client = new Client([
             'headers' => [
@@ -116,6 +115,9 @@ class MagisterHelper
                 'Content-Type'               => 'text/xml',
             ]
         ]);
+
+
+
         try {
             $response = $client->post($url,
                 ['body' => $xml]

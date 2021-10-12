@@ -6,6 +6,7 @@ namespace tcCore\Http\Helpers;
 use Artisaninweb\SoapWrapper\SoapWrapper;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Ramsey\Uuid\Guid\Guid;
+use Illuminate\Support\Facades\Auth;
 use tcCore\UwlrSoapEntry;
 use tcCore\UwlrSoapResult;
 
