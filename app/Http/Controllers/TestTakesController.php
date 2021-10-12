@@ -1369,7 +1369,7 @@ class TestTakesController extends Controller {
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
         $relativeUrl = sprintf('%s?redirect=%s',
-            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
+            route('auth.temporary-login.redirect',[$temporaryLogin->uuid],false),
             rawurlencode(route('student.test-take-laravel', $testTake->uuid,false))
         );
         if(Str::startsWith($relativeUrl,'/')) {

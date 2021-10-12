@@ -34,10 +34,12 @@ Route::get('/ckeditor/plugins/ckeditor_wiris/integration/configurationjs', [\tcC
 
 
 Route::middleware(['auth.temp'])->group(function () {
-    Route::get('/redirect-with-temporary-login/{temporary_login}',tcCore\Http\Controllers\TemporaryLoginController::class)->name('auth.temporary-login-redirect');
+    Route::get('/redirect-with-temporary-login/{temporary_login}',tcCore\Http\Controllers\TemporaryLoginController::class,'redirect')->name('auth.temporary-login.redirect');
 });
 
 Route::middleware('auth')->group(function () {
+    Route::post('/temporary_login',tcCore\Http\Controllers\TemporaryLoginController::class,'create')->name('auth.temporary-login.create');
+
     Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineimageLaravel']);
 
     Route::middleware(['dll', 'student'])->prefix('student')->name('student.')->group(function () {
