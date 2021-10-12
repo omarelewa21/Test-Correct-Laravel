@@ -41,6 +41,7 @@ use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\School;
 use tcCore\SchoolClass;
+use tcCore\UserRole;
 
 class UsersController extends Controller
 {
@@ -413,6 +414,7 @@ class UsersController extends Controller
         // @TODO fix security issue with deletion of users (as well update/ add and such)
 //	    return Response::make($user,200);
         if ($user->delete()) {
+            UserRole::where('user_id', $user->id)->delete();
             return Response::make($user, 200);
         } else {
             return Response::make('Failed to delete user', 500);
