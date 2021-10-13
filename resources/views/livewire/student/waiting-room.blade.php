@@ -2,7 +2,9 @@
      x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }} }"
      x-init="
         addRelativePaddingToBody('planned-body');
+        @if(!Auth::user()->guest)
         makeHeaderMenuActive('student-header-tests');
+        @endif
      "
      x-ref="root"
      x-cloak

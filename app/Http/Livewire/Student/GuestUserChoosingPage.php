@@ -40,10 +40,14 @@ class GuestUserChoosingPage extends Component
 
     public function continueAs($userUuid)
     {
-        $user = User::whereUuid($userUuid)->first();
+        $user = User::whereUuid($userUuid)->firstOrFail();
         session()->flush();
 
         Auth::login($user);
-        redirect(route('student.waiting-room'), ['take' => $this->take]);
+
+        $sessionHash = $user->generateSessionHash();
+        $user->setSessionHash($sessionHash);
+
+        redirect(route('student.waiting-room', ['take' => $this->take]));
     }
 }

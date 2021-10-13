@@ -17,6 +17,11 @@
     </div>
     <div class="flex flex-col space-y-2">
         <span>{{ __('student.clas(ses)') }}</span>
+        <h6>
+            @foreach($waitingTestTake->schoolClasses()->pluck('name') as $name)
+                <span>{{ $name }}@if(!$loop->last), @endif</span>
+            @endforeach
+        </h6>
     </div>
     <div class="flex flex-col space-y-2">
         <span>{{ __('student.teacher') }}</span>

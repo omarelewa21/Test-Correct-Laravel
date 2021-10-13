@@ -1,6 +1,6 @@
 <div id="planned-body"
      x-data="{}"
-     x-init="addRelativePaddingToBody('planned-body');"
+     x-init="addRelativePaddingToBody('planned-body'); $el.parentElement.classList.add('flex','flex-1')"
      x-cloak
      class="w-full flex flex-col items-center student-bg"
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('planned-body')"
@@ -36,6 +36,18 @@
                             @endforeach
                         </div>
                     </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4">
+                    <x-button.primary type="link" href="">
+                        <x-icon.download/>
+                        <span>{{__('auth.download_student_app')}}</span>
+                    </x-button.primary>
+                    <h5 class="hidden inline-flex mt-2 md:mt-0">&amp;</h5>
+                    <x-button.text-button class="hidden">
+                        <span>{{__('auth.request_account_from_teacher')}}</span>
+                        <x-icon.arrow/>
+                    </x-button.text-button>
                 </div>
             </div>
         </div>

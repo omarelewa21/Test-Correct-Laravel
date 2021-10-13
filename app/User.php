@@ -73,6 +73,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     const STUDENT_IMPORT_EMAIL_PATTERN = 's_%d@test-correct.nl';
     const TEACHER_IMPORT_EMAIL_PATTERN = 't_%d@test-correct.nl';
+    const GUEST_ACCOUNT_EMAIL_PATTERN = 'guest_%d@test-correct.nl';
 
     const STUDENT_IMPORT_PASSWORD_PATTERN = 'S%dTC#2014';
     const TEACHER_IMPORT_PASSWORD_PATTERN = 'T%dTC#2014';
@@ -2249,5 +2250,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function scopeGuests($query)
     {
         return $query->where('guest', 1);
+    }
+
+    public function setSessionHash($hash)
+    {
+        session()->put('session_hash', $hash);
+        $this->setAttribute('session_hash', $hash);
+        return $this->save();
     }
 }

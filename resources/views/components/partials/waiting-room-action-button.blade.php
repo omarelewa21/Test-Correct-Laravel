@@ -20,7 +20,7 @@
     @if($isTakeOpen)
         <div class="divider flex flex-1 pulse-left"></div>
         <div class="flex flex-col justify-center">
-            <x-button.cta x-on:click="">
+            <x-button.cta wire:click="startDiscussing">
                 <x-icon.discuss/>
                 <span>{{ __('student.start_discuss') }}</span>
             </x-button.cta>

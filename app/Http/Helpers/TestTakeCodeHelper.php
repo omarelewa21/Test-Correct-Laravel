@@ -37,6 +37,9 @@ class TestTakeCodeHelper extends BaseHelper
         $userFactory = new UserFactory(new User());
         $user = $userFactory->generate($guestData);
 
+        $user->setAttribute('username', sprintf(User::GUEST_ACCOUNT_EMAIL_PATTERN, $user->getKey()));
+        $user->save();
+
         return $user;
     }
 

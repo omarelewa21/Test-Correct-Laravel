@@ -132,9 +132,9 @@ class Login extends Component
 
         $this->doLoginProcedure();
 
-        if (auth()->user()->isA('Student')) {
-            return redirect()->intended(route('student.dashboard'));
-        }
+//        if (auth()->user()->isA('Student')) {
+//            return redirect()->intended(route('student.dashboard'));
+//        }
         if (auth()->user()->isA('Account manager')) {
             return redirect()->intended(route('uwlr.grid'));
         }
@@ -192,9 +192,7 @@ class Login extends Component
     private function doLoginProcedure()
     {
         $sessionHash = auth()->user()->generateSessionHash();
-        session()->put('session_hash', $sessionHash);
-        auth()->user()->setAttribute('session_hash', $sessionHash);
-        auth()->user()->save();
+        auth()->user()->setSessionHash($sessionHash);
         FailedLogin::solveForUsernameAndIp($this->username, request()->ip());
     }
 

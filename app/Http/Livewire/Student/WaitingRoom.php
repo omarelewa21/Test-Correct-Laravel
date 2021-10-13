@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -73,7 +74,7 @@ class WaitingRoom extends Component
         }
 
         if ($stage === 'discuss') {
-            $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSING;
+            $this->isTakeOpen = true;// $testTakeStatus == TestTakeStatus::STATUS_DISCUSSING;
         }
         if ($stage === 'review') {
             $showResults = TestTake::whereUuid($this->take)->value('show_results');
@@ -100,5 +101,14 @@ class WaitingRoom extends Component
             ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
             ->where('test_takes.id', TestTake::whereUuid($this->take)->value('id'))
             ->first();
+    }
+
+    public function startDiscussing()
+    {
+        $url = 'test_takes/discuss/'.$this->take;
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+
+        dump([Auth::user()->id, Auth::user()->getAttribute('session_hash')]);
+        Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 }
