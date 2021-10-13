@@ -17,15 +17,8 @@ class AuthorsController extends Controller
 {
     public function index(Request $request)
     {
-        if(Auth::user()->intense && BaseHelper::notProduction()){
-            $message = 'GM says at october 10th 2021: AuthorsController@index, this message should only appear on the test environment. In production this if statement should be removed.';
-            Bugsnag::notifyException(new \Exception($message));
-            $builder = $this->getBuilderForOwnSubjects($request);
-            return Response::make($builder->get());
-        }else{
-            $builder = $this->getBuilderForOwnSubjects($request);
-            return response()->json($builder->toBase()->get());
-        }
+        $builder = $this->getBuilderForOwnSubjects($request);
+        return response()->json($builder->toBase()->get());
     }
 
     private function getBuilderForOwnSubjects(Request $request)

@@ -36,13 +36,7 @@ class TestsController extends Controller {
         } catch (\Exception $e){}
 
 
-        if(Auth::user()->intense && BaseHelper::notProduction()){
-            $message = 'GM says at october 9th 2021: TestsController@index, this message should only appear on the test environment. In production this if statement should be removed.';
-            Bugsnag::notifyException(new \Exception($message));
-            $tests = Test::filtered_to_be_removed($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
-        }else{
-            $tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
-        }
+        $tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
 //		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
 
         $tests->each(function ($test) {
