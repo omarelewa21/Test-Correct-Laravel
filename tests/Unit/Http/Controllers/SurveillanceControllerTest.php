@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Unit\Http\Controllers;
 
 use Carbon\Carbon;
@@ -7,20 +8,208 @@ use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Auth;
+use tcCore\Answer;
 use tcCore\Http\Controllers\SurveillanceController;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\SchoolClass;
+use tcCore\TestParticipant;
+use tcCore\TestTake;
 use Tests\TestCase;
+use Tests\Traits\TestTakeTrait;
 
 class SurveillanceControllerTest extends TestCase
 {
+    use DatabaseTransactions;
+
+    use TestTakeTrait;
+
     /** @test */
-    public function test_Response()
+    public function when_student_one_enters_a_test_his_test_take_status_should_go_to_three()
+    {
+        $testTakeUuid = TestTake::find($take_id = $this->startTestTakeFor(null, null))->uuid;
+        Auth::login(self::getTeacherOne());
+//        dd($response = ((new SurveillanceController)->index()));
+
+        $testParicipantUuid = TestParticipant::where([
+            ['test_take_id', $take_id],
+            ['user_id', self::getStudentOne()->getKey()],
+        ])->first()
+            ->uuid;
+
+        $testParicipantTwoUuid = TestParticipant::where([
+            ['test_take_id', $take_id],
+            ['user_id', self::getStudentOne()->getKey()],
+        ])->first()
+            ->uuid;
+
+        $response = (new SurveillanceController)->index();
+        $this->assertEquals(2, $response['participants'][$testParicipantUuid]['status']);
+        $this->assertEquals(2, $response['participants'][$testParicipantTwoUuid]['status']);
+
+        $this->initTestTakeForStudent($testTakeUuid, $testParicipantUuid);
+        $newResponse = (new SurveillanceController)->index();
+        $this->assertEquals(
+            [
+                'percentage'              => 0,
+                "label"                   => "success",
+                "text"                    => "Maakt toets",
+                "alert"                   => false,
+                "ip"                      => true,
+                "status"                  => 3,
+                "allow_inbrowser_testing" => false,
+            ],
+            $newResponse['participants'][$testParicipantUuid]
+        );
+        $this->assertEquals(2, $response['participants'][$testParicipantTwoUuid]['status']);
+    }
+
+    /** @test */
+    public function when_a_student_adds_answers_to_a_take_the_progress_indicator_for_the_take_and_participant_changes()
+    {
+        $testTakeUuid = TestTake::find(
+            $take_id = $this->startTestTakeFor(null, null)
+        )->uuid;
+
+        $testParicipant = TestParticipant::where([
+            ['test_take_id', $take_id],
+            ['user_id', self::getStudentOne()->getKey()],
+        ])->first();
+
+        $testParicipantTwo = TestParticipant::where([
+            ['test_take_id', $take_id],
+            ['user_id', self::getStudentTwo()->getKey()],
+        ])->first();
+
+        $this->initTestTakeForStudent($testTakeUuid, $testParicipant->uuid);
+        $responseWithoutAnswersAdded = (new SurveillanceController)->index();
+
+        // the first array of takes has 0 progress;
+        $this->assertEquals(0, array_shift($responseWithoutAnswersAdded['takes']));
+
+        // add an answer for participantOne;
+        $this->fillAnswersForParticipant($testParicipant, 1);
+        // this test has 3 answers so progress should be 33;
+        $responseWithOneAnswerAdded = (new SurveillanceController)->index();
+        $this->assertEquals(33, array_shift($responseWithOneAnswerAdded['takes']));
+        // progress for participant one is 33;
+        $this->assertEquals(
+            33,
+            $responseWithOneAnswerAdded['participants'][$testParicipant->uuid]['percentage']
+        );
+        $this->assertEquals(
+            0,
+            $responseWithOneAnswerAdded['participants'][$testParicipantTwo->uuid]['percentage']
+        );
+        $this->assertEquals(
+            2,
+            $responseWithOneAnswerAdded['participants'][$testParicipantTwo->uuid]['status']
+        );
+        // if I add one active participant the progress should go to 17
+        $this->initTestTakeForStudent($testTakeUuid, $testParicipantTwo->uuid);
+        $responseWithExtraParticipantAdded = (new SurveillanceController)->index();
+        $this->assertEquals(
+            3,
+            $responseWithExtraParticipantAdded['participants'][$testParicipantTwo->uuid]['status']
+        );
+        $this->assertEquals(
+            17,
+            array_shift($responseWithExtraParticipantAdded['takes'])
+        );
+        $this->assertEquals(
+            33,
+            $responseWithExtraParticipantAdded['participants'][$testParicipant->uuid]['percentage']
+        );
+
+        // when all answers are filled the progress should be 100;
+        $this->fillAnswersForParticipant($testParicipant, 3);
+        $this->fillAnswersForParticipant($testParicipantTwo, 3);
+
+        $responseWithAllAnswersFilled = (new SurveillanceController)->index();
+        $this->assertEquals(
+            100,
+            array_shift($responseWithAllAnswersFilled['takes'])
+        );
+    }
+
+    /** @test */
+    public function surveillence_data_should_reflect_toggleInbrowserTestingForAllParticipants()
+    {
+        $testTake = TestTake::find(
+            $take_id = $this->startTestTakeFor(null, null)
+        );
+
+        $response = (new SurveillanceController)->index();
+        collect($response['participants'])->each(function ($participant) {
+            $this->assertFalse($participant['allow_inbrowser_testing']);
+        });
+
+        $this->toggleInBrowserTestingForTestTake($testTake);
+
+        $response = (new SurveillanceController)->index();
+        collect($response['participants'])->each(function ($participant) {
+            $this->assertTrue($participant['allow_inbrowser_testing']);
+        });
+
+        $this->toggleInBrowserTestingForTestTake($testTake);
+
+        $response = (new SurveillanceController)->index();
+        collect($response['participants'])->each(function ($participant) {
+            $this->assertFalse($participant['allow_inbrowser_testing']);
+        });
+    }
+
+    /** @test */
+    public function surveillence_data_should_reflect_toggleInbrowserTestingForSpecificParticipant()
+    {
+        // http://testportal.test-correct.test/test_takes/toggle_inbrowser_testing_for_participant/a02c5710-0045-484f-9f8c-cfc0cdef9422/e4d3a8b4-9ee0-4ea3-800a-bba0aae68f53
+        $testTake = TestTake::find(
+            $take_id = $this->startTestTakeFor(null, null)
+        );
+
+        $testParicipantOne = TestParticipant::where([
+            ['test_take_id', $take_id],
+            ['user_id', self::getStudentOne()->getKey()],
+        ])->first();
+
+        $response = (new SurveillanceController)->index();
+        collect($response['participants'])->each(function ($participant) {
+            $this->assertFalse($participant['allow_inbrowser_testing']);
+        });
+
+        $this->toggleInBrowserTestingForTestTakeAndParticipant($testTake, $testParicipantOne);
+        $response = (new SurveillanceController)->index();
+        collect($response['participants'])->each(function ($participant, $participantUuid) use ($testParicipantOne) {
+            if ($participantUuid == $testParicipantOne->uuid) {
+                $this->assertTrue($participant['allow_inbrowser_testing']);
+            } else {
+                $this->assertFalse($participant['allow_inbrowser_testing']);
+            }
+        });
+
+        $response = (new SurveillanceController)->index();
+    }
+
+    /** @test */
+    public function when_i_start_the_test_suit_no_test_take_is_assigned_to_teacher_one()
     {
         Auth::login(self::getTeacherOne());
 
         $response = ((new SurveillanceController)->index());
 
-        dd($response);
+        $this->assertEquals([], $response['takes']);
+    }
+
+    /** @test */
+    public function when_one_test_take_is_started_takes_should_contain_one_take_and_five_participants()
+    {
+        $this->startTestTakeFor(null, null);
+
+        Auth::login(self::getTeacherOne());
+
+        $response = ((new SurveillanceController)->index());
+
+        $this->assertCount(1, $response['takes']);
+        $this->assertCount(5, $response['participants']);
     }
 
     /** @test */
@@ -42,6 +231,7 @@ class SurveillanceControllerTest extends TestCase
     /** @test */
     public function takes_key_should_contain_progress()
     {
+        $this->startTestTakeFor(null, null);
         Auth::login(self::getTeacherOne());
 
         $response = ((new SurveillanceController)->index());
@@ -56,6 +246,9 @@ class SurveillanceControllerTest extends TestCase
     /** @test */
     public function takes_key_should_contain_three_test_takes()
     {
+        $this->startTestTakeFor(null, null);
+        $this->startTestTakeFor(null, null);
+        $this->startTestTakeFor(null, null);
         Auth::login(self::getTeacherOne());
         Carbon::setTestNow(Carbon::create(2018, 6, 18, 12, 10));
 
@@ -74,15 +267,15 @@ class SurveillanceControllerTest extends TestCase
 
         $this->assertEquals('12:10', $response['time']);
     }
+
     /** @test */
     public function it_should_contain_the_correct_keys()
     {
         Auth::login(self::getTeacherOne());
         $response = ((new SurveillanceController)->index());
 
-        collect(['takes', 'participants', 'time', 'alerts', 'ipAlerts'])->each(function($key) use ($response) {
+        collect(['takes', 'participants', 'time', 'alerts', 'ipAlerts'])->each(function ($key) use ($response) {
             $this->assertArrayHasKey($key, $response);
         });
     }
-
 }
