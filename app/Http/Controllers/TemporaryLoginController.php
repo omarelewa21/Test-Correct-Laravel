@@ -42,4 +42,23 @@ class TemporaryLoginController extends Controller
         }
         return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($t->uuid,$redirect);
     }
+
+    public function toCake(Request $request)
+    {
+        if($request->has('options')){
+            if(is_array($request->get('options'))){
+                $options = $request->get('options');
+                $t = TemporaryLogin::createWithOptionsForUser(array_keys($options),array_values($options),Auth::user());
+            }
+        } else {
+            $t = TemporaryLogin::createForUser(Auth::user());
+        }
+
+        $redirect = '/';
+        if($request->has('redirect')){
+            $redirect = $request->get('redirect');
+        }
+        header('Location: '.BaseHelper::createRedirectUrlWithTemporaryLoginUuidToCake($t->uuid,$redirect));
+        exit;
+    }
 }

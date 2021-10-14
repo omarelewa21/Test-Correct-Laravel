@@ -135,7 +135,7 @@ class Login extends Component
 //            return redirect()->intended(route('student.dashboard'));
 //        }
         if (auth()->user()->isA('Account manager')) {
-            return redirect()->intended(route('uwlr.grid'));
+            return redirect()->intended(route('auth.temporary-login.to-cake'));
         }
 
         auth()->user()->redirectToCakeWithTemporaryLogin();

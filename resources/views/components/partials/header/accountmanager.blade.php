@@ -1,5 +1,5 @@
 
-    <x-button.text-button type="link" href="{{ config('app.url_login') }}">
+    <x-button.text-button type="link" href="{{ route('auth.temporary-login.to-cake') }}">
         <span>Dashboard</span>
     </x-button.text-button>
     <x-button.text-button type="link" href="{{ route('uwlr.grid') }}">
