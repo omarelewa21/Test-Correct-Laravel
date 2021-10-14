@@ -58,6 +58,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/preview/attachment/pdf/{attachment}/{question}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'showPreview'])->name('preview.question-pdf-attachment-show');
     });
 
+    Route::middleware(['dll', 'student'])->prefix('appapi')->name('appapi')->group(function() {
+        Route::put('/test_participant/{test_participant}/hand_in', [tcCore\Http\Controllers\AppApi::class, 'handIn'])->name('appapi-hand-in');
+    });
+
     Route::get('/entree-link', tcCore\Http\Livewire\Auth\EntreeLink::class)->name('entree-link');
 });
 Route::middleware(['guest', 'auth.temp'])->group(function () {
