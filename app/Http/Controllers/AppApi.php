@@ -10,8 +10,8 @@ use tcCore\TestParticipant;
 
 class AppApi extends Controller
 {
-    public function handIn(AppApiHandInRequest $request, TestParticipant $participant) {
-        $participant->handInTestTake();
+    public function handIn(AppApiHandInRequest $request, TestParticipant $testParticipant) {
+        $testParticipant->handInTestTake();
 
         return Response::make(null, 200);
     }

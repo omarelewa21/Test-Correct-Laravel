@@ -16,7 +16,10 @@ class AppApiHandInRequest extends FormRequest
     public function authorize()
     {
         return Auth::user() &&
-            Auth::user()->isA('Student') && Auth::user()->id == $this->route('test_participant')->user_id && Session::get('isInBrowser') === false;
+            Auth::user()->isA('Student') &&
+            $this->route('test_participant') &&
+            Auth::user()->id == $this->route('test_participant')->user_id &&
+            Session::get('isInBrowser') === false;
     }
 
     /**
