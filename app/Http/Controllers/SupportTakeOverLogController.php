@@ -21,8 +21,9 @@ class SupportTakeOverLogController extends Controller
     {
         $logs = $user->supportTakeOverLogs()
             ->with(
-                'user:id,name,name_suffix,name_first',
-                'user.roles:id,name'
+                'user:id,name,name_suffix,name_first,school_location_id',
+                'user.roles:id,name',
+                'user.schoolLocation:id,name'
             )
             ->latest()
             ->get();
@@ -32,7 +33,7 @@ class SupportTakeOverLogController extends Controller
 
     public function index(Request $request)
     {
-        $logs = SupportTakeOverLog::with('user:id,name,name_suffix,name_first', 'user.roles:id,name', 'supportUser:id,name,name_suffix,name_first')
+        $logs = SupportTakeOverLog::with('user:id,name,name_suffix,name_first,school_location_id', 'user.roles:id,name', 'user.schoolLocation:id,name','supportUser:id,name,name_suffix,name_first')
             ->when(array_key_exists('created_at',$request->get('order')), function ($query) use ($request) {
                 collect($request->get('order'))->each(function($order, $key) use ($query) {
                     $query->orderBy($key, $order);
