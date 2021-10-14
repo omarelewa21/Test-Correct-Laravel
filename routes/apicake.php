@@ -47,7 +47,7 @@ Route::get('temporary_login/{tlid}', ['as' => 'user.temporary_login', 'uses'=>'U
 Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceController@checkForMaintenance']);
 
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
-    Route::post('/temporary_login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
+    Route::post('/temporary-login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
 
 
     Route::get('authors',['as' => 'authors','uses' => 'AuthorsController@index']);

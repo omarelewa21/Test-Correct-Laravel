@@ -75,4 +75,19 @@ class BaseHelper
 
         return  response()->json($response);
     }
+
+    public static function createRedirectUrlWithTemporaryLoginUuidToCake($uuid, $redirectUrl)
+    {
+        $response = new \stdClass;
+
+        $relativeUrl = sprintf('%s?redirect=%s',
+            sprintf('users/temporary_login/%s',$uuid),
+            rawurlencode($redirectUrl)
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+
+        return sprintf('%s%s',config('app.url_login'), $relativeUrl);
+    }
 }
