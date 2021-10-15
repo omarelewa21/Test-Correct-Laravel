@@ -2512,6 +2512,9 @@ video {
 .pb-10{
 	padding-bottom: 2.5rem;
 }
+.pt-\[70px\]{
+	padding-top: 70px;
+}
 .pb-16{
 	padding-bottom: 4rem;
 }

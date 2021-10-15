@@ -240,6 +240,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('/user/{user}/general_terms_log','UsersController@getGeneralTermsLogForUser')->name('user.getGeneralTermsLogForUser');
     Route::put('/user/{user}/general_terms_accepted','UsersController@setGeneralTermsLogAcceptedAtForUser')->name('user.setGeneralTermsLogAcceptedAtForUser');
 
+    Route::get('/user/{user}/return_to_laravel_url','UsersController@getReturnToLaravelUrl')->name('user.getReturnToLaravelUrl');
 
     Route::put('user/resend_onboarding_welcome_email', ['as' => 'user.send_onboarding_welcome_email', 'uses' => 'UsersController@sendOnboardingWelcomeEmail']);
     Route::resource('user', 'UsersController', ['except' => ['create', 'edit']]);

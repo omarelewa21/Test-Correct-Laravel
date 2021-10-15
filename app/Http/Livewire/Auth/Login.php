@@ -153,27 +153,14 @@ class Login extends Component
         }
 
         $testCodeHelper = new TestTakeCodeHelper();
-
         $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
+
         if (!$testTakeCode) {
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
-        $testTakeStage = $testTakeCode->testTake->determineTestTakeStage();
-
-        if ($testTakeStage === 'planned') {
-            $guestData = $this->gatherGuestData();
-            $guestUser = $testCodeHelper->createUserByTestTakeCode($guestData, $testTakeCode);
-            $guestParticipant = $testCodeHelper->createTestParticipantForGuestUserByTestTakeCode($guestUser, $testTakeCode);
-            if ($guestUser && $guestParticipant) {
-                Auth::login($guestUser);
-                return redirect()->intended(route('student.waiting-room', ['take' => $testTakeCode->testTake->uuid]));
-            }
-        }
-
-        if ($testTakeStage === 'discuss') {
-            session()->put('guest_take', $testTakeCode->testTake->uuid);
-            return redirect(route('guest-choice', ['take' => $testTakeCode->testTake->uuid]));
+        if ($testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode)) {
+            return $this->addError('error_on_handling_guest_login', __('auth.something_went_wrong'));
         }
     }
 
@@ -274,7 +261,7 @@ class Login extends Component
 
         foreach ($this->testTakeCode as $key => $value) {
             $value = (int)$value;
-            if (!$value || !is_int($value) || Str::length($value) != 1) {
+            if ($value === null || !is_int($value) || Str::length($value) != 1) {
                 return false;
             }
         }

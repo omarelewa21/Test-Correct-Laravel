@@ -71,4 +71,6 @@ return [
     'test_starts_in'                        => 'Test starts in',
     'fill_in_test_code_from_teacher'        => 'Fill in the test code the teacher is showing on the screen',
     'browser_testing_disabled_notification' => 'It\'s not allowed to make this test in the browser. Please start the Test-Correct app to make this test.',
+    'participant_already_taken'             => 'This participant is already chosen.',
+    'please_choose_a_different_participant' => 'Please choose a different participant.',
 ];

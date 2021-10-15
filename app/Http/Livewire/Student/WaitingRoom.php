@@ -78,7 +78,7 @@ class WaitingRoom extends Component
         }
         if ($stage === 'review') {
             $showResults = TestTake::whereUuid($this->take)->value('show_results');
-            if ($showResults->gt(Carbon::now())) {
+            if ($showResults != null && $showResults->gt(Carbon::now())) {
                 $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSED;
             } else {
                 $this->isTakeOpen = false;
@@ -108,7 +108,24 @@ class WaitingRoom extends Component
         $url = 'test_takes/discuss/'.$this->take;
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
-        dump([Auth::user()->id, Auth::user()->getAttribute('session_hash')]);
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function startReview()
+    {
+        $url = 'test_takes/glance/'.$this->take;
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+
+        Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function returnToGuestChoicePage()
+    {
+        session()->flush();
+        $this->testParticipant->available_for_guests = true;
+        $this->testParticipant->save();
+
+        session()->put('guest_take', $this->take);
+        return redirect(route('guest-choice', ['take' => $this->take]));
     }
 }

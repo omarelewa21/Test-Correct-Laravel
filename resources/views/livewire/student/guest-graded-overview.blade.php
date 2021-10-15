@@ -1,5 +1,5 @@
 <div id="planned-body"
-     x-data="{}"
+     x-data="{sortField: @entangle('sortField'), sortDirection: @entangle('sortDirection')}"
      x-init="
         $el.parentElement.classList.add('flex','flex-1')"
      x-cloak
@@ -18,34 +18,47 @@
                 <div class="flex justify-center">
                     <div class="bg-white rounded-10 pt-5 p-8 w-full max-w-2xl">
                         <div class="px-3">
-                            <h4 class="leading-8">Kies jouw studenten gastprofiel</h4>
+                            <h4 class="leading-8">Cijfers van studenten met gastprofiel</h4>
                         </div>
-                        <div class="divider mt-4"></div>
+                        <div class="mt-3 px-3 flex w-full justify-between base">
+                            <button
+                                    class="button text-button space-x-2.5 focus:outline-none transition text-base"
+{{--                                    class="{{ ($this->sortField == 'users.name' && $this->sortDirection == 'asc') ? 'rotate-svg-270' : 'rotate-svg-90' }} text-base"--}}
+                                    :class="(sortField == 'users.name' && sortDirection == 'asc') ? 'rotate-svg-270' : 'rotate-svg-90' "
+                                    wire:click="sortGuestNames"
+                                    wire:loading.class="underline"
+                            >
+                                <span>Naam</span>
+                                <x-icon.chevron-small opacity="1"/>
+                            </button>
+                            <x-button.text-button
+                                    class="{{ ($this->sortField == 'test_participants.rating' && $this->sortDirection == 'asc') ? 'rotate-svg-270' : 'rotate-svg-90' }} text-base"
+                                    size="sm" wire:click="sortGuestGrades">
+                                <span>Cijfer</span>
+                                <x-icon.chevron-small opacity="1"/>
+                            </x-button.text-button>
+                        </div>
+                        <div class="divider"></div>
                         <div class="flex flex-col">
                             @forelse($guestList as $key => $guest)
                                 <div class="relative w-full flex hover:font-bold p-5 rounded-10 base
                                     multiple-choice-question transition ease-in-out duration-150 focus:outline-none
                                     justify-between items-center hover:-mb-px cursor-pointer"
                                      wire:key="{{ $key }}"
-                                     wire:click="continueAs('{{ $guest['uuid'] }}')"
                                 >
                                     <span>{{ $guest['name'] }}</span>
-                                    <x-icon.arrow class="inline-flex"/>
+                                    @if($guest['rating'] != null)
+                                    <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($guest['rating']) !!}">
+                                            {!! str_replace('.',',',round($guest['rating'], 1))!!}
+                                    </span>
+                                    @else
+                                        <span>Geen cijfer</span>
+                                    @endif
                                 </div>
                                 <div class="h-px bg-blue-grey mx-2"></div>
                             @empty
                                 <div class="mt-4">Geen profielen beschikbaar.</div>
                             @endforelse
-
-                            @error('participant_already_taken')
-                                <div class="notification error stretched mt-4">
-                                    <div class="flex items-center space-x-3">
-                                        <x-icon.exclamation/>
-                                        <span class="title">{{ $message }}</span>
-                                    </div>
-                                    <span class="body">Kies een ander gastprofiel</span>
-                                </div>
-                            @enderror
                         </div>
                     </div>
                 </div>

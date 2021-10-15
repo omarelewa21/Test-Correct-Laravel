@@ -78,4 +78,5 @@ return [
     'connect_entree_error'                       => 'Something went wrong while linking your account.',
     'next_step'                                  => 'Next step',
     'no_test_found_with_code'                    => 'No test found for this code.',
+    'something_went_wrong'                       => 'Something went wrong.',
 ];

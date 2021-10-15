@@ -19,17 +19,26 @@
 >
     <div class="flex w-full justify-center border-b border-system-secondary transition-all duration-500"
          :class="{'opacity-0': startCountdown}">
-        <x-partials.test-take-sub-menu :active="$this->testTakeStatusStage"/>
+        <x-partials.test-take-sub-menu :active="$this->testTakeStatusStage" :disabled="Auth::user()->guest"/>
     </div>
     <div class="flex flex-col w-full mt-10">
         <div class="w-full px-4 lg:px-8 xl:px-12 transition-all duration-500">
             <div class="flex flex-col mx-auto max-w-7xl space-y-4 transition-all duration-500">
                 <div>
+                    @if(!Auth::user()->guest)
                     <x-button.text-button class="rotate-svg-180" type="link"
                                           href="{{ route('student.test-takes', ['tab' => $this->testTakeStatusStage]) }}">
                         <x-icon.arrow/>
                         <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
                     </x-button.text-button>
+                    @elseif(Auth::user()->guest && $this->testTakeStatusStage != 'planned')
+                        <x-button.text-button class="rotate-svg-180" wire:click="returnToGuestChoicePage">
+                            <x-icon.arrow/>
+                            <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
+                        </x-button.text-button>
+                    @else
+                        <span class="bold text-[32px]">{{ $waitingTestTake->test_name }}</span>
+                    @endif
                 </div>
                 <div>
                     <x-partials.waiting-room-grid :waitingTestTake="$waitingTestTake"/>

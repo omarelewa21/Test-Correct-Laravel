@@ -238,6 +238,11 @@
                                     <span class="title">{{ $message }}</span>
                                 </div>
                                 @enderror
+                                @error('error_on_handling_guest_login')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
 
                             </div>
 

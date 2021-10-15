@@ -66,4 +66,5 @@ Route::middleware(['guest', 'auth.temp'])->group(function () {
 });
 Route::middleware(['guest_choice'])->group(function() {
     Route::get('/guest-choice', tcCore\Http\Livewire\Student\GuestUserChoosingPage::class)->name('guest-choice');
+    Route::get('/guest-graded-overview', tcCore\Http\Livewire\Student\GuestGradedOverview::class)->name('guest-graded-overview');
 });
