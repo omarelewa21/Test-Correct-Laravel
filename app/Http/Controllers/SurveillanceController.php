@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Controllers;
 
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,8 +16,13 @@ class SurveillanceController extends Controller
     private $response;
     private $schoolClassProgress = [];
 
+    private $ipCheck = false;
+
+/** @TODO add appropriate 403 */
     public function index()
     {
+        $this->setIpCheck();
+
         $this->response = [
             'takes'        => [],
             'participants' => [],
@@ -61,7 +67,6 @@ class SurveillanceController extends Controller
             ->join('tests', 'test_takes.test_id', 'tests.id')
             ->where('test_takes.test_take_status_id', 3)
             ->with([
-
                 'testParticipants' => function ($query) {
                     $query->select(
                         'id',
@@ -77,11 +82,20 @@ class SurveillanceController extends Controller
                     )->addSelect(
                         [
                             'answered_count' => function ($query) {
-                                $query->selectRaw('count(*)')->from('answers')->whereRaw('test_participant_id = test_participants.id and json is not null');
+                                $query->selectRaw('sum(score)')
+                                    ->from('answers')
+                                    ->join('questions', 'answers.question_id', '=', 'questions.id')
+                                    ->whereRaw('test_participant_id = test_participants.id and done=1');
                             },
                             'answers_total' => function($query) {
-                                $query->selectRaw('count(*)')->from('answers')->whereRaw('test_participant_id = test_participants.id');
+                                $query->selectRaw('sum(score)')
+                                    ->from('answers')
+                                    ->join('questions', 'answers.question_id', '=', 'questions.id')
+                                    ->whereRaw('test_participant_id = test_participants.id');
                             },
+                            'ip_check' => function($query) {
+                                $query = $this->getIpCheckQuery($query);
+                            }
                         ]
                     );
                 },
@@ -119,7 +133,7 @@ class SurveillanceController extends Controller
                 'label'                   => $participant->label,
                 'text'                    => $participant->text,
                 'alert'                   => $alertStatus,
-                'ip'                      => true,
+                'ip'                      => $participant->ip_check == 'true' ? true : false,
                 'status'                  => $participant->test_take_status_id,
                 'allow_inbrowser_testing' => $participant->allow_inbrowser_testing,
             ];
@@ -132,5 +146,21 @@ class SurveillanceController extends Controller
         }
 
         return (int) ( round($participant->answered_count / $participant->answers_total * 100, 0));
+    }
+
+    private function getIpCheckQuery(Builder $query)
+    {
+        if ($this->ipCheck) {
+            return $query;
+
+        }
+            $query->selectRaw("'true'");
+            return $query;
+    }
+
+    private function setIpCheck()
+    {
+        $this->ipCheck = false;
+
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\Answer;
 use tcCore\Http\Controllers\SurveillanceController;
 use tcCore\Http\Helpers\ActingAsHelper;
+use tcCore\Question;
 use tcCore\SchoolClass;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
@@ -88,7 +89,7 @@ class SurveillanceControllerTest extends TestCase
 
         // add an answer for participantOne;
         $this->fillAnswersForParticipant($testParicipant, 1);
-        // this test has 3 answers so progress should be 33;
+        // this test has 3 questions so progress should be 33;
         $responseWithOneAnswerAdded = (new SurveillanceController)->index();
         $this->assertEquals(33, array_shift($responseWithOneAnswerAdded['takes']));
         // progress for participant one is 33;
@@ -128,6 +129,43 @@ class SurveillanceControllerTest extends TestCase
         $this->assertEquals(
             100,
             array_shift($responseWithAllAnswersFilled['takes'])
+        );
+    }
+
+    /** @test */
+    public function when_i_double_the_score_of_a_answered_question_it_should_reflect_in_percentages_for_take_and_participant()
+    {
+        $testTake = TestTake::find(
+            $take_id = $this->startTestTakeFor(null, null)
+        );
+
+        $testParicipant = TestParticipant::where([
+            ['test_take_id', $take_id],
+            ['user_id', self::getStudentOne()->getKey()],
+        ])->first();
+        $this->initTestTakeForStudent($testTake->uuid, $testParicipant->uuid);
+        // add an answer for participantOne;
+        $this->fillAnswersForParticipant($testParicipant, 1);
+
+        $responseWithOneAnswerAdded = (new SurveillanceController)->index();
+        $this->assertEquals(33, array_shift($responseWithOneAnswerAdded['takes']));
+        // progress for participant one is 33;
+        $this->assertEquals(
+            33,
+            $responseWithOneAnswerAdded['participants'][$testParicipant->uuid]['percentage']
+        );
+
+        $question = ($testParicipant->answers()->where('done', '1')->first()->question->getQuestionInstance());
+        $question->score = $question->score * 2;
+        $question->save();
+
+
+        $responseAfterDoublingScore = (new SurveillanceController)->index();
+        $this->assertEquals(50, array_shift($responseAfterDoublingScore['takes']));
+        // progress for participant one is 33;
+        $this->assertEquals(
+            50,
+            $responseAfterDoublingScore['participants'][$testParicipant->uuid]['percentage']
         );
     }
 
@@ -185,6 +223,7 @@ class SurveillanceControllerTest extends TestCase
                 $this->assertFalse($participant['allow_inbrowser_testing']);
             }
         });
+        /**  @TODO when i toggle again it all users should be off agian */
 
         $response = (new SurveillanceController)->index();
     }
@@ -192,6 +231,7 @@ class SurveillanceControllerTest extends TestCase
     /** @test */
     public function when_i_start_the_test_suit_no_test_take_is_assigned_to_teacher_one()
     {
+        // when this test failes you should php artisan test:refreshdb
         Auth::login(self::getTeacherOne());
 
         $response = ((new SurveillanceController)->index());
@@ -250,7 +290,6 @@ class SurveillanceControllerTest extends TestCase
         $this->startTestTakeFor(null, null);
         $this->startTestTakeFor(null, null);
         Auth::login(self::getTeacherOne());
-        Carbon::setTestNow(Carbon::create(2018, 6, 18, 12, 10));
 
         $response = ((new SurveillanceController)->index());
 
@@ -277,5 +316,37 @@ class SurveillanceControllerTest extends TestCase
         collect(['takes', 'participants', 'time', 'alerts', 'ipAlerts'])->each(function ($key) use ($response) {
             $this->assertArrayHasKey($key, $response);
         });
+    }
+
+    /** @test */
+    public function it_should_report_a_ip_warning_for_a_parcipant()
+    {
+        $testTakeUuid = TestTake::find($take_id = $this->startTestTakeFor(null, null))->uuid;
+        Auth::login(self::getTeacherOne());
+//        dd($response = ((new SurveillanceController)->index()));
+
+        $testParicipantUuid = TestParticipant::where([
+            ['test_take_id', $take_id],
+            ['user_id', self::getStudentOne()->getKey()],
+        ])->first()
+            ->uuid;
+
+
+            $this->initTestTakeForStudent($testTakeUuid, $testParicipantUuid);
+        $newResponse = (new SurveillanceController)->index();
+        $this->assertEquals(
+            [
+                'percentage'              => 0,
+                "label"                   => "success",
+                "text"                    => "Maakt toets",
+                "alert"                   => false,
+                "ip"                      => true,
+                "status"                  => 3,
+                "allow_inbrowser_testing" => false,
+            ],
+            $newResponse['participants'][$testParicipantUuid]
+        );
+
+
     }
 }
