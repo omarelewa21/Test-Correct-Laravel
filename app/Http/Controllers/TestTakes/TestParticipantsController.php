@@ -159,7 +159,7 @@ class TestParticipantsController extends Controller
                                 }
                             }
                         }
-                        
+
                         $testParticipant->setAttribute('score', $score);
                         $testParticipant->setAttribute('max_score', $maxScore);
                         if(!$this->validateForMaxScore($testParticipant)){
@@ -418,18 +418,12 @@ class TestParticipantsController extends Controller
     public function toggle_inbrowser_testing(TestTake $testTake, TestParticipant $testParticipant)
     {
         if (auth()->user()->schoolLocation->allow_inbrowser_testing) {
-            logger('allowed for school_location');
             if ($testTake->id === $testParticipant->test_take_id) {
-                logger('allowed for test_take_is vs participant');
                 if ($testTake->isAllowedToView(auth()->user())) {
-                    logger('allowed to view');
-
                     $testParticipant->update(['allow_inbrowser_testing' => ! $testParticipant->allow_inbrowser_testing]);
                 }
             }
         }
-
-
     }
 
     private function validateForMaxScore($testParticipant)
