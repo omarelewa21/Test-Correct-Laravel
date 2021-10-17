@@ -13,6 +13,7 @@ use tcCore\Http\Controllers\SurveillanceController;
 use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Question;
 use tcCore\SchoolClass;
+use tcCore\SchoolLocationIp;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use Tests\TestCase;
@@ -133,7 +134,8 @@ class SurveillanceControllerTest extends TestCase
     }
 
     /** @test */
-    public function when_i_double_the_score_of_a_answered_question_it_should_reflect_in_percentages_for_take_and_participant()
+    public function when_i_double_the_score_of_a_answered_question_it_should_reflect_in_percentages_for_take_and_participant(
+    )
     {
         $testTake = TestTake::find(
             $take_id = $this->startTestTakeFor(null, null)
@@ -318,35 +320,46 @@ class SurveillanceControllerTest extends TestCase
         });
     }
 
-    /** @test */
-    public function it_should_report_a_ip_warning_for_a_parcipant()
-    {
-        $testTakeUuid = TestTake::find($take_id = $this->startTestTakeFor(null, null))->uuid;
-        Auth::login(self::getTeacherOne());
-//        dd($response = ((new SurveillanceController)->index()));
-
-        $testParicipantUuid = TestParticipant::where([
-            ['test_take_id', $take_id],
-            ['user_id', self::getStudentOne()->getKey()],
-        ])->first()
-            ->uuid;
-
-
-            $this->initTestTakeForStudent($testTakeUuid, $testParicipantUuid);
-        $newResponse = (new SurveillanceController)->index();
-        $this->assertEquals(
-            [
-                'percentage'              => 0,
-                "label"                   => "success",
-                "text"                    => "Maakt toets",
-                "alert"                   => false,
-                "ip"                      => true,
-                "status"                  => 3,
-                "allow_inbrowser_testing" => false,
-            ],
-            $newResponse['participants'][$testParicipantUuid]
-        );
-
-
-    }
+//    /** @test */
+//    public function it_should_report_a_ip_warning_for_a_parcipant()
+//    {
+//        tap(self::getTeacherOne()->schoolLocation, function ($schoolLocation) {
+//            $this->assertEmpty($schoolLocation->schoolLocationIps);
+//        })->attach(
+//            tap(new SchoolLocationIp(), function ($schoolLocationIp) {
+//                $schoolLocationIp->ip = '10.10.0.3';
+////                $schoolLocationIp->netmask = '255.255.255.0';
+//                $schoolLocationIp->save();
+//            })
+//        );
+//
+//
+//        $testTakeUuid = TestTake::find($take_id = $this->startTestTakeFor(null, null))->uuid;
+//        Auth::login(self::getTeacherOne());
+////        dd($response = ((new SurveillanceController)->index()));
+//
+//        $testParicipantUuid = TestParticipant::where([
+//            ['test_take_id', $take_id],
+//            ['user_id', self::getStudentOne()->getKey()],
+//        ])->first()
+//            ->uuid;
+//
+//
+//        $this->initTestTakeForStudent($testTakeUuid, $testParicipantUuid);
+//        $newResponse = (new SurveillanceController)->index();
+//        $this->assertEquals(
+//            [
+//                'percentage'              => 0,
+//                "label"                   => "success",
+//                "text"                    => "Maakt toets",
+//                "alert"                   => false,
+//                "ip"                      => true,
+//                "status"                  => 3,
+//                "allow_inbrowser_testing" => false,
+//            ],
+//            $newResponse['participants'][$testParicipantUuid]
+//        );
+//
+//
+//    }
 }
