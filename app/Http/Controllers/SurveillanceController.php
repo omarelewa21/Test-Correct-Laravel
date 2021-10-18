@@ -18,7 +18,7 @@ class SurveillanceController extends Controller
 
     private $ipCheck = false;
 
-/** @TODO add appropriate 403 */
+    /** @TODO add appropriate 403 */
     public function index()
     {
         $this->setIpCheck();
@@ -87,14 +87,17 @@ class SurveillanceController extends Controller
                                     ->join('questions', 'answers.question_id', '=', 'questions.id')
                                     ->whereRaw('test_participant_id = test_participants.id and done=1');
                             },
-                            'answers_total' => function($query) {
+                            'answers_total'  => function ($query) {
                                 $query->selectRaw('sum(score)')
                                     ->from('answers')
                                     ->join('questions', 'answers.question_id', '=', 'questions.id')
                                     ->whereRaw('test_participant_id = test_participants.id');
                             },
-                            'ip_check' => function($query) {
+                            'ip_check'       => function ($query) {
                                 $query = $this->getIpCheckQuery($query);
+                            },
+                            'has_events'     => function ($query) {
+                                $query = $this->getHasEventsQuery($query);
                             }
                         ]
                     );
@@ -109,9 +112,9 @@ class SurveillanceController extends Controller
             $progress = 0;
             $key = sprintf('%s_%s', $schoolClass->id, $testTake->id);
 
-            if (array_key_exists($key, $this->schoolClassProgress) && count($this->schoolClassProgress[$key]) > 0){
+            if (array_key_exists($key, $this->schoolClassProgress) && count($this->schoolClassProgress[$key]) > 0) {
 
-                 $progress = (int) round(array_sum($this->schoolClassProgress[$key]) / count($this->schoolClassProgress[$key]));
+                $progress = (int) round(array_sum($this->schoolClassProgress[$key]) / count($this->schoolClassProgress[$key]));
             }
             $this->response['takes'][sprintf('progress_%s_%s', $testTake->uuid, $schoolClass->uuid)] = $progress;
         });
@@ -120,7 +123,9 @@ class SurveillanceController extends Controller
     private function transformParticipants($testTake)
     {
         $testTake->testParticipants->each(function ($participant) {
-            if ($alertStatus = $participant->getAlertStatus()) {
+            $hasEvents = false;
+            if ($participant->has_events == 'true') {
+                $hasEvents = true;
                 $this->incrementAlerts();
             }
 
@@ -132,7 +137,7 @@ class SurveillanceController extends Controller
                 'percentage'              => $this->getPercentage($participant),
                 'label'                   => $participant->label,
                 'text'                    => $participant->text,
-                'alert'                   => $alertStatus,
+                'alert'                   => $hasEvents,
                 'ip'                      => $participant->ip_check == 'true' ? true : false,
                 'status'                  => $participant->test_take_status_id,
                 'allow_inbrowser_testing' => $participant->allow_inbrowser_testing,
@@ -140,12 +145,13 @@ class SurveillanceController extends Controller
         });
     }
 
-    private function getPercentage($participant) {
+    private function getPercentage($participant)
+    {
         if ($participant->answered_count == 0 || $participant->answers_total == 0) {
             return 0;
         }
 
-        return (int) ( round($participant->answered_count / $participant->answers_total * 100, 0));
+        return (int) (round($participant->answered_count / $participant->answers_total * 100, 0));
     }
 
     private function getIpCheckQuery(Builder $query)
@@ -154,13 +160,25 @@ class SurveillanceController extends Controller
             return $query;
 
         }
-            $query->selectRaw("'true'");
-            return $query;
+        $query->selectRaw("'true'");
+        return $query;
     }
 
     private function setIpCheck()
     {
         $this->ipCheck = false;
 
+    }
+
+    private function getHasEventsQuery(Builder $query)
+    {
+        $query->selectRaw("case when coalesce(id, 0) > 0 then 'true' else 'false' end")
+            ->from('test_take_events')
+            ->whereRaw('test_take_events.test_participant_id = test_participants.id')
+            ->whereRaw('test_take_events.test_take_event_type_id in (select id from test_take_event_types where requires_confirming = 1)')
+            ->where('test_take_events.confirmed', '<>', 1)
+            ->limit(1);
+
+        return $query;
     }
 }
