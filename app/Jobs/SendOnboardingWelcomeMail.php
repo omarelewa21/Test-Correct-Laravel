@@ -42,7 +42,8 @@ class SendOnboardingWelcomeMail extends Mailable
 
     public function render()
     {
-        if(is_null($this->user)){
+        $this->user->fresh();
+        if(is_null($this->user)||!is_null($this->user->deleted_at)){
             return false;
         }
         parent::render();

@@ -33,7 +33,9 @@ class SendNotifyInviterMail extends Mailable
 
     public function render()
     {
-        if(is_null($this->invitee)||is_null($this->inviter)){
+        $this->invitee->fresh();
+        $this->inviter->fresh();
+        if(is_null($this->invitee)||is_null($this->inviter)||!is_null($this->invitee->deleted_at)||!is_null($this->inviter->deleted_at)){
             return false;
         }
         parent::render();

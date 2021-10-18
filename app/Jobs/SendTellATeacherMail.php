@@ -38,7 +38,8 @@ class SendTellATeacherMail extends Mailable
 
     public function render()
     {
-        if(is_null($this->inviter)){
+        $this->inviter->fresh();
+        if(is_null($this->inviter)||!is_null($this->inviter->deleted_at)){
             return false;
         }
         parent::render();
