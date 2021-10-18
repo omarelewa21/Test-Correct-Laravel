@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeEventType;
 use tcCore\User;
 
 class SurveillanceController extends Controller
@@ -17,6 +18,7 @@ class SurveillanceController extends Controller
     private $schoolClassProgress = [];
 
     private $ipCheck = false;
+    private $eventIdsThatRequireConfirming = null;
 
     /** @TODO add appropriate 403 */
     public function index()
@@ -172,10 +174,15 @@ class SurveillanceController extends Controller
 
     private function getHasEventsQuery(Builder $query)
     {
+        if ($this->eventIdsThatRequireConfirming == null) {
+            $this->eventIdsThatRequireConfirming = TestTakeEventType::where('requires_confirming', 1)->get('id');
+        }
+
+
         $query->selectRaw("case when coalesce(id, 0) > 0 then 'true' else 'false' end")
             ->from('test_take_events')
             ->whereRaw('test_take_events.test_participant_id = test_participants.id')
-            ->whereRaw('test_take_events.test_take_event_type_id in (select id from test_take_event_types where requires_confirming = 1)')
+            ->whereIn('test_take_events.test_take_event_type_id', $this->eventIdsThatRequireConfirming)
             ->where('test_take_events.confirmed', '<>', 1)
             ->limit(1);
 
