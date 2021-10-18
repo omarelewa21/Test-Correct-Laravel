@@ -50,7 +50,8 @@ class TestTakesController extends Controller {
                 'retakeTestTake',
                 'user',
                 'testTakeStatus',
-                'invigilatorUsers'
+                'invigilatorUsers',
+                'testTakeCode'
             ]);
 
         $testTakes->filterByArchived(request('filter'));
@@ -73,7 +74,7 @@ class TestTakesController extends Controller {
             case 'list':
                 $testTakes = $this->filterIfNeededForDemo($testTakes->with('testParticipants', 'testParticipants.schoolClass')->get());
                 $response = [];
-                foreach ($testTakes as $takeKey => $testTake) {
+                foreach ($testTakes as $testTake) {
                     $test = $testTake->test;
                     if ($test instanceof Test) {
                         $test = $test->getAttribute('name');
@@ -83,12 +84,18 @@ class TestTakesController extends Controller {
                             if ($schoolClass instanceof SchoolClass) {
                                 if (!in_array($schoolClass->getKey(), $haveClasses)) {
                                     $haveClasses[] = $schoolClass->getKey();
-                                    $response[$testTake->getKey()][$takeKey] = ['schoolClass' => $schoolClass->getAttribute('name'), 'test' => $test, 'uuid' => $testTake->uuid];
+                                    $className = $schoolClass->getAttribute('name');
+                                    if (Str::contains($className, 'guest_class')) {
+                                        $className = 'Gast accounts';
+                                    }
+                                    $response[$testTake->getKey()][] = [
+                                        'schoolClass' => $className,
+                                        'test' => $test,
+                                        'uuid' => $testTake->uuid,
+                                        'code' => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : ''
+                                    ];
                                 }
                             }
-                        }
-                        if ($testTake->testTakeCode()->count() > 0) {
-                            $response[$testTake->getKey()][$takeKey]['code'] = $testTake->testTakeCode->prefix . $testTake->testTakeCode->code;
                         }
                     }
                 }

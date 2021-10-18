@@ -2258,4 +2258,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->setAttribute('session_hash', $hash);
         return $this->save();
     }
+
+    public function shouldNotSendMail()
+    {
+        return $this->guest == true || $this->hasImportMailAddress();
+    }
 }

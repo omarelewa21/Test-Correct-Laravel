@@ -16,25 +16,25 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/user/confirm_email/{EmailConfirmation}', [tcCore\Http\Controllers\UsersController::class, 'confirmEmail']);
-Route::get('/inv/{shortcode}',[tcCore\Http\Controllers\Api\ShortcodeController::class, 'registerClickAndRedirect']);
+Route::get('/inv/{shortcode}', [tcCore\Http\Controllers\Api\ShortcodeController::class, 'registerClickAndRedirect']);
 Route::get('/', tcCore\Http\Livewire\Onboarding::class);
 
 Route::get('/password-reset', tcCore\Http\Livewire\PasswordReset::class)->name('password.reset');
 Route::post('/send_password_reset', [tcCore\Http\Controllers\Auth\PasswordController::class, 'sendPasswordReset']);
 
 
-    Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
+Route::get('/login', tcCore\Http\Livewire\Auth\Login::class)->name('auth.login');
 
-    Route::get('/magister', [\tcCore\Http\Controllers\MagisterController::class, 'index']);
-    Route::get('/somtoday', [\tcCore\Http\Controllers\SomTodayController::class, 'index']);
-    Route::get('/uwlr/fetcher', tcCore\Http\Livewire\UwlrFetcher::class)->name('uwlr.fetcher');
-    Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
+Route::get('/magister', [\tcCore\Http\Controllers\MagisterController::class, 'index']);
+Route::get('/somtoday', [\tcCore\Http\Controllers\SomTodayController::class, 'index']);
+Route::get('/uwlr/fetcher', tcCore\Http\Livewire\UwlrFetcher::class)->name('uwlr.fetcher');
+Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
 
 Route::get('/ckeditor/plugins/ckeditor_wiris/integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
 
 
 Route::middleware(['auth.temp'])->group(function () {
-    Route::get('/redirect-with-temporary-login/{temporary_login}',tcCore\Http\Controllers\TemporaryLoginController::class)->name('auth.temporary-login-redirect');
+    Route::get('/redirect-with-temporary-login/{temporary_login}', tcCore\Http\Controllers\TemporaryLoginController::class)->name('auth.temporary-login-redirect');
 });
 
 Route::middleware('auth')->group(function () {
@@ -61,10 +61,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/entree-link', tcCore\Http\Livewire\Auth\EntreeLink::class)->name('entree-link');
 });
 Route::middleware(['guest', 'auth.temp'])->group(function () {
-    Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview' ])->name('auth.teacher.show-test-with-short-code');
+    Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview'])->name('auth.teacher.show-test-with-short-code');
     Route::get('/start-test-take-with-temporary-login/{test_take}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'studentPlayer'])->name('auth.login_test_take_with_short_code');
 });
-Route::middleware(['guest_choice'])->group(function() {
+Route::middleware(['guest_choice'])->group(function () {
     Route::get('/guest-choice', tcCore\Http\Livewire\Student\GuestUserChoosingPage::class)->name('guest-choice');
     Route::get('/guest-graded-overview', tcCore\Http\Livewire\Student\GuestGradedOverview::class)->name('guest-graded-overview');
 });

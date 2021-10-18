@@ -9,6 +9,7 @@
         <div class="w-full px-4 lg:px-8 xl:px-12 transition-all duration-500">
             <div class="flex flex-col mx-auto max-w-7xl space-y-4 transition-all duration-500">
                 <div>
+                    <span>{{ __('student.'.$status) }}</span>
                     <h1>{{ $testTake->test_name }}</h1>
                 </div>
                 <div>

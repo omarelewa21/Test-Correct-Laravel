@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
+use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
@@ -132,10 +133,13 @@ class Login extends Component
 
         $this->doLoginProcedure();
 
-//        if (auth()->user()->isA('Student')) {
-//            return redirect()->intended(route('student.dashboard'));
-//        }
-        if (auth()->user()->isA('Account manager')) {
+        AppVersionDetector::handleHeaderCheck();
+
+        $user = auth()->user();
+        if ($user->isA('Student') && $user->schoolLocation->allow_guest_accounts) {
+            return redirect()->intended(route('student.dashboard'));
+        }
+        if ($user->isA('Account manager')) {
             return redirect()->intended(route('uwlr.grid'));
         }
 
@@ -158,6 +162,8 @@ class Login extends Component
         if (!$testTakeCode) {
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
+
+        AppVersionDetector::handleHeaderCheck();
 
         if ($testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode)) {
             return $this->addError('error_on_handling_guest_login', __('auth.something_went_wrong'));

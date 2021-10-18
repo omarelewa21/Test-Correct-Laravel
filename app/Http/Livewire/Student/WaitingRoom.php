@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Traits\WithStudentTestTakes;
@@ -33,6 +34,8 @@ class WaitingRoom extends Component
     public $isTakeAlreadyTaken;
     public $countdownNumber = 3;
     public $testTakeStatusStage;
+    public $meetsAppRequirement = true;
+    public $participatingClasses = [];
 
     public function mount()
     {
@@ -42,6 +45,12 @@ class WaitingRoom extends Component
         $this->waitingTestTake = $this->getWaitingRoomTestTake();
         $this->testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->first();
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
+        $this->participatingClasses = $this->getParticipatingClasses();
+
+        if (!$this->testParticipant->canUseBrowserTesting() && $this->testParticipant->isInBrowser()) {
+            $this->meetsAppRequirement = false;
+        }
+
     }
 
     public function render()
@@ -127,5 +136,18 @@ class WaitingRoom extends Component
 
         session()->put('guest_take', $this->take);
         return redirect(route('guest-choice', ['take' => $this->take]));
+    }
+
+    public function getParticipatingClasses()
+    {
+        $names = $this->waitingTestTake->schoolClasses()->pluck('name');
+
+        collect($names)->each(function($name, $key) use ($names) {
+            if (Str::contains($name, 'guest_class')) {
+                $names[$key] = 'Gast accounts';
+            }
+        });
+
+        return $names;
     }
 }

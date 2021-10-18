@@ -16,6 +16,7 @@ class GuestUserChoosingPage extends Component
     public $take;
     public $testTake;
     public $guestList = [];
+    public $status;
 
     protected function getListeners()
     {
@@ -30,7 +31,7 @@ class GuestUserChoosingPage extends Component
             return redirect(route('auth.login'));
         }
         $this->testTake = TestTake::getTestTakeWithSubjectNameAndTestName($this->take);
-
+        $this->status = $this->testTake->determineTestTakeStage();
         $this->renderGuestList();
     }
 

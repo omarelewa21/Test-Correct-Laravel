@@ -73,4 +73,6 @@ return [
     'browser_testing_disabled_notification' => 'It\'s not allowed to make this test in the browser. Please start the Test-Correct app to make this test.',
     'participant_already_taken'             => 'This participant is already chosen.',
     'please_choose_a_different_participant' => 'Please choose a different participant.',
+    'not_allowed_to_test_in_browser'        => 'It\'s not allowed to make this test in the browser. Please start the Test-Correct app to make this test.',
+//    'cannot_start_test'
 ];

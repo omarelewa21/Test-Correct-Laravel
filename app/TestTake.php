@@ -124,6 +124,8 @@ class TestTake extends BaseModel
                 if((int) $testTake->test_take_status_id === 8){
                     TestTakeStatusLog::where('test_take_id',$testTake->getKey())->where('test_take_status_id',7)->where('created_at','>=',Carbon::now()->subSeconds(120))->delete();
                 }
+
+                $testTake->updateGuestAvailabilityForParticipantsOnStatusChange();
             }
 
             if ($testTake->invigilators !== null) {
@@ -909,5 +911,15 @@ class TestTake extends BaseModel
             ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
             ->where('test_takes.id', $testTakeId)
             ->first();
+    }
+
+    private function updateGuestAvailabilityForParticipantsOnStatusChange()
+    {
+        $this->testParticipants->each(function($participant) {
+            if ($participant->user()->value('guest') == true) {
+                $participant->available_for_guests = true;
+                $participant->save();
+            }
+        });
     }
 }

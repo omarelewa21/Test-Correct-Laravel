@@ -49,7 +49,7 @@ class SendWelcomeMail extends Job implements ShouldQueue
     {
         $user = User::findOrFail($this->userId);
         // should never mail import users with t_ or s_ @test-correct.nl
-        if($user->hasImportMailAddress()) {
+        if($user->shouldNotSendMail()) {
             return;
         }
         $user->setAttribute('send_welcome_email', true);

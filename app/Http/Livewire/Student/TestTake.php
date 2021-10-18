@@ -141,6 +141,10 @@ class TestTake extends Component
 
     public function returnToDashboard($options = null)
     {
+        if(Auth::user()->schoolLocation->allow_guest_accounts) {
+            return redirect(route('student.dashboard'));
+        }
+
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 }
