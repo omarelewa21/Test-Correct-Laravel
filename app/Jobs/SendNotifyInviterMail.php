@@ -31,6 +31,14 @@ class SendNotifyInviterMail extends Mailable
         $this->invitee = $invitee;
     }
 
+    public function render()
+    {
+        if(is_null($this->invitee)||is_null($this->inviter)){
+            return false;
+        }
+        parent::render();
+    }
+
     public function build()
     {
         return $this->view('emails.notify_inviter')

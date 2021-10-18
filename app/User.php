@@ -570,6 +570,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
 
         static::deleting(function (User $user) {
+            if(School::where('user_id',$user->id)->count()>0){
+                return false;
+            }
+            if(SchoolLocation::where('user_id',$user->id)->count()>0){
+                return false;
+            }
+            if(UmbrellaOrganization::where('user_id',$user->id)->count()>0){
+                return false;
+            }
             if ($user->getOriginal('demo') == true) {
                 return false;
             }

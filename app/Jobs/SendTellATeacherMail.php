@@ -36,6 +36,14 @@ class SendTellATeacherMail extends Mailable
         $this->shortcode = $shortcode;
     }
 
+    public function render()
+    {
+        if(is_null($this->inviter)){
+            return false;
+        }
+        parent::render();
+    }
+
     public function build()
     {
         if ($this->inviter->name_suffix) {
