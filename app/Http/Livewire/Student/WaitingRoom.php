@@ -45,7 +45,7 @@ class WaitingRoom extends Component
         $this->waitingTestTake = $this->getWaitingRoomTestTake();
         $this->testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->first();
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
-        $this->participatingClasses = $this->getParticipatingClasses();
+        $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
 
         if (!$this->testParticipant->canUseBrowserTesting() && $this->testParticipant->isInBrowser()) {
             $this->meetsAppRequirement = false;
@@ -83,7 +83,7 @@ class WaitingRoom extends Component
         }
 
         if ($stage === 'discuss') {
-            $this->isTakeOpen = true;// $testTakeStatus == TestTakeStatus::STATUS_DISCUSSING;
+            $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSING;
         }
         if ($stage === 'review') {
             $showResults = TestTake::whereUuid($this->take)->value('show_results');
@@ -136,18 +136,5 @@ class WaitingRoom extends Component
 
         session()->put('guest_take', $this->take);
         return redirect(route('guest-choice', ['take' => $this->take]));
-    }
-
-    public function getParticipatingClasses()
-    {
-        $names = $this->waitingTestTake->schoolClasses()->pluck('name');
-
-        collect($names)->each(function($name, $key) use ($names) {
-            if (Str::contains($name, 'guest_class')) {
-                $names[$key] = 'Gast accounts';
-            }
-        });
-
-        return $names;
     }
 }

@@ -13,7 +13,7 @@
                     <h1>{{ $testTake->test_name }}</h1>
                 </div>
                 <div>
-                    <x-partials.waiting-room-grid :waitingTestTake="$testTake"/>
+                    <x-partials.waiting-room-grid :waitingTestTake="$testTake" :participatingClasses="$participatingClasses"/>
                 </div>
 
                 <div class="flex justify-center">

@@ -5,18 +5,22 @@ namespace tcCore\Http\Livewire\Student;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\User;
 
 class GuestUserChoosingPage extends Component
 {
+    use WithStudentTestTakes;
 
     protected $queryString = ['take'];
     public $take;
     public $testTake;
     public $guestList = [];
     public $status;
+    public $participatingClasses = [];
+
 
     protected function getListeners()
     {
@@ -31,6 +35,7 @@ class GuestUserChoosingPage extends Component
             return redirect(route('auth.login'));
         }
         $this->testTake = TestTake::getTestTakeWithSubjectNameAndTestName($this->take);
+        $this->participatingClasses = $this->getParticipatingClasses($this->testTake);
         $this->status = $this->testTake->determineTestTakeStage();
         $this->renderGuestList();
     }

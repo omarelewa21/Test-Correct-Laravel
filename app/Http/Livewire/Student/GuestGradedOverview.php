@@ -19,6 +19,7 @@ class GuestGradedOverview extends Component
     public $take;
     public $testTake;
     public $guestList = [];
+    public $participatingClasses = [];
 
     public function mount()
     {
@@ -26,6 +27,7 @@ class GuestGradedOverview extends Component
             return redirect(route('auth.login'));
         }
         $this->testTake = TestTake::getTestTakeWithSubjectNameAndTestName($this->take);
+        $this->participatingClasses = $this->getParticipatingClasses($this->testTake);
 
         $this->sortField = 'users.name';
         $this->sortDirection = 'desc';
