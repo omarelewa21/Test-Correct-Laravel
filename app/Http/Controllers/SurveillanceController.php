@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use tcCore\Scopes\ArchivedScope;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
 use tcCore\User;
 
@@ -54,6 +55,11 @@ class SurveillanceController extends Controller
 
     private function getTakesForSurveillance(User $owner)
     {
+        $participantHasEvents = TestTakeEvent::select('test_participant_id', DB::Raw('max(test_take_events.id) as event'))
+            ->join('test_take_event_types','test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
+            ->where('requires_confirming', '1')
+            ->groupBy('test_participant_id');
+
         return TestTake::query()
             ->select(
                 'test_takes.id as id',
@@ -69,7 +75,7 @@ class SurveillanceController extends Controller
             ->join('tests', 'test_takes.test_id', 'tests.id')
             ->where('test_takes.test_take_status_id', 3)
             ->with([
-                'testParticipants' => function ($query) {
+                'testParticipants' => function ($query) use ($participantHasEvents) {
                     $query->select(
                         'id',
                         'test_take_id',
@@ -80,7 +86,8 @@ class SurveillanceController extends Controller
                         'allow_inbrowser_testing',
                         'ip_address',
                         'uuid',
-                        'school_class_id'
+                        'school_class_id',
+                        DB::raw("case coalesce(has_events.event, 0) when 0 then 'false' else 'true' end as has_events")
                     )->addSelect(
                         [
                             'answered_count' => function ($query) {
@@ -97,12 +104,11 @@ class SurveillanceController extends Controller
                             },
                             'ip_check'       => function ($query) {
                                 $query = $this->getIpCheckQuery($query);
-                            },
-                            'has_events'     => function ($query) {
-                                $query = $this->getHasEventsQuery($query);
                             }
                         ]
-                    );
+                    )->leftJoinSub($participantHasEvents, 'has_events', function($join){
+                       $join->on('test_participants.id', '=', 'has_events.test_participant_id');
+                    });
                 },
             ])
             ->get();
