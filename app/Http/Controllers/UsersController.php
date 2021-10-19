@@ -561,4 +561,17 @@ class UsersController extends Controller
         }
         return Response::make('refused', 403);
     }
+
+    public function getReturnToLaravelUrl(User $user)
+    {
+        $url = [];
+        if ($user->guest) {
+            //Paste relative route behind config base url because route() defaults to https, making it break on non https envs
+            $relativeRoute = route('auth.login', false, false);
+            $finalUrl = sprintf('%s%s', config('app.base_url'), substr($relativeRoute, 0, 1) === '/' ? substr($relativeRoute, 1) : $relativeRoute);
+            $url['url'] = $finalUrl;
+        }
+
+        return Response($url, 200);
+    }
 }

@@ -6,8 +6,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use Ramsey\Uuid\Uuid;
+use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
+use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
+use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Jobs\CountTeacherLastTestTaken;
 use tcCore\Jobs\CountTeacherTestDiscussed;
 use tcCore\Jobs\CountTeacherTestTaken;
@@ -56,7 +60,7 @@ class TestTake extends BaseModel
      * @var array
      */
 
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -121,6 +125,8 @@ class TestTake extends BaseModel
                 if((int) $testTake->test_take_status_id === 8){
                     TestTakeStatusLog::where('test_take_id',$testTake->getKey())->where('test_take_status_id',7)->where('created_at','>=',Carbon::now()->subSeconds(120))->delete();
                 }
+
+                $testTake->updateGuestAvailabilityForParticipantsOnStatusChange();
             }
 
             if ($testTake->invigilators !== null) {
@@ -173,6 +179,8 @@ class TestTake extends BaseModel
                     $testParticipant->setAttribute('test_take_status_id', $testNotTakenId);
 
                     $testParticipant->save();
+
+                    TestTakeOpenForInteraction::dispatch($testParticipant, $testParticipantTestTakeStatus);
                 }
             }
 
@@ -225,6 +233,7 @@ class TestTake extends BaseModel
                     }
 
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
+                    TestTakeOpenForInteraction::dispatch($testParticipant, $testParticipantDiscussingStatus);
                 }
             }
 
@@ -298,6 +307,9 @@ class TestTake extends BaseModel
                     Queue::push(new CountTeacherTestDiscussed($user));
                 }
             }
+
+            $testTake->handleInbrowserTestingChangesForParticipants();
+            $testTake->handleGuestAccountsStatus();
         });
 
         static::creating(function(TestTake $testTake) {
@@ -335,6 +347,11 @@ class TestTake extends BaseModel
     public function test()
     {
         return $this->belongsTo('tcCore\Test');
+    }
+
+    public function testTakeCode()
+    {
+        return $this->hasOne(TestTakeCode::class);
     }
 
     public function user()
@@ -863,5 +880,63 @@ class TestTake extends BaseModel
     public function getExportedToRttiFormatedAttribute()
     {
         return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
+    }
+
+    private function handleGuestAccountsStatus()
+    {
+        if ($this->guest_accounts && $this->testTakeCode()->count() === 0) {
+            $this->testTakeCode()->create();
+            SchoolClass::createGuestClassForTestTake($this);
+        }
+    }
+
+    public function determineTestTakeStage()
+    {
+        $status = $this->test_take_status_id;
+
+        $planned = [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TEST_NOT_TAKEN, TestTakeStatus::STATUS_TAKING_TEST];
+        $discuss = [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING];
+        $review = [TestTakeStatus::STATUS_DISCUSSED];
+        $graded = [TestTakeStatus::STATUS_RATED];
+
+        if (in_array($status, $planned)) return 'planned';
+        if (in_array($status, $discuss)) return 'discuss';
+        if (in_array($status, $review)) return 'review';
+        if (in_array($status, $graded)) return 'graded';
+
+        return null;
+    }
+
+    public static function getTestTakeWithSubjectNameAndTestName($testTakeId)
+    {
+        if (Uuid::isValid($testTakeId)) {
+            $testTakeId = TestTake::whereUuid($testTakeId)->value('id');
+        }
+        return TestTake::select('test_takes.*', 'subjects.name as subject_name', 'tests.name as test_name')
+            ->join('tests', 'test_takes.test_id', '=', 'tests.id')
+            ->join('subjects', 'tests.subject_id', '=', 'subjects.id')
+            ->where('test_takes.id', $testTakeId)
+            ->first();
+    }
+
+    private function updateGuestAvailabilityForParticipantsOnStatusChange()
+    {
+        $this->testParticipants->each(function($participant) {
+            if ($participant->user()->value('guest') == true) {
+                $participant->available_for_guests = true;
+                $participant->save();
+            }
+        });
+    }
+
+    private function handleInbrowserTestingChangesForParticipants()
+    {
+        TestParticipant::where('test_take_id', $this->getKey())
+            ->get()
+            ->each(function ($participant) {
+                $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
+                InbrowserTestingUpdatedForTestParticipant::dispatch($participant);
+            });
+
     }
 }

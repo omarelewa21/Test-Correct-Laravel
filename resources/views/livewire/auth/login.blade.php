@@ -26,15 +26,14 @@
                     <div class="flex w-full space-x-6 mb-5 border-b border-light-grey">
                         <div :class="{'border-b-2 border-primary -mb-px' : openTab === 1}">
                             <x-button.text-button class="primary"
-                                {{--                                                  @click="openTab = 1"--}}
+                                                  @click="openTab = 1"
                             >
                                 {{ __('auth.log_in_verb') }}
                             </x-button.text-button>
                         </div>
-                        {{--                        <div class="" :class="{'border-b-2 border-primary -mb-px' : openTab === 2}">--}}
-                        <div>
-                            <x-button.text-button class="disabled" disabled
-                                {{--                                                  @click="openTab = 2;"--}}
+                        <div class="" :class="{'border-b-2 border-primary -mb-px' : openTab === 2}">
+                            <x-button.text-button class="primary"
+                                                  @click="openTab = 2;"
                             >
                                 {{ __('auth.log_in_with_temporary_student_login') }}
                             </x-button.text-button>
@@ -67,10 +66,10 @@
                                         <span class="bold ml-2 mr-4">{{ __('auth.go_to_test_directly') }}</span>
 
                                         <div
-                                            class="flex relative justify-center items-center mr-2 base bg-blue-grey rounded-full "
-                                            style="width: 22px; height: 22px"
-                                            x-on:mouseenter="tooltip = true"
-                                            x-on:mouseleave="tooltip = false"
+                                                class="flex relative justify-center items-center mr-2 base bg-blue-grey rounded-full "
+                                                style="width: 22px; height: 22px"
+                                                x-on:mouseenter="tooltip = true"
+                                                x-on:mouseleave="tooltip = false"
                                         >
                                             <x-icon.questionmark class="transform scale-75"/>
                                             <div class="absolute p-4 top-8 rounded-10 bg-off-white w-60 z-10 shadow-lg"
@@ -138,7 +137,7 @@
 
                                 @if($requireCaptcha)
                                     <div
-                                        x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
+                                            x-on:refresh-captcha.window="$refs.captcha.firstElementChild.setAttribute('src','/captcha/image?_=1333294957&_='+Math.random());">
                                         <div class="notification error stretched mt-4">
                                             <div class="flex items-center space-x-3">
                                                 <x-icon.exclamation/>
@@ -187,7 +186,7 @@
                         </form>
                     </div>
 
-                    <div class="hidden flex flex-col flex-1" x-show="openTab === 2" x-cloak>
+                    <div class="flex flex-col flex-1" x-show="openTab === 2" x-cloak>
 
                         <form wire:submit.prevent="guestLogin" action="#" method="POST" class="flex-col flex flex-1">
                             <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
@@ -220,6 +219,26 @@
                                 </div>
                                 @enderror
                                 @error('invalid_test_code')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
+                                @error('no_test_found_with_code')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
+                                @error('empty_guest_first_name')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
+                                @error('empty_guest_last_name')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
+                                @error('error_on_handling_guest_login')
                                 <div class="notification error stretched mt-4">
                                     <span class="title">{{ $message }}</span>
                                 </div>
@@ -333,7 +352,8 @@
                                         <x-icon.account/>
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="body2" :class="hoverAccount || hasAccount === 2 ? 'primary bold': 'base'">
+                                        <span class="body2"
+                                              :class="hoverAccount || hasAccount === 2 ? 'primary bold': 'base'">
                                             {{ __('auth.i_have_a_tc_account') }}
                                         </span>
                                         <span class="mid-grey text-sm">{{ __('auth.choose_this_if_you_already_have_an_account') }}</span>
@@ -354,7 +374,8 @@
                                         <x-icon.no-account/>
                                     </div>
                                     <div class="flex flex-col">
-                                        <span class="body2" :class="hoverNoAccount || hasAccount === 3 ? 'primary bold': 'base'">
+                                        <span class="body2"
+                                              :class="hoverNoAccount || hasAccount === 3 ? 'primary bold': 'base'">
                                             {{ __('auth.i_have_no_tc_account') }}
                                         </span>
                                         <span class="mid-grey text-sm">{{ __('auth.choose_this_if_you_have_no_account') }}</span>
@@ -366,11 +387,13 @@
                                 </div>
                             </div>
                             <div class="flex w-full justify-between mt-auto">
-                                <x-button.text-button type="link" href="{{ route('auth.login') }}" class="rotate-svg-180">
+                                <x-button.text-button type="link" href="{{ route('auth.login') }}"
+                                                      class="rotate-svg-180">
                                     <x-icon.arrow/>
                                     <span>{{ __('auth.back_to_login') }}</span>
                                 </x-button.text-button>
-                                <x-button.primary wire:click="noEntreeEmailNextStep" x-bind:disabled="hasAccount == null" size="md">
+                                <x-button.primary wire:click="noEntreeEmailNextStep"
+                                                  x-bind:disabled="hasAccount == null" size="md">
                                     <span>{{ __('auth.next_step') }}</span>
                                     <x-icon.chevron/>
                                 </x-button.primary>
@@ -546,15 +569,16 @@
                         <p class="mb-4 body1">{{ __('auth.connect_entree_error') }}</p>
 
                         @if($fatal_error_message)
-                        <div class="flex">
-                            <div class="notification error stretched mt-4">
-                                <span class="title">{!!  __($fatal_error_message) !!}</span>
+                            <div class="flex">
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{!!  __($fatal_error_message) !!}</span>
+                                </div>
                             </div>
-                        </div>
                         @endif
                         <div class="mt-auto flex w-full">
 
-                            <x-button.text-button class="rotate-svg-180" type="link" href="{{ route('saml2_login', 'entree') }}">
+                            <x-button.text-button class="rotate-svg-180" type="link"
+                                                  href="{{ route('saml2_login', 'entree') }}">
                                 <x-icon.arrow/>
                                 <span class="text-base">{{ __('auth.back_to_login') }}</span>
                             </x-button.text-button>

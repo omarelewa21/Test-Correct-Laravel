@@ -87,4 +87,6 @@ return [
     'connect_entree_error'                       => 'Something went wrong while linking your account.',
     'next_step'                                  => 'Next step',
     'Inloggen op Test-Correct'                   => 'Log in to Test-Correct',
+    'no_test_found_with_code'                    => 'No test found for this code.',
+    'something_went_wrong'                       => 'Something went wrong.',
 ];

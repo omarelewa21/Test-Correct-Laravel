@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
+use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Helpers\EntreeHelper;
+use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
@@ -131,11 +133,14 @@ class Login extends Component
 
         $this->doLoginProcedure();
 
-//        if (auth()->user()->isA('Student')) {
-//            return redirect()->intended(route('student.dashboard'));
-//        }
-        if (auth()->user()->isA('Account manager')) {
-            return redirect()->intended(route('auth.temporary-login.to-cake'));
+        AppVersionDetector::handleHeaderCheck();
+
+        $user = auth()->user();
+        if ($user->isA('Student') && $user->schoolLocation->allow_guest_accounts) {
+            return redirect()->intended(route('student.dashboard'));
+        }
+        if ($user->isA('Account manager')) {
+            return redirect()->intended(route('uwlr.grid'));
         }
 
         auth()->user()->redirectToCakeWithTemporaryLogin();
@@ -143,9 +148,26 @@ class Login extends Component
 
     public function guestLogin()
     {
-//        if($this->isTestTakeCodeValid()) {
-//
-//        }
+        if (!$this->filledInNecessaryGuestInformation()) {
+            return false;
+        }
+
+        if (!$this->isTestTakeCodeCorrectFormat()) {
+            return $this->addError('invalid_test_code', __('auth.test_code_invalid'));
+        }
+
+        $testCodeHelper = new TestTakeCodeHelper();
+        $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
+
+        if (!$testTakeCode) {
+            return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
+        }
+
+        AppVersionDetector::handleHeaderCheck();
+
+        if ($testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode)) {
+            return $this->addError('error_on_handling_guest_login', __('auth.something_went_wrong'));
+        }
     }
 
     public function render()
@@ -163,9 +185,7 @@ class Login extends Component
     private function doLoginProcedure()
     {
         $sessionHash = auth()->user()->generateSessionHash();
-        session()->put('session_hash', $sessionHash);
-        auth()->user()->setAttribute('session_hash', $sessionHash);
-        auth()->user()->save();
+        auth()->user()->setSessionHash($sessionHash);
         FailedLogin::solveForUsernameAndIp($this->username, request()->ip());
     }
 
@@ -239,11 +259,15 @@ class Login extends Component
         $this->showSendForgotPasswordNotification = true;
     }
 
-    private function isTestTakeCodeValid(): bool
+    private function isTestTakeCodeCorrectFormat(): bool
     {
+        if (count($this->testTakeCode) != 6) {
+            return false;
+        }
+
         foreach ($this->testTakeCode as $key => $value) {
-            if (!$value) {
-                $this->addError('invalid_test_code', __('auth.test_code_invalid'));
+            $value = (int)$value;
+            if ($value === null || !is_int($value) || Str::length($value) != 1) {
                 return false;
             }
         }
@@ -449,7 +473,7 @@ class Login extends Component
                             $fail(
                                 sprintf(
                                     'Het emailadres moet eindigen op: %s.',
-                                    implode(' of ',$validator->getMessage())
+                                    implode(' of ', $validator->getMessage())
                                 )
                             );
                         }
@@ -464,5 +488,29 @@ class Login extends Component
         }
 
         return $this->rules['username'];
+    }
+
+    private function filledInNecessaryGuestInformation()
+    {
+        $hasNoError = true;
+        if (blank($this->firstName)) {
+            $this->addError('empty_guest_first_name', __('auth.empty_guest_first_name'));
+            $hasNoError = false;
+        }
+        if (blank($this->lastName)) {
+            $this->addError('empty_guest_last_name', __('auth.empty_guest_last_name'));
+            $hasNoError = false;
+        }
+
+        return $hasNoError;
+    }
+
+    private function gatherGuestData()
+    {
+        return [
+            'name_first'  => $this->firstName,
+            'name_suffix' => $this->suffix,
+            'name'        => $this->lastName
+        ];
     }
 }
