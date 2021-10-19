@@ -104,9 +104,10 @@ return [
     'who_are_you'                                                                                    => 'Wie ben je?',
     'login_as_student'                                                                               => 'Inloggen als student',
 //    'should_first_login_using_entree'                   => 'Je gegevens zijn nog niet gecontroleerd log de eerste keer in via Entree',
-    'Inloggen op Test-Correct' => 'Inloggen op Test-Correct'
+    'Inloggen op Test-Correct'                                                                       => 'Inloggen op Test-Correct',
     'no_test_found_with_code'                                                                        => 'Er is geen toets gevonden voor deze code.',
     'empty_guest_first_name'                                                                         => 'Voornaam is verplicht.',
     'empty_guest_last_name'                                                                          => 'Achternaam is verplicht.',
     'something_went_wrong'                                                                           => 'Something went wrong.',
+    'login'                                                                                          => 'Log in',
 ];
