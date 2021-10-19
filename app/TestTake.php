@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
+use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
@@ -303,6 +304,7 @@ class TestTake extends BaseModel
                 }
             }
 
+            $testTake->handleInbrowserTestingChangesForParticipants();
             $testTake->handleGuestAccountsStatus();
         });
 
@@ -921,5 +923,16 @@ class TestTake extends BaseModel
                 $participant->save();
             }
         });
+    }
+
+    private function handleInbrowserTestingChangesForParticipants()
+    {
+        TestParticipant::where('test_take_id', $this->getKey())
+            ->get()
+            ->each(function ($participant) {
+                $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
+                InbrowserTestingUpdatedForTestParticipant::dispatch($participant);
+            });
+
     }
 }

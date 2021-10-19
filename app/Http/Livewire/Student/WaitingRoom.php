@@ -21,8 +21,9 @@ class WaitingRoom extends Component
     protected function getListeners()
     {
         return [
-            'start-test-take'                                                                                   => 'startTestTake',
-            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.TestTakeOpenForInteraction' => 'isTestTakeOpen',
+            'start-test-take'                                                                                                  => 'startTestTake',
+            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
+            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
         ];
     }
 
@@ -47,10 +48,7 @@ class WaitingRoom extends Component
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
 
-        if (!$this->testParticipant->canUseBrowserTesting() && $this->testParticipant->isInBrowser()) {
-            $this->meetsAppRequirement = false;
-        }
-
+        $this->participantAppCheck();
     }
 
     public function render()
@@ -114,7 +112,7 @@ class WaitingRoom extends Component
 
     public function startDiscussing()
     {
-        $url = 'test_takes/discuss/'.$this->take;
+        $url = 'test_takes/discuss/' . $this->take;
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
@@ -122,7 +120,7 @@ class WaitingRoom extends Component
 
     public function startReview()
     {
-        $url = 'test_takes/glance/'.$this->take;
+        $url = 'test_takes/glance/' . $this->take;
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
@@ -136,5 +134,10 @@ class WaitingRoom extends Component
 
         session()->put('guest_take', $this->take);
         return redirect(route('guest-choice', ['take' => $this->take]));
+    }
+
+    public function participantAppCheck()
+    {
+        $this->meetsAppRequirement = !(!$this->testParticipant->canUseBrowserTesting() && $this->testParticipant->isInBrowser());
     }
 }

@@ -1401,12 +1401,6 @@ class TestTakesController extends Controller {
     {
         $allow_inbrowser_testing = $testTake->allow_inbrowser_testing;
         $testTake->setAttribute('allow_inbrowser_testing', !$allow_inbrowser_testing)->save();
-
-        TestParticipant::where('test_take_id', $testTake->getKey())
-            ->get()
-            ->each(function ($participant) use ($allow_inbrowser_testing) {
-                $participant->setAttribute('allow_inbrowser_testing', !$allow_inbrowser_testing)->save();
-            });
     }
 
     public function isAllowedInbrowserTesting(TestTake $testTake)
