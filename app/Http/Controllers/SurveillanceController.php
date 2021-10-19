@@ -21,9 +21,16 @@ class SurveillanceController extends Controller
     private $ipCheck = false;
     private $eventIdsThatRequireConfirming = null;
 
+    public function __construct(){
+        if (!Auth::user()->isA(['teacher', 'invigilator'])) {
+            abort(403);
+        }
+    }
+
     /** @TODO add appropriate 403 */
     public function index()
     {
+
         $this->setIpCheck();
 
         $this->response = [
