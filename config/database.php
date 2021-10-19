@@ -1,10 +1,12 @@
 <?php
 
+$readHosts = [];
+$writeHosts = [];
+
 if(env('DB_CONNECTION') === 'mysql_master_slave'){
     $rHosts = explode(',',env('DB_READ_HOSTS'));
     $wHosts = explode(',',env('DB_WRITE_HOSTS'));
-    $readHosts = [];
-    $writeHosts = [];
+
     foreach($rHosts as $host){
         $hostData = explode(':',$host);
         if(count($hostData) === 1){
