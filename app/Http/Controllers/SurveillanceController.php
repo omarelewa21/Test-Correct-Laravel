@@ -64,6 +64,8 @@ class SurveillanceController extends Controller
 
     private function getTakesForSurveillance(User $owner)
     {
+        $testTakeIds = $this->getCachedTestTakeIds($owner);
+
         $participantHasEvents = TestTakeEvent::select('test_participant_id', DB::Raw('max(test_take_events.id) as event'))
             ->join('test_take_event_types','test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
             ->where('requires_confirming', '1')
@@ -120,42 +122,7 @@ class SurveillanceController extends Controller
                     });
             })
             ->join('tests', 'test_takes.test_id', 'tests.id')
-            ->where('test_takes.test_take_status_id', 3)
-
-            ->where(function($query) use ($owner) {
-                $query->where(function($query) use ($owner) {
-                    $query->where('test_takes.demo',1)
-                        ->where('test_takes.user_id',$owner->getKey());
-                })
-                    ->orWhere('test_takes.demo',0);
-            })
-
-            // TC-158 only show testtakes from tests from other subjects or if demo subject dan ook zelf de eigenaar
-            ->where(function($q) use ($owner){
-                $subject = (new DemoHelper())->getDemoSubjectForTeacher($owner);
-
-                //TCP-156
-                if ($subject === null) {
-                    return;
-                }
-
-                $q->whereIn('test_takes.id', function ($query) use ($subject, $owner) {
-                    $testTable = with(new Test())->getTable();
-                    $query
-                        ->select('test_takes.id')
-                        ->from('test_takes')
-                        ->join($testTable, $testTable . '.id', '=', 'test_takes.test_id')
-                        ->whereNull($testTable.'.deleted_at')
-                        ->where(function($query) use ($subject, $owner, $testTable){
-                            $query->where(function($query) use ($testTable, $subject, $owner) {
-                                $query->where($testTable . '.subject_id', $subject->getKey())
-                                    ->where($testTable . '.author_id', $owner->getKey());
-                            })
-                                ->orWhere($testTable.'.subject_id','<>',$subject->getKey());
-                        });
-
-                });
-            })
+            ->whereIn('test_takes.id', $testTakeIds)
 
             ->with([
                 'testParticipants' => function ($query) use ($participantHasEvents) {
@@ -275,5 +242,52 @@ class SurveillanceController extends Controller
             ->limit(1);
 
         return $query;
+    }
+
+    private function getCachedTestTakeIds(User $owner)
+    {
+        $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function() use ($owner) {
+
+
+           return TestTake::query()->where('test_takes.test_take_status_id', 3)
+                ->where(function ($query) use ($owner) {
+                    $query->where(function ($query) use ($owner) {
+                        $query->where('test_takes.demo', 1)
+                            ->where('test_takes.user_id', $owner->getKey());
+                    })
+                        ->orWhere('test_takes.demo', 0);
+                })
+
+                // TC-158 only show testtakes from tests from other subjects or if demo subject dan ook zelf de eigenaar
+                ->where(function ($q) use ($owner) {
+                    $subject = (new DemoHelper())->getDemoSubjectForTeacher($owner);
+
+                    //TCP-156
+                    if ($subject === null) {
+                        return;
+                    }
+
+                    $q->whereIn('test_takes.id', function ($query) use ($subject, $owner) {
+                        $testTable = with(new Test())->getTable();
+                        $query
+                            ->select('test_takes.id')
+                            ->from('test_takes')
+                            ->join($testTable, $testTable.'.id', '=', 'test_takes.test_id')
+                            ->whereNull($testTable.'.deleted_at')
+                            ->where(function ($query) use ($subject, $owner, $testTable) {
+                                $query->where(function ($query) use ($testTable, $subject, $owner) {
+                                    $query->where($testTable.'.subject_id', $subject->getKey())
+                                        ->where($testTable.'.author_id', $owner->getKey());
+                                })
+                                    ->orWhere($testTable.'.subject_id', '<>', $subject->getKey());
+                            });
+
+                    });
+                })->get('id');
+        });
+
+        return $ids;
+
+
     }
 }
