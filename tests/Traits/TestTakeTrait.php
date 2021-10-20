@@ -20,7 +20,7 @@ use tcCore\GroupQuestionQuestion;
 use Carbon\Carbon;
 use \stdClass;
 use tcCore\User;
-
+use tcCore\TestTakeEvent;
 
 trait TestTakeTrait
 {
@@ -74,6 +74,7 @@ trait TestTakeTrait
             'test_id'             => $testId,
             'weight'              => 1,
             'invigilator_note'    => '',
+            'allow_inbrowser_testing' => 1,
             'time_start'          => Carbon::now()->format('Y-m-d H:i:s'),
             'retake'              => 0,
             'test_take_status_id' => 1,
@@ -115,6 +116,9 @@ trait TestTakeTrait
     {
         $testTake = TestTake::whereUuid($testTakeUuid)->firstOrFail();
         $testParticipants = $testTake->testParticipants;
+        $testTakeEvent = new TestTakeEvent();
+        $testTakeEvent->setAttribute('test_take_event_type_id', 1);
+        $testTake->testTakeEvents()->save($testTakeEvent);
         foreach ($testParticipants as $testParticipant) {
             $studentNumber = $this->getStudentNumber($testParticipant->user);
             $this->initTestTakeForStudentX($studentNumber, $testTakeUuid, $testParticipant->uuid);
@@ -145,6 +149,9 @@ trait TestTakeTrait
         foreach ($answers as $answer) {
             $question = $answer->question;
             $mcAnswers = $question->multipleChoiceQuestionAnswers;
+            if(is_null($mcAnswers)){
+                continue;
+            }
             $count = $mcAnswers->count();
             $count--;
             $check = rand(0, $count);
