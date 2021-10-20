@@ -119,7 +119,7 @@ class SurveillanceController extends Controller
             })
             ->join('tests', 'test_takes.test_id', 'tests.id')
             ->where('test_takes.test_take_status_id', 3)
-            ->where('test_takes.time_start', '=', date('y-m-d'))
+//            ->where('test_takes.time_start', '=', date('y-m-d'))
             ->with([
                 'testParticipants' => function ($query) use ($participantHasEvents) {
                     $query->select(
