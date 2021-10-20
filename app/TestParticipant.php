@@ -329,7 +329,8 @@ class TestParticipant extends BaseModel
 
                 if ($timeLate->isPast()) {
                     $testTakeEvent = new TestTakeEvent();
-                    $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Started late')->value('id'));
+                    $testTakeEvent->setAttribute('test_take_event_type_id',
+                        TestTakeEventType::where('name', '=', 'Started late')->value('id'));
                     $testTakeEvent->setAttribute('test_take_id', $this->getAttribute('test_take_id'));
 
                     $this->testTakeEvents()->save($testTakeEvent);

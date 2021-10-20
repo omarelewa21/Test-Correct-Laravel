@@ -30,6 +30,7 @@ class SurveillanceControllerTest extends TestCase
     {
         $testTakeUuid = TestTake::find($take_id = $this->startTestTakeFor(null, null))->uuid;
         Auth::login(self::getTeacherOne());
+
 //        dd($response = ((new SurveillanceController)->index()));
 
         $testParicipantUuid = TestParticipant::where([
@@ -302,10 +303,9 @@ class SurveillanceControllerTest extends TestCase
     public function time_key_should_reflect_current_time_in_24_hours_and_minutes()
     {
         Auth::login(self::getTeacherOne());
-        Carbon::setTestNow(Carbon::create(2018, 6, 18, 12, 10));
+        Carbon::setTestNow(Carbon::create(now()->year, now()->month, now()->day, 12, 10));
 
         $response = ((new SurveillanceController)->index());
-
         $this->assertEquals('12:10', $response['time']);
     }
 
