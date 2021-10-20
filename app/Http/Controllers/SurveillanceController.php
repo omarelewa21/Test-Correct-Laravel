@@ -59,7 +59,7 @@ class SurveillanceController extends Controller
     private function getTakesForSurveillance(User $owner)
     {
         $participantHasEvents = TestTakeEvent::select('test_participant_id', DB::Raw('max(test_take_events.id) as event'))
-            ->join('test_take_event_types','test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
+            ->join('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
             ->where('requires_confirming', '1')
             ->groupBy('test_participant_id');
 
@@ -110,10 +110,10 @@ class SurveillanceController extends Controller
                                 $query = $this->getIpCheckQuery($query);
                             }
                         ]
-                    )->leftJoinSub($participantHasEvents, 'has_events', function($join){
-                       $join->on('test_participants.id', '=', 'has_events.test_participant_id');
+                    )->leftJoinSub($participantHasEvents, 'has_events', function ($join) {
+                        $join->on('test_participants.id', '=', 'has_events.test_participant_id');
                     });
-                },
+                }, 'testParticipants.user:id,guest'
             ])
             ->get();
     }
@@ -126,7 +126,7 @@ class SurveillanceController extends Controller
 
             if (array_key_exists($key, $this->schoolClassProgress) && count($this->schoolClassProgress[$key]) > 0) {
 
-                $progress = (int) round(array_sum($this->schoolClassProgress[$key]) / count($this->schoolClassProgress[$key]));
+                $progress = (int)round(array_sum($this->schoolClassProgress[$key]) / count($this->schoolClassProgress[$key]));
             }
             $this->response['takes'][sprintf('progress_%s_%s', $testTake->uuid, $schoolClass->uuid)] = $progress;
         });
@@ -153,6 +153,7 @@ class SurveillanceController extends Controller
                 'ip'                      => $participant->ip_check == 'true' ? true : false,
                 'status'                  => $participant->test_take_status_id,
                 'allow_inbrowser_testing' => $participant->allow_inbrowser_testing,
+                'guest'                   => $participant->user->guest,
             ];
         });
     }
@@ -163,7 +164,7 @@ class SurveillanceController extends Controller
             return 0;
         }
 
-        return (int) (round($participant->answered_count / $participant->answers_total * 100, 0));
+        return (int)(round($participant->answered_count / $participant->answers_total * 100, 0));
     }
 
     private function getIpCheckQuery(Builder $query)

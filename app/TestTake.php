@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\TestTakeOpenForInteraction;
+use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
@@ -310,6 +311,7 @@ class TestTake extends BaseModel
 
             $testTake->handleInbrowserTestingChangesForParticipants();
             $testTake->handleGuestAccountsStatus();
+            $testTake->handleShowResultChanges();
         });
 
         static::creating(function(TestTake $testTake) {
@@ -931,12 +933,20 @@ class TestTake extends BaseModel
 
     private function handleInbrowserTestingChangesForParticipants()
     {
-        TestParticipant::where('test_take_id', $this->getKey())
-            ->get()
-            ->each(function ($participant) {
-                $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
-                InbrowserTestingUpdatedForTestParticipant::dispatch($participant);
-            });
+        if ($this->allow_inbrowser_testing != $this->getOriginal('allow_inbrowser_testing')) {
+            TestParticipant::where('test_take_id', $this->getKey())
+                ->get()
+                ->each(function ($participant) {
+                    $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
+                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant);
+                });
+        }
+    }
 
+    private function handleShowResultChanges()
+    {
+        if ($this->show_results != $this->getOriginal('show_results')) {
+            TestTakeShowResultsChanged::dispatch($this);
+        }
     }
 }

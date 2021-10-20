@@ -51,9 +51,20 @@
         <div class="divider flex flex-1"></div>
     @endif
 @elseif($testTakeStatusStage === 'graded')
-    <div class="divider flex flex-1"></div>
-    <div class="flex flex-col justify-center">
-        <div class="mx-4">{{ __('student.cannot_review_test') }}</div>
-    </div>
-    <div class="divider flex flex-1"></div>
+    @if($isTakeOpen)
+        <div class="divider flex flex-1 pulse-left"></div>
+        <div class="flex flex-col justify-center">
+            <x-button.cta wire:click="startReview">
+                <x-icon.preview/>
+                <span>{{ __('student.start_review') }}</span>
+            </x-button.cta>
+        </div>
+        <div class="divider flex flex-1 pulse-right"></div>
+    @else
+        <div class="divider flex flex-1"></div>
+        <div class="flex flex-col justify-center">
+            <div class="mx-4">{{ __('student.cannot_review_test') }}</div>
+        </div>
+        <div class="divider flex flex-1"></div>
+    @endif
 @endif

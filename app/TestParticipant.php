@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\BrowserTestingDisabledForParticipant;
+use tcCore\Events\RemoveParticipantFromWaitingRoom;
 use tcCore\Events\TestParticipantGuestAvailabilityChanged;
 use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Events\TestTakeReopened;
@@ -95,6 +96,10 @@ class TestParticipant extends BaseModel
             $testParticipant->isBrowserTestingActive();
 
             $testParticipant->hasGuestAvailabilityChanged();
+        });
+
+        static::deleting(function (TestParticipant $testParticipant) {
+            RemoveParticipantFromWaitingRoom::dispatch($testParticipant);
         });
     }
 

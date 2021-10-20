@@ -12,11 +12,22 @@
 
     <x-modal maxWidth="lg" wire:model="forceTakenAwayModal" showCancelButton="0">
         <x-slot name="title">{{__('test-take.Toets ingenomen door docent.')}}</x-slot>
-        <x-slot name="body">{{__('test-take.De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar het dashboard.')}}
+        <x-slot name="body">
+            @if(!Auth::user()->guest)
+                {{ __('test-take.De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar het dashboard.') }}
+            @else
+                {{ __('test-take.De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Sluit de toets.') }}
+            @endif
         </x-slot>
         <x-slot name="actionButton">
             <x-button.cta size="md" wire:click="TurnInTestTake">
-                <span>Dashboard</span>
+                <span>
+                    @if(!Auth::user()->guest)
+                        {{ __('student.dashboard') }}
+                    @else
+                        {{ __('general.close') }}
+                    @endif
+                </span>
                 <x-icon.arrow/>
             </x-button.cta>
         </x-slot>
