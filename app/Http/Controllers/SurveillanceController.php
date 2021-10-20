@@ -283,7 +283,7 @@ class SurveillanceController extends Controller
                             });
 
                     });
-                })->get('id');
+                })->pluck('id')->toArray();
         });
 
         return $ids;
