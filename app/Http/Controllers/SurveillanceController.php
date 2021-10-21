@@ -123,7 +123,7 @@ class SurveillanceController extends Controller
             })
             ->join('tests', 'test_takes.test_id', 'tests.id')
             ->whereIn('test_takes.id', $testTakeIds)
-
+            ->where('test_take_status_id','=', '3')
             ->with([
                 'testParticipants' => function ($query) use ($participantHasEvents) {
                     $query->select(
