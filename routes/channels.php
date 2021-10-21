@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 
-Broadcast::channel('Presence-TestTake.{testTakeUuid}', function($user) {
+Broadcast::channel('presence-TestTake.{testTakeUuid}', function($user) {
     return [
         'id' => $user->getKey(),
         'uuid' => $user->uuid,

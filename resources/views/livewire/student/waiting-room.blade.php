@@ -5,7 +5,7 @@
         @if(!Auth::user()->guest)
         makeHeaderMenuActive('student-header-tests');
         @endif
-             Echo.join('Presence-TestTake.{{ $waitingTestTake->uuid }}')
+             Echo.join('presence-TestTake.{{ $waitingTestTake->uuid }}')
                 .listen('.TestTakeShowResultsChanged', (e) => {
                     Livewire.emit('is-test-take-open', e)
                 })
