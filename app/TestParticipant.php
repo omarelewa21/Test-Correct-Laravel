@@ -245,6 +245,56 @@ class TestParticipant extends BaseModel
         return $this->attributes['ip_address'];
     }
 
+    public function getLabelAttribute()
+    {
+        return self::getLabelsAndTexts('label', $this->test_take_status_id);
+    }
+
+    public function getTextAttribute()
+    {
+        return self::getLabelsAndTexts('text', $this->test_take_status_id);
+    }
+
+
+    private static function getLabelsAndTexts($type, $value)
+    {
+        $lookup = [
+            1 => [
+                'label' => 'info',
+                'text'  => 'Ingepland',
+            ],
+            2 => [
+                'label' => 'danger',
+                'text'  => 'Niet gemaakt',
+            ],
+            3 => [
+                'label' => 'success',
+                'text'  => 'Maakt toets',
+            ],
+            4 => [
+                'label' => 'info',
+                'text'  => 'Ingeleverd',
+            ],
+            5 => [
+                'label' => 'warning',
+                'text'  => 'Ingeleverd (geforceerd)',
+            ],
+            6 => [
+                'label' => 'success',
+                'text'  => 'Ingenomen',
+            ],
+        ];
+
+        if (!array_key_exists($value, $lookup)) {
+            throw new \Exception(sprintf('Couldnot find test_take_status_id %d', $value));
+        }
+
+        if (!array_key_exists($type, $lookup[$value])) {
+            throw new \Exception(sprintf('Couldnot find %s for test_take_status_id %d', $type, $value));
+        }
+        return $lookup[$value][$type];
+    }
+
     public function pValues()
     {
         return $this->hasMany('tcCore\PValue');
@@ -263,9 +313,9 @@ class TestParticipant extends BaseModel
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST) {
             $testTakeTypeStatus = TestTakeEventType::where('name', '=', 'Start')->value('id');
             $participantStartEvent = TestTakeEvent::whereTestParticipantId($this->getKey())
-                ->whereTestTakeId($this->testTake->getKey())
-                ->whereTestTakeEventTypeId($testTakeTypeStatus)
-                ->first();
+                                                    ->whereTestTakeId($this->testTake->getKey())
+                                                    ->whereTestTakeEventTypeId($testTakeTypeStatus)
+                                                    ->first();
             if (!$participantStartEvent) {
                 // Test participant test event for starting
                 $testTakeEvent = new TestTakeEvent();
@@ -279,7 +329,8 @@ class TestParticipant extends BaseModel
 
                 if ($timeLate->isPast()) {
                     $testTakeEvent = new TestTakeEvent();
-                    $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Started late')->value('id'));
+                    $testTakeEvent->setAttribute('test_take_event_type_id',
+                        TestTakeEventType::where('name', '=', 'Started late')->value('id'));
                     $testTakeEvent->setAttribute('test_take_id', $this->getAttribute('test_take_id'));
 
                     $this->testTakeEvents()->save($testTakeEvent);
@@ -401,6 +452,11 @@ class TestParticipant extends BaseModel
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
             TestTakeForceTakenAway::dispatch($this);
         }
+    }
+
+    public function getAlertStatus()
+    {
+        return false;
     }
 
     private function isBrowserTestingActive()
