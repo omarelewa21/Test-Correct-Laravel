@@ -71,6 +71,9 @@ trait UserImporterTrait {
         $unique = $paramCollection->unique();
         $duplicates = $paramCollection->diffAssoc($unique);
         $duplicates->each(function($duplicate,$duplicatekey) use ($validator,$usernameExternalIdDataCollection,$primaryParamName,$secondaryParamName) {
+            if(empty($duplicate)){
+                return true;
+            }
             $firstEntry = $usernameExternalIdDataCollection->where($primaryParamName,$duplicate)->first();
             $secondaryParam = $firstEntry[$secondaryParamName];
             $filtered = $usernameExternalIdDataCollection->filter(function ($value, $key) use ($duplicate,$primaryParamName) {

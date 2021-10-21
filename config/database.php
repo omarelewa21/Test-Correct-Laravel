@@ -3,7 +3,7 @@
 $readHosts = [];
 $writeHosts = [];
 
-if(env('DB_CONNECTION') === 'mysql_master_slave'){
+if(env('DB_CONNECTION','mysql') === 'mysql_master_slave'){
     $rHosts = explode(',',env('DB_READ_HOSTS'));
     $wHosts = explode(',',env('DB_WRITE_HOSTS'));
 
@@ -84,12 +84,8 @@ return [
 		],
 
         'mysql_master_slave' => [
-            'read'      => [
-              'host'        => $readHosts,
-            ],
-            'write'     => [
-              'host'        => $writeHosts,
-            ],
+            'read'      => $readHosts,
+            'write'     => $writeHosts,
             'sticky'    => env('DB_STICKY', true),
             'driver'    => 'mysql',
             'database'  => env('DB_DATABASE', 'forge'),
