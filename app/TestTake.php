@@ -569,28 +569,25 @@ class TestTake extends BaseModel
 //                    });
 //                    break;
                 case 'period_id':
-                    if (is_array($value)) {
-                        $query->whereIn($this->getTable() . '.period_id', $value);
-                    } else {
-                        $query->where($this->getTable() . '.period_id', '=', $value);
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
+                    $query->whereIn($this->getTable().'.period_id', $value);
                     break;
                 case 'retake':
                     $query->where('retake', '=', $value);
                     break;
                 case 'retake_test_id':
-                    if (is_array($value)) {
-                        $query->whereIn('retake_test_take_id', $value);
-                    } else {
-                        $query->where('retake_test_take_id', '=', $value);
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
+                    $query->whereIn('retake_test_take_id', $value);
                     break;
                 case 'test_take_status_id':
-                    if (is_array($value)) {
-                        $query->whereIn('test_take_status_id', $value);
-                    } else {
-                        $query->where('test_take_status_id', '=', $value);
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
+                    $query->whereIn('test_take_status_id', $value);
                     break;
                 case 'time_start_from':
                     $query->where('time_start', '>=', $value);
@@ -678,9 +675,12 @@ class TestTake extends BaseModel
                     }
                     break;
                 case 'school_class_name':
-                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereHas('schoolClass', function($q) use ($value){
-                                                                                                    $q->where('name', 'LIKE', '%' . $value . '%');
-                                                                                                })->distinct()->pluck('test_take_id'));
+                    $query->whereIn(
+                        $this->getTable().'.id',
+                        TestParticipant::whereHas('schoolClass', function ($q) use ($value) {
+                            $q->where('name', 'LIKE', '%'.$value.'%');
+                        })->distinct()
+                            ->pluck('test_take_id'));
                     break;
                 case 'location':
                     $query->where('location', 'LIKE', '%' . $value . '%');
