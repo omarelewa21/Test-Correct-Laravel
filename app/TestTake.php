@@ -59,8 +59,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -500,65 +499,12 @@ class TestTake extends BaseModel
                     });
             });
         } elseif (in_array('Teacher', $roles)) {
-            $query->where(function ($query) {
-                // 20200304 @CANBEDELETED
-                // -- ik ben de aanmaker van deze test
-                // op verzoek van Alex eruit gehaald in verband met uberhaupt verkeerde column name => is nu wel aangepast
+            $user = Auth::user();
+            $query->accessForTeacher(Auth::user());
 
-//                $query->whereIn('test_id', function ($query) {
-//                    $query->select('id')
-//                        ->from(with(new Test())->getTable())
-//                        ->where('author_id', Auth::id())
-//                        ->where('deleted_at', null);
-//                });
-                    // -- aanmaker van de test_take / inplanner
-                    $query->orWhere('test_takes.user_id', Auth::id())
-                    // -- in de lijst met surveillanten
-                    ->orWhereIn($this->getTable() . '.id', function ($query) {
-                        $query->select('test_take_id')
-                            ->from(with(new Invigilator())->getTable())
-                            ->where('user_id', Auth::id())
-                            ->where('deleted_at', null);
-                    })
-                    // -- ik heb toegang tot de lesgroep/klas van leerlingen && ik heb een bijpassend subject id
-                    ->orWhereIn($this->getTable() . '.id', function ($query) {
-                        $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
-                        $teacherTable = with((new Teacher)->getTable());
-                        $schoolClassTable = with((new SchoolClass())->getTable());
-                        $query->select('test_take_id')
-                            ->from(with(new TestParticipant())->getTable())
-                            ->whereNull('deleted_at')
-                            ->whereIn('school_class_id', function ($query) use ($teacherTable,$schoolClassTable,$currentSchoolYearId){
-                                $query->select('class_id')
-                                    ->from($teacherTable)
-                                    ->join($schoolClassTable, "$teacherTable.class_id",'=',"$schoolClassTable.id")
-                                    ->where('user_id', Auth::id())
-                                    ->where('school_year_id',$currentSchoolYearId)
-                                    ->whereNull("$teacherTable.deleted_at")
-                                    ->whereNull("$schoolClassTable.deleted_at");
-                            })
-                            ->whereIn($this->getTable() . '.id', function ($query) use ($teacherTable,$schoolClassTable,$currentSchoolYearId){
-                                $testTable = with(new Test())->getTable();
-                                $query
-                                    ->select($this->getTable().'.id')
-                                    ->from($this->getTable())
-                                    ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
-                                    ->whereNull($testTable.'.deleted_at')
-                                    ->whereIn($testTable . '.subject_id', function ($query) use ($teacherTable,$schoolClassTable,$currentSchoolYearId){
-                                        $query->select('subject_id')
-                                            ->from($teacherTable)
-                                            ->join($schoolClassTable, "$teacherTable.class_id",'=',"$schoolClassTable.id")
-                                            ->where('user_id', Auth::id())
-                                            ->where('school_year_id',$currentSchoolYearId)
-                                            ->whereNull("$teacherTable.deleted_at")
-                                            ->whereNull("$schoolClassTable.deleted_at");
-                                    });
-                            });
-                    });
-            });
 
             // don't show demo tests from other teachers
-            $user = Auth::user();
+
             $query->where(function($query) use ($user) {
                 $query->where(function($query) use ($user) {
                     $query->where($this->getTable().'.demo',1)
@@ -938,5 +884,74 @@ class TestTake extends BaseModel
                 InbrowserTestingUpdatedForTestParticipant::dispatch($participant);
             });
 
+    }
+
+    private function orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, User $user)
+    {
+        $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
+            $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
+            $teacherTable = with((new Teacher)->getTable());
+            $schoolClassTable = with((new SchoolClass())->getTable());
+            $query->select('test_take_id')
+                ->from(with(new TestParticipant())->getTable())
+                ->whereNull('deleted_at')
+                ->whereIn('school_class_id',
+                    function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId, $user) {
+                        $query->select('class_id')
+                            ->from($teacherTable)
+                            ->join($schoolClassTable, "$teacherTable.class_id", '=', "$schoolClassTable.id")
+                            ->where('user_id', $user->id)
+                            ->where('school_year_id', $currentSchoolYearId)
+                            ->whereNull("$teacherTable.deleted_at")
+                            ->whereNull("$schoolClassTable.deleted_at");
+                    })
+                ->whereIn($this->getTable().'.id',
+                    function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
+                        $testTable = with(new Test())->getTable();
+                        $query
+                            ->select($this->getTable().'.id')
+                            ->from($this->getTable())
+                            ->join($testTable, $testTable.'.id', '=', $this->getTable().'.test_id')
+                            ->whereNull($testTable.'.deleted_at')
+                            ->whereIn($testTable.'.subject_id',
+                                function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
+                                    $query->select('subject_id')
+                                        ->from($teacherTable)
+                                        ->join($schoolClassTable, "$teacherTable.class_id", '=', "$schoolClassTable.id")
+                                        ->where('user_id', Auth::id())
+                                        ->where('school_year_id', $currentSchoolYearId)
+                                        ->whereNull("$teacherTable.deleted_at")
+                                        ->whereNull("$schoolClassTable.deleted_at");
+                                });
+                    });
+        });
+        return $this;
+    }
+
+    private function orUserIsInvigilatorScope($query, User $user)
+    {
+        $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
+            $query->select('test_take_id')
+                ->from(with(new Invigilator())->getTable())
+                ->where('user_id', $user->id)
+                ->where('deleted_at', null);
+        });
+        return $this;
+    }
+
+    private function orUserIsCreatorScope($query, User $user)
+    {
+        $query->orWhere('test_takes.user_id', $user->id);
+        return $this;
+    }
+
+    public function scopeAccessForTeacher($query, User $user)
+    {
+        $query->where(function ($query) use ($user) {
+            $this
+                ->orUserIsCreatorScope($query, $user)
+                ->orUserIsInvigilatorScope($query, $user)
+                ->orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, $user);
+        });
     }
 }
