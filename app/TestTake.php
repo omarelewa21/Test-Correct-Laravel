@@ -505,34 +505,7 @@ class TestTake extends BaseModel
             $query->withoutDemoTeacherForUser($user);
 
             // TC-158 only show testtakes from tests from other subjects or if demo subject dan ook zelf de eigenaar
-            $query->where(function($q) use ($user){
-                $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
-
-                //TCP-156
-                if ($subject === null) {
-                    if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://portal.test-correct.nl/" || config('app.env') == "production") {
-                        dispatch(new SendExceptionMail("Er is iets mis met de demoschool op " . config('app.url_login') . "! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!", __FILE__, 510, []));
-                    }
-                    return;
-                }
-
-                $q->whereIn($this->getTable() . '.id', function ($query) use ($subject, $user) {
-                    $testTable = with(new Test())->getTable();
-                    $query
-                        ->select($this->getTable().'.id')
-                        ->from($this->getTable())
-                        ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id')
-                        ->whereNull($testTable.'.deleted_at')
-                        ->where(function($query) use ($subject, $user, $testTable){
-                            $query->where(function($query) use ($testTable, $subject, $user) {
-                                $query->where($testTable . '.subject_id', $subject->getKey())
-                                    ->where($testTable . '.author_id', $user->getKey());
-                            })
-                                ->orWhere($testTable.'.subject_id','<>',$subject->getKey());
-                        });
-
-                });
-            });
+           $query->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user);
 
         } elseif (in_array('Student', $roles)) {
             $query->whereIn($this->getTable() . '.id', function ($query) {
@@ -957,6 +930,38 @@ class TestTake extends BaseModel
                 $query->where($this->getTable().'.demo', 1)
                     ->where($this->getTable().'.user_id', $user->getKey());
             })->orWhere($this->getTable().'.demo', 0);
+        });
+    }
+
+    public function scopeOnlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($query, User $user)
+    {
+        $query->where(function ($q) use ($user) {
+            $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
+            //TCP-156
+            if ($subject === null) {
+                if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://portal.test-correct.nl/" || config('app.env') == "production") {
+                    dispatch(new SendExceptionMail("Er is iets mis met de demoschool op ".config('app.url_login')."! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!",
+                        __FILE__, 510, []));
+                }
+                return;
+            }
+
+            $q->whereIn($this->getTable().'.id', function ($query) use ($subject, $user) {
+                $testTable = with(new Test())->getTable();
+                $query
+                    ->select($this->getTable().'.id')
+                    ->from($this->getTable())
+                    ->join($testTable, $testTable.'.id', '=', $this->getTable().'.test_id')
+                    ->whereNull($testTable.'.deleted_at')
+                    ->where(function ($query) use ($subject, $user, $testTable) {
+                        $query->where(function ($query) use ($testTable, $subject, $user) {
+                            $query->where($testTable.'.subject_id', $subject->getKey())
+                                ->where($testTable.'.author_id', $user->getKey());
+                        })
+                            ->orWhere($testTable.'.subject_id', '<>', $subject->getKey());
+                    });
+
+            });
         });
     }
 }
