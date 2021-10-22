@@ -54,7 +54,6 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-
     protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing'];
 
     /**
@@ -480,28 +479,12 @@ class TestTake extends BaseModel
                     });
             });
         } elseif (in_array('Teacher', $roles)) {
-            $query->where(function ($query) {
-                // 20200304 @CANBEDELETED
-                // -- ik ben de aanmaker van deze test
-                // op verzoek van Alex eruit gehaald in verband met uberhaupt verkeerde column name => is nu wel aangepast
+            $user = Auth::user();
+            $query->accessForTeacher(Auth::user());
 
-//                $query->whereIn('test_id', function ($query) {
-//                    $query->select('id')
-//                        ->from(with(new Test())->getTable())
-//                        ->where('author_id', Auth::id())
-//                        ->where('deleted_at', null);
-//                });
-                    // -- aanmaker van de test_take / inplanner
-
-                    $query->orUserIsCreator(Auth::user())
-                    // -- in de lijst met surveillanten
-                    ->orUserIsInvigilator(Auth::user())
-                    // -- ik heb toegang tot de lesgroep/klas van leerlingen && ik heb een bijpassend subject id
-                    ->orUserHasAccessToSchoolClassParticipantsAndSubject(Auth::user());
-            });
 
             // don't show demo tests from other teachers
-            $user = Auth::user();
+
             $query->where(function($query) use ($user) {
                 $query->where(function($query) use ($user) {
                     $query->where($this->getTable().'.demo',1)
@@ -825,9 +808,9 @@ class TestTake extends BaseModel
         return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 
-    public function  scopeOrUserHasAccessToSchoolClassParticipantsAndSubject($query, User $user)
+    private function orUserHasAccessToSchoolClassParticipantsAndSubject($query, User $user)
     {
-        return $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
+        $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
             $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
             $teacherTable = with((new Teacher)->getTable());
             $schoolClassTable = with((new SchoolClass())->getTable());
@@ -864,18 +847,33 @@ class TestTake extends BaseModel
                                 });
                     });
         });
+        return $this;
     }
 
-    public function scopeOrUserIsInvigilator($query, User $user) {
-        return $query->orWhereIn($this->getTable() . '.id', function ($query) use ($user) {
+    private function orUserIsInvigilator($query, User $user)
+    {
+        $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
             $query->select('test_take_id')
                 ->from(with(new Invigilator())->getTable())
                 ->where('user_id', $user->id)
                 ->where('deleted_at', null);
         });
+        return $this;
     }
 
-    public function scopeOrUserIsCreator($query, $user) {
-        return $query->orWhere('test_takes.user_id', $user->id);
+    private function orUserIsCreator($query, User $user)
+    {
+        $query->orWhere('test_takes.user_id', $user->id);
+        return $this;
+    }
+
+    public function scopeAccessForTeacher($query, User $user)
+    {
+        $query->where(function ($query) use ($user) {
+            $this
+                ->orUserIsCreator($query, $user)
+                ->orUserIsInvigilator($query, $user)
+                ->orUserHasAccessToSchoolClassParticipantsAndSubject($query, $user);
+        });
     }
 }
