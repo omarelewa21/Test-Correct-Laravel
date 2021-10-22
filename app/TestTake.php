@@ -500,12 +500,9 @@ class TestTake extends BaseModel
             });
         } elseif (in_array('Teacher', $roles)) {
             $user = Auth::user();
-            $query->accessForTeacher($user);
-            // don't show demo tests from other teachers
-            $query->withoutDemoTeacherForUser($user);
-
-            // TC-158 only show testtakes from tests from other subjects or if demo subject dan ook zelf de eigenaar
-           $query->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user);
+            $query->accessForTeacher($user)
+                ->withoutDemoTeacherForUser($user)
+                ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($user);
 
         } elseif (in_array('Student', $roles)) {
             $query->whereIn($this->getTable() . '.id', function ($query) {
