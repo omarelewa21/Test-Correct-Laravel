@@ -163,6 +163,6 @@ class WaitingRoom extends Component
 
     private function escortUserFromWaitingRoom()
     {
-        return Auth::user()->guest ? redirect(route('auth.login')) : redirect(route('student.dashboard'));
+        return Auth::user()->guest ? redirect(route('auth.login', ['login_tab' => 2, 'guest_error' => 'removed_by_teacher'])) : redirect(route('student.dashboard'));
     }
 }

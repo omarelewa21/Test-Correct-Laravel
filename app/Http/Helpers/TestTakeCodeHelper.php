@@ -93,11 +93,17 @@ class TestTakeCodeHelper extends BaseHelper
             $this->handleStageGraded($testTakeCode);
         }
 
-        return false;
+        return $this->errors;
     }
 
     private function handleStagePlanned($guestData, $testTakeCode)
     {
+        $nameInAlreadyInUse = $this->isNameInAlreadyInUse($testTakeCode, $guestData);
+
+        if ($nameInAlreadyInUse) {
+            $this->addError('name_already_in_use');
+            return false;
+        }
         $guestUser = $this->createUserByTestTakeCode($guestData, $testTakeCode);
         $guestParticipant = $this->createTestParticipantForGuestUserByTestTakeCode($guestUser, $testTakeCode);
         if ($guestUser && $guestParticipant) {
@@ -123,5 +129,27 @@ class TestTakeCodeHelper extends BaseHelper
     {
         session()->put('guest_take', $testTakeCode->testTake->uuid);
         return redirect(route('guest-graded-overview', ['take' => $testTakeCode->testTake->uuid]));
+    }
+
+    /**
+     * @param $testTakeCode
+     * @param $guestData
+     * @return bool
+     */
+    private function isNameInAlreadyInUse($testTakeCode, $guestData): bool
+    {
+        $existingGuestNames = User::guests()
+            ->select(['name_first', 'name'])
+            ->whereTestTakeCodeId($testTakeCode->getKey())
+            ->get();
+
+        $nameInAlreadyInUse = false;
+        $existingGuestNames->each(function ($userNames) use ($guestData, &$nameInAlreadyInUse) {
+            if ($userNames->name_first == $guestData['name_first'] && $userNames->name == $guestData['name']) {
+                $nameInAlreadyInUse = true;
+            }
+        });
+
+        return $nameInAlreadyInUse;
     }
 }

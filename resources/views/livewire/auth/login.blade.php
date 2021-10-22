@@ -1,5 +1,5 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
-     x-data="{ openTab: 1, showPassword: false, showEntreePassword: false }"
+     x-data="{ openTab: @entangle('login_tab'), showPassword: false, showEntreePassword: false }"
      x-init="
             addRelativePaddingToBody('login-body', 10);
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
@@ -243,7 +243,20 @@
                                     <span class="title">{{ $message }}</span>
                                 </div>
                                 @enderror
-
+                                @error('name_already_in_use')
+                                <div class="notification warning stretched mt-4">
+                                    <span class="title">{{ __('auth.choose_a_different_name') }}</span>
+                                    <span class="body">{{ __('auth.name_already_in_use') }}</span>
+                                </div>
+                                @enderror
+                                @if($showGuestError)
+                                    @if($guest_error == 'removed_by_teacher')
+                                    <div class="notification warning stretched mt-4">
+                                        <span class="title">{{ __('auth.log_in_again') }}</span>
+                                        <span class="body">{{ __('auth.removed_by_teacher') }}</span>
+                                    </div>
+                                    @endif
+                                @endif
                             </div>
 
                             <div class="flex mt-auto pt-4">

@@ -89,4 +89,8 @@ return [
     'Inloggen op Test-Correct'                   => 'Log in to Test-Correct',
     'no_test_found_with_code'                    => 'No test found for this code.',
     'something_went_wrong'                       => 'Something went wrong.',
+    'choose_a_different_name'                    => 'Choose a different name',
+    'name_already_in_use'                        => 'This name is already in use. Choose a different name for your Test-Direct profile.',
+    'log_in_again'                               => 'Log in again',
+    'removed_by_teacher'                         => 'The teacher or invigilator has revoked your access to the test. Please contact your teacher or invigilator why this has happened.',
 ];

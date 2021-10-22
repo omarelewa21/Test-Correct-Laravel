@@ -110,4 +110,8 @@ return [
     'empty_guest_last_name'                                                                          => 'Achternaam is verplicht.',
     'something_went_wrong'                                                                           => 'Something went wrong.',
     'login'                                                                                          => 'Log in',
+    'choose_a_different_name'                                                                        => 'Kies een andere naam',
+    'name_already_in_use'                                                                            => 'Deze naam is al in gebruik. Kies een andere naam voor je Test-Direct profiel.',
+    'log_in_again'                                                                                   => 'Log opnieuw in',
+    'removed_by_teacher'                                                                             => 'De docent of surveillant heeft je de toegang tot de toets ontnomen. Vraag eventueel bij hen na waarom de toegang is ontnomen.',
 ];
