@@ -500,18 +500,9 @@ class TestTake extends BaseModel
             });
         } elseif (in_array('Teacher', $roles)) {
             $user = Auth::user();
-            $query->accessForTeacher(Auth::user());
-
-
+            $query->accessForTeacher($user);
             // don't show demo tests from other teachers
-
-            $query->where(function($query) use ($user) {
-                $query->where(function($query) use ($user) {
-                    $query->where($this->getTable().'.demo',1)
-                        ->where($this->getTable().'.user_id',$user->getKey());
-                })
-                    ->orWhere($this->getTable().'.demo',0);
-            });
+            $query->withoutDemoTeacherForUser($user);
 
             // TC-158 only show testtakes from tests from other subjects or if demo subject dan ook zelf de eigenaar
             $query->where(function($q) use ($user){
@@ -552,13 +543,13 @@ class TestTake extends BaseModel
             });
         }
 
-        $query->where($this->getTable().'.school_location_id', Auth::user()->school_location_id);
+        $query->belongsToSchoolLocation(Auth::user());
+        //$query->where($this->getTable().'.school_location_id', Auth::user()->school_location_id);
 
         $testTable = with(new Test())->getTable();
         $query->select($this->getTable() . '.*')
             ->join($testTable, $testTable . '.id', '=', $this->getTable() . '.test_id');
-        // 20200207 MF t zou kunnen dat er een kopie van een test wordt gemaakt voordat een test_take wordt gescheduled maar dat weet ik niet zeker, maar any how het zou niet nodig hoeven zijn dat test niet deleted is.
-        // ->where($testTable . '.' . with(new Test())->getDeletedAtColumn(), null);
+
         foreach ($filters as $key => $value) {
             switch ($key) {
                 case 'user_id':
@@ -589,28 +580,25 @@ class TestTake extends BaseModel
 //                    });
 //                    break;
                 case 'period_id':
-                    if (is_array($value)) {
-                        $query->whereIn($this->getTable() . '.period_id', $value);
-                    } else {
-                        $query->where($this->getTable() . '.period_id', '=', $value);
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
+                    $query->whereIn($this->getTable().'.period_id', $value);
                     break;
                 case 'retake':
                     $query->where('retake', '=', $value);
                     break;
                 case 'retake_test_id':
-                    if (is_array($value)) {
-                        $query->whereIn('retake_test_take_id', $value);
-                    } else {
-                        $query->where('retake_test_take_id', '=', $value);
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
+                    $query->whereIn('retake_test_take_id', $value);
                     break;
                 case 'test_take_status_id':
-                    if (is_array($value)) {
-                        $query->whereIn('test_take_status_id', $value);
-                    } else {
-                        $query->where('test_take_status_id', '=', $value);
+                    if (!is_array($value)) {
+                        $value = [$value];
                     }
+                    $query->whereIn('test_take_status_id', $value);
                     break;
                 case 'time_start_from':
                     $query->where('time_start', '>=', $value);
@@ -698,9 +686,12 @@ class TestTake extends BaseModel
                     }
                     break;
                 case 'school_class_name':
-                        $query->whereIn($this->getTable() . '.id', TestParticipant::whereHas('schoolClass', function($q) use ($value){
-                                                                                                    $q->where('name', 'LIKE', '%' . $value . '%');
-                                                                                                })->distinct()->pluck('test_take_id'));
+                    $query->whereIn(
+                        $this->getTable().'.id',
+                        TestParticipant::whereHas('schoolClass', function ($q) use ($value) {
+                            $q->where('name', 'LIKE', '%'.$value.'%');
+                        })->distinct()
+                            ->pluck('test_take_id'));
                     break;
                 case 'location':
                     $query->where('location', 'LIKE', '%' . $value . '%');
@@ -952,6 +943,20 @@ class TestTake extends BaseModel
                 ->orUserIsCreatorScope($query, $user)
                 ->orUserIsInvigilatorScope($query, $user)
                 ->orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, $user);
+        });
+    }
+
+    public function scopeBelongsToSchoolLocation($query, User $user) {
+        $query->where($this->getTable().'.school_location_id', $user->school_location_id);
+    }
+
+    public function scopeWithoutDemoTeacherForUser($query, User $user)
+    {
+        $query->where(function ($query) use ($user) {
+            $query->where(function ($query) use ($user) {
+                $query->where($this->getTable().'.demo', 1)
+                    ->where($this->getTable().'.user_id', $user->getKey());
+            })->orWhere($this->getTable().'.demo', 0);
         });
     }
 }
