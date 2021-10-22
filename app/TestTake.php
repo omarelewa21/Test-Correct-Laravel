@@ -808,7 +808,7 @@ class TestTake extends BaseModel
         return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 
-    private function orUserHasAccessToSchoolClassParticipantsAndSubject($query, User $user)
+    private function orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, User $user)
     {
         $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
             $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
@@ -850,7 +850,7 @@ class TestTake extends BaseModel
         return $this;
     }
 
-    private function orUserIsInvigilator($query, User $user)
+    private function orUserIsInvigilatorScope($query, User $user)
     {
         $query->orWhereIn($this->getTable().'.id', function ($query) use ($user) {
             $query->select('test_take_id')
@@ -861,7 +861,7 @@ class TestTake extends BaseModel
         return $this;
     }
 
-    private function orUserIsCreator($query, User $user)
+    private function orUserIsCreatorScope($query, User $user)
     {
         $query->orWhere('test_takes.user_id', $user->id);
         return $this;
@@ -871,9 +871,9 @@ class TestTake extends BaseModel
     {
         $query->where(function ($query) use ($user) {
             $this
-                ->orUserIsCreator($query, $user)
-                ->orUserIsInvigilator($query, $user)
-                ->orUserHasAccessToSchoolClassParticipantsAndSubject($query, $user);
+                ->orUserIsCreatorScope($query, $user)
+                ->orUserIsInvigilatorScope($query, $user)
+                ->orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, $user);
         });
     }
 }
