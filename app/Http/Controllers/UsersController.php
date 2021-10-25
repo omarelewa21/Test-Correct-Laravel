@@ -376,6 +376,7 @@ class UsersController extends Controller
         } else {
             return Response::make('Failed to update user', 500);
         }
+
     }
 
     /**
@@ -418,10 +419,15 @@ class UsersController extends Controller
         // for safety now disabled
         // @TODO fix security issue with deletion of users (as well update/ add and such)
 //	    return Response::make($user,200);
-        if ($user->delete()) {
-            return Response::make($user, 200);
-        } else {
-            return Response::make('Failed to delete user', 500);
+
+        try {
+            if ($user->delete()) {
+                return Response::make($user, 200);
+            } else {
+                return Response::make('Failed to delete user', 500);
+            }
+        }catch(\Exception $e){
+            return Response::make($e->getMessage(),403);
         }
     }
 
