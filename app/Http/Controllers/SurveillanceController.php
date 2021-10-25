@@ -82,17 +82,40 @@ class SurveillanceController extends Controller
                     ->on('test_takes.id', 'invigilators.test_take_id')
                     ->where(function ($query) use ($owner) {
                         $query->where('invigilators.user_id', '=', $owner->id)
-                            ->orWhere('test_takes.user_id', '=', $owner->id)
-                            ->orWhereIn('test_takes.id', function ($query) use ($owner) {
-                                $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
-                                $teacherTable = with((new Teacher)->getTable());
-                                $schoolClassTable = with((new SchoolClass())->getTable());
-                                $query->select('test_take_id')
-                                    ->from(with(new TestParticipant())->getTable())
-                                    ->whereNull('deleted_at')
-                                    ->whereIn('school_class_id',
-                                        function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
-                                            $query->select('class_id')
+                            ->orWhere('test_takes.user_id', '=', $owner->id);
+
+                    })->whereIn('test_takes.id', function ($query) use ($owner) {
+                        $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
+                        $teacherTable = with((new Teacher)->getTable());
+                        $schoolClassTable = with((new SchoolClass())->getTable());
+                        $query->select('test_take_id')
+                            ->from(with(new TestParticipant())->getTable())
+                            ->whereNull('deleted_at')
+                            ->whereIn('school_class_id',
+                                function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
+                                    $query->select('class_id')
+                                        ->from($teacherTable)
+                                        ->join($schoolClassTable, "$teacherTable.class_id", '=',
+                                            "$schoolClassTable.id")
+                                        ->where('user_id', Auth::id())
+                                        ->where('school_year_id', $currentSchoolYearId)
+                                        ->whereNull("$teacherTable.deleted_at")
+                                        ->whereNull("$schoolClassTable.deleted_at");
+                                })
+                            ->whereIn('test_takes.id',
+                                function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
+                                    $testTable = with(new Test())->getTable();
+                                    $query
+                                        ->select('test_takes.id')
+                                        ->from('test_takes')
+                                        ->join($testTable, $testTable.'.id', '=', 'test_takes.test_id')
+                                        ->whereNull($testTable.'.deleted_at')
+                                        ->whereIn($testTable.'.subject_id', function ($query) use (
+                                            $teacherTable,
+                                            $schoolClassTable,
+                                            $currentSchoolYearId
+                                        ) {
+                                            $query->select('subject_id')
                                                 ->from($teacherTable)
                                                 ->join($schoolClassTable, "$teacherTable.class_id", '=',
                                                     "$schoolClassTable.id")
@@ -100,31 +123,8 @@ class SurveillanceController extends Controller
                                                 ->where('school_year_id', $currentSchoolYearId)
                                                 ->whereNull("$teacherTable.deleted_at")
                                                 ->whereNull("$schoolClassTable.deleted_at");
-                                        })
-                                    ->whereIn('test_takes.id',
-                                        function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
-                                            $testTable = with(new Test())->getTable();
-                                            $query
-                                                ->select('test_takes.id')
-                                                ->from('test_takes')
-                                                ->join($testTable, $testTable.'.id', '=', 'test_takes.test_id')
-                                                ->whereNull($testTable.'.deleted_at')
-                                                ->whereIn($testTable.'.subject_id', function ($query) use (
-                                                    $teacherTable,
-                                                    $schoolClassTable,
-                                                    $currentSchoolYearId
-                                                ) {
-                                                    $query->select('subject_id')
-                                                        ->from($teacherTable)
-                                                        ->join($schoolClassTable, "$teacherTable.class_id", '=',
-                                                            "$schoolClassTable.id")
-                                                        ->where('user_id', Auth::id())
-                                                        ->where('school_year_id', $currentSchoolYearId)
-                                                        ->whereNull("$teacherTable.deleted_at")
-                                                        ->whereNull("$schoolClassTable.deleted_at");
-                                                });
                                         });
-                            });
+                                });
                     });
             })
             ->join('tests', 'test_takes.test_id', 'tests.id')
