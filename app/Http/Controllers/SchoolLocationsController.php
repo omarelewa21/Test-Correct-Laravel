@@ -7,6 +7,7 @@ use tcCore\Http\Requests\CreateSchoolLocationRequest;
 use tcCore\Http\Requests\UpdateSchoolLocationRequest;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationSection;
 use tcCore\SchoolLocationSharedSection;
 use tcCore\Section;
 use tcCore\User;
@@ -91,7 +92,7 @@ class SchoolLocationsController extends Controller {
     {
         if($request->school_id != $schoolLocation->school_id){
             $schoolLocation->sharedSections()->detach();
-            $schoolLocation->schoolLocationSections->each(function(Section $sharedSection){
+            $schoolLocation->schoolLocationSections->each(function(SchoolLocationSection $sharedSection){
                 SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
             });
         }
