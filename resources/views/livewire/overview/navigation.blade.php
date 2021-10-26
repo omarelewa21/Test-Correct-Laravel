@@ -3,7 +3,7 @@
 
     <x-modal maxWidth="lg" wire:model="showTurnInModal">
         <x-slot name="title">{{ __("navigation.Toets inleveren") }}</x-slot>
-        <x-slot name="body">{{ __("navigation.Weet je zeker dat je de toets wilt inleveren") }}?</x-slot>
+        <x-slot name="body">{{ __("navigation.Weet je zeker dat je de toets wilt inleveren?") }}</x-slot>
         <x-slot name="actionButton">
             <x-button.cta size="md" wire:click="toOverview">
                 <span>{{ __("navigation.Inleveren") }}</span>
