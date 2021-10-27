@@ -232,7 +232,7 @@ class TestTake extends BaseModel
                     }
 
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
-                    TestTakeOpenForInteraction::dispatch($testParticipant, $testParticipantDiscussingStatus);
+//                    TestTakeOpenForInteraction::dispatch($testParticipant, $testParticipantDiscussingStatus);
                 }
             }
 
