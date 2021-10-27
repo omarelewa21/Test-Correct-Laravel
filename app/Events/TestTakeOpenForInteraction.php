@@ -16,15 +16,15 @@ class TestTakeOpenForInteraction implements ShouldBroadcastNow
     public $testParticipant;
     public $status;
 
-    public function __construct($testParticipantId, $status)
+    public function __construct(TestParticipant $testParticipant, $status)
     {
-        $this->testParticipantId = $testParticipantId;
+        $this->testParticipant = $testParticipant;
         $this->status = $status;
     }
 
     public function broadcastOn()
     {
-        return new PrivateChannel('TestParticipant.'.$this->testParticipantId);
+        return new PrivateChannel('TestParticipant.'.$this->testParticipant->getKey());
     }
 
     public function broadcastAs()
