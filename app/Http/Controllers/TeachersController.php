@@ -189,7 +189,7 @@ class TeachersController extends Controller
     protected function handleExternalId($user, $attributes)
     {
         if (!array_key_exists('external_id', $attributes)||empty($attributes['external_id'])) {
-            return;
+            $attributes['external_id'] = '';
         }
         if (!array_key_exists('school_location_id', $attributes)) {
             return;
