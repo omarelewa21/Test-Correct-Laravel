@@ -51,7 +51,7 @@ class UserImportRequest extends Request {
             if(is_null(request()->type)){
                 break;
             }
-            if (array_key_exists('username', $value)&&array_key_exists('external_id', $value)) {
+            if ($this->hasEntry('username', $value)&&$this->hasEntry('external_id', $value)) {
                 if (request()->type == 'teacher') {
                     $extra_rule[sprintf('data.%d.username', $key)] = [  'required',
                                                                         'email:rfc,filter',
