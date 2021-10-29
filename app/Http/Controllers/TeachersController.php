@@ -241,7 +241,9 @@ class TeachersController extends Controller
                             if($oldTeacher->trashed()){
                                 $oldTeacher->restore();
                             }
-                            $teacher->delete();
+                            if($oldTeacher->getKey() !== $teacher->getKey()) {
+                                $teacher->delete();
+                            }
                             $this->updateImportLog(['checked' => 'on'], $oldTeacher);
                         } else {
                             $teacher->subject_id = $subjectValue;
