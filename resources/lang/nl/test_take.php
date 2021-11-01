@@ -73,4 +73,5 @@ return [
     'time_left_to_answer_after_closing_attachment' => 'Je hebt :timeout seconden om de vraag te beantwoorden na het sluiten van de bijlage.',
     'matrix_question'                              => 'Matrix',
     'attachment'                                   => 'Bijlage',
+    'Read_out_loud'                                    => 'Lees voor',
 ];
