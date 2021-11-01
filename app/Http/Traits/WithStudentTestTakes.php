@@ -97,4 +97,17 @@ trait WithStudentTestTakes
         }
         return $participant->rating;
     }
+
+    public function getParticipatingClasses($testTake)
+    {
+        $names = $testTake->schoolClasses()->pluck('name');
+
+        collect($names)->each(function($name, $key) use ($names) {
+            if (Str::contains($name, 'guest_class')) {
+                $names[$key] = 'Gast accounts';
+            }
+        });
+
+        return $names;
+    }
 }

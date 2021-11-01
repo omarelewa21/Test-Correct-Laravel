@@ -90,4 +90,18 @@ trait UserImporterTrait {
             }
         });
     }
+
+    protected function hasEntry($key,$arr)
+    {
+        if(!array_key_exists($key,$arr)){
+            return false;
+        }
+        if(is_null($arr[$key])){
+            return false;
+        }
+        if($arr[$key]==''){
+            return false;
+        }
+        return true;
+    }
 }

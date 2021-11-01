@@ -35,7 +35,7 @@ class AuthenticateWithTemporaryLogin
         }
         $options = json_decode($options);
 
-        if (array_key_exists('app_details', $options)) {
+        if (property_exists($options, 'app_details')) {
             $this->registerAppDetails($options);
         }
     }

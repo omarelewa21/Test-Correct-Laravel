@@ -6,6 +6,7 @@ namespace tcCore\Http\Helpers;
 use Artisaninweb\SoapWrapper\SoapWrapper;
 use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Ramsey\Uuid\Guid\Guid;
+use Illuminate\Support\Facades\Auth;
 use tcCore\UwlrSoapEntry;
 use tcCore\UwlrSoapResult;
 
@@ -52,6 +53,7 @@ class SomTodayHelper
             'brin_code'       => $brincode,
             'dependance_code' => $dependancecode,
             'xsdversie'       => self::XSD_VERSION,
+            'username_who_imported' => optional(Auth::user())->username ?: 'system',
         ];
 
 
@@ -84,6 +86,7 @@ class SomTodayHelper
                         'xsdversie' => self::XSD_VERSION,
                     ]
                 ]);
+
             } catch(\Exception $e){
                 $this->soapError = $e->getMessage();
                 $this->soapException = $e;
@@ -96,8 +99,10 @@ class SomTodayHelper
 
     public function storeInDB()
     {
+        $this->resultSet = UwlrSoapResult::create(
+            $this->searchParams
+        );
         if($this->soapError){
-            $this->resultSet = UwlrSoapResult::create($this->searchParams);
             $this->resultSet->error_messages = $this->soapError;
             $this->resultSet->save();
             $body = sprintf('There was an exception while retrieving data from SomToday%serror: %s%sdata:%s',PHP_EOL,$this->soapError,PHP_EOL,print_r($this->searchParams,true));
@@ -108,7 +113,7 @@ class SomTodayHelper
             throw new \Exception('no result to store');
         }
 
-        $this->resultSet = UwlrSoapResult::create($this->searchParams);
+
 
         $this->resultIdentifier = $this->resultSet->getKey();
 

@@ -48,7 +48,8 @@ class UpdateTestTakeRequest extends Request {
 			'location' => '',
 			'weight' => '',
 			'note' => '',
-            'allow_inbrowser_testing' => ''
+            'allow_inbrowser_testing' => '',
+            'guest_accounts' => ''
 		];
 	}
 

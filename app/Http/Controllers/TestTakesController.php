@@ -14,6 +14,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use tcCore\AnswerRating;
 use tcCore\DiscussingParentQuestion;
 use tcCore\GroupQuestion;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Requests;
 use tcCore\Http\Requests\NormalizeTestTakeRequest;
@@ -67,7 +68,8 @@ class TestTakesController extends Controller {
                 'retakeTestTake',
                 'user',
                 'testTakeStatus',
-                'invigilatorUsers'
+                'invigilatorUsers',
+                'testTakeCode'
             ]);
 
         $testTakes->filterByArchived(request('filter'));
@@ -100,7 +102,16 @@ class TestTakesController extends Controller {
                             if ($schoolClass instanceof SchoolClass) {
                                 if (!in_array($schoolClass->getKey(), $haveClasses)) {
                                     $haveClasses[] = $schoolClass->getKey();
-                                    $response[$testTake->getKey()][] = ['schoolClass' => $schoolClass->getAttribute('name'), 'test' => $test, 'uuid' => $testTake->uuid];
+                                    $className = $schoolClass->getAttribute('name');
+                                    if (Str::contains($className, 'guest_class')) {
+                                        $className = 'Gast accounts';
+                                    }
+                                    $response[$testTake->getKey()][] = [
+                                        'schoolClass' => $className,
+                                        'test' => $test,
+                                        'uuid' => $testTake->uuid,
+                                        'code' => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : ''
+                                    ];
                                 }
                             }
                         }
@@ -206,7 +217,8 @@ class TestTakesController extends Controller {
             'user',
             'testTakeStatus',
             'invigilatorUsers',
-            'testParticipants'
+            'testParticipants',
+            'testTakeCode'
         ]);
 
         $isInvigilator = false;
@@ -1384,20 +1396,11 @@ class TestTakesController extends Controller {
     }
 
     public function withTemporaryLogin(TestTake $testTake) {
-        $response = new \stdClass;
+
         $temporaryLogin = TemporaryLogin::createWithOptionsForUser('app_details', request()->get('app_details'), auth()->user());
 
-        $relativeUrl = sprintf('%s?redirect=%s',
-            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
-            rawurlencode(route('student.test-take-laravel', $testTake->uuid,false))
-        );
-        if(Str::startsWith($relativeUrl,'/')) {
-            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
-        }
+        return BaseHelper::createRedirectUrlWithTemporaryLoginUuid($temporaryLogin->uuid,route('student.test-take-laravel', $testTake->uuid,false));
 
-        $response->url = sprintf('%s%s',config('app.base_url'), $relativeUrl);
-
-        return  response()->json($response);
     }
 
     public function hasCarouselQuestion(TestTake $testTake)
@@ -1409,17 +1412,12 @@ class TestTakesController extends Controller {
     {
         $allow_inbrowser_testing = $testTake->allow_inbrowser_testing;
         $testTake->setAttribute('allow_inbrowser_testing', !$allow_inbrowser_testing)->save();
-
-        TestParticipant::where('test_take_id', $testTake->getKey())
-            ->get()
-            ->each(function ($participant) use ($allow_inbrowser_testing) {
-                $participant->setAttribute('allow_inbrowser_testing', !$allow_inbrowser_testing)->save();
-            });
     }
 
     public function isAllowedInbrowserTesting(TestTake $testTake)
     {
         $response['allowed'] = $testTake->allow_inbrowser_testing;
+        $response['guests'] = $testTake->guest_accounts;
         return $response;
     }
 }

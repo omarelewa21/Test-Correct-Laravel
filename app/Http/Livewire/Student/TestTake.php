@@ -55,7 +55,9 @@ class TestTake extends Component
 //            @TODO make error handling on failed hand in
             //error handling
         }
-
+        if (Auth::user()->guest) {
+            return redirect(route('auth.login'));
+        }
         $this->returnToDashboard();
     }
 
@@ -132,13 +134,17 @@ class TestTake extends Component
     {
         $participant = TestParticipant::findOrFail($this->testParticipantId);
 
-        if(!$participant->canUseBrowserTesting() && $participant->isInBrowser()) {
+        if (!$participant->canUseBrowserTesting() && $participant->isInBrowser()) {
             $this->browserTestingIsDisabled();
         }
     }
 
     public function returnToDashboard($options = null)
     {
+        if(Auth::user()->schoolLocation->allow_guest_accounts) {
+            return redirect(route('student.dashboard'));
+        }
+
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
     }
 }

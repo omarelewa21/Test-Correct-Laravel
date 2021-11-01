@@ -81,7 +81,7 @@ class SchoolHelper
                         ->whereNull('deleted_at');
                 })->orWhere('user_id', $user->getKey());
             })->pluck('id')->all();
-        }
+        }   
         else{
             return [$user->school_location_id];
         }

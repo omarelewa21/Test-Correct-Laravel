@@ -7,6 +7,9 @@ use tcCore\Http\Requests\CreateSchoolLocationRequest;
 use tcCore\Http\Requests\UpdateSchoolLocationRequest;
 use tcCore\School;
 use tcCore\SchoolLocation;
+use tcCore\SchoolLocationSection;
+use tcCore\SchoolLocationSharedSection;
+use tcCore\Section;
 use tcCore\User;
 
 class SchoolLocationsController extends Controller {
@@ -89,11 +92,15 @@ class SchoolLocationsController extends Controller {
     {
         if($request->school_id != $schoolLocation->school_id){
             $schoolLocation->sharedSections()->detach();
+            $schoolLocation->schoolLocationSections->each(function(SchoolLocationSection $sharedSection){
+                SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
+            });
         }
         $schoolLocation->fill($request->all());
 
         if ($schoolLocation->save() !== false) {
             return Response::make($schoolLocation, 200);
+            
         } else {
             return Response::make('Failed to update school location', 500);
         }
@@ -109,6 +116,9 @@ class SchoolLocationsController extends Controller {
     {
         if ($schoolLocation->delete()) {
             $schoolLocation->sharedSections()->detach();
+            foreach($schoolLocation->schoolLocationSections()->get() as $sharedSection){
+                SchoolLocationSharedSection::where('section_id', $sharedSection->section_id)->delete();
+            }
             return Response::make($schoolLocation, 200);
         } else {
             return Response::make('Failed to delete school location', 500);

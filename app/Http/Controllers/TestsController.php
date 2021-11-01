@@ -200,7 +200,7 @@ class TestsController extends Controller {
         $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
 
         $relativeUrl = sprintf('%s?redirect=%s',
-            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
+            route('auth.temporary-login.redirect',[$temporaryLogin->uuid],false),
             rawurlencode(route('teacher.test-preview', $test->uuid,false))
         );
         if(Str::startsWith($relativeUrl,'/')) {

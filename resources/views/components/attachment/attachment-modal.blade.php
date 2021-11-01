@@ -44,7 +44,7 @@
                 <div class="notification error">
                     <div class="title space-x-2 items-center"><x-icon.warning class="h-5"/><span>Let op</span></div>
                     <div class="body">
-                        Als je de bijlage sluit is het geluidsfragment niet meer te beluisteren. @if($this->timeout != null) Je hebt na het sluiten {{ $this->timeout }} seconden om de vraag te beantwoorden @endif
+                        {{ __("attachment-modal.Als je de bijlage sluit is het geluidsfragment niet meer te beluisteren.") }} @if($this->timeout != null) {{ __("attachment-modal.Je hebt na het sluiten") }} {{ $this->timeout }} {{ __("attachment-modal.seconden om de vraag te beantwoorden") }} @endif
                     </div>
                 </div>
             </div>

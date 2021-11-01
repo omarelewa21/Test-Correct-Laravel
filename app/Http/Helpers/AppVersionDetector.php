@@ -309,4 +309,42 @@ class AppVersionDetector
 
         return $headers;
     }
+
+    public static function handleHeaderCheck($headers = null)
+    {
+        $headers = $headers != null ? $headers : self::getAllHeaders();
+
+        session([
+            'headers' => 'unset headers',
+            'TLCVersion' => 'unset version',
+            'TLCOs' => 'unset os'
+        ]);
+//        $this->Session->write('headers', 'unset headers');
+//        $this->Session->write('TLCVersion', 'unset version');
+//        $this->Session->write('TLCOs', 'unset os');
+
+        if (isset($headers['tlc'])) {
+            session(['TLCHeader' => $headers['tlc']]);
+//            $this->Session->write('TLCHeader', $headers['tlc']);
+        } else {
+            session(['TLCHeader' => 'not secure...']);
+//            $this->Session->write('TLCHeader', 'not secure...');
+        }
+
+        $version = AppVersionDetector::detect($headers);
+
+        session([
+            'headers' => $headers,
+            'TLCVersion' => $version['app_version'],
+            'TLCOs' => $version['os']
+        ]);
+//        $this->Session->write('headers', $headers);
+//        $this->Session->write('TLCVersion', $version['app_version']);
+//        $this->Session->write('TLCOs', $version['os']);
+
+        $versionCheckResult = AppVersionDetector::isVersionAllowed($headers);
+
+        session(['TLCVersioncheckResult' => $versionCheckResult]);
+//        $this->Session->write('TLCVersionCheckResult', $versionCheckResult);
+    }
 }

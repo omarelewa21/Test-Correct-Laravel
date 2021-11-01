@@ -43,6 +43,11 @@ class UserHelper
             return \Response::make("NEEDS_LOGIN_ENTREE",403);
         }
 
+        if($schoolLocation = $user->schoolLocation) {
+            session()->put('locale', $schoolLocation->school_language);
+            app()->setLocale(session('locale'));
+        }
+
         $hidden = $user->getHidden();
 
         if (($key = array_search('api_key', $hidden)) !== false) {

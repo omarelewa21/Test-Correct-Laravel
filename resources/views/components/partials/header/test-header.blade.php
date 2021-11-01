@@ -7,7 +7,7 @@
 {{--        <x-fraud-detected/>--}}
 
         <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
-            <x-dropdown.item>Inleveren</x-dropdown.item>
+            <x-dropdown.item>{{ __("test-header.Inleveren") }}</x-dropdown.item>
         </x-dropdown>
     </div>
 </header>

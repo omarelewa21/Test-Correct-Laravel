@@ -47,14 +47,15 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     const SSO_ENTREE = 'Entreefederatie';
 
     protected $casts = [
-        'uuid'                       => EfficientUuid::class,
-        'allow_inbrowser_testing'    => 'boolean',
-        'intense'                    => 'boolean',
-        'lvs'                        => 'boolean',
-        'lvs_active'                 => 'boolean',
-        'sso'                        => 'boolean',
-        'sso_active'                 => 'boolean',
+        'uuid'                    => EfficientUuid::class,
+        'allow_inbrowser_testing' => 'boolean',
+        'intense'                 => 'boolean',
+        'lvs'                     => 'boolean',
+        'lvs_active'              => 'boolean',
+        'sso'                     => 'boolean',
+        'sso_active'              => 'boolean',
         'lvs_active_no_mail_allowed' => 'boolean',
+        'school_language'         => 'string',
     ];
 
     /**
@@ -63,6 +64,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
      * @var array
      */
     protected $dates = ['deleted_at', 'no_mail_request_detected'];
+
+    protected $appends = ['school_language_cake'];
 
     /**
      * The database table used by the model.
@@ -85,7 +88,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'is_rtti_school_location', 'external_main_code', 'external_sub_code', 'is_open_source_content_creator',
         'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access', 'lvs_active',
         'lvs_type',
-        'sso', 'sso_type', 'sso_active', 'lvs_authorization_key',
+        'sso', 'sso_type', 'sso_active', 'lvs_authorization_key', 'school_language'
     ];
 
     /**
@@ -106,6 +109,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     protected $technicalContacts;
     protected $implementationContacts;
     protected $otherContacts;
+
+    public function getSchoolLanguageCakeAttribute()
+    {
+        if($this->school_language === 'en'){
+            return 'eng';
+        }
+        return $this->school_language;
+    }
 
     public function fill(array $attributes)
     {
@@ -638,7 +649,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();
-        if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
+        if (!in_array('Administrator', $roles) && (in_array('Account manager', $roles))) {
             $userId = Auth::user()->getKey();
 
             $schoolIds = School::where(function ($query) use ($userId) {
@@ -995,8 +1006,6 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         }
 
         return ($this->no_mail_request_detected->diffInHours(now()) > 23);
-
-
     }
 
     public function sendSamlNoMailAddresInRequestDetectedMailIfAppropriate()

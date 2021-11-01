@@ -5,9 +5,11 @@ namespace tcCore\Http\Livewire\Student;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -16,7 +18,15 @@ class WaitingRoom extends Component
 {
     use WithStudentTestTakes;
 
-    protected $listeners = ['start-test-take' => 'startTestTake'];
+    protected function getListeners()
+    {
+        return [
+            'start-test-take'                                                                                                  => 'startTestTake',
+            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
+            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
+        ];
+    }
+
     protected $queryString = ['take'];
     public $take;
     public $waitingTestTake;
@@ -25,6 +35,8 @@ class WaitingRoom extends Component
     public $isTakeAlreadyTaken;
     public $countdownNumber = 3;
     public $testTakeStatusStage;
+    public $meetsAppRequirement = true;
+    public $participatingClasses = [];
 
     public function mount()
     {
@@ -33,7 +45,10 @@ class WaitingRoom extends Component
         }
         $this->waitingTestTake = $this->getWaitingRoomTestTake();
         $this->testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->first();
-        $this->testTakeStatusStage = $this->determineTestTakeStatusStage();
+        $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
+        $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
+
+        $this->participantAppCheck();
     }
 
     public function render()
@@ -44,6 +59,11 @@ class WaitingRoom extends Component
 
     public function startTestTake()
     {
+        if ($this->waitingTestTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
+            $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+            $this->testParticipant->save();
+        }
+
         $this->redirectRoute('student.test-take-laravel', $this->take);
     }
 
@@ -65,7 +85,7 @@ class WaitingRoom extends Component
         }
         if ($stage === 'review') {
             $showResults = TestTake::whereUuid($this->take)->value('show_results');
-            if ($showResults->gt(Carbon::now())) {
+            if ($showResults != null && $showResults->gt(Carbon::now())) {
                 $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSED;
             } else {
                 $this->isTakeOpen = false;
@@ -90,18 +110,34 @@ class WaitingRoom extends Component
             ->first();
     }
 
-    private function determineTestTakeStatusStage(): string
+    public function startDiscussing()
     {
-        $status = $this->waitingTestTake->test_take_status_id;
+        $url = 'test_takes/discuss/' . $this->take;
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
-        $planned = [TestTakeStatus::STATUS_PLANNED, TestTakeStatus::STATUS_TEST_NOT_TAKEN, TestTakeStatus::STATUS_TAKING_TEST];
-        $discuss = [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING];
-        $review = [TestTakeStatus::STATUS_DISCUSSED];
-        $graded = [TestTakeStatus::STATUS_RATED];
-        
-        if (in_array($status, $planned)) return 'planned';
-        if (in_array($status, $discuss)) return 'discuss';
-        if (in_array($status, $review)) return 'review';
-        if (in_array($status, $graded)) return 'graded';
+        Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function startReview()
+    {
+        $url = 'test_takes/glance/' . $this->take;
+        $options = TemporaryLogin::buildValidOptionObject('page', $url);
+
+        Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    public function returnToGuestChoicePage()
+    {
+        session()->flush();
+        $this->testParticipant->available_for_guests = true;
+        $this->testParticipant->save();
+
+        session()->put('guest_take', $this->take);
+        return redirect(route('guest-choice', ['take' => $this->take]));
+    }
+
+    public function participantAppCheck()
+    {
+        $this->meetsAppRequirement = !(!$this->testParticipant->canUseBrowserTesting() && $this->testParticipant->isInBrowser());
     }
 }
