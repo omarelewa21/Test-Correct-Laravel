@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Str;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
@@ -15,6 +16,8 @@ class CompletionQuestion extends Question implements QuestionInterface {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'auto_check_answer' => 'boolean',
+        'auto_check_answer_case_sensitive' => 'boolean',
     ];
 
     /**
@@ -36,7 +39,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['rating_method', 'subtype'];
+    protected $fillable = ['rating_method', 'subtype','auto_check_answer','auto_check_answer_case_sensitive'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -145,6 +148,11 @@ class CompletionQuestion extends Question implements QuestionInterface {
         return true;
     }
 
+    protected function isClosedQuestion()
+    {
+        return $this->isCitoQuestion() || $this->auto_check_answer;
+    }
+
     public function checkAnswerCompletion($answer)
     {
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
@@ -171,6 +179,14 @@ class CompletionQuestion extends Question implements QuestionInterface {
                 continue;
             }
 
+            if($this->auto_check_answer && !$this->auto_check_answer_case_sensitive){
+                $answers[$refTag] = Str::lower($answers[$refTag]);
+                $tagAnswersAr = $tagAnswers;
+                $tagAnswers = [];
+                foreach($tagAnswersAr as $key => $val){
+                    $tagAnswers[$key] = Str::lower($val);
+                }
+            }
             if (in_array($answers[$refTag], $tagAnswers)) {
                 $correct++;
             }
