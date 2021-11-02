@@ -33,7 +33,9 @@ class QuestionsController extends Controller {
                 $query->where('scope', '!=', 'cito') // should be in filtered, but can't be due to the way it is build starting with an or
                 ->orWhereNull('scope');
                 })
-            ->with(['questionAttainments', 'questionAttainments.attainment', 'authors', 'tags']);
+            ->with(['questionAttainments', 'questionAttainments.attainment', 'tags'])->with(['authors' => function ($q) {
+                $q->withTrashed();
+        }]);
 
         // Log::debug($questions);
 
