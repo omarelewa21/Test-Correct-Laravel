@@ -11,10 +11,12 @@ namespace Tests\Unit;
 use Illuminate\Support\Facades\DB;
 use tcCore\ArchivedModel;
 use tcCore\EckidUser;
+use tcCore\School;
 use tcCore\SchoolClass;
 use tcCore\SchoolLocation;
 use tcCore\Teacher;
 use tcCore\TestTake;
+use tcCore\UmbrellaOrganization;
 use tcCore\User;
 use Tests\TestCase;
 
@@ -292,5 +294,35 @@ class UserTest extends TestCase
 
         $this->assertCount(3, ($teacherOne->refresh())->teacher);
         $this->assertCount(0, ($teacherTwo->refresh())->teacher);
+    }
+
+    /** @test */
+    public function deleting_user_with_id_in_schools_table_is_not_allowed()
+    {
+        $school = School::whereNotNull('user_id')->first();
+        $user = User::find($school->user_id);
+        $user->delete();
+        $user = User::find($school->user_id);
+        $this->assertNotNull($user);
+    }
+
+    /** @test */
+    public function deleting_user_with_id_in_school_locations_table_is_not_allowed()
+    {
+        $schoolLocation = SchoolLocation::whereNotNull('user_id')->first();
+        $user = User::find($schoolLocation->user_id);
+        $user->delete();
+        $user = User::find($schoolLocation->user_id);
+        $this->assertNotNull($user);
+    }
+
+    /** @test */
+    public function deleting_user_with_id_in_umbrella_organisations_table_is_not_allowed()
+    {
+        $umbrellaOrganisation = UmbrellaOrganization::whereNotNull('user_id')->first();
+        $user = User::find($umbrellaOrganisation->user_id);
+        $user->delete();
+        $user = User::find($umbrellaOrganisation->user_id);
+        $this->assertNotNull($user);
     }
 }

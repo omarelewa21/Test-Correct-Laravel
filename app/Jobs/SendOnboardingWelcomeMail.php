@@ -40,6 +40,15 @@ class SendOnboardingWelcomeMail extends Mailable
         $this->url = $url;
     }
 
+    public function render()
+    {
+        $this->user->fresh();
+        if(is_null($this->user)||!is_null($this->user->deleted_at)){
+            return false;
+        }
+        parent::render();
+    }
+
     public function build()
     {
         $this->user->setAttribute('send_welcome_email', true);

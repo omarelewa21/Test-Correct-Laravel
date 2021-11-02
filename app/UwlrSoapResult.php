@@ -16,16 +16,14 @@ class UwlrSoapResult extends Model
 {
 
 
-
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'source', 'client_code', 'client_name', 'school_year', 'brin_code', 'dependance_code',
+        'source', 'client_code', 'client_name', 'school_year', 'brin_code', 'dependance_code', 'username_who_imported',
     ];
-
 
 
 //    protected $with = ['entries'];
@@ -223,25 +221,25 @@ class UwlrSoapResult extends Model
     private function transformGroep($leerling, $school, $repo): void
     {
         $leerling = (array) $leerling;
-        if(array_key_exists('groep',$leerling)) {
+        if (array_key_exists('groep', $leerling)) {
             collect($leerling['groep'])->each(function ($groep) use ($leerling, $school, $repo) {
-                if(!$groep) {
+                if (!$groep) {
                     return;
                 }
                 $groepKey = $groep;
 
-                $klas = (array)$repo->get('groep')->first(function ($groep) use ($groepKey) {
-                    $groep = (array)$groep;
+                $klas = (array) $repo->get('groep')->first(function ($groep) use ($groepKey) {
+                    $groep = (array) $groep;
                     return $groepKey === $groep['key'];
                 });
 
-                if(empty($klas)){
+                if (empty($klas)) {
                     return;
                 }
 
-                $leerkracht = (array)$repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
-                    $teacher = (array)$teacher;
-                    return array_key_exists('groepen',$teacher) && collect($teacher['groepen'])->contains($groepKey);
+                $leerkracht = (array) $repo->get('leerkracht')->first(function ($teacher) use ($groepKey) {
+                    $teacher = (array) $teacher;
+                    return array_key_exists('groepen', $teacher) && collect($teacher['groepen'])->contains($groepKey);
                 });
 
 
@@ -307,7 +305,8 @@ class UwlrSoapResult extends Model
                 }
             }
 
-            return array_key_exists('samengestelde_groepen',$teacher) && collect($teacher['samengestelde_groepen'])->contains($groepKey);
+            return array_key_exists('samengestelde_groepen',
+                    $teacher) && collect($teacher['samengestelde_groepen'])->contains($groepKey);
         });
 
 
@@ -328,14 +327,14 @@ class UwlrSoapResult extends Model
     private function transformGroepForTeacher($leerkracht, $school, $repo): void
     {
         $leerkracht = (array) $leerkracht;
-        if(array_key_exists('groepen',$leerkracht)) {
+        if (array_key_exists('groepen', $leerkracht)) {
             collect($leerkracht['groepen'])->each(function ($groep, $type) use ($leerkracht, $school, $repo) {
                 // someToDay has samengestelde_groep inside groepen;
                 if ($type !== 'samengestelde_groep') {
                     $groepKey = $groep;
                     if (is_array($groepKey) || is_object($groepKey)) {
-                        foreach ((array)$groepKey as $sGroep) {
-                            $sGroep = (array)$sGroep;
+                        foreach ((array) $groepKey as $sGroep) {
+                            $sGroep = (array) $sGroep;
                             $key = array_key_exists('key', $sGroep) ? $sGroep['key'] : array_pop($sGroep);
                             $this->handleGroepForTeacher($repo, $school, $leerkracht, $key);
                         }
@@ -357,7 +356,7 @@ class UwlrSoapResult extends Model
 
         $leerling = (array) $repo->get('leerling')->first(function ($l) use ($groepKey) {
             $l = (array) $l;
-            return array_key_exists('groep',$l) && collect($l['groep'])->contains($groepKey);
+            return array_key_exists('groep', $l) && collect($l['groep'])->contains($groepKey);
         });
         if ($leerling) {
             $this->addCsvRow($school, $leerling, $klas['naam'], $leerkracht, 1);
@@ -391,7 +390,8 @@ class UwlrSoapResult extends Model
                 });
 
                 $leerling = $repo->get('leerling')->first(function ($leerling) use ($groepKey) {
-                    return array_key_exists('samengestelde_groepen',$leerling) && collect($leerling['samengestelde_groepen'])->contains($groepKey);
+                    return array_key_exists('samengestelde_groepen',
+                            $leerling) && collect($leerling['samengestelde_groepen'])->contains($groepKey);
                 });
 
                 if ($leerling) {
@@ -401,7 +401,7 @@ class UwlrSoapResult extends Model
                 }
             });
         } else {
-            if(array_key_exists('groepen',$leerkracht)) {
+            if (array_key_exists('groepen', $leerkracht)) {
                 collect($leerkracht['groepen'])->each(function ($groep, $type) use (
                     $leerkracht,
                     $school,
@@ -412,8 +412,8 @@ class UwlrSoapResult extends Model
                         $groepKey = $groep;
 
                         if (is_array($groepKey) || is_object($groepKey)) {
-                            foreach ((array)$groepKey as $sGroep) {
-                                $sGroep = (array)$sGroep;
+                            foreach ((array) $groepKey as $sGroep) {
+                                $sGroep = (array) $sGroep;
                                 $key = array_key_exists('key', $sGroep) ? $sGroep['key'] : array_pop($sGroep);
 
                                 $this->handleSamengesteldeGroepForTeacher($repo, $school, $leerkracht, $key);
@@ -500,7 +500,7 @@ class UwlrSoapResult extends Model
             })->map(function ($k) {
                 $k = (array) $k;
                 return $k['naam'];
-            })->each(function($keyName) use ($label){
+            })->each(function ($keyName) use ($label) {
                 $this->errors[] = sprintf('%s klas bevat geen %s', $keyName, $label);
             });
         }
@@ -510,7 +510,7 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInGroups->isNotEmpty()) {
-            $notInGroups->each(function($group) use ($label) {
+            $notInGroups->each(function ($group) use ($label) {
                 $this->errors[] = sprintf('%s klas bevat geen %s', $group, $label);
             });
         };
@@ -535,13 +535,13 @@ class UwlrSoapResult extends Model
 
                 if ($label == 'leerkracht') {
                     $resultKeys = [];
-                    if(array_key_exists('groepen',$value)) {
+                    if (array_key_exists('groepen', $value)) {
                         collect($value['groepen'])->each(function ($groep, $type) use (&$resultKeys) {
                             if ($type === 'samengestelde_groep') {
                                 $groepKey = $groep;
                                 if (is_array($groepKey) || is_object($groepKey)) {
-                                    foreach ((array)$groepKey as $sGroep) {
-                                        $sGroep = (array)$sGroep;
+                                    foreach ((array) $groepKey as $sGroep) {
+                                        $sGroep = (array) $sGroep;
                                         $resultKeys[] = array_key_exists('key',
                                             $sGroep) ? $sGroep['key'] : array_pop($sGroep);
                                     }
@@ -580,7 +580,7 @@ class UwlrSoapResult extends Model
             })->map(function ($k) {
                 $k = (array) $k;
                 return $k['naam'];
-            })->each(function($keyName) use ($label){
+            })->each(function ($keyName) use ($label) {
                 $this->errors[] = sprintf('%s klas bevat geen %s', $keyName, $label);
             });
         }
@@ -590,7 +590,7 @@ class UwlrSoapResult extends Model
         });
 
         if ($notInGroups->isNotEmpty()) {
-            $notInGroups->each(function($group) use ($label) {
+            $notInGroups->each(function ($group) use ($label) {
                 $this->errors[] = sprintf('%s klas bevat geen %s', $group, $label);
             });
         };
@@ -634,6 +634,13 @@ class UwlrSoapResult extends Model
         }
 
         return $stamnummer;
+    }
+
+    public function updateProgress($activeLine, $totalLines)
+    {
+        $this->update([
+            'import_progress' => sprintf('%d %%', round(($activeLine / $totalLines) * 100))
+        ]);
     }
 
 }

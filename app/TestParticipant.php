@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\BrowserTestingDisabledForParticipant;
+use tcCore\Events\TestParticipantGuestAvailabilityChanged;
 use tcCore\Events\TestTakeForceTakenAway;
 use tcCore\Events\TestTakeReopened;
 use tcCore\Http\Helpers\AnswerParentQuestionsHelper;
@@ -28,6 +29,7 @@ class TestParticipant extends BaseModel
         'uuid'                    => EfficientUuid::class,
         'allow_inbrowser_testing' => 'boolean',
         'started_in_new_player'   => 'boolean',
+        'available_for_guests'    => 'boolean',
     ];
 
     /**
@@ -51,7 +53,7 @@ class TestParticipant extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player','answers_provisioned'];
+    protected $fillable = ['test_take_id', 'user_id', 'school_class_id', 'test_take_status_id', 'invigilator_note', 'rating', 'allow_inbrowser_testing', 'started_in_new_player', 'answers_provisioned', 'available_for_guests'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -73,7 +75,7 @@ class TestParticipant extends BaseModel
             }
         });
         static::saved(function (TestParticipant $testParticipant) {
-            if($testParticipant->skipBootSavedMethod){
+            if ($testParticipant->skipBootSavedMethod) {
                 return;
             }
             //$testParticipant->load('testTakeStatus');
@@ -91,6 +93,8 @@ class TestParticipant extends BaseModel
 
             $testParticipant->isTestTakenAway();
             $testParticipant->isBrowserTestingActive();
+
+            $testParticipant->hasGuestAvailabilityChanged();
         });
     }
 
@@ -99,7 +103,7 @@ class TestParticipant extends BaseModel
         // validatie op heartbeat_at was toch niet goed...
 //        if (($this->getOriginal('heartbeat_at') === null || $this->getOriginal('heartbeat_at') === '') && $this->test_take_status_id === 3 && $this->answers()->count() === 0) {
         $answersProvisioned = $this->answers_provisioned;
-        if($this->answers()->count() > 0){
+        if ($this->answers()->count() > 0) {
             $answersProvisioned = true;
         }
 
@@ -170,13 +174,13 @@ class TestParticipant extends BaseModel
                     $order++;
                 }
             }
-            foreach($answers as $answer){
+            foreach ($answers as $answer) {
                 try {
                     $this->answers()->save($answer);
-                } catch (\Throwable $e){
+                } catch (\Throwable $e) {
                     // we have an exception probably because of double adding same answer.
                     // so we only are going to send a notification to bugsnag, but won't hold.
-                    $body = sprintf('Notice: Error while adding empty answer records for the participant for participant (%d) and question (%d) with error %s',$this->getKey(),$answer->question_id,$e->getMessage());
+                    $body = sprintf('Notice: Error while adding empty answer records for the participant for participant (%d) and question (%d) with error %s', $this->getKey(), $answer->question_id, $e->getMessage());
 
                     Bugsnag::notifyException(new \LogicException($body));
                 }
@@ -241,6 +245,56 @@ class TestParticipant extends BaseModel
         return $this->attributes['ip_address'];
     }
 
+    public function getLabelAttribute()
+    {
+        return self::getLabelsAndTexts('label', $this->test_take_status_id);
+    }
+
+    public function getTextAttribute()
+    {
+        return self::getLabelsAndTexts('text', $this->test_take_status_id);
+    }
+
+
+    private static function getLabelsAndTexts($type, $value)
+    {
+        $lookup = [
+            1 => [
+                'label' => 'info',
+                'text'  => 'Ingepland',
+            ],
+            2 => [
+                'label' => 'danger',
+                'text'  => 'Niet gemaakt',
+            ],
+            3 => [
+                'label' => 'success',
+                'text'  => 'Maakt toets',
+            ],
+            4 => [
+                'label' => 'info',
+                'text'  => 'Ingeleverd',
+            ],
+            5 => [
+                'label' => 'warning',
+                'text'  => 'Ingeleverd (geforceerd)',
+            ],
+            6 => [
+                'label' => 'success',
+                'text'  => 'Ingenomen',
+            ],
+        ];
+
+        if (!array_key_exists($value, $lookup)) {
+            throw new \Exception(sprintf('Couldnot find test_take_status_id %d', $value));
+        }
+
+        if (!array_key_exists($type, $lookup[$value])) {
+            throw new \Exception(sprintf('Couldnot find %s for test_take_status_id %d', $type, $value));
+        }
+        return $lookup[$value][$type];
+    }
+
     public function pValues()
     {
         return $this->hasMany('tcCore\PValue');
@@ -272,12 +326,13 @@ class TestParticipant extends BaseModel
                 $testTakeStartDate = $this->testTake->testTakeEvents()->where('test_take_event_type_id', '=', $testTakeTypeStatus)->whereNull('test_participant_id')->max('created_at');
 
                 $timeLate = Carbon::createFromFormat('Y-m-d H:i:s', $testTakeStartDate)->addMinutes(5);
-    
+
                 if ($timeLate->isPast()) {
                     $testTakeEvent = new TestTakeEvent();
-                    $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Started late')->value('id'));
+                    $testTakeEvent->setAttribute('test_take_event_type_id',
+                        TestTakeEventType::where('name', '=', 'Started late')->value('id'));
                     $testTakeEvent->setAttribute('test_take_id', $this->getAttribute('test_take_id'));
-    
+
                     $this->testTakeEvents()->save($testTakeEvent);
                 }
             }
@@ -359,6 +414,7 @@ class TestParticipant extends BaseModel
         $this->setAttribute('started_in_new_player', true)->save();
         return true;
     }
+
     public function canSeeOverviewPage()
     {
         return $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
@@ -377,7 +433,9 @@ class TestParticipant extends BaseModel
                 ->orWhere('test_take_status_id', TestTakeStatus::STATUS_DISCUSSING)
                 ->first();
     }
-    public function getIntenseAttribute() {
+
+    public function getIntenseAttribute()
+    {
         if (!$this->user || !$this->user->schoolLocation) {
             return false;
         }
@@ -394,6 +452,11 @@ class TestParticipant extends BaseModel
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
             TestTakeForceTakenAway::dispatch($this);
         }
+    }
+
+    public function getAlertStatus()
+    {
+        return false;
     }
 
     private function isBrowserTestingActive()
@@ -423,5 +486,12 @@ class TestParticipant extends BaseModel
             return true;
         }
         return false;
+    }
+
+    private function hasGuestAvailabilityChanged()
+    {
+        if ($this->available_for_guests != $this->getOriginal('available_for_guests')) {
+            TestParticipantGuestAvailabilityChanged::dispatch($this->testTake);
+        }
     }
 }

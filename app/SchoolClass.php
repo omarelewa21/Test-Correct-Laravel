@@ -47,7 +47,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
      *
      * @var array
      */
-    protected $fillable = ['created_by','old_school_class_id','school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo','visible'];
+    protected $fillable = ['created_by','old_school_class_id','school_location_id', 'subject_id', 'education_level_id', 'school_year_id', 'name', 'education_level_year', 'is_main_school_class','do_not_overwrite_from_interface','demo','visible', 'guest_class', 'test_take_id'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -440,5 +440,21 @@ class SchoolClass extends BaseModel implements AccessCheckable {
                 });
             })
             ->paginate(15);
+    }
+
+    public static function createGuestClassForTestTake(TestTake $testTake)
+    {
+        $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+        $testTake->load('test:id,education_level_id,education_level_year');
+
+        return SchoolClass::create([
+            'name'                 => 'guest_class_' . $testTake->getKey(),
+            'education_level_id'   => $testTake->test->education_level_id,
+            'education_level_year' => $testTake->test->education_level_year,
+            'school_location_id'   => $testTake->user()->value('school_location_id'),
+            'school_year_id'       => $schoolYear->getKey(),
+            'guest_class'          => true,
+            'test_take_id'         => $testTake->getKey()
+        ]);
     }
 }

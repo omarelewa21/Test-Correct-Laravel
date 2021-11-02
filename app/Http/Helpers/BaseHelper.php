@@ -9,6 +9,9 @@
 namespace tcCore\Http\Helpers;
 
 
+use Illuminate\Support\Str;
+use tcCore\TemporaryLogin;
+
 class BaseHelper
 {
     protected $errors = [];
@@ -54,5 +57,37 @@ class BaseHelper
             }
         }
         return false;
+    }
+
+    public static function createRedirectUrlWithTemporaryLoginUuid($uuid, $redirectUrl)
+    {
+        $response = new \stdClass;
+
+        $relativeUrl = sprintf('%s?redirect=%s',
+            route('auth.temporary-login.redirect',[$uuid],false),
+            rawurlencode($redirectUrl)
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+
+        $response->url = sprintf('%s%s',config('app.base_url'), $relativeUrl);
+
+        return  response()->json($response);
+    }
+
+    public static function createRedirectUrlWithTemporaryLoginUuidToCake($uuid, $redirectUrl)
+    {
+        $response = new \stdClass;
+
+        $relativeUrl = sprintf('%s?redirect=%s',
+            sprintf('users/temporary_login/%s',$uuid),
+            rawurlencode($redirectUrl)
+        );
+        if(Str::startsWith($relativeUrl,'/')) {
+            $relativeUrl = Str::replaceFirst('/', '', $relativeUrl);
+        }
+
+        return sprintf('%s%s',config('app.url_login'), $relativeUrl);
     }
 }

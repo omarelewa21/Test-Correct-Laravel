@@ -34,9 +34,22 @@ abstract class TestCase extends BaseTestCase
     const USER_SCHOOLBEHEERDER_LOCATION1 = 'opensourceschoollocatie1schoolbeheerder@test-correct.nl';
     const USER_ADMIN = 'testadmin@teachandlearncompany.com';
 
+    const USER_STUDENT_ONE = 's1@test-correct.nl';
+    const USER_STUDENT_TWO = 's2@test-correct.nl';
+
+    public static function getTeacherOne(){
+        return  User::where('username', '=', static::USER_TEACHER)->first();
+    }
+    public static function getStudentOne(){
+        return  User::where('username', '=', static::USER_STUDENT_ONE)->first();
+    }
+    public static function getStudentTwo(){
+        return  User::where('username', '=', static::USER_STUDENT_TWO)->first();
+    }
+
     public static function getAuthRequestData($overrides = [])
     {
-        $user = \tcCore\User::where('username', '=', static::USER_TEACHER)->get()->first();
+        $user = User::where('username', '=', static::USER_TEACHER)->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -49,8 +62,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function getAuthRequestDataForAccountManager($overrides = [])
     {
-
-        $user = \tcCore\User::where('username', '=', static::USER_ACCOUNTMANAGER)->get()->first();
+        $user = User::where('username', '=', static::USER_ACCOUNTMANAGER)->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -64,8 +76,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function AuthBeheerderGetRequest($url, $params = [])
     {
-
-        $user = \tcCore\User::where('username', '=', static::USER_BEHEERDER)->get()->first();
+        $user = User::where('username', '=', static::USER_BEHEERDER)->get()->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -82,7 +93,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function AuthBeheerderGetRequestLocation3($url, $params = [])
     {
-        $user = \tcCore\User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first();
+        $user = User::where('username', '=', static::USER_SCHOOLBEHEERDER)->first();
         ActingAsHelper::getInstance()->setUser($user);
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
@@ -99,7 +110,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function AuthBeheerderGetRequestLocation1($url, $params = [])
     {
-        $user = \tcCore\User::where('username', '=', static::USER_SCHOOLBEHEERDER_LOCATION1)->get()->first();
+        $user = User::where('username', '=', static::USER_SCHOOLBEHEERDER_LOCATION1)->first();
         ActingAsHelper::getInstance()->setUser($user);
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
@@ -117,7 +128,7 @@ abstract class TestCase extends BaseTestCase
 
     public static function getBeheerderAuthRequestData($overrides = [])
     {
-        $user = \tcCore\User::where('username', '=', static::USER_BEHEERDER)->get()->first();
+        $user = User::where('username', '=', static::USER_BEHEERDER)->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -132,7 +143,7 @@ abstract class TestCase extends BaseTestCase
     public static function getSchoolBeheerderAuthRequestData($overrides = [])
     {
         return self::getUserAuthRequestData(
-            User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first(),
+            User::where('username', '=', static::USER_SCHOOLBEHEERDER)->first(),
             $overrides
         );
     }
@@ -140,7 +151,7 @@ abstract class TestCase extends BaseTestCase
     public static function AuthSchoolBeheerderGetRequest($url, $params = [])
     {
 
-        $user = \tcCore\User::where('username', '=', static::USER_SCHOOLBEHEERDER)->get()->first();
+        $user = User::where('username', '=', static::USER_SCHOOLBEHEERDER)->first();
         if (!$user->session_hash) {
             $user->session_hash = $user->generateSessionHash();
             $user->save();
@@ -158,7 +169,7 @@ abstract class TestCase extends BaseTestCase
     public static function getStudentOneAuthRequestData($overrides = [])
     {
         return self::getUserAuthRequestData(
-            User::where('username', 's1@test-correct.nl')->first(),
+            User::where('username', self::USER_STUDENT_ONE)->first(),
             $overrides
         );
     }
