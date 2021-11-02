@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use tcCore\Question;
 use tcCore\QuestionAuthor;
 use tcCore\SchoolClass;
@@ -13,6 +14,7 @@ use Tests\TestCase;
 
 class DeleteUserWithRoleTeacherTest extends TestCase
 {
+    protected $removedUserId;
     use DatabaseTransactions;
 
     /** @test */
@@ -57,6 +59,26 @@ class DeleteUserWithRoleTeacherTest extends TestCase
         $this->assertTrue($pass);
     }
 
+    /** @test */
+    public function removedTeacherShouldNotBeVisibleInClassInfoTest()
+    {
+        $this->setUpScenario1();
+        $schoolClasses = DB::table('teachers')->select('class_id')->where('user_id',$this->removedUserId)->get();
+        $schoolClassIds = $schoolClasses->map(function ($value, $key) {
+            return $value->class_id;
+        });;
+        $pass = false;
+        foreach ($schoolClassIds as $schoolClassId){
+            $pass = true;
+            $schoolClass = SchoolClass::find($schoolClassId);
+            $response = $this->get(static::AuthBeheerderGetRequest('/api-c/school_class/'.$schoolClass->uuid,[]));
+            $response->assertStatus(200);
+            $school_class = $response->decodeResponseJson();
+            $this->removedUserIsNotInTeacherArray($school_class['teacher']);
+        }
+        $this->assertTrue($pass);
+    }
+
     private function setUpScenario1()
     {
         $this->addClassToTeacher2();
@@ -84,6 +106,7 @@ class DeleteUserWithRoleTeacherTest extends TestCase
     private function removeTeacher1()
     {
         $user = User::where('username',static::USER_TEACHER)->first();
+        $this->removedUserId = $user->id;
         $teacherResponse = $this->delete(
             'api-c/user/'.$user->uuid,
             static::getSchoolBeheerderAuthRequestData([]
@@ -91,6 +114,17 @@ class DeleteUserWithRoleTeacherTest extends TestCase
         );
         $teacherResponse->assertStatus(200);
         Auth::logout();
+    }
+
+    private function removedUserIsNotInTeacherArray($teacherArray)
+    {
+        $pass = false;
+        foreach ($teacherArray as $teacher){
+            if($teacher['user_id']==$this->removedUserId){
+                $pass = true;
+            }
+        }
+        $this->assertFalse($pass);
     }
 }
 
