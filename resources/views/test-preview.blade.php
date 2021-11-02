@@ -3,8 +3,8 @@
         <livewire:preview.navigation :nav="$nav" :testId="$testId"></livewire:preview.navigation>
         <div>
             <div id="readspeaker_button1" class="rs_skip rsbtn rs_preserve ">
-                <a rel="nofollow" class="rsbtn_play" accesskey="L" title="Escucha esta p&aacute;gina utilizando ReadSpeaker webReader" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=3&amp;lang=nl_nl&amp;readclass=rs_question">
-                    <span class="rsbtn_left rsimg rspart"><span class="rsbtn_text"><span>Vertaal</span></span></span>
+                <a rel="nofollow" class="rsbtn_play" accesskey="L" title="Listen to this page using ReadSpeaker webReader" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=3&amp;lang=nl_nl&amp;readclass=rs_question">
+                    <span class="rsbtn_left rsimg rspart"><span class="rsbtn_text"><span>{{ __('test_take.Read_out_loud') }}</span></span></span>
                     <span class="rsbtn_right rsimg rsplay rspart"></span>
                 </a>
             </div>
