@@ -14,7 +14,13 @@ use Illuminate\Support\Facades\Broadcast;
 */
 
 
-//Broadcast::channel('TestTake.{testTakeUuid}', \tcCore\Broadcasting\TestTakeChannel::class);
+Broadcast::channel('presence-TestTake.{testTakeUuid}', function($user) {
+    return [
+        'uuid' => $user->uuid,
+        'name' => $user->getNameFullAttribute(),
+        'guest' => $user->guest
+    ];
+});
 Broadcast::channel('TestTake.{testTakeUuid}', function() {
     return true;
 });

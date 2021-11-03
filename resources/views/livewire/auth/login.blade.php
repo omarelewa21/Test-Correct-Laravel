@@ -1,5 +1,5 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
-     x-data="{ openTab: 1, showPassword: false, showEntreePassword: false }"
+     x-data="{ openTab: @entangle('login_tab'), showPassword: false, showEntreePassword: false }"
      x-init="
             addRelativePaddingToBody('login-body', 10);
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
@@ -7,11 +7,25 @@
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
      wire:ignore.self
 >
-    <div class="w-full max-w-[800px] space-y-4 mx-4 py-4">
+    <div class="w-full max-w-[800px] mx-4 py-4">
 
 
         @if($tab == 'login')
-            <div class="content-section p-10 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
+            @if($showGuestSuccess)
+                <div class="flex cta-gradient w-full p-10 -mb-4 rounded-t-10 relative top-2.5 space-x-2.5">
+                    <div class="flex">
+                        <x-stickers.congratulations/>
+                    </div>
+                    <div class="flex flex-col text-white pt-4 space-y-2.5">
+                        <h1 class="flex text-white">{{ __('auth.'.$guest_message) }}</h1>
+                        <div class="flex space-x-2.5 items-center">
+                            <x-icon.checkmark/>
+                            <h5 class="text-white">{{ __('auth.'.$guest_message.'_sub') }}</h5>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            <div class="content-section p-10 mb-4 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <div class="flex items-center space-x-2.5">
                     <div class="flex">
                         <x-stickers.login/>
@@ -243,7 +257,20 @@
                                     <span class="title">{{ $message }}</span>
                                 </div>
                                 @enderror
-
+                                @error('name_already_in_use')
+                                <div class="notification warning stretched mt-4">
+                                    <span class="title">{{ __('auth.choose_a_different_name') }}</span>
+                                    <span class="body">{{ __('auth.name_already_in_use') }}</span>
+                                </div>
+                                @enderror
+                                @if($showGuestError)
+                                    @if($guest_message == 'removed_by_teacher')
+                                    <div class="notification warning stretched mt-4">
+                                        <span class="title">{{ __('auth.log_in_again') }}</span>
+                                        <span class="body">{{ __('auth.removed_by_teacher') }}</span>
+                                    </div>
+                                    @endif
+                                @endif
                             </div>
 
                             <div class="flex mt-auto pt-4">

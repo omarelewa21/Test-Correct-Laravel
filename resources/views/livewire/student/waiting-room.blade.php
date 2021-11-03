@@ -5,6 +5,10 @@
         @if(!Auth::user()->guest)
         makeHeaderMenuActive('student-header-tests');
         @endif
+             Echo.join('presence-TestTake.{{ $waitingTestTake->uuid }}')
+                .listen('.TestTakeShowResultsChanged', (e) => {
+                    Livewire.emit('is-test-take-open', e)
+                })
      "
      x-ref="root"
      x-cloak

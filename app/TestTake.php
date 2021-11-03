@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
 use tcCore\Events\TestTakeOpenForInteraction;
+use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
@@ -59,7 +60,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -309,6 +310,7 @@ class TestTake extends BaseModel
 
             $testTake->handleInbrowserTestingChangesForParticipants();
             $testTake->handleGuestAccountsStatus();
+            $testTake->handleShowResultChanges();
         });
 
         static::creating(function(TestTake $testTake) {
@@ -838,13 +840,21 @@ class TestTake extends BaseModel
 
     private function handleInbrowserTestingChangesForParticipants()
     {
-        TestParticipant::where('test_take_id', $this->getKey())
-            ->get()
-            ->each(function ($participant) {
-                $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
-                InbrowserTestingUpdatedForTestParticipant::dispatch($participant);
-            });
+        if ($this->allow_inbrowser_testing != $this->getOriginal('allow_inbrowser_testing')) {
+            TestParticipant::where('test_take_id', $this->getKey())
+                ->get()
+                ->each(function ($participant) {
+                    $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
+                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant);
+                });
+        }
+    }
 
+    private function handleShowResultChanges()
+    {
+        if ($this->show_results != $this->getOriginal('show_results')) {
+            TestTakeShowResultsChanged::dispatch($this);
+        }
     }
 
     private function orUserHasAccessToSchoolClassParticipantsAndSubjectScope($query, User $user)

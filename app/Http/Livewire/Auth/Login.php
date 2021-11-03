@@ -43,13 +43,18 @@ class Login extends Component
 
     protected $queryString = [
         'tab'                  => ['except' => 'login'],
+        'login_tab'            => ['except' => 1],
         'uuid'                 => ['except' => ''],
         'entree_error_message' => ['except' => ''],
         'fatal_error_message'  => ['except' => false],
-        'block_back'           => ['except' => false]
+        'block_back'           => ['except' => false],
+        'guest_message'        => ['except' => ''],
+        'guest_message_type'        => ['except' => ''],
     ];
 
     public $tab = 'login';
+
+    public $login_tab = 1;
 
     public $uuid = '';
 
@@ -58,6 +63,10 @@ class Login extends Component
     public $block_back = false;
 
     public $entree_error_message = '';
+    public $guest_message = '';
+    public $guest_message_type = '';
+    public $showGuestError = false;
+    public $showGuestSuccess = false;
 
 //    public $loginTab = true;
 //    public $forgotPasswordTab = false;
@@ -99,6 +108,8 @@ class Login extends Component
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
+
+        $this->handleLoginTabScenarios();
     }
 
     public function login()
@@ -157,16 +168,17 @@ class Login extends Component
         }
 
         $testCodeHelper = new TestTakeCodeHelper();
-        $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
 
+        $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
         if (!$testTakeCode) {
             return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
         }
 
         AppVersionDetector::handleHeaderCheck();
 
-        if ($testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode)) {
-            return $this->addError('error_on_handling_guest_login', __('auth.something_went_wrong'));
+        $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode);
+        if (!empty($error)) {
+            return $this->addError($error[0], $error[0]);
         }
     }
 
@@ -512,5 +524,31 @@ class Login extends Component
             'name_suffix' => $this->suffix,
             'name'        => $this->lastName
         ];
+    }
+
+    private function handleLoginTabScenarios()
+    {
+        $availableLoginTabs = [1, 2];
+        if (!in_array($this->login_tab, $availableLoginTabs)) {
+            $this->login_tab = 1;
+        }
+
+        if (filled($this->guest_message_type) && filled($this->guest_message)) {
+            $this->showGuestError = $this->guest_message_type == 'error';
+            $this->showGuestSuccess = $this->guest_message_type == 'success';
+        }
+    }
+
+    public function updatedLoginTab()
+    {
+        $this->clearGuestMessages();
+    }
+
+    private function clearGuestMessages()
+    {
+        $this->guest_message = '';
+        $this->guest_message_type = '';
+        $this->showGuestError = false;
+        $this->showGuestSuccess = false;
     }
 }

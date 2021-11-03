@@ -22,8 +22,12 @@ class WaitingRoom extends Component
     {
         return [
             'start-test-take'                                                                                                  => 'startTestTake',
+            'is-test-take-open'                                                                                                => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
+            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.RemoveParticipantFromWaitingRoom'          => 'removeParticipantFromWaitingRoom',
+            //Presence channels are not completely working with Livewire listeners. Presence channel listener is located in x-init of this components blade file. -RR
+//            'echo-presence:Presence-TestTake.' . $this->waitingTestTake->uuid . ',.TestTakeShowResultsChanged'          => 'isTestTakeOpen',
         ];
     }
 
@@ -41,10 +45,15 @@ class WaitingRoom extends Component
     public function mount()
     {
         if (!isset($this->take) || !Uuid::isValid($this->take)) {
-            return redirect(route('student.dashboard'));
+            return $this->escortUserFromWaitingRoom();
         }
+
         $this->waitingTestTake = $this->getWaitingRoomTestTake();
         $this->testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->first();
+        if (!$this->waitingTestTake || !$this->testParticipant) {
+            return $this->escortUserFromWaitingRoom();
+        }
+
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
 
@@ -83,6 +92,7 @@ class WaitingRoom extends Component
         if ($stage === 'discuss') {
             $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSING;
         }
+
         if ($stage === 'review') {
             $showResults = TestTake::whereUuid($this->take)->value('show_results');
             if ($showResults != null && $showResults->gt(Carbon::now())) {
@@ -92,7 +102,12 @@ class WaitingRoom extends Component
             }
         }
         if ($stage === 'graded') {
-
+            $showResults = TestTake::whereUuid($this->take)->value('show_results');
+            if ($showResults != null && $showResults->gt(Carbon::now())) {
+                $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_RATED;
+            } else {
+                $this->isTakeOpen = false;
+            }
         }
     }
 
@@ -139,5 +154,25 @@ class WaitingRoom extends Component
     public function participantAppCheck()
     {
         $this->meetsAppRequirement = !(!$this->testParticipant->canUseBrowserTesting() && $this->testParticipant->isInBrowser());
+    }
+
+    public function removeParticipantFromWaitingRoom()
+    {
+        return $this->escortUserFromWaitingRoom();
+    }
+
+    private function escortUserFromWaitingRoom()
+    {
+        $redirect = redirect(route('student.dashboard'));
+
+        if (Auth::user()->guest) {
+            $redirect = redirect(route('auth.login', [
+                'login_tab' => 2,
+                'guest_message_type' => 'error',
+                'guest_message' => 'removed_by_teacher'
+            ]));
+        }
+
+        return $redirect;
     }
 }
