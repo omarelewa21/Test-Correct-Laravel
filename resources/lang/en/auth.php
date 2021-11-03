@@ -93,4 +93,10 @@ return [
     'name_already_in_use'                        => 'This name is already in use. Choose a different name for your Test-Direct profile.',
     'log_in_again'                               => 'Log in again',
     'removed_by_teacher'                         => 'The teacher or invigilator has revoked your access to the test. Please contact your teacher or invigilator why this has happened.',
+    'done_with_test'                             => 'Done with taking the test!',
+    'done_with_test_sub'                         => 'The test has been handed in',
+    'done_with_colearning'                       => 'Done with CO-Learing!',
+    'done_with_colearning_sub'                   => 'The test has been discussed',
+    'done_with_review'                           => 'Done with reviewing the test!',
+    'done_with_review_sub'                       => 'Reviewing the test has been closed',
 ];

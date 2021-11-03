@@ -48,7 +48,8 @@ class Login extends Component
         'entree_error_message' => ['except' => ''],
         'fatal_error_message'  => ['except' => false],
         'block_back'           => ['except' => false],
-        'guest_error'          => ['except' => ''],
+        'guest_message'        => ['except' => ''],
+        'guest_message_type'        => ['except' => ''],
     ];
 
     public $tab = 'login';
@@ -62,8 +63,10 @@ class Login extends Component
     public $block_back = false;
 
     public $entree_error_message = '';
-    public $guest_error = '';
+    public $guest_message = '';
+    public $guest_message_type = '';
     public $showGuestError = false;
+    public $showGuestSuccess = false;
 
 //    public $loginTab = true;
 //    public $forgotPasswordTab = false;
@@ -530,8 +533,22 @@ class Login extends Component
             $this->login_tab = 1;
         }
 
-        if (filled($this->guest_error)) {
-            $this->showGuestError = true;
+        if (filled($this->guest_message_type) && filled($this->guest_message)) {
+            $this->showGuestError = $this->guest_message_type == 'error';
+            $this->showGuestSuccess = $this->guest_message_type == 'success';
         }
+    }
+
+    public function updatedLoginTab()
+    {
+        $this->clearGuestMessages();
+    }
+
+    private function clearGuestMessages()
+    {
+        $this->guest_message = '';
+        $this->guest_message_type = '';
+        $this->showGuestError = false;
+        $this->showGuestSuccess = false;
     }
 }

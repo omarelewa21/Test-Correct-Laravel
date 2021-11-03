@@ -34,8 +34,10 @@ use tcCore\Lib\User\Factory;
 use tcCore\LoginLog;
 use tcCore\OnboardingWizardUserStep;
 use tcCore\QtiModels\ResourceImport;
+use tcCore\Scopes\RemoveUuidScope;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
+use tcCore\TestTakeStatus;
 use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
@@ -562,12 +564,22 @@ class UsersController extends Controller
         return Response::make('refused', 403);
     }
 
-    public function getReturnToLaravelUrl(User $user)
+    public function getReturnToLaravelUrl(Request $request, User $user)
     {
+        $parameters = [];
+        if ($state = $request->get('state')) {
+            if ($state == 'discussed') {
+                $parameters = ['login_tab' => 2, 'guest_message_type' => 'success', 'guest_message' => 'done_with_colearning'];
+            }
+            if ($state == 'glance') {
+                $parameters = ['login_tab' => 2, 'guest_message_type' => 'success', 'guest_message' => 'done_with_review'];
+            }
+        }
+
         $url = [];
         if ($user->guest) {
             //Paste relative route behind config base url because route() defaults to https, making it break on non https envs
-            $relativeRoute = route('auth.login', false, false);
+            $relativeRoute = route('auth.login', $parameters, false);
             $finalUrl = sprintf('%s%s', config('app.base_url'), substr($relativeRoute, 0, 1) === '/' ? substr($relativeRoute, 1) : $relativeRoute);
             $url['url'] = $finalUrl;
         }

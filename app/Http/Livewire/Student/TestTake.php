@@ -55,8 +55,14 @@ class TestTake extends Component
 //            @TODO make error handling on failed hand in
             //error handling
         }
+
+        // @TODO move this to returnToDashboard when all students use new env
         if (Auth::user()->guest) {
-            return redirect(route('auth.login'));
+            return redirect(route('auth.login', [
+                'login_tab'          => 2,
+                'guest_message_type' => 'success',
+                'guest_message'      => 'done_with_test'
+            ]));
         }
         $this->returnToDashboard();
     }
