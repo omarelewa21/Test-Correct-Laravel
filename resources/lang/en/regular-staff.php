@@ -16,7 +16,7 @@
 
 			'Toets afnemen' => 'To take a test',
 
-			'Toets bespreken' => 'Discuss test',
+			'CO-learning' => 'CO-learning',
 
 			'Welke vraagsoorten kan je maken en hoe maak je daar optimaal gebruik van. Waarop let als je een bestaande toets importeert' => 'Which question types can you create and how do you make optimal use of them. What to pay attention to when importing an existing test',
 

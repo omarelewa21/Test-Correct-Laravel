@@ -14,7 +14,7 @@
 
 			'Toets maken' => 'Toets maken',
 
-			'Toets bespreken' => 'Toets bespreken',
+			'CO-learning' => 'CO-learning',
 
 			'Analyseren' => 'Analyseren',
 

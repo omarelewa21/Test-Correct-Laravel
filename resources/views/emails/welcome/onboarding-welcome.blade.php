@@ -42,10 +42,10 @@
                     <td class="td-img">
                         <img width="64" height="64"
                              src="{{config('app.base_url')}}img/toetsen-beoordelen-bespreken_1.png"
-                             alt="{{ __("onboarding-welcome.Toetsen beoordelen en samen de toets bespreken") }}">
+                             alt="{{ __("onboarding-welcome.Toetsen beoordelen en samen de CO-learning doorlopen") }}">
                     </td>
                     <td class="td-text px-5">
-                        <span class="text-v-top">{{ __("onboarding-welcome.oetsen beoordelen en samen de toets bespreken") }}</span>
+                        <span class="text-v-top">{{ __("onboarding-welcome.oetsen beoordelen en samen de CO-learning doorlopen") }}</span>
                     </td>
                 </tr>
                 <tr>

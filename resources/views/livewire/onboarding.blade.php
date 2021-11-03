@@ -506,7 +506,7 @@
                                         <div class="w-full sm:w-1/2 sm:pl-2 mb-4 relative">
                                             <img src="/svg/stickers/toetsen-beoordelen-bespreken.svg" alt=""
                                                  class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Toetsen beoordelen en samen de toets bespreken") }}.</span>
+                                            <span class="klaar-text">{{ __("onboarding.Toetsen beoordelen en samen de CO-learning doorlopen") }}.</span>
                                         </div>
                                     </div>
                                     <div class="flex flex-wrap mb-4">
