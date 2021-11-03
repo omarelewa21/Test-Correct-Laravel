@@ -179,7 +179,7 @@ class TestTake extends BaseModel
 
                     $testParticipant->save();
 
-                    TestTakeOpenForInteraction::dispatch($testParticipant, $testParticipantTestTakeStatus);
+                    TestTakeOpenForInteraction::dispatch($testParticipant->getKey(), $testParticipantTestTakeStatus);
                 }
             }
 
@@ -232,7 +232,7 @@ class TestTake extends BaseModel
                     }
 
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
-//                    TestTakeOpenForInteraction::dispatch($testParticipant, $testParticipantDiscussingStatus);
+                    TestTakeOpenForInteraction::dispatch($testParticipant->getKey(), $testParticipantDiscussingStatus);
                 }
             }
 

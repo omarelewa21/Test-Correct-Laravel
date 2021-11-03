@@ -74,6 +74,7 @@ class RefreshDatabase extends Command
                 break;
         }
 
+
         $this->addMigrations();
 
         $this->addRequiredDatabaseData();
