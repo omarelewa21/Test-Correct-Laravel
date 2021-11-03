@@ -203,7 +203,9 @@ class TestTakesController extends Controller {
             'retakeTestTake',
             'user',
             'testTakeStatus',
-            'invigilatorUsers',
+            'invigilatorUsers' => function ($query) {
+                $query->withTrashed();
+            },
             'testParticipants',
             'testTakeCode'
         ]);

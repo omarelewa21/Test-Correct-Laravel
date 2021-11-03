@@ -4,6 +4,7 @@ namespace tcCore\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Laravel\Telescope\Telescope;
 use tcCore\SchoolLocation;
 
 class RefreshDatabase extends Command
@@ -23,6 +24,7 @@ class RefreshDatabase extends Command
      * @var string
      */
     protected $description = 'Command description';
+
 
     /**
      * Create a new command instance.
@@ -54,7 +56,7 @@ class RefreshDatabase extends Command
             ];
         }
 
-        if (!in_array(env('APP_ENV'), ['local', 'testing'])) {
+        if (!in_array(config('app.env'), ['local', 'testing'])) {
             $this->error('You cannot perform this action on this environment! only with APP_ENV set to local!!');
             return 1;
         }
