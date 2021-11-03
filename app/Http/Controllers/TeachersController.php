@@ -229,11 +229,27 @@ class TeachersController extends Controller
                     } else {
                         $teacher = Teacher::where([
                             'class_id' => $schoolClassId,
-                            'user_id'  => Auth::id()
+                            'user_id' => Auth::id()
                         ])->first();
-                        $teacher->subject_id = $subjectValue;
-                        $teacher->save();
-                        $this->updateImportLog(['checked' => 'on'], $teacher);
+
+                        $oldTeacher = Teacher::where([
+                            'class_id' => $schoolClassId,
+                            'user_id'  => Auth::id(),
+                            'subject_id' => $subjectValue
+                        ])->withTrashed()->first();
+                        if(null !== $oldTeacher){
+                            if($oldTeacher->trashed()){
+                                $oldTeacher->restore();
+                            }
+                            if($oldTeacher->getKey() !== $teacher->getKey()) {
+                                $teacher->delete();
+                            }
+                            $this->updateImportLog(['checked' => 'on'], $oldTeacher);
+                        } else {
+                            $teacher->subject_id = $subjectValue;
+                            $teacher->save();
+                            $this->updateImportLog(['checked' => 'on'], $teacher);
+                        }
                         $updateCounter++;
                     }
                 }
