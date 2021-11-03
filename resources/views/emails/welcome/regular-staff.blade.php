@@ -21,7 +21,7 @@
 <ul>
 <li><a href="http://www.test-correct.nl/support/toets-creeren/">{{ __("Toets creëren") }}</a><br/>{{ __("Welke vraagsoorten kan je maken en hoe maak je daar optimaal gebruik van. Waarop let als je een bestaande toets importeert") }}. </li>
 <li><a href="http://www.test-correct.nl/support/toets-afnemen/">{{ __("Toets afnemen") }}</a><br/>{{ __("Het inplannen & surveilleren van de toets. Tips & Trucs bij het surveilleren") }}.</li>
-<li><a href="http://www.test-correct.nl/support/toets-bespreken/">{{ __("Toets bespreken") }}</a><br/>{{ __("De kracht van Test-Correct. Onderwijskundige Tips & Trucs bij het bespreken") }}.</li>
+<li><a href="http://www.test-correct.nl/support/toets-bespreken/">{{ __("CO-learning") }}</a><br/>{{ __("De kracht van Test-Correct. Onderwijskundige Tips & Trucs bij het bespreken") }}.</li>
 <li><a href="http://www.test-correct.nl/support/toets-nakijken-en-analyseren/">{{ __("Toets nakijken en analyseren") }}</a><br/>{{ __("Je eigen manier van nakijken. De interessantste analyses") }}.</li>
 </ul>
 <br/>

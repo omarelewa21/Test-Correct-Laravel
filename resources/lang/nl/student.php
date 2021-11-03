@@ -34,7 +34,7 @@
 
 			'wat je moet doen (zie onder)' => 'wat je moet doen (zie onder)',
 
-			'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en toets bespreken' => 'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en toets bespreken',
+			'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-learning' => 'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-learning',
 
 			'De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets' => 'De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets',
 

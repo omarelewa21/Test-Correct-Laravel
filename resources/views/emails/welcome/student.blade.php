@@ -12,7 +12,7 @@
                 <li>{{ __("student.Zorg ervoor dat je genoeg tijd hebt om de applicatie voor je toets te downloaden en te starten. Het kan zijn dat je de instellingen van je computer moet aanpassen, dus geef jezelf voldoende tijd") }};</li>
                 <li>{{ __("student.Je kan bij het installeren meldingen van Test-Correct op je scherm krijgen waarvoor je actie moet ondernemen. Lees in de") }} <a href="https://support.test-correct.nl/knowledge/studenthandleiding">{{ __("student.handleiding") }}</a> {{ __("student.wat je moet doen (zie onder)") }};</li>
                 <li>{{ __("student.De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets") }};</li>
-                <li><a href="https://support.test-correct.nl/knowledge/studenthandleiding"><strong>{{ __("student.Klik hier om de handleiding te downloaden") }}.</strong></a> {{ __("student.Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en toets bespreken") }};</li>
+                <li><a href="https://support.test-correct.nl/knowledge/studenthandleiding"><strong>{{ __("student.Klik hier om de handleiding te downloaden") }}.</strong></a> {{ __("student.Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-learning") }};</li>
                 <li>{{ __("student.Heb je hulp nodig en staat er in de handleiding niet wat je moet doen? Neem contact met ons op door een email te sturen naar support@test-correct.nl. Beschrijf in je email goed wat het probleem is zodat we jou goed kunnen helpen") }}.</li>
             </ul>
          <br/>

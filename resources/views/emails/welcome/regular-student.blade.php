@@ -21,7 +21,7 @@
 {{ __("regular-student.Lees deze tips voordat je aan de slag gaat") }}:<br/>
 <ul>
 <li><a href="http://www.test-correct.nl/support/student/toets-maken/">{{ __("regular-student.Toets maken") }}</a><br/>{{ __("regular-student.Bekijk wat je kan verwachten bij het maken van een toets in Test-Correct") }}.</li>
-<li><a href="http://www.test-correct.nl/support/student/toets-bespreken/">{{ __("regular-student.Toets bespreken") }}</a><br/>{{ __("regular-student.Hier zit het geheim van jouw succes. Bekijk waarom") }}.</li>
+<li><a href="http://www.test-correct.nl/support/student/toets-bespreken/">{{ __("regular-student.CO-learning") }}</a><br/>{{ __("regular-student.Hier zit het geheim van jouw succes. Bekijk waarom") }}.</li>
 <li><a href="http://www.test-correct.nl/support/student/analyseren/">{{ __("regular-student.Analyseren") }}</a><br/>{{ __("regular-student.Wat zeggen de analyses over jouw") }}?</li>
 </ul>
 <br/>
