@@ -34,7 +34,7 @@
 			'Maak mijn Test-Correct account' => 'Maak mijn Test-Correct account',
 			'Je bent nu klaar! Met Test-Correct kun je' => 'Je bent nu klaar! Met Test-Correct kun je',
 			'Toetsen aanmaken en bestaande toetsen omzetten' => 'Toetsen aanmaken en bestaande toetsen omzetten',
-			'Toetsen beoordelen en samen de toets bespreken' => 'Toetsen beoordelen en samen de toets bespreken',
+			'Toetsen beoordelen en samen de CO-learning doorlopen' => 'Toetsen beoordelen en samen de CO-learning doorlopen',
 			'Klassen maken en uitnodigen om een toets af te nemen' => 'Klassen maken en uitnodigen om een toets af te nemen',
 			'Toetsresultaten delen en analystische feedback inzien' => 'Toetsresultaten delen en analystische feedback inzien',
 			'Deel op social media dat je een Test-Correct docent account hebt aangemaakt' => 'Deel op social media dat je een Test-Correct docent account hebt aangemaakt',

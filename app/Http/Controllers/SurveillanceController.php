@@ -6,7 +6,13 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use tcCore\Http\Helpers\DemoHelper;
+use tcCore\Jobs\SendExceptionMail;
+use tcCore\Lib\Repositories\SchoolYearRepository;
+use tcCore\SchoolClass;
 use tcCore\Scopes\ArchivedScope;
+use tcCore\Teacher;
+use tcCore\Test;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeEvent;
@@ -58,7 +64,8 @@ class SurveillanceController extends Controller
 
     private function getTakesForSurveillance(User $owner)
     {
-        $participantHasEvents = TestTakeEvent::select('test_participant_id', DB::Raw('max(test_take_events.id) as event'))
+        $participantHasEvents = TestTakeEvent::select('test_participant_id',
+            DB::Raw('max(test_take_events.id) as event'))
             ->join('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
             ->where('requires_confirming', '1')
             ->groupBy('test_participant_id');
@@ -73,11 +80,56 @@ class SurveillanceController extends Controller
             ->join('invigilators', function ($query) use ($owner) {
                 return $query
                     ->on('test_takes.id', 'invigilators.test_take_id')
-                    ->where('invigilators.user_id', '=', $owner->id);
+                    ->where(function ($query) use ($owner) {
+                        $query->where('invigilators.user_id', '=', $owner->id)
+                            ->orWhere('test_takes.user_id', '=', $owner->id);
+
+                    })->whereIn('test_takes.id', function ($query) use ($owner) {
+                        $currentSchoolYearId = SchoolYearRepository::getCurrentSchoolYear()->getKey();
+                        $teacherTable = with((new Teacher)->getTable());
+                        $schoolClassTable = with((new SchoolClass())->getTable());
+                        $query->select('test_take_id')
+                            ->from(with(new TestParticipant())->getTable())
+                            ->whereNull('deleted_at')
+                            ->whereIn('school_class_id',
+                                function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
+                                    $query->select('class_id')
+                                        ->from($teacherTable)
+                                        ->join($schoolClassTable, "$teacherTable.class_id", '=',
+                                            "$schoolClassTable.id")
+                                        ->where('user_id', Auth::id())
+                                        ->where('school_year_id', $currentSchoolYearId)
+                                        ->whereNull("$teacherTable.deleted_at")
+                                        ->whereNull("$schoolClassTable.deleted_at");
+                                })
+                            ->whereIn('test_takes.id',
+                                function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
+                                    $testTable = with(new Test())->getTable();
+                                    $query
+                                        ->select('test_takes.id')
+                                        ->from('test_takes')
+                                        ->join($testTable, $testTable.'.id', '=', 'test_takes.test_id')
+                                        ->whereNull($testTable.'.deleted_at')
+                                        ->whereIn($testTable.'.subject_id', function ($query) use (
+                                            $teacherTable,
+                                            $schoolClassTable,
+                                            $currentSchoolYearId
+                                        ) {
+                                            $query->select('subject_id')
+                                                ->from($teacherTable)
+                                                ->join($schoolClassTable, "$teacherTable.class_id", '=',
+                                                    "$schoolClassTable.id")
+                                                ->where('user_id', Auth::id())
+                                                ->where('school_year_id', $currentSchoolYearId)
+                                                ->whereNull("$teacherTable.deleted_at")
+                                                ->whereNull("$schoolClassTable.deleted_at");
+                                        });
+                                });
+                    });
             })
             ->join('tests', 'test_takes.test_id', 'tests.id')
-            ->where('test_takes.test_take_status_id', 3)
-            ->where('test_takes.time_start', '=', date('y-m-d'))
+            ->whereIn('test_takes.id', $this->getCachedTestTakeIds($owner))
+            ->where('test_take_status_id', '=', '3')
             ->with([
                 'testParticipants' => function ($query) use ($participantHasEvents) {
                     $query->select(
@@ -87,7 +139,6 @@ class SurveillanceController extends Controller
                         'test_take_status_id',
                         'allow_inbrowser_testing',
                         'test_take_status_id as status',
-                        'allow_inbrowser_testing',
                         'ip_address',
                         'uuid',
                         'school_class_id',
@@ -113,7 +164,7 @@ class SurveillanceController extends Controller
                     )->leftJoinSub($participantHasEvents, 'has_events', function ($join) {
                         $join->on('test_participants.id', '=', 'has_events.test_participant_id');
                     });
-                }, 'testParticipants.user:id,guest'
+                },
             ])
             ->get();
     }
@@ -126,7 +177,7 @@ class SurveillanceController extends Controller
 
             if (array_key_exists($key, $this->schoolClassProgress) && count($this->schoolClassProgress[$key]) > 0) {
 
-                $progress = (int)round(array_sum($this->schoolClassProgress[$key]) / count($this->schoolClassProgress[$key]));
+                $progress = (int) round(array_sum($this->schoolClassProgress[$key]) / count($this->schoolClassProgress[$key]));
             }
             $this->response['takes'][sprintf('progress_%s_%s', $testTake->uuid, $schoolClass->uuid)] = $progress;
         });
@@ -153,7 +204,6 @@ class SurveillanceController extends Controller
                 'ip'                      => $participant->ip_check == 'true' ? true : false,
                 'status'                  => $participant->test_take_status_id,
                 'allow_inbrowser_testing' => $participant->allow_inbrowser_testing,
-                'guest'                   => $participant->user->guest,
             ];
         });
     }
@@ -164,7 +214,7 @@ class SurveillanceController extends Controller
             return 0;
         }
 
-        return (int)(round($participant->answered_count / $participant->answers_total * 100, 0));
+        return (int) (round($participant->answered_count / $participant->answers_total * 100, 0));
     }
 
     private function getIpCheckQuery(Builder $query)
@@ -189,7 +239,6 @@ class SurveillanceController extends Controller
             $this->eventIdsThatRequireConfirming = TestTakeEventType::where('requires_confirming', 1)->get('id');
         }
 
-
         $query->selectRaw("case when coalesce(id, 0) > 0 then 'true' else 'false' end")
             ->from('test_take_events')
             ->whereRaw('test_take_events.test_participant_id = test_participants.id')
@@ -198,5 +247,18 @@ class SurveillanceController extends Controller
             ->limit(1);
 
         return $query;
+    }
+
+    private function getCachedTestTakeIds(User $owner)
+    {
+        $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
+            return TestTake::query()->where('test_takes.test_take_status_id', 3)
+                ->withoutDemoTeacherForUser($owner)
+                ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($owner)
+                ->pluck('id')
+                ->toArray();
+        });
+
+        return $ids;
     }
 }

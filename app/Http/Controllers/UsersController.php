@@ -44,6 +44,7 @@ use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\School;
 use tcCore\SchoolClass;
+use tcCore\UserRole;
 
 class UsersController extends Controller
 {
@@ -84,7 +85,6 @@ class UsersController extends Controller
                     AverageRatingRepository::getSubjectAveragesOfStudents($users);
                 }
                 $users->transform(function (User $u) {
-
                     $u->is_temp_teacher = $u->getIsTempTeacher();
                     return $u;
                 });
@@ -420,10 +420,16 @@ class UsersController extends Controller
         // for safety now disabled
         // @TODO fix security issue with deletion of users (as well update/ add and such)
 //	    return Response::make($user,200);
-        if ($user->delete()) {
-            return Response::make($user, 200);
-        } else {
-            return Response::make('Failed to delete user', 500);
+
+        try {
+            if ($user->delete()) {
+                UserRole::where('user_id', $user->id)->delete();
+                return Response::make($user, 200);
+            } else {
+                return Response::make('Failed to delete user', 500);
+            }
+        }catch(\Exception $e){
+            return Response::make($e->getMessage(),403);
         }
     }
 

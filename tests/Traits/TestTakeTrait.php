@@ -20,8 +20,6 @@ use tcCore\GroupQuestionQuestion;
 use Carbon\Carbon;
 use \stdClass;
 use tcCore\User;
-
-use \Auth;
 use tcCore\TestTakeEvent;
 
 trait TestTakeTrait

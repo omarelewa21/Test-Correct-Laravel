@@ -21,7 +21,7 @@ class ProcessUwlrSoapResultJob extends Job implements ShouldQueue
      */
     protected $uwlrSoapResultId;
 
-    public $timeout = 3600; // 60 minutes
+    public $timeout = 7200; // 60 minutes
     public $tries = 1;
     public $queue = 'import';
 

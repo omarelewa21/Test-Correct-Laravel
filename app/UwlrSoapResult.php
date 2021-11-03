@@ -636,11 +636,10 @@ class UwlrSoapResult extends Model
         return $stamnummer;
     }
 
-    public static function updateProgress($key, $activeLine, $totalLines)
+    public function updateProgress($activeLine, $totalLines)
     {
-        $percentage = round(($activeLine / $totalLines) * 100);
-        static::where('id', $key)->update([
-            'import_progress' => sprintf('%d %%', $percentage)
+        $this->update([
+            'import_progress' => sprintf('%d %%', round(($activeLine / $totalLines) * 100))
         ]);
     }
 

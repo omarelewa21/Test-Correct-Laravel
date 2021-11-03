@@ -65,6 +65,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
      */
     protected $dates = ['deleted_at', 'no_mail_request_detected'];
 
+    protected $appends = ['school_language_cake'];
+
     /**
      * The database table used by the model.
      *
@@ -107,6 +109,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     protected $technicalContacts;
     protected $implementationContacts;
     protected $otherContacts;
+
+    public function getSchoolLanguageCakeAttribute()
+    {
+        if($this->school_language === 'en'){
+            return 'eng';
+        }
+        return $this->school_language;
+    }
 
     public function fill(array $attributes)
     {

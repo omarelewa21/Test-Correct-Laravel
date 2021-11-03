@@ -63,6 +63,7 @@ return [
     'log_in_with_existing_tc_account'                                                                => 'Log in op je Test-Correct account om jouw Entree Federatie account te koppelen. Daarna kun je inloggen op Test-Correct met Entree.',
     'log_in_with_student_account'                                                                    => 'Log in met je student account',
     'log_in_with_temporary_student_login'                                                            => 'Inloggen met tijdelijk studentprofiel',
+    'login'                                                                                          => 'Login',
     'login_as_teacher'                                                                               => 'Inloggen als docent',
     'login_with_entree'                                                                              => 'Inloggen via Entree',
     'logout'                                                                                         => 'Uitloggen',
