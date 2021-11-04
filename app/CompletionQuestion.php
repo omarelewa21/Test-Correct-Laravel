@@ -187,7 +187,8 @@ class CompletionQuestion extends Question implements QuestionInterface {
                     $tagAnswers[$key] = Str::lower($val);
                 }
             }
-            if (in_array($answers[$refTag], $tagAnswers)) {
+            $tagAnswers = array_map('trim',$tagAnswers);
+            if (in_array(trim($answers[$refTag]), $tagAnswers)) {
                 $correct++;
             }
         }
