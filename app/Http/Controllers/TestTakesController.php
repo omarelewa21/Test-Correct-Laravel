@@ -44,8 +44,17 @@ class TestTakesController extends Controller {
     private function has_open_question($test_id){
         $test_questions = TestQuestion::where('test_id', $test_id)->get();
         foreach($test_questions as $test_question){
-            if(!QuestionGatherer::getQuestionOfTest($test_question->test_id, $test_question->question_id, false)->canCheckAnswer()){
-                return true;
+            if($test_question->question->type == "GroupQuestion"){
+                foreach(GroupQuestion::find($test_question->question->id)->groupQuestionQuestions as $groupQuestion){
+                    if(!$groupQuestion->question->canCheckAnswer()){
+                        return true;
+                    }
+                }
+            }
+            else{
+                if(!$test_question->question->canCheckAnswer()){
+                    return true;
+                }
             };
         }
         return false;
@@ -586,7 +595,7 @@ class TestTakesController extends Controller {
         unset($testTake['test_participants']);
 
         $testTake['school_classes'] = $schoolClasses;
-        
+
         $testTake['consists_only_closed_question'] = $this->has_open_question($testTake['test']['id']) ? false : true;
 
         return Response::make($testTake, 200);
