@@ -49,7 +49,7 @@ return [
     'invigilators'                          => 'Invigilators',
     'planner'                               => 'Planner',
     'weight'                                => 'Weight',
-    'tests_to_discuss'                      => 'Tests to discuss',
+    'tests_to_discuss'                      => 'Tests with CO-learning',
     'tests_to_review'                       => 'Tests to review',
     'graded_tests'                          => 'Graded tests',
     'logged_in_students'                    => 'Logged in students',

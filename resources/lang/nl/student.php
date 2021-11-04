@@ -87,7 +87,7 @@
     'invigilators'                          => 'Surveillanten',
     'planner'                               => 'Inplanner',
     'weight'                                => 'Weging',
-    'tests_to_discuss'                      => 'Te bespreken toetsen',
+    'tests_to_discuss'                      => 'Bespreken met CO-learning',
     'tests_to_review'                       => 'Toetsen om in te zien',
     'graded_tests'                          => 'Becijferde toetsen',
     'logged_in_students'                    => 'Ingelogde studenten',

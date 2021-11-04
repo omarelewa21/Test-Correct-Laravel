@@ -14,7 +14,7 @@ return [
 
     'Gepland' => 'Gepland',
 
-    'Bespreken' => 'Bespreken',
+    'CO-learning' => 'CO-learning',
 
     'Inzien' => 'Inzien',
 
