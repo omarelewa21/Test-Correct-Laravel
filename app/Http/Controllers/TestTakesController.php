@@ -42,20 +42,11 @@ class TestTakesController extends Controller {
      * @return true if check has found one open questoin - else return false
      */
     private function has_open_question($test_id){
-        $test_questions = TestQuestion::where('test_id', $test_id)->get();
-        foreach($test_questions as $test_question){
-            if($test_question->question->type == "GroupQuestion"){
-                foreach(GroupQuestion::find($test_question->question->id)->groupQuestionQuestions as $groupQuestion){
-                    if(!$groupQuestion->question->canCheckAnswer()){
-                        return true;
-                    }
-                }
+        $questions = QuestionGatherer::getQuestionsOfTest($test_id, true);
+        foreach($questions as $question){
+            if(!$question->canCheckAnswer()){
+                return true;
             }
-            else{
-                if(!$test_question->question->canCheckAnswer()){
-                    return true;
-                }
-            };
         }
         return false;
     }
