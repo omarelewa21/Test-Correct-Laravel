@@ -25,4 +25,6 @@ return [
     'test_not_taken' => 'Test not taken',
     'planned'        => 'Planned',
     'close'          => 'Close',
+    'name'           => 'Name',
+    'grade'          => 'Grade',
 ];

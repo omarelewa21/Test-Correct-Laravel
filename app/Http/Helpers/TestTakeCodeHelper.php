@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Helpers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Lib\TestParticipant\Factory as ParticipantFactory;
 use tcCore\Lib\User\Factory as UserFactory;
@@ -13,12 +14,6 @@ use tcCore\User;
 
 class TestTakeCodeHelper extends BaseHelper
 {
-
-    public function __construct()
-    {
-
-    }
-
     public function getTestTakeCodeIfExists($testTakeCode)
     {
         $code = is_array($testTakeCode) ? implode('', $testTakeCode) : $testTakeCode;
@@ -93,6 +88,10 @@ class TestTakeCodeHelper extends BaseHelper
             $this->handleStageGraded($testTakeCode);
         }
 
+        if (empty($this->errors)) {
+            $this->addError('test_take_not_in_valid_stage');
+        }
+
         return $this->errors;
     }
 
@@ -127,6 +126,10 @@ class TestTakeCodeHelper extends BaseHelper
 
     private function handleStageGraded($testTakeCode)
     {
+        if ($testTakeCode->rating_visible_expiration->lt(Carbon::now())) {
+            return $this->addError('rating_visible_expired');
+        }
+
         session()->put('guest_take', $testTakeCode->testTake->uuid);
         return redirect(route('guest-graded-overview', ['take' => $testTakeCode->testTake->uuid]));
     }

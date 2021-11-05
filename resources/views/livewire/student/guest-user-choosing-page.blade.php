@@ -1,5 +1,5 @@
 <div id="planned-body"
-     x-data="{}"
+     x-data="{activeStudents: 0}"
      x-init="
         $el.parentElement.classList.add('flex','flex-1')"
      x-cloak
@@ -19,7 +19,7 @@
                 <div class="flex justify-center">
                     <div class="bg-white rounded-10 pt-5 p-8 w-full max-w-2xl">
                         <div class="px-3">
-                            <h4 class="leading-8">Kies jouw studenten gastprofiel</h4>
+                            <h4 class="leading-8">{{ __('student.choose_your_student_guest_profile') }}</h4>
                         </div>
                         <div class="divider mt-4"></div>
                         <div class="flex flex-col">
@@ -35,7 +35,7 @@
                                 </div>
                                 <div class="h-px bg-blue-grey mx-2"></div>
                             @empty
-                                <div class="mt-4">Geen profielen beschikbaar.</div>
+                                <div class="mt-4">{{ __('student.no_profiles_available') }}</div>
                             @endforelse
 
                             @error('participant_already_taken')
@@ -44,7 +44,7 @@
                                         <x-icon.exclamation/>
                                         <span class="title">{{ $message }}</span>
                                     </div>
-                                    <span class="body">Kies een ander gastprofiel</span>
+                                    <span class="body">{{ __('student.please_choose_a_different_participant') }}</span>
                                 </div>
                             @enderror
                         </div>

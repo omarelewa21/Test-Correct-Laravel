@@ -31,8 +31,13 @@ class WaitingRoom extends Component
         ];
     }
 
-    protected $queryString = ['take'];
+    protected $queryString = [
+        'take',
+        'directly_to_review' => ['except' => false]
+    ];
+
     public $take;
+    public $directly_to_review = false;
     public $waitingTestTake;
     public $testParticipant;
     public $isTakeOpen;
@@ -52,6 +57,10 @@ class WaitingRoom extends Component
         $this->testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($this->waitingTestTake->getKey())->first();
         if (!$this->waitingTestTake || !$this->testParticipant) {
             return $this->escortUserFromWaitingRoom();
+        }
+
+        if ($this->directly_to_review) {
+            $this->startReview();
         }
 
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();

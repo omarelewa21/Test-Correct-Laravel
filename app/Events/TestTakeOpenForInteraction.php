@@ -13,18 +13,18 @@ class TestTakeOpenForInteraction implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $testParticipant;
+    public $testParticipantId;
     public $status;
 
-    public function __construct(TestParticipant $testParticipant, $status)
+    public function __construct($testParticipantId, $status)
     {
-        $this->testParticipant = $testParticipant;
+        $this->testParticipantId = $testParticipantId;
         $this->status = $status;
     }
 
     public function broadcastOn()
     {
-        return new PrivateChannel('TestParticipant.'.$this->testParticipant->getKey());
+        return new PrivateChannel('TestParticipant.'.$this->testParticipantId);
     }
 
     public function broadcastAs()

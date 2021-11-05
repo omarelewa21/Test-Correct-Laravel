@@ -86,9 +86,6 @@ class TestTakesController extends Controller {
                                 if (!in_array($schoolClass->getKey(), $haveClasses)) {
                                     $haveClasses[] = $schoolClass->getKey();
                                     $className = $schoolClass->getAttribute('name');
-                                    if (Str::contains($className, 'guest_class')) {
-                                        $className = 'Gast accounts';
-                                    }
                                     $response[$testTake->getKey()][] = [
                                         'schoolClass' => $className,
                                         'test' => $test,
