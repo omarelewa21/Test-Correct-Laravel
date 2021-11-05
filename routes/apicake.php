@@ -216,6 +216,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
 
+    Route::delete('school_class_mentor/{schoolClass}/{userUuid}','SchoolClassesController@deleteMentor')->name('school_class_mentor.delete');
 
     Route::get('invigilator/list', ['as' => 'invigilator.list', 'uses' => 'InvigilatorsController@lists']);
 

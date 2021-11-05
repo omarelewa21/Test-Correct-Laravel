@@ -78,7 +78,7 @@ class TestTake extends BaseModel
      */
     protected $schoolClasses;
 
-    protected $appends = ['exported_to_rtti_formated'];
+    protected $appends = ['exported_to_rtti_formated','invigilators_acceptable','invigilators_unacceptable_message'];
 
     public static function boot()
     {
@@ -789,6 +789,28 @@ class TestTake extends BaseModel
         return array_key_exists('exported_to_rtti',$this->attributes) && $this->attributes['exported_to_rtti'] ? Carbon::parse($this->attributes['exported_to_rtti'])->format('d-m-Y H:i:s') : 'Nog niet geëxporteerd';
     }
 
+    public function getInvigilatorsAcceptableAttribute()
+    {
+        if($this->hasValidInvigilators()){
+            return true;
+        }
+        return false;
+        if($this->hasRemovedInvigilators()){
+            $invigilatorsRemoved = true;
+        }
+    }
+
+    public function getInvigilatorsUnacceptableMessageAttribute()
+    {
+        if($this->hasValidInvigilators()){
+            return '';
+        }
+        if($this->hasRemovedInvigilators()){
+            return __('De surveilant is niet langer actief binnen Test-Correct');
+        }
+        return _('Er is geen surveillant gekoppeld');
+    }
+
     private function handleGuestAccountsStatus()
     {
         if ($this->guest_accounts && $this->testTakeCode()->count() === 0) {
@@ -960,5 +982,24 @@ class TestTake extends BaseModel
 
             });
         });
+    }
+
+    private function hasValidInvigilators()
+    {
+        foreach ($this->invigilatorUsers as $invigilator){
+            if(is_null($invigilator->deleted_at)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function hasRemovedInvigilators(){
+        foreach ($this->invigilatorUsers as $invigilator){
+            if(!is_null($invigilator->deleted_at)){
+                return true;
+            }
+        }
+        return false;
     }
 }
