@@ -311,6 +311,7 @@ class TestTake extends BaseModel
             $testTake->handleInbrowserTestingChangesForParticipants();
             $testTake->handleGuestAccountsStatus();
             $testTake->handleShowResultChanges();
+            $testTake->updateGuestRatingVisibilityWindow();
         });
 
         static::creating(function(TestTake $testTake) {
@@ -970,5 +971,19 @@ class TestTake extends BaseModel
 
             });
         });
+    }
+
+    private function updateGuestRatingVisibilityWindow()
+    {
+        if (!$this->test_take_status_id == TestTakeStatus::STATUS_RATED || !$this->guest_accounts || $this->testTakeCode == null) {
+            return;
+        }
+
+        $this->testTakeCode->setAttribute('rating_visible_expiration', Carbon::now()->addMonths(2))->save();
+    }
+
+    public function reviewingIsPossible()
+    {
+        return $this->show_results && $this->show_results->gt(Carbon::now());
     }
 }

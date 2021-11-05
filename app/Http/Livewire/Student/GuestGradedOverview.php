@@ -74,4 +74,23 @@ class GuestGradedOverview extends Component
         $this->sortBy('test_participants.rating');
         $this->renderGuestList($this->sortField, $this->sortDirection);
     }
+
+    public function continueAs($userUuid)
+    {
+        if (!$this->canReviewTestTake()) {
+            return $this->addError('reviewing_time_has_expired', __('student.reviewing_time_has_expired'));
+        }
+        $user = User::whereUuid($userUuid)->firstOrFail();
+
+        Auth::login($user);
+        $sessionHash = $user->generateSessionHash();
+        $user->setSessionHash($sessionHash);
+
+        redirect(route('student.waiting-room', ['take' => $this->take, 'directly_to_review' => true]));
+    }
+
+    public function canReviewTestTake()
+    {
+        return $this->testTake->reviewingIsPossible();
+    }
 }

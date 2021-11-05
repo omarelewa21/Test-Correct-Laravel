@@ -5223,6 +5223,29 @@ dragElement = function dragElement(element) {
   }
 };
 
+registerWaitingRoomPresenceChannel = function registerWaitingRoomPresenceChannel(takeUuid) {
+  var presenceChannel = Echo.join('presence-TestTake.' + takeUuid);
+  presenceChannel.here(function (users) {
+    activeStudents = countPresentStudents(presenceChannel.subscription.members);
+  }).joining(function (user) {
+    activeStudents = countPresentStudents(presenceChannel.subscription.members);
+  }).leaving(function (user) {
+    activeStudents = countPresentStudents(presenceChannel.subscription.members);
+  }).listen('.TestTakeShowResultsChanged', function (e) {
+    Livewire.emit('is-test-take-open', e);
+  });
+};
+
+countPresentStudents = function countPresentStudents(members) {
+  var activeStudents = 0;
+  members.each(function (member) {
+    if (member.info.student) {
+      activeStudents++;
+    }
+  });
+  return activeStudents;
+};
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":

@@ -1,14 +1,21 @@
 <div id="planned-body"
-     x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }} }"
+     x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }}, activeStudents: 0 }"
      x-init="
         addRelativePaddingToBody('planned-body');
         @if(!Auth::user()->guest)
         makeHeaderMenuActive('student-header-tests');
         @endif
-             Echo.join('presence-TestTake.{{ $waitingTestTake->uuid }}')
-                .listen('.TestTakeShowResultsChanged', (e) => {
-                    Livewire.emit('is-test-take-open', e)
-                })
+
+        var presenceChannel = Echo.join('presence-TestTake.{{ $waitingTestTake->uuid }}');
+        presenceChannel.here((users) => {
+            activeStudents = countPresentStudents(presenceChannel.subscription.members);
+        }).joining((user) => {
+            activeStudents = countPresentStudents(presenceChannel.subscription.members);
+        }).leaving((user) => {
+            activeStudents = countPresentStudents(presenceChannel.subscription.members);
+        }).listen('.TestTakeShowResultsChanged', (e) => {
+            Livewire.emit('is-test-take-open', e)
+        });
      "
      x-ref="root"
      x-cloak

@@ -263,6 +263,18 @@
                                     <span class="body">{{ __('auth.name_already_in_use') }}</span>
                                 </div>
                                 @enderror
+                                @error('rating_visible_expired')
+                                <div class="notification warning stretched mt-4">
+                                    <span class="title">{{ __('auth.test_code_expired') }}</span>
+                                    <span class="body">{{ __('auth.can_no_longer_log_in_to_this_test') }}</span>
+                                </div>
+                                @enderror
+                                @error('test_take_not_in_valid_stage')
+                                <div class="notification warning stretched mt-4">
+                                    <span class="title">{{ __('auth.something_went_wrong') }}</span>
+                                    <span class="body">{{ __('auth.test_for_this_code_is_not_valid_anymore_contact_teacher') }}</span>
+                                </div>
+                                @enderror
                                 @if($showGuestError)
                                     @if($guest_message == 'removed_by_teacher')
                                     <div class="notification warning stretched mt-4">
