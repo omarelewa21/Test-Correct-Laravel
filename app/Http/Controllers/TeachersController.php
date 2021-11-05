@@ -219,9 +219,9 @@ class TeachersController extends Controller
 
                         foreach ($subjectValue as $subjectId => $checkboxValue) {
                             $oldTeacher = Teacher::where([
-                                'class_id ' => $schoolClassId,
-                                'subject_id'=> $subjectId,
-                                'user_id'   => Auth::id()
+                                'class_id' => $schoolClassId,
+                                'subject_id' => $subjectId,
+                                'user_id' => Auth::id(),
                             ])->withTrashed()->first();
 
                             if(null !== $oldTeacher){
