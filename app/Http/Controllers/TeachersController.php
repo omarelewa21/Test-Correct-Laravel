@@ -218,11 +218,24 @@ class TeachersController extends Controller
                         $allTeacherRecordsForThisTeacherAndClass->each->forceDelete();
 
                         foreach ($subjectValue as $subjectId => $checkboxValue) {
-                            $teacher = Teacher::create([
-                                'class_id'   => $schoolClassId,
+                            $oldTeacher = Teacher::where([
+                                'class_id' => $schoolClassId,
                                 'subject_id' => $subjectId,
-                                'user_id'    => Auth::id(),
-                            ]);
+                                'user_id' => Auth::id(),
+                            ])->withTrashed()->first();
+
+                            if(null !== $oldTeacher){
+                                if($oldTeacher->trashed()){
+                                    $oldTeacher->restore();
+                                }
+                                $teacher = $oldTeacher;
+                            } else {
+                                $teacher = Teacher::create([
+                                    'class_id' => $schoolClassId,
+                                    'subject_id' => $subjectId,
+                                    'user_id' => Auth::id(),
+                                ]);
+                            }
                             $this->updateImportLog(['checked' => 'on'], $teacher);
                             $updateCounter++;
                         }
