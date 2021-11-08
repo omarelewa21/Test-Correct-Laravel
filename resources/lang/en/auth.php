@@ -102,5 +102,8 @@ return [
     'test_code_expired'                                       => 'Test code has expired',
     'contact_teacher_for_more_information'                    => 'Please contact your teacher for more information',
     'test_for_this_code_is_not_valid_anymore_contact_teacher' => 'The test for this code is not valid, please contact your teacher for help.',
-    'can_no_longer_log_in_to_this_test'                       => 'You can no longer log in to this test.'
+    'can_no_longer_log_in_to_this_test'                       => 'You can no longer log in to this test.',
+    'cannot_log_in_to_test_with_browser'                      => 'This test can not be made in the browser',
+    'usage_of_app_is_required_for_this_test'                  => 'Usage of the app is required for this test. Download and install the app and log in to make the test',
+    'download_and_install_the_app'                            => 'Download and install the app',
 ];

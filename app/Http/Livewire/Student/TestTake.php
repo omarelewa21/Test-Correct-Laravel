@@ -127,6 +127,15 @@ class TestTake extends Component
 
     private function browserTestingIsDisabled()
     {
+        if (Auth::user()->guest) {
+            $parameters = [
+                'login_tab'          => 2,
+                'guest_message_type' => 'error',
+                'guest_message'      => 'no_browser_testing'
+            ];
+            return redirect(route('auth.login', $parameters));
+        }
+
         $options = TemporaryLogin::buildValidOptionObject(
             'notification',
             [__('student.browser_testing_disabled_notification') => 'error']
