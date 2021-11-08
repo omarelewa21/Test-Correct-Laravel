@@ -4,6 +4,7 @@ namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use tcCore\GroupQuestionQuestion;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
@@ -47,8 +48,8 @@ class TestTakeLaravelController extends Controller
         $nav = $this->getNavigationData($data, $answers);
         $data = $this->applyAnswerOrderForParticipant($data, $answers);
 
-        $current = (int) $request->get('q') ?: 1;
-        if($current < 1){
+        $current = (int)$request->get('q') ?: 1;
+        if ($current < 1) {
             $current = 1;
         } else if ($current > $nav->count()) {
             $current = $nav->count();
@@ -59,6 +60,8 @@ class TestTakeLaravelController extends Controller
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
 
+        $data = $this->mutateQuestionInlineImages($data);
+
         return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant', 'styling']));
     }
 
@@ -67,7 +70,7 @@ class TestTakeLaravelController extends Controller
         $result = [];
         $testParticipant
             ->answers
-            ->sortBy(function($answer) {
+            ->sortBy(function ($answer) {
                 return $answer->order;
             })
             ->each(function ($answer) use ($testTake, &$result, $testQuestions) {
@@ -78,7 +81,7 @@ class TestTakeLaravelController extends Controller
                 $groupCloseable = 0;
                 if ($question->is_subquestion) {
                     $groupQuestionQuestion = GroupQuestionQuestion::select('group_question_questions.group_question_id', 'questions.closeable')
-                        ->where('group_question_questions.question_id',$question->getKey())
+                        ->where('group_question_questions.question_id', $question->getKey())
                         ->whereIn('group_question_questions.group_question_id', function ($query) use ($testTake) {
                             $query->select('question_id')->from('test_questions')->where('test_id', $testTake->test_id);
                         })
@@ -108,7 +111,7 @@ class TestTakeLaravelController extends Controller
     public static function getData($testParticipant, $testTake)
     {
         return cache()->remember('data_test_take_' . $testTake->getKey(), now()->addMinutes(60), function () use ($testTake) {
-            $testTake->load('test','test.testQuestions', 'test.testQuestions.question', 'test.testQuestions.question.attachments');
+            $testTake->load('test', 'test.testQuestions', 'test.testQuestions.question', 'test.testQuestions.question.attachments');
             return $testTake->test->testQuestions->flatMap(function ($testQuestion) {
                 $testQuestion->question->loadRelated();
                 if ($testQuestion->question->type === 'GroupQuestion') {
@@ -153,8 +156,8 @@ class TestTakeLaravelController extends Controller
     private function applyAnswerOrderForParticipant($data, $answers)
     {
         $newData = collect([]);
-        collect($answers)->each(function($answer) use ($data, $newData) {
-            $newData->push($data->first(function($question) use ($data, $answer) {
+        collect($answers)->each(function ($answer) use ($data, $newData) {
+            $newData->push($data->first(function ($question) use ($data, $answer) {
                 return $question->id == $answer['question_id'];
             }));
         });
@@ -163,8 +166,21 @@ class TestTakeLaravelController extends Controller
 
     private function getCustomStylingFromQuestions($data)
     {
-        return $data->map(function($question) {
+        return $data->map(function ($question) {
             return $question->getQuestionInstance()->styling;
         })->unique()->implode(' ');
+    }
+
+    private function mutateQuestionInlineImages($data)
+    {
+        $src = sprintf('%s%s', config('app.url_login'), 'custom/imageload.php?filename=');
+
+        $newData = $data->map(function($question) use ($src) {
+            if(Str::contains($question->getQuestionHtml(), '/custom/imageload.php?filename=')) {
+                $question->getQuestionInstance()->question = str_replace($src,'/questions/inlineimage/',$question->getQuestionInstance()->question);
+            }
+            return $question;
+        });
+        return $data;
     }
 }

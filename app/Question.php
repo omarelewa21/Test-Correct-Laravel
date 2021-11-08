@@ -1329,4 +1329,9 @@ class Question extends MtiBaseModel {
         }
         return $groupQuestionPivot;
     }
+
+    public function convertInlineImageSources()
+    {
+        $this->getQuestionHtml();
+    }
 }
