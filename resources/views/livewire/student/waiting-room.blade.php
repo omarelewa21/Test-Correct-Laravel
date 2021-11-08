@@ -13,7 +13,8 @@
             activeStudents = countPresentStudents(presenceChannel.subscription.members);
         }).leaving((user) => {
             activeStudents = countPresentStudents(presenceChannel.subscription.members);
-        }).listen('.TestTakeShowResultsChanged', (e) => {
+        });
+        presenceChannel.listen('.TestTakeShowResultsChanged', (e) => {
             Livewire.emit('is-test-take-open', e)
         });
      "

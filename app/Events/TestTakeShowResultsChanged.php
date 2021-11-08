@@ -38,7 +38,7 @@ class TestTakeShowResultsChanged implements ShouldBroadcastNow
      */
     public function broadcastOn()
     {
-        return new PresenceChannel('Presence-TestTake.'.$this->testTake->uuid);
+        return new PresenceChannel('presence-TestTake.'.$this->testTake->uuid);
     }
 
     public function broadcastAs()
