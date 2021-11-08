@@ -209,3 +209,15 @@ dragElement = function (element) {
         document.ontouchmove = null;
     }
 }
+
+countPresentStudents = function (members)
+{
+    var activeStudents = 0;
+    members.each((member) => {
+        if (member.info.student) {
+            activeStudents++;
+        }
+    })
+
+    return activeStudents;
+}

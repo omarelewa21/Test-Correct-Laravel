@@ -5,6 +5,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Jobs\PValues\UpdatePValueSchoolClass;
@@ -476,5 +477,13 @@ class SchoolClass extends BaseModel implements AccessCheckable
             'test_take_id'         => $testTake->getKey(),
             'is_main_school_class' => 0,
         ]);
+    }
+
+    public function getNameAttribute($value)
+    {
+        if (Str::contains($value, 'guest_class')) {
+            return __('school_classes.guest_accounts');
+        }
+        return $value;
     }
 }

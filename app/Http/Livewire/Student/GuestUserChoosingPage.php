@@ -77,7 +77,7 @@ class GuestUserChoosingPage extends Component
         return false;
     }
 
-    private function getAvailableGuestAcoountsForTake($testTake)
+    private function getAvailableGuestAccountsForTake($testTake)
     {
         return User::select('users.uuid','users.name','users.name_first','users.name_suffix')
             ->guests()
@@ -89,7 +89,7 @@ class GuestUserChoosingPage extends Component
     public function renderGuestList()
     {
         $this->guestList = [];
-        $guests = $this->getAvailableGuestAcoountsForTake($this->testTake);
+        $guests = $this->getAvailableGuestAccountsForTake($this->testTake);
 
         $guests->each(function ($guest) {
             $this->guestList[] = ['name' => $guest->getNameFullAttribute(), 'uuid' => $guest->uuid];
