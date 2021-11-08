@@ -150,9 +150,13 @@ class AttainmentImportController extends Controller
             $attainmentsImportIds = $attainmentsImportIds->filter(function ($value, $key) {
                 return !is_null($value);
             })->toArray();
+            $citoBaseSubjectIds = BaseSubject::where('name','like','%CITO%')->pluck('id')->toArray();
             $diffIds = array_diff($attainmentsDbIds,$attainmentsImportIds);
             foreach ($diffIds as $id){
                 $attainment = Attainment::findOrFail($id);
+                if(in_array($attainment->base_subject_id,$citoBaseSubjectIds)){
+                    continue;
+                }
                 $attainment->status = 'OLD';
                 $attainment->save();
                 $attainments[] = $attainment;

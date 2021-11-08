@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use tcCore\Attainment;
+use tcCore\BaseSubject;
 use tcCore\Http\Controllers\AttainmentImportController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\User;
@@ -15,7 +16,7 @@ use Tests\TestCase;
 
 class ImportAttainmentTest extends TestCase
 {
-    //use DatabaseTransactions;
+    use DatabaseTransactions;
 
     /** @test */
     public function it_should_import_attainments_without_errors()
@@ -81,8 +82,18 @@ class ImportAttainmentTest extends TestCase
 
     /** @test */
 
-    public function setAttainmentsInactiveNotPresentInImportTest()
+    public function setAttainmentsInactiveNotPresentInImport_file_08_11_21Test()
     {
+        $attainment = new Attainment();
+        $attainment->base_subject_id = 94;
+        $attainment->education_level_id = 1;
+        $attainment->attainment_id = null;
+        $attainment->code = 'A';
+        $attainment->subcode = null;
+        $attainment->subsubcode = null;
+        $attainment->description = 'CITO attainment';
+        $attainment->status = 'ACTIVE';
+        $attainment->save();
         $oldAttainmentsCount = Attainment::where('status','OLD')->count();
         $this->assertEquals(0,$oldAttainmentsCount);
         $this->loginAdmin();
@@ -100,8 +111,9 @@ class ImportAttainmentTest extends TestCase
         $this->assertEquals(200,$response->getStatusCode());
         $oldAttainmentsCount = Attainment::where('status','OLD')->count();
         $this->assertGreaterThan(0,$oldAttainmentsCount);
-        $attainments = Attainment::where('status','OLD')->pluck('id');
-        dump($attainments);
+        $baseSubjects = BaseSubject::where('name','like','%CITO%')->pluck('id')->toArray();
+        $oldCitoAttainments = Attainment::where('status','OLD')->whereIn('base_subject_id',$baseSubjects)->count();
+        $this->assertEquals(0,$oldCitoAttainments);
     }
 
     /** @test */
@@ -110,6 +122,27 @@ class ImportAttainmentTest extends TestCase
         $this->loginAdmin();
         $this->inactivateAttainmentToMakeImportPossible();
         $testXslx = __DIR__.'/../files/import_existing_attainments_revised.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function attainments_file_08_11_21_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
         $params = [
@@ -151,7 +184,28 @@ class ImportAttainmentTest extends TestCase
     {
         $this->loginAdmin();
         $this->inactivateAttainmentToMakeImportPossible();
-        $testXslx = __DIR__.'/../files/import_new_attainments.xlsx';
+        $testXslx = __DIR__.'/../files/import_new_attainments_revised.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function new_attainments_file_08_11_21_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_new_attainments_08nov21_v2.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
         $params = [
