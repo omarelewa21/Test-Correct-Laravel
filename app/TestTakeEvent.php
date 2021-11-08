@@ -53,12 +53,12 @@ class TestTakeEvent extends BaseModel {
         parent::boot();
 
         static::created(function(TestTakeEvent $testTakeEvent) {
-            NewTestTakeEventAdded::dispatch($testTakeEvent->testTake);
+            NewTestTakeEventAdded::dispatch($testTakeEvent->testTake->uuid);
         });
 
         static::saved(function(TestTakeEvent $testTakeEvent) {
             if ($testTakeEvent->confirmed == 1 && $testTakeEvent->getOriginal('confirmed') == 0) {
-                RemoveFraudDetectionNotification::dispatch($testTakeEvent->testParticipant);
+                RemoveFraudDetectionNotification::dispatch($testTakeEvent->testParticipant->uuid);
             }
         });
     }

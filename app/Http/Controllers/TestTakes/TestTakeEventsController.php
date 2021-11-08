@@ -97,7 +97,7 @@ class TestTakeEventsController extends Controller {
     public function destroy(TestTake $testTake, TestTakeEvent $testTakeEvent)
     {
         if ($testTakeEvent->test_take_id !== $testTake->getKey()) {
-            return Response::make('TestTakeEvent not found', 404);
+            return Response::make('TestTakePublicEvent not found', 404);
         }
 
         if ($testTakeEvent->delete()) {

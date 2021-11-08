@@ -422,7 +422,7 @@ class TestParticipantsController extends Controller
             if ($testTake->id === $testParticipant->test_take_id) {
                 if ($testTake->isAllowedToView(auth()->user())) {
                     $testParticipant->update(['allow_inbrowser_testing' => ! $testParticipant->allow_inbrowser_testing]);
-                    InbrowserTestingUpdatedForTestParticipant::dispatch($testParticipant);
+                    InbrowserTestingUpdatedForTestParticipant::dispatch($testParticipant->uuid);
                 }
             }
         }

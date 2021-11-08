@@ -25,7 +25,7 @@ Broadcast::channel('presence-TestTake.{testTakeUuid}', function ($user) {
 Broadcast::channel('TestTake.{testTakeUuid}', function () {
     return true;
 });
-Broadcast::channel('TestParticipant.{testParticipantId}', function ($user, $testParticipantId) {
-    $testParticipantUserId = \tcCore\TestParticipant::whereId($testParticipantId)->value('user_id');
-    return $testParticipantUserId === $user->getKey();
+Broadcast::channel('TestParticipant.{testParticipantUuid}', function ($user, $testParticipantUuid) {
+    $testParticipantUserUuid = \tcCore\TestParticipant::whereUuid($testParticipantUuid)->value('user_id');
+    return $testParticipantUserUuid === $user->getKey();
 });
