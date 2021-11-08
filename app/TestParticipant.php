@@ -99,7 +99,7 @@ class TestParticipant extends BaseModel
         });
 
         static::deleting(function (TestParticipant $testParticipant) {
-            RemoveParticipantFromWaitingRoom::dispatch($testParticipant);
+            RemoveParticipantFromWaitingRoom::dispatch($testParticipant->uuid);
         });
     }
 
@@ -356,7 +356,7 @@ class TestParticipant extends BaseModel
             $testTakeEvent->setAttribute('test_take_event_type_id', TestTakeEventType::where('name', '=', 'Continue')->value('id'));
             $testTakeEvent->setAttribute('test_participant_id', $this->getKey());
             $this->testTake->testTakeEvents()->save($testTakeEvent);
-            TestTakeReopened::dispatch($this);
+            TestTakeReopened::dispatch($this->uuid);
         }
     }
 
@@ -455,7 +455,7 @@ class TestParticipant extends BaseModel
     private function isTestTakenAway()
     {
         if ($this->test_take_status_id == TestTakeStatus::STATUS_TAKEN && $this->getOriginal('test_take_status_id') == TestTakeStatus::STATUS_TAKING_TEST) {
-            TestTakeForceTakenAway::dispatch($this);
+            TestTakeForceTakenAway::dispatch($this->uuid);
         }
     }
 
@@ -467,7 +467,7 @@ class TestParticipant extends BaseModel
     private function isBrowserTestingActive()
     {
         if ($this->allow_inbrowser_testing == false && $this->getOriginal('allow_inbrowser_testing') == true) {
-            BrowserTestingDisabledForParticipant::dispatch($this);
+            BrowserTestingDisabledForParticipant::dispatch($this->uuid);
         }
     }
 
@@ -496,7 +496,7 @@ class TestParticipant extends BaseModel
     private function hasGuestAvailabilityChanged()
     {
         if ($this->available_for_guests != $this->getOriginal('available_for_guests')) {
-            TestParticipantGuestAvailabilityChanged::dispatch($this->testTake);
+            TestParticipantGuestAvailabilityChanged::dispatch($this->testTake->uuid);
         }
     }
 }

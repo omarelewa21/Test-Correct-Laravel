@@ -21,11 +21,11 @@ class WaitingRoom extends Component
     protected function getListeners()
     {
         return [
-            'start-test-take'                                                                                                  => 'startTestTake',
-            'is-test-take-open'                                                                                                => 'isTestTakeOpen',
-            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
-            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
-            'echo-private:TestParticipant.' . $this->testParticipant->getKey() . ',.RemoveParticipantFromWaitingRoom'          => 'removeParticipantFromWaitingRoom',
+            'start-test-take'                                                                                              => 'startTestTake',
+            'is-test-take-open'                                                                                            => 'isTestTakeOpen',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.RemoveParticipantFromWaitingRoom'          => 'removeParticipantFromWaitingRoom',
             //Presence channels are not completely working with Livewire listeners. Presence channel listener is located in x-init of this components blade file. -RR
 //            'echo-presence:Presence-TestTake.' . $this->waitingTestTake->uuid . ',.TestTakeShowResultsChanged'          => 'isTestTakeOpen',
         ];
@@ -176,9 +176,9 @@ class WaitingRoom extends Component
 
         if (Auth::user()->guest) {
             $redirect = redirect(route('auth.login', [
-                'login_tab' => 2,
+                'login_tab'          => 2,
                 'guest_message_type' => 'error',
-                'guest_message' => 'removed_by_teacher'
+                'guest_message'      => 'removed_by_teacher'
             ]));
         }
 

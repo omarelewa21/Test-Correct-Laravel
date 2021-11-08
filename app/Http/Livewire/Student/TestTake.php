@@ -17,6 +17,7 @@ class TestTake extends Component
     public $testTakeUuid;
     public $showTurnInModal = false;
     public $testParticipantId;
+    public $testParticipantUuid;
     public $forceTakenAwayModal = false;
     public $browserTestingDisabledModal = false;
 
@@ -28,12 +29,12 @@ class TestTake extends Component
     protected function getListeners()
     {
         return [
-            'set-force-taken-away'                                                                                => 'setForceTakenAway',
-            'checkConfirmedEvents'                                                                                => 'checkConfirmedEvents',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeForceTakenAway'               => 'setForceTakenAway',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeReopened'                     => 'testTakeReopened',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.BrowserTestingDisabledForParticipant' => 'checkIfParticipantCanContinueWithoutApp',
-            'studentInactive'                                                                                     => 'handleInactiveStudent'
+            'set-force-taken-away'                                                                                  => 'setForceTakenAway',
+            'checkConfirmedEvents'                                                                                  => 'checkConfirmedEvents',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeForceTakenAway'               => 'setForceTakenAway',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeReopened'                     => 'testTakeReopened',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.BrowserTestingDisabledForParticipant' => 'checkIfParticipantCanContinueWithoutApp',
+            'studentInactive'                                                                                       => 'handleInactiveStudent'
         ];
     }
 
@@ -160,9 +161,9 @@ class TestTake extends Component
         ];
         if ($forceTaken) {
             $parameters = [
-                'guest_message_type' => 'error',
-                'guest_message'      => 'removed_by_teacher'
-            ] + $parameters;
+                    'guest_message_type' => 'error',
+                    'guest_message'      => 'removed_by_teacher'
+                ] + $parameters;
         }
 
         return $parameters;

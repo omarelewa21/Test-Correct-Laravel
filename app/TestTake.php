@@ -180,7 +180,7 @@ class TestTake extends BaseModel
 
                     $testParticipant->save();
 
-                    TestTakeOpenForInteraction::dispatch($testParticipant->getKey(), $testParticipantTestTakeStatus);
+                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
 
@@ -233,7 +233,7 @@ class TestTake extends BaseModel
                     }
 
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
-                    TestTakeOpenForInteraction::dispatch($testParticipant->getKey(), $testParticipantDiscussingStatus);
+                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
 
@@ -846,7 +846,7 @@ class TestTake extends BaseModel
                 ->get()
                 ->each(function ($participant) {
                     $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
-                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant);
+                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
                 });
         }
     }
@@ -854,7 +854,7 @@ class TestTake extends BaseModel
     private function handleShowResultChanges()
     {
         if ($this->show_results != $this->getOriginal('show_results')) {
-            TestTakeShowResultsChanged::dispatch($this);
+            TestTakeShowResultsChanged::dispatch($this->uuid);
         }
     }
 
