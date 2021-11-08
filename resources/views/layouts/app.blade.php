@@ -4,9 +4,12 @@
             x-on:set-red-header-border.window="$el.classList.add('red-header-border')"
             x-on:remove-red-header-border.window="$el.classList.remove('red-header-border')"
         >
-        <a class="mr-4 flex" href="#">
+        <a class="mr-4 flex relative" href="#">
             <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                  alt="Test-Correct">
+            @if(!session()->get('isInBrowser'))
+                <span class="note text-xs absolute min-w-max bottom-0 left-[60px]">{{ __('student.version') }}: {{ session()->get('TLCVersion') }}</span>
+            @endif
         </a>
 {{--        <div class="flex items-center">--}}
 {{--            <x-button.text-button type="link" href="{{ config('app.url_login') }}" class="rotate-svg-180">--}}
@@ -20,7 +23,7 @@
             @else
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <x-dropdown.item onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
-                    Inleveren
+                    {{ __("app.Inleveren") }}
                 </x-dropdown.item>
             </x-dropdown>
             @endif

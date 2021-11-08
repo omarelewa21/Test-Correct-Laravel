@@ -18,6 +18,7 @@ class SendForgotPasswordMail extends Mailable
 
     public function __construct(User $user, $token, $url, $urlLogin)
     {
+        $this->queue = 'mail';
         $this->user = $user;
         $this->token = $token;
         $this->url = $url;

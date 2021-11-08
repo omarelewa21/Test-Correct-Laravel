@@ -1,15 +1,17 @@
 <div class="question-indicator w-full" id="navigation-container">
     <div class="flex-col"
-         x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"
+{{--         x-data="{ showSlider: false, scrollStep: 100, totalScrollWidth: 0, activeQuestion: @entangle('q') }"--}}
+         x-data="questionIndicator"
          x-ref="questionindicator"
+         x-global="indicatorData"
          x-init="$nextTick(() => {
                     $dispatch('current-updated', {'current': activeQuestion });
                     navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});
+                     totalScrollWidth = $refs.navscrollbar.offsetWidth;
+                     navigationResizer.resize(indicatorData);
                     });
-                 totalScrollWidth = $refs.navscrollbar.offsetWidth;
-                 navigationResizer.resize($data);
                  "
-         x-on:resize.window.debounce.250ms="navigationResizer.resize($el.__x.$data);"
+         x-on:resize.window.debounce.250ms="navigationResizer.resize(indicatorData);"
          x-on:current-updated.window="navScrollBar.querySelector('#active').scrollIntoView({behavior: 'smooth'});"
          x-cloak
     >
@@ -137,6 +139,14 @@
     </div>
 
     @if(Auth::user()->text2speech)
+        @push('styling')
+            <style>
+                #th_toolbar{
+                    display:none;
+                }
+            </style>
+        @endpush
+
         @push('scripts')
             <script>
                 function toggleBrowseAloud() {
@@ -153,24 +163,38 @@
                     }
                 }
 
+                var hideButtonsFound = false;
+                var hideButtonsIterator = 0;
                 function hideBrowseAloudButtons() {
                     var shadowRoot = document.querySelector('div#__bs_entryDiv').querySelector('div').shadowRoot;
                     var elementsToHide = ['th_translate', 'th_mp3Maker', 'ba-toggle-menu'];
+                    var nrButtonsFound = 0;
                     elementsToHide.forEach(function (id) {
                         var el = shadowRoot.getElementById(id);
                         if (el !== null) {
                             shadowRoot.getElementById(id).setAttribute('style', 'display:none');
+                            nrButtonsFound++;
                         }
                     });
 
+                    if(nrButtonsFound === elementsToHide.length){
+                        hideButtonsFound = true;
+                    }
+
                     var toolbar = shadowRoot.getElementById('th_toolbar');
                     if (toolbar !== null) {
-                        toolbar.setAttribute('style', 'background-color: #fff');
+                        toolbar.setAttribute('style', 'background-color: #fff;display:inline-block');
                     }
 
                     [...shadowRoot.querySelectorAll('.th-browsealoud-toolbar-button__icon')].forEach(function (item) {
                         item.setAttribute('style', 'fill : #515151');
                     });
+                    if(!hideButtonsFound && hideButtonsIterator < 20){
+                        setTimeout(function(){
+                            hideButtonsIterator++;
+                            hideBrowseAloudButtons();
+                        },250);
+                    }
                 }
 
                 var _baTimer;
@@ -188,7 +212,7 @@
                             _toggleBA();
                         } catch (e) {
                             tryIterator++;
-                            if (tryIterator < 10) { // just stop when it still fails after 10 tries;
+                            if (tryIterator < 20) { // just stop when it still fails after 20 tries;
                                 setTimeout(function () {
                                         waitForBrowseAloudAndThenRun();
                                     },

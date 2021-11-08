@@ -15,8 +15,7 @@ class OnboardingWizardReportController extends Controller
     {       
 
         // run realtime when not on production
-        if (config('app.url_login') !== 'https://portal.test-correct.nl/') {
-            
+        if (!in_array(config('app.url_login'),[ 'https://portal.test-correct.nl/', 'https://testportal.test-correct.nl/'],true)) {
             \tcCore\OnboardingWizardReport::updateForAllTeachers();
         }
 

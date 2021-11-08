@@ -122,4 +122,20 @@ class Factory {
     }
 
 
+    public function generate($data, $withoutSaving = false)
+    {
+        $this->testParticipant = new TestParticipant();
+
+        $this->testParticipant->fill($data);
+
+        if($withoutSaving === true){
+            return $this->testParticipant;
+        }
+
+        if($this->testParticipant->save()){
+            return $this->testParticipant;
+        }
+
+        return false;
+    }
 }

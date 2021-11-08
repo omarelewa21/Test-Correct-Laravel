@@ -26,6 +26,8 @@ Core = {
     lostFocus: function (reason) {
         if (reason == "printscreen") {
             Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
+        } else if (reason == 'illegal-programs') {
+            Notify.notify('Er staan applicaties op de achtergrond aan die niet zijn toegestaan', 'error');
         } else {
             Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
         }

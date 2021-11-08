@@ -2,38 +2,61 @@
      x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }} }"
      x-init="
         addRelativePaddingToBody('planned-body');
+        @if(!Auth::user()->guest)
         makeHeaderMenuActive('student-header-tests');
+        @endif
+             Echo.join('presence-TestTake.{{ $waitingTestTake->uuid }}')
+                .listen('.TestTakeShowResultsChanged', (e) => {
+                    Livewire.emit('is-test-take-open', e)
+                })
      "
+     x-ref="root"
      x-cloak
      class="w-full flex flex-col items-center student-bg"
      :class="{'overflow-hidden h-screen' : startCountdown}"
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('planned-body')"
      wire:ignore.self
-     @if($testTakeStatusStage != 'graded')
-     wire:poll.5000ms="isTestTakeOpen"
-     @endif
      wire:init="isTestTakeOpen"
 >
     <div class="flex w-full justify-center border-b border-system-secondary transition-all duration-500"
          :class="{'opacity-0': startCountdown}">
-        <x-partials.test-take-sub-menu :active="$this->testTakeStatusStage"/>
+        <x-partials.test-take-sub-menu :active="$this->testTakeStatusStage" :disabled="Auth::user()->guest"/>
     </div>
     <div class="flex flex-col w-full mt-10">
         <div class="w-full px-4 lg:px-8 xl:px-12 transition-all duration-500">
             <div class="flex flex-col mx-auto max-w-7xl space-y-4 transition-all duration-500">
                 <div>
+                    @if(!Auth::user()->guest)
                     <x-button.text-button class="rotate-svg-180" type="link"
                                           href="{{ route('student.test-takes', ['tab' => $this->testTakeStatusStage]) }}">
                         <x-icon.arrow/>
                         <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
                     </x-button.text-button>
+                    @elseif(Auth::user()->guest && $this->testTakeStatusStage != 'planned')
+                        <x-button.text-button class="rotate-svg-180" wire:click="returnToGuestChoicePage">
+                            <x-icon.arrow/>
+                            <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
+                        </x-button.text-button>
+                    @else
+                        <span class="bold text-[32px]">{{ $waitingTestTake->test_name }}</span>
+                    @endif
                 </div>
                 <div>
-                    <x-partials.waiting-room-grid :waitingTestTake="$waitingTestTake"/>
+                    <x-partials.waiting-room-grid :waitingTestTake="$waitingTestTake" :participatingClasses="$participatingClasses"/>
                 </div>
                 <div class="flex w-full items-center h-10">
+                    @if($meetsAppRequirement)
                     <x-partials.waiting-room-action-button :testTakeStatusStage="$this->testTakeStatusStage"
                                                         :isTakeOpen="$this->isTakeOpen"/>
+                    @else
+                        <div class="divider flex flex-1"></div>
+                        <div class="flex flex-col justify-center">
+                            <x-button.cta disabled class="mx-4">
+                                <span>{{ __('Toets starten niet mogelijk') }}</span>
+                            </x-button.cta>
+                        </div>
+                        <div class="divider flex flex-1"></div>
+                    @endif
                 </div>
                 <div class="flex w-full justify-center transition-all duration-300"
                      :class="{'opacity-50' : isTakeOpen}">
@@ -42,7 +65,18 @@
 
             </div>
         </div>
-        <div class="flex bg-light-grey items-center justify-center py-12">
+        <div class="flex flex-col bg-light-grey items-center justify-center py-12">
+            @if(!$meetsAppRequirement)
+            <div class="flex w-full justify-center transition-all duration-300 mb-4">
+                <div class="notification error stretched">
+                    <div class="flex items-center space-x-3">
+                        <x-icon.exclamation/>
+                        <span class="title">{{ __('auth.download_student_app') }}</span>
+                    </div>
+                    <span class="body">{{ __('student.not_allowed_to_test_in_browser') }}</span>
+                </div>
+            </div>
+            @endif
             <div class="content-section flex flex-col w-full max-w-2xl p-8 space-y-4">
                 <h4 class="px-3">{{ __('student.teacher_introduction_title') }}</h4>
                 <div class="divider"></div>
@@ -68,7 +102,7 @@
                 <div class="flex flex-col mb-4">
                     <span class="-mb-2">{{ __('student.planned_test') }}</span>
                     <x-button.text-button class="rotate-svg-180"
-                                          x-on:click="startCountdown = false; stopCountdownTimer($el.__x.$data)">
+                                          x-on:click="startCountdown = false; stopCountdownTimer($refs.root._x_dataStack[0])">
                         <x-icon.arrow/>
                         <span class="text-[32px]">{{ $waitingTestTake->test->name }}</span>
                     </x-button.text-button>
@@ -89,6 +123,7 @@
 
     @push('scripts')
         <script>
+            Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
             let countdownTimer;
 
             function startCountdownTimer(data) {

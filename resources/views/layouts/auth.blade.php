@@ -9,29 +9,31 @@
             <div class="hidden flex items-center">
                 <x-dropdown label="Oplossingen">
                     <x-dropdown.item @click="alert('Oplossingen')">
-                        Oplossingen
+                        {{__('auth.Oplossingen')}}
                     </x-dropdown.item>
                 </x-dropdown>
 
                 <x-dropdown label="Diensten">
                     <x-dropdown.item @click="alert('Oplossingen')">
-                        Oplossingen
+                        {{__('auth.Oplossingen')}}
                     </x-dropdown.item>
                 </x-dropdown>
 
                 <x-dropdown label="Support">
                     <x-dropdown.item @click="alert('Oplossingen')">
-                        Oplossingen
+                        {{__('auth.Oplossingen')}}
                     </x-dropdown.item>
                 </x-dropdown>
 
-                <x-button.text-button class="ml-4">Over Ons</x-button.text-button>
+                <x-button.text-button class="ml-4">{{__('auth.Over Ons')}}</x-button.text-button>
 
             </div>
-            <div class="flex sm:ml-auto items-center space-x-3" x-data="{}">
-                <x-button.cta size="sm" @click="Livewire.emit('open-auth-modal')">Maak account</x-button.cta>
-                <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}">Log in</x-button.primary>
-            </div>
+            @guest
+                <div class="flex sm:ml-auto items-center space-x-3" x-data="{}">
+                    <x-button.cta size="sm" @click="Livewire.emit('open-auth-modal')">{{ __('auth.Maak account') }}</x-button.cta>
+                    <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}">{{  __('auth.login') }}</x-button.primary>
+                </div>
+            @endguest
         </div>
     </header>
     <main class="">

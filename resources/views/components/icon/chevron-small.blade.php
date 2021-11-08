@@ -1,5 +1,8 @@
+@props([
+    'opacity' => '.5'
+])
 <svg {{ $attributes }} xmlns="http://www.w3.org/2000/svg" width="7" height="10" viewBox="0 0 7 10">
-    <g fill="none" fill-rule="evenodd" stroke-linecap="round" opacity=".5">
+    <g fill="none" fill-rule="evenodd" stroke-linecap="round" opacity="{{ $opacity }}">
         <g stroke="currentColor" stroke-width="3">
             <g>
                 <g>

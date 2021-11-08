@@ -64,6 +64,7 @@ class Answers2019Controller extends Controller
         $answers = Answer::where('test_participant_id', $testParticipant->getKey())->orderBy('order')
             ->with('answerParentQuestions', 'answerParentQuestions.groupQuestion')
             ->get();
+        $testTake->load(['test']);
         return Response::make([
             'answers' => $answers,
             'test_take' => $testTake,

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\User\Roles;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
+use tcCore\Mail\SendSamlNoMailAddressInRequestDetectedMail;
 use tcCore\Traits\UuidTrait;
 
 class SchoolLocation extends BaseModel implements AccessCheckable
@@ -52,6 +54,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'lvs_active'              => 'boolean',
         'sso'                     => 'boolean',
         'sso_active'              => 'boolean',
+        'lvs_active_no_mail_allowed' => 'boolean',
+        'school_language'         => 'string',
     ];
 
     /**
@@ -59,7 +63,9 @@ class SchoolLocation extends BaseModel implements AccessCheckable
      *
      * @var array
      */
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at', 'no_mail_request_detected'];
+
+    protected $appends = ['school_language_cake'];
 
     /**
      * The database table used by the model.
@@ -82,7 +88,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         'is_rtti_school_location', 'external_main_code', 'external_sub_code', 'is_open_source_content_creator',
         'is_allowed_to_view_open_source_content', 'allow_inbrowser_testing', 'allow_new_player_access', 'lvs_active',
         'lvs_type',
-        'sso', 'sso_type', 'sso_active', 'lvs_authorization_key',
+        'sso', 'sso_type', 'sso_active', 'lvs_authorization_key', 'school_language'
     ];
 
     /**
@@ -103,6 +109,14 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     protected $technicalContacts;
     protected $implementationContacts;
     protected $otherContacts;
+
+    public function getSchoolLanguageCakeAttribute()
+    {
+        if($this->school_language === 'en'){
+            return 'eng';
+        }
+        return $this->school_language;
+    }
 
     public function fill(array $attributes)
     {
@@ -635,7 +649,7 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();
-        if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
+        if (!in_array('Administrator', $roles) && (in_array('Account manager', $roles))) {
             $userId = Auth::user()->getKey();
 
             $schoolIds = School::where(function ($query) use ($userId) {
@@ -939,7 +953,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         );
     }
 
-    public function addSchoolYearAndPeriod($year, $startDate, $endDate) {
+    public function addSchoolYearAndPeriod($year, $startDate, $endDate)
+    {
         $schoolYear = new SchoolYear();
 
         $schoolYear->fill([
@@ -951,10 +966,11 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         $periodLocation = (new Period());
         $periodLocation->fill([
             'school_year_id'     => $schoolYear->getKey(),
-            'name'               => sprintf('%d-%d',\Carbon\Carbon::parse($startDate)->year,  \Carbon\Carbon::parse($endDate)->year),
-            'school_location_id' =>  $this->getKey(),
-            'start_date'         => \Carbon\Carbon::parse($startDate),
-            'end_date'           => \Carbon\Carbon::parse($endDate),
+            'name'               => sprintf('%d-%d', \Carbon\Carbon::parse($startDate)->year,
+                \Carbon\Carbon::parse($endDate)->year),
+            'school_location_id' => $this->getKey(),
+            'start_date'         => Carbon::parse($startDate),
+            'end_date'           => Carbon::parse($endDate),
         ]);
         $periodLocation->save();
     }
@@ -972,14 +988,33 @@ class SchoolLocation extends BaseModel implements AccessCheckable
         }
 
         return $query->whereNotIn('id',
-            Period::where(function($query) use ($date) {
+            Period::where(function ($query) use ($date) {
                 return $query
-                    ->where( 'start_date', '>=', $date)
+                    ->where('start_date', '>=', $date)
                     ->orWhere('end_date', '>=', $date);
             })
-                ->join('school_years', 'school_year_id','school_years.id')
+                ->join('school_years', 'school_year_id', 'school_years.id')
                 ->join('school_location_school_years', 'school_location_school_years.school_year_id', 'school_years.id')
                 ->select('school_location_id')
         );
+    }
+
+    private function canSendSamlNoMailAddressInRequestDetectedMail()
+    {
+        if (empty ($this->no_mail_request_detected)) {
+            return true;
+        }
+
+        return ($this->no_mail_request_detected->diffInHours(now()) > 23);
+    }
+
+    public function sendSamlNoMailAddresInRequestDetectedMailIfAppropriate()
+    {
+        if ($this->canSendSamlNoMailAddressInRequestDetectedMail() && $this->lvs_active_no_mail_allowed == false) {
+            Mail::to('support@test-correct.nl')
+                ->send(new SendSamlNoMailAddressInRequestDetectedMail($this->name,sprintf('Waarschuwing gebruiker van %s probeert in te loggen via Entree zonder emailadres.', $this->name)));
+            $this->no_mail_request_detected = now();
+            $this->save();
+        }
     }
 }

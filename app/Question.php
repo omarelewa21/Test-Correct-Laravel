@@ -49,7 +49,27 @@ class Question extends MtiBaseModel {
      *
      * @var array
      */
-    protected $fillable = ['subject_id', 'education_level_id', 'type', 'question', 'education_level_year', 'score', 'decimal_score', 'note_type', 'rtti', 'bloom','miller','add_to_database','is_open_source_content', 'metadata', 'external_id','scope','styling','closeable','html_specialchars_encoded'];
+    protected $fillable = [ 'subject_id',
+                            'education_level_id',
+                            'type',
+                            'question',
+                            'education_level_year',
+                            'score',
+                            'decimal_score',
+                            'note_type',
+                            'rtti',
+                            'bloom',
+                            'miller',
+                            'add_to_database',
+                            'is_open_source_content',
+                            'metadata',
+                            'external_id',
+                            'scope',
+                            'styling',
+                            'closeable',
+                            'html_specialchars_encoded',
+                            'is_subquestion'
+                            ];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -482,7 +502,6 @@ class Question extends MtiBaseModel {
         //$uses = Question::withTrashed()->where('derived_question_id', $this->getKey())->count();
 
         $uses = (new Question)->withTrashed()->where('derived_question_id', $this->getKey())->count();
-
         //Log::debug('Is used for question #'.$this->getKey());
         //Log::debug('Derived Questions = '.$uses);
 
@@ -1188,12 +1207,10 @@ class Question extends MtiBaseModel {
     {
         $baseModel = $this->getQuestionInstance();
         $var = $baseModel->save();
-        if($var){
-            $var = $this->save();
-        }
         if (!$var) {
             throw new QuestionException('Failed to save question');
         }
+        $this->save();
     }
 
     public function getKeyAfterPossibleDuplicate()

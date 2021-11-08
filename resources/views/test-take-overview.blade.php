@@ -13,7 +13,7 @@
         </div>
         <div x-data="{showMe: true}"
              x-show="showMe"
-             x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;console.log($event.detail)"
+             x-on:force-taken-away-blur.window="showMe = !$event.detail.shouldBlur;"
              class="w-full space-y-8 mt-40" :style="calculateMarginTop()">
             <h1 class="mb-7">{{ __('test_take.overview_review_answers') }}</h1>
             @push('styling')

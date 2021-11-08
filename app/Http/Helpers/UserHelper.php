@@ -22,6 +22,7 @@ use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\Lib\User\Roles;
 use tcCore\LoginLog;
+use tcCore\TemporaryLogin;
 use tcCore\User;
 
 class UserHelper
@@ -40,6 +41,11 @@ class UserHelper
 
         if(($user->isA('teacher') || $user->isA('student')) && !$throughTempLogin && EntreeHelper::shouldPromptForEntree($user)){
             return \Response::make("NEEDS_LOGIN_ENTREE",403);
+        }
+
+        if($schoolLocation = $user->schoolLocation) {
+            session()->put('locale', $schoolLocation->school_language);
+            app()->setLocale(session('locale'));
         }
 
         $hidden = $user->getHidden();
@@ -64,6 +70,8 @@ class UserHelper
         $user->setAttribute('hasCitoToetsen',$user->hasCitoToetsen());
 
         $user->setAttribute('hasSharedSections',$user->hasSharedSections());
+
+        $user->setAttribute('temporaryLoginOptions', TemporaryLogin::getOptionsForUser($user));
 
         $user->makeOnboardWizardIfNeeded();
         $user->createGeneralTermsLogIfRequired();

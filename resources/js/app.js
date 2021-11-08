@@ -1,9 +1,9 @@
 require('./bootstrap');
-require('alpinejs');
 require('livewire-sortable');
 require('./swipe');
 require('./core');
 require('./notify');
+require('./alpine');
 
 addIdsToQuestionHtml = function () {
     let id = 1;
@@ -74,7 +74,7 @@ setTitlesOnLoad = function (el) {
     }
 }
 
-initializeIntenseWrapper = function (app_key, debug) {
+initializeIntenseWrapper = function (app_key, debug, deviceId, sessionId, code) {
     addScript('https://education.intense.solutions/collector/latest.uncompressed.js');
 
     var initializeInterval = setInterval(function() {
@@ -131,9 +131,81 @@ initializeIntenseWrapper = function (app_key, debug) {
         }
     }, 2000)
 
-    function addScript( src ) {
-        var s = document.createElement( 'script' );
-        s.setAttribute( 'src', src );
-        document.body.appendChild( s );
+    function addScript(src) {
+        var s = document.createElement('script');
+        s.setAttribute('src', src);
+        document.body.appendChild(s);
+    }
+}
+
+dragElement = function (element) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    var uuid = element.id.replace('attachment-', '');
+    let newTop, newLeft;
+
+    if (document.getElementById(element.id + "drag")) {
+        // if present, the header is where you move the DIV from:
+        document.getElementById(element.id + "drag").onmousedown = dragMouseDown;
+        document.getElementById(element.id + "drag").ontouchstart = dragMouseDown;
+    } else {
+        // otherwise, move the DIV from anywhere inside the DIV:
+        element.onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        // get the mouse cursor position at startup:
+        if (e.type === 'touchstart') {
+            pos3 = e.touches[0].clientX;
+            pos4 = e.touches[0].clientY;
+        } else {
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+        }
+        document.onmouseup = closeDragElement;
+        document.ontouchend = closeDragElement;
+        // call a function whenever the cursor moves:
+        document.onmousemove = elementDrag;
+        document.ontouchmove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+
+        // calculate the new cursor position:
+        if (e.type === 'touchmove') {
+            pos1 = pos3 - e.touches[0].clientX;
+            pos2 = pos4 - e.touches[0].clientY;
+            pos3 = e.touches[0].clientX;
+            pos4 = e.touches[0].clientY;
+        } else {
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+        }
+        // set the element's new position:
+        newTop = (element.offsetTop - pos2);
+        newLeft = (element.offsetLeft - pos1);
+
+        element.style.top = newTop + "px";
+        element.style.left = newLeft + "px";
+
+    }
+
+    function closeDragElement(e) {
+        // stop moving when mouse button is released:
+        window.dispatchEvent(new CustomEvent('set-new-position', {
+                'detail': {
+                    'uuid': uuid,
+                    'x': newTop,
+                    'y': newLeft
+                }
+            }
+        ));
+        document.onmouseup = null;
+        document.ontouchend = null;
+        document.onmousemove = null;
+        document.ontouchmove = null;
     }
 }

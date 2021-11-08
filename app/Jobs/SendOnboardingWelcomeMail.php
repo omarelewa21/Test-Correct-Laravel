@@ -33,10 +33,20 @@ class SendOnboardingWelcomeMail extends Mailable
      */
     public function __construct(User $user, $url = '')
     {
+        $this->queue = 'mail';
         $this->key = Str::random(5);
         $this->user = $user;
         /** @TODO this var should be removed because it is not used MF 9-6-2020 */
         $this->url = $url;
+    }
+
+    public function render()
+    {
+        $this->user->fresh();
+        if(is_null($this->user)||!is_null($this->user->deleted_at)){
+            return false;
+        }
+        parent::render();
     }
 
     public function build()

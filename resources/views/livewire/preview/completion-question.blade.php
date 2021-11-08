@@ -5,7 +5,7 @@
          @resize.window.debounce.250ms="truncateOptionsIfTooLong($el)"
     >
         <div wire:ignore>
-            <x-input.group class="body1 max-w-full" for="">
+            <x-input.group class="body1 max-w-full flex-col" for="">
                 {!! $html !!}
             </x-input.group>
         </div>

@@ -16,11 +16,9 @@ const { execSync } = require('child_process');
 // mix.js('resources/js/app.js', 'public/js')
 //     .sass('resources/sass/app.scss', 'public/css');
 
-mix.postCss("resources/css/app.css", "public/css").options({
-    postCss: [
-        require("@tailwindcss/jit"),
-    ],
-}).js('resources/js/app.js', 'public/js');
+mix.postCss("resources/css/app.css", "public/css", [
+    require("tailwindcss"),
+]).js('resources/js/app.js', 'public/js');
 
 const wirisPath = "node_modules/@wiris/mathtype-ckeditor4";
 mix.copy(wirisPath + "/plugin.js", "public/ckeditor/plugins/ckeditor_wiris/plugin.js")

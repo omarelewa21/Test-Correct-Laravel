@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
@@ -33,14 +34,17 @@ use tcCore\Lib\User\Factory;
 use tcCore\LoginLog;
 use tcCore\OnboardingWizardUserStep;
 use tcCore\QtiModels\ResourceImport;
+use tcCore\Scopes\RemoveUuidScope;
 use tcCore\Subject;
 use tcCore\TemporaryLogin;
+use tcCore\TestTakeStatus;
 use tcCore\User;
 use tcCore\Http\Requests\CreateUserRequest;
 use tcCore\Http\Requests\UpdateUserRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\School;
 use tcCore\SchoolClass;
+use tcCore\UserRole;
 
 class UsersController extends Controller
 {
@@ -319,6 +323,10 @@ class UsersController extends Controller
 
         }
 
+        if (Auth::user()->isA('Support') && is_array($request->get('with')) && in_array('sessionHash', $request->get('with'))) {
+            $user->makeVisible('session_hash');
+        }
+
         if($this->hasTeacherRole($user)){
             $externalId = $this->getExternalIdForSchoolLocationOfLoggedInUser($user);
             $user->teacher_external_id = $externalId;
@@ -412,10 +420,16 @@ class UsersController extends Controller
         // for safety now disabled
         // @TODO fix security issue with deletion of users (as well update/ add and such)
 //	    return Response::make($user,200);
-        if ($user->delete()) {
-            return Response::make($user, 200);
-        } else {
-            return Response::make('Failed to delete user', 500);
+
+        try {
+            if ($user->delete()) {
+                UserRole::where('user_id', $user->id)->delete();
+                return Response::make($user, 200);
+            } else {
+                return Response::make('Failed to delete user', 500);
+            }
+        }catch(\Exception $e){
+            return Response::make($e->getMessage(),403);
         }
     }
 
@@ -546,5 +560,36 @@ class UsersController extends Controller
     {
         $user->generalTermsLog()->update(['accepted_at' => Carbon::now()]);
         return Response::make(true, 200);
+    }
+
+    public function verifyPassword(User $user)
+    {
+        if ($user->verifyPassword(request()->get('password'))) {
+            return Response::make($user, 200);
+        }
+        return Response::make('refused', 403);
+    }
+
+    public function getReturnToLaravelUrl(Request $request, User $user)
+    {
+        $parameters = [];
+        if ($state = $request->get('state')) {
+            if ($state == 'discussed') {
+                $parameters = ['login_tab' => 2, 'guest_message_type' => 'success', 'guest_message' => 'done_with_colearning'];
+            }
+            if ($state == 'glance') {
+                $parameters = ['login_tab' => 2, 'guest_message_type' => 'success', 'guest_message' => 'done_with_review'];
+            }
+        }
+
+        $url = [];
+        if ($user->guest) {
+            //Paste relative route behind config base url because route() defaults to https, making it break on non https envs
+            $relativeRoute = route('auth.login', $parameters, false);
+            $finalUrl = sprintf('%s%s', config('app.base_url'), substr($relativeRoute, 0, 1) === '/' ? substr($relativeRoute, 1) : $relativeRoute);
+            $url['url'] = $finalUrl;
+        }
+
+        return Response($url, 200);
     }
 }

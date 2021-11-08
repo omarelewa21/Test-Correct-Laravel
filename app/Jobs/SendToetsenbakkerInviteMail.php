@@ -28,6 +28,7 @@ class SendToetsenbakkerInviteMail extends Job implements ShouldQueue
      */
     public function __construct($fileManagementId)
     {
+        $this->queue = 'mail';
         $this->fileManagementId = $fileManagementId;
     }
 

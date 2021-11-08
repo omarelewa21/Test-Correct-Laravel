@@ -23,6 +23,7 @@ class SendMessageMail extends Job implements ShouldQueue
      */
     public function __construct($messageId)
     {
+        $this->queue = 'mail';
         $this->messageId = $messageId;
     }
 
@@ -37,6 +38,9 @@ class SendMessageMail extends Job implements ShouldQueue
         $urlLogin = config('app.url_login');
 
         foreach ($message->messageReceivers as $messageReceiver) {
+            if(null == $messageReceiver->user || $messageReceiver->user->shouldNotSendMail()) {
+                continue;
+            }
             $email = $messageReceiver->user->getEmailForPasswordReset();
             $name = $messageReceiver->user->getNameFullAttribute();
 

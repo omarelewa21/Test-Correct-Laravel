@@ -10,6 +10,7 @@ namespace tcCore\Http\Helpers;
 
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use tcCore\Answer;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
@@ -87,6 +88,19 @@ class DemoHelper
         return null;
     }
 
+    public function getDemoSectionForSchoolLocation($schoolLocationId)
+    {
+        $section = Section::join('school_location_sections',function ($join) {
+                                        $join->on('sections.id', '=', 'school_location_sections.section_id');
+                                 })->where('school_location_sections.school_location_id',$schoolLocationId)
+                                ->where('sections.name', self::SECTIONNAME)
+                                ->first();
+        if ($section !== null) {
+            return $this->getDemoSubjectIfExists($section);
+        }
+        return null;
+    }
+
     public function hasTeacherDemoSetup(User $user)
     {
         $this->setSchoolLocation($user->schoolLocation);
@@ -101,7 +115,27 @@ class DemoHelper
             return false;
         }
 
+        self::moveSchoolLocationDemoClassToCurrentYearIfNeeded($user->schoolLocation, $schoolClass);
+
         return true;
+    }
+
+    public static function moveSchoolLocationDemoClassToCurrentYearIfNeeded(SchoolLocation $schoolLocation, $schoolClass = null)
+    {
+        $helper = new DemoHelper();
+
+        if($schoolClass == null){
+            $helper->setSchoolLocation($schoolLocation);
+            $schoolClass = $helper->getDemoClass();
+        }
+        if($schoolClass) {
+            $schoolYear = SchoolYearRepository::getCurrentSchoolYear();
+            if ($schoolYear != null) {
+                if ($schoolClass->schoolYear != $schoolYear) {
+                    $helper->moveDemoClassToNewSchoolYear($schoolClass, $schoolYear);
+                }
+            }
+        }
     }
 
     public function createDemoForTeacherIfNeeded(User $user)
@@ -148,6 +182,8 @@ class DemoHelper
 
     public function prepareDemoForNewTeacher(SchoolLocation $schoolLocation, SchoolYear $schoolYear, User $user)
     {
+        $currentQueueState = GlobalStateHelper::getInstance()->isQueueAllowed();
+        GlobalStateHelper::getInstance()->setQueueAllowed(false);
         $this->setSchoolLocation($schoolLocation);
         $schoolClass = $this->createDemoClassForSchoolLocationAndPopulate($schoolLocation, $schoolYear);
         $teacher = $this->addTeacherToDemoClassIfNeeded($user, $schoolClass);
@@ -155,6 +191,7 @@ class DemoHelper
         $baseDemoTest = $this->getBaseDemoTest();
         $returnData = $this->createDemoTestsForTeacher($teacher, $students, $baseDemoTest, $schoolClass);
         $returnData['teacher'] = $teacher;
+        GlobalStateHelper::getInstance()->setQueueAllowed($currentQueueState);
         return $returnData;
     }
 

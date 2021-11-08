@@ -188,8 +188,8 @@ class TeachersController extends Controller
 
     protected function handleExternalId($user, $attributes)
     {
-        if (!array_key_exists('external_id', $attributes)) {
-            return;
+        if (!array_key_exists('external_id', $attributes)||empty($attributes['external_id'])) {
+            $attributes['external_id'] = '';
         }
         if (!array_key_exists('school_location_id', $attributes)) {
             return;
@@ -218,22 +218,51 @@ class TeachersController extends Controller
                         $allTeacherRecordsForThisTeacherAndClass->each->forceDelete();
 
                         foreach ($subjectValue as $subjectId => $checkboxValue) {
-                            $teacher = Teacher::create([
-                                'class_id'   => $schoolClassId,
+                            $oldTeacher = Teacher::where([
+                                'class_id' => $schoolClassId,
                                 'subject_id' => $subjectId,
-                                'user_id'    => Auth::id(),
-                            ]);
+                                'user_id' => Auth::id(),
+                            ])->withTrashed()->first();
+
+                            if(null !== $oldTeacher){
+                                if($oldTeacher->trashed()){
+                                    $oldTeacher->restore();
+                                }
+                                $teacher = $oldTeacher;
+                            } else {
+                                $teacher = Teacher::create([
+                                    'class_id' => $schoolClassId,
+                                    'subject_id' => $subjectId,
+                                    'user_id' => Auth::id(),
+                                ]);
+                            }
                             $this->updateImportLog(['checked' => 'on'], $teacher);
                             $updateCounter++;
                         }
                     } else {
                         $teacher = Teacher::where([
                             'class_id' => $schoolClassId,
-                            'user_id'  => Auth::id()
+                            'user_id' => Auth::id()
                         ])->first();
-                        $teacher->subject_id = $subjectValue;
-                        $teacher->save();
-                        $this->updateImportLog(['checked' => 'on'], $teacher);
+
+                        $oldTeacher = Teacher::where([
+                            'class_id' => $schoolClassId,
+                            'user_id'  => Auth::id(),
+                            'subject_id' => $subjectValue
+                        ])->withTrashed()->first();
+                        if(null !== $oldTeacher){
+                            if($oldTeacher->trashed()){
+                                $oldTeacher->restore();
+                            }
+                            if($oldTeacher->getKey() !== $teacher->getKey()) {
+                                $teacher->delete();
+                            }
+                            $this->updateImportLog(['checked' => 'on'], $oldTeacher);
+                        } else {
+                            $teacher->subject_id = $subjectValue;
+                            $teacher->save();
+                            $this->updateImportLog(['checked' => 'on'], $teacher);
+                        }
                         $updateCounter++;
                     }
                 }

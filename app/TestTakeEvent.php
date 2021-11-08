@@ -1,5 +1,7 @@
 <?php namespace tcCore;
 
+use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Events\NewTestTakeEventAdded;
 use tcCore\Events\RemoveFraudDetectionNotification;
 use tcCore\Lib\Models\BaseModel;
