@@ -282,6 +282,14 @@
                                         <span class="body">{{ __('auth.removed_by_teacher') }}</span>
                                     </div>
                                     @endif
+                                    @if($guest_message == 'no_browser_testing')
+                                        <div class="notification warning stretched mt-4">
+                                            <span class="title">{{ __('auth.cannot_log_in_to_test_with_browser') }}</span>
+                                            <span class="body">{{ __('auth.usage_of_app_is_required_for_this_test') }}</span>
+                                            <a href="{{ $studentDownloadUrl }}" class="bold text-sm"
+                                               target="_blank">{{ __("auth.download_and_install_the_app") }} <x-icon.arrow-small></x-icon.arrow-small></a>
+                                        </div>
+                                    @endif
                                 @endif
                             </div>
 
