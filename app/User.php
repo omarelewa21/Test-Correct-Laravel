@@ -2286,7 +2286,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function scopeAvailableGuestAccountsForTake($query, $testTake)
     {
-        return $query->select('users.uuid','users.name','users.name_first','users.name_suffix')
+        return $query->select('users.uuid','users.name','users.name_first','users.name_suffix', 'test_participants.rating')
             ->guests()
             ->leftJoin('test_participants', 'test_participants.user_id', '=', 'users.id')
             ->where('test_participants.test_take_id', $testTake->getKey())
