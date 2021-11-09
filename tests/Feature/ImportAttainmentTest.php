@@ -64,7 +64,7 @@ class ImportAttainmentTest extends TestCase
     {
         $this->loginAdmin();
         $this->inactivateAttainmentToMakeImportPossible();
-        $testXslx = __DIR__.'/../files/import_existing_attainments_revised.xlsx';
+        $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
         $params = [
@@ -97,7 +97,7 @@ class ImportAttainmentTest extends TestCase
         $oldAttainmentsCount = Attainment::where('status','OLD')->count();
         $this->assertEquals(0,$oldAttainmentsCount);
         $this->loginAdmin();
-        $testXslx = __DIR__.'/../files/import_existing_attainments_revised.xlsx';
+        $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
         $this->assertFileExists($testXslx);
         $request  = new Request();
         $params = [

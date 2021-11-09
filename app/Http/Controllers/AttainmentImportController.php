@@ -113,20 +113,21 @@ class AttainmentImportController extends Controller
         $attainments = [];
         try{
             $attainmentsDbIds = Attainment::withTrashed()->get()->pluck('id')->toArray();
-            dump(count($attainmentsDbIds));
             $excelFile = $request->attainments;
             $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($excelFile);
             $attainmentsImportIds = collect($attainmentManifest->getAttainmentResources())->pluck('id');
             $attainmentsImportIds = $attainmentsImportIds->filter(function ($value, $key) {
                 return !is_null($value);
             })->toArray();
-            dump(count($attainmentsImportIds));
+            $citoBaseSubjectIds = BaseSubject::where('name','like','%CITO%')->pluck('id')->toArray();
             $diffIds = array_diff($attainmentsDbIds,$attainmentsImportIds);
             foreach ($diffIds as $id){
                 $attainment = Attainment::findOrFail($id);
+                if(in_array($attainment->base_subject_id,$citoBaseSubjectIds)){
+                    continue;
+                }
                 $attainments[] = $attainment;
-                dump($attainment->toArray());
-                DB::table('attainments_old')->insert($attainment->toArray());
+                DB::table('attainments_obsolete_081121')->insert($attainment->toArray());
             }
         } catch (\Exception $e) {
             DB::rollback();
