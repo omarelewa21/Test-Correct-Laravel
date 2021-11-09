@@ -122,10 +122,11 @@ return [
     'done_with_review'                                                                               => 'Klaar met de toets inzien!',
     'done_with_review_sub'                                                                           => 'De toets inzien is afgesloten',
     'test_code_expired'                                                                              => 'Toetscode is verlopen',
-    'contact_teacher_for_more_information'                                                           => 'Neem contact op met je docent',
+    'contact_teacher_for_more_information'                                                           => 'Neem contact op met de docent om je verder te helpen',
     'test_for_this_code_is_not_valid_anymore_contact_teacher'                                        => 'De toets die bij deze code hoort is niet valide, neem contact op met je docent voor hulp.',
     'can_no_longer_log_in_to_this_test'                                                              => 'Het inloggen op deze toets is niet meer mogelijk.',
     'cannot_log_in_to_test_with_browser'                                                             => 'Op deze toets mag niet ingelogd worden op de browser',
     'usage_of_app_is_required_for_this_test'                                                         => 'Gebruik van de app is verplicht om de toets te maken, bespreken en in te zien. Download en installeer de app en log daar in.',
-    'download_and_install_the_app' => 'Download en installeer de app',
+    'download_and_install_the_app'                                                                   => 'Download en installeer de app',
+    'user_not_found_for_test_code'                                                                   => 'Geen gebruiker gevonden voor deze toetscode',
 ];

@@ -2283,4 +2283,21 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         return $this->guest == true || $this->hasImportMailAddress();
     }
+
+    public function scopeAvailableGuestAccountsForTake($query, $testTake)
+    {
+        return $query->select('users.uuid','users.name','users.name_first','users.name_suffix')
+            ->guests()
+            ->leftJoin('test_participants', 'test_participants.user_id', '=', 'users.id')
+            ->where('test_participants.test_take_id', $testTake->getKey())
+            ->where('test_participants.available_for_guests', true);
+    }
+
+    public function scopeWhenKnownGuest($query, $guest)
+    {
+        return $query->when($guest, function ($query) use ($guest) {
+            $query->where('name_first', $guest['name_first'])
+                ->where('name', $guest['name']);
+        });
+    }
 }
