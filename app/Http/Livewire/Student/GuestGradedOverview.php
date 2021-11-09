@@ -26,6 +26,7 @@ class GuestGradedOverview extends Component
         if (!Uuid::isValid($this->take)) {
             return redirect(route('auth.login'));
         }
+        $this->handleKnownGuests();
         $this->testTake = TestTake::getTestTakeWithSubjectNameAndTestName($this->take);
         $this->participatingClasses = $this->getParticipatingClasses($this->testTake);
 
@@ -41,27 +42,15 @@ class GuestGradedOverview extends Component
         return view('livewire.student.guest-graded-overview')->layout('layouts.auth');
     }
 
-    private function getAvailableGuestAccountsForTake($sortField, $sortDirection)
-    {
-        return User::select('users.uuid', 'users.name', 'users.name_first', 'users.name_suffix', 'test_participants.rating')
-            ->guests()
-            ->leftJoin('test_participants', 'test_participants.user_id', '=', 'users.id')
-            ->where('test_participants.test_take_id', $this->testTake->getKey())
-            ->orderBy($sortField, $sortDirection);
-    }
-
     public function renderGuestList($sortField = 'users.name', $sortDirection = 'desc')
     {
-        $this->guestList = [];
-        $guests = $this->getAvailableGuestAccountsForTake($sortField, $sortDirection);
-
-        $guests->each(function ($guest) {
-            $this->guestList[] = [
-                'name'   => $guest->getNameFullAttribute(),
-                'uuid'   => $guest->uuid,
-                'rating' => $guest->rating,
-            ];
-        });
+        $this->guestList = User::availableGuestAccountsForTake($this->testTake)
+            ->whenKnownGuest($this->guestData)
+            ->orderBy($sortField, $sortDirection)
+            ->get()
+            ->map(function ($guest) {
+                return ['name' => $guest->getNameFullAttribute(), 'uuid' => $guest->uuid, 'rating' => $guest->rating];
+            });
     }
 
     public function sortGuestNames()
@@ -92,5 +81,10 @@ class GuestGradedOverview extends Component
     public function canReviewTestTake()
     {
         return $this->testTake->reviewingIsPossible();
+    }
+
+    private function handleKnownGuests()
+    {
+        $this->guestData = session()->get('guest_data') ?: [];
     }
 }
