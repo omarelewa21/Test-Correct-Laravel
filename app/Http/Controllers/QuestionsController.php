@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use tcCore\DrawingQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests;
@@ -89,9 +90,12 @@ class QuestionsController extends Controller {
 
     public function inlineimageLaravel(Request $request, $image)
     {
-        $path = storage_path(sprintf('inlineimages/%s',$image));
-        if(file_exists($path)){
-            return Response::file($path);
+        if (Storage::disk('cake')->exists("questionanswers/$image")) {
+            return Storage::disk('cake')->get("questionanswers/$image");
+        }
+
+        if (Storage::exists("inlineimages/$image")) {
+            return Storage::get("inlineimages/$image");
         }
 
         abort(404);

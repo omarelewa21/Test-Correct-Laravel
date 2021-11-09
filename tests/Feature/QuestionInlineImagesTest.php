@@ -2,28 +2,43 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Str;
 use tcCore\Question;
+use tcCore\Services\QuestionHtmlConverter;
 use Tests\TestCase;
 
 class QuestionInlineImagesTest extends TestCase
 {
-
-    public $options = [
-        '/custom/imageload.php?filename=TzSD4yUANz-vergelijking.PNG',
-        'http://testportal.test-correct.test/custom/imageload.php?filename=pVnRyl8TvhQPVI4C1YMh',
-        'https://testportal.test-correct.nl/custom/imageload.php?filename=jMR54ewpel-anonymous%27%60%7E%3B.jpg',
-        '/custom/imageload.php?filename=ABIcUx2v7x-1.png',
-        'https://testportal.test-correct.nl/custom/imageload.php?filename=nlFT3wQk0c-01.1001.2000.3000_1.png',
-        'https://testportal.test-correct.nl/custom/imageload.php?filename=Tex1qkvc4i-29092017-Erasmiaans-Toets-bespreken.jpg'
-    ];
-
-    public function testExample()
+    /**
+     * @test
+     */
+    public function question_html_converter_can_convert_question_html_inline_image_sources_to_named_route_by_searching_for_a_pattern()
     {
+        $question = Question::where('question', 'like', "%" . Question::INLINE_IMAGE_PATTERN . "%")->first();
+        $questionHtml = $question->getQuestionHtml();
+        $questionHtmlConverter = new QuestionHtmlConverter($questionHtml);
+        $routeWithoutImageNameParameter = config('app.base_url') . 'questions/inlineimage/';
 
-//        $question = Question::find(25);
-//
-//        dd($question->getQuestionHtml());
+        $convertedHtml = $questionHtmlConverter->convertImageSourcesWithPatternToNamedRoute('inline-image', 'filename=');
+
+        $this->assertNotEquals($questionHtml, $convertedHtml);
+        $this->assertStringContainsString($routeWithoutImageNameParameter, $convertedHtml);
+        $this->assertStringNotContainsString(Question::INLINE_IMAGE_PATTERN, $convertedHtml);
+    }
+
+    /**
+     * @test
+     */
+    public function question_computed_html_attribute_is_converted_without_inline_image_pattern()
+    {
+        $question = Question::where('question', 'like', "%" . Question::INLINE_IMAGE_PATTERN . "%")->first();
+
+        $originalQuestionHtml = $question->getQuestionHtml();
+        $convertedQuestionHtml = $question->converted_question_html;
+
+        $this->assertNotEquals($originalQuestionHtml, $convertedQuestionHtml);
+
+        $this->assertTrue(Str::contains($originalQuestionHtml, Question::INLINE_IMAGE_PATTERN));
+        $this->assertFalse(Str::contains($convertedQuestionHtml, Question::INLINE_IMAGE_PATTERN));
     }
 }

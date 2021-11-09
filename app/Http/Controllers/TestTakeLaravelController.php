@@ -60,8 +60,6 @@ class TestTakeLaravelController extends Controller
         // todo add check or failure when $current out of bounds $data;
         $styling = $this->getCustomStylingFromQuestions($data);
 
-        $data = $this->mutateQuestionInlineImages($data);
-
         return view('test-take', compact(['data', 'current', 'answers', 'nav', 'uuid', 'testParticipant', 'styling']));
     }
 
@@ -169,18 +167,5 @@ class TestTakeLaravelController extends Controller
         return $data->map(function ($question) {
             return $question->getQuestionInstance()->styling;
         })->unique()->implode(' ');
-    }
-
-    private function mutateQuestionInlineImages($data)
-    {
-        $src = sprintf('%s%s', config('app.url_login'), 'custom/imageload.php?filename=');
-
-        $newData = $data->map(function($question) use ($src) {
-            if(Str::contains($question->getQuestionHtml(), '/custom/imageload.php?filename=')) {
-                $question->getQuestionInstance()->question = str_replace($src,'/questions/inlineimage/',$question->getQuestionInstance()->question);
-            }
-            return $question;
-        });
-        return $data;
     }
 }

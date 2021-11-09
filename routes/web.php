@@ -41,7 +41,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/temporary-login-to-cake',[tcCore\Http\Controllers\TemporaryLoginController::class,'toCake'])->name('auth.temporary-login.to-cake');
 
-    Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineimageLaravel']);
+    Route::get('/questions/inlineimage/{image}', [tcCore\Http\Controllers\QuestionsController::class, 'inlineimageLaravel'])->name('inline-image');
 
     Route::middleware(['dll', 'student'])->prefix('student')->name('student.')->group(function () {
         Route::get('/test-take-overview/{test_take}', [tcCore\Http\Controllers\TestTakeLaravelController::class, 'overview'])->name('test-take-overview');

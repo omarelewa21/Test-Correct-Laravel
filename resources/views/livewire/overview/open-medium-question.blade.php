@@ -29,7 +29,7 @@
 
         <div class="flex-col space-y-3">
             <div>
-                {!! $question->getQuestionHtml() !!}
+                {!! $question->converted_question_html !!}
             </div>
             <x-input.group wire:ignore class="w-full">
                 <x-input.textarea autofocus="true" id="{{ $editorId }}" name="{{ $editorId }}"
