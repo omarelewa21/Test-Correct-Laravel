@@ -171,6 +171,7 @@ class SchoolClass extends BaseModel implements AccessCheckable {
         return $this->belongsTo('tcCore\SchoolLocation');
     }
 
+
     public function mentors() {
         return $this->hasMany('tcCore\Mentor');
     }

@@ -137,7 +137,6 @@ class SchoolClassesController extends Controller
     public function show(SchoolClass $schoolClass, Request $request)
     {
         SchoolHelper::denyIfTempTeacher();
-
         $schoolClass->load( [       'schoolLocation',
                                     'educationLevel',
                                     'mentorUsers' => function ($query) {
