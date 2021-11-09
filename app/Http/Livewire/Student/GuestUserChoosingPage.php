@@ -20,12 +20,13 @@ class GuestUserChoosingPage extends Component
     public $guestList = [];
     public $status;
     public $participatingClasses = [];
+    public $guestData = [];
 
 
     protected function getListeners()
     {
         return [
-            'echo:TestTake.'.$this->take.',.TestParticipantGuestAvailabilityChanged' => 'renderGuestList'
+            'echo:TestTake.' . $this->take . ',.TestParticipantGuestAvailabilityChanged' => 'renderGuestList'
         ];
     }
 
@@ -34,6 +35,7 @@ class GuestUserChoosingPage extends Component
         if (!Uuid::isValid($this->take)) {
             return redirect(route('auth.login'));
         }
+        $this->handleKnownGuests();
         $this->testTake = TestTake::getTestTakeWithSubjectNameAndTestName($this->take);
         $this->participatingClasses = $this->getParticipatingClasses($this->testTake);
         $this->status = $this->testTake->determineTestTakeStage();
@@ -50,7 +52,7 @@ class GuestUserChoosingPage extends Component
     {
         $user = User::whereUuid($userUuid)->firstOrFail();
 
-        if(!$this->claimParticipant($user)) {
+        if (!$this->claimParticipant($user)) {
             return;
         }
 
@@ -77,22 +79,18 @@ class GuestUserChoosingPage extends Component
         return false;
     }
 
-    private function getAvailableGuestAccountsForTake($testTake)
-    {
-        return User::select('users.uuid','users.name','users.name_first','users.name_suffix')
-            ->guests()
-            ->leftJoin('test_participants', 'test_participants.user_id', '=', 'users.id')
-            ->where('test_participants.test_take_id', $this->testTake->getKey())
-            ->where('test_participants.available_for_guests', true);
-    }
-
     public function renderGuestList()
     {
-        $this->guestList = [];
-        $guests = $this->getAvailableGuestAccountsForTake($this->testTake);
+        $this->guestList = User::availableGuestAccountsForTake($this->testTake)
+            ->whenKnownGuest($this->guestData)
+            ->get()
+            ->map(function ($guest) {
+                return ['name' => $guest->getNameFullAttribute(), 'uuid' => $guest->uuid];
+            });
+    }
 
-        $guests->each(function ($guest) {
-            $this->guestList[] = ['name' => $guest->getNameFullAttribute(), 'uuid' => $guest->uuid];
-        });
+    private function handleKnownGuests()
+    {
+        $this->guestData = session()->get('guest_data') ?: [];
     }
 }

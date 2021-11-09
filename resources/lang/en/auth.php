@@ -106,4 +106,5 @@ return [
     'cannot_log_in_to_test_with_browser'                      => 'This test can not be made in the browser',
     'usage_of_app_is_required_for_this_test'                  => 'Usage of the app is required for this test. Download and install the app and log in to make the test',
     'download_and_install_the_app'                            => 'Download and install the app',
+    'user_not_found_for_test_code'                            => 'No user found for this test code',
 ];

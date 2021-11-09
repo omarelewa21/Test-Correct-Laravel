@@ -205,13 +205,13 @@
                         <form wire:submit.prevent="guestLogin" action="#" method="POST" class="flex-col flex flex-1">
                             <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                 <x-input.group label="{{ __('auth.first_name')}}" class="w-56">
-                                    <x-input.text wire:model="firstName" autofocus></x-input.text>
+                                    <x-input.text wire:model.lazy="firstName" autofocus></x-input.text>
                                 </x-input.group>
                                 <x-input.group label="{{ __('auth.suffix')}}" class="w-28">
-                                    <x-input.text wire:model="suffix" autofocus></x-input.text>
+                                    <x-input.text wire:model.lazy="suffix" autofocus></x-input.text>
                                 </x-input.group>
                                 <x-input.group label="{{ __('auth.last_name')}}" class="flex-1">
-                                    <x-input.text wire:model="lastName" autofocus></x-input.text>
+                                    <x-input.text wire:model.lazy="lastName" autofocus></x-input.text>
                                 </x-input.group>
                             </div>
 
@@ -273,6 +273,12 @@
                                 <div class="notification warning stretched mt-4">
                                     <span class="title">{{ __('auth.something_went_wrong') }}</span>
                                     <span class="body">{{ __('auth.test_for_this_code_is_not_valid_anymore_contact_teacher') }}</span>
+                                </div>
+                                @enderror
+                                @error('user_not_found_for_test_code')
+                                <div class="notification warning stretched mt-4">
+                                    <span class="title">{{ __('auth.user_not_found_for_test_code') }}</span>
+                                    <span class="body">{{ __('auth.contact_teacher_for_more_information') }}</span>
                                 </div>
                                 @enderror
                                 @if($showGuestError)

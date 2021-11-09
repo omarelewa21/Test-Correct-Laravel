@@ -71,21 +71,32 @@ class TestTakeCodeHelper extends BaseHelper
     public function handleGuestLogin($guestData, $testTakeCode)
     {
         $testTakeStage = $testTakeCode->testTake->determineTestTakeStage();
+        $nameIsAlreadyInUse = $this->isNameAlreadyInUse($testTakeCode, $guestData);
 
         if ($testTakeStage === 'planned') {
-            $this->handleStagePlanned($guestData, $testTakeCode);
+            if ($nameIsAlreadyInUse) {
+                $this->addError('name_already_in_use');
+            } else {
+                $this->handleStagePlanned($guestData, $testTakeCode);
+            }
         }
 
-        if ($testTakeStage === 'discuss') {
-            $this->handleStageDiscuss($testTakeCode);
-        }
+        if ($nameIsAlreadyInUse) {
+            $this->setSessionVariables($testTakeCode, $guestData);
 
-        if ($testTakeStage === 'review') {
-            $this->handleStageReview($testTakeCode);
-        }
+            if ($testTakeStage === 'discuss') {
+                $this->handleStageDiscuss($testTakeCode);
+            }
 
-        if ($testTakeStage === 'graded') {
-            $this->handleStageGraded($testTakeCode);
+            if ($testTakeStage === 'review') {
+                $this->handleStageReview($testTakeCode);
+            }
+
+            if ($testTakeStage === 'graded') {
+                $this->handleStageGraded($testTakeCode);
+            }
+        } else {
+            $this->addError('user_not_found_for_test_code');
         }
 
         if (empty($this->errors)) {
@@ -97,12 +108,6 @@ class TestTakeCodeHelper extends BaseHelper
 
     private function handleStagePlanned($guestData, $testTakeCode)
     {
-        $nameInAlreadyInUse = $this->isNameInAlreadyInUse($testTakeCode, $guestData);
-
-        if ($nameInAlreadyInUse) {
-            $this->addError('name_already_in_use');
-            return false;
-        }
         $guestUser = $this->createUserByTestTakeCode($guestData, $testTakeCode);
         $guestParticipant = $this->createTestParticipantForGuestUserByTestTakeCode($guestUser, $testTakeCode);
         if ($guestUser && $guestParticipant) {
@@ -114,13 +119,11 @@ class TestTakeCodeHelper extends BaseHelper
 
     private function handleStageDiscuss($testTakeCode)
     {
-        session()->put('guest_take', $testTakeCode->testTake->uuid);
         return redirect(route('guest-choice', ['take' => $testTakeCode->testTake->uuid]));
     }
 
     private function handleStageReview($testTakeCode)
     {
-        session()->put('guest_take', $testTakeCode->testTake->uuid);
         return redirect(route('guest-choice', ['take' => $testTakeCode->testTake->uuid]));
     }
 
@@ -130,7 +133,6 @@ class TestTakeCodeHelper extends BaseHelper
             return $this->addError('rating_visible_expired');
         }
 
-        session()->put('guest_take', $testTakeCode->testTake->uuid);
         return redirect(route('guest-graded-overview', ['take' => $testTakeCode->testTake->uuid]));
     }
 
@@ -139,20 +141,32 @@ class TestTakeCodeHelper extends BaseHelper
      * @param $guestData
      * @return bool
      */
-    private function isNameInAlreadyInUse($testTakeCode, $guestData): bool
+    private function isNameAlreadyInUse($testTakeCode, $guestData): bool
     {
         $existingGuestNames = User::guests()
-            ->select(['name_first', 'name'])
+            ->select(['name_first', 'name', 'name_suffix'])
             ->whereTestTakeCodeId($testTakeCode->getKey())
             ->get();
 
-        $nameInAlreadyInUse = false;
-        $existingGuestNames->each(function ($userNames) use ($guestData, &$nameInAlreadyInUse) {
-            if ($userNames->name_first == $guestData['name_first'] && $userNames->name == $guestData['name']) {
-                $nameInAlreadyInUse = true;
+        $nameAlreadyInUse = false;
+        $existingGuestNames->each(function ($userNames) use ($guestData, &$nameAlreadyInUse) {
+            if (strtolower($userNames->name_first) == strtolower($guestData['name_first'])
+                && strtolower($userNames->name) == strtolower($guestData['name'])
+                && strtolower($userNames->name_suffix) == strtolower($guestData['name_suffix'])) {
+                $nameAlreadyInUse = true;
             }
         });
 
-        return $nameInAlreadyInUse;
+        return $nameAlreadyInUse;
+    }
+
+    /**
+     * @param $testTakeCode
+     * @param $guestData
+     */
+    private function setSessionVariables($testTakeCode, $guestData)
+    {
+        session()->put('guest_data', $guestData);
+        session()->put('guest_take', $testTakeCode->testTake->uuid);
     }
 }
