@@ -520,9 +520,9 @@ class Login extends Component
     private function gatherGuestData()
     {
         return [
-            'name_first'  => $this->firstName,
-            'name_suffix' => $this->suffix,
-            'name'        => $this->lastName
+            'name_first'  => trim($this->firstName),
+            'name_suffix' => trim($this->suffix),
+            'name'        => trim($this->lastName)
         ];
     }
 

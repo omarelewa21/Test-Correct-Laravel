@@ -3,6 +3,7 @@
      x-init="
             addRelativePaddingToBody('login-body', 10);
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
+            Core.init();
             "
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
      wire:ignore.self
@@ -709,7 +710,7 @@
                 </form>
             </div>
         @endif
-        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4">
+        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4 disabled-for-app" wire:ignore>
             <x-button.primary type="link" href="{{ $this->studentDownloadUrl }}">
                 <x-icon.download/>
                 <span>{{__('auth.download_student_app')}}</span>
@@ -719,6 +720,11 @@
                 <span>{{__('auth.request_account_from_teacher')}}</span>
                 <x-icon.arrow/>
             </x-button.text-button>
+        </div>
+        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4 hide-electron" x-cloak wire:ignore>
+            <x-button.primary @click="Core.closeElectronApp()" size="md">
+                <span>{{__('general.close')}}</span>
+            </x-button.primary>
         </div>
     </div>
 
