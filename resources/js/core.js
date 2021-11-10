@@ -5,23 +5,29 @@ let alert = false;
 let checkFocusTimer = false;
 
 Core = {
-    inApp : false,
-    appType : '',
+    inApp: false,
+    appType: '',
     inactive: 0,
-    secondsBeforeStudentLogout: 60*60,
+    secondsBeforeStudentLogout: 60 * 60,
 
-    init : function() {
+    init: function () {
         let isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
         let isAndroid = /Android/g.test(navigator.userAgent);
 
-        if(isIOS) {
+        if (isIOS) {
             Core.isIpad();
-        }else if(isAndroid){
+        } else if (isAndroid) {
             Core.isAndroid();
         }
 
+        Core.checkForElectron();
+
         runCheckFocus();
         startStudentActivityCheck();
+
+        if (Core.appType === '') {
+            enableBrowserFeatures();
+        }
     },
     lostFocus: function (reason) {
         if (reason == "printscreen") {
@@ -35,41 +41,65 @@ Core = {
         window.Livewire.emit('setFraudDetected');
 
         if (shouldLostFocusBeReported(reason)) {
-            livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
+            var testtakemanager = document.querySelector('[testtakemanager]');
+            if (testtakemanager != null) {
+                livewire.find(testtakemanager.getAttribute('wire:id')).call('createTestTakeEvent', reason);
+            }
         }
         alert = true;
     },
-    isIpad : function() {
+    isIpad: function () {
         var standalone = window.navigator.standalone,
             userAgent = window.navigator.userAgent.toLowerCase(),
-            safari = /safari/.test( userAgent ),
-            ios = /iphone|ipod|ipad/.test( userAgent );
+            safari = /safari/.test(userAgent),
+            ios = /iphone|ipod|ipad/.test(userAgent);
+        Core.appType = 'ios';
 
-        if( ios ) {
-            if ( !standalone && safari ) {
+        if (ios) {
+            if (!standalone && safari) {
                 Core.appType = 'browser';
                 Core.inApp = false;
-            } else if ( standalone && !safari ) {
+            } else if (standalone && !safari) {
                 Core.appType = 'standalone';
                 Core.inApp = true;
-            } else if ( !standalone && !safari ) {
+            } else if (!standalone && !safari) {
                 Core.appType = 'ipad';
                 Core.inApp = true;
-                checkForIpadKeyboard();
             }
         }
     },
 
-    isAndroid : function() {
+    isAndroid: function () {
         Core.inApp = true;
         Core.appType = 'android';
     },
-    isChromebook : function(){
+    isChromebook: function () {
         return (window.navigator.userAgent.indexOf('CrOS') > 0);
+    },
+    checkForElectron() {
+        try {
+            if (typeof (electron.closeApp) === typeof (Function)) {
+                Core.appType = 'electron';
+
+                let hiddenElements = document.querySelectorAll('.hide-electron');
+                hiddenElements.forEach((element) => {
+                    element.classList.remove('hide-electron');
+                });
+            }
+        } catch (error) {
+        }
+    },
+    closeElectronApp() {
+        try {
+            if (typeof (electron.closeApp) === typeof (Function)) {
+                electron.closeApp();
+            }
+        } catch (error) {
+        }
     }
 }
 
-runCheckFocus = function() {
+runCheckFocus = function () {
     if (!checkFocusTimer) {
         checkFocusTimer = setInterval(checkPageFocus, 300);
     }
@@ -79,7 +109,6 @@ function checkPageFocus() {
     if (!parent.skip) {
         if (!document.hasFocus()) {
             if (!notifsent) {  // checks for the notifcation if it is already sent to the teacher
-                console.log('lost focus from checkPageFocus');
                 Core.lostFocus('lost-focus');
                 notifsent = true;
             }
@@ -116,7 +145,7 @@ function shouldLostFocusBeReported(reason) {
 }
 
 function checkForIpadKeyboard() {
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (needsKeyboard(e.target)) {
             document.querySelector('header').classList.remove('fixed');
             document.querySelector('footer').classList.remove('fixed');
@@ -126,6 +155,7 @@ function checkForIpadKeyboard() {
         }
     })
 }
+
 function needsKeyboard(target) {
     return /^(?:input|textarea)$/i.test(target.tagName.toLowerCase());
 }
@@ -138,10 +168,19 @@ function startStudentActivityCheck() {
         Core.inactive = 0;
     })
 
-    studentActivityTimer = setInterval(function() {
+    studentActivityTimer = setInterval(function () {
         Core.inactive++;
         if (Core.inactive >= Core.secondsBeforeStudentLogout) {
             Livewire.emit('studentInactive');
         }
     }, 1000);
+}
+
+function enableBrowserFeatures() {
+    let disabledElements = document.querySelectorAll('.disabled-for-app');
+    if (disabledElements.length > 0) {
+        disabledElements.forEach((element) => {
+            element.classList.remove('disabled-for-app');
+        })
+    }
 }

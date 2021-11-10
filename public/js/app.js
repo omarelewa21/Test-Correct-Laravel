@@ -5223,19 +5223,6 @@ dragElement = function dragElement(element) {
   }
 };
 
-registerWaitingRoomPresenceChannel = function registerWaitingRoomPresenceChannel(takeUuid) {
-  var presenceChannel = Echo.join('presence-TestTake.' + takeUuid);
-  presenceChannel.here(function (users) {
-    activeStudents = countPresentStudents(presenceChannel.subscription.members);
-  }).joining(function (user) {
-    activeStudents = countPresentStudents(presenceChannel.subscription.members);
-  }).leaving(function (user) {
-    activeStudents = countPresentStudents(presenceChannel.subscription.members);
-  }).listen('.TestTakeShowResultsChanged', function (e) {
-    Livewire.emit('is-test-take-open', e);
-  });
-};
-
 countPresentStudents = function countPresentStudents(members) {
   var activeStudents = 0;
   members.each(function (member) {
@@ -5290,6 +5277,8 @@ window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jqu
   \******************************/
 /***/ (() => {
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 parent.skip = false;
 var notifsent = false;
 var lastLostFocus = {
@@ -5314,8 +5303,14 @@ Core = {
       Core.isAndroid();
     }
 
+    Core.checkForElectron();
     runCheckFocus();
     startStudentActivityCheck();
+    Core.appType = 'electron';
+
+    if (Core.appType === '') {
+      enableBrowserFeatures();
+    }
   },
   lostFocus: function lostFocus(reason) {
     if (reason == "printscreen") {
@@ -5329,7 +5324,11 @@ Core = {
     window.Livewire.emit('setFraudDetected');
 
     if (shouldLostFocusBeReported(reason)) {
-      livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
+      var testtakemanager = document.querySelector('[testtakemanager]');
+
+      if (testtakemanager != null) {
+        livewire.find(testtakemanager.getAttribute('wire:id')).call('createTestTakeEvent', reason);
+      }
     }
 
     alert = true;
@@ -5339,6 +5338,7 @@ Core = {
         userAgent = window.navigator.userAgent.toLowerCase(),
         safari = /safari/.test(userAgent),
         ios = /iphone|ipod|ipad/.test(userAgent);
+    Core.appType = 'ios';
 
     if (ios) {
       if (!standalone && safari) {
@@ -5350,7 +5350,6 @@ Core = {
       } else if (!standalone && !safari) {
         Core.appType = 'ipad';
         Core.inApp = true;
-        checkForIpadKeyboard();
       }
     }
   },
@@ -5360,6 +5359,24 @@ Core = {
   },
   isChromebook: function isChromebook() {
     return window.navigator.userAgent.indexOf('CrOS') > 0;
+  },
+  checkForElectron: function checkForElectron() {
+    try {
+      if (_typeof(electron.closeApp) === (typeof Function === "undefined" ? "undefined" : _typeof(Function))) {
+        Core.appType = 'electron';
+        var hiddenElements = document.querySelectorAll('.hide-electron');
+        hiddenElements.forEach(function (element) {
+          element.classList.remove('hide-electron');
+        });
+      }
+    } catch (error) {}
+  },
+  closeElectronApp: function closeElectronApp() {
+    try {
+      if (_typeof(electron.closeApp) === (typeof Function === "undefined" ? "undefined" : _typeof(Function))) {
+        electron.closeApp();
+      }
+    } catch (error) {}
   }
 };
 
@@ -5374,7 +5391,6 @@ function checkPageFocus() {
     if (!document.hasFocus()) {
       if (!notifsent) {
         // checks for the notifcation if it is already sent to the teacher
-        console.log('lost focus from checkPageFocus');
         Core.lostFocus('lost-focus');
         notifsent = true;
       }
@@ -5440,6 +5456,16 @@ function startStudentActivityCheck() {
       Livewire.emit('studentInactive');
     }
   }, 1000);
+}
+
+function enableBrowserFeatures() {
+  var disabledElements = document.querySelectorAll('.disabled-for-app');
+
+  if (disabledElements.length > 0) {
+    disabledElements.forEach(function (element) {
+      element.classList.remove('disabled-for-app');
+    });
+  }
 }
 
 /***/ }),
