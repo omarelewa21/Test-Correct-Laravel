@@ -88,7 +88,7 @@ class QuestionsController extends Controller {
         }
     }
 
-    public function inlineimageLaravel(Request $request, $image)
+    public function inlineImageLaravel(Request $request, $image)
     {
         if (Storage::disk('cake')->exists("questionanswers/$image")) {
             return Storage::disk('cake')->get("questionanswers/$image");
