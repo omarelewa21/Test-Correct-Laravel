@@ -25,7 +25,7 @@
                 @endforeach
             </div>
             <div>
-                {!! $question->getQuestionHtml()  !!}
+                {!! $question->converted_question_html  !!}
             </div>
         </div>
     </div>

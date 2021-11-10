@@ -2,7 +2,7 @@
 
     <div class="flex flex-1 flex-col space-y-2">
         <div class="flex flex-col space-y-3">
-            {!! $question->getQuestionHtml() !!}
+            {!! $question->converted_question_html !!}
         </div>
         <div class="mt-3 flex flex-1 flex-col">
             @if($answer != '')

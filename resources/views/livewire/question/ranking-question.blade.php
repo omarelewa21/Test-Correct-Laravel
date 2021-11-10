@@ -15,7 +15,7 @@
              } ,100);
         "
     >
-        <div questionHtml wire:ignore>{!! $question->getQuestionHtml() !!}</div>
+        <div questionHtml wire:ignore>{!! $question->converted_question_html !!}</div>
         <div>
             <span>{!! __('test_take.instruction_ranking_question') !!}</span>
         </div>
