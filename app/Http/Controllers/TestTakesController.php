@@ -78,25 +78,18 @@ class TestTakesController extends Controller {
                 foreach ($testTakes as $testTake) {
                     $test = $testTake->test;
                     if ($test instanceof Test) {
-                        $test = $test->getAttribute('name');
                         $haveClasses = [];
                         foreach ($testTake->testParticipants as $testParticipant) {
                             $schoolClass = $testParticipant->schoolClass;
                             if ($schoolClass instanceof SchoolClass) {
                                 if (!in_array($schoolClass->getKey(), $haveClasses)) {
                                     $haveClasses[] = $schoolClass->getKey();
-                                    $className = $schoolClass->getAttribute('name');
-                                    if (Str::contains($className, 'guest_class')) {
-                                        $className = 'Gast accounts';
-                                    }
-                                    $response[$testTake->getKey()][] = [
-                                        'schoolClass' => $className,
-                                        'test' => $test,
-                                        'uuid' => $testTake->uuid,
-                                        'code' => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : ''
-                                    ];
+                                    $response[$testTake->getKey()][] = $this->getTestTakeSchoolClass($schoolClass->name, $testTake);
                                 }
                             }
+                        }
+                        if ($testTake->testParticipants->count() == 0) {
+                            $response[$testTake->getKey()][] = $this->getTestTakeSchoolClass('', $testTake);
                         }
                     }
                 }
@@ -1400,5 +1393,21 @@ class TestTakesController extends Controller {
         $response['allowed'] = $testTake->allow_inbrowser_testing;
         $response['guests'] = $testTake->guest_accounts;
         return $response;
+    }
+
+    /**
+     * @param $className
+     * @param $test
+     * @param $testTake
+     * @return array
+     */
+    private function getTestTakeSchoolClass($className, $testTake): array
+    {
+        return [
+            'schoolClass' => $className,
+            'test'        => $testTake->test->name,
+            'uuid'        => $testTake->uuid,
+            'code'        => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : ''
+        ];
     }
 }
