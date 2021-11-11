@@ -720,11 +720,6 @@
                 <x-icon.arrow/>
             </x-button.text-button>
         </div>
-        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4" electron x-cloak wire:ignore>
-            <x-button.primary @click="Core.closeElectronApp()" size="md">
-                <span>{{__('general.close')}}</span>
-            </x-button.primary>
-        </div>
     </div>
 
     <x-modal.auth-create-account maxWidth="lg" wire:model="showAuthModal"/>

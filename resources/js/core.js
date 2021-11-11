@@ -31,6 +31,9 @@ Core = {
         Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
     },
     lostFocus: function (reason) {
+        if (!isMakingTest()) {
+            return;
+        }
         if (reason == "printscreen") {
             Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
         } else if (reason == 'illegal-programs') {
@@ -198,4 +201,7 @@ function startStudentActivityCheck() {
             Livewire.emit('studentInactive');
         }
     }, 1000);
+}
+function isMakingTest() {
+    return document.querySelector('[testtakemanager]') != null;
 }
