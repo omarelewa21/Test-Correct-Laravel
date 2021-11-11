@@ -30,10 +30,23 @@ use tcCore\TestParticipant;
 use tcCore\Http\Requests\CreateTestTakeRequest;
 use tcCore\Http\Requests\UpdateTestTakeRequest;
 use tcCore\TestTakeStatus;
+use tcCore\TestQuestion;
 use tcCore\Exports\TestTakesExport;
 use \stdClass;
 
 class TestTakesController extends Controller {
+
+    /**
+     * Helper Function - Check if a test has one or more open questions
+     * 
+     * @return true if check has found one open questoin - else return false
+     */
+    private function hasOpenQuestion($test_id){
+        return !! QuestionGatherer::getQuestionsOfTest($test_id, true)->search(function(Question $question){
+            return !$question->canCheckAnswer();
+        });
+    }
+
 
     /**
      * Display a listing of the test takes.
@@ -553,6 +566,7 @@ class TestTakesController extends Controller {
         }
 
         $schoolClasses = $testTake->schoolClasses()->orderBy('name')->get();
+        $test = $testTake->test;
         $testTake = $testTake->toArray();
 
         if ($ownTestParticipant !== null) {
@@ -562,6 +576,8 @@ class TestTakesController extends Controller {
         unset($testTake['test_participants']);
 
         $testTake['school_classes'] = $schoolClasses;
+
+        $testTake['consists_only_closed_question'] = $test->hasOpenQuestion() ? false : true;
 
         return Response::make($testTake, 200);
     }
