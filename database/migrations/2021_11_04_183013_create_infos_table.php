@@ -26,6 +26,7 @@ class CreateInfosTable extends Migration
             $table->datetime('show_until');
             $table->string('status')->default('INACTIVE');
             $table->integer('created_by');
+            $table->boolean('for_all')->default(true);
         });
 
         Schema::create('info_roles',function(Blueprint $table){

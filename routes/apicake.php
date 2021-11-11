@@ -49,6 +49,12 @@ Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceC
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
     Route::post('/temporary-login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
 
+    Route::get('info',['uses' => 'InfoController@index']);
+    Route::get('info/{info}',['uses' => 'InfoController@show']);
+    Route::post('info',['uses' => 'InfoController@store']);
+    Route::put('info/{info}',['uses' => 'InfoController@update']);
+    Route::delete('info/{info}',['uses' => 'InfoController@delete']);
+
 
     Route::get('authors',['as' => 'authors','uses' => 'AuthorsController@index']);
     Route::get('/deployment',['uses' => 'DeploymentController@index']);

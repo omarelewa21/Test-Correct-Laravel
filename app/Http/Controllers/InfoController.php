@@ -1,0 +1,61 @@
+<?php
+
+namespace tcCore\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
+use tcCore\Deployment;
+use tcCore\Http\Requests\CreateDeploymentRequest;
+use tcCore\Http\Requests\CreateInfoRequest;
+use tcCore\Http\Requests\DeleteDeploymentRequest;
+use tcCore\Http\Requests\DeleteInfoRequest;
+use tcCore\Http\Requests\IndexDeploymentRequest;
+use tcCore\Http\Requests\ShowDeploymentRequest;
+use tcCore\Http\Requests\ShowInfoRequest;
+use tcCore\Http\Requests\UpdateDeploymentRequest;
+use tcCore\Http\Requests\UpdateInfoRequest;
+use tcCore\Info;
+
+class InfoController extends Controller
+{
+
+    public function index( $request)
+    {
+        $data = null;
+        switch($request->mode){
+            case 'index':
+                $data = Info::orderBy('show_from','desc')->with('roles')->get();
+                break;
+            case 'dashboard':
+            default:
+                $data = Info::getInfoForUser(Auth::user());
+        }
+
+        return Response::make($data, 200);
+    }
+
+    public function show(ShowInfoRequest $request, Info $info)
+    {
+        return Response::make($info, 200);
+    }
+
+    public function update(UpdateInfoRequest $request, Info $info)
+    {
+        $info->fill($request->validated());
+        $info->save();
+        return Response::make($info,200);
+    }
+
+    public function create(CreateInfoRequest $request)
+    {
+        $info = Info::create($request->validated());
+        return Response::make($info,200);
+    }
+
+    public function delete(DeleteInfoRequest $request, Info $info)
+    {
+        $info->delete();
+        return Response::make(true,200);
+    }
+}
