@@ -55,7 +55,6 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('info/{info}',['uses' => 'InfoController@update']);
     Route::delete('info/{info}',['uses' => 'InfoController@delete']);
 
-
     Route::get('authors',['as' => 'authors','uses' => 'AuthorsController@index']);
     Route::get('/deployment',['uses' => 'DeploymentController@index']);
     Route::get('/deployment/{deployment}',['uses' => 'DeploymentController@show']);

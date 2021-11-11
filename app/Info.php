@@ -57,6 +57,10 @@ class Info extends Model
         static::creating(function(Info $info){
             $info->created_by = Auth::id();
         });
+
+        static::deleting(function(Info $info){
+
+        });
     }
 
     public function roles()
