@@ -40,6 +40,7 @@
 @stack('scripts')
 <script>
     Alpine.start();
+    Core.init();
 </script>
 </body>
 </html>

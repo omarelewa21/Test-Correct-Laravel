@@ -138,6 +138,7 @@
                 countdownTimer = setInterval(function () {
                     data.countdownNumber -= 1;
                     if (data.countdownNumber === 0) {
+                        Core.setElectronTestConfig('{{ $testParticipant->uuid }}');
                         Livewire.emitTo('student.waiting-room', 'start-test-take')
                         clearInterval(countdownTimer);
                     }

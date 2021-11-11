@@ -13,11 +13,14 @@ Core = {
     init: function () {
         let isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
         let isAndroid = /Android/g.test(navigator.userAgent);
+        let isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
 
         if (isIOS) {
             Core.isIpad();
         } else if (isAndroid) {
             Core.isAndroid();
+        } else if (isChromebook) {
+            Core.isChromebook();
         }
 
         Core.checkForElectron();
@@ -25,9 +28,7 @@ Core = {
         runCheckFocus();
         startStudentActivityCheck();
 
-        if (Core.appType === '') {
-            enableBrowserFeatures();
-        }
+        Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
     },
     lostFocus: function (reason) {
         if (reason == "printscreen") {
@@ -49,24 +50,24 @@ Core = {
         alert = true;
     },
     isIpad: function () {
-        var standalone = window.navigator.standalone,
-            userAgent = window.navigator.userAgent.toLowerCase(),
-            safari = /safari/.test(userAgent),
-            ios = /iphone|ipod|ipad/.test(userAgent);
+        // var standalone = window.navigator.standalone,
+        //     userAgent = window.navigator.userAgent.toLowerCase(),
+        //     safari = /safari/.test(userAgent),
+        //     ios = /iphone|ipod|ipad/.test(userAgent);
         Core.appType = 'ios';
 
-        if (ios) {
-            if (!standalone && safari) {
-                Core.appType = 'browser';
-                Core.inApp = false;
-            } else if (standalone && !safari) {
-                Core.appType = 'standalone';
-                Core.inApp = true;
-            } else if (!standalone && !safari) {
-                Core.appType = 'ipad';
-                Core.inApp = true;
-            }
-        }
+        // if (ios) {
+        //     if (!standalone && safari) {
+        //         Core.appType = 'browser';
+        //         Core.inApp = false;
+        //     } else if (standalone && !safari) {
+        //         Core.appType = 'standalone';
+        //         Core.inApp = true;
+        //     } else if (!standalone && !safari) {
+        //         Core.appType = 'ipad';
+        //         Core.inApp = true;
+        //     }
+        // }
     },
 
     isAndroid: function () {
@@ -74,26 +75,49 @@ Core = {
         Core.appType = 'android';
     },
     isChromebook: function () {
-        return (window.navigator.userAgent.indexOf('CrOS') > 0);
+        Core.inApp = true;
+        Core.appType = 'chromebook';
+    },
+    enableBrowserFeatures() {
+        let browserElements = document.querySelectorAll('[browser]');
+        if (browserElements.length > 0) {
+            browserElements.forEach((element) => {
+                element.style.display = 'flex';
+            })
+        }
+    },
+    enableAppFeatures(appType) {
+        let appElements = document.querySelectorAll('[' + appType + ']');
+        appElements.forEach((element) => {
+            element.style.display = 'flex';
+        });
     },
     checkForElectron() {
         try {
             if (typeof (electron.closeApp) === typeof (Function)) {
                 Core.appType = 'electron';
-
-                let hiddenElements = document.querySelectorAll('.hide-electron');
-                hiddenElements.forEach((element) => {
-                    element.classList.remove('hide-electron');
-                });
             }
         } catch (error) {
         }
     },
     closeElectronApp() {
-        try {
-            if (typeof (electron.closeApp) === typeof (Function)) {
+        Core.closeApplication('close');
+    },
+    closeApplication(cmd) {
+        if (cmd == 'quit') {
+            open('/', '_self').close();
+        } else if (cmd == 'close') {
+            try {
                 electron.closeApp();
+            } catch (error) {
+                window.close();
             }
+        }
+        return false;
+    },
+    setElectronTestConfig(participantId) {
+        try {
+            electron.setTestConfig(participantId)
         } catch (error) {
         }
     }
@@ -174,13 +198,4 @@ function startStudentActivityCheck() {
             Livewire.emit('studentInactive');
         }
     }, 1000);
-}
-
-function enableBrowserFeatures() {
-    let disabledElements = document.querySelectorAll('.disabled-for-app');
-    if (disabledElements.length > 0) {
-        disabledElements.forEach((element) => {
-            element.classList.remove('disabled-for-app');
-        })
-    }
 }

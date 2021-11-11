@@ -157,6 +157,11 @@ class WaitingRoom extends Component
         $this->testParticipant->save();
 
         session()->put('guest_take', $this->take);
+        session()->put('guest_data', [
+            'name' => $this->testParticipant->user->name,
+            'name_first' => $this->testParticipant->user->name_first,
+            'name_suffix' => $this->testParticipant->user->name_suffix
+        ]);
         return redirect(route('guest-choice', ['take' => $this->take]));
     }
 
