@@ -41,14 +41,10 @@ class TestTakesController extends Controller {
      * 
      * @return true if check has found one open questoin - else return false
      */
-    private function has_open_question($test_id){
-        $questions = QuestionGatherer::getQuestionsOfTest($test_id, true);
-        foreach($questions as $question){
-            if(!$question->canCheckAnswer()){
-                return true;
-            }
-        }
-        return false;
+    private function hasOpenQuestion($test_id){
+        return !! QuestionGatherer::getQuestionsOfTest($test_id, true)->search(function(Question $question){
+            return !$question->canCheckAnswer();
+        });
     }
 
 
@@ -577,6 +573,7 @@ class TestTakesController extends Controller {
         }
 
         $schoolClasses = $testTake->schoolClasses()->orderBy('name')->get();
+        $test = $testTake->test;
         $testTake = $testTake->toArray();
 
         if ($ownTestParticipant !== null) {
@@ -587,7 +584,7 @@ class TestTakesController extends Controller {
 
         $testTake['school_classes'] = $schoolClasses;
 
-        $testTake['consists_only_closed_question'] = $this->has_open_question($testTake['test']['id']) ? false : true;
+        $testTake['consists_only_closed_question'] = $test->hasOpenQuestion() ? false : true;
 
         return Response::make($testTake, 200);
     }
