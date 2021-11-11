@@ -78,6 +78,17 @@ class CompletionQuestion extends Question implements QuestionInterface {
         $this->load('completionQuestionAnswers');
     }
 
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function (CompletionQuestion $question) {
+            $question->auto_check_answer = !! $question->auto_check_answer;
+            $question->auto_check_answer_case_sensitive = !! $question->auto_check_answer_case_sensitive;
+            return $question;
+        });
+    }
+
     public function duplicate(array $attributes, $ignore = null) {
         $question = $this->replicate();
 
