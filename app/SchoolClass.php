@@ -177,7 +177,9 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     }
 
     public function mentorUsers() {
-        return $this->belongsToMany('tcCore\User', 'mentors', 'school_class_id', 'user_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\User', 'mentors', 'school_class_id', 'user_id')
+            ->withTrashed()
+            ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveMentors() {
@@ -232,13 +234,10 @@ class SchoolClass extends BaseModel implements AccessCheckable {
     }
 
     public function teacherUsers() {
-        $classId = $this->getKey();
-        return User::whereIn('id', function ($query) use ($classId) {
-            $query->select('user_id')
-                ->from(with(new Teacher())->getTable())
-                ->where('class_id', $classId)
-                ->where('deleted_at', null);
-        });
+        return $this->belongsToMany('tcCore\User', 'teachers', 'class_id', 'user_id')
+                ->withTrashed()
+                ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
+                ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function teacher() {

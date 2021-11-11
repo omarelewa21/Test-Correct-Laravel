@@ -30,9 +30,7 @@ class QuestionHelper extends BaseHelper
     public function getTotalQuestion($question){
         $question->getQuestionInstance()->load([    'attachments',
                                                     'attainments',
-                                                    'authors' => function ($q) {
-                                                        $q->withTrashed();
-                                                    },
+                                                    'authors',
                                                     'tags',
                                                     'pValue' => function($query) {
                                                             $query->select('question_id', 'education_level_id', 'education_level_year', DB::raw('(SUM(score) / SUM(max_score)) as p_value'), DB::raw('count(1) as p_value_count'))->groupBy('education_level_id')->groupBy('education_level_year');

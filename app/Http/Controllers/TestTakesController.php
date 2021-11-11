@@ -53,9 +53,7 @@ class TestTakesController extends Controller {
                     $query->withTrashed();
                 },
                 'testTakeStatus',
-                'invigilatorUsers' => function ($query) {
-                    $query->withTrashed();
-                },
+                'invigilatorUsers',
                 'testTakeCode'
             ]);
 
@@ -203,9 +201,7 @@ class TestTakesController extends Controller {
             'retakeTestTake',
             'user',
             'testTakeStatus',
-            'invigilatorUsers' => function ($query) {
-                $query->withTrashed();
-            },
+            'invigilatorUsers',
             'testParticipants',
             'testTakeCode'
         ]);

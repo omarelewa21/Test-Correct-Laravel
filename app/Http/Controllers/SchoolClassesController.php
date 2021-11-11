@@ -139,9 +139,7 @@ class SchoolClassesController extends Controller
         SchoolHelper::denyIfTempTeacher();
         $schoolClass->load( [       'schoolLocation',
                                     'educationLevel',
-                                    'mentorUsers' => function ($query) {
-                                        $query->withTrashed();
-                                    },
+                                    'mentorUsers' ,
                                     'managerUsers',
                                     'studentUsers',
                                     'educationLevel',
