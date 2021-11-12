@@ -28,12 +28,15 @@
                 <x-button.text-button class="ml-4">{{__('auth.Over Ons')}}</x-button.text-button>
 
             </div>
+            <div class="flex sm:ml-auto items-center space-x-3" x-data="{}">
             @guest
-                <div class="flex sm:ml-auto items-center space-x-3 disabled-for-app" x-data="{}">
-                    <x-button.cta size="sm" @click="Livewire.emit('open-auth-modal')">{{ __('auth.Maak account') }}</x-button.cta>
-                    <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}">{{  __('auth.login') }}</x-button.primary>
-                </div>
+                <x-button.cta size="sm" @click="Livewire.emit('open-auth-modal')" browser>{{ __('auth.Maak account') }}</x-button.cta>
+                <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}" browser>{{  __('auth.login') }}</x-button.primary>
             @endguest
+                <x-button.primary @click="Core.closeElectronApp()" size="sm" electron>
+                    <span>{{__('general.close')}}</span>
+                </x-button.primary>
+            </div>
         </div>
     </header>
     <main class="">

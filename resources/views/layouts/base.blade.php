@@ -40,6 +40,7 @@
 @stack('scripts')
 <script>
     Alpine.start();
+    Core.init();
 </script>
 <script type="text/javascript">
     window.rsConf = {general: {usePost: true, skipHiddenContent:true},ui: {tools: {translation: false,dictionary: false}}};

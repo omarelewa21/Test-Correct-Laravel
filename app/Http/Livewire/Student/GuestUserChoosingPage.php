@@ -68,12 +68,15 @@ class GuestUserChoosingPage extends Component
     {
         $participant = TestParticipant::whereUserId($user->getKey())->whereTestTakeId($this->testTake->getKey())->first();
 
+        return true;
+
+        // Don't check availability because there is only one option
         if ($participant->available_for_guests) {
             $participant->available_for_guests = false;
             return $participant->save();
         }
 
-        $this->addError('participant_already_taken', 'student.particpant_already_taken');
+        $this->addError('participant_already_taken', __('student.participant_already_taken'));
         $this->renderGuestList();
 
         return false;

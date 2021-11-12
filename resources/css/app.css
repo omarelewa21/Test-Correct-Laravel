@@ -510,6 +510,6 @@ ul ul ul {
     list-style: square!important;
 }
 
-.disabled-for-app, .hide-electron {
+[browser], [electron], [ios], [chromebook] {
     display: none;
 }
