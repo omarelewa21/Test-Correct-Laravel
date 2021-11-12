@@ -30,6 +30,7 @@ Core = {
 
         Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
         document.getElementById('apptype').innerHTML = Core.appType !== '' ? Core.appType : 'leeg';
+        document.getElementById('useragent').innerHTML = navigator.userAgent;
     },
     lostFocus: function (reason) {
         if (!isMakingTest()) {
