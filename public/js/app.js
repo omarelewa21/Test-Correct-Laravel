@@ -5311,6 +5311,7 @@ Core = {
     startStudentActivityCheck();
     Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
     document.getElementById('apptype').innerHTML = Core.appType !== '' ? Core.appType : 'leeg';
+    document.getElementById('useragent').innerHTML = navigator.userAgent;
   },
   lostFocus: function lostFocus(reason) {
     if (!isMakingTest()) {
