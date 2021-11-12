@@ -52,6 +52,7 @@
 			'Ben je een student' => 'Are you a student',
 			'Kijk hier' => 'Look here',
 			'Jouw vak(ken)' => 'Your subject(s)',
-			'Selecteer vak....' => 'Select subject....'
+			'Selecteer vak....' => 'Select subject....',
+            'your_school_email' => 'Your school e-mail address'
 		];
 ?>
