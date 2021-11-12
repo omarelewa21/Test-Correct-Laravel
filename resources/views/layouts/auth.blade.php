@@ -39,7 +39,6 @@
                 <x-button.primary @click="Core.closeChromebookApp()" size="sm" chromebook>
                     <span class="capitalize">{{__('general.close')}}</span>
                 </x-button.primary>
-                <span id="apptype" class="all-red"></span>
             </div>
         </div>
     </header>
