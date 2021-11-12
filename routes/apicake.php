@@ -55,6 +55,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('info/{info}',[tcCore\Http\Controllers\InfoController::class,'update']);
     Route::delete('info/{info}',[tcCore\Http\Controllers\InfoController::class,'delete']);
 
+    Route::get('role',[\tcCore\Http\Controllers\RolesController::class,'index']);
+
     Route::get('authors',['as' => 'authors','uses' => 'AuthorsController@index']);
     Route::get('/deployment',['uses' => 'DeploymentController@index']);
     Route::get('/deployment/{deployment}',['uses' => 'DeploymentController@show']);

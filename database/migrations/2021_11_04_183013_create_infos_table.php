@@ -29,7 +29,7 @@ class CreateInfosTable extends Migration
             $table->boolean('for_all')->default(true);
         });
 
-        Schema::create('info_roles',function(Blueprint $table){
+        Schema::create('info_role',function(Blueprint $table){
             $table->bigInteger('info_id');
             $table->bigInteger('role_id');
             $table->timestamps();

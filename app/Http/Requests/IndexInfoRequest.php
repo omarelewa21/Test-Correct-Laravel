@@ -5,12 +5,12 @@ namespace tcCore\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class IndexInfoRequest extends IndexDeploymentRequest
+class IndexInfoRequest extends Request
 {
 
     public function authorize()
     {
-        if($this->request('mode','dashboard') === 'dashboard'){
+        if(request('mode','dashboard') === 'dashboard'){
             return true;
         } else {
             return Auth::user()->isA('Account manager');

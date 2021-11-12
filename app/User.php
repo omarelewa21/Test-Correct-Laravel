@@ -2283,4 +2283,9 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         return $this->guest == true || $this->hasImportMailAddress();
     }
+
+    public function getActiveLanguage()
+    {
+        return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ??  config('app.locale');
+    }
 }

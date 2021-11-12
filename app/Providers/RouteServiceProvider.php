@@ -22,6 +22,7 @@ use tcCore\FileManagement;
 use tcCore\GradingScale;
 use tcCore\GroupQuestion;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Info;
 use tcCore\InfoscreenQuestion;
 use tcCore\Invigilator;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
@@ -76,6 +77,10 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         parent::boot();
+
+        Route::model('info', 'tcCore\Info', function () {
+            throw new RouteModelBindingNotFoundHttpException('Info not found');
+        });
 
         Route::model('address', 'tcCore\Address', function () {
             throw new RouteModelBindingNotFoundHttpException('Address not found');
@@ -300,6 +305,10 @@ class RouteServiceProvider extends ServiceProvider
 //        });
 
         //UUID Route binding
+
+        Route::bind('info', function($item) {
+            return Info::whereUuid($item)->firstOrFail();
+        });
 
         Route::bind('school_year', function($item) {
             return SchoolYear::whereUuid($item)->firstOrFail();

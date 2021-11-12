@@ -38,19 +38,22 @@ class InfoController extends Controller
 
     public function show(ShowInfoRequest $request, Info $info)
     {
-        return Response::make($info, 200);
+        return Response::make($info->load('roles'), 200);
     }
 
     public function update(UpdateInfoRequest $request, Info $info)
     {
         $info->fill($request->validated());
         $info->save();
+        $info->saveRoleInfo($request->validated('roles'));
         return Response::make($info,200);
     }
 
-    public function create(CreateInfoRequest $request)
+    public function store(CreateInfoRequest $request)
     {
+
         $info = Info::create($request->validated());
+        $info->saveRoleInfo($request->validated('roles'));
         return Response::make($info,200);
     }
 

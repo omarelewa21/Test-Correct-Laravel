@@ -39,20 +39,32 @@ class Info extends Model
         'for_all',
     ];
 
+    protected $appends = ['title','content'];
+
+    public function getTitleAttribute()
+    {
+        if(Auth::user()){
+            return $this->getLanguagePart('title',Auth::user()->getActiveLanguage());
+        }
+        return '';
+    }
+
+    public function getContentAttribute()
+    {
+        if(Auth::user()){
+            return $this->getLanguagePart('content',Auth::user()->getActiveLanguage());
+        }
+        return '';
+    }
+
+    protected function getLanguagePart($part,$language)
+    {
+        return $this->attributes[sprintf('%s_%s',$part,$language)] ?? '';
+    }
+
     public static function boot()
     {
         parent::boot();
-
-        static::saving(function (Info $info) {
-            $info->for_all = !!$info->for_all;
-            if ($info->status !== self::ACTIVE){
-                $info->status = self::INACTIVE;
-            }
-            if($info->roleIds){
-                $info->roles()->sync($info->roleIds);
-            }
-            return $info;
-        });
 
         static::creating(function(Info $info){
             $info->created_by = Auth::id();
@@ -65,7 +77,20 @@ class Info extends Model
 
     public function roles()
     {
-        return $this->hasMany(Role::class);
+        return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+
+    public function saveRoleInfo($data)
+    {
+        $data = (object) $data;
+        $this->for_all = !!$data->for_all;
+        if ($data->status !== self::ACTIVE){
+            $this->status = self::INACTIVE;
+        }
+        if(property_exists($data,'roles') && $data->roles){
+            $this->roles()->sync($data->roles);
+        }
+        return $this;
     }
 
     public static function getInfoForUser(User $user)
@@ -73,10 +98,10 @@ class Info extends Model
         $roleIds = $user->roles->map(function(Role $role){
            return $role->getKey();
         })->toArray();
-        $infoIdsFromRoles = DB::table('info_roles')->whereIn('role_id',$roleIds)->pluck('info_id')->toArray();
+        $infoIdsFromRoles = DB::table('info_role')->whereIn('role_id',$roleIds)->pluck('info_id')->toArray();
         return Info::where('status',self::ACTIVE)
-                    ->where('show_from','>=', Carbon::now())
-                    ->where('show_until','<=',Carbon::now())
+                    ->where('show_from','<=', Carbon::now())
+                    ->where('show_until','>=',Carbon::now())
                     ->where(function($query) use ($infoIdsFromRoles){
                        $query->where('for_all',true)
                            ->orWhereIn('id',$infoIdsFromRoles);

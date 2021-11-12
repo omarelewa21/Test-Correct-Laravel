@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use tcCore\Info;
 
-class CreateInfoRequest extends IndexDeploymentRequest
+class CreateInfoRequest extends Request
 {
     public function authorize()
     {
@@ -28,6 +28,8 @@ class CreateInfoRequest extends IndexDeploymentRequest
             'status' => 'required|in:'.Info::ACTIVE.','.Info::INACTIVE,
             'show_from' => 'required',
             'show_until'=> 'required',
+            'for_all' => '',
+            'roles' => ''
         ];
     }
 }
