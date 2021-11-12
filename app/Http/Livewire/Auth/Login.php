@@ -125,7 +125,9 @@ class Login extends Component
             return;
         }
 
+        $this->username = trim($this->username);
         $credentials = $this->validate();
+
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
