@@ -94,7 +94,7 @@
                                                            class="form-input @error('registration.username') border-red @enderror"
                                                            autofocus>
                                                     <label for="username"
-                                                           class="transition ease-in-out duration-150">{{ __("onboarding.E-mail") }}</label>
+                                                           class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>
                                                 </div>
                                             </div>
                                         </div>

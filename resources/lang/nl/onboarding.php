@@ -54,5 +54,6 @@
 			'ondersteuning' => 'support',
 			'Jouw vak(ken)' => 'Jouw vak(ken)',
 			'Selecteer vak....' => 'Selecteer vak....',
+			'your_school_email' => 'Jouw school e-mailadres'
 	];
 ?>
