@@ -2,7 +2,7 @@
     <header id="header"
             class="header top-0 fixed w-full h-auto p-2.5 z-20">
         <div class="flex flex-wrap content-center justify-center sm:justify-start mx-auto max-w-5xl">
-            <a class="mb-4 sm:mb-0 sm:mr-4 flex" href="#">
+            <a class="mb-4 sm:mb-0 sm:mr-4 flex" href="#" x-data="{}" @click="location.reload()">
                 <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                      alt="Test-Correct">
             </a>
@@ -39,6 +39,7 @@
                 <x-button.primary @click="Core.closeApplication()" size="sm" chromebook>
                     <span>{{__('general.close')}}</span>
                 </x-button.primary>
+                <span class="all-red" x-text="Core.appType !== '' ? Core.appType :'Leeg' "></span>
             </div>
         </div>
     </header>
