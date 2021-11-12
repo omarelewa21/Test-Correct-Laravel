@@ -118,9 +118,10 @@ Core = {
         }
         return false;
     },
-    setElectronTestConfig(participantId) {
+    setAppTestConfigIfNecessary(participantId) {
         try {
             electron.setTestConfig(participantId)
+            webview.setTestConfig(participant_id);
         } catch (error) {
         }
     }
