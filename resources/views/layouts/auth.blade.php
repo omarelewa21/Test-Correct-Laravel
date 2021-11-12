@@ -37,7 +37,7 @@
                     <span class="capitalize">{{__('general.close')}}</span>
                 </x-button.primary>
                 <x-button.primary @click="Core.closeApplication('quit')" size="sm" chromebook>
-                    <span class="capitalize">{{__('general.close')}}</span>
+                    <span class="capitalize">{{__('general.close')}} cb</span>
                 </x-button.primary>
                 <span id="apptype" class="all-red"></span>
             </div>

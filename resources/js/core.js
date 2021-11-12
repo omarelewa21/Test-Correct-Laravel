@@ -109,7 +109,7 @@ Core = {
     },
     closeApplication(cmd) {
         if (cmd == 'quit') {
-            open('/', '_self').close();
+            open('/login', '_self').close();
         } else if (cmd == 'close') {
             try {
                 electron.closeApp();
