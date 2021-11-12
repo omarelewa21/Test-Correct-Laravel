@@ -5310,6 +5310,7 @@ Core = {
     runCheckFocus();
     startStudentActivityCheck();
     Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
+    document.getElementById('apptype').innerHTML = Core.appType !== '' ? Core.appType : 'leeg';
   },
   lostFocus: function lostFocus(reason) {
     if (!isMakingTest()) {
@@ -5400,9 +5401,10 @@ Core = {
 
     return false;
   },
-  setElectronTestConfig: function setElectronTestConfig(participantId) {
+  setAppTestConfigIfNecessary: function setAppTestConfigIfNecessary(participantId) {
     try {
       electron.setTestConfig(participantId);
+      webview.setTestConfig(participant_id);
     } catch (error) {}
   }
 };

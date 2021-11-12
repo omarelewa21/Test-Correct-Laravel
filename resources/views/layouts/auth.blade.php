@@ -34,12 +34,12 @@
                 <x-button.primary size="sm" type="link" href="{{ route('auth.login') }}" browser>{{  __('auth.login') }}</x-button.primary>
             @endguest
                 <x-button.primary @click="Core.closeElectronApp()" size="sm" electron>
-                    <span>{{__('general.close')}}</span>
+                    <span class="capitalize">{{__('general.close')}}</span>
                 </x-button.primary>
-                <x-button.primary @click="Core.closeApplication()" size="sm" chromebook>
-                    <span>{{__('general.close')}}</span>
+                <x-button.primary @click="Core.closeApplication('quit')" size="sm" chromebook>
+                    <span class="capitalize">{{__('general.close')}}</span>
                 </x-button.primary>
-                <span class="all-red" x-text="Core.appType !== '' ? Core.appType :'Leeg' "></span>
+                <span id="apptype" class="all-red"></span>
             </div>
         </div>
     </header>
