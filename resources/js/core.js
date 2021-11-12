@@ -11,7 +11,7 @@ Core = {
     secondsBeforeStudentLogout: 60 * 60,
 
     init: function () {
-        let isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+        let isIOS = Core.detectIOS();
         let isAndroid = /Android/g.test(navigator.userAgent);
         let isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
 
@@ -82,6 +82,9 @@ Core = {
         Core.inApp = true;
         Core.appType = 'chromebook';
     },
+    detectIOS: function () {
+        return typeof window.webview !== 'undefined' || typeof window.webkit !== 'undefined';
+    },
     enableBrowserFeatures() {
         let browserElements = document.querySelectorAll('[browser]');
         if (browserElements.length > 0) {
@@ -106,6 +109,9 @@ Core = {
     },
     closeElectronApp() {
         Core.closeApplication('close');
+    },
+    closeChromebookApp() {
+        Core.closeApplication('quit');
     },
     closeApplication(cmd) {
         if (cmd == 'quit') {
