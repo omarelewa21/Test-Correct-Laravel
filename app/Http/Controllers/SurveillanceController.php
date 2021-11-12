@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Jobs\SendExceptionMail;
+use tcCore\Lib\Repositories\PeriodRepository;
 use tcCore\Lib\Repositories\SchoolYearRepository;
 use tcCore\SchoolClass;
 use tcCore\Scopes\ArchivedScope;
@@ -42,6 +43,7 @@ class SurveillanceController extends Controller
             'ipAlerts'     => 0,
         ];
         $dataset = $this->getTakesForSurveillance(Auth::user());
+
 
         $dataset->each(function ($testTake) {
             $this->transformParticipants($testTake);
@@ -196,7 +198,15 @@ class SurveillanceController extends Controller
     private function getCachedTestTakeIds(User $owner)
     {
         $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
-            return TestTake::filtered()->pluck('id');
+            $currentPeriod =  PeriodRepository::getCurrentPeriod();
+            if ($currentPeriod == null) {
+                return [];
+            }
+
+            return TestTake::filtered([
+                'test_take_status_id' => '3',
+                'period_id' => $currentPeriod->id,
+            ])->pluck('id');
         });
 
         return $ids;
