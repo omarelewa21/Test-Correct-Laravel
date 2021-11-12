@@ -36,6 +36,9 @@
                 <x-button.primary @click="Core.closeElectronApp()" size="sm" electron>
                     <span>{{__('general.close')}}</span>
                 </x-button.primary>
+                <x-button.primary @click="Core.closeApplication()" size="sm" chromebook>
+                    <span>{{__('general.close')}}</span>
+                </x-button.primary>
             </div>
         </div>
     </header>
