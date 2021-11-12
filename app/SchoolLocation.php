@@ -114,6 +114,8 @@ class SchoolLocation extends BaseModel implements AccessCheckable
     {
         if($this->school_language === 'en'){
             return 'eng';
+        } else if($this->school_language === 'nl') {
+            return 'nld';
         }
         return $this->school_language;
     }
