@@ -85,4 +85,9 @@ class Info extends Model
                     ->get();
     }
 
+    public function isVisibleForUser(User $user)
+    {
+        return self::getInfoForUser($user)->contains($this);
+    }
+
 }

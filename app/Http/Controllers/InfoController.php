@@ -11,6 +11,7 @@ use tcCore\Http\Requests\CreateInfoRequest;
 use tcCore\Http\Requests\DeleteDeploymentRequest;
 use tcCore\Http\Requests\DeleteInfoRequest;
 use tcCore\Http\Requests\IndexDeploymentRequest;
+use tcCore\Http\Requests\IndexInfoRequest;
 use tcCore\Http\Requests\ShowDeploymentRequest;
 use tcCore\Http\Requests\ShowInfoRequest;
 use tcCore\Http\Requests\UpdateDeploymentRequest;
@@ -20,7 +21,7 @@ use tcCore\Info;
 class InfoController extends Controller
 {
 
-    public function index( $request)
+    public function index(IndexInfoRequest $request)
     {
         $data = null;
         switch($request->mode){

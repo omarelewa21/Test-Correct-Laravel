@@ -5,14 +5,17 @@ namespace tcCore\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class ShowInfoRequest extends IndexDeploymentRequest
+class IndexInfoRequest extends IndexDeploymentRequest
 {
 
     public function authorize()
     {
-        $infoModel = $this->route('Info');
+        if($this->request('mode','dashboard') === 'dashboard'){
+            return true;
+        } else {
+            return Auth::user()->isA('Account manager');
+        }
 
-        return Auth::user()->isA('Account manager') || (null !== $infoModel && $infoModel->isVisibleForUser(Auth::user()));
     }
 
     /**

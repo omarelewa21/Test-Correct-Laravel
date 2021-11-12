@@ -3,10 +3,15 @@
 namespace tcCore\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Info;
 
 class CreateInfoRequest extends IndexDeploymentRequest
 {
+    public function authorize()
+    {
+        return Auth::user()->isA('Account manager');
+    }
 
     /**
      * Get the validation rules that apply to the request.
