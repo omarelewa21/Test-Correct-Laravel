@@ -1233,7 +1233,7 @@ class Test extends BaseModel
     }
 
     public function hasOpenQuestion(){
-        return !! QuestionGatherer::getQuestionsOfTest($this->getKey(), true)->search(function(Question $question){
+        return !! collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function(Question $question){
             return !$question->canCheckAnswer();
         });
     }
