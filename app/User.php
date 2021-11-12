@@ -1945,7 +1945,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function resendEmailVerificationMail()
     {
-        return Mail::to($this->username)->send(new SendOnboardingWelcomeMail($this));
+        return Mail::to($this->username)->queue(new SendOnboardingWelcomeMail($this));
     }
 
     public function toggleVerified()
