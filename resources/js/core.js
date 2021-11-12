@@ -29,6 +29,7 @@ Core = {
         startStudentActivityCheck();
 
         Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
+        document.getElementById('apptype').innerHTML = Core.appType !== '' ? Core.appType : 'leeg';
     },
     lostFocus: function (reason) {
         if (!isMakingTest()) {
