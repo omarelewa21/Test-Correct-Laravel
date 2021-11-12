@@ -160,7 +160,7 @@ class DemoTeacherRegistration extends Model
                 $teacher->trashed() ? $teacher->restore() : $teacher->save();
 
                 try {
-                    Mail::to($user->getEmailForPasswordReset())->send(new SendOnboardingWelcomeMail($user));
+                    Mail::to($user->getEmailForPasswordReset())->queue(new SendOnboardingWelcomeMail($user));
                 } catch (\Throwable $th) {
                     Bugsnag::notifyException($th);
                 }
