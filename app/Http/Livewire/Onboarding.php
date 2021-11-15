@@ -371,6 +371,7 @@ class Onboarding extends Component
         $subjects = BaseSubject::where('show_in_onboarding',true)->get()->pluck('name')->toArray();
         $subjects = array_unique($subjects);
         sort($subjects);
+//        $subjects = $this->translateSubjects($subjects);
         $subjects = array_diff($subjects,$this->selectedSubjects);
         $this->subjectOptions = json_encode($subjects,JSON_HEX_APOS);
     }
@@ -380,7 +381,10 @@ class Onboarding extends Component
         $this->selectedSubjectsString =  json_encode($this->selectedSubjects,JSON_HEX_APOS);
     }
 
-
-
-
+    private function translateSubjects($subjects)
+    {
+        return collect($subjects)->map(function($subject) {
+            return __('subject.'.$subject);
+        })->toArray();
+    }
 }
