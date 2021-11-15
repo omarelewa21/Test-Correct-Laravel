@@ -36,11 +36,9 @@
                 <x-button.primary @click="Core.closeElectronApp()" size="sm" electron>
                     <span class="capitalize">{{__('general.close')}}</span>
                 </x-button.primary>
-                <x-button.primary @click="Core.closeChromebookApp()" size="sm" chromebook>
+                <x-button.primary @click="Core.closeChromebookApp('{{ config('app.url_login') }}')" size="sm" browser>
                     <span class="capitalize">{{__('general.close')}}</span>
                 </x-button.primary>
-                <span class="all-red" x-text="typeof window.closeApplication !== 'undefined' ? 'window.closeapp': 'ney'"></span>
-                <span class="all-red" x-text="typeof appWebView !== 'undefined' ? 'appwebview': 'ney'"></span>
             </div>
         </div>
     </header>

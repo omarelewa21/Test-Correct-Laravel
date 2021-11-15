@@ -109,8 +109,8 @@ Core = {
     closeElectronApp() {
         Core.closeApplication('close');
     },
-    closeChromebookApp() {
-        Core.closeApplication('quit');
+    closeChromebookApp(portalUrl) {
+        window.location = portalUrl+'logout';
     },
     closeApplication(cmd) {
         if (cmd == 'quit') {

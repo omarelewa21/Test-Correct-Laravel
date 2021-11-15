@@ -5390,8 +5390,8 @@ Core = {
   closeElectronApp: function closeElectronApp() {
     Core.closeApplication('close');
   },
-  closeChromebookApp: function closeChromebookApp() {
-    Core.closeApplication('quit');
+  closeChromebookApp: function closeChromebookApp(portalUrl) {
+    window.location = portalUrl + 'logout';
   },
   closeApplication: function closeApplication(cmd) {
     if (cmd == 'quit') {
