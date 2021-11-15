@@ -557,4 +557,12 @@ class Login extends Component
         $this->showGuestError = false;
         $this->showGuestSuccess = false;
     }
+
+    public function runAppVersionDetection()
+    {
+        $appType = AppVersionDetector::detect();
+        if ($appType['os'] == 'ipad' || $appType['os'] == 'iOS') {
+            $this->dispatchBrowserEvent('hide-ipad-buttons');
+        }
+    }
 }

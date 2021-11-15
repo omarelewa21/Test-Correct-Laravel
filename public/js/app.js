@@ -5293,6 +5293,7 @@ Core = {
   appType: '',
   inactive: 0,
   secondsBeforeStudentLogout: 60 * 60,
+  devices: ['browser', 'electron', 'ios', 'chromebook'],
   init: function init() {
     var isIOS = Core.detectIOS();
     var isAndroid = /Android/g.test(navigator.userAgent);
@@ -5365,6 +5366,17 @@ Core = {
   detectIOS: function detectIOS() {
     return typeof window.webview !== 'undefined' || typeof window.webkit !== 'undefined';
   },
+  disableDeviceSpecificFeature: function disableDeviceSpecificFeature() {
+    Core.devices.forEach(function (device) {
+      var deviceElements = document.querySelectorAll('[' + device + ']');
+
+      if (deviceElements.length > 0) {
+        deviceElements.forEach(function (element) {
+          element.style.display = 'none';
+        });
+      }
+    });
+  },
   enableBrowserFeatures: function enableBrowserFeatures() {
     var browserElements = document.querySelectorAll('[browser]');
 
@@ -5411,6 +5423,10 @@ Core = {
       electron.setTestConfig(participantId);
       webview.setTestConfig(participant_id);
     } catch (error) {}
+  },
+  changeAppTypeToIos: function changeAppTypeToIos() {
+    Core.appType = 'ios';
+    Core.disableDeviceSpecificFeature();
   }
 };
 
