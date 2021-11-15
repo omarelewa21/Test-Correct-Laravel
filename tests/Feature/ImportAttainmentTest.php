@@ -38,6 +38,30 @@ class ImportAttainmentTest extends TestCase
     }
 
     /** @test */
+    public function it_should_fail_when_no_attainments_are_trashed()
+    {
+        $this->loginAdmin();
+        $testXslx = __DIR__.'/../files/import_attainments_default.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $pass = true;
+        try{
+            $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        }catch (\Exception $e){
+            $pass = false;
+            $this->assertEquals('setAttainmentsInactiveNotPresentInImport has not yet run, no inactive records in db',$e->getMessage());
+        }
+        $this->assertFalse($pass);
+        $this->logoutAdmin();
+    }
+
+    /** @test */
     public function it_should_do_complete_import_without_errors()
     {
         $this->loginAdmin();
@@ -94,7 +118,7 @@ class ImportAttainmentTest extends TestCase
         $attainment->description = 'CITO attainment';
         $attainment->status = 'ACTIVE';
         $attainment->save();
-        $oldAttainmentsCount = Attainment::where('status','OLD')->count();
+        $oldAttainmentsCount = Attainment::onlyTrashed()->count();
         $this->assertEquals(0,$oldAttainmentsCount);
         $this->loginAdmin();
         $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
@@ -109,10 +133,10 @@ class ImportAttainmentTest extends TestCase
         $response = (new AttainmentImportController())->setAttainmentsInactiveNotPresentInImport($request);
         dump($response->getContent());
         $this->assertEquals(200,$response->getStatusCode());
-        $oldAttainmentsCount = Attainment::where('status','OLD')->count();
+        $oldAttainmentsCount = Attainment::onlyTrashed()->count();
         $this->assertGreaterThan(0,$oldAttainmentsCount);
         $baseSubjects = BaseSubject::where('name','like','%CITO%')->pluck('id')->toArray();
-        $oldCitoAttainments = Attainment::where('status','OLD')->whereIn('base_subject_id',$baseSubjects)->count();
+        $oldCitoAttainments = Attainment::onlyTrashed()->whereIn('base_subject_id',$baseSubjects)->count();
         $this->assertEquals(0,$oldCitoAttainments);
     }
 
@@ -380,8 +404,9 @@ class ImportAttainmentTest extends TestCase
                                             'code' => 'A',
                                             'subcode' => 1,
                                             'description' => 'Dummy',
-                                            'status' => 'OLD'
+                                            'status' => 'ACTIVE'
                                         ]);
+        $attainment->delete();
     }
 
     private function loginAdmin()

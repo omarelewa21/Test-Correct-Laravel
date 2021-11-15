@@ -158,8 +158,9 @@ class AttainmentImportController extends Controller
                 if(in_array($attainment->base_subject_id,$citoBaseSubjectIds)){
                     continue;
                 }
-                $attainment->status = 'OLD';
-                $attainment->save();
+                //$attainment->status = 'OLD';
+                //$attainment->save();
+                $attainment->delete();
                 $attainments[] = $attainment;
                 $updated++;
             }
@@ -169,7 +170,7 @@ class AttainmentImportController extends Controller
             logger($e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
         }
-        return response()->json(['data' => $updated.' set inactive'], 200);
+        return response()->json(['data' => $updated.' soft deleted'], 200);
     }
 
     public function importForUpdateOrCreate(Request $request)
@@ -277,7 +278,7 @@ class AttainmentImportController extends Controller
 
     protected function checkInactivateRoutineHasAlreadyBeenExecuted()
     {
-        $attainmentsDbIds = Attainment::where('status','OLD')->get()->pluck('id');
+        $attainmentsDbIds = Attainment::onlyTrashed()->get()->pluck('id');
         if(count($attainmentsDbIds)==0){
             throw new \Exception('setAttainmentsInactiveNotPresentInImport has not yet run, no inactive records in db');
         }
@@ -285,7 +286,7 @@ class AttainmentImportController extends Controller
 
     protected function checkInactivateRoutineHasNotYetBeenExecuted()
     {
-        $attainmentsDbIds = Attainment::where('status','OLD')->get()->pluck('id');
+        $attainmentsDbIds = Attainment::onlyTrashed()->get()->pluck('id');
         if(count($attainmentsDbIds)>0){
             throw new \Exception('setAttainmentsInactiveNotPresentInImport has already run, inactive records in db');
         }
