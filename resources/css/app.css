@@ -314,14 +314,14 @@ h1 {
 h2 {
     font-size: 1.75rem;
     font-family: Nunito Bold;
-    line-height: 1.75rem;
+    line-height: 2rem;
     color: var(--system-base);
 }
 
 h3 {
     font-size: 1.5rem;
     font-family: Zilla Slab Regular;
-    line-height: 1.5rem;
+    line-height: 2rem;
     color: var(--system-base);
 }
 
