@@ -29,8 +29,6 @@ Core = {
         startStudentActivityCheck();
 
         Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
-        document.getElementById('apptype').innerHTML = Core.appType !== '' ? Core.appType : 'leeg';
-        document.getElementById('useragent').innerHTML = navigator.userAgent;
     },
     lostFocus: function (reason) {
         if (!isMakingTest()) {
@@ -111,8 +109,8 @@ Core = {
     closeElectronApp() {
         Core.closeApplication('close');
     },
-    closeChromebookApp() {
-        Core.closeApplication('quit');
+    closeChromebookApp(portalUrl) {
+        window.location = portalUrl+'logout';
     },
     closeApplication(cmd) {
         if (cmd == 'quit') {

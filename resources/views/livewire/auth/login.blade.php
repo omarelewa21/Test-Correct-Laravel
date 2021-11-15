@@ -27,7 +27,6 @@
             @endif
             <div class="content-section p-10 mb-4 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <div class="flex items-center space-x-2.5">
-                    <div id="useragent" wire:ignore.self x-text="navigator.userAgent"></div>
                     <div class="flex">
                         <x-stickers.login/>
                     </div>
