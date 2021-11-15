@@ -27,6 +27,7 @@
             @endif
             <div class="content-section p-10 mb-4 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <div class="flex items-center space-x-2.5">
+                    <span class="all-red">{{ $device }}</span>
                     <div class="flex">
                         <x-stickers.login/>
                     </div>

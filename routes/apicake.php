@@ -21,6 +21,7 @@ use tcCore\Http\Controllers\Testing\TestingController;
 
 
 Route::post('/do_we_need_captcha',[AuthController::class,'doWeNeedCaptcha'])->name('user.doWeNeedCaptcha');
+Route::get('/auth/laravel_login_page', [AuthController::class, 'getLaravelLoginPage'])->name('auth.laravelLoginPage');
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');

@@ -49,10 +49,12 @@ class Login extends Component
         'fatal_error_message'  => ['except' => false],
         'block_back'           => ['except' => false],
         'guest_message'        => ['except' => ''],
-        'guest_message_type'        => ['except' => ''],
+        'guest_message_type'   => ['except' => ''],
+        'device' => ['except' => 'browser']
     ];
 
     public $tab = 'login';
+    public $device = 'browser';
 
     public $login_tab = 1;
 
@@ -110,6 +112,8 @@ class Login extends Component
         session()->regenerateToken();
 
         $this->handleLoginTabScenarios();
+
+        AppVersionDetector::handleHeaderCheck();
     }
 
     public function login()
