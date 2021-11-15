@@ -405,6 +405,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if (Crypt::decryptString($record->eckid) === $eckid) {
                 // user should be part of this school_location
                 $user = User::find($record->user_id);
+                if(null === $user){
+                    $message = (sprintf('THIS SHOULD NOT HAPPEN (did found eckid but no user): Can not find user for id %d',$record->user_id));
+                    logger($message);
+                    Bugsnag::notifyException(new \Exception($message));
+                    return false;
+                }
                 return $user->school_location_id === $school_location_id;
             }
             return false;
