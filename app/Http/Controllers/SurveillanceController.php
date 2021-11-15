@@ -211,4 +211,8 @@ class SurveillanceController extends Controller
 
         return $ids;
     }
+
+    public function destroy() {
+        cache()->forget('surveilence_data_'.Auth::user()->uuid);
+    }
 }

@@ -147,6 +147,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('filemanagement/{fileManagement}',['as' => 'filemanagement.update','uses' => 'FileManagementController@update']);
     Route::get('filemanagement/statuses',['as' => 'filemanagement.statuses','uses' => 'FileManagementController@getStatuses']);
     Route::get('test_take/get_surveillance_data', 'SurveillanceController@index')->name('test_take.get_surveillance_data');
+    Route::get('test_take/bust_surveillance_cache', 'SurveillanceController@destroy')->name('test_take.bust_surveillance_cache');
 
 	// Test take + children
 	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@export']);
