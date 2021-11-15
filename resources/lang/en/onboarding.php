@@ -9,7 +9,7 @@ return [
     'E-mail'                                                                                                                                           => 'E-mail',
     'Aanhef'                                                                                                                                           => 'Title',
     'Meneer'                                                                                                                                           => 'Mr.',
-    'Mevrouw'                                                                                                                                          => 'Ms',
+    'Mevrouw'                                                                                                                                          => 'Ms.',
     'Anders'                                                                                                                                           => 'Otherwise',
     'Voornaam'                                                                                                                                         => 'First name',
     'Tussenvoegsel'                                                                                                                                    => 'Prefix',
