@@ -39,7 +39,8 @@
                 <x-button.primary @click="Core.closeChromebookApp()" size="sm" chromebook>
                     <span class="capitalize">{{__('general.close')}}</span>
                 </x-button.primary>
-                <span id="apptype" class="all-red"></span>
+                <span class="all-red" x-text="typeof window.closeApplication !== 'undefined' ? 'window.closeapp': 'ney'"></span>
+                <span class="all-red" x-text="typeof appWebView !== 'undefined' ? 'appwebview': 'ney'"></span>
             </div>
         </div>
     </header>

@@ -149,7 +149,7 @@ class Login extends Component
         AppVersionDetector::handleHeaderCheck();
 
         $user = auth()->user();
-        if ($user->isA('Student') && $user->schoolLocation->allow_guest_accounts) {
+        if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
             return redirect()->intended(route('student.dashboard'));
         }
         if ($user->isA('Account manager')) {
