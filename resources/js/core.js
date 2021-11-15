@@ -9,6 +9,7 @@ Core = {
     appType: '',
     inactive: 0,
     secondsBeforeStudentLogout: 60 * 60,
+    devices: ['browser', 'electron', 'ios', 'chromebook'],
 
     init: function () {
         let isIOS = Core.detectIOS();
@@ -84,6 +85,16 @@ Core = {
     detectIOS: function () {
         return typeof window.webview !== 'undefined' || typeof window.webkit !== 'undefined';
     },
+    disableDeviceSpecificFeature(){
+        Core.devices.forEach((device) => {
+            let deviceElements = document.querySelectorAll('['+device+']');
+            if (deviceElements.length > 0) {
+                deviceElements.forEach((element) => {
+                    element.style.display = 'none';
+                });
+            }
+        });
+    },
     enableBrowserFeatures() {
         let browserElements = document.querySelectorAll('[browser]');
         if (browserElements.length > 0) {
@@ -130,6 +141,11 @@ Core = {
             webview.setTestConfig(participant_id);
         } catch (error) {
         }
+    },
+    changeAppTypeToIos()
+    {
+        Core.appType = 'ios'
+        Core.disableDeviceSpecificFeature();
     }
 }
 
