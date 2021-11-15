@@ -69,6 +69,7 @@ class SurveillanceController extends Controller
             DB::Raw('max(test_take_events.id) as event'))
             ->join('test_take_event_types', 'test_take_events.test_take_event_type_id', '=', 'test_take_event_types.id')
             ->where('requires_confirming', '1')
+            ->where('confirmed', '0')
             ->groupBy('test_participant_id');
 
         return TestTake::select('test_takes.id as id', 'test_takes.uuid as uuid', 'tests.name as test_name')
