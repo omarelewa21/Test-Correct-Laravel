@@ -3,14 +3,8 @@
         @if($testParticipant->intense)
             <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
         @endif
-        <div id="readspeaker_button1" class="rs_skip rsbtn rs_preserve ">
-            <a rel="nofollow" class="rsbtn_play" accesskey="L" title="Escucha esta p&aacute;gina utilizando ReadSpeaker webReader" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=3&amp;lang=nl_nl&amp;readclass=rs_readable">
-                <span class="rsbtn_left rsimg rspart"><span class="rsbtn_text"><span>Vertaal</span></span></span>
-                <span class="rsbtn_right rsimg rsplay rspart"></span>
-            </a>
-        </div>
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
-        <div class="rs_readable">
+        <div class="">
             @push('styling')
                 <style>
                     {!! $styling !!}

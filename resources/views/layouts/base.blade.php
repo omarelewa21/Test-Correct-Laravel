@@ -42,9 +42,5 @@
     Alpine.start();
     Core.init();
 </script>
-<script type="text/javascript">
-    window.rsConf = {general: {usePost: true, skipHiddenContent:true},ui: {tools: {translation: false,dictionary: false}}};
-</script>
-<script src="//cdn-eu.readspeaker.com/script/3/webReader/webReader.js?pids=wr" type="text/javascript" id="rs_req_Init"></script>
 </body>
 </html>
