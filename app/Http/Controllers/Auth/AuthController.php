@@ -65,20 +65,12 @@ class AuthController extends Controller
 
     public function getLaravelLoginPage(Request $request)
     {
-        $appType = AppVersionDetector::detect();
-
-        $device = 'browser';
-        if ($appType['os'] == 'ipad' || $appType['os'] == 'iOS') {
-            $device = 'ipad';
-        }
-
         $baseUrl = config('app.base_url');
-        $loginRoute = route('auth.login', ['device' => $device], false);
+        $loginRoute = route('auth.login',[], false);
 
         if (Str::endsWith($baseUrl, '/')) {
             $baseUrl = Str::replaceLast('/', '', $baseUrl);
         }
-
         $url['url'] = sprintf('%s%s', $baseUrl, $loginRoute);
 
         return \Response::make($url);

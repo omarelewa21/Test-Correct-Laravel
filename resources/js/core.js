@@ -83,7 +83,11 @@ Core = {
         Core.appType = 'chromebook';
     },
     detectIOS: function () {
-        return typeof sha256 !== 'undefined';
+        let urlParams = new URLSearchParams(window.location.search);
+
+        if(urlParams.get('device') !== null && urlParams.get('device') === 'ipad') {
+            return true;
+        }
     },
     disableDeviceSpecificFeature(){
         Core.devices.forEach((device) => {
@@ -138,7 +142,7 @@ Core = {
     setAppTestConfigIfNecessary(participantId) {
         try {
             electron.setTestConfig(participantId)
-            webview.setTestConfig(participant_id);
+            webview.setTestConfig(participantId);
         } catch (error) {
         }
     },

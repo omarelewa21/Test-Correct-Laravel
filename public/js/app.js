@@ -5364,7 +5364,11 @@ Core = {
     Core.appType = 'chromebook';
   },
   detectIOS: function detectIOS() {
-    return typeof window.webview !== 'undefined' || typeof window.webkit !== 'undefined';
+    var urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.get('device') !== null && urlParams.get('device') === 'ipad') {
+      return true;
+    }
   },
   disableDeviceSpecificFeature: function disableDeviceSpecificFeature() {
     Core.devices.forEach(function (device) {
@@ -5421,7 +5425,7 @@ Core = {
   setAppTestConfigIfNecessary: function setAppTestConfigIfNecessary(participantId) {
     try {
       electron.setTestConfig(participantId);
-      webview.setTestConfig(participant_id);
+      webview.setTestConfig(participantId);
     } catch (error) {}
   },
   changeAppTypeToIos: function changeAppTypeToIos() {
