@@ -365,6 +365,9 @@ class SchoolClass extends BaseModel implements AccessCheckable
                 case 'demo':
                     $query->where('demo', '=', $value);
                     break;
+                case 'without_guest_classes':
+                    $query->withoutGuestClasses();
+                    break;
                 default:
                     break;
             }
@@ -459,6 +462,7 @@ class SchoolClass extends BaseModel implements AccessCheckable
                     $query->orderBy($key, $direction);
                 });
             })
+            ->withoutGuestClasses()
             ->paginate(15);
     }
 
@@ -485,5 +489,14 @@ class SchoolClass extends BaseModel implements AccessCheckable
             return __('school_classes.guest_accounts');
         }
         return $value;
+    }
+
+    public function scopeWithoutGuestClasses($query)
+    {
+        return $query->where('guest_class', 0);
+    }
+    public function scopeWithGuestClasses($query)
+    {
+        return $query->where('guest_class', 1);
     }
 }
