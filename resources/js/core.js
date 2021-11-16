@@ -83,6 +83,8 @@ Core = {
         Core.appType = 'chromebook';
     },
     detectIOS: function () {
+        document.querySelector('#testspan').innerHTML = typeof WKWebView !== 'undefined' ? 'web defined' : 'web undefined';
+        document.querySelector('#testspan2').innerHTML = typeof sha256 !== 'undefined' ? ' sha defined' : 'sha undefined';
         return typeof sha256 !== 'undefined';
     },
     disableDeviceSpecificFeature(){
