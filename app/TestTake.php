@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -970,5 +971,24 @@ class TestTake extends BaseModel
 
             });
         });
+    }
+
+    public function scopeTypeAssessment(Builder $query)
+    {
+        return $query->leftJoin('tests', 'test_takes.test_id', 'tests.id')->where('test_kind_id', TestKind::ASSESSMENT_TYPE);
+    }
+
+    public function scopeStatusPlanned(Builder $query)
+    {
+        return $query->where('test_take_status_id', TestTakeStatus::STATUS_PLANNED);
+    }
+
+    public function scopeTimeStartExpired(Builder $query)
+    {
+        return $query->where('time_start', '>', now());
+    }
+
+    public function scopeTimeEndExpired(Builder $query) {
+        return $query->where('time_end', '<', now());
     }
 }

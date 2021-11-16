@@ -36,6 +36,8 @@ class Kernel extends ConsoleKernel
             ->dailyAt('06:00');
 //        $schedule->call(new AnonymizeUsersAfterTooLongNoLoginJob())
 //            ->dailyAt('05:00');
+// one minute past the hour;
+        $schedule->command('assessment:start_and_stop')->hourlyAt(1);
     }
 
     /**
