@@ -31,11 +31,12 @@ class Dashboard extends Component
 
     public function logout()
     {
+        $device = session()->get('TLCOs') == 'iOS' ? 'ipad' : '';
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
 
-        return redirect(route('auth.login'));
+        return redirect(route('auth.login', ['device' => $device]));
     }
 
     public function getMessages()
