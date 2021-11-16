@@ -10,6 +10,9 @@ class IndexInfoRequest extends Request
 
     public function authorize()
     {
+//        if(!Auth::user()){
+//            return false;
+//        }
         if(request('mode','dashboard') === 'dashboard'){
             return true;
         } else {
