@@ -4,7 +4,9 @@
             <a href="@if(Auth::user()->guest){{ route('auth.login') }}@else{{ route('student.dashboard') }}@endif">
                 <img class="h-12" src="{{ asset('/svg/logos/Logo-Test-Correct-2.svg') }}"
                      alt="Test-Correct">
-{{--                <span class="note text-xs absolute min-w-max -bottom-1 left-[60px]">{{ __('student.version') }} 1.2</span>--}}
+                @if(!session()->get('isInBrowser'))
+                    <span class="note text-xs absolute min-w-max bottom-0 left-[60px]">{{ __('student.version') }}: {{ session()->get('TLCVersion') }}</span>
+                @endif
             </a>
         </div>
 
