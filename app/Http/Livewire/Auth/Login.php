@@ -562,6 +562,7 @@ class Login extends Component
     {
         $appType = AppVersionDetector::detect();
         if ($appType['os'] == 'ipad' || $appType['os'] == 'iOS') {
+            $this->device = 'ipad';
             $this->dispatchBrowserEvent('hide-ipad-buttons');
         }
     }

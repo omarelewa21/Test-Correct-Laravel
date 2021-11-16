@@ -6,8 +6,8 @@
             "
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
      wire:ignore.self
-     wire:init="runAppVersionDetection"
-     x-on:hide-ipad-buttons="Core.changeAppTypeToIos()"
+{{--     wire:init="runAppVersionDetection"--}}
+{{--     x-on:hide-ipad-buttons="Core.changeAppTypeToIos()"--}}
 >
     <div class="w-full max-w-[800px] mx-4 py-4">
 

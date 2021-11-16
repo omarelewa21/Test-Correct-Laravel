@@ -83,7 +83,7 @@ Core = {
         Core.appType = 'chromebook';
     },
     detectIOS: function () {
-        return typeof window.webview !== 'undefined' || typeof window.webkit !== 'undefined';
+        return typeof sha256 !== 'undefined';
     },
     disableDeviceSpecificFeature(){
         Core.devices.forEach((device) => {
