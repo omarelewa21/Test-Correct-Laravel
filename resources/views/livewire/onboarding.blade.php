@@ -3,7 +3,7 @@
         <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">
             <div class="col-span-3">
                 <a class="mx-auto tc-logo block" href="https://test-correct.nl">
-                    <img class="" src="/svg/logos/Logo-Test-Correct-recolored.svg"
+                    <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                          alt="Test-Correct">
                 </a>
             </div>
@@ -249,7 +249,7 @@
                                                 </div>
                                                 <template x-for="(subject, index) in subjects">
 
-                                                    <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('Verwijder')}}"  @click.prevent="removeSubject(index)">
+                                                    <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Verwijder')}}"  @click.prevent="removeSubject(index)">
                                                         <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
                                                         <span  class=" inline-block align-middle" style="margin:auto">
                                                             <img class="icon-close-small" src="img/icons/icons-close-small.svg" >
@@ -257,7 +257,7 @@
                                                     </button>
                                                 </template>
 
-                                                <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('Voeg toe')}}" @click.prevent="showSubjectInput()">
+                                                <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Voeg toe')}}" @click.prevent="showSubjectInput()">
                                                     <span  class=" inline-block align-middle" style="margin:auto">
                                                         <img class="icon-close-small" src="img/icons/icons-plus.svg" >
                                                     </span>
@@ -424,7 +424,7 @@
                                     </div>
                                     <div>
                                         <p class="text-note">
-                                            Op de dienst Test-Correct zijn de <a class="underline primary-hover" href="https://support.test-correct.nl/hubfs/Downloads%20Documenten%20Website/Algemene-Voorwaarden-2021-The-Teach-and-Learn-Company-BV-Test-Correct-versie-20210618.pdf" target="_blank">algemene voorwaarden</a> van The Teach & Learn Company B.V./Test-Correct van toepassing. Door middel van doorklikken naar de volgende stap bevestigt u dat u de algemene voorwaarden heeft ontvangen, gelezen en begrepen.
+                                            {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover" href="https://support.test-correct.nl/hubfs/Downloads%20Documenten%20Website/Algemene-Voorwaarden-2021-The-Teach-and-Learn-Company-BV-Test-Correct-versie-20210618.pdf" target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
                                         </p>
                                     </div>
                                     <div class="mb-16">
@@ -493,7 +493,7 @@
                             {{--content header--}}
                             <div class="mb-6 relative">
                                 <img class="inline-block card-header-img mr-3" src="/svg/stickers/completed.svg" alt="">
-                                <h1 class="sm:mt-2 top-2.5 card-header-text">{{ __("onboarding.Je bent nu klaar! Met Test-Correct kun je") }}...</h1>
+                                <h1 class="sm:mt-2 top-2.5 card-header-text">{{ __("onboarding.Je bent nu klaar! Met Test-Correct kun je") }}</h1>
                             </div>
                             <div class="flex-grow">
                                 <div class="body1 h-full relative">
@@ -547,7 +547,7 @@
                                     <div class="notification warning stretched mb-4 md:mb-16">
                                         <span class="title">{{ __("onboarding.Verifieer je e-mailadres") }}</span>
                                         <span class="body">{{ __("onboarding.Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?") }}
-                                            <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">{{ __("onboarding.Stuur de verificatiemail opnieuw") }} <x-icon.arrow-small></x-icon.arrow-small></a> {{ __("of") }}
+                                            <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">{{ __("onboarding.Stuur de verificatiemail opnieuw") }} <x-icon.arrow-small></x-icon.arrow-small></a> {{ __("onboarding.of") }}
                                             <a href="https://support.test-correct.nl/knowledge" class="bold"
                                                target="_blank">{{ __("onboarding.zoek ondersteuning") }} <x-icon.arrow-small></x-icon.arrow-small></a></span>
                                     </div>
