@@ -826,6 +826,15 @@ class Question extends MtiBaseModel {
                 case 'is_subquestion':
                     $query->where('is_subquestion', '=', $value);
                     break;
+                case 'author_id':
+                   if (is_array($value)) {
+                       $query->join('question_authors','questions.id','=','question_authors.question_id')
+                           ->whereIn('question_authors.user_id',$value);
+                    } else {
+                       $query->join('question_authors','questions.id','=','question_authors.question_id')
+                           ->where('question_authors.user_id','=',$value);
+                    }
+                    break;
             }
         }
 
