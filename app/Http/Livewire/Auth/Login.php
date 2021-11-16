@@ -50,11 +50,11 @@ class Login extends Component
         'block_back'           => ['except' => false],
         'guest_message'        => ['except' => ''],
         'guest_message_type'   => ['except' => ''],
-        'device' => ['except' => 'browser']
+        'device'               => ['except' => '']
     ];
 
     public $tab = 'login';
-    public $device = 'browser';
+    public $device = '';
 
     public $login_tab = 1;
 
@@ -112,8 +112,6 @@ class Login extends Component
         session()->regenerateToken();
 
         $this->handleLoginTabScenarios();
-
-        AppVersionDetector::handleHeaderCheck();
     }
 
     public function login()
@@ -556,14 +554,5 @@ class Login extends Component
         $this->guest_message_type = '';
         $this->showGuestError = false;
         $this->showGuestSuccess = false;
-    }
-
-    public function runAppVersionDetection()
-    {
-        $appType = AppVersionDetector::detect();
-        if ($appType['os'] == 'ipad' || $appType['os'] == 'iOS') {
-            $this->device = 'ipad';
-            $this->dispatchBrowserEvent('hide-ipad-buttons');
-        }
     }
 }
