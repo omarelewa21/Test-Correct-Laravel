@@ -1,13 +1,11 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
-     x-data="{ openTab: @entangle('login_tab'), showPassword: false, showEntreePassword: false }"
+     x-data="{ openTab: @entangle('login_tab'), showPassword: false, showEntreePassword: false, device: @entangle('device')}"
      x-init="
             addRelativePaddingToBody('login-body', 10);
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
             "
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('login-body')"
      wire:ignore.self
-{{--     wire:init="runAppVersionDetection"--}}
-{{--     x-on:hide-ipad-buttons="Core.changeAppTypeToIos()"--}}
 >
     <div class="w-full max-w-[800px] mx-4 py-4">
 
@@ -29,8 +27,6 @@
             @endif
             <div class="content-section p-10 mb-4 space-y-5 shadow-xl flex flex-col " style="min-height: 550px">
                 <div class="flex items-center space-x-2.5">
-                    <span class="all-red" id="testspan" wire:ignore></span>
-                    <span class="all-red" id="testspan2" wire:ignore></span>
                     <div class="flex">
                         <x-stickers.login/>
                     </div>
