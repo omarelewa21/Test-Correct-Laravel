@@ -18,6 +18,7 @@
                             style="min-height:80px "
                             name="name"
                             maxlength="140"
+                            spellcheck="false"
                     ></x-input.textarea>
                 </x-input.group>
                 <div class="absolute bg-blue-grey rounded-lg overflow-hidden "
