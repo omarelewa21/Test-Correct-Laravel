@@ -154,7 +154,7 @@ class TestTake extends Component
 
     public function returnToDashboard($options = null)
     {
-        if(Auth::user()->schoolLocation->allow_new_student_environment) {
+        if (Auth::user()->schoolLocation->allow_new_student_environment) {
             return redirect(route('student.dashboard'));
         }
 
@@ -173,6 +173,10 @@ class TestTake extends Component
                     'guest_message_type' => 'error',
                     'guest_message'      => 'removed_by_teacher'
                 ] + $parameters;
+        }
+
+        if (session()->get('TLCOs', null) == 'iOS') {
+            array_push($parameters, ['device' => 'ipad']);
         }
 
         return $parameters;
