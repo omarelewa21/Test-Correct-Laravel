@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Ramsey\Uuid\Uuid;
+use tcCore\Http\Helpers\AllowedAppType;
+use tcCore\Http\Helpers\AppVersionDetector;
+use tcCore\Http\Traits\WithStudentAppVersionHandling;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
@@ -16,7 +19,7 @@ use tcCore\TestTakeStatus;
 
 class WaitingRoom extends Component
 {
-    use WithStudentTestTakes;
+    use WithStudentTestTakes, WithStudentAppVersionHandling;
 
     protected function getListeners()
     {
@@ -44,7 +47,6 @@ class WaitingRoom extends Component
     public $isTakeAlreadyTaken;
     public $countdownNumber = 3;
     public $testTakeStatusStage;
-    public $meetsAppRequirement = true;
     public $participatingClasses = [];
 
     public function mount()
@@ -66,7 +68,7 @@ class WaitingRoom extends Component
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
 
-        $this->participantAppCheck();
+        $this->participantAppCheck($this->testParticipant);
     }
 
     public function render()
@@ -163,11 +165,6 @@ class WaitingRoom extends Component
             'name_suffix' => $this->testParticipant->user->name_suffix
         ]);
         return redirect(route('guest-choice', ['take' => $this->take]));
-    }
-
-    public function participantAppCheck()
-    {
-        $this->meetsAppRequirement = !(!$this->testParticipant->canUseBrowserTesting() && $this->testParticipant->isInBrowser());
     }
 
     public function removeParticipantFromWaitingRoom()

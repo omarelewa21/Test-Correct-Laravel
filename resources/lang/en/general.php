@@ -15,7 +15,7 @@ return [
 
     'unavailable'    => 'Unavailable',
     'status'         => 'Status',
-    'rated'         => 'Rated',
+    'rated'          => 'Rated',
     'discussed'      => 'Discussed',
     'discussing'     => 'Discussing',
     'taken'          => 'Taken',
@@ -27,4 +27,5 @@ return [
     'close'          => 'Close',
     'name'           => 'Name',
     'grade'          => 'Grade',
+    'attention'      => 'Attention',
 ];

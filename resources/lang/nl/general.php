@@ -27,4 +27,5 @@ return [
     'close'          => 'Sluiten',
     'name'           => 'Naam',
     'grade'          => 'Cijfer',
+    'attention'        => 'Let op',
 ];

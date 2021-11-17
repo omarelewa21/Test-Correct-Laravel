@@ -13,7 +13,7 @@
         @if($tab == 'login')
             @if($showGuestSuccess)
                 <div class="flex cta-gradient w-full p-10 -mb-4 rounded-t-10 relative top-2.5 space-x-2.5">
-                    <div class="flex">
+                    <div class="flex" x-data="">
                         <x-stickers.congratulations/>
                     </div>
                     <div class="flex flex-col text-white pt-4 space-y-2.5">
@@ -145,7 +145,6 @@
                                         <x-icon.exclamation/>
                                         <span class="title">{{ $message }}</span>
                                     </div>
-
                                 </div>
                                 @enderror
 

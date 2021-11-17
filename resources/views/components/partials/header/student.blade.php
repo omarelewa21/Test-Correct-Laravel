@@ -5,7 +5,11 @@
                 <img class="h-12" src="{{ asset('/svg/logos/Logo-Test-Correct-2.svg') }}"
                      alt="Test-Correct">
                 @if(!session()->get('isInBrowser'))
-                    <span class="note text-xs absolute min-w-max bottom-0 left-[60px]">{{ __('student.version') }}: {{ session()->get('TLCVersion') }}</span>
+                    <span class="text-xs absolute min-w-max bottom-0 left-[60px]
+                    @if(session()->get('TLCVersioncheckResult') == 'OK') cta-primary @elseif(session()->get('TLCVersioncheckResult') == 'NEEDSUPDATE') orange @elseif(session()->get('TLCVersioncheckResult') == 'NOTALLOWED') all-red @else note @endif"
+                    >
+                        {{ __('student.version') }}: {{ session()->get('TLCVersion') }}
+                    </span>
                 @endif
             </a>
         </div>
