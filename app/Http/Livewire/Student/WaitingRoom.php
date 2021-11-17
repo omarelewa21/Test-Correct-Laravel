@@ -10,6 +10,7 @@ use Livewire\Component;
 use Ramsey\Uuid\Uuid;
 use tcCore\Http\Helpers\AllowedAppType;
 use tcCore\Http\Helpers\AppVersionDetector;
+use tcCore\Http\Traits\WithStudentAppVersionHandling;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TemporaryLogin;
 use tcCore\TestParticipant;
@@ -18,7 +19,7 @@ use tcCore\TestTakeStatus;
 
 class WaitingRoom extends Component
 {
-    use WithStudentTestTakes;
+    use WithStudentTestTakes;//, WithStudentAppVersionHandling;
 
     protected function getListeners()
     {
@@ -46,10 +47,12 @@ class WaitingRoom extends Component
     public $isTakeAlreadyTaken;
     public $countdownNumber = 3;
     public $testTakeStatusStage;
+    public $participatingClasses = [];
+
     public $meetsAppRequirement = true;
     public $needsApp;
     public $appNeedsUpdate;
-    public $participatingClasses = [];
+    public $appNeedsUpdateDeadline;
 
     public function mount()
     {
@@ -174,8 +177,12 @@ class WaitingRoom extends Component
         $appStatus = AppVersionDetector::isVersionAllowed();
 
         $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
-        $this->meetsAppRequirement = !!($appStatus != AllowedAppType::NOTALLOWED && !$this->testParticipant->isInBrowser());
+        $this->meetsAppRequirement = !!($appStatus != AllowedAppType::NOTALLOWED);
         $this->appNeedsUpdate = !!($appStatus === AllowedAppType::NEEDSUPDATE);
+
+        if ($this->appNeedsUpdate) {
+            $this->appNeedsUpdateDeadline = AppVersionDetector::needsUpdateDeadline();
+        }
     }
 
     public function removeParticipantFromWaitingRoom()

@@ -14,7 +14,8 @@ trait WithStudentAppVersionHandling
 
     public function mountWithStudentAppVersionHandling()
     {
-        AppVersionDetector::handleHeaderCheck();
+        //Too soon again on Chromebook and iPad...
+//        AppVersionDetector::handleHeaderCheck();
     }
 
     public function participantAppCheck($participant)
