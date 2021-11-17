@@ -70,7 +70,6 @@ class WaitingRoom extends Component
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
 
-        AppVersionDetector::handleHeaderCheck();
         $this->participantAppCheck();
     }
 
