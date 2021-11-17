@@ -37,7 +37,7 @@
                       x-on:keydown.backspace.prevent="testCodeBackspace($refs.testCode_5)"
         />
         <x-input.text class="w-10 text-center test-code" type="number"
-                      max="9" maxlength="1" wire:model.defer="testTakeCode.5"
+                      max="9" maxlength="1" wire:model="testTakeCode.5"
                       x-ref="testCode_6"
                       x-on:input="testCodeInput($refs.testCode_6)"
                       x-on:keydown.backspace.prevent="testCodeBackspace($refs.testCode_6);"

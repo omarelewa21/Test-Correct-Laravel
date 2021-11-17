@@ -1,6 +1,8 @@
 <?php
 namespace tcCore\Http\Helpers;
 
+use Carbon\Carbon;
+
 abstract class AllowedAppType
 {
     const OK = "OK";
@@ -256,8 +258,13 @@ class AppVersionDetector
         if(!isset(self::$allowedVersions[$version["os"]]["needsUpdateDeadline"])){
             return false;
         }
-        if(array_key_exists($version["app_version"],self::$allowedVersions[$version["os"]]["needsUpdateDeadline"])){
-            return self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]];
+        if (array_key_exists($version["app_version"], self::$allowedVersions[$version["os"]]["needsUpdateDeadline"])) {
+            $date = Carbon::createFromLocaleIsoFormat(
+                '!DD MMMM YYYY',
+                'nl',
+                self::$allowedVersions[$version["os"]]["needsUpdateDeadline"][$version["app_version"]]
+            );
+            return $date->isoFormat('LL');
         }
         return false;
     }

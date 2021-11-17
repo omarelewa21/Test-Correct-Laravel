@@ -138,4 +138,7 @@ return [
     'no_grade'                              => 'Geen cijfer',
     'no_profiles_available'                 => 'Geen profielen beschikbaar',
     'choose_your_student_guest_profile'     => 'Kies jouw studenten gastprofiel',
+    'app_needs_update'                      => 'De versie van de app die je gebruikt wordt binnenkort niet meer toegelaten. Update de app zo spoedig mogelijk. Heb je de app via een app store geïnstalleerd, dan gaat het updaten meestal automatisch.',
+    'app_needs_update_deadline'             => 'De versie van de app die je gebruikt wordt per :date niet meer toegelaten. Update de app zo spoedig mogelijk. Heb je de app via een app store geïnstalleerd, dan gaat het updaten meestal automatisch.',
+    'app_not_allowed'                       => 'De versie van de app die je gebruikt wordt niet meer toegelaten. Update de app om toetsen te kunnen maken.',
 ];

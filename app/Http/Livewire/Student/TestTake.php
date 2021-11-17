@@ -176,7 +176,7 @@ class TestTake extends Component
         }
 
         if (session()->get('TLCOs', null) == 'iOS') {
-            array_push($parameters, ['device' => 'ipad']);
+            $parameters['device'] = 'ipad';
         }
 
         return $parameters;
