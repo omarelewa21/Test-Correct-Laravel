@@ -152,8 +152,8 @@
                 function toggleBrowseAloud() {
                     if (typeof BrowseAloud == 'undefined') {
                         var s = document.createElement('script');
-                        s.src = 'https://www.browsealoud.com/plus/scripts/3.1.0/ba.js';
-                        s.integrity = "sha256-VCrJcQdV3IbbIVjmUyF7DnCqBbWD1BcZ/1sda2KWeFc= sha384-k2OQFn+wNFrKjU9HiaHAcHlEvLbfsVfvOnpmKBGWVBrpmGaIleDNHnnCJO4z2Y2H sha512-gxDfysgvGhVPSHDTieJ/8AlcIEjFbF3MdUgZZL2M5GXXDdIXCcX0CpH7Dh6jsHLOLOjRzTFdXASWZtxO+eMgyQ=="
+                        s.src = '/js/ba.js';
+                        // s.integrity = "sha256-VCrJcQdV3IbbIVjmUyF7DnCqBbWD1BcZ/1sda2KWeFc= sha384-k2OQFn+wNFrKjU9HiaHAcHlEvLbfsVfvOnpmKBGWVBrpmGaIleDNHnnCJO4z2Y2H sha512-gxDfysgvGhVPSHDTieJ/8AlcIEjFbF3MdUgZZL2M5GXXDdIXCcX0CpH7Dh6jsHLOLOjRzTFdXASWZtxO+eMgyQ=="
                         s.crossOrigin = 'anonymous';
 
                         document.getElementsByTagName('BODY')[0].appendChild(s);
