@@ -19,7 +19,7 @@ use tcCore\TestTakeStatus;
 
 class WaitingRoom extends Component
 {
-    use WithStudentTestTakes, WithStudentAppVersionHandling;
+    use WithStudentTestTakes;
 
     protected function getListeners()
     {
@@ -49,6 +49,12 @@ class WaitingRoom extends Component
     public $testTakeStatusStage;
     public $participatingClasses = [];
 
+    public $meetsAppRequirement = true;
+    public $needsApp;
+    public $appNeedsUpdate;
+    public $appNeedsUpdateDeadline;
+    public $appStatus;
+
     public function mount()
     {
         if (!isset($this->take) || !Uuid::isValid($this->take)) {
@@ -68,7 +74,7 @@ class WaitingRoom extends Component
         $this->testTakeStatusStage = $this->waitingTestTake->determineTestTakeStage();
         $this->participatingClasses = $this->getParticipatingClasses($this->waitingTestTake);
 
-        $this->participantAppCheck($this->testParticipant);
+        $this->participantAppCheck();
     }
 
     public function render()
@@ -186,4 +192,17 @@ class WaitingRoom extends Component
 
         return $redirect;
     }
+    public function participantAppCheck()
+    {
+        $this->appStatus = AppVersionDetector::isVersionAllowed();
+
+        $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
+        $this->meetsAppRequirement = !!($this->appStatus != AllowedAppType::NOTALLOWED);
+        $this->appNeedsUpdate = !!($this->appStatus === AllowedAppType::NEEDSUPDATE);
+
+        if ($this->appNeedsUpdate) {
+            $this->appNeedsUpdateDeadline = AppVersionDetector::needsUpdateDeadline();
+        }
+    }
+
 }

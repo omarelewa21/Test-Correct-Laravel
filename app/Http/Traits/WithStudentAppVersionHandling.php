@@ -14,19 +14,7 @@ trait WithStudentAppVersionHandling
 
     public function mountWithStudentAppVersionHandling()
     {
-        AppVersionDetector::handleHeaderCheck();
+//        AppVersionDetector::handleHeaderCheck();
     }
 
-    public function participantAppCheck($participant)
-    {
-        $appStatus = AppVersionDetector::isVersionAllowed();
-
-        $this->needsApp = !!(!$participant->canUseBrowserTesting());
-        $this->meetsAppRequirement = !!($appStatus != AllowedAppType::NOTALLOWED);
-        $this->appNeedsUpdate = !!($appStatus === AllowedAppType::NEEDSUPDATE);
-
-        if ($this->appNeedsUpdate) {
-            $this->appNeedsUpdateDeadline = AppVersionDetector::needsUpdateDeadline();
-        }
-    }
 }
