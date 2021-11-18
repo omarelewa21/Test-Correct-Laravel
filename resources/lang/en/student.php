@@ -98,4 +98,7 @@ return [
     'no_grade'                              => 'No grade',
     'no_profiles_available'                 => 'No profiles available',
     'choose_your_student_guest_profile'     => 'Choose your student guest profile',
+    'app_needs_update'                      => 'The version of the app you are using will soon no longer be allowed. Update the app as soon as possible. If you have installed the app via an app store, the update is usually automatic.',
+    'app_needs_update_deadline'             => 'The version of the app you are using is per :date no longer allowed. Update the app as soon as possible. If you have installed the app via an app store, the update is usually automatic.',
+    'app_not_allowed'                       => 'The version of the app you are using is no longer allowed. Update the app to be able to create tests.',
 ];

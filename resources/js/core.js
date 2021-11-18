@@ -140,11 +140,8 @@ Core = {
         return false;
     },
     setAppTestConfigIfNecessary(participantId) {
-        try {
-            electron.setTestConfig(participantId)
-            webview.setTestConfig(participantId);
-        } catch (error) {
-        }
+        try {electron.setTestConfig(participantId);} catch (error) {}
+        try {webview.setTestConfig(participantId);} catch (error) {}
     },
     changeAppTypeToIos()
     {
