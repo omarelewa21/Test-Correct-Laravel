@@ -130,7 +130,6 @@
             e.onreadystatechange = function() {
                 if (4 == this.readyState && 200 == this.status) {
                     var t = e.responseText.replace(/var BrowseAloudUrl\s?=/, "");
-                    t = t.replace('2021','2022');
                     t = t.replace(";", ""),
                         s(JSON.parse(t))
                 }
