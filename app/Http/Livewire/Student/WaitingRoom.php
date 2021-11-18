@@ -194,7 +194,7 @@ class WaitingRoom extends Component
     }
     public function participantAppCheck()
     {
-        $this->appStatus = AppVersionDetector::isVersionAllowed();
+        $this->appStatus = AppVersionDetector::isVersionAllowed(session()->get('headers'));
 
         $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
         $this->meetsAppRequirement = !!($this->appStatus != AllowedAppType::NOTALLOWED);
