@@ -19,7 +19,7 @@ use tcCore\TestTakeStatus;
 
 class WaitingRoom extends Component
 {
-    use WithStudentTestTakes;//, WithStudentAppVersionHandling;
+    use WithStudentTestTakes;
 
     protected function getListeners()
     {
@@ -53,6 +53,7 @@ class WaitingRoom extends Component
     public $needsApp;
     public $appNeedsUpdate;
     public $appNeedsUpdateDeadline;
+    public $appStatus;
 
     public function mount()
     {
@@ -172,19 +173,6 @@ class WaitingRoom extends Component
         return redirect(route('guest-choice', ['take' => $this->take]));
     }
 
-    public function participantAppCheck()
-    {
-        $appStatus = AppVersionDetector::isVersionAllowed();
-
-        $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
-        $this->meetsAppRequirement = !!($appStatus != AllowedAppType::NOTALLOWED);
-        $this->appNeedsUpdate = !!($appStatus === AllowedAppType::NEEDSUPDATE);
-
-        if ($this->appNeedsUpdate) {
-            $this->appNeedsUpdateDeadline = AppVersionDetector::needsUpdateDeadline();
-        }
-    }
-
     public function removeParticipantFromWaitingRoom()
     {
         return $this->escortUserFromWaitingRoom();
@@ -204,4 +192,17 @@ class WaitingRoom extends Component
 
         return $redirect;
     }
+    public function participantAppCheck()
+    {
+        $this->appStatus = AppVersionDetector::isVersionAllowed();
+
+        $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
+        $this->meetsAppRequirement = !!($this->appStatus != AllowedAppType::NOTALLOWED);
+        $this->appNeedsUpdate = !!($this->appStatus === AllowedAppType::NEEDSUPDATE);
+
+        if ($this->appNeedsUpdate) {
+            $this->appNeedsUpdateDeadline = AppVersionDetector::needsUpdateDeadline();
+        }
+    }
+
 }

@@ -92,6 +92,13 @@
                         {{ __('student.teacher_introduction_long') }}
                     @endif
                 </div>
+                <div class="flex flex-col">
+                    <span class="all-red">appstatus: {{ $appStatus }}</span>
+                    <span class="all-red">$needsApp: {{ $needsApp }}</span>
+                    <span class="all-red">$meetsAppRequirement: {{ $meetsAppRequirement }}</span>
+                    <span class="all-red">TP->isInBrowser(): {{ $this->testParticipant->isInBrowser() }}</span>
+                    <span class="all-red">$appNeedsUpdate: {{ $appNeedsUpdate }}</span>
+                </div>
                 @if($needsApp && !$meetsAppRequirement && !$this->testParticipant->isInBrowser())
                     <div class="flex w-full justify-center transition-all duration-300 mb-4">
                         <div class="notification error stretched">
