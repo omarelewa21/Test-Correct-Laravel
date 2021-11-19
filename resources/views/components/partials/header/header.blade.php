@@ -22,7 +22,7 @@
 <div class="sub-menu flex px-28">
     <div class="Toetsing menu flex flex-wrap content-center">
         <div class="px-3"><a href="#" class="text-button">{{ __("header.Gepland") }}</a></div>
-        <div class="px-3"><a href="#" class="text-button">{{ __("header.CO-learning") }}</a></div>
+        <div class="px-3"><a href="#" class="text-button">{{ __("header.CO-Learning") }}</a></div>
         <div class="px-3"><a href="#" class="text-button">{{ __("header.Inzien") }}</a></div>
         <div class="px-3"><a href="#" class="text-button">{{ __("header.Becijferd") }}</a></div>
     </div>

@@ -10,7 +10,7 @@
 
 			'Toetsen aanmaken en bestaande toetsen omzetten' => 'Toetsen aanmaken en bestaande toetsen omzetten',
 
-			'Toetsen beoordelen en samen de CO-learning doorlopen' => 'Toetsen beoordelen en samen de CO-learning doorlopen',
+			'Toetsen beoordelen en samen de CO-Learning doorlopen' => 'Toetsen beoordelen en samen de CO-Learning doorlopen',
 
 			'Klassen maken en uitnodigen om een toets af te nemen' => 'Create classes and invite them to take a test',
 

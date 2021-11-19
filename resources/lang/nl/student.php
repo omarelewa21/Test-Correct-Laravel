@@ -34,7 +34,7 @@
 
 			'wat je moet doen (zie onder)' => 'wat je moet doen (zie onder)',
 
-			'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-learning' => 'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-learning',
+			'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-Learning' => 'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-Learning',
 
 			'De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets' => 'De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets',
 
@@ -87,7 +87,7 @@
     'invigilators'                          => 'Surveillanten',
     'planner'                               => 'Inplanner',
     'weight'                                => 'Weging',
-    'tests_to_discuss'                      => 'Bespreken met CO-learning',
+    'tests_to_discuss'                      => 'Bespreken met CO-Learning',
     'tests_to_review'                       => 'Toetsen om in te zien',
     'graded_tests'                          => 'Becijferde toetsen',
     'logged_in_students'                    => 'Ingelogde studenten',

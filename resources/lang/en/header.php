@@ -14,7 +14,7 @@ return [
 
     'Gepland' => 'Scheduled',
 
-    'CO-learning' => 'CO-learning',
+    'CO-Learning' => 'CO-Learning',
 
     'Inzien' => 'View',
 

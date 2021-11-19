@@ -12,9 +12,9 @@
 
 			'Toetsen aanmaken en bestaande toetsen omzetten' => 'Create tests and convert existing tests',
 
-			'Toetsen beoordelen en samen de CO-learning doorlopen' => 'Assess tests and do the CO-learning together',
+			'Toetsen beoordelen en samen de CO-Learning doorlopen' => 'Assess tests and do the CO-Learning together',
 
-			'Toetsen beoordelen en samen de CO-learning doorlopen' => 'Assess tests and do the CO-learning together',
+			'Toetsen beoordelen en samen de CO-Learning doorlopen' => 'Assess tests and do the CO-Learning together',
 
 			'Klassen maken en uitnodigen om een toets af te nemen' => 'Create classes and invite them to take a test',
 
