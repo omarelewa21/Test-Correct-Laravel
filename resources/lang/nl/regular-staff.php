@@ -16,7 +16,7 @@
 
 			'Toets afnemen' => 'Toets afnemen',
 
-			'CO-learning' => 'CO-learning',
+			'CO-Learning' => 'CO-Learning',
 
 			'Welke vraagsoorten kan je maken en hoe maak je daar optimaal gebruik van. Waarop let als je een bestaande toets importeert' => 'Welke vraagsoorten kan je maken en hoe maak je daar optimaal gebruik van. Waarop let als je een bestaande toets importeert',
 

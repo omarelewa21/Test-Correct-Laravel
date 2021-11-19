@@ -14,7 +14,7 @@ return [
 
     'Gepland' => 'Gepland',
 
-    'CO-learning' => 'CO-learning',
+    'CO-Learning' => 'CO-Learning',
 
     'Inzien' => 'Inzien',
 
