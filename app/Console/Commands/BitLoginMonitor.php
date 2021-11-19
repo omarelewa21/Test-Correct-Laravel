@@ -13,12 +13,12 @@ class BitLoginMonitor extends Command {
     CONST TEACHER_USERNAME = 'bit-teacher@test-correct.nl';
     CONST STUDENT_USERNAME = 'bit-student@test-correct.nl';
 
-	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'bit:monitor {--t|type=teacherlogin}';
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'bit:monitor {type=teacherlogin}';
 
 	/**
 	 * The console command description.
@@ -47,7 +47,7 @@ class BitLoginMonitor extends Command {
 	public function handle()
 	{
 
-        $type = $this->option('type');
+        $type = $this->argument('type');
 
         switch($type){
             case 'teacherlogin':
@@ -60,24 +60,34 @@ class BitLoginMonitor extends Command {
                 $this->handleDefault();
                 break;
         }
+        echo "OK";
+        return 0;
 	}
+
+    protected function handleDefault()
+    {
+        echo "NOTHING TO DO";
+    }
 
     protected function handleTeacherLogin()
     {
-        $user = User::where('username',self::TEACHER_USERNAME)->first();
-        (new UserHelper())->handleAfterLoginValidation($user,false, false);
+        $user =$this->handleLogin(self::TEACHER_USERNAME);
         // also try to add something to the jobs table as that failed before
         dispatch(new CountTeacherQuestions($user));
     }
 
     protected function handleStudentLogin()
     {
-        $user = $this->handleLogin(self::STUDENT_USERNAME)
+        $this->handleLogin(self::STUDENT_USERNAME);
     }
 
     protected function handleLogin($username)
     {
         $user = User::where('username',$username)->first();
+        if(!$user){
+            echo "NO USER FOUND";
+            exit;
+        }
         (new UserHelper())->handleAfterLoginValidation($user,false, false);
         return $user;
     }
