@@ -223,9 +223,10 @@ class AppVersionDetector
                 "3.2.0-beta.5",
             ],
             "needsUpdate" => [
-
+                "3.1.0"
             ],
             "needsUpdateDeadline" => [
+                "3.1.0" => "12 december 2021",
             ],
         ]
     ];
