@@ -3,6 +3,7 @@
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
+use tcCore\Http\Helpers\ActingAsHelper;
 use tcCore\Http\Helpers\UserHelper;
 use tcCore\Jobs\CountTeacherQuestions;
 use tcCore\Lib\User\Factory;
@@ -10,8 +11,8 @@ use tcCore\User;
 
 class BitLoginMonitor extends Command {
 
-    CONST TEACHER_USERNAME = 'bit-teacher@test-correct.nl';
-    CONST STUDENT_USERNAME = 'bit-student@test-correct.nl';
+    CONST TEACHER_USERNAME = 'testing+bitteacher@test-correct.nl';
+    CONST STUDENT_USERNAME = 'testing+bitstudent@test-correct.nl';
 
     /**
      * The name and signature of the console command.
@@ -88,6 +89,7 @@ class BitLoginMonitor extends Command {
             echo "NO USER FOUND";
             exit;
         }
+        ActingAsHelper::getInstance()->setUser($user);
         (new UserHelper())->handleAfterLoginValidation($user,false, false);
         return $user;
     }
