@@ -89,7 +89,7 @@ class FileManagement extends BaseModel {
     }
 
     public function user() {
-        return $this->belongsTo('tcCore\User');
+        return $this->belongsTo('tcCore\User')->withTrashed();
     }
 
     public function schoolLocation() {

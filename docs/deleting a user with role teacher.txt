@@ -1,0 +1,53 @@
+DELETING A USER WITH THE ROLE TEACHER
+
+The tests in the ‘toetsenbank’ with the user as author should still be visible
+
+The questions in ‘vragenbank’ with the user as author should still be visible
+
+The records in the teachers table should be removed
+
+The record(s) in the user_roles table should be soft deleted
+
+The teacher record should not be visible in the schoolClassRepository that is returned by SchoolClassController@show
+
+The user should still be visible as an author in the filter of the ‘Toetsenbank’ and the ‘Vragenbank’
+
+all eck_ids of the user should be removed
+
+Documents uploaded by the user should still be accessible.
+
+The invigilator’s name of a testTake that has been taken should still be visible in the frontend
+
+If there is only one invigilator and that one is deleted, it must not be possible to start the test take, because basically you do not have a invigilator any more.
+
+The name of a schoolclass mentor should still be visible in the frontend
+
+The messages in the inbox of the students should remain visible
+
+The p-value of the user should remain available for analysis
+
+Ratingvalues associated with the user should remain visible.
+
+The schoolmanager should not see the user in the users list
+
+A user with the role teacher should see the name of the removed user in the list ‘afgenomen/mijn afgenomen toetsen’
+
+A user with the role teacher should see the name of the removed user in the list ‘afgenomen/nakijken en normeren’
+
+A user with the role teacher should see the name of the removed user in the list ‘ingepland/Mijn ingeplande toetsen’
+
+A user with the role teacher should see the name of the removed user in the list ‘Resultaten’. Both ‘surveilant’ and ‘Vakdocent’.
+
+The user should no longer be visible for the administrator in ‘Database/docenten’ and ‘Database/Docent statistieken’
+
+The user should no longer be visible in the Customer support role screens (to take over an account).
+
+
+The teacher must  be removed from the marketing (onboarding) report
+
+
+A TEACHER THAT WORKS IN TWO OR MORE SCHOOL LOCATIONS IN THE SAME SCHOOL
+
+
+If you remove the teacher from one school location, his items should be visible for his colleagues in that school location.
+

@@ -601,7 +601,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if (static::isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation($user)) {
                 $user->removeSchoolLocation(Auth::user()->schoolLocation);
                 $user->removeSchoolLocationTeachers(Auth::user()->schoolLocation);
-                return false;
+                throw new \Exception(__('Deze gebruiker is ook aanwezig in een andere locatie. Alleen het account voor deze locatie is verwijderd!'));
             }
         });
 

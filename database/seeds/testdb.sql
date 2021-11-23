@@ -12069,7 +12069,7 @@ INSERT INTO `periods` (`id`, `created_at`, `updated_at`, `deleted_at`, `school_y
 VALUES
 	(1,'2018-12-21 16:00:57','2018-12-21 16:00:57',NULL,1,'2018','2018-12-21','2040-08-31',X'86CE8229A2114B608F3AA30348E08357'),
 	(2,'2019-02-25 14:39:08','2019-02-25 14:39:08',NULL,2,'2018','2018-08-31','2040-08-30',X'87361229B5804A18A24FB04D5101841E'),
-	(3,'2019-07-26 11:14:14','2019-07-26 11:14:14',NULL,3,'Periode 2020/2021','2020-07-01','2021-07-02',X'89801229E6624E14A0CB10EAA168F44F');
+	(3,'2019-07-26 11:14:14','2019-07-26 11:14:14',NULL,3,'Periode 2020/2021','2021-07-01','2022-07-02',X'89801229E6624E14A0CB10EAA168F44F');
 
 /*!40000 ALTER TABLE `periods` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -13271,9 +13271,10 @@ LOCK TABLES `school_locations` WRITE;
 
 INSERT INTO `school_locations` (`id`, `created_at`, `updated_at`, `deleted_at`, `user_id`, `number_of_teachers`, `number_of_students`, `school_id`, `grading_scale_id`, `customer_code`, `name`, `main_address`, `main_postal`, `main_city`, `main_country`, `invoice_address`, `invoice_postal`, `invoice_city`, `invoice_country`, `visit_address`, `visit_postal`, `visit_city`, `visit_country`, `count_active_licenses`, `count_active_teachers`, `count_expired_licenses`, `count_licenses`, `count_questions`, `count_students`, `count_teachers`, `count_tests`, `count_tests_taken`, `activated`, `is_rtti_school_location`, `external_main_code`, `external_sub_code`, `is_open_source_content_creator`, `is_allowed_to_view_open_source_content`, `count_text2speech`, `edu_ix_organisation_id`, `uuid`)
 VALUES
-	(1,'2018-12-21 15:51:39','2020-03-10 11:21:48',NULL,520,100,1000,1,1,'TC-tijdelijke-docentaccounts','Open source schoolocatie1','1','1','1','1','2','2','2','2','3','3','3','3',0,1,0,0,0,0,0,0,2,1,0,'8888','00',0,0,0,NULL,X'D5B682293CFD4884BB0A8209D33899FD'),
+	(1,'2018-12-21 15:51:39','2020-03-10 11:21:48',NULL,520,100,1000,1,1,'OUD TC-tijdelijke-docentaccounts','Open source schoolocatie1 oud','1','1','1','1','2','2','2','2','3','3','3','3',0,1,0,0,0,0,0,0,2,1,0,'8888','00',0,0,0,NULL,X'D5B682293CFD4884BB0A8209D33899FD'),
 	(2,'2019-02-25 14:36:39','2020-05-15 15:00:13',NULL,521,100,1000,3,1,'RS','RTTI School','1','1','1','1','2','2','2','2','3','3','3','3',0,2,0,0,4,7,3,2,2,1,1,'9999','00',0,1,1,NULL,X'D676A229E0DD49068F81524AF8D9E564'),
-	(3,'2019-07-26 10:06:22','2019-07-26 10:06:22',NULL,520,10,100,1,1,'standaard testschool','Standaard school','-','-','-','-','-','-','-','-','-','-','-','-',0,0,0,0,0,0,0,0,0,1,0,'','',0,0,0,NULL,X'D81BE229732C4BBD9BB357615B64C2CF');
+	(3,'2019-07-26 10:06:22','2019-07-26 10:06:22',NULL,520,10,100,1,1,'standaard testschool','Standaard school','-','-','-','-','-','-','-','-','-','-','-','-',0,0,0,0,0,0,0,0,0,1,0,'','',0,0,0,NULL,X'D81BE229732C4BBD9BB357615B64C2CF'),
+    (4,'2018-12-21 15:51:39','2020-03-10 11:21:48',NULL,520,100,1000,1,1,'TC-tijdelijke-docentaccounts','Open source schoolocatie1','1','1','1','1','2','2','2','2','3','3','3','3',0,1,0,0,0,0,0,0,2,1,0,'8888','00',0,0,0,NULL,X'8F346D1F3C8C11EC81BB0800271E8147');
 
 /*!40000 ALTER TABLE `school_locations` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -13607,7 +13608,8 @@ VALUES
   (27,'2019-07-26 11:36:46','2019-07-26 11:36:46',NULL,1486,27,4,X'7BA9291B8B0811EB85C30800271E8147'),
   (28,'2018-12-21 17:01:16','2018-12-21 17:01:16',NULL,1486,28,1,X'7E7BB2848B0811EB85C30800271E8147'),
   (29,'2019-02-25 14:43:56','2019-02-25 14:43:56',NULL,1486,29,2,X'811B5FDA8B0811EB85C30800271E8147'),
-  (30,'2019-02-25 14:44:01','2019-02-25 14:44:01',NULL,1486,30,2,X'841F28158B0811EB85C30800271E8147');
+  (30,'2019-02-25 14:44:01','2019-02-25 14:44:01',NULL,1486,30,2,X'841F28158B0811EB85C30800271E8147'),
+  (31,'2019-02-25 14:44:01','2019-02-25 14:44:01',NULL,1496,1,1,X'6FD60C033C8511EC81BB0800271E8147');
 
 /*!40000 ALTER TABLE `teachers` ENABLE KEYS */;
 UNLOCK TABLES;

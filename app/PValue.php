@@ -106,7 +106,7 @@ class PValue extends BaseModel
 
     public function users()
     {
-        return $this->hasMany('tcCore\PValueUser');
+        return $this->hasMany('tcCore\PValueUser')->withTrashed();
     }
 
     public function savePValueUsers()
