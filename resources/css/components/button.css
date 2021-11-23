@@ -7,6 +7,7 @@
     display: inline-flex;
     min-height: 40px;
     border: solid 1px transparent;
+    transition: 100ms ease-in-out;
 }
 
 .button:focus {
@@ -26,6 +27,7 @@
 }
 
 .text-button {
+    border-radius: 0;
     color: var(--system-base);
     font-family: Nunito Bold;
     padding: 0;
@@ -33,6 +35,11 @@
 
 .text-button:hover {
     color: var(--primary);
+    background: var(--primary-opacity-05);
+}
+.text-button:active {
+    color: var(--primary);
+    background: var(--primary-opacity-10);
 }
 
 .text-button:focus {
@@ -183,5 +190,24 @@
 }
 
 .dropdown-item:hover {
-    background: var(--cta-primary);
+    background: var(--primary-opacity-05);
+}
+.dropdown-item:active {
+    background: var(--primary-opacity-10);
+}
+
+.action-icon-button {
+    transition: 150ms ease-in-out;
+}
+.action-icon-button:hover {
+    color: var(--primary);
+    background: var(--primary-opacity-05);
+}
+.action-icon-button:active {
+    color: var(--primary);
+    background: var(--primary-opacity-10);
+}
+.action-icon-button.active {
+    color: white;
+    background: var(--primary);
 }

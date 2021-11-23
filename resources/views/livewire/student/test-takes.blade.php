@@ -7,27 +7,30 @@
      wire:ignore.self
 >
     <div class="flex w-full justify-center border-b border-system-secondary">
-        <div class="flex w-full mx-4 lg:mx-8 xl:mx-12 max-w-7xl space-x-4">
-            <div class="py-2"
-                 :class="{'border-b-2 border-system-base border-primary-hover': activeTab === '{{ $this->plannedTab }}'}"
-                 wire:click="changeActiveTab('{{ $this->plannedTab }}')"
-            >
-                <x-button.text-button>{{ __('student.planned') }}</x-button.text-button>
+        <div class="flex w-full mx-4 lg:mx-8 xl:mx-12 max-w-7xl space-x-4 menu">
+            <div wire:click="changeActiveTab('{{ $this->plannedTab }}')">
+                <x-button.text-button class="px-2 border-0 {{ $this->plannedTab === $tab ? 'active' : '' }}">
+                    <span>{{ __('student.planned') }}
+                    </span>
+                </x-button.text-button>
             </div>
-            <div class="py-2"
-                 :class="{'border-b-2 border-system-base border-primary-hover': activeTab === '{{ $this->discussTab }}'}"
-                 wire:click="changeActiveTab('{{ $this->discussTab }}')">
-                <x-button.text-button>{{ __('student.discuss') }}</x-button.text-button>
+            <div wire:click="changeActiveTab('{{ $this->discussTab }}')">
+                <x-button.text-button class="px-2 border-0 {{ $this->discussTab === $tab ? 'active' : '' }}">
+                    <span>{{ __('student.discuss') }}
+                    </span>
+                </x-button.text-button>
             </div>
-            <div class="py-2"
-                 :class="{'border-b-2 border-system-base border-primary-hover': activeTab === '{{ $this->reviewTab }}'}"
-                 wire:click="changeActiveTab('{{ $this->reviewTab }}')">
-                <x-button.text-button>{{ __('student.review') }}</x-button.text-button>
+            <div wire:click="changeActiveTab('{{ $this->reviewTab }}')">
+                <x-button.text-button class="px-2 border-0 {{ $this->reviewTab === $tab ? 'active' : '' }}">
+                    <span>{{ __('student.review') }}
+                    </span>
+                </x-button.text-button>
             </div>
-            <div class="py-2"
-                 :class="{'border-b-2 border-system-base border-primary-hover': activeTab === '{{ $this->gradedTab }}'}"
-                 wire:click="changeActiveTab('{{ $this->gradedTab }}')">
-                <x-button.text-button>{{ __('student.graded') }}</x-button.text-button>
+            <div wire:click="changeActiveTab('{{ $this->gradedTab }}')">
+                <x-button.text-button class="px-2 border-0 {{ $this->gradedTab === $tab ? 'active' : '' }}">
+                    <span>{{ __('student.graded') }}
+                    </span>
+                </x-button.text-button>
             </div>
         </div>
     </div>

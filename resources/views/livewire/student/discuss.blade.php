@@ -40,7 +40,7 @@
                             <x-table.row class="cursor-pointer"
                                          wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')"
                             >
-                                <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
+                                <x-table.cell>{{ $testTake->id }}{{ $testTake->test_name }}</x-table.cell>
                                 <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
                                 <x-table.cell class="text-right">
                                     @if($testTake->time_start == \Carbon\Carbon::today())
@@ -60,7 +60,7 @@
                                 </x-table.cell>
                                 <x-table.cell buttonCell class="text-right">
                                     @if($testTake->test_take_status_id == \tcCore\TestTakeStatus::STATUS_DISCUSSING)
-                                        <x-button.cta>{{__("student.Bespreken")}}</x-button.cta>
+                                        <x-button.cta wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">{{__("student.Bespreken")}}</x-button.cta>
                                     @else
                                         <x-button.cta disabled>{{__("student.Bespreken")}}</x-button.cta>
                                     @endif

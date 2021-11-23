@@ -1,5 +1,5 @@
 <x-layouts.base>
-    <x-partials.header.student/>
+    <livewire:student.header/>
 
     <main class="flex flex-col items-center">
         {{ $slot  }}

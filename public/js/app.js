@@ -5425,6 +5425,9 @@ Core = {
   setAppTestConfigIfNecessary: function setAppTestConfigIfNecessary(participantId) {
     try {
       electron.setTestConfig(participantId);
+    } catch (error) {}
+
+    try {
       webview.setTestConfig(participantId);
     } catch (error) {}
   },
