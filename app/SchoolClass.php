@@ -142,14 +142,13 @@ class SchoolClass extends BaseModel implements AccessCheckable
             if ($schoolClass->students !== null) {
                 $schoolClass->saveStudents();
             }
-
             if ($schoolClass->mentors !== null) {
                 $schoolClass->saveMentors();
             }
-
             if ($schoolClass->managers !== null) {
                 $schoolClass->saveManagers();
             }
+
 
         });
 
@@ -164,6 +163,21 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
         static::deleting(function (SchoolClass $schoolClass) {
             if ($schoolClass->getOriginal('demo') == true) return false;
+        });
+
+        static::deleted(function (SchoolClass $schoolClass) {
+            $schoolClass->managers->each(function (Manager $manager)  {
+                $manager->delete();
+            });
+            $schoolClass->mentors->each(function (Mentor $mentor)  {
+                $mentor->delete();
+            });
+            $schoolClass->teacher->each(function (Teacher $teacher)  {
+                $teacher->delete();
+            });
+            $schoolClass->students->each(function (Student $student)  {
+                $student->delete();
+            });
         });
     }
 
