@@ -1,6 +1,8 @@
 <?php namespace tcCore;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\PValues\UpdatePValueUsers;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -108,6 +110,101 @@ class FileManagement extends BaseModel {
         return $this->hasMany('tcCore\FileManagement','parent_id');
     }
 
+    public function scopeFiltered($query, $user, $filters = [], $sorting = [])
+    {
+        $query->whereNull('parent_id')
+            ->with(['user', 'handler', 'status', 'status.parent']);
 
+       if ($user->hasRole('Teacher')) {
+            $query->where(function ($query) use ($user) {
+                $query->where('user_id', $user->getKey())
+                    ->orWhere('handledby', $user->getKey());
+            });
+            if ($user->isToetsenbakker()) {
+                $query->where('archived', false);
+            } else {
+                $query->where('school_location_id', $user->school_location_id);
+            }
+        } else if ($user->hasRole('Account manager')) {
+            $query->whereIn('school_location_id', (new SchoolHelper())->getRelatedSchoolLocationIds($user))
+                ->with(['schoolLocation']);
+        }
 
+        $this->handleSorting($query,$user, $sorting);
+
+       $this->handleFilters($query,$filters);
+
+       return $query;
+    }
+
+    protected function handleFilters($query,$filters = [])
+    {
+        foreach($filters as $key => $val){
+            $methodName = sprintf('handleFilter%s',ucfirst(strtolower($key)));
+            if(method_exists($this,$methodName)){
+                $this->$methodName($query,$val);
+            }
+        }
+    }
+
+    protected function handleFilterType($query,$value)
+    {
+        $this->handleFilterDefault($query,'type',$value);
+    }
+
+    protected function handleFilterDefault($query,$key,$value)
+    {
+        $query->where($key,$value);
+    }
+
+    protected function handleSorting($query, User $user, $sorting = [])
+    {
+        $sortingFound = false;
+        foreach($sorting as $key => $val){
+            if(!in_array($val,['asc','desc'])){
+                $val = 'asc';
+            }
+            $methodName = sprintf('handleSorting%s',ucfirst(strtolower($key)));
+            if(method_exists($this,$methodName)){
+                $this->$methodName($query,$val);
+                $sortingFound = true;
+            }
+        }
+
+        if($user->hasRole('Account manager')){
+            // we want to order by filemanagementstatus displayorder, but as it has the same fieldnames as file_managements table
+            // we can't use a join. Therefor we first get all the statusIds in the correct order and then order by them
+            $statusIds = FileManagementStatus::orderBy('displayorder')->pluck('id')->toArray();
+            $query->orderByRaw('FIELD(file_management_status_id,' . implode(',', $statusIds) . ')', 'asc');
+        }
+
+        if(!$sortingFound){
+            $query->orderBy('file_managements.created_at', 'asc');
+        }
+    }
+
+    protected function handleSortingName($query,$dir)
+    {
+        $query->orderByRaw('CAST(typedetails->"$.name" as String)',$dir);
+    }
+
+    protected function handleSortingSubject($query,$dir)
+    {
+        $query->orderByRaw('CAST(typedetails->"$.subject" as String)',$dir);
+    }
+
+    protected function handleSortingTeacher($query,$dir)
+    {
+        $query->orderBy('users.name',$dir);
+    }
+
+    protected function handleSortingSchoolLocation($query,$dir)
+    {
+        $query->orderBy('school_locations.name',$dir);
+    }
+
+    protected function handleSortingCreatedAt($query,$dir)
+    {
+        $query->orderBy('file_managements.created_at', $dir);
+    }
 }
