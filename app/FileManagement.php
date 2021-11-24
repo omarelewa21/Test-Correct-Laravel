@@ -41,7 +41,8 @@ class FileManagement extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['type','id','user_id','school_location_id','file_management_status_id','handledby','notes','name','origname','typedetails','parent_id','archived','form_id'];
+    protected $fillable = ['type','id','user_id','school_location_id','file_management_status_id','handledby','notes','name','origname','typedetails','parent_id','archived','form_id',
+                            'class','subject','education_level_year','education_level_id','test_name','test_kind_id','orig_filenames'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -130,11 +131,11 @@ class FileManagement extends BaseModel {
                 ->with(['schoolLocation']);
         }
 
+        $this->handleFilters($query,$filters);
+
         $this->handleSorting($query,$user, $sorting);
 
-       $this->handleFilters($query,$filters);
-
-       return $query;
+        return $query;
     }
 
     protected function handleFilters($query,$filters = [])
@@ -183,14 +184,16 @@ class FileManagement extends BaseModel {
         }
     }
 
+
+
     protected function handleSortingName($query,$dir)
     {
-        $query->orderByRaw('CAST(typedetails->"$.name" as String)',$dir);
+        $query->orderBy('file_managements.test_name',$dir);
     }
 
     protected function handleSortingSubject($query,$dir)
     {
-        $query->orderByRaw('CAST(typedetails->"$.subject" as String)',$dir);
+        $query->orderBy('file_managements.subject',$dir);
     }
 
     protected function handleSortingTeacher($query,$dir)
