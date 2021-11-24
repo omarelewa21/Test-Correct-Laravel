@@ -216,7 +216,7 @@ class TestParticipant extends BaseModel
 
     public function schoolClass()
     {
-        return $this->belongsTo('tcCore\SchoolClass');
+        return $this->belongsTo('tcCore\SchoolClass')->withTrashed();
     }
 
     /**
