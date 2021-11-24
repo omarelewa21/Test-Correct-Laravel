@@ -2,7 +2,8 @@
     <div>
         <h1>{{ __('student.tests_to_discuss') }}</h1>
     </div>
-    <div class="content-section p-8" wire:init="loadTestTakesToDiscuss">
+    <div class="content-section p-8 relative flex" wire:init="loadTestTakesToDiscuss">
+        <x-loading/>
         @if($readyToLoad)
             @if($testTakes->count() == 0)
                 <p>{{ __('student.no_test_takes_to_discuss') }}</p>
@@ -40,7 +41,7 @@
                             <x-table.row class="cursor-pointer"
                                          wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')"
                             >
-                                <x-table.cell>{{ $testTake->id }}{{ $testTake->test_name }}</x-table.cell>
+                                <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
                                 <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
                                 <x-table.cell class="text-right">
                                     @if($testTake->time_start == \Carbon\Carbon::today())

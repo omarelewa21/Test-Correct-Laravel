@@ -1,5 +1,5 @@
 @props(['active' => 'planned', 'disabled' => false])
-<div class="flex w-full mx-4 lg:mx-8 xl:mx-12 max-w-7xl space-x-4 menu">
+<div class="flex w-full px-4 lg:px-8 xl:px-24 space-x-4 menu">
     <div>
         @if(!$disabled)
             <x-button.text-button class="{{ $active === 'planned' ? 'active' : '' }}" type="link" href="{{ route('student.test-takes', ['tab' => 'planned']) }}"><span>{{ __('student.planned') }}</span></x-button.text-button>

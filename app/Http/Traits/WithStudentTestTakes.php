@@ -84,7 +84,7 @@ trait WithStudentTestTakes
         $statusName = strtolower($testTake->status_name);
 
         if (Str::contains($testTake->status_name, ' ')) {
-            $statusName = preg_replace($testTake->status_name, '_', ' ');
+            $statusName = Str::of($testTake->status_name)->replaceFirst(' ', '_')->lower();
         }
 
         return sprintf('general.%s', $statusName);

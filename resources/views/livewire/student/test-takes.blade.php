@@ -6,46 +6,62 @@
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('planned-body')"
      wire:ignore.self
 >
-    <div class="flex w-full justify-center border-b border-system-secondary">
-        <div class="flex w-full mx-4 lg:mx-8 xl:mx-12 max-w-7xl space-x-4 menu">
+    <div class="flex w-full justify-center border-b border-system-secondary px-4 lg:px-8 xl:px-24">
+        <div class="flex w-full menu">
             <div wire:click="changeActiveTab('{{ $this->plannedTab }}')">
-                <x-button.text-button class="px-2 border-0 {{ $this->plannedTab === $tab ? 'active' : '' }}">
+                <x-button.text-button class="px-2 border-0 {{ $this->plannedTab === $tab ? 'active' : '' }}" withHover="true">
                     <span>{{ __('student.planned') }}
                     </span>
                 </x-button.text-button>
             </div>
             <div wire:click="changeActiveTab('{{ $this->discussTab }}')">
-                <x-button.text-button class="px-2 border-0 {{ $this->discussTab === $tab ? 'active' : '' }}">
+                <x-button.text-button class="px-2 border-0 {{ $this->discussTab === $tab ? 'active' : '' }}" withHover="true">
                     <span>{{ __('student.discuss') }}
                     </span>
                 </x-button.text-button>
             </div>
             <div wire:click="changeActiveTab('{{ $this->reviewTab }}')">
-                <x-button.text-button class="px-2 border-0 {{ $this->reviewTab === $tab ? 'active' : '' }}">
+                <x-button.text-button class="px-2 border-0 {{ $this->reviewTab === $tab ? 'active' : '' }}" withHover="true">
                     <span>{{ __('student.review') }}
                     </span>
                 </x-button.text-button>
             </div>
             <div wire:click="changeActiveTab('{{ $this->gradedTab }}')">
-                <x-button.text-button class="px-2 border-0 {{ $this->gradedTab === $tab ? 'active' : '' }}">
+                <x-button.text-button class="px-2 border-0 {{ $this->gradedTab === $tab ? 'active' : '' }}" withHover="true">
                     <span>{{ __('student.graded') }}
                     </span>
                 </x-button.text-button>
             </div>
         </div>
     </div>
-    <div class="flex flex-col my-10 w-full">
-        <div class="w-full px-4 lg:px-8 xl:px-12">
-            <div x-show="activeTab === '{{ $this->plannedTab }}'" class="flex flex-col space-y-4 mx-auto max-w-7xl">
+    <div class="flex flex-col my-10 w-full px-4 lg:px-8 xl:px-24">
+        <div class="w-full">
+            <div x-show="activeTab === '{{ $this->plannedTab }}'"
+                 x-transition:enter="transition duration-200"
+                 x-transition:enter-start="opacity-0 delay-200"
+                 x-transition:enter-end="opacity-100"
+                 class="flex flex-col space-y-4">
                 <livewire:student.planned/>
             </div>
-            <div x-show="activeTab === '{{ $this->discussTab }}'" class="flex flex-col space-y-4 mx-auto max-w-7xl">
+            <div x-show="activeTab === '{{ $this->discussTab }}'"
+                 x-transition:enter="transition duration-200"
+                 x-transition:enter-start="opacity-0 delay-200"
+                 x-transition:enter-end="opacity-100"
+                 class="flex flex-col space-y-4">
                 <livewire:student.discuss/>
             </div>
-            <div x-show="activeTab === '{{ $this->reviewTab }}'" class="flex flex-col space-y-4 mx-auto max-w-7xl">
+            <div x-show="activeTab === '{{ $this->reviewTab }}'"
+                 x-transition:enter="transition duration-200"
+                 x-transition:enter-start="opacity-0 delay-200"
+                 x-transition:enter-end="opacity-100"
+                 class="flex flex-col space-y-4">
                 <livewire:student.review/>
             </div>
-            <div x-show="activeTab === '{{ $this->gradedTab }}'" class="flex flex-col space-y-4 mx-auto max-w-7xl">
+            <div x-show="activeTab === '{{ $this->gradedTab }}'"
+                 x-transition:enter="transition duration-200"
+                 x-transition:enter-start="opacity-0 delay-200"
+                 x-transition:enter-end="opacity-100"
+                 class="flex flex-col space-y-4">
                 <livewire:student.graded/>
             </div>
         </div>

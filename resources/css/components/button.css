@@ -35,10 +35,14 @@
 
 .text-button:hover {
     color: var(--primary);
+}
+.text-button.text-button-hover-bg:hover {
     background: var(--primary-opacity-05);
 }
 .text-button:active {
     color: var(--primary);
+}
+.text-button.text-button-hover-bg:active {
     background: var(--primary-opacity-10);
 }
 

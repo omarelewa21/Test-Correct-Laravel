@@ -11,17 +11,17 @@
         <div id="menu" class="menu hidden flex-wrap content-center lg:flex lg:ml-4">
             @if(!Auth::user()->guest)
                 <div class="menu-item">
-                    <x-button.text-button class="px-2" id="student-header-dashboard" wire:click="dashboard()">
+                    <x-button.text-button class="px-2" id="student-header-dashboard" wire:click="dashboard()" withHover="true">
                         <span class="">{{ __('student.dashboard') }}</span>
                     </x-button.text-button>
                 </div>
                 <div class="menu-item">
-                    <x-button.text-button class="px-2" id="student-header-tests" wire:click="tests()">
+                    <x-button.text-button class="px-2" id="student-header-tests" wire:click="tests()" withHover="true">
                         <span class="">{{ __('student.tests') }}</span>
                     </x-button.text-button>
                 </div>
                 <div class="menu-item">
-                    <x-button.text-button class="px-2" id="student-header-analysis" wire:click="analyses()">
+                    <x-button.text-button class="px-2" id="student-header-analysis" wire:click="analyses()" withHover="true">
                         <span class="">{{ __('student.analysis') }}</span>
                     </x-button.text-button>
                 </div>

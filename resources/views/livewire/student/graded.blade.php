@@ -2,7 +2,8 @@
     <div>
         <h1>{{ __('student.graded_tests') }}</h1>
     </div>
-    <div class="content-section p-8" wire:init="loadRatings">
+    <div class="content-section p-8 relative" wire:init="loadRatings">
+        <x-loading />
         @if($readyToLoad)
             @if($testParticipants->count() == 0)
                 <p>{{ __('student.no_recent_grades') }}</p>

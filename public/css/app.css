@@ -86,10 +86,14 @@
 
 .text-button:hover {
     color: var(--primary);
+}
+.text-button.text-button-hover-bg:hover {
     background: var(--primary-opacity-05);
 }
 .text-button:active {
     color: var(--primary);
+}
+.text-button.text-button-hover-bg:active {
     background: var(--primary-opacity-10);
 }
 
@@ -315,8 +319,10 @@
     border-color: #EBCCC8;
     color: #CF1B04
 }
-.test-row{
+.test-row {
+    border-radius: 10px;
     border-bottom: 1px solid var(--blue-grey);
+    position: relative;
 }
 
 .test-row td:first-child {
@@ -327,13 +333,16 @@
     border-top-right-radius: 10px;
     border-bottom-right-radius: 10px;
 }
-.test-row:hover{
-    border-radius: 10px;
+.test-row:hover > td {
     background: var(--off-white);
-    box-shadow: 0 1px 6px 0 rgba(77, 87, 143, 0.4);
-    border-bottom-color: transparent!important;
+}
+
+.test-row:hover{
+    box-shadow: var(--main-shadow);
+    font-weight: bold;
     color: var(--primary);
-    font-family: Nunito Bold;
+    background: var(--off-white);
+    border-color: transparent;
 }
 .question-title {
     padding-bottom: 1rem;
@@ -829,7 +838,7 @@ input[type=number] {
 .cta-gradient {
     background: linear-gradient(to right, var(--cta-primary-mid-dark) 0%, var(--cta-primary) 98%), linear-gradient(to bottom, var(--light-grey), #c8d0e2 80%);
 }
-/*! tailwindcss v2.2.16 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
 /*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
 
@@ -1959,9 +1968,6 @@ video {
 .max-w-xl{
 	max-width: 36rem;
 }
-.max-w-7xl{
-	max-width: 80rem;
-}
 .max-w-max{
 	max-width: -webkit-max-content;
 	max-width: -moz-max-content;
@@ -1975,6 +1981,9 @@ video {
 }
 .max-w-full{
 	max-width: 100%;
+}
+.max-w-7xl{
+	max-width: 80rem;
 }
 .flex-1{
 	flex: 1 1 0%;
@@ -2028,6 +2037,22 @@ video {
 }
 .transform{
 	transform: var(--tw-transform);
+}
+@-webkit-keyframes spin{
+
+	to{
+		transform: rotate(360deg);
+	}
+}
+@keyframes spin{
+
+	to{
+		transform: rotate(360deg);
+	}
+}
+.animate-spin{
+	-webkit-animation: spin 1s linear infinite;
+	        animation: spin 1s linear infinite;
 }
 .cursor-pointer{
 	cursor: pointer;
@@ -2730,6 +2755,9 @@ video {
 }
 .opacity-100{
 	opacity: 1;
+}
+.opacity-40{
+	opacity: 0.4;
 }
 .opacity-75{
 	opacity: 0.75;
@@ -3778,11 +3806,6 @@ ul ul ul {
 }
 @media (min-width: 1024px){
 
-	.lg\:mx-8{
-		margin-left: 2rem;
-		margin-right: 2rem;
-	}
-
 	.lg\:mb-0{
 		margin-bottom: 0px;
 	}
@@ -3843,16 +3866,6 @@ ul ul ul {
 		margin-right: 7rem;
 	}
 
-	.xl\:mx-12{
-		margin-left: 3rem;
-		margin-right: 3rem;
-	}
-
-	.xl\:mx-24{
-		margin-left: 6rem;
-		margin-right: 6rem;
-	}
-
 	.xl\:table-cell{
 		display: table-cell;
 	}
@@ -3890,6 +3903,11 @@ ul ul ul {
 	.xl\:px-28{
 		padding-left: 7rem;
 		padding-right: 7rem;
+	}
+
+	.xl\:px-24{
+		padding-left: 6rem;
+		padding-right: 6rem;
 	}
 
 	.xl\:px-12{
