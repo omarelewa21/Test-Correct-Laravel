@@ -43,11 +43,17 @@ class SurveillanceController extends Controller
             'ipAlerts'     => 0,
         ];
         $dataset = $this->getTakesForSurveillance(Auth::user());
-
+:
         $dataset->each(function ($testTake) {
             $this->transformParticipants($testTake);
             $this->transformForService($testTake);
         });
+
+        if (request()->boolean('withoutParticipants')) {
+            collect(['participant','time','alerts','ipAlerts'])->each(function($unset){
+                unset($this->response[$unset]);
+            });
+        }
 
         return $this->response;
     }
@@ -253,6 +259,11 @@ class SurveillanceController extends Controller
     {
         $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
             return TestTake::query()->where('test_takes.test_take_status_id', 3)
+                ->when(request()->boolean('withoutParticipants'), function($query){
+                    $query->where('tests.test_kind_id', 4);
+                }, function($query){
+                    $query->where('tests.test_kind_id', '<>', 4);
+                })
                 ->withoutDemoTeacherForUser($owner)
                 ->onlyTestsFromSubjectsOrIfDemoThenOnlyWhenOwner($owner)
                 ->pluck('id')
