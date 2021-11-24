@@ -222,7 +222,12 @@ class TestTake extends BaseModel
 
                 $testTakeDiscussionNotAllowedStatusses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken', 'Taken away'])->pluck('id', 'name')->all();
 
-                $testTake->load('testParticipants', 'testParticipants.schoolClass', 'testParticipants.schoolClass.schoolLocation');
+                $testTake->load([   'testParticipants',
+                                    'testParticipants.schoolClass' => function($query){
+                                            return $query->withTrashed();
+                                    },
+                                    'testParticipants.schoolClass.schoolLocation'
+                                ]);
                 foreach ($testTake->testParticipants as $testParticipant) {
                     $activated = $testParticipant->schoolClass->schoolLocation->getAttribute('activated');
                     if ($activated != true) {
@@ -404,7 +409,7 @@ class TestTake extends BaseModel
     public function schoolClasses()
     {
         $id = $this->getKey();
-        return SchoolClass::select()->whereIn('id', function ($query) use ($id) {
+        return SchoolClass::withTrashed()->select()->whereIn('id', function ($query) use ($id) {
             $query->select('school_class_id')
                 ->from(with(new TestParticipant())->getTable())
                 ->where('test_take_id', $id)
