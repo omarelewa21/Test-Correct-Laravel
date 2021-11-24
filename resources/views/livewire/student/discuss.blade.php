@@ -2,7 +2,8 @@
     <div>
         <h1>{{ __('student.tests_to_discuss') }}</h1>
     </div>
-    <div class="content-section p-8" wire:init="loadTestTakesToDiscuss">
+    <div class="content-section p-8 relative flex" wire:init="loadTestTakesToDiscuss">
+        <x-loading/>
         @if($readyToLoad)
             @if($testTakes->count() == 0)
                 <p>{{ __('student.no_test_takes_to_discuss') }}</p>
@@ -60,7 +61,7 @@
                                 </x-table.cell>
                                 <x-table.cell buttonCell class="text-right">
                                     @if($testTake->test_take_status_id == \tcCore\TestTakeStatus::STATUS_DISCUSSING)
-                                        <x-button.cta>{{__("student.Bespreken")}}</x-button.cta>
+                                        <x-button.cta wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">{{__("student.Bespreken")}}</x-button.cta>
                                     @else
                                         <x-button.cta disabled>{{__("student.Bespreken")}}</x-button.cta>
                                     @endif

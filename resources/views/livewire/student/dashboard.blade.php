@@ -1,5 +1,5 @@
 <div id="dashboard-body"
-     class="mx-4 lg:mx-8 xl:mx-24 relative max-w-7xl w-full pb-10"
+     class="px-4 lg:px-8 xl:px-24 relative w-full pb-10"
      x-data=""
      x-init="addRelativePaddingToBody('dashboard-body'); makeHeaderMenuActive('student-header-dashboard');"
      x-cloak

@@ -29,6 +29,8 @@ class WaitingRoom extends Component
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.RemoveParticipantFromWaitingRoom'          => 'removeParticipantFromWaitingRoom',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeForceTakenAway'                    => 'participantStatusChanged',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeReopened'                          => 'participantStatusChanged',
             //Presence channels are not completely working with Livewire listeners. Presence channel listener is located in x-init of this components blade file. -RR
 //            'echo-presence:Presence-TestTake.' . $this->waitingTestTake->uuid . ',.TestTakeShowResultsChanged'          => 'isTestTakeOpen',
         ];
@@ -166,8 +168,8 @@ class WaitingRoom extends Component
 
         session()->put('guest_take', $this->take);
         session()->put('guest_data', [
-            'name' => $this->testParticipant->user->name,
-            'name_first' => $this->testParticipant->user->name_first,
+            'name'        => $this->testParticipant->user->name,
+            'name_first'  => $this->testParticipant->user->name_first,
             'name_suffix' => $this->testParticipant->user->name_suffix
         ]);
         return redirect(route('guest-choice', ['take' => $this->take]));
@@ -205,4 +207,16 @@ class WaitingRoom extends Component
         }
     }
 
+    public function participantStatusChanged()
+    {
+        $this->isTestTakeOpen();
+    }
+
+    public function getButtonTextForPlannedTakes()
+    {
+        if ($this->testParticipant->test_take_status_id >= TestTakeStatus::STATUS_HANDED_IN) {
+            return __('student.test_already_taken');
+        }
+        return __('student.wait_for_test_take');
+    }
 }
