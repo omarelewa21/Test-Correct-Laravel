@@ -204,23 +204,21 @@ class SurveillanceController extends Controller
 
     private function getCachedTestTakeIds(User $owner)
     {
-        $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
+    //    $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
             $currentPeriod =  PeriodRepository::getCurrentPeriod();
             if ($currentPeriod == null) {
                 return [];
             }
 
-            return TestTake::filtered([
+            $filtered = request()->boolean('withoutParticipants') ? ['type_assessment'=> true] : ['type_not_assessment' => true];
+            $filtered = array_merge($filtered, [
                 'test_take_status_id' => '3',
                 'period_id' => $currentPeriod->id,
-            ])->when(request()->boolean('withoutParticipants'), function($query){
-//                $query->where('tests.test_kind_id', 4);
-                $query->typeAssessment();
-            }, function($query){
-                $query->typeNotAssessment();
-//                $query->where('tests.test_kind_id', '<>', 4);
-            })->pluck('id');
-        });
+            ]);
+            logger($filtered);
+
+            return TestTake::filtered($filtered)->pluck('id');
+    //    });
 
         return $ids;
     }
