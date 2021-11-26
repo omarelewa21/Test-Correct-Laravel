@@ -28,6 +28,7 @@ class SurveillanceController extends Controller
     private $ipCheck = false;
     private $eventIdsThatRequireConfirming = null;
 
+
     public function index()
     {
         if (!Auth::user()->isA(['teacher', 'invigilator'])) {
@@ -44,11 +45,16 @@ class SurveillanceController extends Controller
         ];
         $dataset = $this->getTakesForSurveillance(Auth::user());
 
-
         $dataset->each(function ($testTake) {
             $this->transformParticipants($testTake);
             $this->transformForService($testTake);
         });
+
+        if (request()->boolean('withoutParticipants')) {
+            collect(['participants','time','alerts','ipAlerts'])->each(function($unset){
+                unset($this->response[$unset]);
+            });
+        }
 
         return $this->response;
     }
@@ -198,17 +204,21 @@ class SurveillanceController extends Controller
 
     private function getCachedTestTakeIds(User $owner)
     {
-        $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
+    //    $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
             $currentPeriod =  PeriodRepository::getCurrentPeriod();
             if ($currentPeriod == null) {
                 return [];
             }
 
-            return TestTake::filtered([
+            $filtered = request()->boolean('withoutParticipants') ? ['type_assessment'=> true] : ['type_not_assessment' => true];
+            $filtered = array_merge($filtered, [
                 'test_take_status_id' => '3',
                 'period_id' => $currentPeriod->id,
-            ])->pluck('id');
-        });
+            ]);
+            logger($filtered);
+
+            return TestTake::filtered($filtered)->pluck('id');
+    //    });
 
         return $ids;
     }
