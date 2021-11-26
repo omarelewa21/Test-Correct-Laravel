@@ -1,0 +1,4 @@
+ga naar /opt/homebrew/etc/php/7.2/php-fpm.d/valet-fpm.conf
+of open met php monitor de folder van php.ini en zoek daar valet-fpm.conf
+
+zet de max-children op 64

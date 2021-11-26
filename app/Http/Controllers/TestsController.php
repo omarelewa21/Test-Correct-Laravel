@@ -35,7 +35,6 @@ class TestsController extends Controller {
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
         } catch (\Exception $e){}
 
-
         $tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
 //		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
 
@@ -200,7 +199,7 @@ class TestsController extends Controller {
         $temporaryLogin = TemporaryLogin::createForUser(Auth()->user());
 
         $relativeUrl = sprintf('%s?redirect=%s',
-            route('auth.temporary-login.redirect',[$temporaryLogin->uuid],false),
+            route('auth.temporary-login-redirect',[$temporaryLogin->uuid],false),
             rawurlencode(route('teacher.test-preview', $test->uuid,false))
         );
         if(Str::startsWith($relativeUrl,'/')) {
