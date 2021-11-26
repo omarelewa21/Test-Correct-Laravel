@@ -48,6 +48,11 @@ return [
 			'root'   => storage_path().'/app',
 		],
 
+        'cake' => [
+            'driver' => 'local',
+            'root' => env('CAKE_STORAGE_PATH', base_path().'/../testportal.test-correct/app/tmp/')
+        ],
+
 		's3' => [
 			'driver' => 's3',
 			'key'    => 'your-key',

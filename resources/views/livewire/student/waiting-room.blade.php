@@ -1,14 +1,22 @@
 <div id="planned-body"
-     x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }} }"
+     x-data="{startCountdown: false, isTakeOpen: @entangle('isTakeOpen'), countdownNumber: {{ $this->getCountdownNumber() }}, activeStudents: 0 }"
      x-init="
         addRelativePaddingToBody('planned-body');
         @if(!Auth::user()->guest)
         makeHeaderMenuActive('student-header-tests');
         @endif
-             Echo.join('presence-TestTake.{{ $waitingTestTake->uuid }}')
-                .listen('.TestTakeShowResultsChanged', (e) => {
-                    Livewire.emit('is-test-take-open', e)
-                })
+
+        var presenceChannel = Echo.join('presence-TestTake.{{ $waitingTestTake->uuid }}');
+        presenceChannel.here((users) => {
+            activeStudents = countPresentStudents(presenceChannel.subscription.members);
+        }).joining((user) => {
+            activeStudents = countPresentStudents(presenceChannel.subscription.members);
+        }).leaving((user) => {
+            activeStudents = countPresentStudents(presenceChannel.subscription.members);
+        });
+        presenceChannel.listen('.TestTakeShowResultsChanged', (e) => {
+            Livewire.emit('is-test-take-open', e)
+        });
      "
      x-ref="root"
      x-cloak
@@ -45,18 +53,24 @@
                     <x-partials.waiting-room-grid :waitingTestTake="$waitingTestTake" :participatingClasses="$participatingClasses"/>
                 </div>
                 <div class="flex w-full items-center h-10">
-                    @if($meetsAppRequirement)
-                    <x-partials.waiting-room-action-button :testTakeStatusStage="$this->testTakeStatusStage"
-                                                        :isTakeOpen="$this->isTakeOpen"/>
+                    @if(!$needsApp)
+                        <x-partials.waiting-room-action-button :testTakeStatusStage="$this->testTakeStatusStage"
+                                                               :isTakeOpen="$this->isTakeOpen"/>
                     @else
-                        <div class="divider flex flex-1"></div>
-                        <div class="flex flex-col justify-center">
-                            <x-button.cta disabled class="mx-4">
-                                <span>{{ __('Toets starten niet mogelijk') }}</span>
-                            </x-button.cta>
-                        </div>
-                        <div class="divider flex flex-1"></div>
+                        @if($meetsAppRequirement)
+                        <x-partials.waiting-room-action-button :testTakeStatusStage="$this->testTakeStatusStage"
+                                                            :isTakeOpen="$this->isTakeOpen"/>
+                        @else
+                            <div class="divider flex flex-1"></div>
+                            <div class="flex flex-col justify-center">
+                                <x-button.cta disabled class="mx-4">
+                                    <span>{{ __('Toets starten niet mogelijk') }}</span>
+                                </x-button.cta>
+                            </div>
+                            <div class="divider flex flex-1"></div>
+                        @endif
                     @endif
+
                 </div>
                 <div class="flex w-full justify-center transition-all duration-300"
                      :class="{'opacity-50' : isTakeOpen}">
@@ -66,17 +80,8 @@
             </div>
         </div>
         <div class="flex flex-col bg-light-grey items-center justify-center py-12">
-            @if(!$meetsAppRequirement)
-            <div class="flex w-full justify-center transition-all duration-300 mb-4">
-                <div class="notification error stretched">
-                    <div class="flex items-center space-x-3">
-                        <x-icon.exclamation/>
-                        <span class="title">{{ __('auth.download_student_app') }}</span>
-                    </div>
-                    <span class="body">{{ __('student.not_allowed_to_test_in_browser') }}</span>
-                </div>
-            </div>
-            @endif
+
+
             <div class="content-section flex flex-col w-full max-w-2xl p-8 space-y-4">
                 <h4 class="px-3">{{ __('student.teacher_introduction_title') }}</h4>
                 <div class="divider"></div>
@@ -87,6 +92,43 @@
                         {{ __('student.teacher_introduction_long') }}
                     @endif
                 </div>
+                @if($needsApp && !$meetsAppRequirement && !$this->testParticipant->isInBrowser())
+                    <div class="flex w-full justify-center transition-all duration-300 mb-4">
+                        <div class="notification error stretched">
+                            <div class="flex items-center space-x-3">
+                                <x-icon.exclamation/>
+                                <span class="title">{{ __('general.attention') }}</span>
+                            </div>
+                            <span class="body">{{ __('student.app_not_allowed') }}</span>
+                        </div>
+                    </div>
+                @endif
+                @if($needsApp && $this->testParticipant->isInBrowser())
+                    <div class="flex w-full justify-center transition-all duration-300 mb-4">
+                        <div class="notification error stretched">
+                            <div class="flex items-center space-x-3">
+                                <x-icon.exclamation/>
+                                <span class="title">{{ __('auth.download_student_app') }}</span>
+                            </div>
+                            <span class="body">{{ __('student.not_allowed_to_test_in_browser') }}</span>
+                        </div>
+                    </div>
+                @endif
+                @if($needsApp && $appNeedsUpdate)
+                    <div class="flex w-full justify-center transition-all duration-300 mb-4">
+                        <div class="notification warning stretched">
+                            <div class="flex items-center space-x-3">
+                                <x-icon.exclamation/>
+                                <span class="title">{{ __('general.attention') }}!</span>
+                            </div>
+                            @if($appNeedsUpdateDeadline)
+                            <span class="body">{{ __('student.app_needs_update_deadline', ['date' => $appNeedsUpdateDeadline]) }}</span>
+                            @else
+                            <span class="body">{{ __('student.app_needs_update') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -130,6 +172,7 @@
                 countdownTimer = setInterval(function () {
                     data.countdownNumber -= 1;
                     if (data.countdownNumber === 0) {
+                        Core.setAppTestConfigIfNecessary('{{ $testParticipant->uuid }}');
                         Livewire.emitTo('student.waiting-room', 'start-test-take')
                         clearInterval(countdownTimer);
                     }

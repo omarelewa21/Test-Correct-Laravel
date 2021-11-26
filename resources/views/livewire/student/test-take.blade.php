@@ -20,7 +20,7 @@
             @endif
         </x-slot>
         <x-slot name="actionButton">
-            <x-button.cta size="md" wire:click="TurnInTestTake">
+            <x-button.cta size="md" wire:click="TurnInTestTake(true)">
                 <span>
                     @if(!Auth::user()->guest)
                         {{ __('student.dashboard') }}

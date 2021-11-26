@@ -7,8 +7,10 @@ use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Str;
 use tcCore\FailedLogin;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\UserHelper;
@@ -59,5 +61,18 @@ class AuthController extends Controller
             ]);
             return \Response::make("Invalid credentials.", 403);
         }
+    }
+
+    public function getLaravelLoginPage(Request $request)
+    {
+        $baseUrl = config('app.base_url');
+        $loginRoute = route('auth.login',[], false);
+
+        if (Str::endsWith($baseUrl, '/')) {
+            $baseUrl = Str::replaceLast('/', '', $baseUrl);
+        }
+        $url['url'] = sprintf('%s%s', $baseUrl, $loginRoute);
+
+        return \Response::make($url);
     }
 }

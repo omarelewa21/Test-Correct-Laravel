@@ -17,9 +17,9 @@ class TestTakeCode extends Model
         'uuid' => EfficientUuid::class
     ];
 
-    protected $dates = ['deleted_at'];
+    protected $dates = ['deleted_at', 'rating_visible_expiration'];
 
-    protected $fillable = ['test_take_id'];
+    protected $fillable = ['test_take_id', 'rating_visible_expiration'];
 
     protected static function boot()
     {
@@ -45,7 +45,7 @@ class TestTakeCode extends Model
         return random_int(100000, 999999);
     }
 
-    public function  testTake()
+    public function testTake()
     {
         return $this->belongsTo(TestTake::class);
     }

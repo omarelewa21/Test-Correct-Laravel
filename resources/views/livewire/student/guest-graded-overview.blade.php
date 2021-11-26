@@ -1,5 +1,5 @@
 <div id="planned-body"
-     x-data="{sortField: @entangle('sortField'), sortDirection: @entangle('sortDirection')}"
+     x-data="{sortField: @entangle('sortField'), sortDirection: @entangle('sortDirection'), activeStudents: 0}"
      x-init="
         $el.parentElement.classList.add('flex','flex-1')"
      x-cloak
@@ -18,7 +18,10 @@
                 <div class="flex justify-center">
                     <div class="bg-white rounded-10 pt-5 p-8 w-full max-w-2xl">
                         <div class="px-3">
-                            <h4 class="leading-8">Cijfers van studenten met gastprofiel</h4>
+                            <h4 class="leading-8">{{ __('student.grades_for_guest_accounts') }}</h4>
+                            @if($this->canReviewTestTake())
+                                <h7 class="">{{ __('student.click_name_to_review_test') }}</h7>
+                            @endif
                         </div>
                         <div class="mt-3 px-3 flex w-full justify-between base">
                             <button
@@ -28,13 +31,13 @@
                                     wire:click="sortGuestNames"
                                     wire:loading.class="underline"
                             >
-                                <span>Naam</span>
+                                <span>{{ __('general.name') }}</span>
                                 <x-icon.chevron-small opacity="1"/>
                             </button>
                             <x-button.text-button
                                     class="{{ ($this->sortField == 'test_participants.rating' && $this->sortDirection == 'asc') ? 'rotate-svg-270' : 'rotate-svg-90' }} text-base"
                                     size="sm" wire:click="sortGuestGrades">
-                                <span>Cijfer</span>
+                                <span>{{ __('general.grade') }}</span>
                                 <x-icon.chevron-small opacity="1"/>
                             </x-button.text-button>
                         </div>
@@ -45,6 +48,9 @@
                                     multiple-choice-question transition ease-in-out duration-150 focus:outline-none
                                     justify-between items-center hover:-mb-px cursor-pointer"
                                      wire:key="{{ $key }}"
+                                     @if($this->canReviewTestTake())
+                                     wire:click="continueAs('{{ $guest['uuid'] }}')"
+                                     @endif
                                 >
                                     <span>{{ $guest['name'] }}</span>
                                     @if($guest['rating'] != null)
@@ -52,7 +58,7 @@
                                             {!! str_replace('.',',',round($guest['rating'], 1))!!}
                                     </span>
                                     @else
-                                        <span>Geen cijfer</span>
+                                        <span>{{ __('student.no_grade') }}</span>
                                     @endif
                                 </div>
                                 <div class="h-px bg-blue-grey mx-2"></div>
@@ -60,6 +66,11 @@
                                 <div class="mt-4">Geen profielen beschikbaar.</div>
                             @endforelse
                         </div>
+                    @error('reviewing_time_has_expired')
+                    <div class="mt-4 notification error stretched">
+                        <span class="title">{{ $message }}</span>
+                    </div>
+                    @enderror
                     </div>
                 </div>
 

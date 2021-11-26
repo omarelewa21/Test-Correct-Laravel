@@ -61,7 +61,7 @@ class TestTake extends BaseModel
      *
      * @var array
      */
-    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing','guest_accounts'];
+    protected $fillable = ['test_id', 'test_take_status_id', 'period_id', 'retake', 'retake_test_take_id', 'time_start', 'time_end', 'location', 'weight', 'note', 'invigilator_note', 'show_results', 'discussion_type', 'is_rtti_test_take', 'exported_to_rtti', 'allow_inbrowser_testing', 'guest_accounts'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -181,7 +181,7 @@ class TestTake extends BaseModel
 
                     $testParticipant->save();
 
-                    TestTakeOpenForInteraction::dispatch($testParticipant, $testParticipantTestTakeStatus);
+                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
 
@@ -234,7 +234,7 @@ class TestTake extends BaseModel
                     }
 
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
-//                    TestTakeOpenForInteraction::dispatch($testParticipant, $testParticipantDiscussingStatus);
+                    TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
             }
 
@@ -312,6 +312,7 @@ class TestTake extends BaseModel
             $testTake->handleInbrowserTestingChangesForParticipants();
             $testTake->handleGuestAccountsStatus();
             $testTake->handleShowResultChanges();
+            $testTake->updateGuestRatingVisibilityWindow();
         });
 
         static::creating(function(TestTake $testTake) {
@@ -525,6 +526,12 @@ class TestTake extends BaseModel
 
         foreach ($filters as $key => $value) {
             switch ($key) {
+                case 'type_not_assessment':
+                    $query->typeNotAssessment();
+                    break;
+                case 'type_assessment':
+                    $query->typeAssessment();
+                    break;
                 case 'user_id':
                     if (is_array($value)) {
                         $query->whereIn('user_id', $value);
@@ -846,7 +853,7 @@ class TestTake extends BaseModel
                 ->get()
                 ->each(function ($participant) {
                     $participant->setAttribute('allow_inbrowser_testing', $this->allow_inbrowser_testing)->save();
-                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant);
+                    InbrowserTestingUpdatedForTestParticipant::dispatch($participant->uuid);
                 });
         }
     }
@@ -854,7 +861,7 @@ class TestTake extends BaseModel
     private function handleShowResultChanges()
     {
         if ($this->show_results != $this->getOriginal('show_results')) {
-            TestTakeShowResultsChanged::dispatch($this);
+            TestTakeShowResultsChanged::dispatch($this->uuid);
         }
     }
 
@@ -973,9 +980,32 @@ class TestTake extends BaseModel
         });
     }
 
+    private function updateGuestRatingVisibilityWindow()
+    {
+        if (!$this->test_take_status_id == TestTakeStatus::STATUS_RATED || !$this->guest_accounts || $this->testTakeCode == null) {
+            return;
+        }
+
+        $this->testTakeCode->setAttribute('rating_visible_expiration', Carbon::now()->addMonths(2))->save();
+    }
+
+    public function reviewingIsPossible()
+    {
+        return $this->show_results && $this->show_results->gt(Carbon::now());
+    }
+
     public function scopeTypeAssessment(Builder $query)
     {
-        return $query->leftJoin('tests', 'test_takes.test_id', 'tests.id')->where('test_kind_id', TestKind::ASSESSMENT_TYPE);
+        return $query
+            ->leftJoin('tests as tests_alias', 'test_takes.test_id', 'tests.id')
+            ->where('tests_alias.test_kind_id', TestKind::ASSESSMENT_TYPE);
+    }
+
+    public function scopeTypeNotAssessment(Builder $query)
+    {
+            return $query
+                ->leftJoin('tests as tests_alias', 'test_takes.test_id', 'tests.id')
+                ->where('tests_alias.test_kind_id', '<>', TestKind::ASSESSMENT_TYPE);
     }
 
     public function scopeStatusPlanned(Builder $query)
@@ -990,5 +1020,21 @@ class TestTake extends BaseModel
 
     public function scopeTimeEndExpired(Builder $query) {
         return $query->where('time_end', '<', now());
+    }
+
+    public static function isJoined($query, $table)
+    {
+        $joins = $query->getQuery()->joins;
+        if($joins == null) {
+            return false;
+        }
+
+        foreach ($joins as $join) {
+            if ($join->table == $table) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -17,6 +17,7 @@ class TestTake extends Component
     public $testTakeUuid;
     public $showTurnInModal = false;
     public $testParticipantId;
+    public $testParticipantUuid;
     public $forceTakenAwayModal = false;
     public $browserTestingDisabledModal = false;
 
@@ -28,12 +29,12 @@ class TestTake extends Component
     protected function getListeners()
     {
         return [
-            'set-force-taken-away'                                                                                => 'setForceTakenAway',
-            'checkConfirmedEvents'                                                                                => 'checkConfirmedEvents',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeForceTakenAway'               => 'setForceTakenAway',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.TestTakeReopened'                     => 'testTakeReopened',
-            'echo-private:TestParticipant.' . $this->testParticipantId . ',.BrowserTestingDisabledForParticipant' => 'checkIfParticipantCanContinueWithoutApp',
-            'studentInactive'                                                                                     => 'handleInactiveStudent'
+            'set-force-taken-away'                                                                                  => 'setForceTakenAway',
+            'checkConfirmedEvents'                                                                                  => 'checkConfirmedEvents',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeForceTakenAway'               => 'setForceTakenAway',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.TestTakeReopened'                     => 'testTakeReopened',
+            'echo-private:TestParticipant.' . $this->testParticipantUuid . ',.BrowserTestingDisabledForParticipant' => 'checkIfParticipantCanContinueWithoutApp',
+            'studentInactive'                                                                                       => 'handleInactiveStudent'
         ];
     }
 
@@ -47,7 +48,7 @@ class TestTake extends Component
         $this->showTurnInModal = true;
     }
 
-    public function TurnInTestTake()
+    public function TurnInTestTake($forceTaken = false)
     {
         $testParticipant = TestParticipant::whereId($this->testParticipantId)->first();
 
@@ -58,11 +59,8 @@ class TestTake extends Component
 
         // @TODO move this to returnToDashboard when all students use new env
         if (Auth::user()->guest) {
-            return redirect(route('auth.login', [
-                'login_tab'          => 2,
-                'guest_message_type' => 'success',
-                'guest_message'      => 'done_with_test'
-            ]));
+            $routeParameters = $this->getRouteParametersForGuest($forceTaken);
+            return redirect(route('auth.login', $routeParameters));
         }
         $this->returnToDashboard();
     }
@@ -129,6 +127,15 @@ class TestTake extends Component
 
     private function browserTestingIsDisabled()
     {
+        if (Auth::user()->guest) {
+            $parameters = [
+                'login_tab'          => 2,
+                'guest_message_type' => 'error',
+                'guest_message'      => 'no_browser_testing'
+            ];
+            return redirect(route('auth.login', $parameters));
+        }
+
         $options = TemporaryLogin::buildValidOptionObject(
             'notification',
             [__('student.browser_testing_disabled_notification') => 'error']
@@ -147,10 +154,31 @@ class TestTake extends Component
 
     public function returnToDashboard($options = null)
     {
-//        if(Auth::user()->schoolLocation->allow_guest_accounts) {
-//            return redirect(route('student.dashboard'));
-//        }
+        if (Auth::user()->schoolLocation->allow_new_student_environment) {
+            return redirect(route('student.dashboard'));
+        }
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
+    }
+
+    private function getRouteParametersForGuest($forceTaken)
+    {
+        $parameters = [
+            'login_tab'          => 2,
+            'guest_message_type' => 'success',
+            'guest_message'      => 'done_with_test'
+        ];
+        if ($forceTaken) {
+            $parameters = [
+                    'guest_message_type' => 'error',
+                    'guest_message'      => 'removed_by_teacher'
+                ] + $parameters;
+        }
+
+        if (session()->get('TLCOs', null) == 'iOS') {
+            $parameters['device'] = 'ipad';
+        }
+
+        return $parameters;
     }
 }

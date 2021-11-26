@@ -4,7 +4,7 @@
             <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
         @endif
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
-        <div>
+        <div class="">
             @push('styling')
                 <style>
                     {!! $styling !!}
@@ -103,10 +103,10 @@
             </div>
         </x-slot>
         <x-slot name="testTakeManager">
-            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()"/>
+            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()" :testParticipantUuid="$testParticipant->uuid"/>
         </x-slot>
         <x-slot name="fraudDetection">
-            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testTakeUuid="$uuid"/>
+            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testParticipantUuid="$testParticipant->uuid" :testTakeUuid="$uuid"/>
         </x-slot>
     </div>
     @push('scripts')

@@ -5,7 +5,7 @@
         </div>
         <div class="flex-1 h-80">
             <x-input.group label="Notitieblok" class="w-full">
-                <x-input.textarea wire:model="notepadText" class="h-full"></x-input.textarea>
+                <x-input.textarea  spellcheck="false" wire:model="notepadText" class="h-full"></x-input.textarea>
             </x-input.group>
         </div>
     </div>

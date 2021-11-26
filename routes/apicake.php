@@ -21,6 +21,7 @@ use tcCore\Http\Controllers\Testing\TestingController;
 
 
 Route::post('/do_we_need_captcha',[AuthController::class,'doWeNeedCaptcha'])->name('user.doWeNeedCaptcha');
+Route::get('/auth/laravel_login_page', [AuthController::class, 'getLaravelLoginPage'])->name('auth.laravelLoginPage');
 
 Route::get('/edu-k', 'EduK\HomeController@index');
 Route::post('demo_account', 'DemoAccountController@store')->name('demo_account.store');
@@ -46,9 +47,19 @@ Route::get('temporary_login/{tlid}', ['as' => 'user.temporary_login', 'uses'=>'U
 
 Route::get('check_for_deployment_maintenance',['uses' => 'DeploymentMaintenanceController@checkForMaintenance']);
 
+Route::group(['middleware' => ['api']], function() {
+    Route::get('info', [tcCore\Http\Controllers\InfoController::class, 'index']);
+});
+
 Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bindings']], function(){
     Route::post('/temporary-login',[tcCore\Http\Controllers\TemporaryLoginController::class,'create'])->name('auth.temporary-login.create');
 
+    Route::get('info/{info}',[tcCore\Http\Controllers\InfoController::class,'show']);
+    Route::post('info',[tcCore\Http\Controllers\InfoController::class,'store']);
+    Route::put('info/{info}',[tcCore\Http\Controllers\InfoController::class,'update']);
+    Route::delete('info/{info}',[tcCore\Http\Controllers\InfoController::class,'delete']);
+
+    Route::get('role',[\tcCore\Http\Controllers\RolesController::class,'index']);
 
     Route::get('authors',['as' => 'authors','uses' => 'AuthorsController@index']);
     Route::get('/deployment',['uses' => 'DeploymentController@index']);
@@ -140,6 +151,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::put('filemanagement/{fileManagement}',['as' => 'filemanagement.update','uses' => 'FileManagementController@update']);
     Route::get('filemanagement/statuses',['as' => 'filemanagement.statuses','uses' => 'FileManagementController@getStatuses']);
     Route::get('test_take/get_surveillance_data', 'SurveillanceController@index')->name('test_take.get_surveillance_data');
+    Route::get('test_take/bust_surveillance_cache', 'SurveillanceController@destroy')->name('test_take.bust_surveillance_cache');
 
 	// Test take + children
 	Route::get('test_take/{test_take}/export', ['as' => 'test_take.export', 'uses' => 'TestTakesController@export']);
@@ -265,6 +277,8 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('/attainments/import','AttainmentImportController@import')->name('attainment.import');
     Route::post('/attainments_cito/import','AttainmentCitoImportController@import')->name('attainment_cito.import');
     Route::get('attainments/data','AttainmentCitoImportController@data')->name('attainment_cito.data');
+    Route::post('/attainments/upload','AttainmentImportController@upload')->name('attainment.upload');
+    Route::get('/attainments/export','AttainmentExportController@export')->name('attainment.export');
 
     Route::get('demo_account/{user}', 'DemoAccountController@show')->name('demo_account.show');
     Route::put('demo_account/{user}', 'DemoAccountController@update')->name('demo_account.update');

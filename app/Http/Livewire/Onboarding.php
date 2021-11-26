@@ -46,50 +46,25 @@ class Onboarding extends Component
     protected $queryString = ['step', 'email', 'confirmed', 'ref'];
 
     protected function messages(){
-        if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
-            $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-            if($language ==	 'nl'){
-                return [
-                    'registration.name_first.required'      => 'Voornaam is verplicht',
-                    'registration.name.required'            => 'Achternaam is verplicht',
-                    'registration.gender.required'          => 'Geef uw geslacht op',
-                    'password.required'                     => 'Wachtwoord is verplicht',
-                    'password.min'                          => 'Wachtwoord moet langer zijn dan 8 karakters',
-                    'password.regex'                        => 'Wachtwoord voldoet niet aan de eisen',
-                    'password.same'                         => 'Wachtwoord komt niet overeen',
-                    'registration.school_location.required' => 'Schoolnaam is verplicht',
-                    'registration.website_url.required'     => 'Website is verplicht',
-                    'registration.address.required'         => 'Adres is verplicht',
-                    'registration.house_number.required'    => 'Huisnummer is verplicht',
-                    'registration.house_number.regex'       => 'Huisnummer bevat geen nummer',
-                    'registration.postcode.required'        => 'Postcode is verplicht',
-                    'registration.postcode.min'             => 'Postcode is niet geldig',
-                    'registration.postcode.regex'           => 'Postcode is niet geldig',
-                    'registration.city.required'            => 'Plaatsnaam is verplicht',
-                    'registration.username.required'        => 'E-mailadres is verplicht',
-                    'registration.username.email'           => 'E-mailadres is niet geldig',
-                ];
-            }
-        }
         return [
-            'registration.name_first.required'      => 'First name is required',
-            'registration.name.required'            => 'Last name is required',
-            'registration.gender.required'          => 'Please provide your gender',
-            'password.required'                     => 'Password is required',
-            'password.min'                          => 'Password must be longer than 8 characters',
-            'password.regex'                        => 'Password does not meet the requirements',
-            'password.same'                         => 'Password does not match',
-            'registration.school_location.required' => 'School name is required',
-            'registration.website_url.required'     => 'Website is required',
-            'registration.address.required'         => 'Address is required',
-            'registration.house_number.required'    => 'House number is required',
-            'registration.house_number.regex'       => 'House number does not contain a number',
-            'registration.postcode.required'        => 'Postcode is required',
-            'registration.postcode.min'             => 'Postcode is not valid',
-            'registration.postcode.regex'           => 'Postcode is not valid',
-            'registration.city.required'            => 'City name is required',
-            'registration.username.required'        => 'Email address is required',
-            'registration.username.email'           => 'Email address is not valid',
+            'registration.name_first.required'      => __('registration.name_first_required'),
+            'registration.name.required'            => __('registration.name_last_required'),
+            'registration.gender.required'          => __('registration.gender_required'),
+            'password.required'                     => __('registration.password_required'),
+            'password.min'                          => __('registration.password_min'),
+            'password.regex'                        => __('registration.password_regex'),
+            'password.same'                         => __('registration.password_same'),
+            'registration.school_location.required' => __('registration.school_location_required'),
+            'registration.website_url.required'     => __('registration.website_url_required'),
+            'registration.address.required'         => __('registration.address_required'),
+            'registration.house_number.required'    => __('registration.house_number_required'),
+            'registration.house_number.regex'       => __('registration.house_number_regex'),
+            'registration.postcode.required'        => __('registration.postcode_required'),
+            'registration.postcode.min'             => __('registration.postcode_min'),
+            'registration.postcode.regex'           => __('registration.postcode_regex'),
+            'registration.city.required'            => __('registration.city_required'),
+            'registration.username.required'        => __('registration.username_required'),
+            'registration.username.email'           => __('registration.username_email'),
         ];
     }
 
@@ -396,6 +371,7 @@ class Onboarding extends Component
         $subjects = BaseSubject::where('show_in_onboarding',true)->get()->pluck('name')->toArray();
         $subjects = array_unique($subjects);
         sort($subjects);
+//        $subjects = $this->translateSubjects($subjects);
         $subjects = array_diff($subjects,$this->selectedSubjects);
         $this->subjectOptions = json_encode($subjects,JSON_HEX_APOS);
     }
@@ -405,7 +381,10 @@ class Onboarding extends Component
         $this->selectedSubjectsString =  json_encode($this->selectedSubjects,JSON_HEX_APOS);
     }
 
-
-
-
+    private function translateSubjects($subjects)
+    {
+        return collect($subjects)->map(function($subject) {
+            return __('subject.'.$subject);
+        })->toArray();
+    }
 }

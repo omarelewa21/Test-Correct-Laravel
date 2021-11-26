@@ -49,10 +49,12 @@ class Login extends Component
         'fatal_error_message'  => ['except' => false],
         'block_back'           => ['except' => false],
         'guest_message'        => ['except' => ''],
-        'guest_message_type'        => ['except' => ''],
+        'guest_message_type'   => ['except' => ''],
+        'device'               => ['except' => '']
     ];
 
     public $tab = 'login';
+    public $device = '';
 
     public $login_tab = 1;
 
@@ -125,7 +127,9 @@ class Login extends Component
             return;
         }
 
+        $this->username = trim($this->username);
         $credentials = $this->validate();
+
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
@@ -147,7 +151,7 @@ class Login extends Component
         AppVersionDetector::handleHeaderCheck();
 
         $user = auth()->user();
-        if ($user->isA('Student') && $user->schoolLocation->allow_guest_accounts) {
+        if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
             return redirect()->intended(route('student.dashboard'));
         }
         if ($user->isA('Account manager')) {
@@ -520,9 +524,9 @@ class Login extends Component
     private function gatherGuestData()
     {
         return [
-            'name_first'  => $this->firstName,
-            'name_suffix' => $this->suffix,
-            'name'        => $this->lastName
+            'name_first'  => trim($this->firstName),
+            'name_suffix' => trim($this->suffix),
+            'name'        => trim($this->lastName)
         ];
     }
 

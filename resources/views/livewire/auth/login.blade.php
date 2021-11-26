@@ -1,5 +1,5 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
-     x-data="{ openTab: @entangle('login_tab'), showPassword: false, showEntreePassword: false }"
+     x-data="{ openTab: @entangle('login_tab'), showPassword: false, showEntreePassword: false, device: @entangle('device')}"
      x-init="
             addRelativePaddingToBody('login-body', 10);
             setTimeout(() => {$wire.checkLoginFieldsForInput()}, 250);
@@ -13,7 +13,7 @@
         @if($tab == 'login')
             @if($showGuestSuccess)
                 <div class="flex cta-gradient w-full p-10 -mb-4 rounded-t-10 relative top-2.5 space-x-2.5">
-                    <div class="flex">
+                    <div class="flex" x-data="">
                         <x-stickers.congratulations/>
                     </div>
                     <div class="flex flex-col text-white pt-4 space-y-2.5">
@@ -145,7 +145,6 @@
                                         <x-icon.exclamation/>
                                         <span class="title">{{ $message }}</span>
                                     </div>
-
                                 </div>
                                 @enderror
 
@@ -205,13 +204,13 @@
                         <form wire:submit.prevent="guestLogin" action="#" method="POST" class="flex-col flex flex-1">
                             <div class="flex flex-col md:flex-row space-y-4 md:space-x-4 md:space-y-0">
                                 <x-input.group label="{{ __('auth.first_name')}}" class="w-56">
-                                    <x-input.text wire:model="firstName" autofocus></x-input.text>
+                                    <x-input.text wire:model.lazy="firstName" autofocus></x-input.text>
                                 </x-input.group>
                                 <x-input.group label="{{ __('auth.suffix')}}" class="w-28">
-                                    <x-input.text wire:model="suffix" autofocus></x-input.text>
+                                    <x-input.text wire:model.lazy="suffix" autofocus></x-input.text>
                                 </x-input.group>
                                 <x-input.group label="{{ __('auth.last_name')}}" class="flex-1">
-                                    <x-input.text wire:model="lastName" autofocus></x-input.text>
+                                    <x-input.text wire:model.lazy="lastName" autofocus></x-input.text>
                                 </x-input.group>
                             </div>
 
@@ -263,12 +262,38 @@
                                     <span class="body">{{ __('auth.name_already_in_use') }}</span>
                                 </div>
                                 @enderror
+                                @error('rating_visible_expired')
+                                <div class="notification warning stretched mt-4">
+                                    <span class="title">{{ __('auth.test_code_expired') }}</span>
+                                    <span class="body">{{ __('auth.can_no_longer_log_in_to_this_test') }}</span>
+                                </div>
+                                @enderror
+                                @error('test_take_not_in_valid_stage')
+                                <div class="notification warning stretched mt-4">
+                                    <span class="title">{{ __('auth.something_went_wrong') }}</span>
+                                    <span class="body">{{ __('auth.test_for_this_code_is_not_valid_anymore_contact_teacher') }}</span>
+                                </div>
+                                @enderror
+                                @error('user_not_found_for_test_code')
+                                <div class="notification warning stretched mt-4">
+                                    <span class="title">{{ __('auth.user_not_found_for_test_code') }}</span>
+                                    <span class="body">{{ __('auth.contact_teacher_for_more_information') }}</span>
+                                </div>
+                                @enderror
                                 @if($showGuestError)
                                     @if($guest_message == 'removed_by_teacher')
                                     <div class="notification warning stretched mt-4">
                                         <span class="title">{{ __('auth.log_in_again') }}</span>
                                         <span class="body">{{ __('auth.removed_by_teacher') }}</span>
                                     </div>
+                                    @endif
+                                    @if($guest_message == 'no_browser_testing')
+                                        <div class="notification warning stretched mt-4">
+                                            <span class="title">{{ __('auth.cannot_log_in_to_test_with_browser') }}</span>
+                                            <span class="body">{{ __('auth.usage_of_app_is_required_for_this_test') }}</span>
+                                            <a href="{{ $studentDownloadUrl }}" class="bold text-sm"
+                                               target="_blank">{{ __("auth.download_and_install_the_app") }} <x-icon.arrow-small></x-icon.arrow-small></a>
+                                        </div>
                                     @endif
                                 @endif
                             </div>
@@ -683,7 +708,7 @@
                 </form>
             </div>
         @endif
-        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4">
+        <div class="flex flex-col md:flex-row justify-center items-center md:space-x-4" browser wire:ignore>
             <x-button.primary type="link" href="{{ $this->studentDownloadUrl }}">
                 <x-icon.download/>
                 <span>{{__('auth.download_student_app')}}</span>
