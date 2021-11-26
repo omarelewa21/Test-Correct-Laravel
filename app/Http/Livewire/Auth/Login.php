@@ -12,11 +12,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use tcCore\AppVersionInfo;
 use tcCore\FailedLogin;
 use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
+use tcCore\LoginLog;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
 use tcCore\User;
@@ -146,9 +148,8 @@ class Login extends Component
             return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
 
-        $this->doLoginProcedure();
-
         AppVersionDetector::handleHeaderCheck();
+        $this->doLoginProcedure();
 
         $user = auth()->user();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
@@ -200,8 +201,12 @@ class Login extends Component
 
     private function doLoginProcedure()
     {
-        $sessionHash = auth()->user()->generateSessionHash();
-        auth()->user()->setSessionHash($sessionHash);
+        $user = auth()->user();
+
+        $sessionHash = $user->generateSessionHash();
+        $user->setSessionHash($sessionHash);
+        LoginLog::create(['user_id' => $user->getKey()]);
+        AppVersionInfo::createFromSession();
         FailedLogin::solveForUsernameAndIp($this->username, request()->ip());
     }
 

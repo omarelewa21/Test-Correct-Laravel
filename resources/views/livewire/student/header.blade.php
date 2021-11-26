@@ -63,7 +63,7 @@
                  @keydown.window.escape="activeIcon = false" @click.outside="console.log($event);activeIcon = false"
             >
                 <div class="flex flex-col bg-white main-shadow w-56 py-2.5 rounded-10">
-                    <x-button.text-button size="sm" class="px-2.5 w-full" @click="showKnowledgebankModal = true">
+                    <x-button.text-button size="sm" class="px-2.5 w-full" @click="showKnowledgebankModal = true" withHover="true">
                         <span>{{ __('header.Kennisbank') }}</span>
                     </x-button.text-button>
                 </div>
