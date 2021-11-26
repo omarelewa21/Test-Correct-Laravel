@@ -60,7 +60,7 @@
                  x-transition:leave-end="transform opacity-0 scale-95"
                  class="absolute z-40 top-10"
                  :style="{right : ($refs.support_icon.parentElement.offsetWidth - $refs.support_icon.offsetWidth) + 'px'}"
-                 @keydown.window.escape="activeIcon = false" @click.outside="console.log($event);activeIcon = false"
+                 @keydown.window.escape="activeIcon = false" @click.outside="activeIcon = false"
             >
                 <div class="flex flex-col bg-white main-shadow w-56 py-2.5 rounded-10">
                     <x-button.text-button size="sm" class="px-2.5 w-full" @click="showKnowledgebankModal = true" withHover="true">
