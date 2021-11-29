@@ -6,10 +6,24 @@
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('dashboard-body')"
      wire:ignore.self
 >
-    <div class="flex my-10 mx-4">
+    <div class="flex my-10">
         <h1>{{ __('student.welcome_to_dashboard') }}</h1>
     </div>
-    <div class="flex flex-col mx-4 space-y-4 xl:flex-row xl:space-x-4 xl:space-y-0">
+    @if($infos)
+        <div class="flex flex-col w-full justify-center items-center mb-8">
+            @foreach($infos as $info)
+                <div class="flex flex-col notification info stretched px-6 max-w-4xl main-shadow">
+                    <div class="title flex items-center">
+                        <span>{!! $info['title_'.session()->get('locale')] !!}</span>
+                    </div>
+                    <div class="body">
+                        <span>{!! $info['content_'.session()->get('locale')] !!}</span>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+    <div class="flex flex-col space-y-4 xl:flex-row xl:space-x-4 xl:space-y-0">
         <div class="flex flex-col xl:w-4/6">
             <div class="flex flex-col space-y-4">
                 <div>

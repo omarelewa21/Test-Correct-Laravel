@@ -3,20 +3,21 @@
 namespace tcCore\Http\Livewire\Student;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Http\Traits\WithStudentTestTakes;
+use tcCore\Info;
 use tcCore\Message;
-use tcCore\TestParticipant;
 
 class Dashboard extends Component
 {
     use WithPagination,WithStudentTestTakes;
 
+    public $infos = [];
+
     public function mount()
     {
-
+        $this->infos = $this->getInfoMessages();
     }
 
     public function render()
@@ -42,5 +43,10 @@ class Dashboard extends Component
     public function getMessages()
     {
         return Message::filtered(['receiver_id' => Auth::id() ])->orderBy('created_at', 'desc')->take(3)->get();
+    }
+
+    public function getInfoMessages()
+    {
+        return Info::getInfoForUser(Auth::user());
     }
 }
