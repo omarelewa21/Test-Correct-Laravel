@@ -6,6 +6,7 @@
 @import url("test-take.css");
 @import url("forms.css");
 @import url("pages.css");
+@import url("question-editor.css");
 
 @tailwind base;
 @tailwind components;
