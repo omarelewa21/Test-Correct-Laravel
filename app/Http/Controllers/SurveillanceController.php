@@ -204,7 +204,7 @@ class SurveillanceController extends Controller
 
     private function getCachedTestTakeIds(User $owner)
     {
-    //    $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
+        $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
             $currentPeriod =  PeriodRepository::getCurrentPeriod();
             if ($currentPeriod == null) {
                 return [];
@@ -218,7 +218,7 @@ class SurveillanceController extends Controller
             ]);
 
             return TestTake::filtered($filtered)->pluck('id');
-    //    });
+        });
 
         return $ids;
     }
