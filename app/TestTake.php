@@ -920,8 +920,8 @@ class TestTake extends BaseModel
                             ->join($schoolClassTable, "$teacherTable.class_id", '=', "$schoolClassTable.id")
                             ->where('user_id', $user->id)
                             ->where('school_year_id', $currentSchoolYearId)
-                            ->whereNull("$teacherTable.deleted_at")
-                            ->whereNull("$schoolClassTable.deleted_at");
+                            ->whereNull("$teacherTable.deleted_at");
+                          //  ->whereNull("$schoolClassTable.deleted_at");
                     })
                 ->whereIn($this->getTable().'.id',
                     function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
@@ -938,8 +938,8 @@ class TestTake extends BaseModel
                                         ->join($schoolClassTable, "$teacherTable.class_id", '=', "$schoolClassTable.id")
                                         ->where('user_id', Auth::id())
                                         ->where('school_year_id', $currentSchoolYearId)
-                                        ->whereNull("$teacherTable.deleted_at")
-                                        ->whereNull("$schoolClassTable.deleted_at");
+                                        ->whereNull("$teacherTable.deleted_at");
+                                       // ->whereNull("$schoolClassTable.deleted_at");
                                 });
                     });
         });

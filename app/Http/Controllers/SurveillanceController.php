@@ -212,10 +212,10 @@ class SurveillanceController extends Controller
 
             $filtered = request()->boolean('withoutParticipants') ? ['type_assessment'=> true] : ['type_not_assessment' => true];
             $filtered = array_merge($filtered, [
+                'invigilator_id' => $owner->id,
                 'test_take_status_id' => '3',
-                'period_id' => $currentPeriod->id,
+//                'period_id' => $currentPeriod->id,
             ]);
-            logger($filtered);
 
             return TestTake::filtered($filtered)->pluck('id');
     //    });
