@@ -5223,6 +5223,16 @@ dragElement = function dragElement(element) {
   }
 };
 
+countPresentStudents = function countPresentStudents(members) {
+  var activeStudents = 0;
+  members.each(function (member) {
+    if (member.info.student) {
+      activeStudents++;
+    }
+  });
+  return activeStudents;
+};
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":
@@ -5267,6 +5277,8 @@ window.$ = window.jQuery = __webpack_require__(/*! jquery */ "./node_modules/jqu
   \******************************/
 /***/ (() => {
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 parent.skip = false;
 var notifsent = false;
 var lastLostFocus = {
@@ -5281,20 +5293,30 @@ Core = {
   appType: '',
   inactive: 0,
   secondsBeforeStudentLogout: 60 * 60,
+  devices: ['browser', 'electron', 'ios', 'chromebook'],
   init: function init() {
-    var isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+    var isIOS = Core.detectIOS();
     var isAndroid = /Android/g.test(navigator.userAgent);
+    var isChromebook = window.navigator.userAgent.indexOf('CrOS') > 0;
 
     if (isIOS) {
       Core.isIpad();
     } else if (isAndroid) {
       Core.isAndroid();
+    } else if (isChromebook) {
+      Core.isChromebook();
     }
 
+    Core.checkForElectron();
     runCheckFocus();
     startStudentActivityCheck();
+    Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
   },
   lostFocus: function lostFocus(reason) {
+    if (!isMakingTest()) {
+      return;
+    }
+
     if (reason == "printscreen") {
       Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
     } else if (reason == 'illegal-programs') {
@@ -5306,37 +5328,109 @@ Core = {
     window.Livewire.emit('setFraudDetected');
 
     if (shouldLostFocusBeReported(reason)) {
-      livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('createTestTakeEvent', reason);
+      var testtakemanager = document.querySelector('[testtakemanager]');
+
+      if (testtakemanager != null) {
+        livewire.find(testtakemanager.getAttribute('wire:id')).call('createTestTakeEvent', reason);
+      }
     }
 
     alert = true;
   },
   isIpad: function isIpad() {
-    var standalone = window.navigator.standalone,
-        userAgent = window.navigator.userAgent.toLowerCase(),
-        safari = /safari/.test(userAgent),
-        ios = /iphone|ipod|ipad/.test(userAgent);
-
-    if (ios) {
-      if (!standalone && safari) {
-        Core.appType = 'browser';
-        Core.inApp = false;
-      } else if (standalone && !safari) {
-        Core.appType = 'standalone';
-        Core.inApp = true;
-      } else if (!standalone && !safari) {
-        Core.appType = 'ipad';
-        Core.inApp = true;
-        checkForIpadKeyboard();
-      }
-    }
+    // var standalone = window.navigator.standalone,
+    //     userAgent = window.navigator.userAgent.toLowerCase(),
+    //     safari = /safari/.test(userAgent),
+    //     ios = /iphone|ipod|ipad/.test(userAgent);
+    Core.appType = 'ios'; // if (ios) {
+    //     if (!standalone && safari) {
+    //         Core.appType = 'browser';
+    //         Core.inApp = false;
+    //     } else if (standalone && !safari) {
+    //         Core.appType = 'standalone';
+    //         Core.inApp = true;
+    //     } else if (!standalone && !safari) {
+    //         Core.appType = 'ipad';
+    //         Core.inApp = true;
+    //     }
+    // }
   },
   isAndroid: function isAndroid() {
     Core.inApp = true;
     Core.appType = 'android';
   },
   isChromebook: function isChromebook() {
-    return window.navigator.userAgent.indexOf('CrOS') > 0;
+    Core.inApp = true;
+    Core.appType = 'chromebook';
+  },
+  detectIOS: function detectIOS() {
+    var urlParams = new URLSearchParams(window.location.search);
+
+    if (urlParams.get('device') !== null && urlParams.get('device') === 'ipad') {
+      return true;
+    }
+  },
+  disableDeviceSpecificFeature: function disableDeviceSpecificFeature() {
+    Core.devices.forEach(function (device) {
+      var deviceElements = document.querySelectorAll('[' + device + ']');
+
+      if (deviceElements.length > 0) {
+        deviceElements.forEach(function (element) {
+          element.style.display = 'none';
+        });
+      }
+    });
+  },
+  enableBrowserFeatures: function enableBrowserFeatures() {
+    var browserElements = document.querySelectorAll('[browser]');
+
+    if (browserElements.length > 0) {
+      browserElements.forEach(function (element) {
+        element.style.display = 'flex';
+      });
+    }
+  },
+  enableAppFeatures: function enableAppFeatures(appType) {
+    var appElements = document.querySelectorAll('[' + appType + ']');
+    appElements.forEach(function (element) {
+      element.style.display = 'flex';
+    });
+  },
+  checkForElectron: function checkForElectron() {
+    try {
+      if (_typeof(electron.closeApp) === (typeof Function === "undefined" ? "undefined" : _typeof(Function))) {
+        Core.appType = 'electron';
+      }
+    } catch (error) {}
+  },
+  closeElectronApp: function closeElectronApp() {
+    Core.closeApplication('close');
+  },
+  closeChromebookApp: function closeChromebookApp(portalUrl) {
+    window.location = portalUrl + 'logout';
+  },
+  closeApplication: function closeApplication(cmd) {
+    if (cmd == 'quit') {
+      open('/login', '_self').close();
+    } else if (cmd == 'close') {
+      try {
+        electron.closeApp();
+      } catch (error) {
+        window.close();
+      }
+    }
+
+    return false;
+  },
+  setAppTestConfigIfNecessary: function setAppTestConfigIfNecessary(participantId) {
+    try {
+      electron.setTestConfig(participantId);
+      webview.setTestConfig(participantId);
+    } catch (error) {}
+  },
+  changeAppTypeToIos: function changeAppTypeToIos() {
+    Core.appType = 'ios';
+    Core.disableDeviceSpecificFeature();
   }
 };
 
@@ -5351,7 +5445,6 @@ function checkPageFocus() {
     if (!document.hasFocus()) {
       if (!notifsent) {
         // checks for the notifcation if it is already sent to the teacher
-        console.log('lost focus from checkPageFocus');
         Core.lostFocus('lost-focus');
         notifsent = true;
       }
@@ -5417,6 +5510,10 @@ function startStudentActivityCheck() {
       Livewire.emit('studentInactive');
     }
   }, 1000);
+}
+
+function isMakingTest() {
+  return document.querySelector('[testtakemanager]') != null;
 }
 
 /***/ }),

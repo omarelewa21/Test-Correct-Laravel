@@ -1231,4 +1231,10 @@ class Test extends BaseModel
                                                                 on t2.subject_id = allowed_subjects.id
                                             ) as t1',$user->id));
     }
+
+    public function hasOpenQuestion(){
+        return !! collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function(Question $question){
+            return !$question->canCheckAnswer();
+        });
+    }
 }

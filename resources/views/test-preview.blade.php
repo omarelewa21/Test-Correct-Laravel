@@ -8,7 +8,7 @@
                 </style>
             @endpush
             @foreach($data as  $key => $testQuestion)
-                <div>
+                <div class="">
                     @if($testQuestion->type === 'MultipleChoiceQuestion' && $testQuestion->selectable_answers > 1 && $testQuestion->subtype != 'ARQ')
                         <livewire:preview.multiple-select-question
                                 :question="$testQuestion"
@@ -133,5 +133,6 @@
                 return data;
             }
         </script>
+
     @endpush
 </x-layouts.app>

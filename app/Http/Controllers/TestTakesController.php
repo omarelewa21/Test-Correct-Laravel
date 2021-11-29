@@ -30,10 +30,23 @@ use tcCore\TestParticipant;
 use tcCore\Http\Requests\CreateTestTakeRequest;
 use tcCore\Http\Requests\UpdateTestTakeRequest;
 use tcCore\TestTakeStatus;
+use tcCore\TestQuestion;
 use tcCore\Exports\TestTakesExport;
 use \stdClass;
 
 class TestTakesController extends Controller {
+
+    /**
+     * Helper Function - Check if a test has one or more open questions
+     * 
+     * @return true if check has found one open questoin - else return false
+     */
+    private function hasOpenQuestion($test_id){
+        return !! QuestionGatherer::getQuestionsOfTest($test_id, true)->search(function(Question $question){
+            return !$question->canCheckAnswer();
+        });
+    }
+
 
     /**
      * Display a listing of the test takes.
@@ -78,25 +91,18 @@ class TestTakesController extends Controller {
                 foreach ($testTakes as $testTake) {
                     $test = $testTake->test;
                     if ($test instanceof Test) {
-                        $test = $test->getAttribute('name');
                         $haveClasses = [];
                         foreach ($testTake->testParticipants as $testParticipant) {
                             $schoolClass = $testParticipant->schoolClass;
                             if ($schoolClass instanceof SchoolClass) {
                                 if (!in_array($schoolClass->getKey(), $haveClasses)) {
                                     $haveClasses[] = $schoolClass->getKey();
-                                    $className = $schoolClass->getAttribute('name');
-                                    if (Str::contains($className, 'guest_class')) {
-                                        $className = 'Gast accounts';
-                                    }
-                                    $response[$testTake->getKey()][] = [
-                                        'schoolClass' => $className,
-                                        'test' => $test,
-                                        'uuid' => $testTake->uuid,
-                                        'code' => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : ''
-                                    ];
+                                    $response[$testTake->getKey()][] = $this->getTestTakeSchoolClass($schoolClass->name, $testTake);
                                 }
                             }
+                        }
+                        if ($testTake->testParticipants->count() == 0) {
+                            $response[$testTake->getKey()][] = $this->getTestTakeSchoolClass('', $testTake);
                         }
                     }
                 }
@@ -560,6 +566,7 @@ class TestTakesController extends Controller {
         }
 
         $schoolClasses = $testTake->schoolClasses()->orderBy('name')->get();
+        $test = $testTake->test;
         $testTake = $testTake->toArray();
 
         if ($ownTestParticipant !== null) {
@@ -569,6 +576,8 @@ class TestTakesController extends Controller {
         unset($testTake['test_participants']);
 
         $testTake['school_classes'] = $schoolClasses;
+
+        $testTake['consists_only_closed_question'] = $test->hasOpenQuestion() ? false : true;
 
         return Response::make($testTake, 200);
     }
@@ -1400,5 +1409,15 @@ class TestTakesController extends Controller {
         $response['allowed'] = $testTake->allow_inbrowser_testing;
         $response['guests'] = $testTake->guest_accounts;
         return $response;
+    }
+
+    private function getTestTakeSchoolClass($className, $testTake)
+    {
+        return [
+            'schoolClass' => $className,
+            'test'        => $testTake->test->name,
+            'uuid'        => $testTake->uuid,
+            'code'        => $testTake->testTakeCode != null ? $testTake->testTakeCode->prefix . $testTake->testTakeCode->code : ''
+        ];
     }
 }

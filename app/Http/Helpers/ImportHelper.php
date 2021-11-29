@@ -1164,8 +1164,12 @@ class ImportHelper
 
         if ($user != null) {
             $restored = false;
-            if ($user->trashed() && $forRole === 'student') {
-                $this->create_tally['students']++;
+            if ($user->trashed()){
+                if($forRole === 'student') {
+                    $this->create_tally['students']++;
+                } else if($forRole === 'teacher') {
+                    $this->create_tally['teachers']++;
+                }
                 $user->restore();
                 $restored = true;
             }
@@ -1325,7 +1329,7 @@ class ImportHelper
         if ($schoolClass) {
             if ($schoolClass->trashed()) {
                 $schoolClass->restore();
-                $schoolClass->craated_by = $data['lvs'];
+                $schoolClass->craated_by = $data['created_by'];
                 $schoolClass->save();
             }
 

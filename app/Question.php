@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Services\QuestionHtmlConverter;
 use tcCore\Traits\UuidTrait;
 use \Exception;
 
@@ -29,6 +30,7 @@ class Question extends MtiBaseModel {
     public $mtiParentTable = 'questions';
 
 
+    const INLINE_IMAGE_PATTERN = '/custom/imageload.php?filename=';
 
     /**
      * The attributes that should be mutated to dates.
@@ -824,6 +826,15 @@ class Question extends MtiBaseModel {
                 case 'is_subquestion':
                     $query->where('is_subquestion', '=', $value);
                     break;
+                case 'author_id':
+                   if (is_array($value)) {
+                       $query->join('question_authors','questions.id','=','question_authors.question_id')
+                           ->whereIn('question_authors.user_id',$value);
+                    } else {
+                       $query->join('question_authors','questions.id','=','question_authors.question_id')
+                           ->where('question_authors.user_id','=',$value);
+                    }
+                    break;
             }
         }
 
@@ -1328,5 +1339,17 @@ class Question extends MtiBaseModel {
             return $this->groupQuestionPivot;
         }
         return $groupQuestionPivot;
+    }
+
+    public function convertInlineImageSources()
+    {
+        $questionHtmlConverter = new QuestionHtmlConverter($this->getQuestionHtml());
+
+        return $questionHtmlConverter->convertImageSourcesWithPatternToNamedRoute('inline-image',self::INLINE_IMAGE_PATTERN);
+    }
+
+    public function getConvertedQuestionHtmlAttribute()
+    {
+        return $this->convertInlineImageSources();
     }
 }

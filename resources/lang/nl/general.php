@@ -25,4 +25,7 @@ return [
     'test_not_taken' => 'Toets niet gemaakt',
     'planned'        => 'Gepland',
     'close'          => 'Sluiten',
+    'name'           => 'Naam',
+    'grade'          => 'Cijfer',
+    'attention'        => 'Let op',
 ];

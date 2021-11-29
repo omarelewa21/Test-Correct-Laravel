@@ -34,7 +34,7 @@ class Attainment extends BaseModel {
      *
      * @var array
      */
-    protected $fillable = ['base_subject_id', 'education_level_id', 'attainment_id', 'code', 'subcode', 'description', 'status'];
+    protected $fillable = ['base_subject_id', 'education_level_id', 'attainment_id', 'code', 'subcode', 'subsubcode', 'description', 'status'];
 
     /**
      * The attributes excluded from the model's JSON form.

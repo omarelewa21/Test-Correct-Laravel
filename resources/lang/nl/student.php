@@ -1,60 +1,60 @@
 <?php
-	return [
-			'Beste' => 'Beste',
+return [
+    'Beste' => 'Beste',
 
-			'heeft via Test-Correct het volgende bericht naar je gestuurd' => 'heeft via Test-Correct het volgende bericht naar je gestuurd',
+    'heeft via Test-Correct het volgende bericht naar je gestuurd' => 'heeft via Test-Correct het volgende bericht naar je gestuurd',
 
-			'Via' => 'Via',
+    'Via' => 'Via',
 
-            'Bespreken' => 'Bespreken',
+    'Bespreken' => 'Bespreken',
 
-			'kan je hierop reageren' => 'kan je hierop reageren',
+    'kan je hierop reageren' => 'kan je hierop reageren',
 
-			'Met een vriendelijke groet' => 'Met een vriendelijke groet',
+    'Met een vriendelijke groet' => 'Met een vriendelijke groet',
 
-			'Test-Correct supportteam' => 'Test-Correct supportteam',
+    'Test-Correct supportteam' => 'Test-Correct supportteam',
 
-			'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken.' => 'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken.',
-			
-			'Lees de onderstaande punten goed door voordat je de applicatie gaat downloaden' => 'Lees de onderstaande punten goed door voordat je de applicatie gaat downloaden',
+    'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken.' => 'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken.',
 
-			'Om een toets in Test-Correct te maken, moet je de applicatie downloaden' => 'Om een toets in Test-Correct te maken, moet je de applicatie downloaden',
+    'Lees de onderstaande punten goed door voordat je de applicatie gaat downloaden' => 'Lees de onderstaande punten goed door voordat je de applicatie gaat downloaden',
 
-			'Klik hier' => 'Klik hier',
+    'Om een toets in Test-Correct te maken, moet je de applicatie downloaden' => 'Om een toets in Test-Correct te maken, moet je de applicatie downloaden',
 
-			'om dat te doen' => 'om dat te doen',
+    'Klik hier' => 'Klik hier',
 
-			'Zorg ervoor dat je ten minste één keer in de Test-Correct applicatie bent ingelogd voordat je een toets moet maken' => 'Zorg ervoor dat je ten minste één keer in de Test-Correct applicatie bent ingelogd voordat je een toets moet maken',
+    'om dat te doen' => 'om dat te doen',
 
-			'Zorg ervoor dat je genoeg tijd hebt om de applicatie voor je toets te downloaden en te starten. Het kan zijn dat je de instellingen van je computer moet aanpassen, dus geef jezelf voldoende tijd' => 'Zorg ervoor dat je genoeg tijd hebt om de applicatie voor je toets te downloaden en te starten. Het kan zijn dat je de instellingen van je computer moet aanpassen, dus geef jezelf voldoende tijd',
+    'Zorg ervoor dat je ten minste één keer in de Test-Correct applicatie bent ingelogd voordat je een toets moet maken' => 'Zorg ervoor dat je ten minste één keer in de Test-Correct applicatie bent ingelogd voordat je een toets moet maken',
 
-			'Je kan bij het installeren meldingen van Test-Correct op je scherm krijgen waarvoor je actie moet ondernemen. Lees in de' => 'Je kan bij het installeren meldingen van Test-Correct op je scherm krijgen waarvoor je actie moet ondernemen. Lees in de',
+    'Zorg ervoor dat je genoeg tijd hebt om de applicatie voor je toets te downloaden en te starten. Het kan zijn dat je de instellingen van je computer moet aanpassen, dus geef jezelf voldoende tijd' => 'Zorg ervoor dat je genoeg tijd hebt om de applicatie voor je toets te downloaden en te starten. Het kan zijn dat je de instellingen van je computer moet aanpassen, dus geef jezelf voldoende tijd',
 
-			'handleiding' => 'handleiding',
+    'Je kan bij het installeren meldingen van Test-Correct op je scherm krijgen waarvoor je actie moet ondernemen. Lees in de' => 'Je kan bij het installeren meldingen van Test-Correct op je scherm krijgen waarvoor je actie moet ondernemen. Lees in de',
 
-			'wat je moet doen (zie onder)' => 'wat je moet doen (zie onder)',
+    'handleiding' => 'handleiding',
 
-			'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-learning' => 'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-learning',
+    'wat je moet doen (zie onder)' => 'wat je moet doen (zie onder)',
 
-			'De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets' => 'De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets',
+    'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-learning' => 'Daar staat alles wat je moet doen om je toets te kunnen maken: applicatie downloaden, applicatie starten, inloggen, toets maken, en CO-learning',
 
-			'Klik hier om de handleiding te downloaden' => 'Klik hier om de handleiding te downloaden',
+    'De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets' => 'De applicatie is beveiligd en dat houdt o.a. in dat er geen andere vensters open mogen staan tijdens het maken van een toets',
 
-			'Heb je hulp nodig en staat er in de handleiding niet wat je moet doen? Neem contact met ons op door een email te sturen naar support@test-correct.nl. Beschrijf in je email goed wat het probleem is zodat we jou goed kunnen helpen' => 'Heb je hulp nodig en staat er in de handleiding niet wat je moet doen? Neem contact met ons op door een email te sturen naar support@test-correct.nl. Beschrijf in je email goed wat het probleem is zodat we jou goed kunnen helpen',
+    'Klik hier om de handleiding te downloaden' => 'Klik hier om de handleiding te downloaden',
 
-			'Onderstaand zijn jouw inloggegevens waarmee je in Test-Correct kunt inloggen' => 'Onderstaand zijn jouw inloggegevens waarmee je in Test-Correct kunt inloggen',
+    'Heb je hulp nodig en staat er in de handleiding niet wat je moet doen? Neem contact met ons op door een email te sturen naar support@test-correct.nl. Beschrijf in je email goed wat het probleem is zodat we jou goed kunnen helpen' => 'Heb je hulp nodig en staat er in de handleiding niet wat je moet doen? Neem contact met ons op door een email te sturen naar support@test-correct.nl. Beschrijf in je email goed wat het probleem is zodat we jou goed kunnen helpen',
 
-			'E-mail' => 'E-mail',
+    'Onderstaand zijn jouw inloggegevens waarmee je in Test-Correct kunt inloggen' => 'Onderstaand zijn jouw inloggegevens waarmee je in Test-Correct kunt inloggen',
 
-			'Wachtwoord' => 'Wachtwoord',
+    'E-mail' => 'E-mail',
 
-			'Het team van Test-Correct wenst jou heel veel succes met je toetsen' => 'Het team van Test-Correct wenst jou heel veel succes met je toetsen',
+    'Wachtwoord' => 'Wachtwoord',
 
-			'Je kunt je wachtwoord instellen op' => 'Je kunt je wachtwoord instellen op',
+    'Het team van Test-Correct wenst jou heel veel succes met je toetsen' => 'Het team van Test-Correct wenst jou heel veel succes met je toetsen',
 
-			'Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.' => 'Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.',
+    'Je kunt je wachtwoord instellen op' => 'Je kunt je wachtwoord instellen op',
 
-			'Nieuwe verzoek opsturen' => 'Nieuwe verzoek opsturen',
+    'Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.' => 'Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. Je kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.',
+
+    'Nieuwe verzoek opsturen' => 'Nieuwe verzoek opsturen',
 
     /*
     |--------------------------------------------------------------------------
@@ -87,11 +87,11 @@
     'invigilators'                          => 'Surveillanten',
     'planner'                               => 'Inplanner',
     'weight'                                => 'Weging',
-    'tests_to_discuss'                      => 'Te bespreken toetsen',
+    'tests_to_discuss'                      => 'Bespreken met CO-learning',
     'tests_to_review'                       => 'Toetsen om in te zien',
     'graded_tests'                          => 'Becijferde toetsen',
     'logged_in_students'                    => 'Ingelogde studenten',
-    'clas(ses)'                             => 'Klas(sen)',
+    'class(es)'                             => 'Klas(sen)',
     'teacher'                               => 'Docent',
     'start_test'                            => 'Toets starten',
     'start_discuss'                         => 'Bespreken starten',
@@ -130,4 +130,15 @@
     'participant_already_taken'             => 'Dit gastprofiel is reeds gekozen.',
     'please_choose_a_different_participant' => 'Kies een ander gastprofiel.',
     'not_allowed_to_test_in_browser'        => 'Het is niet toegestaan om deze toets in de browser te maken. Gebruik de Test-Correct app om deze toets te maken.',
+    'to_review_until'                       => 'Inzien t/m',
+    'cant_review_anymore'                   => 'Inzien niet meer mogelijk',
+    'reviewing_time_has_expired'            => 'De mogelijkheid tot inzien van de toets is verlopen.',
+    'grades_for_guest_accounts'             => 'Cijfers van studenten met gastprofiel',
+    'click_name_to_review_test'             => 'Klik op je naam om de toets in te zien',
+    'no_grade'                              => 'Geen cijfer',
+    'no_profiles_available'                 => 'Geen profielen beschikbaar',
+    'choose_your_student_guest_profile'     => 'Kies jouw studenten gastprofiel',
+    'app_needs_update'                      => 'De versie van de app die je gebruikt wordt binnenkort niet meer toegelaten. Update de app zo spoedig mogelijk. Heb je de app via een app store geïnstalleerd, dan gaat het updaten meestal automatisch.',
+    'app_needs_update_deadline'             => 'De versie van de app die je gebruikt wordt per :date niet meer toegelaten. Update de app zo spoedig mogelijk. Heb je de app via een app store geïnstalleerd, dan gaat het updaten meestal automatisch.',
+    'app_not_allowed'                       => 'De versie van de app die je gebruikt wordt niet meer toegelaten. Update de app om toetsen te kunnen maken.',
 ];

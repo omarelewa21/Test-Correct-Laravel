@@ -217,7 +217,7 @@ class UsersController extends Controller
     public function sendOnboardingWelcomeEmail(AllowOnlyAsTeacherRequest $request)
     {
         try {
-            Mail::to(Auth::user()->getEmailForPasswordReset())->send(new SendOnboardingWelcomeMail(Auth::user()));
+            Mail::to(Auth::user()->getEmailForPasswordReset())->queue(new SendOnboardingWelcomeMail(Auth::user()));
         } catch (\Throwable $th) {
             Bugsnag::notifyException($th);
         }

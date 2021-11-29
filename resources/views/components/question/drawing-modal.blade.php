@@ -77,6 +77,7 @@
     <div class="input-group w-full mt-4">
 
 <textarea id="{{ $this->playerInstance }}additional_text" wire:model="additionalText"
+          spellcheck="false"
           class="form-input"
           placeholder="Begeleidende tekst"></textarea>
     </div>
