@@ -100,6 +100,7 @@ class MagisterHelper
        <leer:dependancecode>'.$dependanceCode.'</leer:dependancecode>
         <leer:xsdversie>2.3</leer:xsdversie>
 
+    </leer:leerlinggegevens_verzoek>
  </soapenv:Body>
 </soapenv:Envelope>
         ');
