@@ -124,10 +124,12 @@
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
             @if(Auth::user()->text2speech)
                 <div id="__ba_launchpad" class="hidden"></div>
-                <x-button.text-button @click="toggleBrowseAloud()">
-                    <x-icon.audio/>
-                    <span>{{ __('test_take.speak') }}</span>
-                </x-button.text-button>
+                <div id="readspeaker_button1" class="rs_skip rsbtn rs_preserve ">
+                    <a rel="nofollow" class="rsbtn_play" accesskey="L" title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=3&amp;lang=nl_nl&amp;readclass=rs_readable">
+                        <span class="rsbtn_left rsimg rspart"><x-icon.audio/><span class="rsbtn_text"><span class="rsbtn_label">{{ __('test_take.speak') }}</span></span></span>
+                        <span class="rsbtn_right rsimg rsplay rspart"></span>
+                    </a>
+                </div>
             @endif
             @if(!$isOverview)
                 <x-button.text-button wire:click="toOverview({{ $this->q }})" @click="$dispatch('show-loader')">

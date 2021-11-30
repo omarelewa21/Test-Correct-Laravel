@@ -15,6 +15,8 @@
         <script>Bugsnag.start({ apiKey: '{{ config('bugsnag.browser_key') }}' })</script>
     @endif
     @stack('styling')
+    <link rel="stylesheet/less" type="text/css" href="/css/rs_tlc_skin.less" />
+    <script src="https://cdn.jsdelivr.net/npm/less@4.1.1" ></script>
 </head>
 <body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
 {{ $slot }}
@@ -41,9 +43,7 @@
 <script>
     Alpine.start();
 </script>
-<script type="text/javascript">
-    window.rsConf = {general: {usePost: true, skipHiddenContent:true},ui: {tools: {translation: false,dictionary: false}}};
-</script>
-<script src="//cdn-eu.readspeaker.com/script/3/webReader/webReader.js?pids=wr" type="text/javascript" id="rs_req_Init"></script>
+<script src="//cdn-eu.readspeaker.com/script/3/webReader/webReader.js?pids=wr&amp;skin=rs_tlc_skin" type="text/javascript" id="rs_req_Init"></script>
+<script src="/js/rs_tlc_skin.js"></script>
 </body>
 </html>
