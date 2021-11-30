@@ -1,7 +1,7 @@
 <x-partials.overview-question-container :number="$number" :question="$question" :answer="$answer">
     <div class="w-full space-y-3 matching-question">
         <div>
-            {!!   $question->getQuestionHtml() !!}
+            {!!   $question->converted_question_html !!}
         </div>
         @if($question->subtype == 'Classify')
             <div class="flex flex-col classify">

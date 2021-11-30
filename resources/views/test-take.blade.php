@@ -1,5 +1,5 @@
 <x-layouts.app>
-    <div class="w-full flex flex-col mb-5 select-none"  selid="testtake-layout">
+    <div class="w-full flex flex-col mb-5"  selid="testtake-layout">
         @if($testParticipant->intense)
             <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
         @endif
@@ -111,10 +111,10 @@
             </div>
         </x-slot>
         <x-slot name="testTakeManager">
-            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()"/>
+            <livewire:student.test-take :testTakeUuid="$uuid" :testParticipantId="$testParticipant->getKey()" :testParticipantUuid="$testParticipant->uuid"/>
         </x-slot>
         <x-slot name="fraudDetection">
-            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testTakeUuid="$uuid"/>
+            <livewire:student.fraud-detection :testParticipantId="$testParticipant->getKey()" :testParticipantUuid="$testParticipant->uuid" :testTakeUuid="$uuid"/>
         </x-slot>
     </div>
     @push('scripts')

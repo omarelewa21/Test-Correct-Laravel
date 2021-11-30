@@ -1,4 +1,18 @@
 <?php
+    if(array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)){
+        $language = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
+        if($language !=	 'nl'){
+            $lang = 'en';
+        }
+        else{
+            $lang = $language;
+        }   
+    }
+    else{
+        $lang = 'en';
+    }
+
+    $lang = 'nl'; // just to see if it works in dutch
 
 return [
 
@@ -79,7 +93,7 @@ return [
     |
     */
 
-    'locale' => 'nl',
+    'locale' => $lang,
 
     /*
     |--------------------------------------------------------------------------

@@ -40,7 +40,6 @@ class MultipleChoiceQuestion extends Component
 
     public function mount()
     {
-
         if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
             $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
             if ($this->question->subtype == 'ARQ' || $this->question->subtype == 'TrueFalse') {

@@ -45,26 +45,28 @@ class Onboarding extends Component
 
     protected $queryString = ['step', 'email', 'confirmed', 'ref'];
 
-    protected $messages = [
-        'registration.name_first.required'      => 'Voornaam is verplicht',
-        'registration.name.required'            => 'Achternaam is verplicht',
-        'registration.gender.required'          => 'Geef uw geslacht op',
-        'password.required'                     => 'Wachtwoord is verplicht',
-        'password.min'                          => 'Wachtwoord moet langer zijn dan 8 karakters',
-        'password.regex'                        => 'Wachtwoord voldoet niet aan de eisen',
-        'password.same'                         => 'Wachtwoord komt niet overeen',
-        'registration.school_location.required' => 'Schoolnaam is verplicht',
-        'registration.website_url.required'     => 'Website is verplicht',
-        'registration.address.required'         => 'Adres is verplicht',
-        'registration.house_number.required'    => 'Huisnummer is verplicht',
-        'registration.house_number.regex'       => 'Huisnummer bevat geen nummer',
-        'registration.postcode.required'        => 'Postcode is verplicht',
-        'registration.postcode.min'             => 'Postcode is niet geldig',
-        'registration.postcode.regex'           => 'Postcode is niet geldig',
-        'registration.city.required'            => 'Plaatsnaam is verplicht',
-        'registration.username.required'        => 'E-mailadres is verplicht',
-        'registration.username.email'           => 'E-mailadres is niet geldig',
-    ];
+    protected function messages(){
+        return [
+            'registration.name_first.required'      => __('registration.name_first_required'),
+            'registration.name.required'            => __('registration.name_last_required'),
+            'registration.gender.required'          => __('registration.gender_required'),
+            'password.required'                     => __('registration.password_required'),
+            'password.min'                          => __('registration.password_min'),
+            'password.regex'                        => __('registration.password_regex'),
+            'password.same'                         => __('registration.password_same'),
+            'registration.school_location.required' => __('registration.school_location_required'),
+            'registration.website_url.required'     => __('registration.website_url_required'),
+            'registration.address.required'         => __('registration.address_required'),
+            'registration.house_number.required'    => __('registration.house_number_required'),
+            'registration.house_number.regex'       => __('registration.house_number_regex'),
+            'registration.postcode.required'        => __('registration.postcode_required'),
+            'registration.postcode.min'             => __('registration.postcode_min'),
+            'registration.postcode.regex'           => __('registration.postcode_regex'),
+            'registration.city.required'            => __('registration.city_required'),
+            'registration.username.required'        => __('registration.username_required'),
+            'registration.username.email'           => __('registration.username_email'),
+        ];
+    }
 
     public function rules()
     {
@@ -369,6 +371,7 @@ class Onboarding extends Component
         $subjects = BaseSubject::where('show_in_onboarding',true)->get()->pluck('name')->toArray();
         $subjects = array_unique($subjects);
         sort($subjects);
+//        $subjects = $this->translateSubjects($subjects);
         $subjects = array_diff($subjects,$this->selectedSubjects);
         $this->subjectOptions = json_encode($subjects,JSON_HEX_APOS);
     }
@@ -378,7 +381,10 @@ class Onboarding extends Component
         $this->selectedSubjectsString =  json_encode($this->selectedSubjects,JSON_HEX_APOS);
     }
 
-
-
-
+    private function translateSubjects($subjects)
+    {
+        return collect($subjects)->map(function($subject) {
+            return __('subject.'.$subject);
+        })->toArray();
+    }
 }

@@ -10,6 +10,7 @@ namespace tcCore\Http\Helpers;
 
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use tcCore\Answer;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
@@ -81,6 +82,19 @@ class DemoHelper
     {
         $this->setSchoolLocation($user->schoolLocation);
         $section = $this->getDemoSection();
+        if ($section !== null) {
+            return $this->getDemoSubjectIfExists($section);
+        }
+        return null;
+    }
+
+    public function getDemoSectionForSchoolLocation($schoolLocationId)
+    {
+        $section = Section::join('school_location_sections',function ($join) {
+                                        $join->on('sections.id', '=', 'school_location_sections.section_id');
+                                 })->where('school_location_sections.school_location_id',$schoolLocationId)
+                                ->where('sections.name', self::SECTIONNAME)
+                                ->first();
         if ($section !== null) {
             return $this->getDemoSubjectIfExists($section);
         }

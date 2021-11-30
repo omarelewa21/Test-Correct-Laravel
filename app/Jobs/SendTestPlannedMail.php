@@ -44,7 +44,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
 
         if ($testTake->testTakeStatus->name === 'Planned') {
             foreach($testTake->testParticipants as $testParticipant) {
-                if(null == $testParticipant->user || $testParticipant->user->hasImportMailAddress()) {
+                if(null == $testParticipant->user || $testParticipant->user->shouldNotSendMail()) {
                     continue;
                 }
                 $mailer->send('emails.test_planned', ['testParticipant' => $testParticipant], function ($mail) use ($testParticipant) {

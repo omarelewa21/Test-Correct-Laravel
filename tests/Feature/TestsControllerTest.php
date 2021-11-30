@@ -246,6 +246,35 @@ class TestsControllerTest extends TestCase
 //        $this->assertEquals('<p>Open kort</p>',trim($question->getQuestionInstance()->question));
     }
 
+    /** @test */
+
+    public function itShouldExecuteTestsControllerIndexWithoutErrors()
+    {
+        $attributes = [ "results"    => "60",
+                        "page"      => "1",
+                        "order"     => [
+                                        "id" => "desc"
+                                        ]
+                        ];
+//        $getRequest = self::authUserGetRequest(
+//            'api-c/test',
+//            $attributes,
+//            User::where('username', 'm.grunbauer@atscholen.nl')->first()
+//        );
+//        $response = $this->get($getRequest);
+//        $response->assertStatus(200);
+        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
+        $response->assertStatus(200);
+        $user = User::where('username', 'd1@test-correct.nl')->first();
+
+        $user->school_id = 1;
+        $user->save();
+        $response = $this->get($this->authTeacherOneGetRequest('api-c/test',$attributes));
+        $response->assertStatus(200);
+    }
+
+
+
     private function setupScenario1(){
         $attributes = $this->getAttributesForTest1();
         unset($attributes['school_classes']);

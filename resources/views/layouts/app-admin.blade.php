@@ -10,13 +10,19 @@
 {{--                <span>Terugknop (Naar portal, opnieuw inloggen?)</span>--}}
 {{--            </x-button.text-button>--}}
 {{--        </div>--}}
+
+        <div class="flex space-x-6 items-center">
+            @if(Auth::user()->isA('Account manager'))
+                @include('components.partials.header.accountmanager')
+            @endif
+        </div>
         <div class="user flex flex-wrap items-center ml-auto space-x-6">
             @if(Auth::user()->isA('Teacher'))
                 <span class="bold">{{ Auth::user()->getNameFullAttribute() }}</span>
             @else
             <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
                 <x-dropdown.item onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
-                    Inleveren
+                    {{ __("app.Inleveren") }}
                 </x-dropdown.item>
             </x-dropdown>
             @endif

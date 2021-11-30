@@ -24,6 +24,7 @@ class SchoolLocationUsersController extends Controller {
                 'uuid' => $location->uuid,
                 'name' => $location->name,
                 'active' => $location->is(Auth::user()->schoolLocation),
+                'language' => $location->school_language_cake,
             ];
         });
     }
@@ -44,6 +45,7 @@ class SchoolLocationUsersController extends Controller {
                 'uuid' => $location->uuid,
                 'name' => $location->name,
                 'active' => $location->is(Auth::user()->schoolLocation),
+                'language' => $location->school_language_cake
             ];
         });
     }

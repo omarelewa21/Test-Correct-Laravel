@@ -13,7 +13,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use tcCore\FailedLogin;
+use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Helpers\EntreeHelper;
+use tcCore\Http\Helpers\TestTakeCodeHelper;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
@@ -41,13 +43,20 @@ class Login extends Component
 
     protected $queryString = [
         'tab'                  => ['except' => 'login'],
+        'login_tab'            => ['except' => 1],
         'uuid'                 => ['except' => ''],
         'entree_error_message' => ['except' => ''],
         'fatal_error_message'  => ['except' => false],
-        'block_back'           => ['except' => false]
+        'block_back'           => ['except' => false],
+        'guest_message'        => ['except' => ''],
+        'guest_message_type'   => ['except' => ''],
+        'device'               => ['except' => '']
     ];
 
     public $tab = 'login';
+    public $device = '';
+
+    public $login_tab = 1;
 
     public $uuid = '';
 
@@ -56,6 +65,10 @@ class Login extends Component
     public $block_back = false;
 
     public $entree_error_message = '';
+    public $guest_message = '';
+    public $guest_message_type = '';
+    public $showGuestError = false;
+    public $showGuestSuccess = false;
 
 //    public $loginTab = true;
 //    public $forgotPasswordTab = false;
@@ -97,6 +110,8 @@ class Login extends Component
         Auth::logout();
         session()->invalidate();
         session()->regenerateToken();
+
+        $this->handleLoginTabScenarios();
     }
 
     public function login()
@@ -112,7 +127,9 @@ class Login extends Component
             return;
         }
 
+        $this->username = trim($this->username);
         $credentials = $this->validate();
+
         if (!auth()->attempt($credentials)) {
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
@@ -131,10 +148,13 @@ class Login extends Component
 
         $this->doLoginProcedure();
 
-//        if (auth()->user()->isA('Student')) {
-//            return redirect()->intended(route('student.dashboard'));
-//        }
-        if (auth()->user()->isA('Account manager')) {
+        AppVersionDetector::handleHeaderCheck();
+
+        $user = auth()->user();
+        if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
+            return redirect()->intended(route('student.dashboard'));
+        }
+        if ($user->isA('Account manager')) {
             return redirect()->intended(route('uwlr.grid'));
         }
 
@@ -143,9 +163,27 @@ class Login extends Component
 
     public function guestLogin()
     {
-//        if($this->isTestTakeCodeValid()) {
-//
-//        }
+        if (!$this->filledInNecessaryGuestInformation()) {
+            return false;
+        }
+
+        if (!$this->isTestTakeCodeCorrectFormat()) {
+            return $this->addError('invalid_test_code', __('auth.test_code_invalid'));
+        }
+
+        $testCodeHelper = new TestTakeCodeHelper();
+
+        $testTakeCode = $testCodeHelper->getTestTakeCodeIfExists($this->testTakeCode);
+        if (!$testTakeCode) {
+            return $this->addError('no_test_found_with_code', __('auth.no_test_found_with_code'));
+        }
+
+        AppVersionDetector::handleHeaderCheck();
+
+        $error = $testCodeHelper->handleGuestLogin($this->gatherGuestData(), $testTakeCode);
+        if (!empty($error)) {
+            return $this->addError($error[0], $error[0]);
+        }
     }
 
     public function render()
@@ -163,9 +201,7 @@ class Login extends Component
     private function doLoginProcedure()
     {
         $sessionHash = auth()->user()->generateSessionHash();
-        session()->put('session_hash', $sessionHash);
-        auth()->user()->setAttribute('session_hash', $sessionHash);
-        auth()->user()->save();
+        auth()->user()->setSessionHash($sessionHash);
         FailedLogin::solveForUsernameAndIp($this->username, request()->ip());
     }
 
@@ -239,11 +275,15 @@ class Login extends Component
         $this->showSendForgotPasswordNotification = true;
     }
 
-    private function isTestTakeCodeValid(): bool
+    private function isTestTakeCodeCorrectFormat(): bool
     {
+        if (count($this->testTakeCode) != 6) {
+            return false;
+        }
+
         foreach ($this->testTakeCode as $key => $value) {
-            if (!$value) {
-                $this->addError('invalid_test_code', __('auth.test_code_invalid'));
+            $value = (int)$value;
+            if ($value === null || !is_int($value) || Str::length($value) != 1) {
                 return false;
             }
         }
@@ -449,7 +489,7 @@ class Login extends Component
                             $fail(
                                 sprintf(
                                     'Het emailadres moet eindigen op: %s.',
-                                    implode(' of ',$validator->getMessage())
+                                    implode(' of ', $validator->getMessage())
                                 )
                             );
                         }
@@ -464,5 +504,55 @@ class Login extends Component
         }
 
         return $this->rules['username'];
+    }
+
+    private function filledInNecessaryGuestInformation()
+    {
+        $hasNoError = true;
+        if (blank($this->firstName)) {
+            $this->addError('empty_guest_first_name', __('auth.empty_guest_first_name'));
+            $hasNoError = false;
+        }
+        if (blank($this->lastName)) {
+            $this->addError('empty_guest_last_name', __('auth.empty_guest_last_name'));
+            $hasNoError = false;
+        }
+
+        return $hasNoError;
+    }
+
+    private function gatherGuestData()
+    {
+        return [
+            'name_first'  => trim($this->firstName),
+            'name_suffix' => trim($this->suffix),
+            'name'        => trim($this->lastName)
+        ];
+    }
+
+    private function handleLoginTabScenarios()
+    {
+        $availableLoginTabs = [1, 2];
+        if (!in_array($this->login_tab, $availableLoginTabs)) {
+            $this->login_tab = 1;
+        }
+
+        if (filled($this->guest_message_type) && filled($this->guest_message)) {
+            $this->showGuestError = $this->guest_message_type == 'error';
+            $this->showGuestSuccess = $this->guest_message_type == 'success';
+        }
+    }
+
+    public function updatedLoginTab()
+    {
+        $this->clearGuestMessages();
+    }
+
+    private function clearGuestMessages()
+    {
+        $this->guest_message = '';
+        $this->guest_message_type = '';
+        $this->showGuestError = false;
+        $this->showGuestSuccess = false;
     }
 }

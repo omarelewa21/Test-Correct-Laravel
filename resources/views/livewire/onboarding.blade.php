@@ -3,7 +3,7 @@
         <div class="max-w-2xl mx-auto grid grid-cols-3 gap-y-4 mid-grey">
             <div class="col-span-3">
                 <a class="mx-auto tc-logo block" href="https://test-correct.nl">
-                    <img class="" src="/svg/logos/Logo-Test-Correct-recolored.svg"
+                    <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                          alt="Test-Correct">
                 </a>
             </div>
@@ -12,15 +12,15 @@
                     @if($this->step === 1)
                         <div>
                             <div class="inline-block rounded-full header-number mr-2 active">1</div>
-                            <span class="mt-1 active">Jouw docentprofiel</span>
+                            <span class="mt-1 active">{{ __("onboarding.Jouw docentprofiel") }}</span>
                         </div>
                         <div>
                             <div class="inline-block rounded-full header-number mr-2">2</div>
-                            <span class="mt-1">Jouw schoolgegevens</span>
+                            <span class="mt-1">{{ __("onboarding.Jouw schoolgegevens") }}</span>
                         </div>
                         <div>
                             <div class="inline-block rounded-full header-number mr-2">3</div>
-                            <span class="mt-1">Klaar!</span>
+                            <span class="mt-1">{{ __("onboarding.Klaar") }}!</span>
                         </div>
                         <iframe id="frame-step1" src="https://www.test-correct.nl/bedankt-aanmelding-docent/" style="height: 1px; width:1px"></iframe>
                     @endif
@@ -29,15 +29,15 @@
                             <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
                                 <x-icon.checkmark/>
                             </div>
-                            <span class="active">Jouw docentprofiel</span>
+                            <span class="active">{{ __("onboarding.Jouw docentprofiel") }}</span>
                         </div>
                         <div class="flex items-center">
                             <div class="inline-block rounded-full header-number mr-2 active">2</div>
-                            <span class="active">Jouw schoolgegevens</span>
+                            <span class="active">{{ __("onboarding.Jouw schoolgegevens") }}</span>
                         </div>
                         <div class="flex items-center">
                             <div class="inline-block rounded-full header-number mr-2">3</div>
-                            <span>Klaar!</span>
+                            <span>{{ __("onboarding.Klaar") }}!</span>
                         </div>
                             <iframe id="frame-step2" src="https://www.test-correct.nl/bedankt-aanmelding-docent/" style="height: 1px; width:1px"></iframe>
                     @endif
@@ -46,19 +46,19 @@
                             <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
                                 <x-icon.checkmark/>
                             </div>
-                            <span class="active ">Jouw docentprofiel</span>
+                            <span class="active ">{{ __("onboarding.Jouw docentprofiel") }}</span>
                         </div>
                         <div class="flex items-center">
                             <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
                                 <x-icon.checkmark/>
                             </div>
-                            <span class="active">Jouw schoolgegevens</span>
+                            <span class="active">{{ __("onboarding.Jouw schoolgegevens") }}</span>
                         </div>
                         <div class="flex items-center">
                             <div class="bg-primary rounded-full header-check text-white flex items-center justify-center mr-3">
                                 <x-icon.checkmark/>
                             </div>
-                            <span class="active">Klaar!</span>
+                            <span class="active">{{ __("onboarding.Klaar") }}!</span>
                         </div>
                             <iframe id="frame-step3" src="https://www.test-correct.nl/bedankt-aanmelding-docent/" style="height: 1px; width:1px"></iframe>
                     @endif
@@ -71,8 +71,8 @@
             <div class=" base px-4 py-5 sm:p-6">
                 <div class="pb-5 col-span-2">
                     <div class="text-center">
-                        <h2>Maak een Test-Correct docent account</h2>
-                        <h3>Digitaal toetsen dat wél werkt!</h3>
+                        <h2>{{ __("onboarding.Maak een Test-Correct docent account") }}</h2>
+                        <h3>{{ __("onboarding.Digitaal toetsen dat wél werkt!") }}</h3>
                     </div>
                 </div>
                 <div class="bg-white rounded-10 p-8 sm:p-10 content-section">
@@ -81,7 +81,7 @@
                             {{--content header--}}
                             <div class="mb-6 relative">
                                 <img class="inline-block card-header-img mr-3" src="/svg/stickers/profile.svg" alt="">
-                                <h1 class="card-header-text top-4 mt-2">Vul jouw docentprofiel in</h1>
+                                <h1 class="card-header-text top-4 mt-2"> {{ __('onboarding.Vul jouw docentprofiel in') }}</h1>
                             </div>
                             {{--content form--}}
                             <div class="flex-grow">
@@ -94,7 +94,7 @@
                                                            class="form-input @error('registration.username') border-red @enderror"
                                                            autofocus>
                                                     <label for="username"
-                                                           class="transition ease-in-out duration-150">E-mail</label>
+                                                           class="transition ease-in-out duration-150">{{ __("onboarding.your_school_email") }}</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -102,21 +102,21 @@
                                     <div class="gender-section mb-4">
                                         <div class="inline-block male mr-4">
                                             <label for="gender_male"
-                                                   class="block">Aanhef</label>
+                                                   class="block">{{ __("onboarding.Aanhef") }}</label>
                                             @if($this->registration->gender === 'male')
                                                 <button wire:key="registration_male" type="button"
                                                         wire:click="$set('registration.gender', 'male')"
                                                         class="relative inline-flex w-full items-center p-4 select-button btn-active">
                                                     <x-icon.onboarding-gender-man></x-icon.onboarding-gender-man>
                                                     <x-icon.checkmark-circle></x-icon.checkmark-circle>
-                                                    Meneer
+                                                    {{ __("onboarding.Meneer") }}
                                                 </button>
                                             @else
                                                 <button wire:key="registration_male"
                                                         wire:click="$set('registration.gender', 'male')" type="button"
                                                         class="inline-flex w-full items-center p-4 select-button ">
                                                     <x-icon.onboarding-gender-man></x-icon.onboarding-gender-man>
-                                                    Meneer
+                                                    {{ __("onboarding.Meneer") }}
                                                 </button>
                                             @endif
                                         </div>
@@ -130,13 +130,13 @@
                                                         class="relative inline-flex w-full items-center select-button  btn-active">
                                                     <x-icon.onboarding-gender-woman></x-icon.onboarding-gender-woman>
                                                     <x-icon.checkmark-circle></x-icon.checkmark-circle>
-                                                    Mevrouw
+                                                    {{ __("onboarding.Mevrouw") }}
                                                 </button>
                                             @else
                                                 <button wire:click="$set('registration.gender', 'female')" type="button"
                                                         class="inline-flex w-full items-center select-button ">
                                                     <x-icon.onboarding-gender-woman></x-icon.onboarding-gender-woman>
-                                                    Mevrouw
+                                                    {{ __("onboarding.Mevrouw") }}
                                                 </button>
                                             @endif
                                         </div>
@@ -152,7 +152,7 @@
                                                         <x-icon.onboarding-gender-other></x-icon.onboarding-gender-other>
                                                         <x-icon.checkmark-circle></x-icon.checkmark-circle>
                                                         <div class="inline-block">
-                                                            <span>Anders: </span>
+                                                            <span>{{ __("onboarding.Anders") }}: </span>
                                                             <input id="gender_different"
                                                                    wire:model="registration.gender_different"
                                                                    class="form-input sm:ml-2 mr-0 other-input">
@@ -166,7 +166,7 @@
                                                     <div class="inline-block w-full text-left">
                                                         <x-icon.onboarding-gender-other></x-icon.onboarding-gender-other>
                                                         <div class="inline-block">
-                                                            <span>Anders: </span>
+                                                            <span>{{ __("onboarding.Anders") }}: </span>
                                                             <input id="gender_different"
                                                                    wire:model="registration.gender_different"
                                                                    disabled
@@ -183,19 +183,19 @@
                                                 <input id="name_first" wire:model.lazy="registration.name_first"
                                                        class="form-input @error('registration.name_first') border-red @enderror">
                                                 <label for="name_first"
-                                                       class="transition ease-in-out duration-150">Voornaam</label>
+                                                       class="transition ease-in-out duration-150">{{ __("onboarding.Voornaam") }}</label>
                                             </div>
                                             <div class="input-group mr-4 mb-4 sm:mb-0">
                                                 <input id="name_suffix" wire:model.lazy="registration.name_suffix"
                                                        class="form-input @error('registration.name_suffix') border-red @enderror">
                                                 <label for="name_suffix"
-                                                       class="transition ease-in-out duration-150">Tussenvoegsel</label>
+                                                       class="transition ease-in-out duration-150">{{ __("onboarding.Tussenvoegsel") }}</label>
                                             </div>
                                             <div class="input-group lastname">
                                                 <input id="name" wire:model.lazy="registration.name"
                                                        class="form-input md:w-full inline-block @error('registration.name') border-red @enderror">
                                                 <label for="name"
-                                                       class="transition ease-in-out duration-150">Achternaam</label>
+                                                       class="transition ease-in-out duration-150">{{ __("onboarding.Achternaam") }}</label>
                                             </div>
                                         </div>
                                         <div class="password items-start mb-4">
@@ -204,8 +204,7 @@
                                                 <input id="password" wire:model="password" type="password"
                                                        class="form-input @error('password') border-red @enderror">
                                                 <label for="password"
-                                                       class="transition ease-in-out duration-150">Creeër
-                                                    wachtwoord</label>
+                                                       class="transition ease-in-out duration-150">{{ __("onboarding.Creeër wachtwoord") }}</label>
                                             </div>
 
                                             <div class="input-group w-1/2 md:w-auto order-3 md:order-2 pr-2 md:pl-2 mb-4 md:mb-0">
@@ -214,7 +213,7 @@
                                                        class="form-input @error('password') border-red @enderror">
                                                 <label for="password_confirm"
                                                        class="transition ease-in-out duration-150">
-                                                    Herhaal wachtwoord</label>
+                                                       {{ __("onboarding.Herhaal wachtwoord") }}</label>
                                             </div>
 
                                             <div class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto requirement-font-size">
@@ -223,22 +222,22 @@
                                                         <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
                                                         <x-icon.close-small></x-icon.close-small> @else
                                                         <x-icon.dot></x-icon.dot> @endif Min. 8
-                                                    tekens
+                                                        {{ __("onboarding.tekens") }}
                                                 </div>
                                                 <div
                                                         class="text-{{$this->minDigitRule}}">@if($this->minDigitRule)
                                                         <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
                                                         <x-icon.close-small></x-icon.close-small> @else
                                                         <x-icon.dot></x-icon.dot> @endif Min. 1
-                                                    cijfer
+                                                        {{ __("onboarding.cijfer") }}
                                                 </div>
                                                 <div
                                                         class="text-{{$this->specialCharRule}}">@if($this->specialCharRule)
                                                         <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
                                                         <x-icon.close-small></x-icon.close-small> @else
                                                         <x-icon.dot></x-icon.dot> @endif Min. 1
-                                                    speciaal
-                                                    teken (bijv. $ of @)
+                                                        {{ __("onboarding.speciaal") }}
+                                                        {{ __("onboarding.teken (bijv. $ of @)") }}
                                                 </div>
                                             </div>
                                         </div>
@@ -246,11 +245,11 @@
                                             <div x-data="subjectSelect()" x-init="init('parentEl')" @click.away="clearSearch()" @keydown.escape="clearSearch()" @keydown="navigate" class="mr-4 mb-4 sm:mb-0 ">
                                                 <div >
                                                 <label for="subjects" id="subjects_label"
-                                                       class="transition ease-in-out duration-150">{{__('Jouw vak(ken)')}}</label>
+                                                       class="transition ease-in-out duration-150">{{__('onboarding.Jouw vak(ken)')}}</label>
                                                 </div>
                                                 <template x-for="(subject, index) in subjects">
 
-                                                    <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('Verwijder')}}"  @click.prevent="removeSubject(index)">
+                                                    <button class="secondary-button selected-subject align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Verwijder')}}"  @click.prevent="removeSubject(index)">
                                                         <span class="ml-2 mr-1 leading-relaxed truncate max-w-xs" x-text="subject"></span>
                                                         <span  class=" inline-block align-middle" style="margin:auto">
                                                             <img class="icon-close-small" src="img/icons/icons-close-small.svg" >
@@ -258,7 +257,7 @@
                                                     </button>
                                                 </template>
 
-                                                <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('Voeg toe')}}" @click.prevent="showSubjectInput()">
+                                                <button x-show="!showInput" class="secondary-button add-button-div align-top text-sm mt-2 mr-1 tooltip" data-text="{{__('onboarding.Voeg toe')}}" @click.prevent="showSubjectInput()">
                                                     <span  class=" inline-block align-middle" style="margin:auto">
                                                         <img class="icon-close-small" src="img/icons/icons-plus.svg" >
                                                     </span>
@@ -273,7 +272,7 @@
                                                             class="responsive subject_select_div" @keydown.enter.prevent="addSubject(textInput)"
                                                 >
 
-                                                    <div class="select-search-header" x-on:click="toggleSubjects()">Selecteer vak....
+                                                    <div class="select-search-header" x-on:click="toggleSubjects()">{{ __('onboarding.Selecteer vak....') }}
                                                         <img x-show="!show"
                                                              src="img/icons/icons-chevron-down-small.svg"
                                                              class="iconschevron-down-small icons-chevron float-right"
@@ -323,7 +322,7 @@
                                     <div class="error-section md:mb-20">
                                         @if($this->warningStepOne)
                                             <div class="notification warning mt-4">
-                                                <span class="title">Zijn alle velden correct ingevuld?</span>
+                                                <span class="title">{{ __("onboarding.Zijn alle velden correct ingevuld") }}?</span>
                                             </div>
                                         @endif
                                         @error('registration.username')
@@ -357,13 +356,13 @@
                                             <button
                                                     class="flex items-center button button-md primary-button btn-disabled"
                                                     disabled>
-                                                <span class="mr-2">Ga naar jouw schoolgegevens</span>
+                                                <span class="mr-2">{{ __("onboarding.Ga naar jouw schoolgegevens") }}</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @else
                                             <button wire:click="step1"
                                                     class="flex items-center button button-md primary-button">
-                                                <span class="mr-2">Ga naar jouw schoolgegevens</span>
+                                                <span class="mr-2">{{ __("onboarding.Ga naar jouw schoolgegevens") }}</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @endif
@@ -376,7 +375,7 @@
                             {{--content header--}}
                             <div class="mb-6 relative">
                                 <img class="card-header-img float-left mr-4" src="/svg/stickers/school.svg" alt="">
-                                <h1 class="md:mt-2 top-4 card-header-text">Wat zijn jouw schoolgegevens?</h1>
+                                <h1 class="md:mt-2 top-4 card-header-text">{{ __("onboarding.Wat zijn jouw schoolgegevens") }}?</h1>
                             </div>
 
                             <div class="flex-grow">
@@ -388,50 +387,50 @@
                                                        wire:model.lazy="registration.school_location"
                                                        class="form-input @error('registration.school_location') border-red @enderror">
                                                 <label for="school_location"
-                                                       class="">Schoolnaam</label>
+                                                       class="">{{ __("onboarding.Schoolnaam") }}</label>
                                             </div>
 
                                             <div class="input-group w-full sm:w-1/2 sm:pl-2">
                                                 <input id="website_url" wire:model.lazy="registration.website_url"
                                                        class="form-input @error('registration.website_url') border-red @enderror">
                                                 <label for="website_url"
-                                                       class="">Website</label>
+                                                       class="">{{ __("onboarding.Website") }}</label>
                                             </div>
                                             <div class="input-group w-9/12 sm:w-3/5 pr-2">
                                                 <input id="address" wire:model.lazy="registration.address"
                                                        class="form-input @error('registration.address') border-red @enderror">
                                                 <label for="address"
-                                                       class="">Bezoekadres</label>
+                                                       class="">{{ __("onboarding.Bezoekadres") }}</label>
                                             </div>
                                             <div class="input-group w-3/12 sm:w-32 pl-2 md:mr-16">
                                                 <input id="house_number" wire:model.lazy="registration.house_number"
                                                        class="form-input @error('registration.house_number') border-red @enderror">
                                                 <label for="house_number"
-                                                       class="">Huisnummer</label>
+                                                       class="">{{ __("onboarding.Huisnummer") }}</label>
                                             </div>
                                             <div class="input-group  w-3/12 sm:w-32 pr-2">
                                                 <input id="postcode" wire:model.lazy="registration.postcode"
                                                        class="form-input  @error('registration.postcode') border-red @enderror">
                                                 <label for="postcode"
-                                                       class="">Postcode</label>
+                                                       class="">{{ __("onboarding.Postcode") }}</label>
                                             </div>
                                             <div class="input-group w-9/12 sm:w-3/5 pl-2">
                                                 <input id="city" wire:model="registration.city"
                                                        class="form-input @error('registration.city') border-red @enderror">
                                                 <label for="city"
-                                                       class="">Plaatsnaam</label>
+                                                       class="">{{ __("onboarding.Plaatsnaam") }}</label>
                                             </div>
                                         </div>
                                     </div>
                                     <div>
                                         <p class="text-note">
-                                            Op de dienst Test-Correct zijn de <a class="underline primary-hover" href="https://support.test-correct.nl/hubfs/Downloads%20Documenten%20Website/Algemene-Voorwaarden-2021-The-Teach-and-Learn-Company-BV-Test-Correct-versie-20210618.pdf" target="_blank">algemene voorwaarden</a> van The Teach & Learn Company B.V./Test-Correct van toepassing. Door middel van doorklikken naar de volgende stap bevestigt u dat u de algemene voorwaarden heeft ontvangen, gelezen en begrepen.
+                                            {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover" href="https://support.test-correct.nl/hubfs/Downloads%20Documenten%20Website/Algemene-Voorwaarden-2021-The-Teach-and-Learn-Company-BV-Test-Correct-versie-20210618.pdf" target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
                                         </p>
                                     </div>
                                     <div class="mb-16">
                                         @if($this->warningStepTwo)
                                             <div class="notification warning mt-4">
-                                                <span class="title">Zijn alle velden correct ingevuld?</span>
+                                                <span class="title">{{ __("onboarding.Zijn alle velden correct ingevuld") }}?</span>
                                             </div>
                                         @endif
                                         @error('registration.school_location')
@@ -469,19 +468,19 @@
                                         <button wire:click.prevent="backToStepOne"
                                                 class="button text-button flex items-center rotate-svg leading-50 space-x-2 -ml-5">
                                             <x-icon.chevron></x-icon.chevron>
-                                            <span class="align-middle">Terug naar jouw docentprofiel</span>
+                                            <span class="align-middle">{{ __("onboarding.Terug naar jouw docentprofiel") }}</span>
                                         </button>
                                         @if ($btnDisabled)
                                             <button
                                                     class="flex items-center button button-md primary-button btn-disabled"
                                                     disabled>
-                                                <span class="mr-2">Maak mijn Test-Correct account</span>
+                                                <span class="mr-2">{{ __("onboarding.Maak mijn Test-Correct account") }}</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @else
                                             <button
                                                     class="flex items-center button button-md primary-button md:float-right">
-                                                <span class="mr-2">Maak mijn Test-Correct account</span>
+                                                <span class="mr-2">{{ __("onboarding.Maak mijn Test-Correct account") }}</span>
                                                 <x-icon.chevron></x-icon.chevron>
                                             </button>
                                         @endif
@@ -494,8 +493,7 @@
                             {{--content header--}}
                             <div class="mb-6 relative">
                                 <img class="inline-block card-header-img mr-3" src="/svg/stickers/completed.svg" alt="">
-                                <h1 class="sm:mt-2 top-2.5 card-header-text">Je bent nu klaar! Met Test-Correct kun
-                                    je...</h1>
+                                <h1 class="sm:mt-2 top-2.5 card-header-text">{{ __("onboarding.Je bent nu klaar! Met Test-Correct kun je") }}</h1>
                             </div>
                             <div class="flex-grow">
                                 <div class="body1 h-full relative">
@@ -503,27 +501,27 @@
                                         <div class="w-full sm:w-1/2 sm:pr-2 mb-4 relative">
                                             <img src="/svg/stickers/toetsen-maken-afnemen.svg" alt=""
                                                  class="mr-4 float-left">
-                                            <span class="klaar-text">Toetsen aanmaken en bestaande toetsen omzetten.</span>
+                                            <span class="klaar-text">{{ __("onboarding.Toetsen aanmaken en bestaande toetsen omzetten") }}.</span>
                                         </div>
                                         <div class="w-full sm:w-1/2 sm:pl-2 mb-4 relative">
                                             <img src="/svg/stickers/toetsen-beoordelen-bespreken.svg" alt=""
                                                  class="mr-4 float-left">
-                                            <span class="klaar-text">Toetsen beoordelen en samen de toets bespreken.</span>
+                                            <span class="klaar-text">{{ __("onboarding.Toetsen beoordelen en samen de CO-learning doorlopen") }}.</span>
                                         </div>
                                     </div>
                                     <div class="flex flex-wrap mb-4">
                                         <div class="w-full sm:w-1/2 sm:pr-2 mb-4 relative">
                                             <img src="/svg/stickers/klassen.svg" alt="" class="mr-4 float-left">
-                                            <span class="klaar-text">Klassen maken en uitnodigen om een toets af te nemen.</span>
+                                            <span class="klaar-text">{{ __("onboarding.Klassen maken en uitnodigen om een toets af te nemen") }}.</span>
                                         </div>
                                         <div class="w-full sm:w-1/2 sm:pl-2 mb-4 relative">
                                             <img src="/svg/stickers/toetsresultaten-analyse.svg" alt=""
                                                  class="mr-4 float-left">
-                                            <span class="klaar-text">Toetsresultaten delen en analystische feedback inzien.</span>
+                                            <span class="klaar-text">{{ __("onboarding.Toetsresultaten delen en analystische feedback inzien") }}.</span>
                                         </div>
                                     </div>
                                     <div class="flex flex-wrap mb-4">
-                                        <span class="w-full mb-3">Deel op social media dat je een Test-Correct docent account hebt aangemaakt.</span>
+                                        <span class="w-full mb-3">{{ __("onboarding.Deel op social media dat je een Test-Correct docent account hebt aangemaakt") }}.</span>
                                         <a class="float-left mr-2 button button-sm secondary-button transition"
                                            target="_blank" href="https://www.linkedin.com/company/9225774">
                                             <img class="w-20 mt-2"
@@ -543,19 +541,19 @@
 
                                     @if($resendVerificationMail)
                                         <div class="notification info mb-4">
-                                            <span class="title">De verificatie e-mail is opnieuw naar je verzonden.</span>
+                                            <span class="title">{{ __("onboarding.De verificatie e-mail is opnieuw naar je verzonden") }}.</span>
                                         </div>
                                     @endif
                                     <div class="notification warning stretched mb-4 md:mb-16">
-                                        <span class="title">Verifieer je e-mailadres</span>
-                                        <span class="body">Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?
-                                            <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">Stuur de verificatiemail opnieuw <x-icon.arrow-small></x-icon.arrow-small></a> of
+                                        <span class="title">{{ __("onboarding.Verifieer je e-mailadres") }}</span>
+                                        <span class="body">{{ __("onboarding.Open de verificatie mail en klik op 'Verifieer e-mailadres'. Het ontvangen van de e-mail kan enkele minuten duren. Heb je geen mail ontvangen?") }}
+                                            <a wire:click="resendEmailVerificationMail" class="bold cursor-pointer">{{ __("onboarding.Stuur de verificatiemail opnieuw") }} <x-icon.arrow-small></x-icon.arrow-small></a> {{ __("onboarding.of") }}
                                             <a href="https://support.test-correct.nl/knowledge" class="bold"
-                                               target="_blank">zoek ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span>
+                                               target="_blank">{{ __("onboarding.zoek ondersteuning") }} <x-icon.arrow-small></x-icon.arrow-small></a></span>
                                     </div>
                                     <div class="md:absolute bottom-0 sm:right-0">
                                         <button class=" button button-md cta-button" wire:click="loginUser">
-                                            <span class="mr-3">Inloggen op Test-Correct</span>
+                                            <span class="mr-3">{{ __("onboarding.Inloggen op Test-Correct") }}</span>
                                             <x-icon.arrow></x-icon.arrow>
                                         </button>
                                     </div>
@@ -567,13 +565,13 @@
                         <div class="content-form">
                             {{--content header--}}
                             <div class="mb-4 relative">
-                                <h1 class="">Er is helaas iets fout gegaan...</h1>
+                                <h1> {{ __("onboarding.Er is helaas iets fout gegaan") }}...</h1>
                             </div>
                             <div class="flex-grow">
                                 <div class="body1 h-full relative">
                                     <div class="notification error stretched">
-                                        <span class="title">Neem contact op met de helpdesk voor <a
-                                                    href="https://support.test-correct.nl/knowledge" class="bold">ondersteuning <x-icon.arrow-small></x-icon.arrow-small></a></span></span>
+                                        <span class="title">{{ __("onboarding.Neem contact op met de helpdesk voor") }} <a
+                                                    href="https://support.test-correct.nl/knowledge" class="bold"> {{__("onboarding.ondersteuning")}} <x-icon.arrow-small></x-icon.arrow-small></a></span></span>
                                     </div>
                                 </div>
                             </div>
@@ -583,17 +581,17 @@
                 </div>
                 <div class="sm:flex text-center justify-center pt-4">
                     <div class="w-full sm:w-auto sm:pr-2">
-                        <span class="regular">Heb je al een account?</span>
+                        <span class="regular">{{ __("onboarding.Heb je al een account") }}?</span>
                         <a class="text-button"
                            href="{{config('app.url_login')}}">
-                            <span class="bold">Log in</span>
+                            <span class="bold">{{ __("onboarding.Log in") }}</span>
                             <x-icon.arrow></x-icon.arrow>
                         </a>
                     </div>
                     <div class="w-full sm:w-auto sm:pl-2 mt-2 sm:mt-0">
-                        <span class="regular">Ben je een student?</span>
+                        <span class="regular">{{ __("onboarding.Ben je een student") }}?</span>
                         <a class="text-button" href="https://test-correct.nl/student">
-                            <span class="bold">Kijk hier</span>
+                            <span class="bold">{{ __("onboarding.Kijk hier") }}</span>
                             <x-icon.arrow></x-icon.arrow>
                         </a>
                     </div>

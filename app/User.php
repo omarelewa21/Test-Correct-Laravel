@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
@@ -73,6 +74,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     const STUDENT_IMPORT_EMAIL_PATTERN = 's_%d@test-correct.nl';
     const TEACHER_IMPORT_EMAIL_PATTERN = 't_%d@test-correct.nl';
+    const GUEST_ACCOUNT_EMAIL_PATTERN = 'guest_%d@test-correct.nl';
 
     const STUDENT_IMPORT_PASSWORD_PATTERN = 'S%dTC#2014';
     const TEACHER_IMPORT_PASSWORD_PATTERN = 'T%dTC#2014';
@@ -85,7 +87,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     protected $fillable = [
         'sales_organization_id', 'school_id', 'school_location_id', 'username', 'name_first', 'name_suffix', 'name',
         'password', 'external_id', 'gender', 'time_dispensation', 'text2speech', 'abbreviation', 'note', 'demo',
-        'invited_by', 'account_verified'
+        'invited_by', 'account_verified', 'test_take_code_id', 'guest'
     ];
 
 
@@ -403,6 +405,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if (Crypt::decryptString($record->eckid) === $eckid) {
                 // user should be part of this school_location
                 $user = User::find($record->user_id);
+                if(null === $user){
+                    $message = (sprintf('THIS SHOULD NOT HAPPEN (did found eckid but no user): Can not find user for id %d',$record->user_id));
+                    logger($message);
+                    Bugsnag::notifyException(new \Exception($message));
+                    return false;
+                }
                 return $user->school_location_id === $school_location_id;
             }
             return false;
@@ -473,6 +481,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function loginLogs()
     {
         return $this->hasMany(LoginLog::class);
+    }
+
+    public function supportTakeOverLogs()
+    {
+        return $this->hasMany(SupportTakeOverLog::class, 'support_user_id');
     }
 
     public function appVersionInfos()
@@ -570,6 +583,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         });
 
         static::deleting(function (User $user) {
+            if(School::where('user_id',$user->id)->count()>0){
+                throw new \Exception(__('Kan gebruiker niet verwijderen omdat deze gekoppeld is aan een scholengemeenschap'));
+            }
+            if(SchoolLocation::where('user_id',$user->id)->count()>0){
+                throw new \Exception(__('Kan gebruiker niet verwijderen omdat deze gekoppeld is aan een schoollocatie'));
+            }
+            if(UmbrellaOrganization::where('user_id',$user->id)->count()>0){
+                throw new \Exception(__('Kan gebruiker niet verwijderen omdat deze gekoppeld is aan een koepel'));
+            }
             if ($user->getOriginal('demo') == true) {
                 return false;
             }
@@ -1387,7 +1409,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         $roles = Roles::getUserRoles();
         // you are an Account manager
-        if (!in_array('Administrator', $roles)) {
+        if (!in_array('Administrator', $roles) && !in_array('Support', $roles)) {
             $query->where(function ($query) use ($roles) {
                 if (!in_array('Administrator', $roles) && in_array('Account manager', $roles)) {
 //                    logger(__LINE__);
@@ -1929,7 +1951,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function resendEmailVerificationMail()
     {
-        return Mail::to($this->username)->send(new SendOnboardingWelcomeMail($this));
+        return Mail::to($this->username)->queue(new SendOnboardingWelcomeMail($this));
     }
 
     public function toggleVerified()
@@ -2124,8 +2146,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 ->withTrashed()
                 ->get()
                 ->filter(function (Teacher $t) use ($previousSchoolYear, $currentSchoolYear) {
-                    return $t->schoolClass()->withTrashed()->first()->school_year_id == ($currentSchoolYear)->getKey()
-                        || $t->schoolClass()->withTrashed()->first()->school_year_id == optional($previousSchoolYear)->getKey();
+                    return $t->schoolClass()->withoutGlobalScope('visibleOnly')->withTrashed()->first()->school_year_id == ($currentSchoolYear)->getKey()
+                        || $t->schoolClass()->withoutGlobalScope('visibleOnly')->withTrashed()->first()->school_year_id == optional($previousSchoolYear)->getKey();
                 });
             $user->teacher->each(function ($tRecord) use (
                 $oldTeacherRecords,
@@ -2145,7 +2167,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                     $done = false;
                     try {
                         $oldSchoolClass = ImportHelper::getOldSchoolClassByNameOptionalyLeaveCurrentOut($this->school_location_id,
-                            $tRecord->schoolClass->name, $tRecord->class_id);
+                            $tRecord->schoolClassWithoutVisibleOnlyScope->name, $tRecord->class_id);
                         if ($oldSchoolClass && ImportHelper::isDummySubject($tRecord->subject_id)) {
 
                             $subjects = $oldTeacherRecords->filter(function ($r) use ($oldSchoolClass) {
@@ -2244,5 +2266,49 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
                 $this->uniqueJobs[] = $job;
             }
         }
+    }
+
+    public function verifyPassword($attemptedPassword)
+    {
+        return Hash::check($attemptedPassword, $this->password);
+    }
+
+    public function scopeGuests($query)
+    {
+        return $query->where('guest', 1);
+    }
+
+    public function setSessionHash($hash)
+    {
+        session()->put('session_hash', $hash);
+        $this->setAttribute('session_hash', $hash);
+        return $this->save();
+    }
+
+    public function shouldNotSendMail()
+    {
+        return $this->guest == true || $this->hasImportMailAddress();
+    }
+
+    public function scopeAvailableGuestAccountsForTake($query, $testTake)
+    {
+        return $query->select('users.uuid','users.name','users.name_first','users.name_suffix', 'test_participants.rating')
+            ->guests()
+            ->leftJoin('test_participants', 'test_participants.user_id', '=', 'users.id')
+            ->where('test_participants.test_take_id', $testTake->getKey());
+//            ->where('test_participants.available_for_guests', true);
+    }
+
+    public function scopeWhenKnownGuest($query, $guest)
+    {
+        return $query->when($guest, function ($query) use ($guest) {
+            $query->where('name_first', $guest['name_first'])
+                ->where('name', $guest['name']);
+        });
+    }
+
+    public function getActiveLanguage()
+    {
+        return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ??  config('app.locale');
     }
 }

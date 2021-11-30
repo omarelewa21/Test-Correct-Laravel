@@ -2,7 +2,7 @@
 
     <div class="w-full space-y-3 matching-question">
         <div questionHtml wire:ignore>
-            {!!   $question->getQuestionHtml() !!}
+            {!!   $question->converted_question_html !!}
         </div>
         <div>
             <span>{!! __('test_take.instruction_matching_question') !!}</span>

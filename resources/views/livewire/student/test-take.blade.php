@@ -1,23 +1,33 @@
 <div x-data="{}" x-init="Core.init()" testtakemanager>
     <x-modal maxWidth="lg" wire:model="showTurnInModal">
-        <x-slot name="title">Toets inleveren</x-slot>
-        <x-slot name="body">Weet je zeker dat je de toets wilt inleveren?</x-slot>
+        <x-slot name="title">{{ __("test-take.Toets inleveren") }}</x-slot>
+        <x-slot name="body">{{ __("test-take.Weet je zeker dat je de toets wilt inleveren?") }}</x-slot>
         <x-slot name="actionButton">
             <x-button.cta size="md" wire:click="TurnInTestTake">
-                <span>Inleveren</span>
+                <span>{{ __("test-take.Inleveren") }}</span>
                 <x-icon.arrow/>
             </x-button.cta>
         </x-slot>
     </x-modal>
 
     <x-modal maxWidth="lg" wire:model="forceTakenAwayModal" showCancelButton="0">
-        <x-slot name="title">Toets ingenomen door docent.</x-slot>
-        <x-slot name="body">De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar
-            het dashboard.
+        <x-slot name="title">{{__('test-take.Toets ingenomen door docent.')}}</x-slot>
+        <x-slot name="body">
+            @if(!Auth::user()->guest)
+                {{ __('test-take.De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Keer terug naar het dashboard.') }}
+            @else
+                {{ __('test-take.De toets is ingenomen door de docent, je kunt daardoor niet verder werken. Sluit de toets.') }}
+            @endif
         </x-slot>
         <x-slot name="actionButton">
-            <x-button.cta size="md" wire:click="TurnInTestTake">
-                <span>Dashboard</span>
+            <x-button.cta size="md" wire:click="TurnInTestTake(true)">
+                <span>
+                    @if(!Auth::user()->guest)
+                        {{ __('student.dashboard') }}
+                    @else
+                        {{ __('general.close') }}
+                    @endif
+                </span>
                 <x-icon.arrow/>
             </x-button.cta>
         </x-slot>

@@ -1,5 +1,35 @@
 <?php
 
+$readHosts = [];
+$writeHosts = [];
+
+if(env('DB_CONNECTION','mysql') === 'mysql_master_slave'){
+    $rHosts = explode(',',env('DB_READ_HOSTS'));
+    $wHosts = explode(',',env('DB_WRITE_HOSTS'));
+
+    foreach($rHosts as $host){
+        $hostData = explode(':',$host);
+        if(count($hostData) === 1){
+            $readHosts[] = ['host' => $host];
+        } else if (count($hostData) === 2){
+            $readHosts[] = ['host' => $hostData[0],'port' => $hostData[1]];
+        } else { // probably an ip v6 address
+            $readHosts[] = ['host' => $host];
+        }
+    }
+
+    foreach($wHosts as $host){
+        $hostData = explode(':',$host);
+        if(count($hostData) === 1){
+            $writeHosts[] = ['host' => $host];
+        } else if (count($hostData) === 2){
+            $writeHosts[] = ['host' => $hostData[0],'port' => $hostData[1]];
+        } else { // probably an ip v6 address
+            $writeHosts[] = ['host' => $host];
+        }
+    }
+}
+
 return [
 
 	/*
@@ -54,12 +84,8 @@ return [
 		],
 
         'mysql_master_slave' => [
-            'read'      => [
-              'host'        => explode(',',env('DB_READ_HOSTS','localhost')),
-            ],
-            'write'     => [
-              'host'        => explode(',',env('DB_WRITE_HOSTS','localhost')),
-            ],
+            'read'      => $readHosts,
+            'write'     => $writeHosts,
             'sticky'    => env('DB_STICKY', true),
             'driver'    => 'mysql',
             'database'  => env('DB_DATABASE', 'forge'),

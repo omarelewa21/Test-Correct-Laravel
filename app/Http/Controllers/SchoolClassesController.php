@@ -38,9 +38,19 @@ class SchoolClassesController extends Controller
     {
         SchoolHelper::denyIfTempTeacher();
 
-        $schoolClasses = SchoolClass::filtered($request->get('filter', []),
-            $request->get('order', []))->with('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers',
-            'studentUsers', 'educationLevel', 'schoolYear');
+        $schoolClasses = SchoolClass::filtered(
+            $request->get('filter', []),
+            $request->get('order', [])
+        )
+            ->with(
+                'schoolLocation',
+                'educationLevel',
+                'mentorUsers',
+                'managerUsers',
+                'studentUsers',
+                'educationLevel',
+                'schoolYear'
+            );
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
                 $schoolClasses = $schoolClasses->get();
