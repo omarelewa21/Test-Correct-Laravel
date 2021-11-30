@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -222,7 +223,12 @@ class TestTake extends BaseModel
 
                 $testTakeDiscussionNotAllowedStatusses = TestTakeStatus::whereIn('name', ['Planned', 'Test not taken', 'Taken away'])->pluck('id', 'name')->all();
 
-                $testTake->load('testParticipants', 'testParticipants.schoolClass', 'testParticipants.schoolClass.schoolLocation');
+                $testTake->load([   'testParticipants',
+                                    'testParticipants.schoolClass' => function($query){
+                                            return $query->withTrashed();
+                                    },
+                                    'testParticipants.schoolClass.schoolLocation'
+                                ]);
                 foreach ($testTake->testParticipants as $testParticipant) {
                     $activated = $testParticipant->schoolClass->schoolLocation->getAttribute('activated');
                     if ($activated != true) {
@@ -404,7 +410,7 @@ class TestTake extends BaseModel
     public function schoolClasses()
     {
         $id = $this->getKey();
-        return SchoolClass::select()->whereIn('id', function ($query) use ($id) {
+        return SchoolClass::withTrashed()->select()->whereIn('id', function ($query) use ($id) {
             $query->select('school_class_id')
                 ->from(with(new TestParticipant())->getTable())
                 ->where('test_take_id', $id)
@@ -528,6 +534,12 @@ class TestTake extends BaseModel
 
         foreach ($filters as $key => $value) {
             switch ($key) {
+                case 'type_not_assessment':
+                    $query->typeNotAssessment();
+                    break;
+                case 'type_assessment':
+                    $query->typeAssessment();
+                    break;
                 case 'user_id':
                     if (is_array($value)) {
                         $query->whereIn('user_id', $value);
@@ -899,8 +911,8 @@ class TestTake extends BaseModel
                             ->join($schoolClassTable, "$teacherTable.class_id", '=', "$schoolClassTable.id")
                             ->where('user_id', $user->id)
                             ->where('school_year_id', $currentSchoolYearId)
-                            ->whereNull("$teacherTable.deleted_at")
-                            ->whereNull("$schoolClassTable.deleted_at");
+                            ->whereNull("$teacherTable.deleted_at");
+                          //  ->whereNull("$schoolClassTable.deleted_at");
                     })
                 ->whereIn($this->getTable().'.id',
                     function ($query) use ($teacherTable, $schoolClassTable, $currentSchoolYearId) {
@@ -917,8 +929,8 @@ class TestTake extends BaseModel
                                         ->join($schoolClassTable, "$teacherTable.class_id", '=', "$schoolClassTable.id")
                                         ->where('user_id', Auth::id())
                                         ->where('school_year_id', $currentSchoolYearId)
-                                        ->whereNull("$teacherTable.deleted_at")
-                                        ->whereNull("$schoolClassTable.deleted_at");
+                                        ->whereNull("$teacherTable.deleted_at");
+                                       // ->whereNull("$schoolClassTable.deleted_at");
                                 });
                     });
         });
@@ -952,7 +964,8 @@ class TestTake extends BaseModel
         });
     }
 
-    public function scopeBelongsToSchoolLocation($query, User $user) {
+    public function scopeBelongsToSchoolLocation($query, User $user)
+    {
         $query->where($this->getTable().'.school_location_id', $user->school_location_id);
     }
 
@@ -1028,6 +1041,57 @@ class TestTake extends BaseModel
                 return true;
             }
         }
+        return false;
+    }
+
+    public function scopeTypeAssessment(Builder $query)
+    {
+        return $query->when(
+            !self::isJoined($query, 'tests'),
+            function($query) {
+                $query->join('tests', 'test_takes.test_id', 'tests.id');
+            }
+        )->where('tests.test_kind_id', TestKind::ASSESSMENT_TYPE);
+    }
+
+    public function scopeTypeNotAssessment(Builder $query)
+    {
+        return $query->when(
+            !self::isJoined($query, 'tests'),
+            function($query) {
+                $query->join('tests', 'test_takes.test_id', 'tests.id');
+            }
+        )->where('test_kind_id', '<>', TestKind::ASSESSMENT_TYPE);
+    }
+
+    public function scopeStatusPlanned(Builder $query)
+    {
+        return $query->where('test_take_status_id', TestTakeStatus::STATUS_PLANNED);
+    }
+
+    public function scopeTimeStartExpired(Builder $query)
+    {
+        return $query->where('time_start', '>', now());
+    }
+
+    public function scopeTimeEndExpired(Builder $query)
+    {
+        return $query->where('time_end', '<', now());
+    }
+
+    public static function isJoined($query, $table)
+    {
+        $joins = $query->getQuery()->joins;
+        if ($joins == null) {
+            return false;
+        }
+
+        foreach ($joins as $join) {
+            if ($join->table == $table) {
+                return true;
+            }
+        }
+
         return false;
     }
 }

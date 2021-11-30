@@ -19,7 +19,7 @@ class AppVersionInfoController extends Controller {
 
     public function Store(Requests\CreateAppVersionInfoRequest $request)
     {
-        AppVersionInfo::create($request->validated() + ['id' => Str::uuid(), 'user_id' => Auth::user()->getKey()]);
+        AppVersionInfo::create($request->validated());
 
         return Response::make('ok', 200);
     }

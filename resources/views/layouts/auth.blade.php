@@ -1,7 +1,7 @@
 <x-layouts.base>
     <header id="header"
-            class="header top-0 fixed w-full h-auto p-2.5 z-20">
-        <div class="flex flex-wrap content-center justify-center sm:justify-start mx-auto max-w-5xl">
+            class="header top-0 fixed w-full h-auto py-2.5 px-6 z-20 main-shadow">
+        <div class="flex flex-wrap content-center justify-center sm:justify-start mx-auto ">
             <a class="mb-4 sm:mb-0 sm:mr-4 flex" href="#" x-data="{}" @click="location.reload()">
                 <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                      alt="Test-Correct">

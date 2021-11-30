@@ -11,7 +11,7 @@
     @else
         <div class="divider flex flex-1"></div>
         <div class="flex flex-col justify-center">
-            <div class="mx-4">{{ __('student.wait_for_test_take') }}</div>
+            <div class="mx-4">{{ $this->getButtonTextForPlannedTakes() }}</div>
         </div>
         <div class="divider flex flex-1"></div>
     @endif

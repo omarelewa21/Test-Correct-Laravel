@@ -1,5 +1,5 @@
 <header id="header" class="header fixed w-full content-center z-10">
-    <div class="mx-4 lg:mx-8 xl:mx-24 flex h-full items-center">
+    <div class="py-2.5 px-6 flex h-full items-center">
         <div class="relative">
             <a href="@if(Auth::user()->guest){{ route('auth.login') }}@else{{ route('student.dashboard') }}@endif">
                 <img class="h-12" src="{{ asset('/svg/logos/Logo-Test-Correct-2.svg') }}"
