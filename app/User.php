@@ -1269,6 +1269,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return (bool) (null !== $this->schoolLocation && $this->schoolLocation->sharedSections()->count());
     }
 
+    public function isPartOfSharedSection()
+    {
+        if(!$this->hasSharedSections()){
+            return false;
+        }
+        if($this->subjectsOnlyShared()->count()===0){
+            return false;
+        }
+        return true;
+    }
+
     public function scopeStudentFiltered($query, $filters = [], $sorting = [])
     {
         $query->join('user_roles', function ($join) {
