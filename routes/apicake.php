@@ -144,6 +144,10 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::post('filemanagement/{schoolLocation}/class',['as' => 'filemanagement.uploadclass','uses' => 'FileManagementController@storeClassUpload']);
     Route::post('filemanagement/{schoolLocation}/test',['as' => 'filemanagement.uploadtest','uses' => 'FileManagementController@storeTestUpload']);
 
+    Route::get('filemanagement/users',['as' => 'filemanagement.users','uses' => 'FileManagementUsersController@index']);
+    Route::get('filemanagement/schoollocations',['as' => 'filemanagement.schoollocations','uses' => 'FileManagementSchoolLocationsController@index']);
+    Route::get('filemanagement/educationlevels',['as' => 'filemanagement.educationlevels','uses' => 'FileManagementEducationLevelsController@index']);
+
     Route::get('filemanagement/',['as' => 'filemanagement.index','uses' => 'FileManagementController@index']);
     Route::get('filemanagement/form_id',['as' => 'filemanagement.form_id','uses' => 'FileManagementController@getFormId']);
     Route::get('filemanagement/{fileManagement}',['as' => 'filemanagement.view','uses' => 'FileManagementController@show']);
