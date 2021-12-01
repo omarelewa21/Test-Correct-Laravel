@@ -1,9 +1,8 @@
 <div>
-    <div class="question-editor-header">
+    <div class="question-editor-header z-50">
         <div class="question-title">
             <div class="icon-arrow">
                 <x-icon.edit></x-icon.edit>
-
             </div>
             <h5 class=" text-white">{{ $questionType }}</h5>
         </div>
@@ -18,7 +17,7 @@
         </div>
 
         <div class="flex flex-col flex-1" x-data="{openTab:@entangle('openTab')}">
-            <div class="flex w-full space-x-6 mb-5 border-b border-light-grey">
+            <div class="flex w-full space-x-6 mb-5 border-b border-grey">
                 <div :class="{'border-b-2 border-primary -mb-px' : openTab === 1}">
                     <x-button.text-button class="primary"
                                           @click="openTab = 1"
@@ -36,39 +35,38 @@
             </div>
 
 
-            <div class="flex flex-col flex-1 pb-20" x-show="openTab === 1">
-                <div class="content-section p-10 mb-4 space-y-5 shadow-xl flex flex-col ">
-                    <div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-nowrap">
-                        <div class="ml-4 mt-4">
-                            <h3 class="text-lg leading-6 text-gray-900">
-                                {{ __('Vraag') }}
-                            </h3>
+            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1">
+                <x-content-section>
 
-                            <x-input.textarea wire:model="question.question"></x-input.textarea>
-                            @error('question.question')
-                            <div class="notification error stretched mt-4">
-                                <span class="title">{{ $message }}</span>
-                            </div>
-                            @enderror
-                        </div>
-                    </div>
-                </div>
-                <div class="content-section p-10 mb-4 space-y-5 shadow-xl flex flex-col ">
-                    <div class="-ml-4 mt-8 flex justify-between items-center flex-wrap sm:flex-nowrap">
-                        <div class="ml-4 mt-4 flex-1">
-                            <h3 class="text-lg leading-6 text-gray-900">
-                                {{ __('Antwoord') }}
-                            </h3>
+                    <x-slot name="title">
+                        {{ __('Vraag') }}
+                    </x-slot>
 
-                            <x-input.textarea wire:model="question.answer"></x-input.textarea>
-                            @error('question.answer')
-                            <div class="notification error stretched mt-4">
-                                <span class="title">{{ $message }}</span>
-                            </div>
-                            @enderror
-                        </div>
+                    <div wire:ignore>
+                        <x-input.textarea wire:model="question.question" id="{{ $questionEditorId }}" name="{{ $questionEditorId }}"></x-input.textarea>
                     </div>
-                </div>
+                    @error('question.question')
+                    <div class="notification error stretched mt-4">
+                        <span class="title">{{ $message }}</span>
+                    </div>
+                    @enderror
+
+                </x-content-section>
+                <x-content-section>
+                    <x-slot name="title">
+                        {{ __('Antwoord model') }}
+                    </x-slot>
+                    <div wire:ignore>
+                        <x-input.textarea id="{{ $answerEditorId }}" name="{{ $answerEditorId }}"
+                                          wire:model.debounce.1000ms="question.answer"></x-input.textarea>
+                    </div>
+                    @error('question.answer')
+                    <div class="notification error stretched mt-4">
+                        <span class="title">{{ $message }}</span>
+                    </div>
+                    @enderror
+
+                </x-content-section>
             </div>
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2">
@@ -81,15 +79,15 @@
                             <span class="bold"> {{ __('Vraag vastzetten') }}</span>
                         </x-input.toggle-row-with-title>
                         <x-input.toggle-row-with-title wire:model="question.add_to_database">
-                            <x-icon.locked class="flex "></x-icon.locked>
+                            <x-icon.preview class="flex "></x-icon.preview>
                             <span class="bold"> {{ __('Openbaar maken') }}</span>
                         </x-input.toggle-row-with-title>
                         <x-input.toggle-row-with-title wire:model="question.closable">
-                            <x-icon.locked class="flex "></x-icon.locked>
+                            <x-icon.close class="flex "></x-icon.close>
                             <span class="bold"> {{ __('Sluiten na beantwoorden') }}</span>
                         </x-input.toggle-row-with-title>
                         <x-input.toggle-row-with-title wire:model="question.discuss">
-                            <x-icon.locked class="flex "></x-icon.locked>
+                            <x-icon.discuss class="flex "></x-icon.discuss>
                             <span class="bold"> {{ __('Bespreken in de klas') }}</span>
                         </x-input.toggle-row-with-title>
                         <x-input.toggle-row-with-title wire:model="question.note_type">
@@ -191,6 +189,49 @@
         </div>
 
 
-        </div>
     </div>
 </div>
+</div>
+
+<script>
+    function initEditor(editorId) {
+        var editor = CKEDITOR.instances[editorId]
+        if (editor) {
+            editor.destroy(true)
+        }
+        CKEDITOR.replace(editorId, {
+            removePlugins: 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
+            extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+            toolbar: [
+                {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
+                {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
+                {name: 'insert', items: ['Table']},
+                {name: 'styles', items: ['Font', 'FontSize']},
+                {name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
+            ]
+        })
+        CKEDITOR.instances[editorId]
+            .on('change', function (e) {
+                var textarea = document.getElementById(editorId);
+                setTimeout(function () {
+                    textarea.value = e.editor.getData();
+                }, 300);
+                textarea.dispatchEvent(new Event('input'))
+            });
+        CKEDITOR.instances[editorId]
+            .on('contentDom', function () {
+                var editor = CKEDITOR.instances[editorId];
+                editor.editable().attachListener(editor.document, 'touchstart', function () {
+                    if (Core.appType === 'ipad') {
+                        document.querySelector('header').classList.remove('fixed');
+                        document.querySelector('footer').classList.remove('fixed');
+                    }
+                });
+            });
+    };
+    (function(){
+        initEditor('{{ $answerEditorId }}')
+        initEditor('{{ $questionEditorId }}')
+    })()
+
+</script>

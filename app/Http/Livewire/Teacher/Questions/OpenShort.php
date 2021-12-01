@@ -2,11 +2,27 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
+use Ramsey\Uuid\Guid\Guid;
+use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Question;
+use tcCore\QuestionAuthor;
+use tcCore\TemporaryLogin;
+use tcCore\TestQuestion;
 
 class OpenShort extends Component
 {
-    public $openTab = 2;
+    public $openTab = 1;
+
+    public $answerEditorId;
+    public $questionEditorId;
 //
 //    protected $queryString = ['openTab' => ['except' => 1]];
 
@@ -21,24 +37,37 @@ class OpenShort extends Component
         ];
     }
 
+    public function mount()
+    {
+        $this->answerEditorId = Str::uuid()->__toString();
+        $this->questionEditorId = Str::uuid()->__toString();
+    }
+
     protected $tags = [];
 
     public $question = [
-        'score'             => 6,
-        'closable'          => 0,
-        'discuss'           => 1,
-        'maintain_position' => 1,
-        'decimal_score'     => 0,
-        'add_to_database'   => 1,
-        'note_type'         => 0,
-        'question'          => '',
-        'answer'            => '',
-        'rtti'              => '',
-        'bloom'             => '',
-        'miller'            => '',
-
+        'add_to_database'        => 1,
+        'answer'                 => '',
+        'bloom'                  => '',
+        'closable'               => 0,
+        'decimal_score'          => 0,
+        'discuss'                => 1,
+        'maintain_position'      => 1,
+        'miller'                 => '',
+        "is_open_source_content" => 1,
+        "tags"                   => [
+        ],
+        'note_type'              => 'NONE',
+        'order'                  => 0,
+        'question'               => '',
+        'rtti'                   => '',
+        'score'                  => 6,
+        'sub_type'               => 'medium',
+        'type'                   => 'OpenQuestion',
+        "attainments"            => [
+        ],
+        "test_id" => 1,
     ];
-
 
     protected $rules = [
         'question.question' => 'required',
@@ -47,8 +76,20 @@ class OpenShort extends Component
 
     public function save()
     {
-        dd($this->question);
-        $this->validate();
+        try {
+            $this->validate();
+        } catch (ValidationException $e) {
+            $this->openTab = 1;
+            throw ($e);
+        }
+
+        $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)->store(new CreateTestQuestionRequest($this->question));
+        if($response->getStatusCode() == 200) {
+            $url = "tests/view/5a6fe229-c7b6-4ef4-b926-fbc0939eeed4";
+            $options = TemporaryLogin::buildValidOptionObject('page', $url);
+
+            Auth::user()->redirectToCakeWithTemporaryLogin($options);
+        }
     }
 
     public function render()
