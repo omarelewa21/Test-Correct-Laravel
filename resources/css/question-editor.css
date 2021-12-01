@@ -15,7 +15,8 @@
     width: 100%;
     left: 0;
     display: flex;
-    justify-content: end
+    justify-content: end;
+    z-index: 10;
 }
 
 .question-editor-header .question-title {
@@ -23,6 +24,7 @@
     align-items: center;
     height: 70px;
     padding: 0;
+    border: none;
 }
 
 .question-editor-header .question-title .icon-arrow {

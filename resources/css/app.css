@@ -514,3 +514,6 @@ ul ul ul {
 [browser], [electron], [ios], [chromebook] {
     display: none;
 }
+.hide-shadow {
+    box-shadow: none!important;
+}

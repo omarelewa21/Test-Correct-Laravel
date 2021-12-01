@@ -14,6 +14,15 @@ class OpenShort extends Component
 
     public $testName = 'test_name';
 
+    protected function getListeners()
+    {
+        return [
+            'new-tags-for-question' => 'handleTags'
+        ];
+    }
+
+    protected $tags = [];
+
     public $question = [
         'score'             => 6,
         'closable'          => 0,
@@ -45,5 +54,12 @@ class OpenShort extends Component
     public function render()
     {
         return view('livewire.teacher.questions.open-short')->layout('layouts.base');
+    }
+
+    public function handleTags($tags)
+    {
+        $this->tags = $tags;
+
+        dd($this->tags);
     }
 }

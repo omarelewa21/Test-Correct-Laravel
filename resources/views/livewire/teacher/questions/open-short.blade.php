@@ -169,7 +169,7 @@
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Tags') }}</x-slot>
-                    <x-input.tag-manager></x-input.tag-manager>
+                    <livewire:tag-manager/>
                 </x-content-section>
 
 
@@ -191,4 +191,6 @@
         </div>
 
 
+        </div>
     </div>
+</div>
