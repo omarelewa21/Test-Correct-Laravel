@@ -7,6 +7,7 @@ use Carbon\CarbonInterval;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use tcCore\Http\Helpers\ReportHelper;
+use tcCore\Jobs\UpdateOnboardingWizardReportRecord;
 
 set_time_limit(300);
 
@@ -230,7 +231,8 @@ ORDER BY t2.displayorder,
             ->each(function ($teacher) {
                 
                 if ($teacher->isA('teacher')) {
-                    \tcCore\OnboardingWizardReport::updateForUser($teacher);
+                    dispatch((new UpdateOnboardingWizardReportRecord($teacher)));
+//                    \tcCore\OnboardingWizardReport::updateForUser($teacher);
                 };
             });
     }
