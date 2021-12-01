@@ -4,6 +4,7 @@ namespace tcCore;
 
 use Carbon\Carbon;
 use tcCore\Http\Helpers\ReportHelper;
+use tcCore\Jobs\UpdateSchoolLocationReportRecord;
 use tcCore\SchoolLocation;
 use Illuminate\Database\Eloquent\Model;
 
@@ -28,7 +29,8 @@ class SchoolLocationReport extends Model
         }
 
         SchoolLocation::all()->each(function (SchoolLocation $l) {
-            self::updateLocationStats($l);
+            dispatch((new UpdateSchoolLocationReportRecord($l)));
+            // self::updateLocationStats($l);
         });
     }
 
