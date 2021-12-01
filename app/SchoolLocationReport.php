@@ -29,7 +29,7 @@ class SchoolLocationReport extends Model
         }
 
         SchoolLocation::all()->each(function (SchoolLocation $l) {
-            dispatch((new UpdateSchoolLocationReportRecord($l->getKey())));
+            dispatch((new UpdateSchoolLocationReportRecord($l)));
             // self::updateLocationStats($l);
         });
     }

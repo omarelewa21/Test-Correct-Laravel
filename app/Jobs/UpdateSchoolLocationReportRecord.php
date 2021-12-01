@@ -16,9 +16,9 @@ class UpdateSchoolLocationReportRecord extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     /**
-     * @var SchoolLocationId
+     * @var SchoolLocation
      */
-    protected $schoolLocationId;
+    protected $schoolLocation;
 
     /**
      * Create a new job instance.
@@ -26,10 +26,10 @@ class UpdateSchoolLocationReportRecord extends Job implements ShouldQueue
      * @param $schoolLocationId
      * @return void
      */
-    public function __construct($schoolLocationId)
+    public function __construct(SchoolLocation $schoolLocation)
     {
         //
-        $this->schoolLocationId = $schoolLocationId;
+        $this->schoolLocation = $schoolLocation;
     }
 
     /**
@@ -40,7 +40,7 @@ class UpdateSchoolLocationReportRecord extends Job implements ShouldQueue
     public function handle()
     {
         try {
-            SchoolLocationReport::updateLocationStats(SchoolLocation::withTrashed()->find($this->schoolLocationId));
+            SchoolLocationReport::updateLocationStats($this->schoolLocation);
         } catch (\Throwable $e){}
     }
 }
