@@ -58,7 +58,7 @@
                 </div>
             </div>
 
-            <div class="flex flex-col flex-1" x-data="{openTab:1}">
+            <div class="flex flex-col flex-1" x-data="{openTab:@entangle('openTab')}">
                 <div class="flex w-full space-x-6 mb-5 border-b border-light-grey">
                     <div :class="{'border-b-2 border-primary -mb-px' : openTab === 1}">
                         <x-button.text-button class="primary"
@@ -77,47 +77,159 @@
                 </div>
 
 
-                <div class="flex flex-col flex-1" x-show="openTab === 1">
-                    <div class="bg-white px-4 py-5 sm:px-6">
+                <div class="flex flex-col flex-1 pb-20" x-show="openTab === 1">
+                    <div class="content-section p-10 mb-4 space-y-5 shadow-xl flex flex-col ">
                         <div class="-ml-4 -mt-4 flex justify-between items-center flex-wrap sm:flex-nowrap">
                             <div class="ml-4 mt-4">
                                 <h3 class="text-lg leading-6 text-gray-900">
                                     {{ __('Vraag') }}
                                 </h3>
+
+                                <x-input.textarea wire:model="question.question"></x-input.textarea>
+                                @error('question.question')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white px-4 py-5 sm:px-6">
+                    <div class="content-section p-10 mb-4 space-y-5 shadow-xl flex flex-col ">
                         <div class="-ml-4 mt-8 flex justify-between items-center flex-wrap sm:flex-nowrap">
-                            <div class="ml-4 mt-4">
+                            <div class="ml-4 mt-4 flex-1">
                                 <h3 class="text-lg leading-6 text-gray-900">
                                     {{ __('Antwoord') }}
                                 </h3>
+
+                                <x-input.textarea wire:model="question.answer"></x-input.textarea>
+                                @error('question.answer')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ $message }}</span>
+                                </div>
+                                @enderror
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="flex flex-col flex-1" x-show="openTab === 2">
-                        <div class="bg-white px-4 py-5 sm:px-6">{{ __('Instellingen') }}</div>
+                <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2">
+                    <x-content-section>
+                        <x-slot name="title">{{ __('Algemeen') }}</x-slot>
 
-                    </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <x-input.toggle-row-with-title wire:model="question.maintain_position">
+                                <x-icon.locked class="flex "></x-icon.locked>
+                                <span class="bold"> {{ __('Vraag vastzetten') }}</span>
+                            </x-input.toggle-row-with-title>
+                            <x-input.toggle-row-with-title wire:model="question.add_to_database">
+                                <x-icon.locked class="flex "></x-icon.locked>
+                                <span class="bold"> {{ __('Openbaar maken') }}</span>
+                            </x-input.toggle-row-with-title>
+                            <x-input.toggle-row-with-title wire:model="question.closable">
+                                <x-icon.locked class="flex "></x-icon.locked>
+                                <span class="bold"> {{ __('Sluiten na beantwoorden') }}</span>
+                            </x-input.toggle-row-with-title>
+                            <x-input.toggle-row-with-title wire:model="question.discuss">
+                                <x-icon.locked class="flex "></x-icon.locked>
+                                <span class="bold"> {{ __('Bespreken in de klas') }}</span>
+                            </x-input.toggle-row-with-title>
+                            <x-input.toggle-row-with-title wire:model="question.note_type">
+                                <x-icon.locked class="flex "></x-icon.locked>
+                                <span class="bold"> {{ __('Notities toestaan') }}</span>
+                            </x-input.toggle-row-with-title>
+                        </div>
+
+                    </x-content-section>
+
+                    <x-content-section x-data="{rtti:0, bloom:0, miller:0}">
+                        <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
+                        <p>{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <x-input.toggle-row-with-title x-model="rtti">
+                                    <span class="bold"> {{ __('RTTI methode') }}</span>
+                                </x-input.toggle-row-with-title>
+                                <div x-show="rtti" class="flex flex-col">
+                                    @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
+                                        <label class="flex space-x-2.5 items-center">
+                                            <input wire:key="{{ $value }}"
+                                                   name="rtti" type="radio"
+                                                   wire:model="question.rtti"
+                                                   value="{{ $value }}"/>
+                                            <span>{{ $value }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div>
+                                <x-input.toggle-row-with-title x-model="bloom">
+                                    <span class="bold"> {{ __('BLOOM methode') }}</span>
+                                </x-input.toggle-row-with-title>
+                                <div x-show="bloom" class="flex flex-col">
+                                    @foreach(['Onthouden', 'Begrijpen', 'Toepassen', 'Analyseren', 'Evalueren', 'Creëren'] as $value)
+                                        <label class="flex space-x-2.5 items-center">
+                                            <input wire:key="{{ $value }}"
+                                                   name="bloom" type="radio"
+                                                   wire:model="question.bloom"
+                                                   value="{{ $value }}"/>
+                                            <span>{{ __($value) }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div>
+                                <x-input.toggle-row-with-title x-model="miller">
+                                    <span class="bold"> {{ __('Miller methode') }}</span>
+                                </x-input.toggle-row-with-title>
+                                <div x-show="miller" class="flex flex-col">
+                                    @foreach(['Weten', 'Weten hoe', 'Laten zien', 'Doen',] as $value)
+                                        <label class="flex space-x-2.5 items-center">
+                                            <input wire:key="{{ $value }}"
+                                                   name="miller" type="radio"
+                                                   wire:model="question.miller"
+                                                   value="{{ $value }}"/>
+                                            <span>{{ __($value) }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </x-content-section>
+
+                    <x-content-section>
+                        <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
+                        html
+                    </x-content-section>
+
+                    <x-content-section>
+                        <x-slot name="title">{{ __('Leerdoelen') }}</x-slot>
+                        html
+                    </x-content-section>
+
+                    <x-content-section>
+                        <x-slot name="title">{{ __('Tags') }}</x-slot>
+                        <x-input.tag-manager></x-input.tag-manager>
+                    </x-content-section>
+
+
                 </div>
             </div>
-        </div>
 
 
-        <div class="question-editor-footer">
-            <div class="question-editor-footer-button-container">
-                <button type="button" onclick="closeQuestionEditor();"
-                        class="button text-button button-md">
-                    <span> {{ __("Annuleer") }}</span>
-                </button>
+            <div class="question-editor-footer">
+                <div class="question-editor-footer-button-container">
+                    <button type="button" onclick="closeQuestionEditor();"
+                            class="button text-button button-md">
+                        <span> {{ __("Annuleer") }}</span>
+                    </button>
 
-                <button type="button" wire:click="save" class="button cta-button button-sm">
-                    <span>{{ __("Vraag opslaan") }}</span>
-                </button>
+                    <button type="button" wire:click="save" class="button cta-button button-sm">
+                        <span>{{ __("Vraag opslaan") }}</span>
+                    </button>
+                </div>
             </div>
+
+
         </div>
-
-
-    </div>

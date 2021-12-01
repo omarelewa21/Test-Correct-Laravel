@@ -5368,6 +5368,126 @@ document.addEventListener('alpine:init', function () {
       activeQuestion: window.Livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).entangle('q')
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('tagManager', function () {
+    return {
+      tags: [],
+      remove: function remove(index) {
+        this.tags.splice(index, 1);
+      },
+      add: function add(inputElement) {
+        if (inputElement.value) {
+          this.tags.push(inputElement.value);
+          inputElement.value = '';
+        }
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('select', function () {
+    return {
+      filter: '',
+      show: false,
+      selected: null,
+      focusedOptionIndex: null,
+      options: null,
+      close: function close() {
+        this.show = false;
+        this.filter = this.selectedName();
+        this.focusedOptionIndex = this.selected ? this.focusedOptionIndex : null;
+      },
+      open: function open() {
+        this.show = true;
+        this.filter = '';
+      },
+      toggle: function toggle() {
+        if (this.show) {
+          this.close();
+        } else {
+          this.open();
+        }
+      },
+      isOpen: function isOpen() {
+        return this.show === true;
+      },
+      selectedName: function selectedName() {
+        return this.selected ? this.selected.name.first + ' ' + this.selected.name.last : this.filter;
+      },
+      classOption: function classOption(id, index) {
+        var isSelected = this.selected ? id == this.selected.login.uuid : false;
+        var isFocused = index == this.focusedOptionIndex;
+        return {
+          'cursor-pointer w-full border-gray-100 border-b hover:bg-blue-50': true,
+          'bg-blue-100': isSelected,
+          'bg-blue-50': isFocused
+        };
+      },
+      fetchOptions: function fetchOptions() {
+        var _this = this;
+
+        fetch('https://randomuser.me/api/?results=5').then(function (response) {
+          return response.json();
+        }).then(function (data) {
+          return _this.options = data;
+        });
+      },
+      filteredOptions: function filteredOptions() {
+        var _this2 = this;
+
+        return this.options ? this.options.results.filter(function (option) {
+          return option.name.first.toLowerCase().indexOf(_this2.filter) > -1 || option.name.last.toLowerCase().indexOf(_this2.filter) > -1 || option.email.toLowerCase().indexOf(_this2.filter) > -1;
+        }) : {};
+      },
+      onOptionClick: function onOptionClick(index) {
+        this.focusedOptionIndex = index;
+        this.selectOption();
+      },
+      selectOption: function selectOption() {
+        var _this$focusedOptionIn;
+
+        if (!this.isOpen()) {
+          return;
+        }
+
+        this.focusedOptionIndex = (_this$focusedOptionIn = this.focusedOptionIndex) !== null && _this$focusedOptionIn !== void 0 ? _this$focusedOptionIn : 0;
+        var selected = this.filteredOptions()[this.focusedOptionIndex];
+
+        if (this.selected && this.selected.login.uuid == selected.login.uuid) {
+          this.filter = '';
+          this.selected = null;
+        } else {
+          this.selected = selected;
+          this.filter = this.selectedName();
+        }
+
+        this.close();
+      },
+      focusPrevOption: function focusPrevOption() {
+        if (!this.isOpen()) {
+          return;
+        }
+
+        var optionsNum = Object.keys(this.filteredOptions()).length - 1;
+
+        if (this.focusedOptionIndex > 0 && this.focusedOptionIndex <= optionsNum) {
+          this.focusedOptionIndex--;
+        } else if (this.focusedOptionIndex == 0) {
+          this.focusedOptionIndex = optionsNum;
+        }
+      },
+      focusNextOption: function focusNextOption() {
+        var optionsNum = Object.keys(this.filteredOptions()).length - 1;
+
+        if (!this.isOpen()) {
+          this.open();
+        }
+
+        if (this.focusedOptionIndex == null || this.focusedOptionIndex == optionsNum) {
+          this.focusedOptionIndex = 0;
+        } else if (this.focusedOptionIndex >= 0 && this.focusedOptionIndex < optionsNum) {
+          this.focusedOptionIndex++;
+        }
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive('global', function (el, _ref) {
     var expression = _ref.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
