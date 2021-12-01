@@ -985,7 +985,7 @@ class TestTake extends BaseModel
             $subject = (new DemoHelper())->getDemoSubjectForTeacher($user);
             //TCP-156
             if ($subject === null) {
-                if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://portal.test-correct.nl/" || config('app.env') == "production") {
+                if (config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.url_login') == "https://testportal.test-correct.nl/" || config('app.env') == "production") {
                     dispatch(new SendExceptionMail("Er is iets mis met de demoschool op ".config('app.url_login')."! \$subject is null in TestTake.php. Dit betekent dat docenten toetsen van andere docenten kunnen zien. Dit moet zo snel mogelijk opgelost worden!",
                         __FILE__, 510, []));
                 }
