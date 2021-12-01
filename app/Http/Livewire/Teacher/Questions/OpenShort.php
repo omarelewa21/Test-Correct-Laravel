@@ -38,8 +38,8 @@ class OpenShort extends Component
 
     public function save()
     {
-        $this->validate();
         dd($this->question);
+        $this->validate();
     }
 
     public function render()

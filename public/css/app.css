@@ -1584,6 +1584,9 @@ video {
 .top-1\/2{
 	top: 50%;
 }
+.-right-4{
+	right: -1rem;
+}
 .z-10{
 	z-index: 10;
 }
@@ -2121,6 +2124,9 @@ video {
 }
 .content-center{
 	align-content: center;
+}
+.content-end{
+	align-content: flex-end;
 }
 .items-start{
 	align-items: flex-start;
@@ -2670,6 +2676,9 @@ video {
 }
 .pr-1{
 	padding-right: 0.25rem;
+}
+.pr-6{
+	padding-right: 1.5rem;
 }
 .text-left{
 	text-align: left;
