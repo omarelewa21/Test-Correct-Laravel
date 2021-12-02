@@ -1069,12 +1069,12 @@ class TestTake extends BaseModel
         return $query->where('test_take_status_id', TestTakeStatus::STATUS_PLANNED);
     }
 
-    public function scopeTimeStartExpired(Builder $query)
+    public function scopeStartTimeExpired(Builder $query)
     {
         return $query->where('time_start', '>', now());
     }
 
-    public function scopeTimeEndExpired(Builder $query)
+    public function scopeEndTimeExpired(Builder $query)
     {
         return $query->where('time_end', '<', now());
     }
