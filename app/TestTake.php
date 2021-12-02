@@ -1079,6 +1079,18 @@ class TestTake extends BaseModel
         return $query->where('time_end', '<', now());
     }
 
+    public function updateToTakingTest()
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+        $this->save();
+    }
+
+    public function updateToTaken()
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
+        $this->save();
+    }
+
     public static function isJoined($query, $table)
     {
         $joins = $query->getQuery()->joins;
