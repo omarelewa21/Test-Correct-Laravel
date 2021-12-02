@@ -47,14 +47,14 @@ class StartAndStopAssessments extends Command
 
     private function handleStart()
     {
-        TestTake::typeAssessment()->statusPlanned()->startTimeExpired()->select('test_takes.*')->get()->each(function (TestTake $tt) {
+        TestTake::typeAssessment()->statusPlanned()->shouldStart()->select('test_takes.*')->get()->each(function (TestTake $tt) {
             $tt->updateToTakingTest();
         });
     }
 
     private function handleStop()
     {
-        TestTake::typeAssessment()->statusTakingTest()->endTimeExpired()->select('test_takes.*')->get()->each(function(TestTake $tt) {
+        TestTake::typeAssessment()->statusTakingTest()->shouldEnd()->select('test_takes.*')->get()->each(function(TestTake $tt) {
             $tt->updateToTaken();
         });
     }
