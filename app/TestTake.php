@@ -1069,14 +1069,33 @@ class TestTake extends BaseModel
         return $query->where('test_take_status_id', TestTakeStatus::STATUS_PLANNED);
     }
 
-    public function scopeTimeStartExpired(Builder $query)
+    public function scopeStatusTakingTest(Builder $query)
     {
-        return $query->where('time_start', '>', now());
+        return $query->where('test_take_status_id', TestTakeStatus::STATUS_TAKING_TEST);
     }
 
-    public function scopeTimeEndExpired(Builder $query)
+    public function scopeShouldStart(Builder $query)
+    {
+        return $query->where('time_start', '<', now())
+                    ->where('time_end','>',now());
+
+    }
+
+    public function scopeShouldEnd(Builder $query)
     {
         return $query->where('time_end', '<', now());
+    }
+
+    public function updateToTakingTest()
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+        $this->save();
+    }
+
+    public function updateToTaken()
+    {
+        $this->test_take_status_id = TestTakeStatus::STATUS_TAKEN;
+        $this->save();
     }
 
     public static function isJoined($query, $table)
