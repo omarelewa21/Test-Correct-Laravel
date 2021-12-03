@@ -1589,14 +1589,14 @@ video {
 .z-0{
 	z-index: 0;
 }
+.order-2{
+	order: 2;
+}
 .order-1{
 	order: 1;
 }
 .order-3{
 	order: 3;
-}
-.order-2{
-	order: 2;
 }
 .col-span-3{
 	grid-column: span 3 / span 3;
@@ -2167,6 +2167,16 @@ video {
 	margin-right: calc(1.5rem * var(--tw-space-x-reverse));
 	margin-left: calc(1.5rem * calc(1 - var(--tw-space-x-reverse)));
 }
+.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){
+	--tw-space-y-reverse: 0;
+	margin-top: calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));
+	margin-bottom: calc(0.625rem * var(--tw-space-y-reverse));
+}
+.space-y-2 > :not([hidden]) ~ :not([hidden]){
+	--tw-space-y-reverse: 0;
+	margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
+	margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
+}
 .space-x-4 > :not([hidden]) ~ :not([hidden]){
 	--tw-space-x-reverse: 0;
 	margin-right: calc(1rem * var(--tw-space-x-reverse));
@@ -2186,16 +2196,6 @@ video {
 	--tw-space-y-reverse: 0;
 	margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
 	margin-bottom: calc(0.25rem * var(--tw-space-y-reverse));
-}
-.space-y-2 > :not([hidden]) ~ :not([hidden]){
-	--tw-space-y-reverse: 0;
-	margin-top: calc(0.5rem * calc(1 - var(--tw-space-y-reverse)));
-	margin-bottom: calc(0.5rem * var(--tw-space-y-reverse));
-}
-.space-y-2\.5 > :not([hidden]) ~ :not([hidden]){
-	--tw-space-y-reverse: 0;
-	margin-top: calc(0.625rem * calc(1 - var(--tw-space-y-reverse)));
-	margin-bottom: calc(0.625rem * var(--tw-space-y-reverse));
 }
 .space-y-5 > :not([hidden]) ~ :not([hidden]){
 	--tw-space-y-reverse: 0;
@@ -2553,14 +2553,14 @@ video {
 .pb-4{
 	padding-bottom: 1rem;
 }
+.pl-2{
+	padding-left: 0.5rem;
+}
 .pb-5{
 	padding-bottom: 1.25rem;
 }
 .pr-2{
 	padding-right: 0.5rem;
-}
-.pl-2{
-	padding-left: 0.5rem;
 }
 .pl-3{
 	padding-left: 0.75rem;
@@ -3390,6 +3390,13 @@ ul ul ul {
 .main-shadow {
     box-shadow: var(--main-shadow);
 }
+
+.validate-red {
+    color: var(--all-red);
+}
+.validate-green {
+    color: var(--cta-primary);
+}
 .hover\:-mb-px:hover{
 	margin-bottom: -1px;
 }
@@ -3708,12 +3715,12 @@ ul ul ul {
 		right: 0px;
 	}
 
-	.md\:order-2{
-		order: 2;
-	}
-
 	.md\:order-3{
 		order: 3;
+	}
+
+	.md\:order-2{
+		order: 2;
 	}
 
 	.md\:float-right{
@@ -3752,16 +3759,16 @@ ul ul ul {
 		height: auto;
 	}
 
+	.md\:w-auto{
+		width: auto;
+	}
+
 	.md\:w-1\/2{
 		width: 50%;
 	}
 
 	.md\:w-full{
 		width: 100%;
-	}
-
-	.md\:w-auto{
-		width: auto;
 	}
 
 	.md\:grid-cols-3{

@@ -529,3 +529,10 @@ ul ul ul {
 .main-shadow {
     box-shadow: var(--main-shadow);
 }
+
+.validate-red {
+    color: var(--all-red);
+}
+.validate-green {
+    color: var(--cta-primary);
+}
