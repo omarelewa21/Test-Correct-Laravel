@@ -126,6 +126,7 @@ class UwlrFetcher extends Component
     public function fetch()
     {
         try {
+            set_time_limit(0);
             $helper = $this->getHelper();
 
             $this->report = $helper->getResultSet()->report();
