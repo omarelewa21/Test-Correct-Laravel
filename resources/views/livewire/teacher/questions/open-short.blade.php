@@ -59,7 +59,7 @@
                         {{ __('Antwoord model') }}
                     </x-slot>
                         <x-input.rich-textarea
-                            wire:model.defer="question.question"
+                            wire:model.defer="question.answer"
                             editorId="{{ $answerEditorId }}"
                             type="student"
                         />
