@@ -42,9 +42,11 @@
                         {{ __('Vraag') }}
                     </x-slot>
 
-                    <div wire:ignore>
-                        <x-input.textarea wire:model="question.question" id="{{ $questionEditorId }}" name="{{ $questionEditorId }}"></x-input.textarea>
-                    </div>
+                    <x-input.rich-textarea
+                        wire:model.defer="question.question"
+                        editorId="{{ $questionEditorId }}"
+                        type="cms"
+                    />
                     @error('question.question')
                     <div class="notification error stretched mt-4">
                         <span class="title">{{ $message }}</span>
@@ -56,10 +58,12 @@
                     <x-slot name="title">
                         {{ __('Antwoord model') }}
                     </x-slot>
-                    <div wire:ignore>
-                        <x-input.textarea id="{{ $answerEditorId }}" name="{{ $answerEditorId }}"
-                                          wire:model.debounce.1000ms="question.answer"></x-input.textarea>
-                    </div>
+                        <x-input.rich-textarea
+                            wire:model.defer="question.question"
+                            editorId="{{ $answerEditorId }}"
+                            type="student"
+                        />
+
                     @error('question.answer')
                     <div class="notification error stretched mt-4">
                         <span class="title">{{ $message }}</span>
@@ -157,13 +161,10 @@
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
-                    html
+                    <livewire:attainment-manager/>
                 </x-content-section>
 
-                <x-content-section>
-                    <x-slot name="title">{{ __('Leerdoelen') }}</x-slot>
-                    html
-                </x-content-section>
+
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Tags') }}</x-slot>
@@ -191,47 +192,3 @@
 
     </div>
 </div>
-</div>
-
-<script>
-    function initEditor(editorId) {
-        var editor = CKEDITOR.instances[editorId]
-        if (editor) {
-            editor.destroy(true)
-        }
-        CKEDITOR.replace(editorId, {
-            removePlugins: 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-            extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
-            toolbar: [
-                {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
-                {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
-                {name: 'insert', items: ['Table']},
-                {name: 'styles', items: ['Font', 'FontSize']},
-                {name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
-            ]
-        })
-        CKEDITOR.instances[editorId]
-            .on('change', function (e) {
-                var textarea = document.getElementById(editorId);
-                setTimeout(function () {
-                    textarea.value = e.editor.getData();
-                }, 300);
-                textarea.dispatchEvent(new Event('input'))
-            });
-        CKEDITOR.instances[editorId]
-            .on('contentDom', function () {
-                var editor = CKEDITOR.instances[editorId];
-                editor.editable().attachListener(editor.document, 'touchstart', function () {
-                    if (Core.appType === 'ipad') {
-                        document.querySelector('header').classList.remove('fixed');
-                        document.querySelector('footer').classList.remove('fixed');
-                    }
-                });
-            });
-    };
-    (function(){
-        initEditor('{{ $answerEditorId }}')
-        initEditor('{{ $questionEditorId }}')
-    })()
-
-</script>

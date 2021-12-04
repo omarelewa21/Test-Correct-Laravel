@@ -19,7 +19,7 @@ use tcCore\TestQuestion;
 
 class OpenShort extends Component
 {
-    public $openTab = 1;
+    public $openTab = 2;
 
     public $answerEditorId;
     public $questionEditorId;
@@ -83,6 +83,11 @@ class OpenShort extends Component
             throw ($e);
         }
 
+        $request = [];
+        if (property_exists($this, 'tags')) {
+           $request['tags'] = $this->tags;
+        }
+
         $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)->store(new CreateTestQuestionRequest($this->question));
         if($response->getStatusCode() == 200) {
             $url = "tests/view/5a6fe229-c7b6-4ef4-b926-fbc0939eeed4";
@@ -99,8 +104,6 @@ class OpenShort extends Component
 
     public function handleTags($tags)
     {
-        $this->tags = $tags;
-
-        dd($this->tags);
+        $this->question['tags'] = array_values($tags);
     }
 }

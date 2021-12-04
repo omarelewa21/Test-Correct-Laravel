@@ -5382,109 +5382,75 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('select', function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('select', function (config) {
+    var _config$emptyOptionsM, _config$placeholder;
+
     return {
-      filter: '',
-      show: false,
-      selected: null,
+      data: config.data,
+      emptyOptionsMessage: (_config$emptyOptionsM = config.emptyOptionsMessage) !== null && _config$emptyOptionsM !== void 0 ? _config$emptyOptionsM : 'No results match your search.',
       focusedOptionIndex: null,
-      options: null,
-      close: function close() {
-        this.show = false;
-        this.filter = this.selectedName();
-        this.focusedOptionIndex = this.selected ? this.focusedOptionIndex : null;
-      },
-      open: function open() {
-        this.show = true;
-        this.filter = '';
-      },
-      toggle: function toggle() {
-        if (this.show) {
-          this.close();
-        } else {
-          this.open();
-        }
-      },
-      isOpen: function isOpen() {
-        return this.show === true;
-      },
-      selectedName: function selectedName() {
-        return this.selected ? this.selected.name.first + ' ' + this.selected.name.last : this.filter;
-      },
-      classOption: function classOption(id, index) {
-        var isSelected = this.selected ? id == this.selected.login.uuid : false;
-        var isFocused = index == this.focusedOptionIndex;
-        return {
-          'cursor-pointer w-full border-gray-100 border-b hover:bg-blue-50': true,
-          'bg-blue-100': isSelected,
-          'bg-blue-50': isFocused
-        };
-      },
-      fetchOptions: function fetchOptions() {
-        var _this = this;
-
-        fetch('https://randomuser.me/api/?results=5').then(function (response) {
-          return response.json();
-        }).then(function (data) {
-          return _this.options = data;
-        });
-      },
-      filteredOptions: function filteredOptions() {
-        var _this2 = this;
-
-        return this.options ? this.options.results.filter(function (option) {
-          return option.name.first.toLowerCase().indexOf(_this2.filter) > -1 || option.name.last.toLowerCase().indexOf(_this2.filter) > -1 || option.email.toLowerCase().indexOf(_this2.filter) > -1;
-        }) : {};
-      },
-      onOptionClick: function onOptionClick(index) {
-        this.focusedOptionIndex = index;
-        this.selectOption();
-      },
-      selectOption: function selectOption() {
-        var _this$focusedOptionIn;
-
-        if (!this.isOpen()) {
-          return;
-        }
-
-        this.focusedOptionIndex = (_this$focusedOptionIn = this.focusedOptionIndex) !== null && _this$focusedOptionIn !== void 0 ? _this$focusedOptionIn : 0;
-        var selected = this.filteredOptions()[this.focusedOptionIndex];
-
-        if (this.selected && this.selected.login.uuid == selected.login.uuid) {
-          this.filter = '';
-          this.selected = null;
-        } else {
-          this.selected = selected;
-          this.filter = this.selectedName();
-        }
-
-        this.close();
-      },
-      focusPrevOption: function focusPrevOption() {
-        if (!this.isOpen()) {
-          return;
-        }
-
-        var optionsNum = Object.keys(this.filteredOptions()).length - 1;
-
-        if (this.focusedOptionIndex > 0 && this.focusedOptionIndex <= optionsNum) {
-          this.focusedOptionIndex--;
-        } else if (this.focusedOptionIndex == 0) {
-          this.focusedOptionIndex = optionsNum;
-        }
+      name: config.name,
+      open: false,
+      options: {},
+      placeholder: (_config$placeholder = config.placeholder) !== null && _config$placeholder !== void 0 ? _config$placeholder : 'Select an option',
+      search: '',
+      value: config.value,
+      closeListbox: function closeListbox() {
+        this.open = false;
+        this.focusedOptionIndex = null;
+        this.search = '';
       },
       focusNextOption: function focusNextOption() {
-        var optionsNum = Object.keys(this.filteredOptions()).length - 1;
+        if (this.focusedOptionIndex === null) return this.focusedOptionIndex = Object.keys(this.options).length - 1;
+        if (this.focusedOptionIndex + 1 >= Object.keys(this.options).length) return;
+        this.focusedOptionIndex++;
+        this.$refs.listbox.children[this.focusedOptionIndex].scrollIntoView({
+          block: "center"
+        });
+      },
+      focusPreviousOption: function focusPreviousOption() {
+        if (this.focusedOptionIndex === null) return this.focusedOptionIndex = 0;
+        if (this.focusedOptionIndex <= 0) return;
+        this.focusedOptionIndex--;
+        this.$refs.listbox.children[this.focusedOptionIndex].scrollIntoView({
+          block: "center"
+        });
+      },
+      init: function init() {
+        var _this = this;
 
-        if (!this.isOpen()) {
-          this.open();
-        }
+        this.options = this.data;
+        if (!(this.value in this.options)) this.value = null;
+        this.$watch('search', function (value) {
+          if (!_this.open || !value) return _this.options = _this.data;
+          _this.options = Object.keys(_this.data).filter(function (key) {
+            return _this.data[key].toLowerCase().includes(value.toLowerCase());
+          }).reduce(function (options, key) {
+            options[key] = _this.data[key];
+            return options;
+          }, {});
+        });
+      },
+      selectOption: function selectOption() {
+        if (!this.open) return this.toggleListboxVisibility();
+        this.value = Object.keys(this.options)[this.focusedOptionIndex];
+        this.closeListbox();
+      },
+      toggleListboxVisibility: function toggleListboxVisibility() {
+        var _this2 = this;
 
-        if (this.focusedOptionIndex == null || this.focusedOptionIndex == optionsNum) {
-          this.focusedOptionIndex = 0;
-        } else if (this.focusedOptionIndex >= 0 && this.focusedOptionIndex < optionsNum) {
-          this.focusedOptionIndex++;
-        }
+        if (this.open) return this.closeListbox();
+        this.focusedOptionIndex = Object.keys(this.options).indexOf(this.value);
+        if (this.focusedOptionIndex < 0) this.focusedOptionIndex = 0;
+        this.open = true; // this.$nextTick(() => {
+
+        setTimeout(function () {
+          _this2.$refs.search.focus();
+
+          _this2.$refs.listbox.children[_this2.focusedOptionIndex].scrollIntoView({
+            block: "center"
+          });
+        }, 10); // })
       }
     };
   });
@@ -5514,6 +5480,8 @@ __webpack_require__(/*! ./core */ "./resources/js/core.js");
 __webpack_require__(/*! ./notify */ "./resources/js/notify.js");
 
 __webpack_require__(/*! ./alpine */ "./resources/js/alpine.js");
+
+__webpack_require__(/*! ./rich-text-editor */ "./resources/js/rich-text-editor.js");
 
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
   var id = 1;
@@ -5766,7 +5734,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -6039,6 +6007,105 @@ Notify = {
         type: type
       }
     }));
+  }
+};
+
+/***/ }),
+
+/***/ "./resources/js/rich-text-editor.js":
+/*!******************************************!*\
+  !*** ./resources/js/rich-text-editor.js ***!
+  \******************************************/
+/***/ (() => {
+
+RichTextEditor = {
+  initStudent: function initStudent(editorId) {
+    var editor = CKEDITOR.instances[editorId];
+
+    if (editor) {
+      editor.destroy(true);
+    }
+
+    CKEDITOR.replace(editorId, {
+      removePlugins: 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
+      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+      toolbar: [{
+        name: 'basicstyles',
+        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
+      }, {
+        name: 'paragraph',
+        items: ['NumberedList', 'BulletedList']
+      }, {
+        name: 'insert',
+        items: ['Table']
+      }, {
+        name: 'styles',
+        items: ['Font', 'FontSize']
+      }, {
+        name: 'wirisplugins',
+        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
+      }]
+    });
+    CKEDITOR.instances[editorId].on('change', function (e) {
+      var textarea = document.getElementById(editorId);
+      setTimeout(function () {
+        textarea.value = e.editor.getData();
+      }, 300);
+      textarea.dispatchEvent(new Event('input'));
+    });
+    CKEDITOR.instances[editorId].on('contentDom', function () {
+      var editor = CKEDITOR.instances[editorId];
+      editor.editable().attachListener(editor.document, 'touchstart', function () {
+        if (Core.appType === 'ipad') {
+          document.querySelector('header').classList.remove('fixed');
+          document.querySelector('footer').classList.remove('fixed');
+        }
+      });
+    });
+  },
+  initCMS: function initCMS(editorId) {
+    var editor = CKEDITOR.instances[editorId];
+
+    if (editor) {
+      editor.destroy(true);
+    }
+
+    CKEDITOR.replace(editorId, {
+      removePlugins: 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
+      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+      toolbar: [{
+        name: 'basicstyles',
+        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
+      }, {
+        name: 'paragraph',
+        items: ['NumberedList', 'BulletedList']
+      }, {
+        name: 'insert',
+        items: ['Table']
+      }, {
+        name: 'styles',
+        items: ['Font', 'FontSize']
+      }, {
+        name: 'wirisplugins',
+        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
+      }]
+    });
+    CKEDITOR.instances[editorId].on('change', function (e) {
+      var textarea = document.getElementById(editorId);
+      setTimeout(function () {
+        textarea.value = e.editor.getData();
+      }, 300);
+      textarea.dispatchEvent(new Event('input'));
+    });
+    CKEDITOR.instances[editorId].on('contentDom', function () {
+      var editor = CKEDITOR.instances[editorId];
+      editor.editable().attachListener(editor.document, 'touchstart', function () {
+        if (Core.appType === 'ipad') {
+          document.querySelector('header').classList.remove('fixed');
+          document.querySelector('footer').classList.remove('fixed');
+        }
+      });
+    });
   }
 };
 

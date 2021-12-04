@@ -1,4 +1,5 @@
 import Alpine from 'alpinejs';
+
 window.Alpine = Alpine;
 
 document.addEventListener('alpine:init', () => {
@@ -8,114 +9,118 @@ document.addEventListener('alpine:init', () => {
         totalScrollWidth: 0,
         activeQuestion: window.Livewire.find(document.querySelector('[test-take-player]').getAttribute('wire:id')).entangle('q')
     }));
-    Alpine.data( 'tagManager', () => ({
-            tags : [],
-            remove: function(index){
-                this.tags.splice(index, 1)
-            },
-            add: function(inputElement) {
-                if (inputElement.value) {
-                    this.tags.push(inputElement.value);
-                    inputElement.value = '';
-                }
-            },
+    Alpine.data('tagManager', () => ({
+        tags: [],
+        remove: function (index) {
+            this.tags.splice(index, 1)
+        },
+        add: function (inputElement) {
+            if (inputElement.value) {
+                this.tags.push(inputElement.value);
+                inputElement.value = '';
+            }
+        },
     }));
-    Alpine.data( 'select', () => ({
-        filter: '',
-        show: false,
-        selected: null,
+    Alpine.data('select', (config) => ({
+
+        data: config.data,
+
+        emptyOptionsMessage: config.emptyOptionsMessage ?? 'No results match your search.',
+
         focusedOptionIndex: null,
-        options: null,
-        close() {
-            this.show = false;
-            this.filter = this.selectedName();
-            this.focusedOptionIndex = this.selected ? this.focusedOptionIndex : null;
-        },
-        open() {
-            this.show = true;
-            this.filter = '';
-        },
-        toggle() {
-            if (this.show) {
-                this.close();
-            }
-            else {
-                this.open()
-            }
-        },
-        isOpen() { return this.show === true },
-        selectedName() { return this.selected ? this.selected.name.first + ' ' + this.selected.name.last : this.filter; },
-        classOption(id, index) {
-            const isSelected = this.selected ? (id == this.selected.login.uuid) : false;
-            const isFocused = (index == this.focusedOptionIndex);
-            return {
-                'cursor-pointer w-full border-gray-100 border-b hover:bg-blue-50': true,
-                'bg-blue-100': isSelected,
-                'bg-blue-50': isFocused
-            };
-        },
-        fetchOptions() {
-            fetch('https://randomuser.me/api/?results=5')
-                .then(response => response.json())
-                .then(data => this.options = data);
-        },
-        filteredOptions() {
-            return this.options
-                ? this.options.results.filter(option => {
-                    return (option.name.first.toLowerCase().indexOf(this.filter) > -1)
-                        || (option.name.last.toLowerCase().indexOf(this.filter) > -1)
-                        || (option.email.toLowerCase().indexOf(this.filter) > -1)
-                })
-                : {}
-        },
-        onOptionClick(index) {
-            this.focusedOptionIndex = index;
-            this.selectOption();
-        },
-        selectOption() {
-            if (!this.isOpen()) {
-                return;
-            }
-            this.focusedOptionIndex = this.focusedOptionIndex ?? 0;
-            const selected = this.filteredOptions()[this.focusedOptionIndex]
-            if (this.selected && this.selected.login.uuid == selected.login.uuid) {
-                this.filter = '';
-                this.selected = null;
-            }
-            else {
-                this.selected = selected;
-                this.filter = this.selectedName();
-            }
-            this.close();
-        },
-        focusPrevOption() {
-            if (!this.isOpen()) {
-                return;
-            }
-            const optionsNum = Object.keys(this.filteredOptions()).length - 1;
-            if (this.focusedOptionIndex > 0 && this.focusedOptionIndex <= optionsNum) {
-                this.focusedOptionIndex--;
-            }
-            else if (this.focusedOptionIndex == 0) {
-                this.focusedOptionIndex = optionsNum;
-            }
-        },
-        focusNextOption() {
-            const optionsNum = Object.keys(this.filteredOptions()).length - 1;
-            if (!this.isOpen()) {
-                this.open();
-            }
-            if (this.focusedOptionIndex == null || this.focusedOptionIndex == optionsNum) {
-                this.focusedOptionIndex = 0;
-            }
-            else if (this.focusedOptionIndex >= 0 && this.focusedOptionIndex < optionsNum) {
-                this.focusedOptionIndex++;
-            }
-        }
 
+        name: config.name,
+
+        open: false,
+
+        options: {},
+
+        placeholder: config.placeholder ?? 'Select an option',
+
+        search: '',
+
+        value: config.value,
+
+        closeListbox: function () {
+            this.open = false
+
+            this.focusedOptionIndex = null
+
+            this.search = ''
+        },
+
+        focusNextOption: function () {
+            if (this.focusedOptionIndex === null) return this.focusedOptionIndex = Object.keys(this.options).length - 1
+
+            if (this.focusedOptionIndex + 1 >= Object.keys(this.options).length) return
+
+            this.focusedOptionIndex++
+
+            this.$refs.listbox.children[this.focusedOptionIndex].scrollIntoView({
+                block: "center",
+            })
+        },
+
+        focusPreviousOption: function () {
+            if (this.focusedOptionIndex === null) return this.focusedOptionIndex = 0
+
+            if (this.focusedOptionIndex <= 0) return
+
+            this.focusedOptionIndex--
+
+            this.$refs.listbox.children[this.focusedOptionIndex].scrollIntoView({
+                block: "center",
+            })
+        },
+
+        init: function () {
+            this.options = this.data
+
+            if (!(this.value in this.options)) this.value = null
+
+            this.$watch('search', ((value) => {
+                if (!this.open || !value) return this.options = this.data
+
+                this.options = Object.keys(this.data)
+                    .filter((key) => this.data[key].toLowerCase().includes(value.toLowerCase()))
+                    .reduce((options, key) => {
+                        options[key] = this.data[key]
+                        return options
+                    }, {})
+            }))
+        },
+
+        selectOption: function () {
+            if (!this.open) return this.toggleListboxVisibility()
+
+            this.value = Object.keys(this.options)[this.focusedOptionIndex]
+
+            this.closeListbox()
+        },
+
+        toggleListboxVisibility: function () {
+            if (this.open) return this.closeListbox()
+
+            this.focusedOptionIndex = Object.keys(this.options).indexOf(this.value)
+
+            if (this.focusedOptionIndex < 0) this.focusedOptionIndex = 0
+
+            this.open = true
+
+            // this.$nextTick(() => {
+            setTimeout(() => {
+                this.$refs.search.focus()
+
+                this.$refs.listbox.children[this.focusedOptionIndex].scrollIntoView({
+                    block: "center"
+                })
+            },10);
+            // })
+        },
     }));
 
-    Alpine.directive('global', function (el, { expression }) {
+
+    Alpine.directive('global', function (el, {expression}) {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
         f(window, el._x_dataStack[0]);
     });
