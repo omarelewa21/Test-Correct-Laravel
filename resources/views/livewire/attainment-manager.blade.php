@@ -1,5 +1,4 @@
 <div>
-    <button wire:click="showValues">ShowValues</button>
     <p>{{ __('Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.') }}</p>
     <div class="flex space-x-4 mt-4">
         <x-input.group label="{{ __('Domein') }}" class="w-1/2">

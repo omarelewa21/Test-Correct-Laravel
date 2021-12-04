@@ -7,7 +7,7 @@
 
 <div class="max-w-xs" wire:key="select_{{ $name }}">
     <div
-        x-data="select({value:@entangle($attributes->wire('model')), data: @entangle($name), emptyOptionsMessage: '{{ $emptyOptionsMessage }}', name: '{{ $name }}', placeholder: '{{ $placeholder }}' })"
+        x-data="selectSearch({value:@entangle($attributes->wire('model')), data: @entangle($name), emptyOptionsMessage: '{{ $emptyOptionsMessage }}', name: '{{ $name }}', placeholder: '{{ $placeholder }}' })"
         @click.away="closeListbox()"
         @keydown.escape="closeListbox()"
         class="relative"
@@ -54,7 +54,7 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             x-cloak
-            class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg"
+            class="absolute z-30 w-full mt-1 bg-white rounded-md shadow-lg"
         >
             <ul
                 style="list-style-type:none !important"

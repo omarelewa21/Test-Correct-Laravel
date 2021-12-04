@@ -21,7 +21,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
-    Alpine.data('select', (config) => ({
+    Alpine.data('selectSearch', (config) => ({
 
         data: config.data,
 

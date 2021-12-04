@@ -13,7 +13,7 @@ class AttainmentManager extends Component
 
     public $subdomains = [];
 
-    public $domainId = 1;
+    public $domainId;
 
 
     public function mount()
@@ -34,10 +34,8 @@ class AttainmentManager extends Component
         $this->updatedDomainId($this->domainId);
     }
 
-    public function showValues(){
-        dd([
-            $this->subdomainId, $this->domainId,
-        ]);
+    public function updatedSubdomainId($value) {
+        $this->emitUp('updated-attainment', $value);
     }
 
     public function updatedDomainId($value)
@@ -45,13 +43,14 @@ class AttainmentManager extends Component
         $this->subdomainId = '';
         $this->subdomains = [];
 
-        Attainment::where('attainment_id', $value)
-            ->where('status', 'ACTIVE')
-            ->get()
-            ->each(function ($subDomain) {
-                $this->subdomains[$subDomain->id] = $subDomain->description;
-            });;
-            $this->subdomainId = rand(10, 10);
+        if (!empty($value)) {
+            Attainment::where('attainment_id', $value)
+                ->where('status', 'ACTIVE')
+                ->get()
+                ->each(function ($subDomain) {
+                    $this->subdomains[$subDomain->id] = $subDomain->description;
+                });;
+        }
     }
 
     public function render()

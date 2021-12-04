@@ -33,7 +33,8 @@ class OpenShort extends Component
     protected function getListeners()
     {
         return [
-            'new-tags-for-question' => 'handleTags'
+            'new-tags-for-question' => 'handleTags',
+            'updated-attainment' => 'handleAttainment',
         ];
     }
 
@@ -105,5 +106,10 @@ class OpenShort extends Component
     public function handleTags($tags)
     {
         $this->question['tags'] = array_values($tags);
+    }
+
+    public function handleAttainment($attainmentId)
+    {
+        $this->question['attainments'] = [$attainmentId];
     }
 }
