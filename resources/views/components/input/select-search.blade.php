@@ -7,11 +7,11 @@
 
 <div class="max-w-xs" wire:key="select_{{ $name }}">
     <div
-        x-data="select({value:@entangle($attributes->wire('model')), data: {{ json_encode($options) }}, emptyOptionsMessage: '{{ $emptyOptionsMessage }}', name: 'country', placeholder: '{{ $placeholder }}' })"
-
+        x-data="select({value:@entangle($attributes->wire('model')), data: @entangle($name), emptyOptionsMessage: '{{ $emptyOptionsMessage }}', name: '{{ $name }}', placeholder: '{{ $placeholder }}' })"
         @click.away="closeListbox()"
         @keydown.escape="closeListbox()"
         class="relative"
+        x-effect="()=> options = data; "
     >
                 <span class="inline-block w-full rounded-md shadow-sm">
                       <button
@@ -57,6 +57,7 @@
             class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg"
         >
             <ul
+                style="list-style-type:none !important"
                 x-ref="listbox"
                 @keydown.enter.stop.prevent="selectOption()"
                 @keydown.arrow-up.prevent="focusPreviousOption()"
@@ -102,6 +103,7 @@
                     class="px-3 py-2 text-gray-900 cursor-default select-none"></div>
             </ul>
         </div>
+
     </div>
 
 </div>
