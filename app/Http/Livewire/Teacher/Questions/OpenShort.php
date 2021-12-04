@@ -15,6 +15,7 @@ use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Question;
 use tcCore\QuestionAuthor;
 use tcCore\TemporaryLogin;
+use tcCore\Test;
 use tcCore\TestQuestion;
 
 class OpenShort extends Component
@@ -30,6 +31,8 @@ class OpenShort extends Component
 
     public $testName = 'test_name';
 
+    public $subjectId;
+
     protected function getListeners()
     {
         return [
@@ -42,6 +45,11 @@ class OpenShort extends Component
     {
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
+
+       if (request()->input('owner') == 'test') {
+        $this->subjectId = Test::whereUuid(request()->input('owner_id'))->first()->subjectId;
+       }
+       dd($this->subjectId);
     }
 
     protected $tags = [];
