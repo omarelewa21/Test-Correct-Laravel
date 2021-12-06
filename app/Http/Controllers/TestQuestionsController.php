@@ -76,9 +76,6 @@ class TestQuestionsController extends Controller {
         try{
             if ($request->get('question_id') === null) {
                 $testQuestion = TestQuestion::store($request->all());
-                if(is_string($testQuestion)){
-                    throw new QuestionException($testQuestion);
-                };
             } else {
                 $testQuestion = new TestQuestion();
 
@@ -217,11 +214,6 @@ class TestQuestionsController extends Controller {
 
     public function update(TestQuestion $testQuestion,  UpdateTestQuestionRequest $request)
     {
-        $qHelper = new QuestionHelper();
-        $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->input('question'), true);
-        if($questionData["error"]){
-            return Response::make($questionData["error"], 500);
-        }
         return $this->updateGeneric($testQuestion, $request);
     }
 
