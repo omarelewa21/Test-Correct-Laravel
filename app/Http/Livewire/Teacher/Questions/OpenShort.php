@@ -49,7 +49,7 @@ class OpenShort extends Component
        if (request()->input('owner') == 'test') {
         $this->subjectId = Test::whereUuid(request()->input('owner_id'))->first()->subjectId;
        }
-       dd($this->subjectId);
+//       dd($this->subjectId);
     }
 
     protected $tags = [];
