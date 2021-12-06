@@ -1,6 +1,6 @@
 <div id="dashboard-body"
      class="px-4 lg:px-8 xl:px-24 relative w-full pb-10"
-     x-data=""
+     x-data="{showKnowledgebankAppNotificationModal: @entangle('showKnowledgebankAppNotificationModal')}"
      x-init="addRelativePaddingToBody('dashboard-body'); makeHeaderMenuActive('student-header-dashboard');"
      x-cloak
      x-on:resize.window.debounce.200ms="addRelativePaddingToBody('dashboard-body')"
@@ -9,10 +9,40 @@
     <div class="flex my-10">
         <h1>{{ __('student.welcome_to_dashboard') }}</h1>
     </div>
+    @if($this->showAppVersionMessage())
+        <div class="flex flex-col w-full justify-center items-center mb-4 max-w-4xl mx-auto">
+            <div class="flex flex-col notification stretched px-6 w-full main-shadow
+                    @if(session()->get('TLCVersioncheckResult') == 'NOTALLOWED') error @else warning @endif
+                    ">
+                <div class="title flex items-center space-x-2.5">
+                    <x-icon.warning/>
+                    <span>{{ __('student.warning') }}</span>
+                </div>
+                <div class="body flex">
+                    <span>
+                        @if(session()->get('TLCVersioncheckResult') == 'NOTALLOWED')
+                            {{ __('student.app_not_allowed') }}
+                        @else
+                            @if($this->needsUpdateDeadline)
+                                {{ __('student.app_needs_update_deadline', ['date' => $this->needsUpdateDeadline]) }}
+                            @else
+                                {{ __('student.app_needs_update') }}
+                            @endif
+                        @endif
+                        <button class="bold inline-flex items-center space-x-1 hover:underline"
+                                @click="showKnowledgebankAppNotificationModal = true">
+                            <span>{{ __('student.read_more') }}</span>
+                            <x-icon.arrow-small/>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    @endif
     @if($infos)
-        <div class="flex flex-col w-full justify-center items-center mb-8">
+        <div class="flex flex-col w-full justify-center items-center mb-8 max-w-4xl mx-auto">
             @foreach($infos as $info)
-                <div class="flex flex-col notification info stretched px-6 max-w-4xl main-shadow">
+                <div class="flex flex-col notification info stretched px-6 w-full main-shadow">
                     <div class="title flex items-center">
                         <span>{!! $info['title_'.session()->get('locale')] !!}</span>
                     </div>
@@ -140,6 +170,12 @@
                             <div class="flex flex-col flex-1 p-2 pt-4 text-md space-y-2">
                                 <h6>{{ $message->subject }}</h6>
                                 <p>{{ \Illuminate\Support\Str::limit($message->message, 200) }}</p>
+                                @if(strlen($message->message) > 200)
+                                    <button class="flex text-base items-center bold hover:underline space-x-1" wire:click="readMessages()">
+                                        <span>{{ __('student.read_more') }}</span>
+                                        <x-icon.arrow-small/>
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     @empty
@@ -150,7 +186,19 @@
                         </div>
                     @endforelse
                 </div>
+                <div class="flex">
+                    <x-button.primary class="ml-auto" wire:click="readMessages()">
+                        <span>{{ __('student.messages') }}</span>
+                        <x-icon.chevron/>
+                    </x-button.primary>
+                </div>
             </div>
         </div>
     </div>
+    @if($this->showKnowledgebankAppNotificationModal)
+    <x-modal.iframe wire:model="showKnowledgebankAppNotificationModal"
+                    url="https://support.test-correct.nl/knowledge/melding-verouderde-versie"
+                    maxWidth="7xl"
+    />
+    @endif
 </div>

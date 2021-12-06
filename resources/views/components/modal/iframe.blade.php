@@ -1,4 +1,4 @@
-@props(['id', 'maxWidth', 'showCancelButton'=> true,])
+@props(['id', 'maxWidth', 'showCancelButton'=> true, 'url' => 'https://support.test-correct.nl'])
 
 @php
     $id = $id ?? md5($attributes->wire('model'));
@@ -75,7 +75,7 @@
         </div>
         <div class="divider mb-5 mt-2.5"></div>
         <div class="px-2.5 body1 mb-5 flex-1">
-            <iframe src="https://support.test-correct.nl" frameborder="0" class="w-full flex flex-1 h-full"></iframe>
+            <iframe src="{{ $url }}" frameborder="0" class="w-full flex flex-1 h-full"></iframe>
         </div>
         <div class="flex justify-end px-2.5">
             <div class="space-x-3">

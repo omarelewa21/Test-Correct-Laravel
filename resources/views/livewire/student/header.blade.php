@@ -1,5 +1,7 @@
 <header id="header" class="header fixed w-full content-center z-10 main-shadow"
-        x-data="{activeIcon: null, showKnowledgebankModal: @entangle('showKnowledgebankModal'), showChangePasswordModal: @entangle('showChangePasswordModal')}">
+        x-data="{activeIcon: null, showKnowledgebankModal: @entangle('showKnowledgebankModal'), showChangePasswordModal: @entangle('showChangePasswordModal')}"
+        @password-changed-success.window="showChangePasswordModal = false;"
+>
     <div class="py-2.5 px-6 flex h-full items-center">
         <div class="relative">
             <a href="{{ $logoUrl }}">
@@ -33,25 +35,27 @@
 
         <div class="flex ml-auto action-icons mr-4 relative">
             <div class="flex space-x-1">
-                <button class="flex items-center justify-center order-1 p-1.5 rounded-full action-icon-button"
+                <button class="flex items-center justify-center order-1 p-1.5 rounded-full action-icon-button relative"
                         :class="{'active' : activeIcon === 'support'}"
                         x-ref="support_icon"
                         @click="activeIcon = 'support'"
                 >
                     <x-icon.support/>
                 </button>
-                <button class="flex items-center justify-center order-2 p-1.5 rounded-full action-icon-button"
+                <button class="flex items-center justify-center order-2 p-1.5 rounded-full action-icon-button relative"
                         :class="{'active' : activeIcon === 'messages'}"
                         @click="activeIcon = 'messages'"
                         wire:click="messages()"
                 >
                     <x-icon.messages/>
+                    <span class="flex absolute text-xs bold -right-1 top-0 bg-cta-primary rounded-[20px] px-1.5 py-0.5 text-white ">{{ $this->unreadMessageCount }}</span>
                 </button>
-                <button class="hidden flex items-center justify-center order-3 p-1.5 rounded-full action-icon-button"
+                <button class="hidden flex items-center justify-center order-3 p-1.5 rounded-full action-icon-button relative"
                         :class="{'active' : activeIcon === 'notifications'}"
                         @click="activeIcon = 'notifications'"
                 >
                     <x-icon.notification/>
+                    <span></span>
                 </button>
             </div>
 
@@ -102,6 +106,7 @@
     </div>
 
     <x-modal.change-password wire:model="showChangePasswordModal"/>
-
-    <x-modal.iframe wire:model="showKnowledgebankModal" maxWidth="7xl"/>
+    @if($this->showKnowledgebankModal)
+        <x-modal.iframe wire:model="showKnowledgebankModal" maxWidth="7xl"/>
+    @endif
 </header>
