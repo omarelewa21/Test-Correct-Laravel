@@ -34,7 +34,7 @@ class TestsController extends Controller {
         try { // added for compatibility with mariadb
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
         } catch (\Exception $e){}
-        if(Auth::user()->intense && BaseHelper::notProduction()) {
+        if(Auth::user()->intense ) {
             $message = 'GM says at november 29th 2021: TestsController@index, this message should only appear on the test environment. In production this if statement should be removed.';
             Bugsnag::notifyException(new \Exception($message));
             $tests = Test::filtered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);

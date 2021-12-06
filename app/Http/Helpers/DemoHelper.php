@@ -101,6 +101,26 @@ class DemoHelper
         return null;
     }
 
+    public function getDemoSubjectsForSchoolLocations($user)
+    {
+        $schoolLocationIds = $user->allowedSchoolLocations()->pluck('id');
+        $sections = Section::join('school_location_sections',function ($join) {
+            $join->on('sections.id', '=', 'school_location_sections.section_id');
+        })->whereIn('school_location_sections.school_location_id',$schoolLocationIds)
+            ->where('sections.name', self::SECTIONNAME)
+            ->get();
+        if ($sections !== null) {
+            $demoSubjects = [];
+            foreach ($sections as $section){
+                $demoSubject = $this->getDemoSubjectIfExists($section);
+                $demoSubjects[] = optional($demoSubject)->getKey();
+            }
+            $demoSubjects = array_filter($demoSubjects);
+            return (count($demoSubjects)===0)?null:$demoSubjects;
+        }
+        return null;
+    }
+
     public function hasTeacherDemoSetup(User $user)
     {
         $this->setSchoolLocation($user->schoolLocation);

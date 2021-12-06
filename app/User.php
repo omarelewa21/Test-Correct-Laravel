@@ -1027,6 +1027,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query;
     }
 
+    public function otherSchoolLocationsSharedSectionsWithMe()
+    {
+        $schoolLocationSharedSections = SchoolLocationSharedSection::where('school_location_id',$this->schoolLocation->getKey());
+        if($schoolLocationSharedSections->count()===0){
+            return false;
+        }
+        return true;
+    }
+
     public function subjectsOnlyShared($query = null)
     {
         $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
@@ -1051,6 +1060,29 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
         return $query;
 
+    }
+
+    public function subjectsOnlySharedByOtherSchoolLocations($query = null)
+    {
+        $sharedSectionIds = SchoolLocationSharedSection::where('school_location_id',$this->schoolLocation->getKey())->pluck('section_id')->unique();
+        $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();
+
+        if (count($sharedSectionIds) > 0) {
+            $subjectIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
+                $baseSubjectIds)->pluck('id')->unique();
+        }
+
+        $subjectIds = $subjectIdsFromShared;
+
+        if ($query === null) {
+            $query = Subject::whereIn('id', $subjectIds);
+        } else {
+            $query->from(with(new Subject())->getTable())
+                ->where('deleted_at', null)
+                ->whereIn('id', $subjectIds);
+        }
+
+        return $query;
     }
 
     public function sections($query = null)
@@ -1271,10 +1303,10 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isPartOfSharedSection()
     {
-        if(!$this->hasSharedSections()){
+        if(!$this->otherSchoolLocationsSharedSectionsWithMe()){
             return false;
         }
-        if($this->subjectsOnlyShared()->count()===0){
+        if($this->subjectsOnlySharedByOtherSchoolLocations()->count()===0){
             return false;
         }
         return true;
