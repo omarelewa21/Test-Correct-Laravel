@@ -37,6 +37,18 @@
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1">
                 <x-content-section>
+                    <x-input.group label="Photo" for="photo" :error="$errors->first('upload')">
+                        <x-input.filepond wire:model="upload" id="photo">
+                    <span class="h-12 w-12 rounded-full overflow-hidden bg-gray-100">
+                        @if ($upload)
+                            <img src="{{ $upload->temporaryUrl() }}" alt="Profile Photo">
+                        @else
+                            <p>some picture here</p>
+{{--                            <img src="{{ auth()->user()->avatarUrl() }}" alt="Profile Photo">--}}
+                        @endif
+                    </span>
+                        </x-input.filepond>
+                    </x-input.group>
 
                     <x-slot name="title">
                         {{ __('Vraag') }}

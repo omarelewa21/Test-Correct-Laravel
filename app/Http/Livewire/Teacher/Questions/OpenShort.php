@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Ramsey\Uuid\Guid\Guid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\QuestionHelper;
@@ -20,7 +21,11 @@ use tcCore\TestQuestion;
 
 class OpenShort extends Component
 {
+    use WithFileUploads;
+
     public $openTab = 2;
+
+    public $upload;
 
     public $answerEditorId;
     public $questionEditorId;
