@@ -1099,25 +1099,19 @@ class Test extends BaseModel
         return DB::raw(sprintf('(select distinct t2.id as t2_id
                                             from
                                                `tests` as t2
-                                               left join test_authors as t3
-                                                   on t2.id = t3.test_id
-                                               left join users as t4 
-                                                    on t3.user_id = t4.id
-                                               left join school_location_user as t6 
-                                                    on t4.id = t6.user_id
-                                               left join users as t5 
-                                                    on t2.`author_id` = t5.id
-                                               left join school_location_user as t7 
-                                                    on t5.id = t7.user_id
                                                inner join (
-                                                        select distinct t8.id as subject_id
+                                                        select distinct t3.id as subject_id
                                                         from subjects
                                                             left join sections
                                                                 on subjects.section_id = sections.id
                                                             left join subjects as t8
                                                                 on sections.id = t8.section_id
                                                             left join school_location_sections as t9
-                                                                on t9.section_id = sections.id    
+                                                                on t9.section_id = sections.id
+                                                            inner join subjects as t3
+                                                                on subjects.base_subject_id = t3.base_subject_id
+                                                            left join school_location_sections as t10 
+                                                                on t3.section_id = t10.section_id   
                                                             left join teachers
                                                                 on subjects.id = teachers.subject_id
                                                             left join school_classes
@@ -1125,27 +1119,19 @@ class Test extends BaseModel
                                                         where 
                                                             subjects.deleted_at is null
                                                                 and
-                                                            user_id = %d 
-                                                                and 
                                                             teachers.user_id = %d
                                                                 and
                                                             t9.school_location_id = %d
                                                                 and
+                                                            t10.school_location_id = %d
+                                                                and
                                                             school_classes.school_location_id = %d 
                                                             ) as s2
                                                     on t2.subject_id = s2.subject_id
-                                            where
-                                                 (
-                                                    t4.`school_location_id` = %d or t5.`school_location_id` = %d or t6.`school_location_id` = %d or t7.`school_location_id` = %d
-                                                 )
-                                                    ) as t1',   $user->id,
-                                                                $user->id,
+                                            ) as t1',           $user->id,
                                                                 $user->school_location_id,
                                                                 $user->school_location_id,
                                                                 $user->school_location_id,
-                                                                $user->school_location_id,
-                                                                $user->school_location_id,
-                                                                $user->school_location_id
             )
         );
     }
@@ -1155,25 +1141,19 @@ class Test extends BaseModel
         return DB::raw(sprintf('(select distinct t2.id as t2_id
                                             from
                                                `tests` as t2
-                                               left join test_authors as t3
-                                                   on t2.id = t3.test_id
-                                               left join users as t4 
-                                                    on t3.user_id = t4.id
-                                               left join school_location_user as t6 
-                                                    on t4.id = t6.user_id
-                                               left join users as t5 
-                                                    on t2.`author_id` = t5.id
-                                               left join school_location_user as t7 
-                                                    on t5.id = t7.user_id
                                                inner join (
-                                                        select distinct t8.id as subject_id
+                                                        select distinct t3.id as subject_id
                                                         from subjects
                                                             left join sections
                                                                 on subjects.section_id = sections.id
                                                             left join subjects as t8
                                                                 on sections.id = t8.section_id
                                                             left join school_location_sections as t9
-                                                                on t9.section_id = sections.id    
+                                                                on t9.section_id = sections.id
+                                                            inner join subjects as t3
+                                                                on subjects.base_subject_id = t3.base_subject_id
+                                                            left join school_location_sections as t10 
+                                                                on t3.section_id = t10.section_id   
                                                             left join teachers
                                                                 on subjects.id = teachers.subject_id
                                                             left join school_classes
@@ -1187,65 +1167,56 @@ class Test extends BaseModel
                                                                 and
                                                             t9.school_location_id = %d
                                                                 and
+                                                            t10.school_location_id = %d
+                                                                and
                                                             school_classes.school_location_id = %d 
                                                             ) as s2
                                                     on t2.subject_id = s2.subject_id
-                                            where
-                                                 (
-                                                    t4.`school_location_id` = %d or t5.`school_location_id` = %d or t6.`school_location_id` = %d or t7.`school_location_id` = %d
-                                                 )
-                                                    ) as t1',   $user->id,
-                $user->id,
-                $user->school_location_id,
-                $user->school_location_id,
-                $user->school_location_id,
-                $user->school_location_id,
-                $user->school_location_id,
-                $user->school_location_id
-            )
-        );
-//        return DB::raw(sprintf('(select distinct t2.id as t2_id
-//                                            from
-//                                               `tests` as t2
-//                                               left join test_authors as t3
-//                                                   on t2.id = t3.test_id
-//                                               left join users as t4
-//                                                    on t3.user_id = t4.id
-//                                               left join school_location_user as t6
-//                                                    on t4.id = t6.user_id
-//                                               left join users as t5
-//                                                    on t2.`author_id` = t5.id
-//                                               left join school_location_user as t7
-//                                                    on t5.id = t7.user_id
-//                                               inner join subjects
-//                                                    on t2.subject_id = subjects.id
-//                                               left join school_location_shared_sections
-//                                                    on subjects.section_id = school_location_shared_sections.section_id
-//                                               left join `teachers` as teachers_self
-//                                                    on subjects.id = teachers_self.subject_id
-//                                               inner join (select distinct subject_id from teachers where user_id = %d) as s2
-//                                                    on t2.subject_id = s2.subject_id
-//                                            where
-//                                                subjects.deleted_at is null
-//                                                and
-//                                                teachers_self.deleted_at is null
-//                                                and
-//                                                teachers_self.user_id = %d
-//                                                and (
-//                                                        (
-//                                                            t4.`school_location_id` = %d or t5.`school_location_id` = %d or t6.`school_location_id` = %d or t7.`school_location_id` = %d
-//                                                         )
-//                                                        or
-//                                                        (school_location_shared_sections.section_id is not null)
-//                                                     )
-//                                                        ) as t1',   $user->id,
-//                                                                    $user->id,
-//                                                                    $user->school_location_id,
-//                                                                    $user->school_location_id,
-//                                                                    $user->school_location_id,
-//                                                                    $user->school_location_id
-//            )
-//        );
+                                            union
+                                            select distinct t2.id as t2_id
+                                            from
+                                               `tests` as t2                                             
+                                               inner join (
+                                                        select distinct t11.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            inner join school_location_sections
+                                                                on sections.id = school_location_sections.section_id
+                                                            left join subjects as t10
+                                                                on sections.id = t10.section_id
+                                                            inner join subjects as t11
+                                                                on subjects.base_subject_id = t11.base_subject_id
+                                                            left join school_location_sections as t12
+                                                                on sections.id = t12.section_id
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                            left join school_classes
+                                                                on teachers.class_id = school_classes.id
+                                                        where 
+                                                            subjects.deleted_at is null
+                                                                and 
+                                                            teachers.user_id = %d
+                                                                and
+                                                            school_location_sections.school_location_id = %d
+                                                                and
+                                                                t12.school_location_id = %d
+                                                                and
+                                                            school_classes.school_location_id = %d 
+                                                            ) as s2
+                                                    on t2.subject_id = s2.subject_id
+                                               ) as t1',        $user->id,
+                                                                $user->id,
+                                                                $user->school_location_id,
+                                                                $user->school_location_id,
+                                                                $user->school_location_id,
+                                                                $user->id,
+                                                                $user->school_location_id,
+                                                                $user->school_location_id,
+                                                                $user->school_location_id
+                                                            )
+                                                        );
+
     }
 
     private function getSubQueryForScopeFiltered_to_be_removed($user)
