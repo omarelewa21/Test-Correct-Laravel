@@ -5,15 +5,20 @@ namespace tcCore\Http\Livewire\Student;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\Info;
 use tcCore\Message;
+use tcCore\TemporaryLogin;
 
 class Dashboard extends Component
 {
     use WithPagination,WithStudentTestTakes;
 
     public $infos = [];
+
+    public $needsUpdateDeadline;
+    public $showKnowledgebankAppNotificationModal = false;
 
     public function mount()
     {
@@ -48,5 +53,21 @@ class Dashboard extends Component
     public function getInfoMessages()
     {
         return Info::getInfoForUser(Auth::user());
+    }
+
+    public function showAppVersionMessage()
+    {
+        if (session()->get('TLCVersion', 'x') != 'x' && session()->get('TLCVersioncheckResult') != 'OK') {
+            $this->needsUpdateDeadline = AppVersionDetector::needsUpdateDeadline(session()->get('headers'));
+            return true;
+        }
+
+        return false;
+    }
+
+    public function readMessages()
+    {
+        $temporaryLogin = TemporaryLogin::createWithOptionsForUser('page', '/messages', Auth::user());
+        return redirect($temporaryLogin->createCakeUrl());
     }
 }

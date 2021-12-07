@@ -18,5 +18,8 @@ return [
 
     'Inzien' => 'View',
 
-    'Becijferd' => 'Numerated',
+    'Becijferd' => 'Graded',
+
+    'change_password' => 'Change password',
+
 ];

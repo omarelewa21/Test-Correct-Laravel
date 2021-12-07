@@ -19,5 +19,7 @@ return [
     'Inzien' => 'Inzien',
 
     'Becijferd' => 'Becijferd',
+
+    'change_password' => 'Wachtwoord wijzigen',
 ];
 ?>

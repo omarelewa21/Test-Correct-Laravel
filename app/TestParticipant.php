@@ -412,9 +412,6 @@ class TestParticipant extends BaseModel
         if (!$this->canStartTestTake()) {
             return false;
         }
-//        if (!$this->canUseBrowserTesting() && $this->isInBrowser()) {
-//            return false;
-//        }
 
         $this->setAttribute('started_in_new_player', true)->save();
         return true;
@@ -498,5 +495,10 @@ class TestParticipant extends BaseModel
         if ($this->available_for_guests != $this->getOriginal('available_for_guests')) {
             TestParticipantGuestAvailabilityChanged::dispatch($this->testTake->uuid);
         }
+    }
+
+    public function hasStatus($status)
+    {
+        return $this->test_take_status_id == $status;
     }
 }
