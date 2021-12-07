@@ -325,13 +325,13 @@ class FileManagement extends BaseModel {
     {
         $ids = FileManagement::where('type',$type)
             ->whereIn('file_managements.school_location_id',(new SchoolHelper())->getRelatedSchoolLocationIds($user))
-            ->select('education_level_id')
-            ->get()
+            ->pluck('education_level_id')
             ->unique();
 
 
         return EducationLevel::withTrashed()
             ->whereIn('id', $ids)
+            ->where('id','<>',0)
             ->orderBy('max_years','asc')
             ->orderBy('name','asc');
     }
