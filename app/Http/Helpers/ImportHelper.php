@@ -1332,7 +1332,7 @@ class ImportHelper
         if ($schoolClass) {
             if ($schoolClass->trashed()) {
                 $schoolClass->restore();
-                $schoolClass->craated_by = 'lvs';
+                $schoolClass->created_by = 'lvs';
                 $schoolClass->save();
             }
 
