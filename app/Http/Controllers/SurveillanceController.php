@@ -204,7 +204,7 @@ class SurveillanceController extends Controller
 
     private function getCachedTestTakeIds(User $owner)
     {
-        $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
+        $ids = cache()->remember(self::getCacheKey($owner), now()->addSeconds(60), function () use ($owner) {
             $currentPeriod =  PeriodRepository::getCurrentPeriod();
             if ($currentPeriod == null) {
                 return [];
@@ -225,5 +225,14 @@ class SurveillanceController extends Controller
 
     public function destroy() {
         cache()->forget('surveilence_data_'.Auth::user()->uuid);
+    }
+
+    private function getCacheKey($owner) {
+        $prefix = 'surveilence_data';
+        if (request()->boolean('withoutParticipants')) {
+            $prefix = 'assessment_open_teacher_data';
+        }
+
+        return sprintf('%s_%s', $prefix, $owner->uuid);
     }
 }
