@@ -195,6 +195,11 @@ class FileManagement extends BaseModel {
         $query->whereIn('file_managements.school_location_id',array_map('intval',$val));
     }
 
+    protected function handleFilterTestName($query, $val)
+    {
+        $query->where('file_managements.test_name','like','%'.$val.'%');
+    }
+
     protected function handleFilterType($query,$value)
     {
         $this->handleFilterDefault($query,'type',$value);
