@@ -165,7 +165,6 @@
 
     @push('scripts')
         <script>
-            Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
             let countdownTimer;
 
             function startCountdownTimer(data) {

@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Http\Traits\WithStudentTestTakes;
@@ -18,6 +19,13 @@ class TestTakes extends Component
     protected $queryString = ['tab'];
     public $tab;
 
+    protected function getListeners()
+    {
+        return [
+            'echo-private:User.'.Auth::user()->uuid.',.NewTestTakePlanned' => '$refresh'
+        ];
+    }
+
     public function mount()
     {
         filled($this->tab) ? $this->changeActiveTab($this->tab) : $this->changeActiveTab($this->plannedTab);
@@ -32,15 +40,6 @@ class TestTakes extends Component
     {
         $this->tab = $tab;
         $this->resetPage();
-
-    }
-
-    private function goToTab()
-    {
-        if($this->tab === 'planned') $this->changeActiveTab($this->plannedTab);
-        if($this->tab === 'discuss') $this->changeActiveTab($this->discussTab);
-        if($this->tab === 'review') $this->changeActiveTab($this->reviewTab);
-        if($this->tab === 'graded') $this->changeActiveTab($this->gradedTab);
 
     }
 }

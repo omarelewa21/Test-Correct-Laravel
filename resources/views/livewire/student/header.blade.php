@@ -48,7 +48,9 @@
                         wire:click="messages()"
                 >
                     <x-icon.messages/>
+                    @if($this->unreadMessageCount > 0)
                     <span class="flex absolute text-xs bold -right-1 top-0 bg-cta-primary rounded-[20px] px-1.5 py-0.5 text-white ">{{ $this->unreadMessageCount }}</span>
+                    @endif
                 </button>
                 <button class="hidden flex items-center justify-center order-3 p-1.5 rounded-full action-icon-button relative"
                         :class="{'active' : activeIcon === 'notifications'}"
