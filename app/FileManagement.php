@@ -1,8 +1,10 @@
 <?php namespace tcCore;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Str;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\Jobs\PValues\UpdatePValueUsers;
 use tcCore\Lib\Models\BaseModel;
@@ -145,7 +147,7 @@ class FileManagement extends BaseModel {
     protected function handleFilters($query,$filters = [])
     {
         foreach($filters as $key => $val){
-            $methodName = sprintf('handleFilter%s',ucfirst(strtolower($key)));
+            $methodName = sprintf('handleFilter%s',Str::ucfirst(Str::camel($key)));
             if(method_exists($this,$methodName)){
                 $this->$methodName($query,$val);
             } else {
@@ -154,14 +156,29 @@ class FileManagement extends BaseModel {
         }
     }
 
+    protected function handleFilterStatusIds($query, $val=[])
+    {
+        $query->whereIn('file_managements.file_management_status_id',array_map('intval',Arr::wrap($val)));
+    }
+
+    protected function handleFilterCreatedAtStart($query,$val)
+    {
+        $query->where('file_managements.created_at','>=',$val);
+    }
+
+    protected function handleFilterCreatedAtEnd($query,$val)
+    {
+        $query->where('file_managements.created_at','<=',$val);
+    }
+
     protected function handleFilterEducationLevelYears($query, $val = [])
     {
-        $query->whereIn('file_managements.education_level_year',array_map('intval',$val));
+        $query->whereIn('file_managements.education_level_year',array_map('intval',Arr::wrap($val)));
     }
 
     protected function handleFilterEducationLevels($query, $val = [])
     {
-        $query->whereIn('file_managements.education_level_id',array_map('intval',$val));
+        $query->whereIn('file_managements.education_level_id',array_map('intval',Arr::wrap($val)));
     }
 
     protected function handleFilterNotes($query,$val)
@@ -195,6 +212,11 @@ class FileManagement extends BaseModel {
         $query->whereIn('file_managements.school_location_id',array_map('intval',$val));
     }
 
+    protected function handleFilterCustomerCode($query,$val)
+    {
+        $query->where('school_locations.customer_code','like','%'.$val.'%');
+    }
+
     protected function handleFilterTestName($query, $val)
     {
         $query->where('file_managements.test_name','like','%'.$val.'%');
@@ -217,7 +239,7 @@ class FileManagement extends BaseModel {
             if(!in_array($val,['asc','desc'])){
                 $val = 'asc';
             }
-            $methodName = sprintf('handleSorting%s',ucfirst(strtolower($key)));
+            $methodName = sprintf('handleSorting%s',Str::ucfirst(Str::camel($key)));
             if(method_exists($this,$methodName)){
                 $this->$methodName($query,$val);
                 $sortingFound = true;
