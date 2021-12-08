@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Http\Traits\WithSorting;
@@ -13,6 +14,13 @@ class Graded extends Component
     use WithPagination, WithStudentTestTakes, WithSorting;
 
     public $readyToLoad;
+
+    protected function getListeners()
+    {
+        return [
+            'echo-private:User.'.Auth::user()->uuid.',.NewTestTakeGraded' => '$refresh'
+        ];
+    }
 
     public function mount()
     {

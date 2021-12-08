@@ -18,6 +18,13 @@ class Review extends Component
     public $readyToLoad;
     public $paginateBy = 10;
 
+    protected function getListeners()
+    {
+        return [
+            'echo-private:User.'.Auth::user()->uuid.',.NewTestTakeReviewable' => '$refresh'
+        ];
+    }
+
     public function mount()
     {
         $this->sortField = 'test_takes.time_start';

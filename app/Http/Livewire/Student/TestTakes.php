@@ -19,13 +19,6 @@ class TestTakes extends Component
     protected $queryString = ['tab'];
     public $tab;
 
-    protected function getListeners()
-    {
-        return [
-            'echo-private:User.'.Auth::user()->uuid.',.NewTestTakePlanned' => '$refresh'
-        ];
-    }
-
     public function mount()
     {
         filled($this->tab) ? $this->changeActiveTab($this->tab) : $this->changeActiveTab($this->plannedTab);
@@ -40,6 +33,5 @@ class TestTakes extends Component
     {
         $this->tab = $tab;
         $this->resetPage();
-
     }
 }

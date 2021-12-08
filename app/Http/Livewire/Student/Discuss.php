@@ -17,6 +17,13 @@ class Discuss extends Component
     public $readyToLoad;
     public $paginateBy = 10;
 
+    protected function getListeners()
+    {
+        return [
+            'echo-private:User.'.Auth::user()->uuid.',.NewTestTakeDiscussable' => '$refresh'
+        ];
+    }
+
     public function mount()
     {
         $this->sortField = 'test_takes.time_start';
