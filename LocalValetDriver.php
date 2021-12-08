@@ -28,6 +28,9 @@ class LocalValetDriver extends LaravelValetDriver
     {
         $_SERVER['VAR_DUMPER_FORMAT'] = 'server';
         //$_SERVER['VAR_DUMPER_SERVER'] = 'tcp://127.0.0.1:9912';
+        if(stristr($uri,'/ckeditor/plugins/')){
+            return $sitePath.'/public/'.$uri;
+        }
         return $sitePath.'/public/index.php';
     }
 }
