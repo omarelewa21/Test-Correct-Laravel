@@ -39,15 +39,18 @@
                 <x-content-section>
                     <x-input.group label="Photo" for="photo" :error="$errors->first('upload')">
                         <x-input.filepond wire:model="upload" id="photo">
-                    <span class="h-12 w-12 rounded-full overflow-hidden bg-gray-100">
-                        @if ($upload)
-                            <img src="{{ $upload->temporaryUrl() }}" alt="Profile Photo">
-                        @else
-                            <p>some picture here</p>
-{{--                            <img src="{{ auth()->user()->avatarUrl() }}" alt="Profile Photo">--}}
-                        @endif
-                    </span>
+
                         </x-input.filepond>
+
+                        <span class="h-202 w-202 rounded-full overflow-hidden bg-gray-100">
+                        @if ($upload)
+
+                                <img src="{{ $upload->temporaryUrl() }}" alt="Profile Photo">
+                            @else
+                                <p>some picture here</p>
+                                {{--                            <img src="{{ auth()->user()->avatarUrl() }}" alt="Profile Photo">--}}
+                            @endif
+                    </span>
                     </x-input.group>
 
                     <x-slot name="title">

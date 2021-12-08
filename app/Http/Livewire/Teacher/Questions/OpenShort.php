@@ -12,6 +12,7 @@ use Livewire\WithFileUploads;
 use Ramsey\Uuid\Guid\Guid;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\Question;
 use tcCore\QuestionAuthor;
@@ -42,7 +43,7 @@ class OpenShort extends Component
     {
         return [
             'new-tags-for-question' => 'handleTags',
-            'updated-attainment' => 'handleAttainment',
+            'updated-attainment'    => 'handleAttainment',
         ];
     }
 
@@ -51,9 +52,9 @@ class OpenShort extends Component
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
-       if (request()->input('owner') == 'test') {
-        $this->subjectId = Test::whereUuid(request()->input('owner_id'))->first()->subjectId;
-       }
+        if (request()->input('owner') == 'test') {
+            $this->subjectId = Test::whereUuid(request()->input('owner_id'))->first()->subjectId;
+        }
 //       dd($this->subjectId);
     }
 
@@ -78,9 +79,8 @@ class OpenShort extends Component
         'score'                  => 6,
         'sub_type'               => 'medium',
         'type'                   => 'OpenQuestion',
-        "attainments"            => [
-        ],
-        "test_id" => 1,
+        "attainments"            => [],
+        "test_id"                => 1,
     ];
 
     protected $rules = [
@@ -99,13 +99,32 @@ class OpenShort extends Component
 
         $request = [];
         if (property_exists($this, 'tags')) {
-           $request['tags'] = $this->tags;
+            $request['tags'] = $this->tags;
         }
 
         $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)->store(new CreateTestQuestionRequest($this->question));
-        if($response->getStatusCode() == 200) {
+        if ($response->getStatusCode() == 200) {
+            if ($this->upload) {
+                $this->upload->store()
+
+                $testQuestion = $response->original;
+                $attachementRequest = new  CreateAttachmentRequest([
+                    "type"       => "file",
+                    "title"      => "Brood-_en_banketbakker.pdf",
+                    "json"       => "[]",
+                    "attachment" => $this->upload,
+
+                ]);
+
+
+                $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
+                    ->store($testQuestion, $attachementRequest);
+                dd($response);
+            }
+
             $url = "tests/view/5a6fe229-c7b6-4ef4-b926-fbc0939eeed4";
             $options = TemporaryLogin::buildValidOptionObject('page', $url);
+
 
             Auth::user()->redirectToCakeWithTemporaryLogin($options);
         }
@@ -123,6 +142,6 @@ class OpenShort extends Component
 
     public function handleAttainment($attainmentId)
     {
-        $this->question['attainments'] = [$attainmentId];
+      //  $this->question['attainments'] = [$attainmentId];
     }
 }
