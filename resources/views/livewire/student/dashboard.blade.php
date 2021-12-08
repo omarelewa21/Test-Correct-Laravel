@@ -88,8 +88,11 @@
                                             <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
                                         </x-table.cell>
                                         <x-table.cell class="text-right" buttonCell>
-                                            <x-partials.start-take-button :timeStart=" $testTake->time_start "
-                                                                          :uuid="$testTake->uuid"/>
+                                            <x-partials.start-take-button :timeStart="$testTake->time_start"
+                                                                          :timeEnd="$testTake->time_end"
+                                                                          :uuid="$testTake->uuid"
+                                                                          :isAssignment="$testTake->is_assignment"
+                                            />
                                         </x-table.cell>
                                     </x-table.row>
                                 @endforeach
