@@ -168,6 +168,7 @@ class FileManagement extends BaseModel {
 
     protected function handleFilterCreatedAtEnd($query,$val)
     {
+        $val = Str::replaceFirst(' 00:00:00',' 23:59:59', $val);
         $query->where('file_managements.created_at','<=',$val);
     }
 
