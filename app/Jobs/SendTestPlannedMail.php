@@ -49,7 +49,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                     continue;
                 }
                 $mailer->send('emails.assignment_planned', ['testParticipant' => $testParticipant], function ($mail) use ($testParticipant) {
-                    $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('test_planned.Opdracht ingepland.'));
+                    $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('assignment_planned.Opdracht ingepland.'));
                 });
             }
         }
@@ -60,7 +60,7 @@ class SendTestPlannedMail extends Job implements ShouldQueue
                     continue;
                 }
                 $mailer->send('emails.test_planned', ['testParticipant' => $testParticipant], function ($mail) use ($testParticipant) {
-                    $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject('Toetsafname ingepland.');
+                    $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('test_planned.Toetsafname ingepland.'));
                 });
             }
         }
