@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailer;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use tcCore\TestKind;
 use tcCore\TestTake;
 
 class SendTestPlannedMail extends Job implements ShouldQueue
@@ -40,6 +41,17 @@ class SendTestPlannedMail extends Job implements ShouldQueue
             $testTake = TestTake::findOrFail($this->testTakeId);
         } catch (ModelNotFoundException $e) {
             return;
+        }
+
+        if ($testTake->testTakeStatus->name === 'Taking test' && $testTake->test->test_kind_id == TestKind::ASSESSMENT_TYPE) {
+            foreach($testTake->testParticipants as $testParticipant) {
+                if(null == $testParticipant->user || $testParticipant->user->shouldNotSendMail()) {
+                    continue;
+                }
+                $mailer->send('emails.assignment_planned', ['testParticipant' => $testParticipant], function ($mail) use ($testParticipant) {
+                    $mail->to($testParticipant->user->username, $testParticipant->user->getNameFullAttribute())->subject(__('test_planned.Opdracht ingepland.'));
+                });
+            }
         }
 
         if ($testTake->testTakeStatus->name === 'Planned') {
