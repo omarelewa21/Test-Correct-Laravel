@@ -38,7 +38,7 @@ class TestTakesController extends Controller {
 
     /**
      * Helper Function - Check if a test has one or more open questions
-     * 
+     *
      * @return true if check has found one open questoin - else return false
      */
     private function hasOpenQuestion($test_id){
@@ -574,7 +574,7 @@ class TestTakesController extends Controller {
         if ($ownTestParticipant !== null) {
             $testTake['test_participant'] = $ownTestParticipant;
         }
-
+        $testTake['has_active_participants'] = !!(collect($testTake['test_participants'])->where('test_take_status_id', '>', 2)->count() > 0);
         unset($testTake['test_participants']);
 
         $testTake['school_classes'] = $schoolClasses;
