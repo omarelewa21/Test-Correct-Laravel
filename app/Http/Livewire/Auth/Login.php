@@ -154,9 +154,9 @@ class Login extends Component
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
             return redirect()->intended(route('student.dashboard'));
         }
-        if ($user->isA('Account manager')) {
-            return redirect()->intended(route('uwlr.grid'));
-        }
+//        if ($user->isA('Account manager')) {
+//            return redirect()->intended(route('uwlr.grid'));
+//        }
 
         auth()->user()->redirectToCakeWithTemporaryLogin();
     }
