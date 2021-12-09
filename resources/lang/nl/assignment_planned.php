@@ -8,4 +8,5 @@ return [
     'afgenomen'                                         => 'afgenomen',
     'Bereid je goed voor op deze opdracht. Succes'      => 'Bereid je goed voor op deze opdracht. Succes',
     'Test-Correct supportteam'                          => 'Test-Correct supportteam',
+    'Opdracht ingepland.'                               => 'Opdracht ingepland.',
 ];

@@ -8,6 +8,7 @@ return [
     'afgenomen'                                         => 'will take place',
     'Bereid je goed voor op deze toets. Succes'         => 'Prepare yourself well for this test. Good luck',
     'Test-Correct supportteam'                          => 'Test-Correct support team',
+    'Toetsafname ingepland.'                            => 'Test planned',
 ];
 
 
