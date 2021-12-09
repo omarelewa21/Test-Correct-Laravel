@@ -1,11 +1,11 @@
 <?php
 return [
     'Beste'                                             => 'Beste',
-    'Jouw docent heeft zojuist een toetsafname gepland' => 'Jouw docent heeft zojuist een toetsafname gepland',
+    'Jouw docent heeft zojuist een opdracht ingepland'  => 'Jouw docent heeft zojuist een opdracht ingepland',
     'Op'                                                => 'Op',
-    'wordt de toets'                                    => 'wordt de toets',
+    'wordt de opdracht'                                 => 'wordt de opdracht',
     'van het vak'                                       => 'van het vak',
     'afgenomen'                                         => 'afgenomen',
-    'Bereid je goed voor op deze toets. Succes'         => 'Bereid je goed voor op deze toets. Succes',
+    'Bereid je goed voor op deze opdracht. Succes'      => 'Bereid je goed voor op deze opdracht. Succes',
     'Test-Correct supportteam'                          => 'Test-Correct supportteam',
 ];
