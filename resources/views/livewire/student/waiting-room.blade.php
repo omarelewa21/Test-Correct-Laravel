@@ -54,8 +54,10 @@
                 </div>
                 <div class="flex w-full items-center h-10">
                     @if(!$needsApp)
-                        <x-partials.waiting-room-action-button :testTakeStatusStage="$this->testTakeStatusStage"
-                                                               :isTakeOpen="$this->isTakeOpen"/>
+                        <x-partials.waiting-room-action-button
+                           :testTakeStatusStage="$this->testTakeStatusStage"
+                           :isTakeOpen="$this->isTakeOpen"
+                        />
                     @else
                         @if($meetsAppRequirement)
                         <x-partials.waiting-room-action-button
