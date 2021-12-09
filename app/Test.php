@@ -1182,8 +1182,8 @@ class Test extends BaseModel
         }elseif ($schoolId !== null) {
             $schoolLocationWhere = sprintf('and users.school_id = %d ) ',$schoolId);
         }elseif ($schoolLocationId !== null) {
-            $schoolLocationWhere = sprintf('and (school_location_user.school_location_id in 
-                                                                ( select school_location_id from school_location_user where user_id = %d) 
+            $schoolLocationWhere = sprintf('and (school_location_user.school_location_id in
+                                                                ( select school_location_id from school_location_user where user_id = %d)
                                                             or users.school_location_id = %d) ',$user->id,$schoolLocationId);
         }
 
@@ -1220,13 +1220,13 @@ class Test extends BaseModel
                                             from
                                                 `tests` as t2
                                                     left join ( select distinct id from subjects where section_id in (
-                                                                    select distinct section_id 
-                                                                        from teachers 
-                                                                            left join subjects on teachers.subject_id = subjects.id 
+                                                                    select distinct section_id
+                                                                        from teachers
+                                                                            left join subjects on teachers.subject_id = subjects.id
                                                                     where user_id = %d
                                                                         and teachers.deleted_at is null
                                                                 )
-                                                                and subjects.deleted_at is null                     
+                                                                and subjects.deleted_at is null
                                                     ) as allowed_subjects
                                                                 on t2.subject_id = allowed_subjects.id
                                             ) as t1',$user->id));
@@ -1236,5 +1236,9 @@ class Test extends BaseModel
         return !! collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function(Question $question){
             return !$question->canCheckAnswer();
         });
+    }
+
+    public function isAssignment() {
+        return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
     }
 }

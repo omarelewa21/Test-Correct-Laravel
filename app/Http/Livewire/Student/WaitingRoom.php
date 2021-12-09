@@ -13,6 +13,7 @@ use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Traits\WithStudentAppVersionHandling;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TemporaryLogin;
+use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTakeStatus;
@@ -103,6 +104,11 @@ class WaitingRoom extends Component
                 $this->isTakeOpen = false;
                 return;
             }
+            if ($this->waitingTestTake->test->isAssignment()) {
+                $this->isTakeOpen  = $this->waitingTestTake->time_start <= now() && $this->waitingTestTake->time_end >= now();
+                return;
+            }
+
             $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_TAKING_TEST;
         }
 

@@ -406,25 +406,6 @@ class TestParticipant extends BaseModel
         return Uuid::fromBytes($value)->toString();
     }
 
-    public function startTestTake()
-    {
-        //Remaining startTestTake actions handled in TestParticipant boot method
-        if (!$this->canStartTestTake()) {
-            return false;
-        }
-//        if (!$this->canUseBrowserTesting() && $this->isInBrowser()) {
-//            return false;
-//        }
-
-        $this->setAttribute('started_in_new_player', true)->save();
-        return true;
-    }
-
-    public function canSeeOverviewPage()
-    {
-        return $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
-    }
-
     public function handInTestTake()
     {
         //Remaining handInTestTake actions handled in TestParticipant boot method
@@ -447,9 +428,14 @@ class TestParticipant extends BaseModel
         return $this->user->intense && $this->user->schoolLocation->intense;
     }
 
-    public function canStartTestTake()
+    public function canTakeTestTakeInPlayer()
     {
-        return $this->test_take_status_id <= TestTakeStatus::STATUS_TAKING_TEST;
+        $statusOkay = $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
+
+        if ($statusOkay && $this->testTake->test->isAssignment()) {
+            return  ($this->testTake->time_start <= now() && $this->testTake->time_end >= now());
+        }
+        return $statusOkay;
     }
 
     private function isTestTakenAway()
