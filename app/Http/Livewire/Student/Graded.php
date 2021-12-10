@@ -2,8 +2,10 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\Events\NewTestTakeGraded;
 use tcCore\Http\Traits\WithSorting;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\User;
@@ -13,6 +15,13 @@ class Graded extends Component
     use WithPagination, WithStudentTestTakes, WithSorting;
 
     public $readyToLoad;
+
+    protected function getListeners()
+    {
+        return [
+            NewTestTakeGraded::channelSignature() => '$refresh'
+        ];
+    }
 
     public function mount()
     {

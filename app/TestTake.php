@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\InbrowserTestingUpdatedForTestParticipant;
+use tcCore\Events\NewTestTakeGraded;
+use tcCore\Events\NewTestTakeReviewable;
 use tcCore\Events\TestTakeOpenForInteraction;
 use tcCore\Events\TestTakeShowResultsChanged;
 use tcCore\Http\Helpers\DemoHelper;
@@ -298,6 +300,10 @@ class TestTake extends BaseModel
                 if(GlobalStateHelper::getInstance()->isQueueAllowed()) {
                     Queue::later(300, new SendTestRatedMail($testTake));
                 }
+
+                $testTake->testParticipants->each(function($participant) {
+                    NewTestTakeGraded::dispatch($participant->user()->value('uuid'));
+                });
             }
 
             if ($testTake->getAttribute('is_discussed') != $testTake->getOriginal('is_discussed')) {
@@ -892,6 +898,10 @@ class TestTake extends BaseModel
     {
         if ($this->show_results != $this->getOriginal('show_results')) {
             TestTakeShowResultsChanged::dispatch($this->uuid);
+
+            $this->testParticipants->each(function($participant) {
+                NewTestTakeReviewable::dispatch($participant->user()->value('uuid'));
+            });
         }
     }
 

@@ -84,18 +84,32 @@
             </div>
         </div>
         <div class="flex flex-col bg-light-grey items-center justify-center py-12">
-
-
             <div class="content-section flex flex-col w-full max-w-2xl p-8 space-y-4">
-                <h4 class="px-3">{{ __('student.teacher_introduction_title') }}</h4>
-                <div class="divider"></div>
-                <div class="px-3">
-                    @if($isTakeOpen)
-                        {!! $waitingTestTake->test->introduction ?: __('student.teacher_introduction_unavailable') !!}
-                    @else
-                        {{ __('student.teacher_introduction_long') }}
-                    @endif
-                </div>
+                @if($this->testTakeStatusStage != 'graded')
+                    <h4 class="px-3">{{ __('student.teacher_introduction_title') }}</h4>
+                    <div class="divider"></div>
+                    <div class="px-3">
+                        @if($isTakeOpen)
+                            {!! $waitingTestTake->test->introduction ?: __('student.teacher_introduction_unavailable') !!}
+                        @else
+                            {{ __('student.teacher_introduction_long') }}
+                        @endif
+                    </div>
+                @else
+                    <h4 class="px-3">{{ __('student.your_grade') }}</h4>
+                    <div class="divider"></div>
+                    <div class="">
+                        <div class="relative w-full flex hover:font-bold py-5 px-3 rounded-10 base
+                                    multiple-choice-question transition ease-in-out duration-150 focus:outline-none
+                                    justify-between items-center -mt-4"
+                        >
+                            <span>{{ auth()->user()->getNameFullAttribute() }}</span>
+                            <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testParticipant)) !!}">
+                                {{ $this->getRatingToDisplay($testParticipant) }}
+                            </span>
+                        </div>
+                    </div>
+                @endif
                 @if($needsApp && !$meetsAppRequirement && !$this->testParticipant->isInBrowser())
                     <div class="flex w-full justify-center transition-all duration-300 mb-4">
                         <div class="notification error stretched">
@@ -169,7 +183,6 @@
 
     @push('scripts')
         <script>
-            Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
             let countdownTimer;
 
             function startCountdownTimer(data) {

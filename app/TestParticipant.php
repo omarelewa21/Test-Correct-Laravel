@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\BrowserTestingDisabledForParticipant;
+use tcCore\Events\NewTestTakePlanned;
 use tcCore\Events\RemoveParticipantFromWaitingRoom;
 use tcCore\Events\TestParticipantGuestAvailabilityChanged;
 use tcCore\Events\TestTakeForceTakenAway;
@@ -74,6 +75,8 @@ class TestParticipant extends BaseModel
                 $testParticipant->allow_inbrowser_testing = true;
                 $testParticipant->save();
             }
+
+            NewTestTakePlanned::dispatch($testParticipant->user()->value('uuid'));
         });
         static::saved(function (TestParticipant $testParticipant) {
             if ($testParticipant->skipBootSavedMethod) {

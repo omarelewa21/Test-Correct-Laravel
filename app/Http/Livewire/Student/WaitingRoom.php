@@ -205,6 +205,10 @@ class WaitingRoom extends Component
     }
     public function participantAppCheck()
     {
+        if ($this->testTakeStatusStage != 'planned') {
+            return $this->needsApp = false;
+        }
+
         $this->appStatus = AppVersionDetector::isVersionAllowed(session()->get('headers'));
 
         $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
