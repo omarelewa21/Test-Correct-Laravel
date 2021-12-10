@@ -55,7 +55,7 @@
                                 </x-table.cell>
                                 <x-table.cell class="text-right">
                                         <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testParticipant)) !!}">
-                                            {!! str_replace('.',',',round($this->getRatingToDisplay($testParticipant), 1))!!}
+                                            {{ $this->getRatingToDisplay($testParticipant) }}
                                         </span>
                                 </x-table.cell>
                             </x-table.row>

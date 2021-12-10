@@ -1759,6 +1759,9 @@ video {
 .-mb-4{
 	margin-bottom: -1rem;
 }
+.-mt-4{
+	margin-top: -1rem;
+}
 .-mb-2{
 	margin-bottom: -0.5rem;
 }

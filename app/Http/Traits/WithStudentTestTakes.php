@@ -92,10 +92,14 @@ trait WithStudentTestTakes
 
     public function getRatingToDisplay($participant): float
     {
+        $rating = $participant->rating;
         if ($participant->retake_rating != null) {
-            return $participant->retake_rating;
+            $rating = $participant->retake_rating;
         }
-        return $participant->rating;
+
+        str_replace('.',',',round($rating,1));
+
+        return $rating;
     }
 
     public function getParticipatingClasses($testTake)
