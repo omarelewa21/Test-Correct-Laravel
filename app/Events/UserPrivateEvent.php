@@ -7,6 +7,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
 abstract class UserPrivateEvent implements ShouldBroadcastNow
 {
@@ -32,5 +33,13 @@ abstract class UserPrivateEvent implements ShouldBroadcastNow
     public function broadcastOn()
     {
         return new PrivateChannel('User.'.$this->userUuid);
+    }
+
+    public static function channelSignature()
+    {
+        $userUuid = Auth::user()->uuid;
+        $eventName = class_basename(get_called_class());
+
+        return "echo-private:User.$userUuid,.$eventName";
     }
 }

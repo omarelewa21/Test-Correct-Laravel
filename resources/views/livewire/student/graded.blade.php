@@ -17,14 +17,14 @@
                         >
                             {{ __('student.test') }}
                         </x-table.heading>
-                        <x-table.heading width=""
+                        <x-table.heading width="150px"
                                          sortable
                                          wire:click="sortBy('subjects.name')"
                                          :direction="$sortField === 'subjects.name' ? $sortDirection : null">
                             {{ __('student.subject') }}
                         </x-table.heading>
                         <x-table.heading width="180px">{{ __('student.teacher') }}</x-table.heading>
-                        <x-table.heading width="130px"
+                        <x-table.heading width="105px"
                                          textAlign="right"
                                          sortable
                                          wire:click="sortBy('test_takes.time_start')"
@@ -40,10 +40,10 @@
                             <x-table.row class="cursor-pointer"
                                          wire:click="redirectToWaitingRoom('{!!$testParticipant->test_take_uuid !!}')"
                             >
-                                <x-table.cell>{!! $testParticipant->name !!}</x-table.cell>
-                                <x-table.cell>{!! $testParticipant->subject_name !!}</x-table.cell>
+                                <x-table.cell :withTooltip="true">{!! $testParticipant->name !!}</x-table.cell>
+                                <x-table.cell :withTooltip="true">{!! $testParticipant->subject_name !!}</x-table.cell>
                                 <x-table.cell>{!! $this->getTeacherNameForRating($testParticipant->user_id) !!}</x-table.cell>
-                                <x-table.cell class="text-right">
+                                <x-table.cell class="text-right text-sm">
                                     @if($testParticipant->time_start == \Carbon\Carbon::today())
                                         <span class="capitalize">{{ __('student.today') }}</span>
                                     @else

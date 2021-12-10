@@ -32,6 +32,7 @@ class TestTakes extends Component
     public function changeActiveTab($tab)
     {
         $this->tab = $tab;
+        $this->emitTo("student.$tab", 'tab-selected');
         $this->resetPage();
     }
 }

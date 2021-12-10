@@ -20,14 +20,14 @@
                                      class="hidden xl:table-cell">{{ __('student.invigilators') }}</x-table.heading>
                     <x-table.heading width="150px"
                                      class="hidden xl:table-cell">{{ __('student.planner') }}</x-table.heading>
-                    <x-table.heading width=""
+                    <x-table.heading width="150px"
                                      sortable
                                      wire:click="sortBy('subjects.name')"
                                      :direction="$sortField === 'subjects.name' ? $sortDirection : null">
                         {{ __('student.subject') }}
                     </x-table.heading>
 
-                    <x-table.heading width="130px" sortable wire:click="sortBy('test_takes.time_start')"
+                    <x-table.heading width="105px" sortable wire:click="sortBy('test_takes.time_start')"
                                      :direction="$sortField === 'test_takes.time_start' ? $sortDirection : null"
                                      textAlign="right">
                         {{ __('student.take_date') }}
@@ -56,7 +56,7 @@
                                 {{ $testTake->user()->withTrashed()->first()->getFullNameWithAbbreviatedFirstName() }}
                             </x-table.cell>
                             <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
-                            <x-table.cell class="text-right">
+                            <x-table.cell class="text-right text-sm">
                                 @if($testTake->time_start == \Carbon\Carbon::today())
                                     <span class="capitalize">{{ __('student.today') }}</span>
                                 @else

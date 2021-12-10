@@ -10,9 +10,4 @@ class NewTestTakePlanned extends UserPrivateEvent
     {
         return 'NewTestTakePlanned';
     }
-
-    public static function channel()
-    {
-        return 'echo-private:User.' . Auth::user()->uuid . ',.NewTestTakePlanned';
-    }
 }

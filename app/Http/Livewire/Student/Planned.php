@@ -18,8 +18,7 @@ class Planned extends Component
     protected function getListeners()
     {
         return [
-            NewTestTakePlanned::channel()                                      => '$refresh',
-            'echo-private:User.' . Auth::user()->uuid . ',.NewTestTakePlanned' => '$refresh',
+            NewTestTakePlanned::channelSignature() => '$refresh',
         ];
     }
 
