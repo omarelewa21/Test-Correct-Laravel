@@ -62,10 +62,12 @@ class CreateCompletionQuestionRequest extends CreateQuestionRequest {
 				$validator->errors()->add('substype','U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
 			}
 
-			$qHelper = new QuestionHelper();
-			$questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, true);
-			if($questionData["error"]){
-				$validator->errors()->add('question', $questionData["error"]);
+			if(request()->input('subtype') == 'multi'){
+				$qHelper = new QuestionHelper();
+				$questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, true);
+				if($questionData["error"]){
+					$validator->errors()->add('question', $questionData["error"]);
+				}
 			}
 		});
 	}
