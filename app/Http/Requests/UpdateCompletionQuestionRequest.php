@@ -2,6 +2,7 @@
 
 use Illuminate\Routing\Route;
 use tcCore\CompletionQuestion;
+use tcCore\Http\Helpers\QuestionHelper;
 
 class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
 {
@@ -75,6 +76,12 @@ class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
             if (request()->input('subtype') == 'completion' && strstr($question, '|')) {
                 $validator->errors()->add('substype', 'U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
             }
+
+            $qHelper = new QuestionHelper();
+			$questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, true);
+			if($questionData["error"]){
+				$validator->errors()->add('question', $questionData["error"]);
+			}
         });
     }
 }
