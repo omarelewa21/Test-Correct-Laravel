@@ -45,4 +45,12 @@ class Graded extends Component
     {
         return User::withTrashed()->find($userId)->getFullNameWithAbbreviatedFirstName();
     }
+
+    public function testTakeReviewable($testTake)
+    {
+        if ($testTake->show_results->gt(now()) && ($testTake->testParticipants->first()->rating || $testTake->testParticipants->first()->retake_rating)) {
+            return true;
+        }
+        return false;
+    }
 }

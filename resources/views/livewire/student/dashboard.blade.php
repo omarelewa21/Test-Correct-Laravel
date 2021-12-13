@@ -66,7 +66,7 @@
                         <x-table>
                             <x-slot name="head">
                                 <x-table.heading width="">{{ __('student.test') }}</x-table.heading>
-                                <x-table.heading width="">{{ __('student.subject') }}</x-table.heading>
+                                <x-table.heading width="150px">{{ __('student.subject') }}</x-table.heading>
                                 <x-table.heading width="105px"
                                                  textAlign="right">{{ __('student.take_date') }}</x-table.heading>
                                 <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
