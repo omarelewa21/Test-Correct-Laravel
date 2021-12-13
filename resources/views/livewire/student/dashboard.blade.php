@@ -111,7 +111,7 @@
                     <h4>{{ __('student.recent_grades') }}</h4>
                 </div>
                 <div class="content-section p-8">
-                    @if($testParticipants->count() == 0)
+                    @if($ratedTestTakes->count() == 0)
                         <p>{{ __('student.no_recent_grades') }}</p>
                     @else
                         <x-table>
@@ -124,24 +124,29 @@
                                 <x-table.heading width="70px">{{ __('student.grade') }}</x-table.heading>
                             </x-slot>
                             <x-slot name="body">
-                                @foreach($testParticipants as $testParticipant)
+                                @foreach($ratedTestTakes as $testTake)
                                     <x-table.row>
-                                        <x-table.cell :withTooltip="true">{!! $testParticipant->name !!}</x-table.cell>
-                                        <x-table.cell :withTooltip="true">{!! $testParticipant->subject_name !!}</x-table.cell>
+                                        <x-table.cell :withTooltip="true">{!! $testTake->test_name !!}</x-table.cell>
+                                        <x-table.cell
+                                                :withTooltip="true">{!! $testTake->subject_name !!}</x-table.cell>
                                         <x-table.cell class="text-right text-sm">
-                                            @if($testParticipant->time_start == \Carbon\Carbon::today())
+                                            @if($testTake->time_start == \Carbon\Carbon::today())
                                                 <span class="capitalize">{{ __('student.today') }}</span>
                                             @else
-                                                <span>{{ \Carbon\Carbon::parse($testParticipant->time_start)->format('d-m-Y') }}</span>
+                                                <span>{{ \Carbon\Carbon::parse($testTake->time_start)->format('d-m-Y') }}</span>
                                             @endif
                                         </x-table.cell>
                                         <x-table.cell>
-                                            <x-partials.test-take-type-label type="{{ $testParticipant->retake }}"/>
+                                            <x-partials.test-take-type-label type="{{ $testTake->retake }}"/>
                                         </x-table.cell>
                                         <x-table.cell class="text-right">
-                                        <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($testParticipant->rating) !!}">
-                                            {!! str_replace('.',',',round($testParticipant->rating, 1))!!}
-                                        </span>
+                                            @if($testTake->testParticipants->first()->rating)
+                                                <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testTake->testParticipants->first())) !!}">
+                                                    {{ $this->getRatingToDisplay($testTake->testParticipants->first()) }}
+                                                </span>
+                                            @else
+                                                -
+                                            @endif
                                         </x-table.cell>
                                     </x-table.row>
                                 @endforeach
@@ -171,7 +176,8 @@
                                 <h6>{{ $message->subject }}</h6>
                                 <p>{{ \Illuminate\Support\Str::limit($message->message, 200) }}</p>
                                 @if(strlen($message->message) > 200)
-                                    <button class="flex text-base items-center bold hover:underline space-x-1" wire:click="readMessages()">
+                                    <button class="flex text-base items-center bold hover:underline space-x-1"
+                                            wire:click="readMessages()">
                                         <span>{{ __('student.read_more') }}</span>
                                         <x-icon.arrow-small/>
                                     </button>
@@ -196,9 +202,9 @@
         </div>
     </div>
     @if($this->showKnowledgebankAppNotificationModal)
-    <x-modal.iframe wire:model="showKnowledgebankAppNotificationModal"
-                    url="https://support.test-correct.nl/knowledge/melding-verouderde-versie"
-                    maxWidth="7xl"
-    />
+        <x-modal.iframe wire:model="showKnowledgebankAppNotificationModal"
+                        url="https://support.test-correct.nl/knowledge/melding-verouderde-versie"
+                        maxWidth="7xl"
+        />
     @endif
 </div>

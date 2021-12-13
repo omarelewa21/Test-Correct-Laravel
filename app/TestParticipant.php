@@ -504,4 +504,9 @@ class TestParticipant extends BaseModel
     {
         return $this->test_take_status_id == $status;
     }
+
+    public function hasRating()
+    {
+        return !!($this->rating || $this->retake_rating);
+    }
 }

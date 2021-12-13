@@ -25,14 +25,14 @@ class Graded extends Component
 
     public function mount()
     {
-        $this->sortField = 'test_participants.updated_at';
+        $this->sortField = 'test_takes.updated_at';
         $this->sortDirection = 'desc';
     }
 
     public function render()
     {
         return view('livewire.student.graded', [
-            'testParticipants' => $this->readyToLoad ? $this->getRatingsForStudent(null, 10, $this->sortField, $this->sortDirection) : collect()
+            'testTakes' => $this->readyToLoad ? $this->getRatingsForStudent(null, 10, $this->sortField, $this->sortDirection) : collect()
         ]);
     }
 

@@ -996,4 +996,24 @@ class TestTake extends BaseModel
     {
         return $this->show_results && $this->show_results->gt(Carbon::now());
     }
+
+    public function scopeGradedTakesWithParticipantForUser($query, $user = null, $withNullRating = true)
+    {
+        $user = $user ?? Auth::user();
+        $query->where('test_take_status_id', TestTakeStatus::STATUS_RATED)
+            ->whereIn('test_takes.id', function ($query) use ($withNullRating, $user) {
+                $query->select('test_take_id')
+                    ->from(with(new TestParticipant())->getTable())
+                    ->where('user_id', $user->getKey())
+                    ->where('deleted_at', null)
+                    ->when(!$withNullRating, function ($query) {
+                        $query->whereNotNull('rating');
+                    });
+            })
+            ->with([
+                'testParticipants' => function ($query) use ($user) {
+                    $query->select('id', 'test_take_id', 'user_id', 'rating', 'retake_rating', 'updated_at')
+                        ->where('user_id', $user->getKey());
+                }]);
+    }
 }

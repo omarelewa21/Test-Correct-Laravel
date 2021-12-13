@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use tcCore\TestKind;
-use tcCore\TestParticipant;
 use tcCore\TestTakeStatus;
 use tcCore\TestTake;
 
@@ -79,35 +78,14 @@ trait WithStudentTestTakes
             ->get();
     }
 
-    private function getRatingsForStudent($amount = null, $paginateBy = 0, $orderColumn = 'test_participants.updated_at', $orderDirection = 'desc')
+    private function getRatingsForStudent($amount = null, $paginateBy = 0, $orderColumn = 'test_takes.updated_at', $orderDirection = 'desc', $withNullRatings = true)
     {
-        if ($paginateBy != 0) {
-            return TestParticipant::leftJoin('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')
-                ->leftJoin('tests', 'test_takes.test_id', '=', 'tests.id')
-                ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
-                ->select('test_participants.rating', 'test_participants.retake_rating', 'test_takes.time_start', 'test_takes.retake', 'test_takes.user_id', 'test_takes.uuid as test_take_uuid', 'tests.name', 'tests.subject_id', 'subjects.name as subject_name')
-                ->where('test_participants.user_id', Auth::id())
-                ->where('test_takes.test_take_status_id', '!=', TestTakeStatus::STATUS_RATED)
-                ->where(function ($query) {
-                    $query->where('test_participants.rating', '!=', null)
-                        ->orWhere('test_participants.retake_rating', '!=', null);
-                })
-                ->orderBy($orderColumn, $orderDirection)
-                ->paginate($paginateBy);
-        }
-        return TestParticipant::leftJoin('test_takes', 'test_participants.test_take_id', '=', 'test_takes.id')
-            ->leftJoin('tests', 'test_takes.test_id', '=', 'tests.id')
-            ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
-            ->select('test_participants.rating', 'test_participants.retake_rating', 'test_takes.time_start', 'test_takes.retake', 'test_takes.user_id', 'tests.name', 'tests.subject_id', 'subjects.name as subject_name')
-            ->where('test_participants.user_id', Auth::id())
-            ->where('test_takes.test_take_status_id', '!=', TestTakeStatus::STATUS_RATED)
-            ->where(function ($query) {
-                $query->where('test_participants.rating', '!=', null)
-                    ->orWhere('test_participants.retake_rating', '!=', null);
-            })
-            ->orderBy($orderColumn, $orderDirection)
-            ->take($amount)
-            ->get();
+        $ratedTakesQuery = TestTake::gradedTakesWithParticipantForUser(Auth::user(), $withNullRatings)
+            ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name')
+            ->leftJoin('tests', 'tests.id', '=','test_takes.test_id')
+            ->leftJoin('subjects', 'tests.subject_id', '=', 'subjects.id');
+
+        return $paginateBy ? $ratedTakesQuery->orderBy($orderColumn, $orderDirection)->paginate($paginateBy) : $ratedTakesQuery->take($amount)->get();
     }
 
     public function getBgColorForTestParticipantRating($rating): string
