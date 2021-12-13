@@ -5,6 +5,8 @@ namespace tcCore\Http\Livewire\Student;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\Events\NewTestTakeGraded;
+use tcCore\Events\NewTestTakePlanned;
 use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\Info;
@@ -13,12 +15,20 @@ use tcCore\TemporaryLogin;
 
 class Dashboard extends Component
 {
-    use WithPagination,WithStudentTestTakes;
+    use WithPagination, WithStudentTestTakes;
 
     public $infos = [];
 
     public $needsUpdateDeadline;
     public $showKnowledgebankAppNotificationModal = false;
+
+    protected function getListeners()
+    {
+        return [
+            NewTestTakePlanned::channelSignature() => '$refresh',
+            NewTestTakeGraded::channelSignature()  => '$refresh',
+        ];
+    }
 
     public function mount()
     {
@@ -28,9 +38,9 @@ class Dashboard extends Component
     public function render()
     {
         return view('livewire.student.dashboard', [
-            'testTakes' => $this->getSchedueledTestTakesForStudent(5),
-            'testParticipants'   => $this->getRatingsForStudent(5),
-            'messages' => $this->getMessages(),
+            'testTakes'      => $this->getSchedueledTestTakesForStudent(5),
+            'ratedTestTakes' => $this->getRatingsForStudent(5, null, null, null, false),
+            'messages'       => $this->getMessages(),
         ])
             ->layout('layouts.student');
     }
@@ -47,7 +57,7 @@ class Dashboard extends Component
 
     public function getMessages()
     {
-        return Message::filtered(['receiver_id' => Auth::id() ])->orderBy('created_at', 'desc')->take(3)->get();
+        return Message::filtered(['receiver_id' => Auth::id()])->orderBy('created_at', 'desc')->take(3)->get();
     }
 
     public function getInfoMessages()

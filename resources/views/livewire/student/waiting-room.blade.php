@@ -35,11 +35,11 @@
             <div class="flex flex-col space-y-4 transition-all duration-500">
                 <div>
                     @if(!Auth::user()->guest)
-                    <x-button.text-button class="rotate-svg-180" type="link"
-                                          href="{{ route('student.test-takes', ['tab' => $this->testTakeStatusStage]) }}">
-                        <x-icon.arrow/>
-                        <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
-                    </x-button.text-button>
+                        <x-button.text-button class="rotate-svg-180" type="link"
+                                              href="{{ route('student.test-takes', ['tab' => $this->testTakeStatusStage]) }}">
+                            <x-icon.arrow/>
+                            <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
+                        </x-button.text-button>
                     @elseif(Auth::user()->guest && $this->testTakeStatusStage != 'planned')
                         <x-button.text-button class="rotate-svg-180" wire:click="returnToGuestChoicePage">
                             <x-icon.arrow/>
@@ -50,7 +50,8 @@
                     @endif
                 </div>
                 <div>
-                    <x-partials.waiting-room-grid :waitingTestTake="$waitingTestTake" :participatingClasses="$participatingClasses"/>
+                    <x-partials.waiting-room-grid :waitingTestTake="$waitingTestTake"
+                                                  :participatingClasses="$participatingClasses"/>
                 </div>
                 <div class="flex w-full items-center h-10">
                     @if(!$needsApp)
@@ -86,15 +87,23 @@
         <div class="flex flex-col bg-light-grey items-center justify-center py-12">
             <div class="content-section flex flex-col w-full max-w-2xl p-8 space-y-4">
                 @if($this->testTakeStatusStage != 'graded')
-                    <h4 class="px-3">{{ __('student.teacher_introduction_title') }}</h4>
-                    <div class="divider"></div>
-                    <div class="px-3">
-                        @if($isTakeOpen)
-                            {!! $waitingTestTake->test->introduction ?: __('student.teacher_introduction_unavailable') !!}
-                        @else
-                            {{ __('student.teacher_introduction_long') }}
-                        @endif
-                    </div>
+                    @if($this->testTakeStatusStage == 'planned')
+                        <h4 class="px-3">{{ __('student.teacher_introduction_title') }}</h4>
+                        <div class="divider"></div>
+                        <div class="px-3">
+                            @if($isTakeOpen)
+                                {!! $waitingTestTake->test->introduction ?: __('student.teacher_introduction_unavailable') !!}
+                            @else
+                                {{ __('student.teacher_introduction_long') }}
+                            @endif
+                        </div>
+                    @else
+                        <h4 class="px-3">{{ __('student.teacher_introduction_not_available') }}</h4>
+                        <div class="divider"></div>
+                        <div class="px-3">
+                            {{ __('student.teacher_introduction_not_available_long') }}
+                        </div>
+                    @endif
                 @else
                     <h4 class="px-3">{{ __('student.your_grade') }}</h4>
                     <div class="divider"></div>
@@ -104,9 +113,13 @@
                                     justify-between items-center -mt-4"
                         >
                             <span>{{ auth()->user()->getNameFullAttribute() }}</span>
+                            @if($testParticipant->rating)
                             <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testParticipant)) !!}">
                                 {{ $this->getRatingToDisplay($testParticipant) }}
                             </span>
+                            @else
+                                <span class="italic">Geen cijfer</span>
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -140,9 +153,9 @@
                                 <span class="title">{{ __('general.attention') }}!</span>
                             </div>
                             @if($appNeedsUpdateDeadline)
-                            <span class="body">{{ __('student.app_needs_update_deadline', ['date' => $appNeedsUpdateDeadline]) }}</span>
+                                <span class="body">{{ __('student.app_needs_update_deadline', ['date' => $appNeedsUpdateDeadline]) }}</span>
                             @else
-                            <span class="body">{{ __('student.app_needs_update') }}</span>
+                                <span class="body">{{ __('student.app_needs_update') }}</span>
                             @endif
                         </div>
                     </div>
