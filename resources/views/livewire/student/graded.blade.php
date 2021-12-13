@@ -3,7 +3,7 @@
         <h1>{{ __('student.graded_tests') }}</h1>
     </div>
     <div class="content-section p-8 relative" wire:init="loadRatings">
-        <x-loading />
+        <x-loading/>
         @if($readyToLoad)
             @if($testTakes->count() == 0)
                 <p>{{ __('student.no_recent_grades') }}</p>
@@ -34,6 +34,7 @@
                         </x-table.heading>
                         <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
                         <x-table.heading width="70px">{{ __('student.grade') }}</x-table.heading>
+                        <x-table.heading width="120px"></x-table.heading>
                     </x-slot>
                     <x-slot name="body">
                         @foreach($testTakes as $testTake)
@@ -62,6 +63,13 @@
                                         <span>-</span>
                                     @endif
                                 </x-table.cell>
+                                @if($this->testTakeReviewable($testTake))
+                                    <x-table.cell buttonCell class="text-right">
+                                        <x-button.cta>{{ __('student.review') }}</x-button.cta>
+                                    </x-table.cell>
+                                @else
+                                    <x-table.cell/>
+                                @endif
                             </x-table.row>
                         @endforeach
                     </x-slot>
