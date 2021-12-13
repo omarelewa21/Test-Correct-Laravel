@@ -48,7 +48,7 @@ class Graded extends Component
 
     public function testTakeReviewable($testTake)
     {
-        if ($testTake->show_results->gt(now()) && ($testTake->testParticipants->first()->rating || $testTake->testParticipants->first()->retake_rating)) {
+        if ($testTake->show_results != null && $testTake->show_results->gt(now()) && ($testTake->testParticipants->first()->rating || $testTake->testParticipants->first()->retake_rating)) {
             return true;
         }
         return false;
