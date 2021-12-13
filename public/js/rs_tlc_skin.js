@@ -20,11 +20,5 @@ window.rsConf = {
     general: {
         usePost: true,
         skipHiddenContent:true
-    },
-    ui: {
-        tools: {
-            translation: false,
-            dictionary: false
-        }
     }
 };

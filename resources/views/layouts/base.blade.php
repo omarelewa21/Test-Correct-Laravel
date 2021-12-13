@@ -15,8 +15,7 @@
         <script>Bugsnag.start({ apiKey: '{{ config('bugsnag.browser_key') }}' })</script>
     @endif
     @stack('styling')
-    <link rel="stylesheet/less" type="text/css" href="/css/rs_tlc_skin.less" />
-    <script src="https://cdn.jsdelivr.net/npm/less@4.1.1" ></script>
+    <link rel="stylesheet" type="text/css" href="/css/rs_tlc_skin.css" />
 </head>
 <body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
 {{ $slot }}
