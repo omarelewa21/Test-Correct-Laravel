@@ -16,66 +16,36 @@ trait WithStudentTestTakes
 
     private function getSchedueledTestTakesForStudent($amount = null, $paginateBy = 0, $orderColumn = 'test_takes.time_start', $orderDirection = 'ASC')
     {
-        if ($paginateBy != 0) {
-            return TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
-                ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
-                ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
-                ->select(
-                    'test_takes.*',
-                    'tests.name as test_name',
-                    'tests.question_count',
-                    'subjects.name as subject_name',
-                    DB::raw(
-                        sprintf(
-                            "case when tests.test_kind_id = %d then 'true' else 'false' end as is_assignment",
-                            TestKind::ASSESSMENT_TYPE
-                        )
-                    )
-                )
-                ->where('test_participants.user_id', Auth::id())
-                ->where('test_takes.test_take_status_id', '<=', TestTakeStatus::STATUS_TAKING_TEST)
-                ->where(function($query) {
-                   $query->where(function ($query) {
-                       // dit is voor de toetsen.
-                       $query->where('test_takes.time_start', '>=', date('y-m-d'));
-                       $query->whereNull('test_takes.time_end');
-                    })->orWhere(function($query){
-                       // dit is voor opdrachten;
-                        $query->where('test_takes.time_end', '>=', now());
-                    });
-                })
-                ->orderBy($orderColumn, $orderDirection)
-                ->paginate($paginateBy);
-        }
-        return TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
+        $takePlannedQuery = TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
             ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
             ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
             ->select(
                 'test_takes.*',
                 'tests.name as test_name',
+                'tests.question_count',
                 'subjects.name as subject_name',
                 DB::raw(
                     sprintf(
-                        "case when tests.test_kind_id = %d then 'true' else 'false' end as is_assignment",
+                        "case when tests.test_kind_id = %d then 1 else 0 end as is_assignment",
                         TestKind::ASSESSMENT_TYPE
                     )
                 )
             )
             ->where('test_participants.user_id', Auth::id())
             ->where('test_takes.test_take_status_id', '<=', TestTakeStatus::STATUS_TAKING_TEST)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where(function ($query) {
                     // dit is voor de toetsen.
                     $query->where('test_takes.time_start', '>=', date('y-m-d'));
                     $query->whereNull('test_takes.time_end');
-                })->orWhere(function($query){
+                })->orWhere(function ($query) {
                     // dit is voor opdrachten;
                     $query->where('test_takes.time_end', '>=', now());
                 });
             })
-            ->orderBy($orderColumn, $orderDirection)
-            ->take($amount)
-            ->get();
+            ->orderBy($orderColumn, $orderDirection);
+
+        return $paginateBy ? $takePlannedQuery->paginate($paginateBy) : $takePlannedQuery->take($amount)->get();
     }
 
     private function getRatingsForStudent($amount = null, $paginateBy = 0, $orderColumn = 'test_takes.updated_at', $orderDirection = 'desc', $withNullRatings = true)
