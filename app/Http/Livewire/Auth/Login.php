@@ -148,13 +148,16 @@ class Login extends Component
             return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
 
-        AppVersionDetector::handleHeaderCheck();
+
         $this->doLoginProcedure();
 
         $user = auth()->user();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
-            return redirect()->intended(route('student.dashboard'));
+            return redirect()->intended(route('student.splash'));
         }
+        AppVersionDetector::handleHeaderCheck();
+        AppVersionInfo::createFromSession();
+
         if ($user->isA('Account manager')) {
             return redirect()->intended(route('uwlr.grid'));
         }
@@ -206,7 +209,7 @@ class Login extends Component
         $sessionHash = $user->generateSessionHash();
         $user->setSessionHash($sessionHash);
         LoginLog::create(['user_id' => $user->getKey()]);
-        AppVersionInfo::createFromSession();
+
         FailedLogin::solveForUsernameAndIp($this->username, request()->ip());
     }
 

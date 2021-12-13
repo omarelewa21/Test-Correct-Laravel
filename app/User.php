@@ -2083,6 +2083,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return redirect()->to($redirectUrl);
     }
 
+    public function getRedirectUrlSplashOrStart($options = null)
+    {
+        if($this->isA('student')){
+            if($this->schoolLocation->allow_new_student_environment){
+                return route('student.splash');
+            }
+        }
+
+        return $this->getTemporaryCakeLoginUrl($options);
+    }
+
     /**
      * @return mixed
      */
