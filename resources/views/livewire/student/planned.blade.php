@@ -44,8 +44,8 @@
 
                         <x-table.row class="cursor-pointer"
                                      wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">
-                            <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
-                            <x-table.cell
+                            <x-table.cell :withTooltip="true">{{ $testTake->test_name }}</x-table.cell>
+                            <x-table.cell :withTooltip="true"
                                     class="text-right hidden lg:table-cell">{{ $testTake->question_count }}
                             </x-table.cell>
                             <x-table.cell class="hidden xl:table-cell">
@@ -55,7 +55,7 @@
                             <x-table.cell class="hidden xl:table-cell">
                                 {{ $testTake->user()->withTrashed()->first()->getFullNameWithAbbreviatedFirstName() }}
                             </x-table.cell>
-                            <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
+                            <x-table.cell :withTooltip="true">{!! $testTake->subject_name !!}</x-table.cell>
                             <x-table.cell class="text-right text-sm">
                                 @if($testTake->time_start == \Carbon\Carbon::today())
                                     <span class="capitalize">{{ __('student.today') }}</span>
