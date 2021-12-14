@@ -604,18 +604,18 @@ class Test extends BaseModel
             }
 
         } elseif (in_array('Teacher', $roles)) {
-            $query->join($this->switchSubQueryForScopeFiltered($user), function ($join) {
+            $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user), function ($join) {
                 $join->on('tests.id', '=', 't1.t2_id');
             });
 
 
 
-            $subjectIds = (new DemoHelper())->getDemoSubjectsForSchoolLocations($user);
-            if(!is_null($subjectIds)){
-                $query->where(function ($q) use ($user,$subjectIds) {
-                    $q->where(function ($query) use ($user, $subjectIds) {
-                        $query->whereIn('tests.subject_id', $subjectIds)->where('tests.author_id', $user->getKey());
-                    })->orWhereNotIn('tests.subject_id', $subjectIds);
+            $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
+            if(!is_null($subject)){
+                $query->where(function ($q) use ($user,$subject) {
+                    $q->where(function ($query) use ($user, $subject) {
+                        $query->where('tests.subject_id', $subject->getKey())->where('tests.author_id', $user->getKey());
+                    })->orWhere('tests.subject_id', '<>', $subject->getKey());
                 });
             }
 
@@ -714,7 +714,7 @@ class Test extends BaseModel
         return $query;
     }
 
-    private function switchSubQueryForScopeFiltered($user)
+    private function switchScopeFilteredSubQueryForDifferentScenarios($user)
     {
         if (        $user->allowedSchoolLocations()->count() == 1 && !$user->isPartOfSharedSection()) {
             return $this->getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user);
@@ -722,9 +722,8 @@ class Test extends BaseModel
             return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user);
         }elseif (   $user->allowedSchoolLocations()->count() == 1 && $user->isPartOfSharedSection()){
             return $this->getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user);
-        }else{
-            return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user);
         }
+        return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user);
     }
 
 
@@ -1107,7 +1106,7 @@ class Test extends BaseModel
     {
         return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
                                  ' union '.
-                                 $this->getQueryGetTestsFromSectionWithinSchoolLoction($user).
+                                 $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
                                 ') as t1'
         );
     }
@@ -1118,7 +1117,7 @@ class Test extends BaseModel
                                  ' union '.
                                 $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
                                  ' union '.
-                                $this->getQueryGetTestsFromSectionWithinSchoolLoction($user).
+                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
                                 ' ) as t1'
         );
     }
@@ -1127,7 +1126,7 @@ class Test extends BaseModel
     {
         return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
                                 ' union  '.
-                                $this->getQueryGetTestsFromSectionWithinSchoolLoction($user).
+                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
                                 ' union '.
                                  $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
                                 ' ) as t1'
@@ -1140,7 +1139,7 @@ class Test extends BaseModel
             ' union '.
             $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
             ' union '.
-            $this->getQueryGetTestsFromSectionWithinSchoolLoction($user).
+            $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
             ' union '.
             $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
             ' ) as t1'
@@ -1384,7 +1383,7 @@ class Test extends BaseModel
                                             $user->id);
     }
 
-    private function getQueryGetTestsFromSectionWithinSchoolLoction($user)
+    private function getQueryGetTestsFromSectionWithinSchoolLocation($user)
     {
         return sprintf('select distinct t2.id as t2_id /* select tests from active schoollocation with subjects that fall under the section the user is member of */
                                             from
@@ -1409,7 +1408,8 @@ class Test extends BaseModel
                                                                 and
                                                             t9.school_location_id = %d
                                                             ) as s2
-                                                    on t2.subject_id = s2.subject_id',
+                                                    on t2.subject_id = s2.subject_id
+                                            where t2.demo = false',
                                                     $user->id,
                                                     $user->school_location_id
         );
@@ -1432,7 +1432,7 @@ class Test extends BaseModel
                                                             inner join subjects as t3
                                                                 on subjects.base_subject_id = t3.base_subject_id
                                                             left join school_location_sections as t10
-                                                                on t3.section_id = t10.section_id
+                                                                on sections.id = t10.section_id
                                                             left join teachers
                                                                 on subjects.id = teachers.subject_id
                                                         where 
@@ -1445,7 +1445,7 @@ class Test extends BaseModel
                                                             t10.school_location_id = %d
                                                         ) as s2
                                                     on t2.subject_id = s2.subject_id    
-                                            where test_authors.user_id = %d',
+                                            where test_authors.user_id = %d and t2.demo = false',
                                             $user->id,
                                             $user->school_location_id,
                                             $user->id
@@ -1481,7 +1481,8 @@ class Test extends BaseModel
                                                                 ) as s3
                                                                     on t11.base_subject_id = s3.base_subject_id
                                                             ) as s2
-                                                    on t2.subject_id = s2.subject_id',
+                                                    on t2.subject_id = s2.subject_id
+                                            where t2.demo = false',
                                                     $user->id,
                                                     $user->school_location_id
         );
