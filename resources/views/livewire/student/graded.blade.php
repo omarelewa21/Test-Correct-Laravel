@@ -39,7 +39,7 @@
                     <x-slot name="body">
                         @foreach($testTakes as $testTake)
                             <x-table.row class="cursor-pointer"
-                                         wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')"
+                                         wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}', 'graded')"
                             >
                                 <x-table.cell :withTooltip="true">{!! $testTake->test_name !!}</x-table.cell>
                                 <x-table.cell :withTooltip="true">{!! $testTake->subject_name !!}</x-table.cell>

@@ -99,9 +99,9 @@ trait WithStudentTestTakes
         return 'bg-orange base';
     }
 
-    public function redirectToWaitingRoom($testTakeUuid)
+    public function redirectToWaitingRoom($testTakeUuid, $origin = null)
     {
-        return redirect(route('student.waiting-room', ['take' => $testTakeUuid]));
+        return redirect(route('student.waiting-room', ['take' => $testTakeUuid, 'origin' => $origin]));
     }
 
     public function getTestTakeStatusTranslationString($testTake): string
