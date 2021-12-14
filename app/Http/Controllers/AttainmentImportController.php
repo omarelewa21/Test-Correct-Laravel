@@ -191,9 +191,10 @@ class AttainmentImportController extends Controller
             $this->checkLevelCodeSubcodeSubsubcodeCombination();
             $this->fillInParents();
             $this->attainmentsCollection->each(function ($resource) use (&$added,&$updated) {
+                $parentId = $this->findParent($resource);
+                $resource->attainment_id = $parentId;
                 if(is_null($resource->id)){
-                    $parentId = $this->findParent($resource);
-                    $this->createAttainment($resource,$parentId);
+                    $this->createAttainment($resource);
                     $added++;
                     return true;
                 }
@@ -292,15 +293,13 @@ class AttainmentImportController extends Controller
         }
     }
 
-    protected function createAttainment(&$resource,$parentId)
+    protected function createAttainment(&$resource)
     {
         $data = collect($resource)->toArray();
-        $data['attainment_id'] = $parentId;
         $attainment = new Attainment();
         $attainment->fill($data);
         $attainment->save();
         $resource->id = $attainment->getKey();
-        $resource->attainment_id = $parentId;
     }
 
     protected function updateAttainment($resource)
@@ -327,9 +326,9 @@ class AttainmentImportController extends Controller
     protected function findParent($resource)
     {
 
-        if(!is_null($resource->id)){
-            return $resource->attainment_id;
-        }
+//        if(!is_null($resource->id)){
+//            return $resource->attainment_id;
+//        }
         if(!is_null($resource->attainment_id)){
             return $resource->attainment_id;
         }
