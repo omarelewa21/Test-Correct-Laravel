@@ -1127,7 +1127,10 @@ class TestTake extends BaseModel
     public function scopeGradedTakesWithParticipantForUser($query, $user = null, $withNullRating = true)
     {
         $user = $user ?? Auth::user();
-        $query->where('test_take_status_id', TestTakeStatus::STATUS_RATED)
+        $query->where(function ($query) {
+                $query->where('test_take_status_id', TestTakeStatus::STATUS_RATED)
+                    ->orWhere('test_take_status_id', TestTakeStatus::STATUS_DISCUSSED);
+            })
             ->whereIn('test_takes.id', function ($query) use ($withNullRating, $user) {
                 $query->select('test_take_id')
                     ->from(with(new TestParticipant())->getTable())

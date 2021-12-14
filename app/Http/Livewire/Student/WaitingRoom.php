@@ -40,11 +40,14 @@ class WaitingRoom extends Component
 
     protected $queryString = [
         'take',
-        'directly_to_review' => ['except' => false]
+        'directly_to_review' => ['except' => false],
+        'origin'             => ['except' => '']
     ];
 
     public $take;
     public $directly_to_review = false;
+    public $origin = '';
+
     public $waitingTestTake;
     public $testParticipant;
     public $isTakeOpen;
@@ -90,7 +93,7 @@ class WaitingRoom extends Component
     public function startTestTake()
     {
         if ($this->waitingTestTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
-            if(!$this->testParticipant->isRejoiningTestTake(TestTakeStatus::STATUS_TAKING_TEST)) {
+            if (!$this->testParticipant->isRejoiningTestTake(TestTakeStatus::STATUS_TAKING_TEST)) {
                 $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
                 $this->testParticipant->save();
             }
@@ -164,6 +167,7 @@ class WaitingRoom extends Component
     public function startReview()
     {
         $url = 'test_takes/glance/' . $this->take;
+        $url = filled($this->origin) ? $url . '?origin=' . $this->origin : $url;
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
@@ -203,6 +207,7 @@ class WaitingRoom extends Component
 
         return $redirect;
     }
+
     public function participantAppCheck()
     {
         if ($this->testTakeStatusStage != 'planned') {

@@ -52,7 +52,7 @@ trait WithStudentTestTakes
     {
         $ratedTakesQuery = TestTake::gradedTakesWithParticipantForUser(Auth::user(), $withNullRatings)
             ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name')
-            ->leftJoin('tests', 'tests.id', '=','test_takes.test_id')
+            ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
             ->leftJoin('subjects', 'tests.subject_id', '=', 'subjects.id');
 
         return $paginateBy ? $ratedTakesQuery->orderBy($orderColumn, $orderDirection)->paginate($paginateBy) : $ratedTakesQuery->take($amount)->get();
@@ -69,9 +69,9 @@ trait WithStudentTestTakes
         return 'bg-orange base';
     }
 
-    public function redirectToWaitingRoom($testTakeUuid)
+    public function redirectToWaitingRoom($testTakeUuid, $origin = null)
     {
-        return redirect(route('student.waiting-room', ['take' => $testTakeUuid]));
+        return redirect(route('student.waiting-room', ['take' => $testTakeUuid, 'origin' => $origin]));
     }
 
     public function getTestTakeStatusTranslationString($testTake): string
