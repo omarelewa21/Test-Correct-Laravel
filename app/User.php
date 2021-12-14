@@ -1027,6 +1027,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query;
     }
 
+    public function otherSchoolLocationsSharedSectionsWithMe()
+    {
+        $schoolLocationSharedSections = SchoolLocationSharedSection::where('school_location_id',$this->schoolLocation->getKey());
+        if($schoolLocationSharedSections->count()===0){
+            return false;
+        }
+        return true;
+    }
+
     public function subjectsOnlyShared($query = null)
     {
         $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
@@ -1271,7 +1280,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isPartOfSharedSection()
     {
-        if(!$this->hasSharedSections()){
+        if(!$this->otherSchoolLocationsSharedSectionsWithMe()){
             return false;
         }
         if($this->subjectsOnlyShared()->count()===0){

@@ -604,18 +604,12 @@ class Test extends BaseModel
             }
 
         } elseif (in_array('Teacher', $roles)) {
-            if(!$user->isPartOfSharedSection()) {
-                $query->join($this->getSubQueryForScopeFiltered($user), function ($join) {
-                    $join->on('tests.id', '=', 't1.t2_id');
-                });
-            }else{
-                $query->join($this->getSubQueryForScopeFilteredSharedSection($user), function ($join) {
-                    $join->on('tests.id', '=', 't1.t2_id');
-                });
-            }
+            $query->join($this->switchScopeFilteredSubQueryForDifferentScenarios($user), function ($join) {
+                $join->on('tests.id', '=', 't1.t2_id');
+            });
 
 
-            // TC-158  don't show demo tests from other users
+
             $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
             if(!is_null($subject)){
                 $query->where(function ($q) use ($user,$subject) {
@@ -718,6 +712,18 @@ class Test extends BaseModel
         }
 
         return $query;
+    }
+
+    private function switchScopeFilteredSubQueryForDifferentScenarios($user)
+    {
+        if (        $user->allowedSchoolLocations()->count() == 1 && !$user->isPartOfSharedSection()) {
+            return $this->getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user);
+        } elseif (  $user->allowedSchoolLocations()->count() > 1  && !$user->isPartOfSharedSection()) {
+            return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user);
+        }elseif (   $user->allowedSchoolLocations()->count() == 1 && $user->isPartOfSharedSection()){
+            return $this->getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user);
+        }
+        return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user);
     }
 
 
@@ -1096,40 +1102,89 @@ class Test extends BaseModel
         return $query;
     }
 
+    private function getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user)
+    {
+        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
+                                 ' union '.
+                                 $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
+                                ') as t1'
+        );
+    }
+
+    private function getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user)
+    {
+        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
+                                 ' union '.
+                                $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
+                                 ' union '.
+                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
+                                ' ) as t1'
+        );
+    }
+
+    private function getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user)
+    {
+        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
+                                ' union  '.
+                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
+                                ' union '.
+                                 $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
+                                ' ) as t1'
+        );
+    }
+
+    private function getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user)
+    {
+        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
+            ' union '.
+            $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
+            ' union '.
+            $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
+            ' union '.
+            $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
+            ' ) as t1'
+        );
+
+    }
+
     private function getSubQueryForScopeFiltered($user)
     {
         return DB::raw(sprintf('(select distinct t2.id as t2_id
                                             from
                                                `tests` as t2
-                                               left join test_authors as t3
-                                                   on t2.id = t3.test_id
-                                               left join users as t4 
-                                                    on t3.user_id = t4.id
-                                               left join school_location_user as t6 
-                                                    on t4.id = t6.user_id
-                                               left join users as t5 
-                                                    on t2.`author_id` = t5.id
-                                               left join school_location_user as t7 
-                                                    on t5.id = t7.user_id
-                                               inner join subjects
-                                                    on t2.subject_id = subjects.id
-                                               left join `teachers` as teachers_self
-                                                    on subjects.id = teachers_self.subject_id
-                                               inner join (select distinct subject_id from teachers where user_id = %d) as s2
+                                               inner join (
+                                                        select distinct t3.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            left join subjects as t8
+                                                                on sections.id = t8.section_id
+                                                            left join school_location_sections as t9
+                                                                on t9.section_id = sections.id
+                                                            inner join subjects as t3
+                                                                on subjects.base_subject_id = t3.base_subject_id
+                                                            left join school_location_sections as t10
+                                                                on t3.section_id = t10.section_id
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                            left join school_classes
+                                                                on teachers.class_id = school_classes.id
+                                                        where
+                                                            subjects.deleted_at is null
+                                                                and
+                                                            teachers.user_id = %d
+                                                                and
+                                                            t9.school_location_id = %d
+                                                                and
+                                                            t10.school_location_id = %d
+                                                                and
+                                                            school_classes.school_location_id = %d
+                                                            ) as s2
                                                     on t2.subject_id = s2.subject_id
-                                            where
-                                                subjects.deleted_at is null
-                                                and
-                                                teachers_self.deleted_at is null
-                                                and
-                                                teachers_self.user_id = %d
-                                                and (
-                                                        t6.`school_location_id` = %d or t7.`school_location_id` = %d
-                                                     )
-                                                        ) as t1',   $user->id,
-                                                                    $user->id,
-                                                                    $user->school_location_id,
-                                                                    $user->school_location_id
+                                            ) as t1',           $user->id,
+                $user->school_location_id,
+                $user->school_location_id,
+                $user->school_location_id,
             )
         );
     }
@@ -1139,41 +1194,82 @@ class Test extends BaseModel
         return DB::raw(sprintf('(select distinct t2.id as t2_id
                                             from
                                                `tests` as t2
-                                               left join test_authors as t3
-                                                   on t2.id = t3.test_id
-                                               left join users as t4 
-                                                    on t3.user_id = t4.id
-                                               left join school_location_user as t6 
-                                                    on t4.id = t6.user_id
-                                               left join users as t5 
-                                                    on t2.`author_id` = t5.id
-                                               left join school_location_user as t7 
-                                                    on t5.id = t7.user_id
-                                               inner join subjects
-                                                    on t2.subject_id = subjects.id
-                                               left join school_location_shared_sections
-                                                    on subjects.section_id = school_location_shared_sections.section_id
-                                               left join `teachers` as teachers_self
-                                                    on subjects.id = teachers_self.subject_id
-                                               inner join (select distinct subject_id from teachers where user_id = %d) as s2
+                                               inner join (
+                                                        select distinct t3.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            left join subjects as t8
+                                                                on sections.id = t8.section_id
+                                                            left join school_location_sections as t9
+                                                                on t9.section_id = sections.id
+                                                            inner join subjects as t3
+                                                                on subjects.base_subject_id = t3.base_subject_id
+                                                            left join school_location_sections as t10 
+                                                                on t3.section_id = t10.section_id   
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                            left join school_classes
+                                                                on teachers.class_id = school_classes.id
+                                                        where 
+                                                            subjects.deleted_at is null
+                                                                and
+                                                            user_id = %d 
+                                                                and 
+                                                            teachers.user_id = %d
+                                                                and
+                                                            t9.school_location_id = %d
+                                                                and
+                                                            t10.school_location_id = %d
+                                                                and
+                                                            school_classes.school_location_id = %d 
+                                                            ) as s2
                                                     on t2.subject_id = s2.subject_id
-                                            where
-                                                subjects.deleted_at is null
-                                                and
-                                                teachers_self.deleted_at is null
-                                                and
-                                                teachers_self.user_id = %d
-                                                and (
-                                                        (t6.`school_location_id` = %d or t7.`school_location_id` = %d)
-                                                        or
-                                                        (school_location_shared_sections.section_id is not null)
-                                                     )
-                                                        ) as t1',   $user->id,
-                                                                    $user->id,
-                                                                    $user->school_location_id,
-                                                                    $user->school_location_id
-            )
-        );
+                                            union
+                                            select distinct t2.id as t2_id
+                                            from
+                                               `tests` as t2                                             
+                                               inner join (
+                                                        select distinct t11.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            inner join school_location_sections
+                                                                on sections.id = school_location_sections.section_id
+                                                            left join subjects as t10
+                                                                on sections.id = t10.section_id
+                                                            inner join subjects as t11
+                                                                on subjects.base_subject_id = t11.base_subject_id
+                                                            left join school_location_sections as t12
+                                                                on sections.id = t12.section_id
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                            left join school_classes
+                                                                on teachers.class_id = school_classes.id
+                                                        where 
+                                                            subjects.deleted_at is null
+                                                                and 
+                                                            teachers.user_id = %d
+                                                                and
+                                                            school_location_sections.school_location_id = %d
+                                                                and
+                                                                t12.school_location_id = %d
+                                                                and
+                                                            school_classes.school_location_id = %d 
+                                                            ) as s2
+                                                    on t2.subject_id = s2.subject_id
+                                               ) as t1',        $user->id,
+                                                                $user->id,
+                                                                $user->school_location_id,
+                                                                $user->school_location_id,
+                                                                $user->school_location_id,
+                                                                $user->id,
+                                                                $user->school_location_id,
+                                                                $user->school_location_id,
+                                                                $user->school_location_id
+                                                            )
+                                                        );
+
     }
 
     private function getSubQueryForScopeFiltered_to_be_removed($user)
@@ -1260,6 +1356,136 @@ class Test extends BaseModel
         return !! collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function(Question $question){
             return !$question->canCheckAnswer();
         });
+    }
+
+    private function getQueryGetTestsFromSchoolLocationAuthoredByUser($user)
+    {
+        return sprintf('select distinct t2.id as t2_id  /* select all tests from schoollocation authored by user */
+                                from
+                                   `tests` as t2 
+                                        left join test_authors
+                                            on t2.id = test_authors.test_id
+                                        inner join (
+                                            select distinct subjects.id as subject_id
+                                            from subjects
+                                                left join sections
+                                                    on subjects.section_id = sections.id
+                                                left join school_location_sections as t9
+                                                    on t9.section_id = sections.id  
+                                            where 
+                                                subjects.deleted_at is null
+                                                and
+                                                t9.school_location_id = %d        
+                                                        ) as s2
+                                                    on t2.subject_id = s2.subject_id    
+                                            where test_authors.user_id = %d',
+                                            $user->school_location_id,
+                                            $user->id);
+    }
+
+    private function getQueryGetTestsFromSectionWithinSchoolLocation($user)
+    {
+        return sprintf('select distinct t2.id as t2_id /* select tests from active schoollocation with subjects that fall under the section the user is member of */
+                                            from
+                                               `tests` as t2
+                                               inner join (
+                                                        select distinct t8.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            left join subjects as t8
+                                                                on sections.id = t8.section_id
+                                                            left join school_location_sections as t9
+                                                                on t9.section_id = sections.id
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                        where
+                                                            subjects.deleted_at is null
+                                                                and
+                                                            teachers.user_id = %d
+                                                                and
+                                                            teachers.deleted_at is null
+                                                                and
+                                                            t9.school_location_id = %d
+                                                            ) as s2
+                                                    on t2.subject_id = s2.subject_id
+                                            where t2.demo = false',
+                                                    $user->id,
+                                                    $user->school_location_id
+        );
+    }
+
+
+
+    private function getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user)
+    {
+        return sprintf('select distinct t2.id as t2_id  /* select tests from all schoollocations authored by user and currently taught in active schoollocation */
+                                            from
+                                               `tests` as t2 
+                                                    left join test_authors
+                                                        on t2.id = test_authors.test_id
+                                                    inner join (
+                                                         select distinct t3.id as subject_id
+                                                        from subjects
+                                                            left join sections
+                                                                on subjects.section_id = sections.id
+                                                            inner join subjects as t3
+                                                                on subjects.base_subject_id = t3.base_subject_id
+                                                            left join school_location_sections as t10
+                                                                on sections.id = t10.section_id
+                                                            left join teachers
+                                                                on subjects.id = teachers.subject_id
+                                                        where 
+                                                            subjects.deleted_at is null
+                                                                and
+                                                            teachers.user_id = %d
+                                                                and
+                                                            teachers.deleted_at is null
+                                                                and
+                                                            t10.school_location_id = %d
+                                                        ) as s2
+                                                    on t2.subject_id = s2.subject_id    
+                                            where test_authors.user_id = %d and t2.demo = false',
+                                            $user->id,
+                                            $user->school_location_id,
+                                            $user->id
+        );
+    }
+
+    private function getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user)
+    {
+        return sprintf('select distinct t2.id as t2_id  /* select tests from other schoollocations that fall under a shared section the user has access to  */
+                                            from
+                                               `tests` as t2                                             
+                                               inner join (
+                                                        select distinct t11.id as subject_id
+                                                            from school_location_shared_sections
+                                                                inner join sections
+                                                                    on school_location_shared_sections.section_id = sections.id
+                                                                left join subjects as t11
+                                                                    on sections.id = t11.section_id
+                                                                inner join (
+                                                                    select base_subject_id
+                                                                        from teachers
+                                                                            left join subjects
+                                                                                on teachers.subject_id = subjects.id
+                                                                            left join sections
+                                                                                on subjects.section_id = sections.id
+                                                                            left join school_location_sections
+                                                                                on sections.id = school_location_sections.section_id
+                                                                        where teachers.user_id = %d
+                                                                                and
+                                                                           teachers.deleted_at is null
+                                                                                and
+                                                                           school_location_sections.school_location_id = %d
+                                                                ) as s3
+                                                                    on t11.base_subject_id = s3.base_subject_id
+                                                            ) as s2
+                                                    on t2.subject_id = s2.subject_id
+                                            where t2.demo = false',
+                                                    $user->id,
+                                                    $user->school_location_id
+        );
     }
 
     public function isAssignment() {
