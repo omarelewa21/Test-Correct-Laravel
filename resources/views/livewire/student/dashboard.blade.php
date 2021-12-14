@@ -66,7 +66,7 @@
                         <x-table>
                             <x-slot name="head">
                                 <x-table.heading width="">{{ __('student.test') }}</x-table.heading>
-                                <x-table.heading width="150px">{{ __('student.subject') }}</x-table.heading>
+                                <x-table.heading width="130px">{{ __('student.subject') }}</x-table.heading>
                                 <x-table.heading width="105px"
                                                  textAlign="right">{{ __('student.take_date') }}</x-table.heading>
                                 <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>
@@ -75,8 +75,8 @@
                             <x-slot name="body">
                                 @foreach($testTakes as $testTake)
                                     <x-table.row wire:click="redirectToWaitingRoom('{!!$testTake->uuid !!}')">
-                                        <x-table.cell>{{ $testTake->test_name }}</x-table.cell>
-                                        <x-table.cell>{!! $testTake->subject_name !!}</x-table.cell>
+                                        <x-table.cell :withTooltip="true">{{ $testTake->test_name }}</x-table.cell>
+                                        <x-table.cell :withTooltip="true">{!! $testTake->subject_name !!}</x-table.cell>
                                         <x-table.cell class="text-right text-sm">
                                             @if($testTake->time_start == \Carbon\Carbon::today())
                                                 <span class="capitalize">{{ __('student.today') }}</span>
@@ -120,7 +120,7 @@
                         <x-table>
                             <x-slot name="head">
                                 <x-table.heading width="">{{ __('student.test') }}</x-table.heading>
-                                <x-table.heading width="150px">{{ __('student.subject') }}</x-table.heading>
+                                <x-table.heading width="130px">{{ __('student.subject') }}</x-table.heading>
                                 <x-table.heading width="105px"
                                                  textAlign="right">{{ __('student.take_date') }}</x-table.heading>
                                 <x-table.heading width="120px">{{ __('student.type') }}</x-table.heading>

@@ -86,13 +86,13 @@
             <x-dropdown label="{{ $user_name }}" labelstyle="pr-0.5">
                 @if(!Auth::user()->guest)
                     <div class="lg:hidden">
-                        <x-dropdown.item type="link" href="{{ route('student.dashboard') }}">
+                        <x-dropdown.item wire:click="dashboard()">
                             {{ __('student.dashboard') }}
                         </x-dropdown.item>
-                        <x-dropdown.item type="link" href="{{ route('student.test-takes') }}">
+                        <x-dropdown.item wire:click="tests()">
                             {{ __('student.tests') }}
                         </x-dropdown.item>
-                        <x-dropdown.item>
+                        <x-dropdown.item wire:click="analyses()">
                             {{ __('student.analysis') }}
                         </x-dropdown.item>
                     </div>
