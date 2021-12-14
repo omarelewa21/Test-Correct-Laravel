@@ -32,7 +32,7 @@ class Splash extends Component
     {
         AppVersionDetector::handleHeaderCheck();
         AppVersionInfo::createFromSession();
-        sleep(1);
+        sleep(2.2);
         return redirect()->intended(route('student.dashboard'));
     }
 
