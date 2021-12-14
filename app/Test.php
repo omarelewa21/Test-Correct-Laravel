@@ -1184,7 +1184,7 @@ class Test extends BaseModel
                                             ) as t1',           $user->id,
                 $user->school_location_id,
                 $user->school_location_id,
-                $user->school_location_id,
+                $user->school_location_id
             )
         );
     }
