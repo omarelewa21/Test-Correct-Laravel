@@ -346,7 +346,7 @@ class EntreeHelper
             $this->handleUpdateUserWithSamlAttributes();
             // if student get url to redirect
             // redirect naar splash screen
-            $url = $this->laravelUser->getRedirectUrlSplashOrStart();
+            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
             return $this->redirectToUrlAndExit($url);
         }
 // redirect to maak koppelingscherm;
@@ -476,7 +476,7 @@ class EntreeHelper
 
         $this->handleUpdateUserWithSamlAttributes();
         // if student redirect to splash screen
-        $url = $this->laravelUser->getRedirectUrlSplashOrStart();
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
         return $this->redirectToUrlAndExit($url);
 
     }
