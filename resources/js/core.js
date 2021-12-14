@@ -32,6 +32,7 @@ Core = {
         Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
     },
     lostFocus: function (reason) {
+        return ;
         if (!isMakingTest()) {
             return;
         }
