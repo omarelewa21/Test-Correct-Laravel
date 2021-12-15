@@ -409,22 +409,6 @@ class TestParticipant extends BaseModel
         return Uuid::fromBytes($value)->toString();
     }
 
-    public function startTestTake()
-    {
-        //Remaining startTestTake actions handled in TestParticipant boot method
-        if (!$this->canStartTestTake()) {
-            return false;
-        }
-
-        $this->setAttribute('started_in_new_player', true)->save();
-        return true;
-    }
-
-    public function canSeeOverviewPage()
-    {
-        return $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
-    }
-
     public function handInTestTake()
     {
         //Remaining handInTestTake actions handled in TestParticipant boot method
@@ -509,6 +493,15 @@ class TestParticipant extends BaseModel
         if ($this->available_for_guests != $this->getOriginal('available_for_guests')) {
             TestParticipantGuestAvailabilityChanged::dispatch($this->testTake->uuid);
         }
+    }
+
+    public function shouldFraudNotificationsBeShown()
+    {
+        if ($this->testTake->test->isAssignment()) {
+            return false;
+        }
+
+        return true;
     }
 
     public function hasStatus($status)

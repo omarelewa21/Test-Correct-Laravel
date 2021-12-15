@@ -189,9 +189,9 @@ class TestTake extends Component
         return $parameters;
     }
 
-    public function isParticipantAllowedInbrowserTesting()
+    public function shouldFraudNotificationsBeShown()
     {
-        return ['isParticipantAllowedInbrowserTesting' => TestParticipant::find($this->testParticipantId)->canUseBrowserTesting()];
+        return ['shouldFraudNotificationsBeShown' => TestParticipant::find($this->testParticipantId)->shouldFraudNotificationsBeShown()];
 
     }
 }

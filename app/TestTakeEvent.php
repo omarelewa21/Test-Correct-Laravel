@@ -53,10 +53,9 @@ class TestTakeEvent extends BaseModel {
         parent::boot();
 
         static::saving(function(TestTakeEvent $testTakeEvent) {
-            if ($testTakeEvent->testParticipant->canUseBrowserTesting() && $testTakeEvent->testTakeEventType->requires_confirming == 1) {
+            if ($testTakeEvent->shouldIgnoreEventRegistration()) {
                 return false;
             }
-            return true;
         });
 
         static::created(function(TestTakeEvent $testTakeEvent) {
@@ -152,5 +151,16 @@ class TestTakeEvent extends BaseModel {
             ->where('test_participant_id', $participantId)
             ->where('requires_confirming', 1)
             ->count();
+    }
+
+    public function shouldIgnoreEventRegistration()
+    {
+        if ($this->testTake->test->isAssignment()){
+            if ($this->testTakeEventType->requires_confirming == 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
