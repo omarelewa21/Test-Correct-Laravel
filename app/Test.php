@@ -716,11 +716,11 @@ class Test extends BaseModel
 
     private function switchScopeFilteredSubQueryForDifferentScenarios($user)
     {
-        if (        $user->allowedSchoolLocations()->count() == 1 && !$user->isPartOfSharedSection()) {
+        if ($user->hasSingleSchoolLocationNoSharedSections()) {
             return $this->getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user);
-        } elseif (  $user->allowedSchoolLocations()->count() > 1  && !$user->isPartOfSharedSection()) {
+        } elseif ($user->hasMultipleSchoolLocationsNoSharedSections()) {
             return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user);
-        }elseif (   $user->allowedSchoolLocations()->count() == 1 && $user->isPartOfSharedSection()){
+        }elseif (   $user->hasSingleSchoolLocationSharedSections()){
             return $this->getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user);
         }
         return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user);

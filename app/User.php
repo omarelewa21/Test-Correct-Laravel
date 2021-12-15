@@ -1080,6 +1080,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query;
     }
 
+    public function sectionsOnlyShared($query = null)
+    {
+        $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
+        $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();
+
+        $sectionIdsFromShared = collect([]);
+
+        if (count($sharedSectionIds) > 0) {
+            $sectionIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
+                $baseSubjectIds)->pluck('section_id')->unique();
+        }
+
+        if ($query === null) {
+            $query = Section::whereIn('id', $sectionIdsFromShared);
+        } else {
+            $query->from(with(new Section())->getTable())
+                ->where('deleted_at', null)
+                ->whereIn('id', $sectionIdsFromShared);
+        }
+        return $query;
+    }
+
     public function teacher()
     {
         return $this->hasMany('tcCore\Teacher');
@@ -2330,5 +2352,25 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getActiveLanguage()
     {
         return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ??  config('app.locale');
+    }
+
+    public function hasSingleSchoolLocationNoSharedSections()
+    {
+        return ($this->allowedSchoolLocations()->count() == 1 && !$this->isPartOfSharedSection());
+    }
+
+    public function hasMultipleSchoolLocationsNoSharedSections()
+    {
+        return ($this->allowedSchoolLocations()->count() > 1  && !$this->isPartOfSharedSection());
+    }
+
+    public function hasSingleSchoolLocationSharedSections()
+    {
+        return ($this->allowedSchoolLocations()->count() == 1 && $this->isPartOfSharedSection());
+    }
+
+    public function hasMultipleSchoolLocationsSharedSections()
+    {
+        return ($this->allowedSchoolLocations()->count() > 1  && $this->isPartOfSharedSection());
     }
 }
