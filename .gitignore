@@ -33,4 +33,3 @@ storage/*/*/*
 !.gitignore
 /public/vendor/telescope/
 /LocalValetDriver.php
-/tests/files/~*
