@@ -17,6 +17,7 @@ use tcCore\FailedLogin;
 use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
+use tcCore\Http\Requests\Request;
 use tcCore\Jobs\SendForgotPasswordMail;
 use tcCore\LoginLog;
 use tcCore\SamlMessage;
@@ -81,6 +82,12 @@ class Login extends Component
     public $guestLoginButtonDisabled = true;
     public $forgotPasswordButtonDisabled = true;
     public $connectEntreeButtonDisabled = true;
+
+    private $xssPropsToClean = [
+         'firstName',
+         'suffix',
+         'lastName',
+    ];
 
     public $showAuthModal = false;
     public $authModalRoleType;
@@ -164,6 +171,8 @@ class Login extends Component
 
     public function guestLogin()
     {
+
+
         if (!$this->filledInNecessaryGuestInformation()) {
             return false;
         }
@@ -246,6 +255,13 @@ class Login extends Component
             $this->connectEntreeButtonDisabled = false;
         }
 
+    }
+
+    private function cleanXss($name, $value) {
+        if (in_array($name, $this->xssPropsToClean)) {
+            return clean($value);
+        }
+        return $value;
     }
 
 
@@ -526,12 +542,19 @@ class Login extends Component
         return $hasNoError;
     }
 
+    public function updating(&$name, &$value)
+    {
+        if (in_array($name, $this->xssPropsToClean)) {
+            Request::filter($value);
+        }
+    }
+
     private function gatherGuestData()
     {
         return [
-            'name_first'  => trim($this->firstName),
-            'name_suffix' => trim($this->suffix),
-            'name'        => trim($this->lastName)
+            'name_first'  => (trim($this->firstName)),
+            'name_suffix' => (trim($this->suffix)),
+            'name'        => (trim($this->lastName))
         ];
     }
 
