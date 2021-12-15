@@ -40,9 +40,9 @@ Core = {
         if (testtakemanager != null) {
             livewire
                 .find(testtakemanager.getAttribute('wire:id'))
-                .isParticipantAllowedInbrowserTesting()
+                .shouldFraudNotificationsBeShown()
                 .then(function (response) {
-                   if (!response.isParticipantAllowedInbrowserTesting) {
+                   if (response.shouldFraudNotificationsBeShown) {
                        if (reason == "printscreen") {
                            Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
                        } else if (reason == 'illegal-programs') {

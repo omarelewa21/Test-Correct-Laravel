@@ -491,4 +491,15 @@ class TestParticipant extends BaseModel
             TestParticipantGuestAvailabilityChanged::dispatch($this->testTake->uuid);
         }
     }
+
+    public function shouldFraudNotificationsBeShown()
+    {
+        if ($this->testTake->test->isAssignment()) {
+            return false;
+        }
+
+        return true;
+    }
+
+
 }
