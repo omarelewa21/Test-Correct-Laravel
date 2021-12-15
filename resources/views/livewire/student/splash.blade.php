@@ -13,7 +13,7 @@
                 <div class="flex  justify-center mb-5">
                     <x-tc-connect-with-entree class="h-80 w-80" />
                 </div>
-                <div>We zijn voor je aan het werk en verwerken je gegevens</div>
+                <div class="flex justify-center">We zijn voor je aan het werk en verwerken je gegevens</div>
             </div>
         </div>
     </div>
