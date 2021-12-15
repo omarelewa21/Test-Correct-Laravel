@@ -2109,7 +2109,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if($this->isA('student')){
             if($this->schoolLocation->allow_new_student_environment){
                 $this->loginThisUser();
-                return BaseHelper::createRedirectUrlWithTemporaryLoginUuid(TemporaryLogin::createForUser($this), route('student.splash'), true);
+                return BaseHelper::createRedirectUrlWithTemporaryLoginUuid(TemporaryLogin::createForUser($this)->uuid, route('student.splash'), true);
             }
         }
 
