@@ -52,6 +52,13 @@ class TestTakeEvent extends BaseModel {
     {
         parent::boot();
 
+        static::saving(function(TestTakeEvent $testTakeEvent) {
+            if ($testTakeEvent->testParticipant->canUseBrowserTesting() && $testTakeEvent->testTakeEventType->requires_confirming == 1) {
+                return false;
+            }
+            return true;
+        });
+
         static::created(function(TestTakeEvent $testTakeEvent) {
             NewTestTakeEventAdded::dispatch($testTakeEvent->testTake->uuid);
         });
