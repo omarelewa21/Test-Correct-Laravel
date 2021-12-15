@@ -10,7 +10,7 @@
 
         <div class="content-section p-10 space-y-5 shadow-xl grid grid-cols-1 content-center justify-center " style="min-height: 550px">
             <div>
-                <div class="grid grid-cols-1 justify-center mb-5">
+                <div class="flex  justify-center mb-5">
                     <x-tc-connect-with-entree class="h-80 w-80" />
                 </div>
                 <div>We zijn voor je aan het werk en verwerken je gegevens</div>
