@@ -513,4 +513,15 @@ class TestParticipant extends BaseModel
     {
         return !!($this->rating || $this->retake_rating);
     }
+
+    public function shouldFraudNotificationsBeShown()
+    {
+        if ($this->testTake->test->isAssignment()) {
+            return false;
+        }
+
+        return true;
+    }
+
+
 }

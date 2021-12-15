@@ -77,9 +77,8 @@ class TestTake extends Component
         $participant = TestParticipant::find($this->testParticipantId);
 
 
-        if ($currentTestTake && !$participant->canUseBrowserTesting()) {
+        if ($currentTestTake && $participant->shouldFraudNotificationsBeShown()) {
             // turn off fraud detection;
-            logger('hier');
             if ($eventType->requires_confirming) {
                 $this->emitTo('student.fraud-detection', 'setFraudDetected');
             }
