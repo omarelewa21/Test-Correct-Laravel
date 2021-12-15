@@ -139,12 +139,20 @@ group by
 ) s on (s.id = school_locations.id)
 
 - weergave in toetsenbank
-  
+
 Docent mag geen toetsen van andere school zien
+
+Docent mag geen demovak toetsen van andere docenten zien.
+
+Onder eigen toetsen wordt bedoeld: Toetsen die ooit door de docent zijn aangemaakt, dus ook degene die horen bij een vak dat meer gegeven wordt.
+
+Een docent heeft ‘toegang’ tot vakken die en een sectie delen.
+
+Het “eigendom” van een toets door een schoollocatie wordt bepaald door de sectie van het vak waar de toets toe behoort
 
 Docent zit in 1 schoollocatie en is geen onderdeel van een gedeelde sectie:
 
-Docent mag eigen toetsen zien en die van sectiegenoten.
+Docent mag eigen toetsen (ook met vakken die op dit moment niet gegeven ) zien en die van sectiegenoten.
 
 Docent mag geen toetsen zien van sectiegenoten die vallen onder een andere sectie
 
@@ -152,7 +160,9 @@ Docent mag geen toetsen zien van een andere schoollocatie (= toetsen die een sub
 
 Docent zit in 2 schoollocaties en is geen onderdeel van een gedeelde sectie:
 
-Docent mag eigen toetsen (beide schoollocaties) zien en die van sectiegenoten (van de actieve schoollocatie)
+Docent mag eigen toetsen (van de actieve schoollocatie) zien en die van sectiegenoten (van de actieve schoollocatie)
+
+Docent mag eigen toetsen van de andere schoollocatie zien van vakken die in de actieve schoollocatie gegeven wordt
 
 Docent mag geen toetsen zien van sectiegenoten die vallen onder een andere sectie
 
@@ -168,8 +178,11 @@ Docent mag toetsen zien van een andere schoollocatie als die vallen onder een ge
 
 Docent zit in 2 schoollocaties en is onderdeel van een gedeelde sectie:
 
-Docent mag eigen toetsen (beide schoollocaties) zien en die van sectiegenoten (van de actieve schoollocatie)
+Docent mag eigen toetsen (van de actieve schoollocatie) zien en die van sectiegenoten (van de actieve schoollocatie)
+
+Docent mag eigen toetsen van de andere schoollocatie zien van vakken die in de actieve schoollocatie gegeven wordt
 
 Docent mag geen toetsen zien van sectiegenoten die vallen onder een andere sectie
 
 Docent mag toetsen zien van een andere schoollocatie als die vallen onder een gedeelde sectie en als de docent valt onder deze sectie
+

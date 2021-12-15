@@ -90,13 +90,22 @@ class Subject extends BaseModel implements AccessCheckable
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();
-        if (!in_array('Administrator', $roles)) {
+        $user = Auth::user();
+
+        if (!in_array('Administrator', $roles)&&!$user->isPartOfSharedSection()) {
             $query->whereIn('section_id', function ($query) {
                 $query->select('id')
                     ->from(with(new Section())->getTable())
                     ->whereNull('deleted_at');
                 with(new Section())->scopeFiltered($query);
             });
+        }elseif(!in_array('Administrator', $roles)&&$user->isPartOfSharedSection()){
+            $query->whereIn('section_id',
+                    $user->sections()
+                ->union(
+                    $user->sectionsOnlyShared()
+                )->pluck('id')
+            );
         }
 
         foreach ($filters as $key => $value) {
