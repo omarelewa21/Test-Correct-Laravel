@@ -32,26 +32,33 @@ Core = {
         Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
     },
     lostFocus: function (reason) {
-        return ;
         if (!isMakingTest()) {
             return;
         }
-        if (reason == "printscreen") {
-            Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
-        } else if (reason == 'illegal-programs') {
-            Notify.notify('Er staan applicaties op de achtergrond aan die niet zijn toegestaan', 'error');
-        } else {
-            Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
+
+        var testtakemanager = document.querySelector('[testtakemanager]');
+        if (testtakemanager != null) {
+            livewire
+                .find(testtakemanager.getAttribute('wire:id'))
+                .isParticipantAllowedInbrowserTesting()
+                .then(function (response) {
+                   if (!response.isParticipantAllowedInbrowserTesting) {
+                       if (reason == "printscreen") {
+                           Notify.notify('Het is niet toegestaan om een screenshot te maken, we hebben je docent hierover geïnformeerd', 'error');
+                       } else if (reason == 'illegal-programs') {
+                           Notify.notify('Er staan applicaties op de achtergrond aan die niet zijn toegestaan', 'error');
+                       } else {
+                           Notify.notify('Het is niet toegestaan om uit de app te gaan', 'error');
+                       }
+                   }
+                });
+            if (shouldLostFocusBeReported(reason)) {
+                livewire.find(testtakemanager.getAttribute('wire:id')).call('createTestTakeEvent', reason);
+            }
         }
 
         window.Livewire.emit('setFraudDetected');
 
-        if (shouldLostFocusBeReported(reason)) {
-            var testtakemanager = document.querySelector('[testtakemanager]');
-            if (testtakemanager != null) {
-                livewire.find(testtakemanager.getAttribute('wire:id')).call('createTestTakeEvent', reason);
-            }
-        }
         alert = true;
     },
     isIpad: function () {
