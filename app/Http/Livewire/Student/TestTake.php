@@ -73,11 +73,18 @@ class TestTake extends Component
             'test_take_event_type_id' => $eventType->getKey(),
         ]);
 
-        if ($eventType->requires_confirming) {
-            $this->emitTo('student.fraud-detection', 'setFraudDetected');
-        }
+        $currentTestTake = \tcCore\TestTake::whereUuid($this->testTakeUuid)->first();
+        $participant = TestParticipant::find($this->testParticipantId);
 
-        \tcCore\TestTake::whereUuid($this->testTakeUuid)->first()->testTakeEvents()->save($testTakeEvent);
+
+        if ($currentTestTake && !$participant->canUseBrowserTesting()) {
+            // turn off fraud detection;
+            logger('hier');
+            if ($eventType->requires_confirming) {
+                $this->emitTo('student.fraud-detection', 'setFraudDetected');
+            }
+            $currentTestTake->testTakeEvents()->save($testTakeEvent);
+        }
     }
 
     private function getEventType($event)
@@ -180,5 +187,11 @@ class TestTake extends Component
         }
 
         return $parameters;
+    }
+
+    public function isParticipantAllowedInbrowserTesting()
+    {
+        return ['isParticipantAllowedInbrowserTesting' => TestParticipant::find($this->testParticipantId)->canUseBrowserTesting()];
+
     }
 }

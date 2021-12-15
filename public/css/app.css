@@ -785,7 +785,7 @@ input[type=number] {
 .cta-gradient {
     background: linear-gradient(to right, var(--cta-primary-mid-dark) 0%, var(--cta-primary) 98%), linear-gradient(to bottom, var(--light-grey), #c8d0e2 80%);
 }
-/*! tailwindcss v2.2.16 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
 /*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
 
@@ -1514,9 +1514,6 @@ video {
 }
 .top-1\/2{
 	top: 50%;
-}
-.-bottom-1{
-	bottom: -0.25rem;
 }
 .z-10{
 	z-index: 10;
@@ -3068,14 +3065,14 @@ h1 {
 h2 {
     font-size: 1.75rem;
     font-family: Nunito Bold;
-    line-height: 1.75rem;
+    line-height: 2rem;
     color: var(--system-base);
 }
 
 h3 {
     font-size: 1.5rem;
     font-family: Zilla Slab Regular;
-    line-height: 1.5rem;
+    line-height: 2rem;
     color: var(--system-base);
 }
 
