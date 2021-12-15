@@ -149,7 +149,14 @@
         @endpush
 
         @push('scripts')
-
+            <script>
+                window.addEventListener('update-footer-navigation', event => {
+                    var closeButtonList = document.getElementsByClassName('rsbtn_closer');
+                    if(closeButtonList.length>0){
+                        closeButtonList[0].click();
+                    }
+                });
+            </script>
         @endpush
     @endif
 </div>

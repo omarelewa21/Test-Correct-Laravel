@@ -65,3 +65,7 @@
 .rsbtn.rs_tlc_skin.rsexpanded .rsbtn_exp {
     display: inline;
 }
+
+#rsbtn_scrollcontrols{
+    margin-left: 30%;
+}
