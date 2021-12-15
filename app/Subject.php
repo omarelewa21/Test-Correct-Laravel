@@ -2,6 +2,7 @@
 
 use Closure;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -106,6 +107,15 @@ class Subject extends BaseModel implements AccessCheckable
                     $user->sectionsOnlyShared()
                 )->pluck('id')
             );
+        }
+
+        $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
+        if(!is_null($subject)){
+            $query->where(function ($q) use ($subject) {
+                $q->where(function ($query) use ($subject) {
+                    $query->where('demo', false);
+                })->orWhere('id', $subject->getKey());
+            });
         }
 
         foreach ($filters as $key => $value) {
