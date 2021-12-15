@@ -451,6 +451,12 @@ class TestParticipant extends BaseModel
     {
         $statusOkay = $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
 
+        if ($this->isInBrowser()) {
+            if (! $this->canUseBrowserTesting()) {
+                return false;
+            }
+        }
+
         if ($statusOkay && $this->testTake->test->isAssignment()) {
             return  ($this->testTake->time_start <= now() && $this->testTake->time_end >= now());
         }
