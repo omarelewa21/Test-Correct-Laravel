@@ -30,9 +30,9 @@ class Splash extends Component
 
     public function handleDataAndRedirect()
     {
+        sleep(3);
         AppVersionDetector::handleHeaderCheck();
         AppVersionInfo::createFromSession();
-        sleep(2.2);
         return redirect()->intended(route('student.dashboard'));
     }
 
