@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
@@ -2088,7 +2089,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         if($this->isA('student')){
             if($this->schoolLocation->allow_new_student_environment){
                 $this->loginThisUser();
-                return route('student.splash');
+                return BaseHelper::createRedirectUrlWithTemporaryLoginUuid(TemporaryLogin::createForUser($this), route('student.splash'), true);
             }
         }
 
@@ -2097,7 +2098,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function loginThisUser()
     {
-        Auth::loginUsingId($this->getKey());
+        Auth::login($this);
         session()->put('session_hash', $this->getAttribute('session_hash'));
     }
 
