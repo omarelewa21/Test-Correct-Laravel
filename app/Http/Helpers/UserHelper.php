@@ -11,6 +11,7 @@ namespace tcCore\Http\Helpers;
 
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 use tcCore\Answer;
 use tcCore\BaseSubject;
 use tcCore\EducationLevel;
@@ -29,6 +30,16 @@ class UserHelper
 {
 
     protected $text2speechPriceRoles = ['Teacher','Administrator','School manager','School management','Mentor'];
+
+    public static function logout()
+    {
+        Auth::user()->session_hash = '';
+        Auth::user()->save();
+
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+    }
 
     public function handleAfterLoginValidation($user, $throughTempLogin = false, $ip = false)
     {
