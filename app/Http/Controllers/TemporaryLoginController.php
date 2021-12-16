@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use tcCore\AppVersionInfo;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TemporaryLogin;
 use tcCore\User;
@@ -20,6 +21,9 @@ class TemporaryLoginController extends Controller
      * User and data already set in the middleware AuthenticateWithTemporaryLogin
      */
     public function redirect(Request $request ){
+        if($request->has('registerDeviceInLaravel') && $request->registerDeviceInLaravel){
+            AppVersionInfo::createFromSession();
+        }
         if(null !== Auth::user() && $request->has('redirect')){
             return new RedirectResponse($request->redirect);
         }
