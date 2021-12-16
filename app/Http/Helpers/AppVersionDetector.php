@@ -236,6 +236,9 @@ class AppVersionDetector
         if (!$headers) {
             $headers = self::getAllHeaders();
         }
+        if(is_object($headers)){
+            $headers = (array) $headers;
+        }
 
         /**
          * Format of TLCTestCorrectVersion header:
