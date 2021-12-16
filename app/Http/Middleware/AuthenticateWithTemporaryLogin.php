@@ -38,11 +38,8 @@ class AuthenticateWithTemporaryLogin
 
         if (property_exists($options, 'app_details')) {
             $this->registerAppDetails($options);
-        }
-        if (property_exists($options, 'registerDeviceInLaravel')) {
             AppVersionInfo::createFromSession();
         }
-
     }
 
     private function registerAppDetails($options)
