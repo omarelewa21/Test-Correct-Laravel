@@ -1137,7 +1137,10 @@ class TestTake extends BaseModel
                     ->where('user_id', $user->getKey())
                     ->where('deleted_at', null)
                     ->when(!$withNullRating, function ($query) {
-                        $query->whereNotNull('rating');
+                        $query->where(function ($query) {
+                            $query->whereNotNull('test_participants.rating')
+                                ->orWhere('test_participants.retake_rating', '!=', null);
+                        });
                     });
             })
             ->with([
