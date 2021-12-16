@@ -51,6 +51,7 @@ class Review extends Component
             ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
             ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name', 'test_participants.invigilator_note as participant_invigilator_note')
             ->where('test_participants.user_id', Auth::id())
+            ->whereIn('test_participants.test_take_status_id',  [ TestTakeStatus::STATUS_DISCUSSED, TestTakeStatus::STATUS_RATED])
             ->where(function ($query) {
                 $query->where('test_takes.test_take_status_id', TestTakeStatus::STATUS_DISCUSSED)
                     ->orWhere('test_takes.test_take_status_id', TestTakeStatus::STATUS_RATED);
