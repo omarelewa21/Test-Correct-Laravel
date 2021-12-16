@@ -45,6 +45,9 @@ class AuthenticateWithTemporaryLogin
     private function registerAppDetails($options)
     {
         collect($options->app_details)->each(function ($detail, $key) {
+            if($key === 'headers'){
+                $detail = (array) $detail;
+            }
             session()->put($key, $detail);
         });
     }
