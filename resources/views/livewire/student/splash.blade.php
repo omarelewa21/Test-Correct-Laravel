@@ -1,5 +1,5 @@
 <div id="login-body" class="flex justify-center items-center min-h-screen"
-     x-init="setTimeout(function() {$wire.handleDataAndRedirect();},5000);
+     x-init="setTimeout(function() {$wire.handleDataAndRedirect();},2500);
             addRelativePaddingToBody('login-body', 10);
 
             "
