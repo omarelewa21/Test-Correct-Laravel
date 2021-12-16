@@ -4,6 +4,7 @@ namespace tcCore\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use tcCore\AppVersionInfo;
 use tcCore\TemporaryLogin;
 
 class AuthenticateWithTemporaryLogin
@@ -38,6 +39,10 @@ class AuthenticateWithTemporaryLogin
         if (property_exists($options, 'app_details')) {
             $this->registerAppDetails($options);
         }
+        if (property_exists($options, 'registerDeviceInLaravel')) {
+            AppVersionInfo::createFromSession();
+        }
+
     }
 
     private function registerAppDetails($options)
