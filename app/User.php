@@ -2090,7 +2090,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if($this->schoolLocation->allow_new_student_environment){
                 $this->loginThisUser();
                 $options = [
-                  'internal_page' => '/users/student_splash',
+                  'internal_page' => '/users/student_splash/1',
                 ];
                 return $this->getTemporaryCakeLoginUrl($options);
             }
