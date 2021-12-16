@@ -305,6 +305,9 @@ class AppVersionDetector
         if (!$headers) {
             $headers = self::getAllHeaders();
         }
+        if(is_object($headers)){
+            $headers = (array) $headers;
+        }
         $version = self::detect($headers);
         if(!isset(self::$allowedVersions[$version["os"]])){
             return false;
