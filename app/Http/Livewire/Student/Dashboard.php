@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use tcCore\Events\NewTestTakeGraded;
 use tcCore\Events\NewTestTakePlanned;
 use tcCore\Http\Helpers\AppVersionDetector;
+use tcCore\Http\Helpers\UserHelper;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\Info;
 use tcCore\Message;
@@ -48,9 +49,7 @@ class Dashboard extends Component
     public function logout()
     {
         $device = session()->get('TLCOs') == 'iOS' ? 'ipad' : '';
-        Auth::logout();
-        session()->invalidate();
-        session()->regenerateToken();
+        UserHelper::logout();
 
         return redirect(route('auth.login', ['device' => $device]));
     }
