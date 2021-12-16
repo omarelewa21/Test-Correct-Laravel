@@ -15,7 +15,7 @@ class ChangeDefaultForGuestAccountsAndNewStudentEnvironmentToAllow extends Migra
     {
         Schema::table('school_locations', function (Blueprint $table) {
             $table->boolean('allow_guest_accounts')->default(1)->change();
-            $table->boolean('allow_new_student_environment')->default(1)->change();
+//            $table->boolean('allow_new_student_environment')->default(1)->change();
         });
     }
 
@@ -28,7 +28,7 @@ class ChangeDefaultForGuestAccountsAndNewStudentEnvironmentToAllow extends Migra
     {
         Schema::table('school_locations', function (Blueprint $table) {
             $table->boolean('allow_guest_accounts')->default(0)->change();
-            $table->boolean('allow_new_student_environment')->default(0)->change();
+//            $table->boolean('allow_new_student_environment')->default(0)->change();
         });
     }
 }
