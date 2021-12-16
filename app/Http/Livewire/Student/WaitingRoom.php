@@ -134,7 +134,7 @@ class WaitingRoom extends Component
         }
         if ($stage === 'graded') {
             $showResults = TestTake::whereUuid($this->take)->value('show_results');
-            if ($this->canReviewTake($showResults)) {
+            if ($this->canOpenGradedTake($showResults)) {
                 $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_RATED;
             } else {
                 $this->isTakeOpen = false;
@@ -244,6 +244,13 @@ class WaitingRoom extends Component
      */
     private function canReviewTake($showResults): bool
     {
+        return $showResults != null && $showResults->gt(Carbon::now());// && $this->testParticipant->hasRating();
+    }
+
+    private function canOpenGradedTake($showResults): bool
+    {
         return $showResults != null && $showResults->gt(Carbon::now()) && $this->testParticipant->hasRating();
     }
+
+
 }
