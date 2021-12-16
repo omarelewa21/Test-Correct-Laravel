@@ -21,9 +21,6 @@ class TemporaryLoginController extends Controller
      * User and data already set in the middleware AuthenticateWithTemporaryLogin
      */
     public function redirect(Request $request ){
-        if($request->has('registerDeviceInLaravel') && $request->registerDeviceInLaravel){
-            AppVersionInfo::createFromSession();
-        }
         if(null !== Auth::user() && $request->has('redirect')){
             return new RedirectResponse($request->redirect);
         }
