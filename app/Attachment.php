@@ -1,6 +1,7 @@
 <?php namespace tcCore;
 
 use Dyrynda\Database\Casts\EfficientUuid;
+use Livewire\TemporaryUploadedFile;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,12 +48,23 @@ class Attachment extends BaseModel
         parent::boot();
 
         static::saved(function (Attachment $attachment) {
-            if ($attachment->file instanceof UploadedFile) {
-                $attachment->file->move(storage_path('attachments'), $attachment->getKey() . ' - ' . $attachment->getAttribute('file_name'));
-
+            if ($attachment->file instanceof TemporaryUploadedFile) {
+                rename(
+                    storage_path('attachments/'.$attachment->getAttribute('file_name')),
+                    storage_path('attachments/'.$attachment->getKey().' - '.$attachment->getAttribute('file_name'))
+                );
                 $original = $attachment->getOriginalPath();
                 if (File::exists($original)) {
                     File::delete($original);
+                }
+            } else {
+                if ($attachment->file instanceof UploadedFile) {
+                    $attachment->file->move(storage_path('attachments'),
+                        $attachment->getKey().' - '.$attachment->getAttribute('file_name'));
+                    $original = $attachment->getOriginalPath();
+                    if (File::exists($original)) {
+                        File::delete($original);
+                    }
                 }
             }
         });
@@ -74,12 +86,14 @@ class Attachment extends BaseModel
 
     public function getOriginalPath()
     {
-        return ((substr(storage_path('attachments'), -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments') . DIRECTORY_SEPARATOR) . $this->getOriginal($this->getKeyName()) . ' - ' . $this->getOriginal('file_name');
+        return ((substr(storage_path('attachments'),
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments').DIRECTORY_SEPARATOR).$this->getOriginal($this->getKeyName()).' - '.$this->getOriginal('file_name');
     }
 
     public function getCurrentPath()
     {
-        return ((substr(storage_path('attachments'), -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments') . DIRECTORY_SEPARATOR) . $this->getKey() . ' - ' . $this->getAttribute('file_name');
+        return ((substr(storage_path('attachments'),
+                    -1) === DIRECTORY_SEPARATOR) ? storage_path('attachments') : storage_path('attachments').DIRECTORY_SEPARATOR).$this->getKey().' - '.$this->getAttribute('file_name');
     }
 
     public function questionAttachments()
@@ -89,13 +103,16 @@ class Attachment extends BaseModel
 
     public function questions()
     {
-        return $this->belongsToMany('tcCore\Question', 'question_attachments', 'attachment_id', 'question_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\Question', 'question_attachments', 'attachment_id',
+            'question_id')->withPivot([
+            $this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()
+        ])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     /**
      * Fill the model with an array of attributes.
      *
-     * @param array $attributes
+     * @param  array  $attributes
      * @return $this
      *
      * @throws \Illuminate\Database\Eloquent\MassAssignmentException
@@ -104,7 +121,8 @@ class Attachment extends BaseModel
     {
         parent::fill($attributes);
 
-        if (is_array($attributes) && array_key_exists('attachment', $attributes) && $attributes['attachment'] instanceof UploadedFile) {
+        if (is_array($attributes) && array_key_exists('attachment',
+                $attributes) && $attributes['attachment'] instanceof UploadedFile) {
             $this->fillFile($attributes['attachment']);
         }
 
@@ -116,6 +134,10 @@ class Attachment extends BaseModel
         if ($file->isValid()) {
             $this->file = $file;
             $this->setAttribute('file_name', $file->getClientOriginalName());
+            if ($file instanceof TemporaryUploadedFile) {
+                $this->setAttribute('file_name', $file->hashName());
+            }
+
             $this->setAttribute('file_size', $file->getSize());
             $this->setAttribute('file_extension', $file->getClientOriginalExtension());
             $this->setAttribute('file_mime_type', $file->getMimeType());
@@ -134,8 +156,9 @@ class Attachment extends BaseModel
     protected function fileDiff($a, $b)
     {
         // Check if filesize is different
-        if (filesize($a) !== filesize($b))
+        if (filesize($a) !== filesize($b)) {
             return false;
+        }
 
         // Check if content is different
         $ah = fopen($a, 'rb');
@@ -214,7 +237,7 @@ class Attachment extends BaseModel
 
         preg_match($vimeoRegex, $this->link, $matches);
         if (!empty($matches['video_id'])) {
-            return 'https://player.vimeo.com/video/' . $matches['video_id'];
+            return 'https://player.vimeo.com/video/'.$matches['video_id'];
         }
 
         return false;
@@ -229,9 +252,10 @@ class Attachment extends BaseModel
         return $this->isPartOfQuestionForThisAnswer($answer);
     }
 
-    private function isPartOfQuestionForThisAnswer($answer){
+    private function isPartOfQuestionForThisAnswer($answer)
+    {
         $question = $answer->question;
-        if($this->questionAttachments->pluck('question_id')->contains($question->getKey())){
+        if ($this->questionAttachments->pluck('question_id')->contains($question->getKey())) {
             return true;
         }
         $testId = $answer->testParticipant->testTake->test->getKey();
@@ -264,12 +288,12 @@ class Attachment extends BaseModel
 
     public function audioIsPlayedOnce()
     {
-        session()->put('attachment_' . $this->getKey(), 1);
+        session()->put('attachment_'.$this->getKey(), 1);
     }
 
     public function audioCanBePlayedAgain()
     {
-        if (session()->get('attachment_' . $this->getKey())) {
+        if (session()->get('attachment_'.$this->getKey())) {
             return false;
         }
         return true;
@@ -277,7 +301,7 @@ class Attachment extends BaseModel
 
     public function audioHasCurrentTime()
     {
-        $sessionValue = 'attachment_' . $this->getKey() . '_currentTime';
+        $sessionValue = 'attachment_'.$this->getKey().'_currentTime';
         if (session()->get($sessionValue)) {
             return session()->get($sessionValue);
         }

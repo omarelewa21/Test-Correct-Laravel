@@ -24,12 +24,16 @@ class OpenShort extends Component
 {
     use WithFileUploads;
 
-    public $openTab = 2;
+    public $openTab = 1;
+
+    public $owner_id;
 
     public $upload;
 
     public $answerEditorId;
     public $questionEditorId;
+
+    protected $queryString = ['owner_id'];
 //
 //    protected $queryString = ['openTab' => ['except' => 1]];
 
@@ -53,7 +57,9 @@ class OpenShort extends Component
         $this->questionEditorId = Str::uuid()->__toString();
 
         if (request()->input('owner') == 'test') {
-            $this->subjectId = Test::whereUuid(request()->input('owner_id'))->first()->subjectId;
+            $activeTest = Test::whereUuid(request()->input('owner_id'))->first();
+            $this->subjectId = $activeTest->subjectId;
+            $this->question['test_id'] = $activeTest->id;
         }
 //       dd($this->subjectId);
     }
@@ -80,7 +86,7 @@ class OpenShort extends Component
         'sub_type'               => 'medium',
         'type'                   => 'OpenQuestion',
         "attainments"            => [],
-        "test_id"                => 1,
+        "test_id"                => '',
     ];
 
     protected $rules = [
@@ -105,24 +111,22 @@ class OpenShort extends Component
         $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)->store(new CreateTestQuestionRequest($this->question));
         if ($response->getStatusCode() == 200) {
             if ($this->upload) {
-//                $this->upload->store()
+                $this->upload->store('','attachments');
 
                 $testQuestion = $response->original;
                 $attachementRequest = new  CreateAttachmentRequest([
                     "type"       => "file",
-                    "title"      => "Brood-_en_banketbakker.pdf",
+                    "title"      => $this->upload->getClientOriginalName(),
                     "json"       => "[]",
                     "attachment" => $this->upload,
-
                 ]);
 
 
                 $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
                     ->store($testQuestion, $attachementRequest);
-                dd($response);
             }
 
-            $url = "tests/view/5a6fe229-c7b6-4ef4-b926-fbc0939eeed4";
+            $url =  sprintf("tests/view/%s", $this->owner_id);
             $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
 
