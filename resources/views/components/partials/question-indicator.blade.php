@@ -151,9 +151,8 @@
         @push('scripts')
             <script>
                 window.addEventListener('update-footer-navigation', event => {
-                    var closeButtonList = document.getElementsByClassName('rsbtn_closer');
-                    if(closeButtonList.length>0){
-                        closeButtonList[0].click();
+                    if (typeof rspkr != 'undefined' && rspkr.ui.getActivePlayer()) {
+                            rspkr.ui.getActivePlayer().close();
                     }
                 });
             </script>
