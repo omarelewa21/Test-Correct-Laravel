@@ -13,8 +13,10 @@ use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Traits\WithStudentAppVersionHandling;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TemporaryLogin;
+use tcCore\TestKind;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
+use tcCore\TestTakeEvent;
 use tcCore\TestTakeStatus;
 
 class WaitingRoom extends Component
@@ -29,6 +31,8 @@ class WaitingRoom extends Component
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeOpenForInteraction'                => 'isTestTakeOpen',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.InbrowserTestingUpdatedForTestParticipant' => 'participantAppCheck',
             'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.RemoveParticipantFromWaitingRoom'          => 'removeParticipantFromWaitingRoom',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeForceTakenAway'                    => 'participantStatusChanged',
+            'echo-private:TestParticipant.' . $this->testParticipant->uuid . ',.TestTakeReopened'                          => 'participantStatusChanged',
             //Presence channels are not completely working with Livewire listeners. Presence channel listener is located in x-init of this components blade file. -RR
 //            'echo-presence:Presence-TestTake.' . $this->waitingTestTake->uuid . ',.TestTakeShowResultsChanged'          => 'isTestTakeOpen',
         ];
@@ -36,11 +40,14 @@ class WaitingRoom extends Component
 
     protected $queryString = [
         'take',
-        'directly_to_review' => ['except' => false]
+        'directly_to_review' => ['except' => false],
+        'origin'             => ['except' => '']
     ];
 
     public $take;
     public $directly_to_review = false;
+    public $origin = '';
+
     public $waitingTestTake;
     public $testParticipant;
     public $isTakeOpen;
@@ -86,8 +93,10 @@ class WaitingRoom extends Component
     public function startTestTake()
     {
         if ($this->waitingTestTake->test_take_status_id === TestTakeStatus::STATUS_TAKING_TEST) {
-            $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
-            $this->testParticipant->save();
+            if (!$this->testParticipant->isRejoiningTestTake(TestTakeStatus::STATUS_TAKING_TEST)) {
+                $this->testParticipant->test_take_status_id = TestTakeStatus::STATUS_TAKING_TEST;
+                $this->testParticipant->save();
+            }
         }
 
         $this->redirectRoute('student.test-take-laravel', $this->take);
@@ -103,6 +112,11 @@ class WaitingRoom extends Component
                 $this->isTakeOpen = false;
                 return;
             }
+            if ($this->waitingTestTake->test->isAssignment()) {
+                $this->isTakeOpen  = $this->waitingTestTake->time_start <= now() && $this->waitingTestTake->time_end >= now();
+                return;
+            }
+
             $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_TAKING_TEST;
         }
 
@@ -112,7 +126,7 @@ class WaitingRoom extends Component
 
         if ($stage === 'review') {
             $showResults = TestTake::whereUuid($this->take)->value('show_results');
-            if ($showResults != null && $showResults->gt(Carbon::now())) {
+            if ($this->canReviewTake($showResults)) {
                 $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_DISCUSSED;
             } else {
                 $this->isTakeOpen = false;
@@ -120,7 +134,7 @@ class WaitingRoom extends Component
         }
         if ($stage === 'graded') {
             $showResults = TestTake::whereUuid($this->take)->value('show_results');
-            if ($showResults != null && $showResults->gt(Carbon::now())) {
+            if ($this->canOpenGradedTake($showResults)) {
                 $this->isTakeOpen = $testTakeStatus == TestTakeStatus::STATUS_RATED;
             } else {
                 $this->isTakeOpen = false;
@@ -153,6 +167,7 @@ class WaitingRoom extends Component
     public function startReview()
     {
         $url = 'test_takes/glance/' . $this->take;
+        $url = filled($this->origin) ? $url . '?origin=' . $this->origin : $url;
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
@@ -166,8 +181,8 @@ class WaitingRoom extends Component
 
         session()->put('guest_take', $this->take);
         session()->put('guest_data', [
-            'name' => $this->testParticipant->user->name,
-            'name_first' => $this->testParticipant->user->name_first,
+            'name'        => $this->testParticipant->user->name,
+            'name_first'  => $this->testParticipant->user->name_first,
             'name_suffix' => $this->testParticipant->user->name_suffix
         ]);
         return redirect(route('guest-choice', ['take' => $this->take]));
@@ -192,8 +207,13 @@ class WaitingRoom extends Component
 
         return $redirect;
     }
+
     public function participantAppCheck()
     {
+        if ($this->testTakeStatusStage != 'planned') {
+            return $this->needsApp = false;
+        }
+
         $this->appStatus = AppVersionDetector::isVersionAllowed(session()->get('headers'));
 
         $this->needsApp = !!(!$this->testParticipant->canUseBrowserTesting());
@@ -204,5 +224,33 @@ class WaitingRoom extends Component
             $this->appNeedsUpdateDeadline = AppVersionDetector::needsUpdateDeadline();
         }
     }
+
+    public function participantStatusChanged()
+    {
+        $this->isTestTakeOpen();
+    }
+
+    public function getButtonTextForPlannedTakes()
+    {
+        if ($this->testParticipant->test_take_status_id >= TestTakeStatus::STATUS_HANDED_IN) {
+            return __('student.test_already_taken');
+        }
+        return __('student.wait_for_test_take');
+    }
+
+    /**
+     * @param $showResults
+     * @return bool
+     */
+    private function canReviewTake($showResults): bool
+    {
+        return $showResults != null && $showResults->gt(Carbon::now());// && $this->testParticipant->hasRating();
+    }
+
+    private function canOpenGradedTake($showResults): bool
+    {
+        return $showResults != null && $showResults->gt(Carbon::now()) && $this->testParticipant->hasRating();
+    }
+
 
 }

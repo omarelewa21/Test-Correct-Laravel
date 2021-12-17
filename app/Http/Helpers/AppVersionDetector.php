@@ -236,6 +236,9 @@ class AppVersionDetector
         if (!$headers) {
             $headers = self::getAllHeaders();
         }
+        if(is_object($headers)){
+            $headers = (array) $headers;
+        }
 
         /**
          * Format of TLCTestCorrectVersion header:
@@ -304,6 +307,9 @@ class AppVersionDetector
     {
         if (!$headers) {
             $headers = self::getAllHeaders();
+        }
+        if(is_object($headers)){
+            $headers = (array) $headers;
         }
         $version = self::detect($headers);
         if(!isset(self::$allowedVersions[$version["os"]])){

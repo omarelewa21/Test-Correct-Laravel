@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Student;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\Events\NewTestTakeDiscussable;
 use tcCore\Http\Traits\WithSorting;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestTake;
@@ -16,6 +17,13 @@ class Discuss extends Component
 
     public $readyToLoad;
     public $paginateBy = 10;
+
+    protected function getListeners()
+    {
+        return [
+            NewTestTakeDiscussable::channelSignature() => '$refresh',
+        ];
+    }
 
     public function mount()
     {
@@ -37,14 +45,14 @@ class Discuss extends Component
 
     public function getTestTakesToDiscuss($orderColumn, $orderDirection)
     {
-        return TestTake::leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
+        return TestTake::distinct()
+            ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name', 'test_take_statuses.name as status_name')
+            ->leftJoin('test_participants', 'test_participants.test_take_id', '=', 'test_takes.id')
             ->leftJoin('tests', 'tests.id', '=', 'test_takes.test_id')
             ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
             ->leftJoin('test_take_statuses', 'test_take_statuses.id', '=', 'test_takes.test_take_status_id')
-            ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name', 'test_take_statuses.name as status_name')
             ->where('test_participants.user_id', Auth::id())
-            ->where('test_takes.test_take_status_id', '=', TestTakeStatus::STATUS_TAKEN)
-            ->orWhere('test_takes.test_take_status_id', '=', TestTakeStatus::STATUS_DISCUSSING)
+            ->whereIn('test_takes.test_take_status_id', [TestTakeStatus::STATUS_TAKEN, TestTakeStatus::STATUS_DISCUSSING])
             ->orderBy($orderColumn, $orderDirection)
             ->paginate($this->paginateBy);
     }

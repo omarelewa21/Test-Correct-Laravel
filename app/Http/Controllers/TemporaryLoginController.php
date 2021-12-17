@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
+use tcCore\AppVersionInfo;
 use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TemporaryLogin;
 use tcCore\User;

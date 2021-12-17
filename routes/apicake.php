@@ -144,12 +144,16 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::post('filemanagement/{schoolLocation}/class',['as' => 'filemanagement.uploadclass','uses' => 'FileManagementController@storeClassUpload']);
     Route::post('filemanagement/{schoolLocation}/test',['as' => 'filemanagement.uploadtest','uses' => 'FileManagementController@storeTestUpload']);
 
+    Route::get('filemanagement/users',['as' => 'filemanagement.users','uses' => 'FileManagementUsersController@index']);
+    Route::get('filemanagement/schoollocations',['as' => 'filemanagement.schoollocations','uses' => 'FileManagementSchoolLocationsController@index']);
+    Route::get('filemanagement/educationlevels',['as' => 'filemanagement.educationlevels','uses' => 'FileManagementEducationLevelsController@index']);
+    Route::get('filemanagement/statuses',['as' => 'filemanagement.statuses','uses' => 'FileManagementController@getStatuses']);
+
     Route::get('filemanagement/',['as' => 'filemanagement.index','uses' => 'FileManagementController@index']);
     Route::get('filemanagement/form_id',['as' => 'filemanagement.form_id','uses' => 'FileManagementController@getFormId']);
     Route::get('filemanagement/{fileManagement}',['as' => 'filemanagement.view','uses' => 'FileManagementController@show']);
     Route::get('filemanagement/{fileManagement}/download',['as' => 'filemanagement.download','uses' => 'FileManagementController@download']);
     Route::put('filemanagement/{fileManagement}',['as' => 'filemanagement.update','uses' => 'FileManagementController@update']);
-    Route::get('filemanagement/statuses',['as' => 'filemanagement.statuses','uses' => 'FileManagementController@getStatuses']);
     Route::get('test_take/get_surveillance_data', 'SurveillanceController@index')->name('test_take.get_surveillance_data');
     Route::get('test_take/bust_surveillance_cache', 'SurveillanceController@destroy')->name('test_take.bust_surveillance_cache');
 
@@ -228,6 +232,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::get('school_class/list', ['as' => 'school_class.list', 'uses' => 'SchoolClassesController@lists']);
     Route::resource('school_class', 'SchoolClassesController', ['except' => ['create', 'edit']]);
 
+    Route::delete('school_class_mentor/{schoolClass}/{userUuid}','SchoolClassesController@deleteMentor')->name('school_class_mentor.delete');
 
     Route::get('invigilator/list', ['as' => 'invigilator.list', 'uses' => 'InvigilatorsController@lists']);
 

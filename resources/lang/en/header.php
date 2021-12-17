@@ -14,9 +14,12 @@ return [
 
     'Gepland' => 'Scheduled',
 
-    'CO-learning' => 'CO-learning',
+    'CO-Learning' => 'CO-Learning',
 
     'Inzien' => 'View',
 
-    'Becijferd' => 'Numerated',
+    'Becijferd' => 'Graded',
+
+    'change_password' => 'Change password',
+
 ];

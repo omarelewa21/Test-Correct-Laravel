@@ -15,7 +15,7 @@ class TestTakeLaravelController extends Controller
     public function overview(TestTake $testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
-        if (!$testParticipant->canSeeOverviewPage()) {
+        if (!$testParticipant->canTakeTestTakeInPlayer()) {
             return redirect(config('app.url_login'));
         }
 
@@ -39,7 +39,7 @@ class TestTakeLaravelController extends Controller
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
 
-        if (!$testParticipant->startTestTake()) {
+        if (!$testParticipant->canTakeTestTakeInPlayer()) {
             return redirect(config('app.url_login'));
         }
 

@@ -105,7 +105,7 @@ class OpenShort extends Component
         $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)->store(new CreateTestQuestionRequest($this->question));
         if ($response->getStatusCode() == 200) {
             if ($this->upload) {
-                $this->upload->store()
+//                $this->upload->store()
 
                 $testQuestion = $response->original;
                 $attachementRequest = new  CreateAttachmentRequest([

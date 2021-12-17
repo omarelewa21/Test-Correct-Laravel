@@ -12,11 +12,14 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use tcCore\AppVersionInfo;
 use tcCore\FailedLogin;
 use tcCore\Http\Helpers\AppVersionDetector;
 use tcCore\Http\Helpers\EntreeHelper;
 use tcCore\Http\Helpers\TestTakeCodeHelper;
+use tcCore\Http\Requests\Request;
 use tcCore\Jobs\SendForgotPasswordMail;
+use tcCore\LoginLog;
 use tcCore\SamlMessage;
 use tcCore\Services\EmailValidatorService;
 use tcCore\User;
@@ -79,6 +82,12 @@ class Login extends Component
     public $guestLoginButtonDisabled = true;
     public $forgotPasswordButtonDisabled = true;
     public $connectEntreeButtonDisabled = true;
+
+    private $xssPropsToClean = [
+         'firstName',
+         'suffix',
+         'lastName',
+    ];
 
     public $showAuthModal = false;
     public $authModalRoleType;
@@ -146,23 +155,24 @@ class Login extends Component
             return $this->addError('should_first_go_to_entree', __('auth.should_first_login_using_entree'));
         }
 
-        $this->doLoginProcedure();
-
         AppVersionDetector::handleHeaderCheck();
+        $this->doLoginProcedure();
 
         $user = auth()->user();
         if ($user->isA('Student') && $user->schoolLocation->allow_new_student_environment) {
             return redirect()->intended(route('student.dashboard'));
         }
-        if ($user->isA('Account manager')) {
-            return redirect()->intended(route('uwlr.grid'));
-        }
+//        if ($user->isA('Account manager')) {
+//            return redirect()->intended(route('uwlr.grid'));
+//        }
 
         auth()->user()->redirectToCakeWithTemporaryLogin();
     }
 
     public function guestLogin()
     {
+
+
         if (!$this->filledInNecessaryGuestInformation()) {
             return false;
         }
@@ -200,8 +210,12 @@ class Login extends Component
 
     private function doLoginProcedure()
     {
-        $sessionHash = auth()->user()->generateSessionHash();
-        auth()->user()->setSessionHash($sessionHash);
+        $user = auth()->user();
+
+        $sessionHash = $user->generateSessionHash();
+        $user->setSessionHash($sessionHash);
+        LoginLog::create(['user_id' => $user->getKey()]);
+        AppVersionInfo::createFromSession();
         FailedLogin::solveForUsernameAndIp($this->username, request()->ip());
     }
 
@@ -241,6 +255,13 @@ class Login extends Component
             $this->connectEntreeButtonDisabled = false;
         }
 
+    }
+
+    private function cleanXss($name, $value) {
+        if (in_array($name, $this->xssPropsToClean)) {
+            return clean($value);
+        }
+        return $value;
     }
 
 
@@ -521,12 +542,19 @@ class Login extends Component
         return $hasNoError;
     }
 
+    public function updating(&$name, &$value)
+    {
+        if (in_array($name, $this->xssPropsToClean)) {
+            Request::filter($value);
+        }
+    }
+
     private function gatherGuestData()
     {
         return [
-            'name_first'  => trim($this->firstName),
-            'name_suffix' => trim($this->suffix),
-            'name'        => trim($this->lastName)
+            'name_first'  => (trim($this->firstName)),
+            'name_suffix' => (trim($this->suffix)),
+            'name'        => (trim($this->lastName))
         ];
     }
 

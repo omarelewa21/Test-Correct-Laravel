@@ -28,6 +28,7 @@ class SurveillanceController extends Controller
     private $ipCheck = false;
     private $eventIdsThatRequireConfirming = null;
 
+
     public function index()
     {
         if (!Auth::user()->isA(['teacher', 'invigilator'])) {
@@ -44,11 +45,16 @@ class SurveillanceController extends Controller
         ];
         $dataset = $this->getTakesForSurveillance(Auth::user());
 
-
         $dataset->each(function ($testTake) {
             $this->transformParticipants($testTake);
             $this->transformForService($testTake);
         });
+
+        if (request()->boolean('withoutParticipants')) {
+            collect(['participants','time','alerts','ipAlerts'])->each(function($unset){
+                unset($this->response[$unset]);
+            });
+        }
 
         return $this->response;
     }
@@ -198,22 +204,36 @@ class SurveillanceController extends Controller
 
     private function getCachedTestTakeIds(User $owner)
     {
-        $ids = cache()->remember('surveilence_data_'.$owner->uuid, now()->addSeconds(60), function () use ($owner) {
+        $ids = cache()->remember(self::getCacheKey($owner, request()->boolean('withoutParticipants')), now()->addSeconds(60), function () use ($owner) {
             $currentPeriod =  PeriodRepository::getCurrentPeriod();
             if ($currentPeriod == null) {
                 return [];
             }
 
-            return TestTake::filtered([
+            $filtered = request()->boolean('withoutParticipants') ? ['type_assessment'=> true] : ['type_not_assessment' => true];
+            $filtered = array_merge($filtered, [
+                'invigilator_id' => $owner->id,
                 'test_take_status_id' => '3',
-                'period_id' => $currentPeriod->id,
-            ])->pluck('id');
+//                'period_id' => $currentPeriod->id,
+            ]);
+
+            return TestTake::filtered($filtered)->pluck('id');
         });
 
         return $ids;
     }
 
     public function destroy() {
-        cache()->forget('surveilence_data_'.Auth::user()->uuid);
+        cache()->forget(self::getCacheKey(Auth::user()->uuid));
+        cache()->forget(self::getCacheKey(Auth::user()->uuid), true);
+    }
+
+    private function getCacheKey($owner, $withoutParticipants = false) {
+        $prefix = 'surveilence_data';
+        if ($withoutParticipants) {
+            $prefix = 'assessment_open_teacher_data';
+        }
+
+        return sprintf('%s_%s', $prefix, $owner->uuid);
     }
 }

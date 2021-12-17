@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/attachment/pdf/{attachment}/{answer}', [tcCore\Http\Controllers\PdfAttachmentsLaravelController::class, 'show'])->name('question-pdf-attachment-show');
         Route::get('/drawing_question_answers/{answer}', [tcCore\Http\Controllers\DrawingQuestionLaravelController::class, 'show'])->name('drawing-question-answer');
         Route::get('/dashboard', tcCore\Http\Livewire\Student\Dashboard::class)->name('dashboard');
+        Route::get('/splash',\tcCore\Http\Livewire\Student\Splash::class)->name('splash');
+
         Route::get('/dashboard/logout', [tcCore\Http\Livewire\Student\Dashboard::class, 'logout'])->name('dashboard.logout');
         Route::get('/test-takes', tcCore\Http\Livewire\Student\TestTakes::class)->name('test-takes');
         Route::get('/waiting-room', tcCore\Http\Livewire\Student\WaitingRoom::class)->name('waiting-room');

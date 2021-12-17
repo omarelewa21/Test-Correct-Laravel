@@ -344,7 +344,9 @@ class EntreeHelper
         if ($this->laravelUser) {
             // return true is hier waarschijnlijk voldoende omdat je dan via scenario 1 wordt ingelogged;
             $this->handleUpdateUserWithSamlAttributes();
-            $url = $this->laravelUser->getTemporaryCakeLoginUrl();
+            // if student get url to redirect
+            // redirect naar splash screen
+            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
             return $this->redirectToUrlAndExit($url);
         }
 // redirect to maak koppelingscherm;
@@ -473,7 +475,8 @@ class EntreeHelper
         }
 
         $this->handleUpdateUserWithSamlAttributes();
-        $url = $this->laravelUser->getTemporaryCakeLoginUrl();
+        // if student redirect to splash screen
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
         return $this->redirectToUrlAndExit($url);
 
     }
