@@ -90,18 +90,13 @@ class QuestionsController extends Controller {
 
     public function inlineImageLaravel(Request $request, $image)
     {
-        logger([
-            $image,
-            Storage::disk('cake')->path('questionanswers'),
-            Storage::path('inlineimages')
-        ]);
         if (Storage::disk('cake')->exists("questionanswers/$image")) {
             $path = Storage::disk('cake')->path("questionanswers/$image");
             return Response::file($path);
         }
 
-        if (Storage::exists("inlineimages/$image")) {
-            $path = storage_path("inlineimages/$image");
+        if (Storage::disk('inline_images')->exists($image)) {
+            $path = Storage::disk('inline_images')->path($image);
             return Response::file($path);
         }
 
