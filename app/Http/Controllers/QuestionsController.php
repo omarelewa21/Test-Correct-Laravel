@@ -101,7 +101,7 @@ class QuestionsController extends Controller {
         }
 
         if (Storage::exists("inlineimages/$image")) {
-            $path = Storage::path("inlineimages/$image");
+            $path = storage_path("inlineimages/$image");
             return Response::file($path);
         }
 
