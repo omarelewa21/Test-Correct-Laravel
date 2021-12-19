@@ -24,6 +24,7 @@ use tcCore\Http\Requests\CreateSchoolClassRequest;
 use tcCore\Http\Requests\UpdateSchoolClassRequest;
 use tcCore\Http\Helpers\SchoolHelper;
 use tcCore\SchoolClassImportLog;
+use tcCore\User;
 
 class SchoolClassesController extends Controller
 {
@@ -146,9 +147,17 @@ class SchoolClassesController extends Controller
     public function show(SchoolClass $schoolClass, Request $request)
     {
         SchoolHelper::denyIfTempTeacher();
-
-        $schoolClass->load('schoolLocation', 'educationLevel', 'mentorUsers', 'managerUsers', 'studentUsers',
-            'educationLevel', 'schoolYear', 'teacher', 'teacher.user', 'teacher.subject');
+        $schoolClass->load( [       'schoolLocation',
+                                    'educationLevel',
+                                    'mentorUsers' ,
+                                    'managerUsers',
+                                    'studentUsers',
+                                    'educationLevel',
+                                    'schoolYear',
+                                    'teacher',
+                                    'teacher.user',
+                                    'teacher.subject'
+                                ]);
         if (is_array($request->get('with')) && in_array('schoolClassStats', $request->get('with'))) {
             AverageRatingRepository::getCountAndAveragesForSchoolClasses([$schoolClass]);
             SchoolClassRepository::getCompareSchoolClassToParallelSchoolClasses($schoolClass);
@@ -252,6 +261,22 @@ class SchoolClassesController extends Controller
             $this->setClassesVisibleAndFinalizeImport(Auth::user());
         }
         return JsonResource::make(['count' => $updateCounter], 200);
+    }
+
+    public function deleteMentor(SchoolClass $schoolClass, $userUuid)
+    {
+        try{
+            $user = User::withTrashed()->whereUuid($userUuid)->first();
+        }catch (\Exception $e){
+            return Response::make('Failed to remove mentor, user not found', 500);
+        }
+
+        if ($schoolClass->mentors()->withTrashed()->where('user_id',$user->id)->delete() !== false) {
+            return Response::make($schoolClass, 200);
+        } else {
+            return Response::make('Failed to remove mentor', 500);
+        }
+
     }
 
     /**

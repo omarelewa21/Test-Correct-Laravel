@@ -229,6 +229,15 @@ abstract class TestCase extends BaseTestCase
         );
     }
 
+    public static function authTeacherTwoGetRequest($url, $params = [])
+    {
+        return self::authUserGetRequest(
+            $url,
+            $params,
+            User::where('username', static::USER_TEACHER_TWO)->first()
+        );
+    }
+
     /**
      * @param $url
      * @param $params

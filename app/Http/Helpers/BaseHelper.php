@@ -59,7 +59,7 @@ class BaseHelper
         return false;
     }
 
-    public static function createRedirectUrlWithTemporaryLoginUuid($uuid, $redirectUrl)
+    public static function createRedirectUrlWithTemporaryLoginUuid($uuid, $redirectUrl, $returnUrl = false)
     {
         $response = new \stdClass;
 
@@ -72,7 +72,9 @@ class BaseHelper
         }
 
         $response->url = sprintf('%s%s',config('app.base_url'), $relativeUrl);
-
+        if($returnUrl){
+            return $response->url;
+        }
         return  response()->json($response);
     }
 

@@ -68,6 +68,7 @@ class BitLoginMonitor extends Command {
     protected function handleDefault()
     {
         echo "NOTHING TO DO";
+        exit;
     }
 
     protected function handleTeacherLogin()

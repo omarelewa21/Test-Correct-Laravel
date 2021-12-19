@@ -4,6 +4,7 @@ namespace tcCore\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use tcCore\AppVersionInfo;
 use tcCore\TemporaryLogin;
 
 class AuthenticateWithTemporaryLogin
@@ -37,6 +38,7 @@ class AuthenticateWithTemporaryLogin
 
         if (property_exists($options, 'app_details')) {
             $this->registerAppDetails($options);
+            AppVersionInfo::createFromSession();
         }
     }
 

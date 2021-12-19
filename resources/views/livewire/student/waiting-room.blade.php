@@ -31,15 +31,15 @@
         <x-partials.test-take-sub-menu :active="$this->testTakeStatusStage" :disabled="Auth::user()->guest"/>
     </div>
     <div class="flex flex-col w-full mt-10">
-        <div class="w-full px-4 lg:px-8 xl:px-12 transition-all duration-500">
-            <div class="flex flex-col mx-auto max-w-7xl space-y-4 transition-all duration-500">
+        <div class="w-full px-4 lg:px-8 xl:px-24 transition-all duration-500">
+            <div class="flex flex-col space-y-4 transition-all duration-500">
                 <div>
                     @if(!Auth::user()->guest)
-                    <x-button.text-button class="rotate-svg-180" type="link"
-                                          href="{{ route('student.test-takes', ['tab' => $this->testTakeStatusStage]) }}">
-                        <x-icon.arrow/>
-                        <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
-                    </x-button.text-button>
+                        <x-button.text-button class="rotate-svg-180" type="link"
+                                              href="{{ route('student.test-takes', ['tab' => $this->testTakeStatusStage]) }}">
+                            <x-icon.arrow/>
+                            <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
+                        </x-button.text-button>
                     @elseif(Auth::user()->guest && $this->testTakeStatusStage != 'planned')
                         <x-button.text-button class="rotate-svg-180" wire:click="returnToGuestChoicePage">
                             <x-icon.arrow/>
@@ -50,16 +50,21 @@
                     @endif
                 </div>
                 <div>
-                    <x-partials.waiting-room-grid :waitingTestTake="$waitingTestTake" :participatingClasses="$participatingClasses"/>
+                    <x-partials.waiting-room-grid :waitingTestTake="$waitingTestTake"
+                                                  :participatingClasses="$participatingClasses"/>
                 </div>
                 <div class="flex w-full items-center h-10">
                     @if(!$needsApp)
-                        <x-partials.waiting-room-action-button :testTakeStatusStage="$this->testTakeStatusStage"
-                                                               :isTakeOpen="$this->isTakeOpen"/>
+                        <x-partials.waiting-room-action-button
+                           :testTakeStatusStage="$this->testTakeStatusStage"
+                           :isTakeOpen="$this->isTakeOpen"
+                        />
                     @else
                         @if($meetsAppRequirement)
-                        <x-partials.waiting-room-action-button :testTakeStatusStage="$this->testTakeStatusStage"
-                                                            :isTakeOpen="$this->isTakeOpen"/>
+                        <x-partials.waiting-room-action-button
+                            :testTakeStatusStage="$this->testTakeStatusStage"
+                            :isTakeOpen="$this->isTakeOpen"
+                        />
                         @else
                             <div class="divider flex flex-1"></div>
                             <div class="flex flex-col justify-center">
@@ -80,18 +85,44 @@
             </div>
         </div>
         <div class="flex flex-col bg-light-grey items-center justify-center py-12">
-
-
             <div class="content-section flex flex-col w-full max-w-2xl p-8 space-y-4">
-                <h4 class="px-3">{{ __('student.teacher_introduction_title') }}</h4>
-                <div class="divider"></div>
-                <div class="px-3">
-                    @if($isTakeOpen)
-                        {!! $waitingTestTake->test->introduction ?: __('student.teacher_introduction_unavailable') !!}
+                @if($this->testTakeStatusStage != 'graded')
+                    @if($this->testTakeStatusStage == 'planned')
+                        <h4 class="px-3">{{ __('student.teacher_introduction_title') }}</h4>
+                        <div class="divider"></div>
+                        <div class="px-3">
+                            @if($isTakeOpen)
+                                {!! $waitingTestTake->test->introduction ?: __('student.teacher_introduction_unavailable') !!}
+                            @else
+                                {{ __('student.teacher_introduction_long') }}
+                            @endif
+                        </div>
                     @else
-                        {{ __('student.teacher_introduction_long') }}
+                        <h4 class="px-3">{{ __('student.teacher_introduction_not_available') }}</h4>
+                        <div class="divider"></div>
+                        <div class="px-3">
+                            {{ __('student.teacher_introduction_not_available_long') }}
+                        </div>
                     @endif
-                </div>
+                @else
+                    <h4 class="px-3">{{ __('student.your_grade') }}</h4>
+                    <div class="divider"></div>
+                    <div class="">
+                        <div class="relative w-full flex hover:font-bold py-5 px-3 rounded-10 base
+                                    multiple-choice-question transition ease-in-out duration-150 focus:outline-none
+                                    justify-between items-center -mt-4"
+                        >
+                            <span>{{ auth()->user()->getNameFullAttribute() }}</span>
+                            @if($testParticipant->rating)
+                            <span class="px-2 py-1 text-sm rounded-full {!! $this->getBgColorForTestParticipantRating($this->getRatingToDisplay($testParticipant)) !!}">
+                                {{ $this->getRatingToDisplay($testParticipant) }}
+                            </span>
+                            @else
+                                <span class="italic">Geen cijfer</span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
                 @if($needsApp && !$meetsAppRequirement && !$this->testParticipant->isInBrowser())
                     <div class="flex w-full justify-center transition-all duration-300 mb-4">
                         <div class="notification error stretched">
@@ -122,9 +153,9 @@
                                 <span class="title">{{ __('general.attention') }}!</span>
                             </div>
                             @if($appNeedsUpdateDeadline)
-                            <span class="body">{{ __('student.app_needs_update_deadline', ['date' => $appNeedsUpdateDeadline]) }}</span>
+                                <span class="body">{{ __('student.app_needs_update_deadline', ['date' => $appNeedsUpdateDeadline]) }}</span>
                             @else
-                            <span class="body">{{ __('student.app_needs_update') }}</span>
+                                <span class="body">{{ __('student.app_needs_update') }}</span>
                             @endif
                         </div>
                     </div>
@@ -165,7 +196,6 @@
 
     @push('scripts')
         <script>
-            Echo.connector.pusher.config.auth.headers['X-CSRF-TOKEN'] = '{{ csrf_token() }}'
             let countdownTimer;
 
             function startCountdownTimer(data) {

@@ -2,6 +2,7 @@
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Jobs\AnonymizeUsersAfterTooLongNoLoginJob;
 
 class Kernel extends ConsoleKernel
@@ -36,6 +37,12 @@ class Kernel extends ConsoleKernel
             ->dailyAt('06:00');
 //        $schedule->call(new AnonymizeUsersAfterTooLongNoLoginJob())
 //            ->dailyAt('05:00');
+// one minute past the hour;
+//        if(BaseHelper::notProduction()){
+//            $schedule->command('assessment:start_and_stop')->everyMinute();
+//        } else {
+//            $schedule->command('assessment:start_and_stop')->hourlyAt(1);
+//        }
     }
 
     /**

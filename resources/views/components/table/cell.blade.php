@@ -8,10 +8,12 @@
 -- Purchase here: https://tailwindui.com/
 --}}
 
-@props(['buttonCell' => null])
+@props(['buttonCell' => null, 'withTooltip' => false])
 @php
     $buttonCell = $buttonCell ? 'py-2' : 'py-5 overflow-ellipsis overflow-hidden';
 @endphp
-<td {{ $attributes->merge(['class' => 'px-4 whitespace-nowrap max-w-0 '.$buttonCell ]) }}>
+<td {{ $attributes->merge(['class' => 'px-3 whitespace-nowrap max-w-0 '.$buttonCell ]) }}
+    @if($withTooltip) title="{{ $slot }}" @endif
+>
     {{ $slot }}
 </td>

@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Carbon\Carbon;
 use Closure;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -142,15 +143,12 @@ class SchoolClass extends BaseModel implements AccessCheckable
             if ($schoolClass->students !== null) {
                 $schoolClass->saveStudents();
             }
-
             if ($schoolClass->mentors !== null) {
                 $schoolClass->saveMentors();
             }
-
             if ($schoolClass->managers !== null) {
                 $schoolClass->saveManagers();
             }
-
         });
 
         static::updating(function (SchoolClass $schoolClass) {
@@ -165,12 +163,32 @@ class SchoolClass extends BaseModel implements AccessCheckable
         static::deleting(function (SchoolClass $schoolClass) {
             if ($schoolClass->getOriginal('demo') == true) return false;
         });
+
+        static::deleted(function (SchoolClass $schoolClass) {
+            $managers = Manager::where('school_class_id',$schoolClass->getKey())->get();
+            $managers->each(function (Manager $manager)  {
+                $manager->delete();
+            });
+            $mentors = Mentor::where('school_class_id',$schoolClass->getKey())->get();
+            $mentors->each(function (Mentor $mentor) {
+                $mentor->delete();
+            });
+            $teachers = Teacher::where('class_id',$schoolClass->getKey())->get();
+            $teachers->each(function (Teacher $teacher) {
+                    $teacher->delete();
+            });
+            $students = Student::where('class_id',$schoolClass->getKey())->get();
+            $students->each(function (Student $student) {
+                    $student->delete();
+            });
+        });
     }
 
     public function schoolLocation()
     {
         return $this->belongsTo('tcCore\SchoolLocation');
     }
+
 
     public function mentors()
     {
@@ -179,7 +197,9 @@ class SchoolClass extends BaseModel implements AccessCheckable
 
     public function mentorUsers()
     {
-        return $this->belongsToMany('tcCore\User', 'mentors', 'school_class_id', 'user_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\User', 'mentors', 'school_class_id', 'user_id')
+            ->withTrashed()
+            ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     protected function saveMentors()
@@ -228,7 +248,6 @@ class SchoolClass extends BaseModel implements AccessCheckable
         $this->syncTcRelation($students, $this->students, 'user_id', function ($schoolClass, $userId) {
             Student::create(['user_id' => $userId, 'class_id' => $schoolClass->getKey()]);
         });
-
         $this->students = null;
     }
 
@@ -242,15 +261,11 @@ class SchoolClass extends BaseModel implements AccessCheckable
         return $this->belongsTo('tcCore\SchoolYear');
     }
 
-    public function teacherUsers()
-    {
-        $classId = $this->getKey();
-        return User::whereIn('id', function ($query) use ($classId) {
-            $query->select('user_id')
-                ->from(with(new Teacher())->getTable())
-                ->where('class_id', $classId)
-                ->where('deleted_at', null);
-        });
+    public function teacherUsers() {
+        return $this->belongsToMany('tcCore\User', 'teachers', 'class_id', 'user_id')
+                ->withTrashed()
+                ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
+                ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function teacher()

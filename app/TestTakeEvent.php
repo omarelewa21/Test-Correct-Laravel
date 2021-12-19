@@ -52,6 +52,12 @@ class TestTakeEvent extends BaseModel {
     {
         parent::boot();
 
+        static::saving(function(TestTakeEvent $testTakeEvent) {
+            if ($testTakeEvent->shouldIgnoreEventRegistration()) {
+                return false;
+            }
+        });
+
         static::created(function(TestTakeEvent $testTakeEvent) {
             NewTestTakeEventAdded::dispatch($testTakeEvent->testTake->uuid);
         });
@@ -145,5 +151,16 @@ class TestTakeEvent extends BaseModel {
             ->where('test_participant_id', $participantId)
             ->where('requires_confirming', 1)
             ->count();
+    }
+
+    public function shouldIgnoreEventRegistration()
+    {
+        if ($this->testTake->test->isAssignment()){
+            if ($this->testTakeEventType->requires_confirming == 1) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

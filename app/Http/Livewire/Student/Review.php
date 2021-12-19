@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
+use tcCore\Events\NewTestTakeReviewable;
 use tcCore\Http\Traits\WithSorting;
 use tcCore\Http\Traits\WithStudentTestTakes;
 use tcCore\TestTake;
@@ -17,6 +18,13 @@ class Review extends Component
 
     public $readyToLoad;
     public $paginateBy = 10;
+
+    protected function getListeners()
+    {
+        return [
+            NewTestTakeReviewable::channelSignature() => '$refresh'
+        ];
+    }
 
     public function mount()
     {
@@ -43,7 +51,11 @@ class Review extends Component
             ->leftJoin('subjects', 'subjects.id', '=', 'tests.subject_id')
             ->select('test_takes.*', 'tests.name as test_name', 'subjects.name as subject_name', 'test_participants.invigilator_note as participant_invigilator_note')
             ->where('test_participants.user_id', Auth::id())
-            ->where('test_takes.test_take_status_id', TestTakeStatus::STATUS_DISCUSSED)
+            ->whereIn('test_participants.test_take_status_id',  [ TestTakeStatus::STATUS_DISCUSSED, TestTakeStatus::STATUS_RATED])
+            ->where(function ($query) {
+                $query->where('test_takes.test_take_status_id', TestTakeStatus::STATUS_DISCUSSED)
+                    ->orWhere('test_takes.test_take_status_id', TestTakeStatus::STATUS_RATED);
+            })
             ->where('test_takes.show_results', '>=', Carbon::now())
             ->orderBy($orderColumn, $orderDirection)
             ->paginate($this->paginateBy);

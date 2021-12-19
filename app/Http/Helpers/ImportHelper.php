@@ -1168,7 +1168,10 @@ class ImportHelper
                 if($forRole === 'student') {
                     $this->create_tally['students']++;
                 } else if($forRole === 'teacher') {
+                    $schoolLocation = SchoolLocation::find($user_data['school_location_id']);
+                    $user->addSchoolLocation($schoolLocation);
                     $this->create_tally['teachers']++;
+
                 }
                 $user->restore();
                 $restored = true;

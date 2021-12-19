@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Ramsey\Uuid\Uuid;
 use tcCore\Events\BrowserTestingDisabledForParticipant;
+use tcCore\Events\NewTestTakePlanned;
 use tcCore\Events\RemoveParticipantFromWaitingRoom;
 use tcCore\Events\TestParticipantGuestAvailabilityChanged;
 use tcCore\Events\TestTakeForceTakenAway;
@@ -74,6 +75,8 @@ class TestParticipant extends BaseModel
                 $testParticipant->allow_inbrowser_testing = true;
                 $testParticipant->save();
             }
+
+            NewTestTakePlanned::dispatch($testParticipant->user()->value('uuid'));
         });
         static::saved(function (TestParticipant $testParticipant) {
             if ($testParticipant->skipBootSavedMethod) {
@@ -216,7 +219,7 @@ class TestParticipant extends BaseModel
 
     public function schoolClass()
     {
-        return $this->belongsTo('tcCore\SchoolClass');
+        return $this->belongsTo('tcCore\SchoolClass')->withTrashed();
     }
 
     /**
@@ -406,25 +409,6 @@ class TestParticipant extends BaseModel
         return Uuid::fromBytes($value)->toString();
     }
 
-    public function startTestTake()
-    {
-        //Remaining startTestTake actions handled in TestParticipant boot method
-        if (!$this->canStartTestTake()) {
-            return false;
-        }
-//        if (!$this->canUseBrowserTesting() && $this->isInBrowser()) {
-//            return false;
-//        }
-
-        $this->setAttribute('started_in_new_player', true)->save();
-        return true;
-    }
-
-    public function canSeeOverviewPage()
-    {
-        return $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
-    }
-
     public function handInTestTake()
     {
         //Remaining handInTestTake actions handled in TestParticipant boot method
@@ -447,9 +431,20 @@ class TestParticipant extends BaseModel
         return $this->user->intense && $this->user->schoolLocation->intense;
     }
 
-    public function canStartTestTake()
+    public function canTakeTestTakeInPlayer()
     {
-        return $this->test_take_status_id <= TestTakeStatus::STATUS_TAKING_TEST;
+        $statusOkay = $this->test_take_status_id == TestTakeStatus::STATUS_TAKING_TEST;
+
+        if ($this->isInBrowser()) {
+            if (! $this->canUseBrowserTesting()) {
+                return false;
+            }
+        }
+
+        if ($statusOkay && $this->testTake->test->isAssignment()) {
+            return  ($this->testTake->time_start <= now() && $this->testTake->time_end >= now());
+        }
+        return $statusOkay;
     }
 
     private function isTestTakenAway()
@@ -498,5 +493,24 @@ class TestParticipant extends BaseModel
         if ($this->available_for_guests != $this->getOriginal('available_for_guests')) {
             TestParticipantGuestAvailabilityChanged::dispatch($this->testTake->uuid);
         }
+    }
+
+    public function shouldFraudNotificationsBeShown()
+    {
+        if ($this->testTake->test->isAssignment()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function hasStatus($status)
+    {
+        return $this->test_take_status_id == $status;
+    }
+
+    public function hasRating()
+    {
+        return !!($this->rating || $this->retake_rating);
     }
 }
