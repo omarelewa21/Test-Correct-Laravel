@@ -38,18 +38,24 @@
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1">
                 <x-content-section>
                     <x-input.group label="Photo" for="photo" :error="$errors->first('upload')">
-                        <x-input.filepond wire:model="upload" id="photo">
 
+
+                        <x-input.filepond wire:model="uploads" id="photo" multiple="true">
+                            @forelse($attachments as $attachment)
+                                <span>{{ $attachment->title }}</span>
+                            @empty
+                                geen attachments
+                            @endforelse
                         </x-input.filepond>
 
                         <span class="h-202 w-202 rounded-full overflow-hidden bg-gray-100">
-                        @if ($upload)
+{{--                        @if ($upload)--}}
 
-                                <img src="{{ $upload->temporaryUrl() }}" alt="Profile Photo">
-                            @else
-                                <p>some picture here</p>
-                                {{--                            <img src="{{ auth()->user()->avatarUrl() }}" alt="Profile Photo">--}}
-                            @endif
+{{--                                <img src="{{ $upload->temporaryUrl() }}" alt="Profile Photo">--}}
+{{--                            @else--}}
+{{--                                <p>some picture here</p>--}}
+{{--                                --}}{{--                            <img src="{{ auth()->user()->avatarUrl() }}" alt="Profile Photo">--}}
+{{--                            @endif--}}
                     </span>
                     </x-input.group>
 

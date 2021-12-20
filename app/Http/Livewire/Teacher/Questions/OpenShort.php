@@ -1,7 +1,7 @@
 <?php
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
-
+// http://test-correct.test/teacher/questions/open-short/add?owner=test&owner_id=2a60f858-3129-4903-b275-796cbce5f610&test_question_id=4a508b73-d01b-4729-be38-440f8fd76c8e
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
@@ -14,6 +14,7 @@ use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\OpenQuestion;
 use tcCore\Question;
 use tcCore\QuestionAuthor;
 use tcCore\TemporaryLogin;
@@ -28,12 +29,17 @@ class OpenShort extends Component
 
     public $owner_id;
 
-    public $upload;
+    public $test_question_id;
+
+    public $uploads = [];
 
     public $answerEditorId;
+
     public $questionEditorId;
 
-    protected $queryString = ['owner_id'];
+    protected $queryString = ['owner_id', 'test_question_id'];
+
+    public $attachments = [];
 //
 //    protected $queryString = ['openTab' => ['except' => 1]];
 
@@ -42,6 +48,8 @@ class OpenShort extends Component
     public $testName = 'test_name';
 
     public $subjectId;
+
+    public $edit = false;
 
     protected function getListeners()
     {
@@ -60,6 +68,20 @@ class OpenShort extends Component
             $activeTest = Test::whereUuid(request()->input('owner_id'))->first();
             $this->subjectId = $activeTest->subjectId;
             $this->question['test_id'] = $activeTest->id;
+
+            if ($this->test_question_id) {
+                $q = TestQuestion::whereUuid($this->test_question_id)->first()->question;
+                $this->question['bloom'] = $q->bloom;
+                $this->question['rtti'] = $q->rtti;
+                $this->question['miller'] = $q->miller;
+                $this->question['answer'] = $q->answer;
+                $this->question['question'] = $q->question->getQuestionHTML();
+
+                $this->edit = true;
+
+                $this->attachments = $q->attachments;
+//                dd($q)
+            }
         }
 //       dd($this->subjectId);
     }
@@ -108,22 +130,27 @@ class OpenShort extends Component
             $request['tags'] = $this->tags;
         }
 
+        if ($this->edit) {
+            dd('edit');
+        }
         $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)->store(new CreateTestQuestionRequest($this->question));
         if ($response->getStatusCode() == 200) {
-            if ($this->upload) {
-                $this->upload->store('','attachments');
+            if ($this->uploads) {
 
-                $testQuestion = $response->original;
-                $attachementRequest = new  CreateAttachmentRequest([
-                    "type"       => "file",
-                    "title"      => $this->upload->getClientOriginalName(),
-                    "json"       => "[]",
-                    "attachment" => $this->upload,
-                ]);
+                collect($this->uploads)->each(function($upload) use ($response) {
+                    $upload->store('','attachments');
 
+                    $testQuestion = $response->original;
+                    $attachementRequest = new  CreateAttachmentRequest([
+                        "type"       => "file",
+                        "title"      => $upload->getClientOriginalName(),
+                        "json"       => "[]",
+                        "attachment" => $upload,
+                    ]);
 
-                $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
-                    ->store($testQuestion, $attachementRequest);
+                    $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
+                        ->store($testQuestion, $attachementRequest);
+                });
             }
 
             $url =  sprintf("tests/view/%s", $this->owner_id);

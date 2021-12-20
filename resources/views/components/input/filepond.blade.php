@@ -1,3 +1,4 @@
+@props(['multiple' => false])
 <div
     wire:ignore
     x-data
@@ -11,11 +12,15 @@
                 revert: (filename, load) => {
                     @this.removeUpload('{{ $attributes->whereStartsWith('wire:model')->first() }}', filename, load)
                 },
-            }
+            },
+            allowMultiple: {{ $multiple }}
         });
+
+        console.dir(post);
     }"
 >
     <input type="file" x-ref="input" />
+
     {{ $slot }}
 </div>
 @push('styling')
