@@ -36,28 +36,42 @@
 
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1">
-                <x-content-section>
-                    <x-input.group label="Photo" for="photo" :error="$errors->first('upload')">
+                <script>
+                    function handleFileDrop(ev) {
+                        var filepond = document.getElementById('filepond-upload');
 
-
-                        <x-input.filepond wire:model="uploads" id="photo" multiple="true">
-                            @forelse($attachments as $attachment)
-                                <span>{{ $attachment->title }}</span>
-                            @empty
-                                geen attachments
-                            @endforelse
-                        </x-input.filepond>
-
-                        <span class="h-202 w-202 rounded-full overflow-hidden bg-gray-100">
-{{--                        @if ($upload)--}}
-
-{{--                                <img src="{{ $upload->temporaryUrl() }}" alt="Profile Photo">--}}
-{{--                            @else--}}
-{{--                                <p>some picture here</p>--}}
-{{--                                --}}{{--                            <img src="{{ auth()->user()->avatarUrl() }}" alt="Profile Photo">--}}
-{{--                            @endif--}}
-                    </span>
-                    </x-input.group>
+                        filepond._x_dataStack[0].$data.post.addFile(ev.dataTransfer.items[0].getAsFile());
+                    }
+                </script>
+                <x-content-section x-data=""
+                                   @dragover.prevent="$el.classList.add('dragover')"
+                                   @dragleave.prevent="$el.classList.remove('dragover')"
+                                   @drop.prevent="$el.classList.remove('dragover'); $dispatch('newfile', $event); handleFileDrop($event)"
+                                   droppable
+                >
+                    <div>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="flex space-x-4">
+                                @if($attachments)
+                                    @foreach($attachments as $attachment)
+                                        <span>{{ $attachment->title }}</span>
+                                    @endforeach
+                                @endif
+                                @if ($uploads)
+                                    @foreach($uploads as $upload)
+                                        <button class="p-1" onclick="window.open('{{$upload->temporaryUrl()}}', '_blank')">{{ $upload->getClientOriginalName() }}</button>
+                                    @endforeach
+                                @endif
+                            </div>
+                            <x-input.filepond class="flex items-center space-x-4" wire:model="uploads" multiple="true">
+                                <x-button.secondary onclick="document.querySelector('.filepond--label-action').click()">
+                                    <x-icon.attachment/>
+                                    <span>Bijlage toevoegen</span>
+                                </x-button.secondary>
+                                <span class="flex italic text-sm">Of sleep je bijlage over dit vak</span>
+                            </x-input.filepond>
+                        </div>
+                    </div>
 
                     <x-slot name="title">
                         {{ __('Vraag') }}

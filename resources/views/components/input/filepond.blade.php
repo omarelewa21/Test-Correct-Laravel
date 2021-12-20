@@ -1,9 +1,10 @@
 @props(['multiple' => false])
-<div
+<div {{ $attributes->merge() }}
+     id="filepond-upload"
     wire:ignore
-    x-data
+    x-data="{post: null}"
     x-init="() => {
-        const post = FilePond.create($refs.input);
+        post = FilePond.create($refs.fileupload);
         post.setOptions({
             server: {
                 process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
@@ -15,13 +16,12 @@
             },
             allowMultiple: {{ $multiple }}
         });
-
-        console.dir(post);
     }"
->
-    <input type="file" x-ref="input" />
 
+     x-on:newfile.window=""
+>
     {{ $slot }}
+    <input type="file" x-ref="fileupload" class="hidden"/>
 </div>
 @push('styling')
     @once
