@@ -29,5 +29,7 @@
 			'U kunt uw wachtwoord instellen op' => 'U kunt uw wachtwoord instellen op',
 
 			"Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit." => "Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.",
+
+			'Nieuw verzoek opsturen' => 'Nieuw verzoek opsturen',
 ];
 ?>
