@@ -314,10 +314,13 @@ class Attachment extends BaseModel
         if ($this->type == 'video') {
             return 'video';
         }
+        $type = collect(explode('/', $this->file_mime_type))->first();
 
-        if (explode('/', $this->file_mime_type)) {
-
+        if ($type == 'application') {
+            return 'pdf';
         }
+
+        return $type;
 
 //        $imageExtensions = ['jpg', 'jpeg', 'png'];
 //        $titleExtension = collect(explode('.', $this->title))->last();

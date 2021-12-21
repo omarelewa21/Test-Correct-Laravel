@@ -61,7 +61,7 @@
                             <x-icon.attachment/>
                             <span>Bijlage toevoegen</span>
                         </x-button.secondary>
-                        <span class="flex italic text-sm">Of sleep je bijlage over dit vak</span>
+                        <span class="flex italic text-base">Of sleep je bijlage over dit vak</span>
                     </x-slot>
 
                     <x-slot name="title">
