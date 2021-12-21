@@ -18,7 +18,7 @@ class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
      */
     function __construct(Route $route)
     {
-        $this->completionQuestion = $route->parameter('completion_question');
+        $this->completionQuestion = $route->parameter('testQuestion')->question;
         if ($this->completionQuestion instanceof CompletionQuestion) {
             $this->question = $this->completionQuestion->getQuestionInstance();
         }
@@ -73,9 +73,16 @@ class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
             if (!strstr($question, '[') && !strstr($question, ']')) {
                 $validator->errors()->add('question', 'U dient minimaal &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
             }
-            if (request()->input('subtype') == 'completion' && strstr($question, '|')) {
-                $validator->errors()->add('substype', 'U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
+            if (request()->input('type') == 'completion' && strstr($question, '|')) {
+                $validator->errors()->add('question', 'U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
             }
+			if($this->completionQuestion->subtype == 'multi'){
+				$qHelper = new QuestionHelper();
+				$questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, true);
+				if($questionData["error"]){
+					$validator->errors()->add('question', $questionData["error"]);
+				}
+			}
         });
     }
 }
