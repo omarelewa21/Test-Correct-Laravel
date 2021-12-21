@@ -57,22 +57,32 @@ class QuestionHelper extends BaseHelper
         }
         return 0;
     }
-
-    public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question)
+    
+    public function getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, $isNewQuestion = false)
     {
         $obj = (object) [
             'answers'   => [],
             'nr'        => 0
         ];
+        $error = (object) [
+            'status'    => false,
+            'message'   => ""
+        ];
         $question = preg_replace_callback(
             '/\[(.*?)\]/i',
-            function ($matches) use ($obj) {
+            function ($matches) use ($isNewQuestion, $obj, $error) {
+                $isNewQuestion;
+                $error;
                 $obj->nr++;
                 $questionMarkUsed = (bool) collect(explode('|',$matches[1]))->first(function($answer) {
                     return strpos($answer, '?') === 0;
                 });
 
                 $answerItems = explode('|',$matches[1]);
+                if($isNewQuestion && count($answerItems) < 2){
+                    $error->status = true;
+                    $error->message = "U kunt niet slechts één selectie hebben, u moet in elk haakje ten minste één extra selectie toevoegen.";
+                }
                 foreach($answerItems as $id => $answerItem) {
                     if ($questionMarkUsed) {
                         $isCorrect = false;
@@ -97,7 +107,9 @@ class QuestionHelper extends BaseHelper
             },
             $question
         );
+
         return [
+            "error"     => $error->status ? $error->message : false,
             'question'  => $question,
             'answers'   => $obj->answers
         ];
