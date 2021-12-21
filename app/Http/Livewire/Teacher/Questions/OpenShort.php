@@ -172,21 +172,25 @@ class OpenShort extends Component
         }
     }
 
-    public
-    function render()
+    public function render()
     {
         return view('livewire.teacher.questions.open-short')->layout('layouts.base');
     }
 
-    public
-    function handleTags($tags)
+    public function handleTags($tags)
     {
         $this->question['tags'] = array_values($tags);
     }
 
-    public
-    function handleAttainment($attainmentId)
+    public function handleAttainment($attainmentId)
     {
         //  $this->question['attainments'] = [$attainmentId];
+    }
+
+    public function updatingUploads(&$value)
+    {
+        if (!is_array($value) && Str::contains($value, 'fake')) {
+            $value = $this->uploads;
+        }
     }
 }

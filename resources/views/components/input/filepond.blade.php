@@ -2,26 +2,37 @@
 <div {{ $attributes->merge() }}
      id="filepond-upload"
     wire:ignore
-    x-data="{post: null}"
-    x-init="() => {
-        post = FilePond.create($refs.fileupload);
-        post.setOptions({
-            server: {
-                process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
-                    @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, load, error, progress)
+    x-data="{
+    post: null,
+    init: () => {
+        this.post = FilePond.create($refs.{{ $attributes->get('ref') ?? 'input' }});
+            this.post.setOptions({
+                allowMultiple: true,
+                server: {
+                    process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
+                        @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, load, error, progress)
+                    },
+                    revert: (filename, load) => {
+                        @this.removeUpload('{{ $attributes->whereStartsWith('wire:model')->first() }}', filename, load)
+                    },
                 },
-                revert: (filename, load) => {
-                    @this.removeUpload('{{ $attributes->whereStartsWith('wire:model')->first() }}', filename, load)
-                },
-            },
-            allowMultiple: {{ $multiple }}
-        });
-    }"
 
-     x-on:newfile.window=""
+            });
+    },
+    newFilesReceived: (event) => {
+                for (var i = 0; i < event.detail.dataTransfer.items.length; i++) {
+
+                    this.post.addFile(event.detail.dataTransfer.items[i].getAsFile())
+                }
+
+    }
+    }
+"
+
+     x-on:newfile.window="newFilesReceived($event)"
 >
     {{ $slot }}
-    <input type="file" x-ref="fileupload" class="hidden"/>
+    <input type="file" x-ref="input" class="hidden"/>
 </div>
 @push('styling')
     @once

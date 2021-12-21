@@ -2,6 +2,7 @@
 
 use Dyrynda\Database\Casts\EfficientUuid;
 use Livewire\TemporaryUploadedFile;
+use Monolog\Handler\IFTTTHandler;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -306,5 +307,25 @@ class Attachment extends BaseModel
             return session()->get($sessionValue);
         }
         return 0;
+    }
+
+    public function getFileType()
+    {
+        if ($this->type == 'video') {
+            return 'video';
+        }
+
+        if (explode('/', $this->file_mime_type)) {
+
+        }
+
+//        $imageExtensions = ['jpg', 'jpeg', 'png'];
+//        $titleExtension = collect(explode('.', $this->title))->last();
+//
+//        return collect($titleExtension)->map(function($ext) use ($imageExtensions) {
+//            if (in_array($ext, $imageExtensions)) {
+//                return 'image';
+//            }
+//        })->first();
     }
 }

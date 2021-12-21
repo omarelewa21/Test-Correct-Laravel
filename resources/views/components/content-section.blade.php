@@ -1,7 +1,7 @@
 @props([
 'title',
 ])
-<div class="flex flex-col py-5 px-7 bg-white rounded-10 content-section" {{ $attributes->merge() }}>
+<div {{ $attributes->merge(['class' => 'flex flex-col py-5 px-7 bg-white rounded-10 content-section']) }}>
     <div class="px-2.5">
         <h2>{{ $title }}</h2>
     </div>

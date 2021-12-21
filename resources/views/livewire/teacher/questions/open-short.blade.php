@@ -36,59 +36,50 @@
 
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1">
-                <script>
-                    function handleFileDrop(ev) {
-                        var filepond = document.getElementById('filepond-upload');
 
-                        filepond._x_dataStack[0].$data.post.addFile(ev.dataTransfer.items[0].getAsFile());
-                    }
-                </script>
-                <x-content-section x-data=""
-                                   @dragover.prevent="$el.classList.add('dragover')"
-                                   @dragleave.prevent="$el.classList.remove('dragover')"
-                                   @drop.prevent="$el.classList.remove('dragover'); $dispatch('newfile', $event); handleFileDrop($event)"
-                                   droppable
-                >
-                    <div>
-                        <div class="flex items-center space-x-4 mb-4">
-                            <div class="flex space-x-4">
-                                @if($attachments)
-                                    @foreach($attachments as $attachment)
-                                        <span>{{ $attachment->title }}</span>
-                                    @endforeach
-                                @endif
-                                @if ($uploads)
+                <x-upload-section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
+                    <x-slot name="files">
+                        <div class="flex space-x-4 flex-wrap">
+                            @if($attachments)
+                                @foreach($attachments as $attachment)
+                                    <x-attachment.badge :attachment="$attachment"/>
+                                @endforeach
+                            @endif
+
+                            @if ($uploads)
+                                @if(is_array($uploads))
                                     @foreach($uploads as $upload)
-                                        <button class="p-1" onclick="window.open('{{$upload->temporaryUrl()}}', '_blank')">{{ $upload->getClientOriginalName() }}</button>
+                                        <button class="p-1"
+                                                onclick="window.open('{{$upload->temporaryUrl()}}', '_blank')">{{ $upload->getClientOriginalName() }}</button>
                                     @endforeach
                                 @endif
-                            </div>
-                            <x-input.filepond class="flex items-center space-x-4" wire:model="uploads" multiple="true">
-                                <x-button.secondary onclick="document.querySelector('.filepond--label-action').click()">
-                                    <x-icon.attachment/>
-                                    <span>Bijlage toevoegen</span>
-                                </x-button.secondary>
-                                <span class="flex italic text-sm">Of sleep je bijlage over dit vak</span>
-                            </x-input.filepond>
+                            @endif
                         </div>
-                    </div>
+                    </x-slot>
+                    <x-slot name="filepond">
+                        <x-button.secondary onclick="document.querySelector('.filepond--label-action').click()">
+                            <x-icon.attachment/>
+                            <span>Bijlage toevoegen</span>
+                        </x-button.secondary>
+                        <span class="flex italic text-sm">Of sleep je bijlage over dit vak</span>
+                    </x-slot>
 
                     <x-slot name="title">
                         {{ __('Vraag') }}
                     </x-slot>
 
                     <x-input.rich-textarea
-                        wire:model.defer="question.question"
-                        editorId="{{ $questionEditorId }}"
-                        type="cms"
+                            wire:model.defer="question.question"
+                            editorId="{{ $questionEditorId }}"
+                            type="cms"
                     />
                     @error('question.question')
                     <div class="notification error stretched mt-4">
                         <span class="title">{{ $message }}</span>
                     </div>
                     @enderror
+                </x-upload-section>
 
-                </x-content-section>
                 <x-content-section>
                     <x-slot name="title">
                         {{ __('Antwoord model') }}
