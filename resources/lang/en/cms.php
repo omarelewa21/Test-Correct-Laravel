@@ -6,4 +6,6 @@ return [
     'Pauzeerbaar' => 'Pausable',
     'Eenmalig afspelen' => 'Playable once',
 
+    'completion-question' => 'Completion Question',
+    'selection-question' => 'Selection Question',
 ];

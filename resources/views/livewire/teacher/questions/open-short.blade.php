@@ -4,7 +4,7 @@
             <div class="icon-arrow">
                 <x-icon.edit></x-icon.edit>
             </div>
-            <h5 class=" text-white">{{ $questionType }}</h5>
+            <h5 class=" text-white">{{ $this->questionType }}</h5>
         </div>
         <div class="question-test-name">
             <span><?= __('test') ?>:</span>
@@ -66,12 +66,27 @@
                     <x-slot name="title">
                         {{ __('Vraag') }}
                     </x-slot>
-
-                    <x-input.rich-textarea
+                    @if($this->isShortOpenQuestion())
+                        <x-input.rich-textarea
                             wire:model.defer="question.question"
                             editorId="{{ $questionEditorId }}"
                             type="cms"
-                    />
+                        />
+                    @endif
+                    @if($this->isCompletionQuestion())
+                        <x-input.rich-textarea
+                            wire:model.defer="question.question"
+                            editorId="{{ $questionEditorId }}"
+                            type="cms-completion"
+                        />
+                    @endif
+                    @if($this->isSelectionQuestion())
+                        <x-input.rich-textarea
+                            wire:model.defer="question.question"
+                            editorId="{{ $questionEditorId }}"
+                            type="cms-selection"
+                        />
+                    @endif
                     @error('question.question')
                     <div class="notification error stretched mt-4">
                         <span class="title">{{ $message }}</span>
@@ -79,15 +94,16 @@
                     @enderror
                 </x-upload.section>
 
+                @if($this->isShortOpenQuestion())
                 <x-content-section>
                     <x-slot name="title">
                         {{ __('Antwoord model') }}
                     </x-slot>
-                        <x-input.rich-textarea
-                            wire:model.defer="question.answer"
-                            editorId="{{ $answerEditorId }}"
-                            type="student"
-                        />
+                    <x-input.rich-textarea
+                        wire:model.defer="question.answer"
+                        editorId="{{ $answerEditorId }}"
+                        type="student"
+                    />
 
                     @error('question.answer')
                     <div class="notification error stretched mt-4">
@@ -96,6 +112,7 @@
                     @enderror
 
                 </x-content-section>
+                    @endif
             </div>
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2">
@@ -190,7 +207,6 @@
                 </x-content-section>
 
 
-
                 <x-content-section>
                     <x-slot name="title">{{ __('Tags') }}</x-slot>
                     <livewire:tag-manager/>
@@ -216,4 +232,17 @@
 
 
     </div>
+    <x-modal id="selectionOptions"  wire:model="showSelectionOptionsModal">
+        <x-slot name="title">
+            me
+        </x-slot>
+        <x-slot name="body">
+            hoi
+        </x-slot>
+
+        <x-slot name="actionButton">
+
+        </x-slot>
+
+    </x-modal>
 </div>

@@ -1,7 +1,7 @@
-CKEDITOR.plugins.add('advanced',{
+CKEDITOR.plugins.add('completion',{
     init: function(editor)
     {
-        var pluginName = 'advanced';
+        var pluginName = 'completion';
 
         editor.addCommand(
         	pluginName, new CKEDITOR.command( editor, {
@@ -29,7 +29,7 @@ CKEDITOR.plugins.add('advanced',{
 	        })
 		);
 
-        editor.ui.addButton('advanced',
+        editor.ui.addButton('completion',
         {
             label: 'Vierkante haakjes toevoegen',
             command: pluginName,

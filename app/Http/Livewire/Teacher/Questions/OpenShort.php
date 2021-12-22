@@ -22,6 +22,8 @@ class OpenShort extends Component
 {
     use WithFileUploads;
 
+    public $showSelectionOptionsModal = true;
+
     public $openTab = 1;
 
     public $owner_id;
@@ -40,7 +42,6 @@ class OpenShort extends Component
 //
 //    protected $queryString = ['openTab' => ['except' => 1]];
 
-    public $questionType = 'open';
 
     public $testName = 'test_name';
 
@@ -67,16 +68,28 @@ class OpenShort extends Component
         'question'               => '',
         'rtti'                   => '',
         'score'                  => 6,
-        'sub_type'               => 'medium',
-        'type'                   => 'OpenQuestion',
+        'sub_type'               => '',
+        'type'                   => '',
         "attainments"            => [],
         "test_id"                => '',
     ];
 
-    protected $rules = [
-        'question.question' => 'required',
-        'question.answer'   => 'required',
-    ];
+    protected function rules()
+    {
+        $rules = collect(['question.question' => 'required',]);
+
+        if ($this->requiresAnswer()) {
+            $rules->merge([
+                'question.answer' => 'required',
+            ]);
+        }
+
+        return $rules->toArray();
+    }
+
+    private function requiresAnswer(){
+        return $this->isShortOpenQuestion();
+    }
 
     protected function getListeners()
     {
@@ -87,9 +100,30 @@ class OpenShort extends Component
         ];
     }
 
-    public function mount($action)
+    public function getQuestionTypeProperty()
+    {
+        switch ($this->question['type']) {
+            case 'CompletionQuestion':
+                if ($this->question['sub_type'] == 'multi') {
+                    $translation = 'cms.selection-question';
+                    break;
+                }
+                $translation = 'cms.completion-question';
+                break;
+            default:
+                $translation = 'cms.open-question';
+                break;
+        }
+
+        return __($translation);
+    }
+
+    public function mount($action, $type, $subType)
     {
         $this->action = $action;
+        $this->question['type'] = $type;
+        $this->question['sub_type'] = $subType;
+
 
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
@@ -101,6 +135,7 @@ class OpenShort extends Component
             // @TODO what to do when owner is a GroupQuestion?
 
             $activeTest = Test::whereUuid(request()->input('owner_id'))->first();
+
             $this->subjectId = $activeTest->subjectId;
             $this->question['test_id'] = $activeTest->id;
 
@@ -137,6 +172,27 @@ class OpenShort extends Component
         $this->returnToTestOverview();
     }
 
+    public function isShortOpenQuestion()
+    {
+        if ($this->question['type'] !== 'OpenQuestion') {
+            return false;
+        }
+        return ($this->question['sub_type'] === 'short');
+    }
+
+    public function isCompletionQuestion()
+    {
+        if($this->question['type'] !== 'CompletionQuestion') return false;
+
+        return $this->question['sub_type'] == 'completion';
+    }
+
+    public function isSelectionQuestion()
+    {
+        if($this->question['type'] !== 'CompletionQuestion') return false;
+
+        return $this->question['sub_type'] == 'multi';
+    }
 
     private function saveNewQuestion()
     {

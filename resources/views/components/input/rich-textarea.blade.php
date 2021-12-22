@@ -4,11 +4,20 @@
 ])
 
 @php
-    $initFunctionCall = "RichTextEditor.initStudent('".$editorId."')";
-    if ($type == 'cms') {
-       $initFunctionCall = "RichTextEditor.initCMS('".$editorId."')";
-    }
-
+    switch($type) {
+       case 'cms':
+           $initFunctionCall = "RichTextEditor.initCMS('".$editorId."')";
+           break;
+       case 'cms-completion':
+           $initFunctionCall = "RichTextEditor.initCompletionCMS('".$editorId."')";
+           break;
+       case 'cms-selection':
+           $initFunctionCall = "RichTextEditor.initSelectionCMS('".$editorId."')";
+           break;
+       default:
+          $initFunctionCall = "RichTextEditor.initStudent('".$editorId."')";
+          break;
+   }
 @endphp
 
 

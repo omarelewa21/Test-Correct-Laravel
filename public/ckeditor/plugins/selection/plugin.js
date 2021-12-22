@@ -1,8 +1,7 @@
-CKEDITOR.plugins.add('advanced',{
+CKEDITOR.plugins.add('selection',{
     init: function(editor)
     {
-        var pluginName = 'advanced';
-
+        var pluginName = 'selection';
         editor.addCommand(
         	pluginName, new CKEDITOR.command( editor, {
 	        	exec: function(editor) {
@@ -22,16 +21,23 @@ CKEDITOR.plugins.add('advanced',{
                         lastchar = "]";
                     }
 
+                    this.showPopup(editor);
+
 	        		text = firstchar + text + lastchar;
-	        		var ranged = selection.getRanges();
+	        		// var ranged = selection.getRanges();
 	        		editor.insertText(text);
-	        	}
+	        	},
+                showPopup:function(editor){
+	        	  alert('popup');
+	        	  editor.insertText('me okay');
+                },
+
 	        })
 		);
 
-        editor.ui.addButton('advanced',
+        editor.ui.addButton('selection',
         {
-            label: 'Vierkante haakjes toevoegen',
+            label: 'Vierkante haakjes toevoegen met streepjes',
             command: pluginName,
             toolbar: 'extra',
             icon: "plugins/advanced/icons/tag.png"

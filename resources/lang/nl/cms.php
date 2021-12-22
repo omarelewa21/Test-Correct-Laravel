@@ -5,4 +5,5 @@ return [
     'Antwoordtijd' => 'Antwoordtijd',
     'Pauzeerbaar' => 'Pauzeerbaar',
     'Eenmalig afspelen' => 'Eenmalig afspelen',
+    'completion-question' => 'Gatentekst',
 ];
