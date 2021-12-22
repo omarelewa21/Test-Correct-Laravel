@@ -133,11 +133,6 @@ class OpenShort extends Component
     {
         $this->validateAndReturnErrorsToTabOne();
 
-//        $request = [];
-//        if (property_exists($this, 'tags')) {
-//            $request['tags'] = $this->tags;
-//        }
-
         if ($this->action == 'edit') {
             $response = $this->updateQuestion();
         } else {
@@ -219,11 +214,6 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
-//        $route = new Route(['GET'],'api-c/test_question', []);;
-//        $route->parameters = ['test_question' => TestQuestion::whereUuid($this->test_question_id)->first()];
-
-        //$request = UpdateTestQuestionRequest::makeWithParams($this->test_question_id);
-
         $request = new Request();
         $request->merge($this->question);
 

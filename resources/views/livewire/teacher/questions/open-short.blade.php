@@ -61,9 +61,9 @@
                     <x-slot name="filepond">
                         <x-button.secondary onclick="document.querySelector('.filepond--label-action').click()">
                             <x-icon.attachment/>
-                            <span>Bijlage toevoegen</span>
+                            <span>{!! __('cms.Bijlage toevoegen')  !!}</span>
                         </x-button.secondary>
-                        <span class="flex italic text-base">Of sleep je bijlage over dit vak</span>
+                        <span class="flex italic text-base">{!!__('cms.Of sleep je bijlage over dit vak')  !!}</span>
                     </x-slot>
 
                     <x-slot name="title">
