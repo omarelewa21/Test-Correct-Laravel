@@ -7,11 +7,16 @@ module.exports = {
     ],
     darkMode: false, // or 'media' or 'class'
     theme: {
-        extend: {},
-        colors: {
-            white: '#ffffff',
-            primary: '#004df5',
-            base: '#041f74',
+        extend: {
+            colors: {
+                primary: '#004df5',
+                secondary: '#CEDAF3',
+                sysbase: '#041f74',
+                bluegrey: '#c3d0ed',
+                offwhite: '#f9faff',
+                allred: '#cf1b04',
+                cta: '#3ab753',
+            },
         },
     },
     variants: {

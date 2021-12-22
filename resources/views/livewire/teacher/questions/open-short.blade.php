@@ -39,20 +39,17 @@
 
                 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
-                        <div class="flex flex-wrap">
+                            <div class="flex flex-wrap">
                             @if($attachments)
                                 @foreach($attachments as $attachment)
-                                    <x-attachment.badge :attachment="$attachment"/>
+                                    <x-attachment.badge :upload="false" :attachment="$attachment"/>
                                 @endforeach
                             @endif
 
                             @if ($uploads)
                                 @if(is_array($uploads))
                                     @foreach($uploads as $upload)
-                                        <x-upload.badge
-                                                :tempUrl="$upload->temporaryUrl()"
-                                                :name="$upload->getClientOriginalName()"
-                                        />
+                                        <x-attachment.badge :upload="true" :attachment="$upload"/>
                                     @endforeach
                                 @endif
                             @endif

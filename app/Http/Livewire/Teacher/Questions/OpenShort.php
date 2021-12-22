@@ -7,23 +7,13 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 // http://test-correct.test/teacher/questions/open-short/add?owner=test&owner_id=7dfda5b2-c0fc-44c0-8ff9-e7a3c831e4a6&test_question_id=a01fd5e2-36dc-4bc1-823f-ca794e034c3f
 //
 use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Ramsey\Uuid\Guid\Guid;
-use tcCore\Exceptions\QuestionException;
-use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
-use tcCore\Http\Requests\UpdateTestQuestionRequest;
-use tcCore\OpenQuestion;
-use tcCore\Question;
-use tcCore\QuestionAuthor;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -93,6 +83,7 @@ class OpenShort extends Component
         return [
             'new-tags-for-question' => 'handleTags',
             'updated-attainment'    => 'handleAttainment',
+            'attachment-setting-changed' => 'handleAttachmentSettingChange'
         ];
     }
 
@@ -222,5 +213,17 @@ class OpenShort extends Component
                 TestQuestion::whereUUID($this->test_question_id)->first(),
                 $request
             );
+    }
+
+    public function handleAttachmentSettingChange($data, $attachmentId)
+    {
+        $attachment = $this->attachments->where('id', $attachmentId)->first();
+
+        $json = json_decode($attachment->json, true);
+        $json = array_merge($json, $data);
+
+        $attachment->json = json_encode($json);
+
+        dd($attachment);
     }
 }
