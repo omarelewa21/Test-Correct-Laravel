@@ -206,7 +206,7 @@
 
         <div class="question-editor-footer">
             <div class="question-editor-footer-button-container">
-                <button type="button" onclick="closeQuestionEditor();"
+                <button type="button" wire:click="returnToTestOverview();"
                         class="button text-button button-md">
                     <span> {{ __("Annuleer") }}</span>
                 </button>
