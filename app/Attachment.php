@@ -321,14 +321,5 @@ class Attachment extends BaseModel
         }
 
         return $type;
-
-//        $imageExtensions = ['jpg', 'jpeg', 'png'];
-//        $titleExtension = collect(explode('.', $this->title))->last();
-//
-//        return collect($titleExtension)->map(function($ext) use ($imageExtensions) {
-//            if (in_array($ext, $imageExtensions)) {
-//                return 'image';
-//            }
-//        })->first();
     }
 }

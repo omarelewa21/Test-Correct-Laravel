@@ -17,7 +17,7 @@
         {{ $title }}
     </x-slot>
     <div>
-        <div class="flex items-center space-x-4 mb-4 flex-wrap">
+        <div class="flex items-center mb-4 flex-wrap">
             {{ $files }}
 
             <x-input.filepond wire:model="{{ $uploadModel }}"

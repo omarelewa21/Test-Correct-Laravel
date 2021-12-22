@@ -1,7 +1,9 @@
 @php
-  $type = $attachment->getFileType();
+    $type = 'upload'//$attachment->getFileType();
 @endphp
-<div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2">
+<button onclick="window.open('{{ $tempUrl }}', '_blank')"
+        class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2.5"
+>
     <div class="flex p-2 border-r border-blue-grey h-full items-center">
         @if($type == 'image')
             <x-icon.image/>
@@ -16,9 +18,9 @@
         @endif
     </div>
     <div class="flex base items-center">
-        <span class="p-2 text-base max-w-[200px] truncate" title="{{ $attachment->title }}">{{ $attachment->title }}</span>
-        <span class="py-3 px-4 flex items-center h-full rounded-md hover:bg-primary hover:text-white transition">
+        <span class="p-2 text-base">{{ $name }}</span>
+        <span class="py-3 pl-3 pr-4 flex items-center h-full">
             <x-icon.options/>
         </span>
     </div>
-</div>
+</button>

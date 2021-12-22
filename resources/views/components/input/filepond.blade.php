@@ -7,7 +7,7 @@
     init: () => {
         this.post = FilePond.create($refs.{{ $attributes->get('ref') ?? 'input' }});
             this.post.setOptions({
-                allowMultiple: true,
+                allowMultiple: {{ $multiple }},
                 server: {
                     process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                         @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, load, error, progress)

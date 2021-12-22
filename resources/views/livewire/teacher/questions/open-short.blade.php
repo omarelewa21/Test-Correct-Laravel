@@ -37,9 +37,9 @@
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1">
 
-                <x-upload-section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
+                <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
-                        <div class="flex space-x-4 flex-wrap">
+                        <div class="flex flex-wrap">
                             @if($attachments)
                                 @foreach($attachments as $attachment)
                                     <x-attachment.badge :attachment="$attachment"/>
@@ -49,8 +49,10 @@
                             @if ($uploads)
                                 @if(is_array($uploads))
                                     @foreach($uploads as $upload)
-                                        <button class="p-1"
-                                                onclick="window.open('{{$upload->temporaryUrl()}}', '_blank')">{{ $upload->getClientOriginalName() }}</button>
+                                        <x-upload.badge
+                                                :tempUrl="$upload->temporaryUrl()"
+                                                :name="$upload->getClientOriginalName()"
+                                        />
                                     @endforeach
                                 @endif
                             @endif
@@ -78,7 +80,7 @@
                         <span class="title">{{ $message }}</span>
                     </div>
                     @enderror
-                </x-upload-section>
+                </x-upload.section>
 
                 <x-content-section>
                     <x-slot name="title">
