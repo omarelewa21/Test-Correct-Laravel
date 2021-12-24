@@ -114,8 +114,55 @@ document.addEventListener('alpine:init', () => {
                 this.$refs.listbox.children[this.focusedOptionIndex].scrollIntoView({
                     block: "center"
                 })
-            },10);
+            }, 10);
             // })
+        },
+    }));
+    Alpine.data('selectionOptions', () => ({
+        data: {elements: []},
+
+        init() {
+            for (let i = 0; i < 3; i++) {
+                this.addRow();
+            }
+        },
+
+        addRow() {
+            let component = {
+                id: this.data.elements.length,
+                checked: 'false',
+                value: '',
+            };
+            this.data.elements.push(component);
+        },
+
+        trash(event, element) {
+            event.stopPropagation();
+            this.data.elements = this.data.elements.filter(el => el.id != element.id);
+        },
+
+        toggleChecked(event, element) {
+            this.$nextTick(() => {
+                if (element.checked == 'true') {
+                    this.data.elements = this.data.elements.map(item => {
+                        item.checked = item.id == element.id ? 'true' : 'false';
+                        return item;
+                    })
+                }
+            });
+        },
+
+        save() {
+            let correct = this.data.elements.find(el => el.value != '' && el.checked == 'true');
+            let result = this.data.elements.filter(el => el.value != '' && el.checked == 'false').map(el => el.value);
+
+            if (correct) {
+                result.unshift(correct.value)
+                result = '[' + result.join('|') + ']';
+                console.log(result);
+            } else {
+                alert('none correct');
+            }
         },
     }));
 

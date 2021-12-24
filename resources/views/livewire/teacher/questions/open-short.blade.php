@@ -1,4 +1,4 @@
-<div>
+<div id="cms">
     <div class="question-editor-header z-50">
         <div class="question-title">
             <div class="icon-arrow">
@@ -81,11 +81,13 @@
                         />
                     @endif
                     @if($this->isSelectionQuestion())
-                        <x-input.rich-textarea
+                        <x-input.selection-textarea
                             wire:model.defer="question.question"
                             editorId="{{ $questionEditorId }}"
-                            type="cms-selection"
                         />
+
+
+
                     @endif
                     @error('question.question')
                     <div class="notification error stretched mt-4">
@@ -232,17 +234,5 @@
 
 
     </div>
-    <x-modal id="selectionOptions"  wire:model="showSelectionOptionsModal">
-        <x-slot name="title">
-            me
-        </x-slot>
-        <x-slot name="body">
-            hoi
-        </x-slot>
 
-        <x-slot name="actionButton">
-
-        </x-slot>
-
-    </x-modal>
 </div>

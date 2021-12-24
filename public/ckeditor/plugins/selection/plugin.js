@@ -28,8 +28,8 @@ CKEDITOR.plugins.add('selection',{
 	        		editor.insertText(text);
 	        	},
                 showPopup:function(editor){
-	        	  alert('popup');
-	        	  editor.insertText('me okay');
+	        	   livewire.find(document.getElementById('cms').getAttribute('wire:id')).set('showSelectionOptionsModal', true)
+
                 },
 
 	        })
