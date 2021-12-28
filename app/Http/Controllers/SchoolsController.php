@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests\CreateSchoolRequest;
 use tcCore\Http\Requests\UpdateSchoolRequest;
@@ -16,6 +17,7 @@ class SchoolsController extends Controller {
      */
     public function index(Request $request)
     {
+        Log::stack(['loki'])->info("index Schools");
         $schools = School::filtered($request->get('filter', []), $request->get('order', []))->with('umbrellaOrganization');
 
         switch(strtolower($request->get('mode', 'paginate'))) {

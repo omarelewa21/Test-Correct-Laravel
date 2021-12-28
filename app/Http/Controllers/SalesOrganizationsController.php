@@ -1,6 +1,7 @@
 <?php namespace tcCore\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use tcCore\Http\Requests\CreateSalesOrganizationRequest;
 use tcCore\Http\Requests\UpdateSalesOrganizationRequest;
@@ -16,6 +17,7 @@ class SalesOrganizationsController extends Controller
      */
     public function index(Request $request)
     {
+        Log::stack(['loki'])->info("index Sales Organisations");
         $salesOrganizations = SalesOrganization::filtered($request->get('filter', []), $request->get('order', []));
 
         switch (strtolower($request->get('mode', 'paginate'))) {
