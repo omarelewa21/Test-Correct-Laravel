@@ -49,7 +49,7 @@
                             <x-button.text-button class="primary"
                                                   @click="openTab = 2;"
                             >
-                                {{ __('auth.log_in_with_temporary_student_login') }}
+                                {{ __('auth.log_in_with_temporary_student_login') }} aap
                             </x-button.text-button>
                         </div>
                     </div>
