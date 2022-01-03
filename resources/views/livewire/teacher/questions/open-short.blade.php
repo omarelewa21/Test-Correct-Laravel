@@ -7,7 +7,7 @@
             <h5 class=" text-white">{{ $this->questionType }}</h5>
         </div>
         <div class="question-test-name">
-            <span><?= __('test') ?>:</span>
+            <span><?= __('cms.Toets') ?>:</span>
             <span class="bold">{{ $testName }}</span>
         </div>
     </div>
@@ -18,16 +18,18 @@
 
         <div class="flex flex-col flex-1" x-data="{openTab:@entangle('openTab')}">
             <div class="flex w-full space-x-6 mb-5 border-b border-grey">
-                <div :class="{'border-b-2 border-primary -mb-px' : openTab === 1}">
-                    <x-button.text-button class="primary"
-                                          @click="openTab = 1"
+                <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}">
+                    <x-button.text-button
+                        style="color:inherit"
+                        @click="openTab = 1"
                     >
                         {{ __('Opstellen') }}
                     </x-button.text-button>
                 </div>
-                <div class="" :class="{'border-b-2 border-primary -mb-px' : openTab === 2}">
-                    <x-button.text-button class="primary"
-                                          @click="openTab = 2;"
+                <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}">
+                    <x-button.text-button
+                        style="color:inherit"
+                        @click="openTab = 2;"
                     >
                         {{ __('Instellingen') }}
                     </x-button.text-button>
@@ -39,7 +41,7 @@
 
                 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
-                            <div class="flex flex-wrap">
+                        <div class="flex flex-wrap">
                             @if($attachments)
                                 @foreach($attachments as $attachment)
                                     <x-attachment.badge :upload="false" :attachment="$attachment"/>
@@ -64,9 +66,9 @@
                     </x-slot>
 
                     <x-slot name="title">
-                        {{ __('Vraag') }}
+                        {{ __('cms.Vraagstelling') }}
                     </x-slot>
-                    @if($this->isShortOpenQuestion())
+                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion())
                         <x-input.rich-textarea
                             wire:model.defer="question.question"
                             editorId="{{ $questionEditorId }}"
@@ -85,9 +87,6 @@
                             wire:model.defer="question.question"
                             editorId="{{ $questionEditorId }}"
                         />
-
-
-
                     @endif
                     @error('question.question')
                     <div class="notification error stretched mt-4">
@@ -96,25 +95,32 @@
                     @enderror
                 </x-upload.section>
 
-                @if($this->isShortOpenQuestion())
-                <x-content-section>
-                    <x-slot name="title">
-                        {{ __('Antwoord model') }}
-                    </x-slot>
-                    <x-input.rich-textarea
-                        wire:model.defer="question.answer"
-                        editorId="{{ $answerEditorId }}"
-                        type="student"
-                    />
+                @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion())
+                    <x-content-section>
+                        <x-slot name="title">
+                            {{ __('cms.Antwoordmodel') }}
+                        </x-slot>
 
-                    @error('question.answer')
-                    <div class="notification error stretched mt-4">
-                        <span class="title">{{ $message }}</span>
-                    </div>
-                    @enderror
+                        <x-input.toggle-radio-row-with-title wire:model="question.subtype" value-on="short"
+                                                             value-off="medium">
+                            {{ __('cms.max_characters') }}
+                        </x-input.toggle-radio-row-with-title>
 
-                </x-content-section>
-                    @endif
+
+                        <x-input.rich-textarea
+                            wire:model.defer="question.answer"
+                            editorId="{{ $answerEditorId }}"
+                            type="student"
+                        />
+
+                        @error('question.answer')
+                        <div class="notification error stretched mt-4">
+                            <span class="title">{{ $message }}</span>
+                        </div>
+                        @enderror
+
+                    </x-content-section>
+                @endif
             </div>
 
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2">
@@ -122,6 +128,19 @@
                     <x-slot name="title">{{ __('Algemeen') }}</x-slot>
 
                     <div class="grid grid-cols-2 gap-4">
+                        @if($action == 'edit')
+                            <div class="border-b flex w-full justify-between items-center py-2">
+                                <div class="flex items-center space-x-2.5">
+                                    <span class="bold">{{ __('cms.unieke id') }} {{ $questionId }}</span>
+                                </div>
+                            </div>
+                            <div class="border-b flex w-full justify-between items-center py-2">
+                                <div class="flex items-center space-x-2.5">
+                                    <span class="bold">{{ __('cms.auteurs') }} {{ $testAuthors }}</span>
+                                </div>
+                            </div>
+                        @endif
+
                         <x-input.toggle-row-with-title wire:model="question.maintain_position">
                             <x-icon.locked class="flex "></x-icon.locked>
                             <span class="bold"> {{ __('Vraag vastzetten') }}</span>
@@ -138,10 +157,11 @@
                             <x-icon.discuss class="flex "></x-icon.discuss>
                             <span class="bold"> {{ __('Bespreken in de klas') }}</span>
                         </x-input.toggle-row-with-title>
-                        <x-input.toggle-row-with-title wire:model="question.note_type">
+                        <x-input.toggle-radio-row-with-title wire:model="question.note_type" value-on="TEXT"
+                                                             value-off="NONE">
                             <x-icon.locked class="flex "></x-icon.locked>
                             <span class="bold"> {{ __('Notities toestaan') }}</span>
-                        </x-input.toggle-row-with-title>
+                        </x-input.toggle-radio-row-with-title>
                     </div>
 
                 </x-content-section>
@@ -222,7 +242,7 @@
         <div class="question-editor-footer">
             <div class="question-editor-footer-button-container">
                 <button type="button" wire:click="returnToTestOverview();"
-                        class="button text-button button-md">
+                        class="button text-button button-md pr-4">
                     <span> {{ __("Annuleer") }}</span>
                 </button>
 
