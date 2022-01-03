@@ -224,12 +224,13 @@ class OpenShort extends Component
         if ($this->uploads) {
             collect($this->uploads)->each(function ($upload) use ($response) {
                 $upload->store('', 'attachments');
+                $uploadJson = $this->audioUploadOptions[$upload->getClientOriginalName()] ?? [];
 
                 $testQuestion = $response->original;
                 $attachementRequest = new  CreateAttachmentRequest([
                     "type"       => "file",
                     "title"      => $upload->getClientOriginalName(),
-                    "json"       => $this->audioUploadOptions[$upload->getClientOriginalName()] ?? [],
+                    "json"       => json_encode($uploadJson),
                     "attachment" => $upload,
                 ]);
 
