@@ -119,13 +119,23 @@ document.addEventListener('alpine:init', () => {
         },
     }));
     Alpine.data('selectionOptions', () => ({
-        data: {elements: []},
+        data: {
+            elements: [],
+
+        },
 
         init() {
             for (let i = 0; i < 3; i++) {
                 this.addRow();
             }
         },
+
+        initWithSelection() {
+           let text = window.editor.getSelection();
+
+        },
+
+
 
         addRow() {
             let component = {
@@ -159,7 +169,11 @@ document.addEventListener('alpine:init', () => {
             if (correct) {
                 result.unshift(correct.value)
                 result = '[' + result.join('|') + ']';
-                console.log(result);
+                let lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
+                lw.set('showSelectionOptionsModal', true)
+
+                window.editor.insertText(result);
+
             } else {
                 alert('none correct');
             }

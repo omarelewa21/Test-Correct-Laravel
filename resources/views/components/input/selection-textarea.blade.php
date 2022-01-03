@@ -2,7 +2,9 @@
 'type' => 'cms-selection',
 'editorId',
 ])
-<div x-data="selectionOptions()"
+<div
+    x-data="selectionOptions()"
+    @initwithselection.window="initWithSelection()"
 
 >
 

@@ -5,32 +5,38 @@ CKEDITOR.plugins.add('selection',{
         editor.addCommand(
         	pluginName, new CKEDITOR.command( editor, {
 	        	exec: function(editor) {
-	        		var selection = editor.getSelection();
-                    var text = $.trim(selection.getSelectedText());
-                    var firstchar = selection.getSelectedText()[0];
-                    var lastchar = selection.getSelectedText()[selection.getSelectedText().length-1];
 
-                    if(firstchar == " ") {
-                        firstchar = " [";
-                    }else{
-                        firstchar = "[";
-                    }
-                    if(lastchar == " ") {
-                        lastchar = "] ";
-                    }else{
-                        lastchar = "]";
-                    }
+                    // var text = $.trim(selection.getSelectedText());
+                    // var firstchar = selection.getSelectedText()[0];
+                    // var lastchar = selection.getSelectedText()[selection.getSelectedText().length-1];
+                    //
+                    // if(firstchar == " ") {
+                    //     firstchar = " [";
+                    // }else{
+                    //     firstchar = "[";
+                    // }
+                    // if(lastchar == " ") {
+                    //     lastchar = "] ";
+                    // }else{
+                    //     lastchar = "]";
+                    // }
+                    window.editor = editor;
 
-                    this.showPopup(editor);
+                    let lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
+                    lw.set('showSelectionOptionsModal', true)
 
-	        		text = firstchar + text + lastchar;
+                    // Create the event
+                    var event = new CustomEvent("initwithselection");
+
+// Dispatch/Trigger/Fire the event
+                    window.dispatchEvent(event);
+
+
+	        		// text = firstchar + text + lastchar;
 	        		// var ranged = selection.getRanges();
-	        		editor.insertText(text);
-	        	},
-                showPopup:function(editor){
-	        	   livewire.find(document.getElementById('cms').getAttribute('wire:id')).set('showSelectionOptionsModal', true)
 
-                },
+	        	},
+
 
 	        })
 		);

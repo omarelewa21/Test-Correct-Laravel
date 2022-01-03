@@ -22,7 +22,7 @@ class OpenShort extends Component
 {
     use WithFileUploads;
 
-    public $showSelectionOptionsModal = true;
+    public $showSelectionOptionsModal = false;
 
     public $openTab = 1;
 

@@ -5553,6 +5553,9 @@ document.addEventListener('alpine:init', function () {
           this.addRow();
         }
       },
+      initWithSelection: function initWithSelection() {
+        var text = window.editor.getSelection();
+      },
       addRow: function addRow() {
         var component = {
           id: this.data.elements.length,
@@ -5592,7 +5595,9 @@ document.addEventListener('alpine:init', function () {
         if (correct) {
           result.unshift(correct.value);
           result = '[' + result.join('|') + ']';
-          console.log(result);
+          var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
+          lw.set('showSelectionOptionsModal', true);
+          window.editor.insertText(result);
         } else {
           alert('none correct');
         }
