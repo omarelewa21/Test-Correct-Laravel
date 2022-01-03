@@ -43,7 +43,7 @@ class OpenShort extends Component
     public $attachments = [];
 //
 //    protected $queryString = ['openTab' => ['except' => 1]];
-
+   public $initWithTags = [];
 
     public $testName = 'test_name';
 
@@ -57,7 +57,7 @@ class OpenShort extends Component
 
     public $questionId;
 
-    public $openQuestionSubType;
+
 
     public $question = [
         'add_to_database'        => 1,
@@ -76,7 +76,7 @@ class OpenShort extends Component
         'question'               => '',
         'rtti'                   => '',
         'score'                  => 6,
-        'subtype'               => '',
+        'subtype'                => '',
         'type'                   => '',
         "attainments"            => [],
         "test_id"                => '',
@@ -95,15 +95,16 @@ class OpenShort extends Component
         return $rules->toArray();
     }
 
-    private function requiresAnswer(){
+    private function requiresAnswer()
+    {
         return $this->isShortOpenQuestion();
     }
 
     protected function getListeners()
     {
         return [
-            'new-tags-for-question' => 'handleTags',
-            'updated-attainment'    => 'handleAttainment',
+            'new-tags-for-question'      => 'handleTags',
+            'updated-attainment'         => 'handleAttainment',
             'attachment-setting-changed' => 'handleAttachmentSettingChange'
         ];
     }
@@ -132,6 +133,7 @@ class OpenShort extends Component
         $this->question['type'] = $type;
         $this->question['subtype'] = $subType;
 
+
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
@@ -141,13 +143,12 @@ class OpenShort extends Component
             // @TODO is deze test uberhaupt onderdeel van deze test?
             // @TODO what to do when owner is a GroupQuestion?
 
-            $activeTest = Test::with('testAuthors', 'testAuthors.user')->whereUuid(request()->input('owner_id'))->first();
+            $activeTest = Test::with('testAuthors',
+                'testAuthors.user')->whereUuid(request()->input('owner_id'))->first();
             $this->testName = $activeTest->name;
             $this->testAuthors = $activeTest->AuthorsAsString;
             $this->subjectId = $activeTest->subjectId;
             $this->question['test_id'] = $activeTest->id;
-
-
 
             if ($this->test_question_id) {
                 $q = TestQuestion::whereUuid($this->test_question_id)->first()->question;
@@ -159,6 +160,13 @@ class OpenShort extends Component
                 $this->question['question'] = $q->question->getQuestionHTML();
                 $this->question['score'] = $q->score;
                 $this->question['note_type'] = $q->note_type;
+
+                $this->question['tags'] = $q->tags->map(function($tag) {
+                    return $tag->name;
+                })->toArray();
+
+                $this->initWithTags = $q->tags;
+
 
                 $this->attachments = $q->attachments;
             }
@@ -202,14 +210,18 @@ class OpenShort extends Component
 
     public function isCompletionQuestion()
     {
-        if($this->question['type'] !== 'CompletionQuestion') return false;
+        if ($this->question['type'] !== 'CompletionQuestion') {
+            return false;
+        }
 
         return $this->question['subtype'] == 'completion';
     }
 
     public function isSelectionQuestion()
     {
-        if($this->question['type'] !== 'CompletionQuestion') return false;
+        if ($this->question['type'] !== 'CompletionQuestion') {
+            return false;
+        }
 
         return $this->question['subtype'] == 'multi';
     }
@@ -319,7 +331,7 @@ class OpenShort extends Component
     public function removeAttachment($attachmentId)
     {
         $testQuestion = TestQuestion::whereUuid($this->test_question_id)->first();
-        $attachment = $this->attachments->where('id',$attachmentId)->first();
+        $attachment = $this->attachments->where('id', $attachmentId)->first();
 
         app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
             ->destroy($testQuestion, $attachment);
@@ -327,7 +339,7 @@ class OpenShort extends Component
 
     public function removeFromUploads($tempFile)
     {
-        $this->uploads = collect($this->uploads)->reject(function($tempUpload) use ($tempFile) {
+        $this->uploads = collect($this->uploads)->reject(function ($tempUpload) use ($tempFile) {
             return $tempUpload->getClientOriginalName() == $tempFile;
         })->toArray();
     }

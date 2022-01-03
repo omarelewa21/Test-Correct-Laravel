@@ -8,14 +8,20 @@ use tcCore\Tag;
 
 class TagManager extends Component
 {
+    public $initWithTags = [];
     public $query;
-    public $tags;
+    public $tags = [];
     public $highlightIndex;
     public $selectedTags = [];
 
     public function mount()
     {
         $this->resetValues();
+//        dd($this);
+        collect($this->initWithTags)->each(function($tag) {
+//            dd($tag);
+            $this->selectedTags[$tag['uuid']] = $tag['name'];
+        });
     }
 
     public function render()
@@ -26,7 +32,7 @@ class TagManager extends Component
     public function resetValues()
     {
         $this->query = '';
-        $this->tags = [];
+//        $this->tags = [];
         $this->highlightIndex = 0;
     }
 

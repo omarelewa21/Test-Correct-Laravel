@@ -166,7 +166,7 @@
 
                 </x-content-section>
 
-                <x-content-section x-data="{rtti:0, bloom:0, miller:0}">
+                <x-content-section x-data="{ rtti:{{ $question['rtti'] ? 'true': 'false'  }}, bloom: {{ $question['bloom'] ? 'true': 'false' }}, miller: {{ $question['miller'] ? 'true': 'false' }} }" >
                     <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
                     <p>{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
                     <div class="grid grid-cols-3 gap-4">
@@ -231,7 +231,7 @@
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Tags') }}</x-slot>
-                    <livewire:tag-manager/>
+                    <livewire:tag-manager :init-with-tags="$initWithTags"/>
                 </x-content-section>
 
 
