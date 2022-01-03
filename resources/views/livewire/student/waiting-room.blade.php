@@ -38,15 +38,15 @@
                         <x-button.text-button class="rotate-svg-180" type="link"
                                               href="{{ route('student.test-takes', ['tab' => $this->testTakeStatusStage]) }}">
                             <x-icon.arrow/>
-                            <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
+                            <span class="text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test_name }}</span>
                         </x-button.text-button>
                     @elseif(Auth::user()->guest && $this->testTakeStatusStage != 'planned')
                         <x-button.text-button class="rotate-svg-180" wire:click="returnToGuestChoicePage">
                             <x-icon.arrow/>
-                            <span class="text-[32px]">{{ $waitingTestTake->test_name }}</span>
+                            <span class="text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test_name }}</span>
                         </x-button.text-button>
                     @else
-                        <span class="bold text-[32px]">{{ $waitingTestTake->test_name }}</span>
+                        <span class="bold text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test_name }}</span>
                     @endif
                 </div>
                 <div>
@@ -177,7 +177,7 @@
                     <x-button.text-button class="rotate-svg-180"
                                           x-on:click="startCountdown = false; stopCountdownTimer($refs.root._x_dataStack[0])">
                         <x-icon.arrow/>
-                        <span class="text-[32px]">{{ $waitingTestTake->test->name }}</span>
+                        <span class="text-[32px]" selid="waiting-screen-title">{{ $waitingTestTake->test->name }}</span>
                     </x-button.text-button>
                 </div>
                 <div class="flex flex-col flex-1 w-full items-center mt-16 space-y-3">
