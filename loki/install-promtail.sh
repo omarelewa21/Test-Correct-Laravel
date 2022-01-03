@@ -1,5 +1,8 @@
 # positions_file=/var/log/positions.yaml
 sudo useradd --system promtail
+sudo usermod -a -G adm promtail
+sudo usermod --shell /bin/bash promtail
+
 # if [ ! -e "$positions_file" ] ; then
 #     sudo touch "$positions_file"
 #     sudo chown promtail:promtail "$positions_file"
