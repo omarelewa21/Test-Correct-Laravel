@@ -906,6 +906,15 @@ input[type=number] {
     margin-left: auto;
 }
 
+.audio-seconds-input::after {
+    content: "sec.";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    font-style: italic;
+}
 .content-section[droppable] {
     border: solid 3px transparent;
     padding: calc(1.25rem - 3px) calc(1.75rem - 3px);
@@ -2026,6 +2035,9 @@ video {
 .w-72{
 	width: 18rem;
 }
+.w-24{
+	width: 6rem;
+}
 .w-8{
 	width: 2rem;
 }
@@ -2663,6 +2675,10 @@ video {
 .py-\[11px\]{
 	padding-top: 11px;
 	padding-bottom: 11px;
+}
+.py-\[5px\]{
+	padding-top: 5px;
+	padding-bottom: 5px;
 }
 .px-28{
 	padding-left: 7rem;

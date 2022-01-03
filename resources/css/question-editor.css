@@ -64,3 +64,13 @@
 .question-editor-footer .question-editor-footer-button-container {
     margin-left: auto;
 }
+
+.audio-seconds-input::after {
+    content: "sec.";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    font-style: italic;
+}

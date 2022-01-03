@@ -32,6 +32,8 @@ class OpenShort extends Component
 
     public $uploads = [];
 
+    public $audioUploadOptions = [];
+
     public $answerEditorId;
 
     public $questionEditorId;
@@ -209,7 +211,7 @@ class OpenShort extends Component
                 $attachementRequest = new  CreateAttachmentRequest([
                     "type"       => "file",
                     "title"      => $upload->getClientOriginalName(),
-                    "json"       => "[]",
+                    "json"       => $this->audioUploadOptions[$upload->getClientOriginalName()] ?? [],
                     "attachment" => $upload,
                 ]);
 
@@ -280,6 +282,34 @@ class OpenShort extends Component
 
         $attachment->json = json_encode($json);
 
-        dd($attachment);
+        $attachment->save();
+    }
+
+    public function handleUploadSettingChange($setting, $value, $attachmentName)
+    {
+        $json = [$setting => $value];
+
+        if (array_key_exists($attachmentName, $this->audioUploadOptions)) {
+            $this->audioUploadOptions[$attachmentName] = array_merge($this->audioUploadOptions[$attachmentName], $json);
+            return;
+        }
+
+        $this->audioUploadOptions[$attachmentName] = $json;
+    }
+
+    public function removeAttachment($attachmentId)
+    {
+        $testQuestion = TestQuestion::whereUuid($this->test_question_id)->first();
+        $attachment = $this->attachments->where('id',$attachmentId)->first();
+
+        app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
+            ->destroy($testQuestion, $attachment);
+    }
+
+    public function removeFromUploads($tempFile)
+    {
+        $this->uploads = collect($this->uploads)->reject(function($tempUpload) use ($tempFile) {
+            return $tempUpload->getClientOriginalName() == $tempFile;
+        })->toArray();
     }
 }
