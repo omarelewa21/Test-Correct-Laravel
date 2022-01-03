@@ -1,5 +1,6 @@
 ReadSpeaker.q(function() {
     console.log('rs_tlc_skin initialized!');
+    rspkr.ui.Tools.ClickListen.activate();
 });
 window.rsConf = {
     general: {
@@ -11,5 +12,23 @@ window.rsConf = {
             vertical : 'bottom',
             horizontal: 'left'
         }
+    },
+    cb: {
+        ui: {
+            beforeclose: function(){
+                var focusedElements = document.getElementsByClassName('rs-cl-tabbable');
+                if(typeof focusedElements.length == "undefined" || focusedElements.length==0){
+                    return;
+                }
+                focusedElements[0].classList.remove('rs-cl-tabbable');
+            }
+        }
     }
 };
+
+function handleFocusForReadspeaker(){
+    rspkr.ui.Tools.ClickListen.deactivate();
+}
+function handleBlurForReadspeaker(){
+    rspkr.ui.Tools.ClickListen.activate();
+}

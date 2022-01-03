@@ -19,6 +19,8 @@
                             name="name"
                             maxlength="140"
                             spellcheck="false"
+                            @focus="handleFocusForReadspeaker()"
+                            @blur="handleBlurForReadspeaker()"
                     ></x-input.textarea>
                 </x-input.group>
                 <div class="absolute bg-blue-grey rounded-lg overflow-hidden "
