@@ -47,11 +47,17 @@ class OpenShort extends Component
 
     public $testName = 'test_name';
 
+    public $testAuthors = '';
+
     public $subjectId;
 
     public $action;
 
     protected $tags = [];
+
+    public $questionId;
+
+    public $openQuestionSubType;
 
     public $question = [
         'add_to_database'        => 1,
@@ -70,7 +76,7 @@ class OpenShort extends Component
         'question'               => '',
         'rtti'                   => '',
         'score'                  => 6,
-        'sub_type'               => '',
+        'subtype'               => '',
         'type'                   => '',
         "attainments"            => [],
         "test_id"                => '',
@@ -106,7 +112,7 @@ class OpenShort extends Component
     {
         switch ($this->question['type']) {
             case 'CompletionQuestion':
-                if ($this->question['sub_type'] == 'multi') {
+                if ($this->question['subtype'] == 'multi') {
                     $translation = 'cms.selection-question';
                     break;
                 }
@@ -124,8 +130,7 @@ class OpenShort extends Component
     {
         $this->action = $action;
         $this->question['type'] = $type;
-        $this->question['sub_type'] = $subType;
-
+        $this->question['subtype'] = $subType;
 
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
@@ -136,20 +141,24 @@ class OpenShort extends Component
             // @TODO is deze test uberhaupt onderdeel van deze test?
             // @TODO what to do when owner is a GroupQuestion?
 
-            $activeTest = Test::whereUuid(request()->input('owner_id'))->first();
-
+            $activeTest = Test::with('testAuthors', 'testAuthors.user')->whereUuid(request()->input('owner_id'))->first();
+            $this->testName = $activeTest->name;
+            $this->testAuthors = $activeTest->AuthorsAsString;
             $this->subjectId = $activeTest->subjectId;
             $this->question['test_id'] = $activeTest->id;
 
+
+
             if ($this->test_question_id) {
                 $q = TestQuestion::whereUuid($this->test_question_id)->first()->question;
+                $this->questionId = $q->question->getKey();
                 $this->question['bloom'] = $q->bloom;
                 $this->question['rtti'] = $q->rtti;
                 $this->question['miller'] = $q->miller;
                 $this->question['answer'] = $q->answer;
                 $this->question['question'] = $q->question->getQuestionHTML();
                 $this->question['score'] = $q->score;
-
+                $this->question['note_type'] = $q->note_type;
 
                 $this->attachments = $q->attachments;
             }
@@ -174,26 +183,35 @@ class OpenShort extends Component
         $this->returnToTestOverview();
     }
 
+
     public function isShortOpenQuestion()
     {
         if ($this->question['type'] !== 'OpenQuestion') {
             return false;
         }
-        return ($this->question['sub_type'] === 'short');
+        return ($this->question['subtype'] === 'short');
+    }
+
+    public function isMediumOpenQuestion()
+    {
+        if ($this->question['type'] !== 'OpenQuestion') {
+            return false;
+        }
+        return ($this->question['subtype'] === 'medium');
     }
 
     public function isCompletionQuestion()
     {
         if($this->question['type'] !== 'CompletionQuestion') return false;
 
-        return $this->question['sub_type'] == 'completion';
+        return $this->question['subtype'] == 'completion';
     }
 
     public function isSelectionQuestion()
     {
         if($this->question['type'] !== 'CompletionQuestion') return false;
 
-        return $this->question['sub_type'] == 'multi';
+        return $this->question['subtype'] == 'multi';
     }
 
     private function saveNewQuestion()
