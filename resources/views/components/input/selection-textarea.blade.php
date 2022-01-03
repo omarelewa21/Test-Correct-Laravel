@@ -5,9 +5,7 @@
 <div
     x-data="selectionOptions()"
     @initwithselection.window="initWithSelection()"
-
 >
-
     <x-input.rich-textarea
         wire:model.defer="{!!  $attributes->wire('model') !!}"
         editorId="{{ $editorId }}"
@@ -20,7 +18,6 @@
         <x-slot name="body">
             <template x-for="element in data.elements">
                 <div>
-
                     <x-input.text x-model="element.value"/>
                     <div
                         class="inline-flex bg-off-white border border-blue-grey rounded-lg truefalse-container transition duration-150"
@@ -58,15 +55,9 @@
                     </div>
                     <x-icon.trash @click="trash($event, element)"/>
                 </div>
-
-</div>
-</template>
-
-
-<button @click="addRow()">{{ __('add extra') }}</button>
-
-
-</x-slot>
-<x-slot name="actionButton"></x-slot>
-</x-modal>
+            </template>
+            <button @click="addRow()">{{ __('add extra') }}</button>
+        </x-slot>
+        <x-slot name="actionButton"></x-slot>
+    </x-modal>
 </div>

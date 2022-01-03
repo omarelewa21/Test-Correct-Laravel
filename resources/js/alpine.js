@@ -135,8 +135,6 @@ document.addEventListener('alpine:init', () => {
 
         },
 
-
-
         addRow() {
             let component = {
                 id: this.data.elements.length,
