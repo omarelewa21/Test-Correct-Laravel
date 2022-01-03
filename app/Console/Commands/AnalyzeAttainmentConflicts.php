@@ -4,6 +4,7 @@ namespace tcCore\Console\Commands;
 
 use Illuminate\Console\Command;
 use Maatwebsite\Excel\Facades\Excel;
+use tcCore\Exports\AttainmentConflictCollectionExport;
 use tcCore\Exports\AttainmentConflictExport;
 use tcCore\Question;
 use tcCore\User;
@@ -77,16 +78,28 @@ class AnalyzeAttainmentConflicts extends Command
 
     private function exportExcelForAll()
     {
-        $collection = collect([]);
-        $questions = Question::where('type','not like','%bla%')->chunk(100, function ($questions) use($collection) {
-            $collection->push((new AttainmentConflictExport($questions,'superLean'))->collection());
-        });
-        dump($collection);
-        //Excel::store(new AttainmentConflictExport($questions,'superLean'), __DIR__.'/../../logs/attainments_conflicts_export_all.xlsx');
+        $collection = $this->getCollectionForAll();
+        $questions = [];
+        $export = new AttainmentConflictCollectionExport($questions,'superLean');
+        $export->setCollection($collection);
+        Excel::store($export, __DIR__.'/../../logs/attainments_conflicts_export_all.xlsx');
     }
 
     private function countAll()
     {
+        $collection = $this->getCollectionForAll();
+        return $collection->count();
+    }
 
+    private function getCollectionForAll()
+    {
+        $collection = collect([]);
+        Question::where('type','not like','%bla%')->chunk(100, function ($questions) use($collection) {
+            $chunkCollection = (new AttainmentConflictExport($questions,'superLean'))->collection();
+            foreach ($chunkCollection as $entryArray){
+                    $collection->push($entryArray);
+            }
+        });
+        return $collection;
     }
 }

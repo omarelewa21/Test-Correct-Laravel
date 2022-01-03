@@ -14,6 +14,9 @@ class AttainmentConflictExport implements FromCollection, WithHeadings
     protected $questions;
     protected $collection;
     protected $handled = [];
+    protected $baseSubject = '';
+    protected $educationLevel = '';
+    protected $educationLevelYear = '';
 
     public function __construct($questions,$weight)
     {
@@ -40,7 +43,10 @@ class AttainmentConflictExport implements FromCollection, WithHeadings
             'vraag',
             'code',
             'subcode',
-            'subsubcode'
+            'subsubcode',
+            'base_subject',
+            'education_level',
+            'education_level_year'
         ];
     }
 
@@ -49,7 +55,10 @@ class AttainmentConflictExport implements FromCollection, WithHeadings
         foreach ($this->questions as $question)
         {
             $questionTitle = $this->getQuestionTitle($question);
-            $this->collection->push([$questionTitle]);
+            $this->setBaseSubject($question);
+            $this->setEducationLevel($question);
+            $this->setEducationLevelYear($question);
+            $this->collection->push([0 => $questionTitle, 1 => '', 2 => '', 3 => '', 4 => '', 5 => '', 6 => '']);
             $this->fillAttainmentRows($question->getQuestionInstance(),$lean,$superLean);
         }
     }
@@ -65,7 +74,10 @@ class AttainmentConflictExport implements FromCollection, WithHeadings
             $this->collection->pop();
             return;
         }
-        $this->collection->push($branches);
+        foreach ($branches as $branch){
+            $this->collection->push($branch);
+        }
+
     }
 
     protected function getAttainmentBranches($question)
@@ -76,16 +88,22 @@ class AttainmentConflictExport implements FromCollection, WithHeadings
         $attainmentIds = $questionAttainments->pluck('id')->toArray();
         $subsubcodeAttainments = $questionAttainments->whereNotNull('subsubcode');
         foreach($subsubcodeAttainments as $subsubcodeAttainment){
+            if($subsubcodeAttainment->subsubcode==''){
+                continue;
+            }
             $branches[] = $this->fillBranchFromSubsubcode($subsubcodeAttainment,$attainmentIds);
         }
         $subcodeAttainments = $questionAttainments->whereNotNull('subcode')->whereNull('subsubcode');
         foreach($subcodeAttainments as $subcodeAttainment){
+            if($subcodeAttainment->subcode==''){
+                continue;
+            }
             if(in_array($subcodeAttainment->id,$this->handled)){
                 continue;
             }
             $branches[] = $this->fillBranchFromSubcode($subcodeAttainment,$attainmentIds);
         }
-        $codeAttainments = $questionAttainments->whereNotNull('code')->whereNull('subsubcode');
+        $codeAttainments = $questionAttainments->whereNotNull('code')->whereNull('subcode');
         foreach($codeAttainments as $codeAttainment){
             if(in_array($codeAttainment->id,$this->handled)){
                 continue;
@@ -126,9 +144,12 @@ class AttainmentConflictExport implements FromCollection, WithHeadings
     {
         $this->fillHandled([$subsubcodeAttainment,$subcodeAttainment,$codeAttainment]);
         return [    '',
-            $this->getAttainmentLabel($codeAttainment,$attainmentIds),
-            $this->getAttainmentLabel($subcodeAttainment,$attainmentIds),
-            $this->getAttainmentLabel($subsubcodeAttainment,$attainmentIds),
+                $this->getAttainmentLabel($codeAttainment,$attainmentIds),
+                $this->getAttainmentLabel($subcodeAttainment,$attainmentIds),
+                $this->getAttainmentLabel($subsubcodeAttainment,$attainmentIds),
+                $this->baseSubject,
+                $this->educationLevel,
+                $this->educationLevelYear
         ];
     }
 
@@ -156,10 +177,33 @@ class AttainmentConflictExport implements FromCollection, WithHeadings
             $doc = new \DOMDocument('utf-8');
             $doc->loadHTML('<div>'.$question->getQuestionInstance()->getAttribute('question').'</div>');
             $xpath = new DOMXPath($doc);
-            $txt = $doc->saveHTML($xpath->query('/div/*')->item(0));
+            if($xpath->query('/html/body/div/*')->length>0){
+                $txt = $doc->saveHTML($xpath->query('/html/body/div/*')->item(0));
+            }else{
+                $txt = utf8_encode(substr($question->getQuestionInstance()->getAttribute('question'),0,20));
+            }
+            if(strlen($txt)>40){
+                $txt = substr($txt,0,40);
+            }
             return $txt.'('.$question->getKey().')';
         }catch(\Exception $e){
             return utf8_encode(substr($question->getQuestionInstance()->getAttribute('question'),0,20)).'('.$question->getKey().')';
         }
     }
+
+    protected function setBaseSubject($question)
+    {
+        $this->baseSubject = optional(optional($question->subject)->baseSubject)->name;
+    }
+
+    protected function setEducationLevel($question)
+    {
+        $this->educationLevel = optional($question->educationLevel)->name;
+    }
+
+    protected function setEducationLevelYear($question)
+    {
+        $this->educationLevelYear = $question->education_level_year;
+    }
+
 }
