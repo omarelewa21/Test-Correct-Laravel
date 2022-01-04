@@ -134,6 +134,8 @@ class OpenShort extends Component
         $this->question['subtype'] = $subType;
 
 
+
+
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
@@ -160,10 +162,8 @@ class OpenShort extends Component
                 $this->question['question'] = $q->question->getQuestionHTML();
                 $this->question['score'] = $q->score;
                 $this->question['note_type'] = $q->note_type;
+               $this->question['attainments']=$q->getQuestionAttainmentsAsArray();
 
-                $this->question['tags'] = $q->tags->map(function($tag) {
-                    return $tag->name;
-                })->toArray();
 
                 $this->initWithTags = $q->tags;
 
@@ -264,7 +264,7 @@ class OpenShort extends Component
 
     public function handleAttainment($attainmentId)
     {
-        //  $this->question['attainments'] = [$attainmentId];
+          $this->question['attainments'] = [$attainmentId];
     }
 
     public function updatingUploads(&$value)

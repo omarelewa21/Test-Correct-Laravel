@@ -225,7 +225,7 @@
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
-                    <livewire:attainment-manager/>
+                    <livewire:attainment-manager :value="$question['attainments']" subject-id="2" eduction-level-id="1"/>
                 </x-content-section>
 
 

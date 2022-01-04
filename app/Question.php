@@ -1355,4 +1355,11 @@ class Question extends MtiBaseModel {
     {
         return $this->convertInlineImageSources();
     }
+
+    public function getQuestionAttainmentsAsArray()
+    {
+        return $this->questionAttainments->map(function($relation) {
+            return $relation->attainment_id;
+        })->toArray();
+    }
 }

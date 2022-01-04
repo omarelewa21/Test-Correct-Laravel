@@ -15,12 +15,22 @@ class AttainmentManager extends Component
 
     public $domainId;
 
+    public $value;
+
+    public $subjectId;
+
+    public $eductionLevelId;
+
 
     public function mount()
     {
+
+
+
+
         $filter = [
-            'education_level_id' => 1,
-            'subject_id'         => 2,
+            'education_level_id' => $this->eductionLevelId,
+            'subject_id'         => $this->subjectId,
             'status'             => 'ACTIVE',
         ];
         $this->domains = [];
@@ -31,7 +41,13 @@ class AttainmentManager extends Component
             ->each(function ($domain) {
                     $this->domains[$domain->id] = $domain->description;
             });
-        $this->updatedDomainId($this->domainId);
+        if ($this->value){
+            $this->subdomainId =  current($this->value);
+            $this->domainId = Attainment::find($this->subdomainId)->attainment_id;
+            $this->reloadSubdomainsListForAttainmentId($this->domainId);
+        } else {
+            $this->updatedDomainId($this->domainId);
+        }
     }
 
     public function updatedSubdomainId($value) {
@@ -40,11 +56,15 @@ class AttainmentManager extends Component
 
     public function updatedDomainId($value)
     {
-        $this->subdomainId = '';
-        $this->subdomains = [];
+            $this->subdomainId = '';
+            $this->subdomains = [];
+            $this->reloadSubdomainsListForAttainmentId($value);
+    }
 
-        if (!empty($value)) {
-            Attainment::where('attainment_id', $value)
+    private function reloadSubdomainsListForAttainmentId($attainmentId)
+    {
+        if (!empty($attainmentId)) {
+            Attainment::where('attainment_id', $attainmentId)
                 ->where('status', 'ACTIVE')
                 ->get()
                 ->each(function ($subDomain) {
