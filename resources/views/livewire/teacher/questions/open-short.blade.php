@@ -49,28 +49,34 @@
 
                 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
-                        <div class="flex flex-wrap">
+                        <div id="attachment-badges" class="flex flex-wrap">
                             @if($attachments)
                                 @foreach($attachments as $attachment)
-                                    <x-attachment.badge :upload="false" :attachment="$attachment"/>
+                                    <x-attachment.badge :upload="false" :attachment="$attachment" :title="$attachment->title"/>
                                 @endforeach
                             @endif
-
+                            @if($videos)
+                                @foreach($videos as $video)
+                                    <x-attachment.video-badge :video="$video"/>
+                                @endforeach
+                            @endif
                             @if ($uploads)
                                 @if(is_array($uploads))
                                     @foreach($uploads as $upload)
-                                        <x-attachment.badge :upload="true" :attachment="$upload"/>
+                                        <x-attachment.badge :upload="true" :attachment="$upload" :title="$upload->getClientOriginalName()"/>
                                     @endforeach
                                 @endif
                             @endif
+                            <x-attachment.dummy-badge model="uploads"/>
                         </div>
                     </x-slot>
                     <x-slot name="filepond">
-                        <x-button.secondary onclick="document.querySelector('.filepond--label-action').click()">
-                            <x-icon.attachment/>
-                            <span>{!! __('cms.Bijlage toevoegen')  !!}</span>
-                        </x-button.secondary>
-                        <span class="flex italic text-base">{!!__('cms.Of sleep je bijlage over dit vak')  !!}</span>
+                        <x-button.add-attachment>
+                            <x-slot name="text">
+                                <x-icon.attachment/>
+                                <span>{!! __('cms.Bijlage toevoegen')  !!}</span>
+                            </x-slot>
+                        </x-button.add-attachment>
                     </x-slot>
 
                     <x-slot name="title">

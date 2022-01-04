@@ -1,20 +1,30 @@
 @props(['multiple' => false])
-<div {{ $attributes->merge() }}
+<div {{ $attributes->except('wire:model') }}
      id="filepond-upload"
     wire:ignore
     x-data="{
     post: null,
     init: () => {
-        this.post = FilePond.create($refs.{{ $attributes->get('ref') ?? 'input' }});
+        this.post = FilePond.create($refs.input);
             this.post.setOptions({
                 allowMultiple: {{ $multiple }},
                 server: {
                     process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
-                        @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, load, error, progress)
+                        @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, (uploadedFilename) => {
+                            // Success callback.
+                        }, () => {
+                            // Error callback.
+                        }, (event) => {
+                            // Progress callback.
+                        })
                     },
                     revert: (filename, load) => {
                         @this.removeUpload('{{ $attributes->whereStartsWith('wire:model')->first() }}', filename, load)
                     },
+                },
+                onprocessfilestart: (file) => {
+                    let dummy = document.querySelector('#attachment-badges > #dummy');
+                    dummy.querySelector('span').innerHTML = file.filename;
                 },
 
             });
@@ -32,7 +42,7 @@
      x-on:newfile.window="newFilesReceived($event)"
 >
     {{ $slot }}
-    <input type="file" x-ref="input" class="hidden"/>
+    <input {{ $attributes->wire('model') }} type="file" x-ref="input" class="hidden" name="filepond"/>
 </div>
 @push('styling')
     @once

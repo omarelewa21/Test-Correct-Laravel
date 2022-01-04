@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use tcCore\Attachment;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -42,9 +43,10 @@ class OpenShort extends Component
     protected $queryString = ['owner_id', 'test_question_id'];
 
     public $attachments = [];
-//
-//    protected $queryString = ['openTab' => ['except' => 1]];
+
     public $initWithTags = [];
+
+    public $videos = [];
 
     public $testName = 'test_name';
 
@@ -71,14 +73,13 @@ class OpenShort extends Component
         'maintain_position'      => 1,
         'miller'                 => '',
         "is_open_source_content" => 1,
-        "tags"                   => [
-        ],
+        "tags"                   => [],
         'note_type'              => 'NONE',
         'order'                  => 0,
         'question'               => '',
         'rtti'                   => '',
         'score'                  => 6,
-        'subtype'                => '',
+        'subtype'               => '',
         'type'                   => '',
         "attainments"            => [],
         "test_id"                => '',
@@ -142,7 +143,6 @@ class OpenShort extends Component
         $this->question['type'] = $type;
         $this->question['subtype'] = $subType;
 
-
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
@@ -179,16 +179,10 @@ class OpenShort extends Component
                 $this->question['note_type'] = $q->note_type;
                 $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
 
-
-
-
                 $this->initWithTags = $q->tags;
-
-
                 $this->attachments = $q->attachments;
             }
         }
-//       dd($this->subjectId);
     }
 
     public function save()
@@ -251,21 +245,11 @@ class OpenShort extends Component
     private function handleAttachments($response)
     {
         if ($this->uploads) {
-            collect($this->uploads)->each(function ($upload) use ($response) {
-                $upload->store('', 'attachments');
-                $uploadJson = $this->audioUploadOptions[$upload->getClientOriginalName()] ?? [];
+            $this->handleFileAttachments($response);
+        }
 
-                $testQuestion = $response->original;
-                $attachementRequest = new  CreateAttachmentRequest([
-                    "type"       => "file",
-                    "title"      => $upload->getClientOriginalName(),
-                    "json"       => json_encode($uploadJson),
-                    "attachment" => $upload,
-                ]);
-
-                $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
-                    ->store($testQuestion, $attachementRequest);
-            });
+        if ($this->videos) {
+            $this->handleVideoAttachments($response);
         }
     }
 
@@ -321,12 +305,12 @@ class OpenShort extends Component
             );
     }
 
-    public function handleAttachmentSettingChange($data, $attachmentId)
+    public function handleAttachmentSettingChange($data, $attachmentUuid)
     {
-        $attachment = $this->attachments->where('id', $attachmentId)->first();
+        $attachment = collect($this->attachments)->where('uuid', $attachmentUuid)->first();
 
-        $json = json_decode($attachment->json, true);
-        $json = array_merge($json, $data);
+        $currentJson = json_decode($attachment->json, true);
+        $json = array_merge($currentJson, $data);
 
         $attachment->json = json_encode($json);
 
@@ -335,23 +319,29 @@ class OpenShort extends Component
 
     public function handleUploadSettingChange($setting, $value, $attachmentName)
     {
-        $json = [$setting => $value];
+        $changedSetting = [$setting => $value];
 
         if (array_key_exists($attachmentName, $this->audioUploadOptions)) {
-            $this->audioUploadOptions[$attachmentName] = array_merge($this->audioUploadOptions[$attachmentName], $json);
+            $this->audioUploadOptions[$attachmentName] = array_merge($this->audioUploadOptions[$attachmentName], $changedSetting);
             return;
         }
 
-        $this->audioUploadOptions[$attachmentName] = $json;
+        $this->audioUploadOptions[$attachmentName] = $changedSetting;
     }
 
-    public function removeAttachment($attachmentId)
+    public function removeAttachment($attachmentUuid)
     {
         $testQuestion = TestQuestion::whereUuid($this->test_question_id)->first();
-        $attachment = $this->attachments->where('id', $attachmentId)->first();
+        $attachment = Attachment::whereUuid($attachmentUuid)->first();
 
-        app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
+        $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
             ->destroy($testQuestion, $attachment);
+
+        if ($response->getStatusCode() == 200) {
+            $this->attachments = collect($this->attachments)->reject(function($attachment) use ($attachmentUuid) {
+                return $attachment->uuid == $attachmentUuid;
+            });
+        }
     }
 
     public function removeFromUploads($tempFile)
@@ -359,5 +349,50 @@ class OpenShort extends Component
         $this->uploads = collect($this->uploads)->reject(function ($tempUpload) use ($tempFile) {
             return $tempUpload->getClientOriginalName() == $tempFile;
         })->toArray();
+    }
+
+    public function removeVideo($video)
+    {
+        $this->videos = collect($this->videos)->reject(function($item) use ($video) {
+            return $item == $video;
+        })->toArray();
+    }
+
+    public function handleNewVideoAttachment($link)
+    {
+        $this->videos[] = $link;
+    }
+
+    private function handleFileAttachments($response): void
+    {
+        collect($this->uploads)->each(function ($upload) use ($response) {
+            $upload->store('', 'attachments');
+            $uploadJson = $this->audioUploadOptions[$upload->getClientOriginalName()] ?? [];
+
+            $testQuestion = $response->original;
+            $attachementRequest = new  CreateAttachmentRequest([
+                "type"       => "file",
+                "title"      => $upload->getClientOriginalName(),
+                "json"       => json_encode($uploadJson),
+                "attachment" => $upload,
+            ]);
+
+            $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
+                ->store($testQuestion, $attachementRequest);
+        });
+    }
+
+    private function handleVideoAttachments($response)
+    {
+        collect($this->videos)->each(function ($video) use ($response) {
+            $testQuestion = $response->original;
+            $attachementRequest = new  CreateAttachmentRequest([
+                "type" => "video",
+                "link" => $video
+            ]);
+
+            $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
+                ->store($testQuestion, $attachementRequest);
+        });
     }
 }
