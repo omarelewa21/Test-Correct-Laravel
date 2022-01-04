@@ -142,7 +142,7 @@
                  @click="options = false"
             >
                 <x-icon.trash/>
-                <span class="text-base bold inherit">Verwijderen</span>
+                <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
             </div>
         </div>
 

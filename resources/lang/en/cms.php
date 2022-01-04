@@ -21,4 +21,6 @@ return [
     'Statistiek'           => 'Statistics',
     'p-waarde'             => 'P-Value',
     'keer afgenomen'       => 'times taken',
+    'Verwijderen'          => 'Delete',
+    'Upload'               => 'Video URL',
 ];

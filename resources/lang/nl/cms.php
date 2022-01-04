@@ -19,4 +19,7 @@ return [
     'Statistiek'                       => 'Statistiek',
     'p-waarde'                         => 'P-waarde',
     'keer afgenomen'                   => 'keer afgenomen',
+    'Verwijderen'                      => 'Verwijderen',
+    'Upload'                           => 'Upload',
+    'Video URL'                        => 'Video URL',
 ];
