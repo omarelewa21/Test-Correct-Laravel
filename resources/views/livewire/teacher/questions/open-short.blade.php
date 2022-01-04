@@ -34,6 +34,14 @@
                         {{ __('Instellingen') }}
                     </x-button.text-button>
                 </div>
+                <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}">
+                    <x-button.text-button
+                        style="color:inherit"
+                        @click="openTab = 3;"
+                    >
+                        {{ __('cms.Statistiek') }}
+                    </x-button.text-button>
+                </div>
             </div>
 
 
@@ -101,12 +109,6 @@
                             {{ __('cms.Antwoordmodel') }}
                         </x-slot>
 
-                        <x-input.toggle-radio-row-with-title wire:model="question.subtype" value-on="short"
-                                                             value-off="medium">
-                            {{ __('cms.max_characters') }}
-                        </x-input.toggle-radio-row-with-title>
-
-
                         <x-input.rich-textarea
                             wire:model.defer="question.answer"
                             editorId="{{ $answerEditorId }}"
@@ -136,7 +138,7 @@
                             </div>
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
-                                    <span class="bold">{{ __('cms.auteurs') }} {{ $testAuthors }}</span>
+                                    <span class="bold">{{ __('cms.auteur(s)') }} {{ $testAuthors }}</span>
                                 </div>
                             </div>
                         @endif
@@ -166,7 +168,8 @@
 
                 </x-content-section>
 
-                <x-content-section x-data="{ rtti:{{ $question['rtti'] ? 'true': 'false'  }}, bloom: {{ $question['bloom'] ? 'true': 'false' }}, miller: {{ $question['miller'] ? 'true': 'false' }} }" >
+                <x-content-section class="taxonomie"
+                                   x-data="{ rtti:{{ $question['rtti'] ? 'true': 'false'  }}, bloom: {{ $question['bloom'] ? 'true': 'false' }}, miller: {{ $question['miller'] ? 'true': 'false' }} }">
                     <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
                     <p>{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
                     <div class="grid grid-cols-3 gap-4">
@@ -225,7 +228,8 @@
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
-                    <livewire:attainment-manager :value="$question['attainments']" subject-id="2" eduction-level-id="1"/>
+                    <livewire:attainment-manager :value="$question['attainments']" subject-id="2"
+                                                 eduction-level-id="1"/>
                 </x-content-section>
 
 
@@ -236,7 +240,61 @@
 
 
             </div>
+            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 3">
+                <x-content-section>
+                    <x-slot name="title">{{ __('cms.Statistiek') }}</x-slot>
+                    <div class="grid grid-cols-2 gap-4">
+                        @if($action == 'edit')
+                            <div class="border-b flex w-full justify-between items-center py-2">
+                                <div class="flex items-center space-x-2.5">
+                                    <span class="bold">{{ __('cms.unieke id') }} {{ $questionId }}</span>
+                                </div>
+                            </div>
+                            <div class="border-b flex w-full justify-between items-center py-2">
+                                <div class="flex items-center space-x-2.5">
+                                    <span class="bold">{{ __('cms.auteur(s)') }} {{ $testAuthors }}</span>
+                                </div>
+                            </div>
+
+                            @foreach($this->pValues as $pValue)
+                                <div class="border-b flex w-full justify-between items-center">
+                                    <div class="flex items-center space-x-2.5 py-3">
+                                        <span class="bold">{{ __('cms.p-waarde') }} {{ $pValue->education_level_year }} {{ $pValue->education_level->name }}</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2.5 py-3">
+                                        {!! number_format( $pValue->p_value, 2) !!}
+                                    </div>
+                                    <div class="flex items-center space-x-2.5 py-3">
+                                        {{ $pvalue->p_value_count }} {{ __("cms.keer afgenomen") }}
+                                    </div>
+
+{{--                                    <div class="flex items-center space-x-2.5 py-3">--}}
+{{--                                        <?--}}
+
+{{--                                        $error = '';--}}
+
+{{--                                        if($pvalue['p_value'] > 0.9) {--}}
+{{--                                            $error = __("De vraag is te makkelijk voor dit niveau.");--}}
+{{--                                        }elseif($pvalue['p_value'] < 0.2) {--}}
+{{--                                            $error = __("De vraag is te moeilijk voor dit niveau. (controleer de vraag op eventuele vormfouten als u van mening bent dat de vraag geschikt is voor dit niveau)");--}}
+{{--                                        }--}}
+
+{{--                                        if(!empty($error)) {--}}
+{{--                                        ?>--}}
+{{--                                        <span class="fa fa-warning" onclick="Questions.showPvalueError('<?=$error?>');" style="cursor:pointer; color:orange"></span>--}}
+{{--                                        <?--}}
+{{--                                        }--}}
+{{--                                        ?>--}}
+{{--                                    </div>--}}
+                                </div>
+                            @endforeach
+
+                        @endif
+                    </div>
+                </x-content-section>
+            </div>
         </div>
+
 
 
         <div class="question-editor-footer">

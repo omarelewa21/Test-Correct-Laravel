@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
 use tcCore\TemporaryLogin;
@@ -43,7 +44,7 @@ class OpenShort extends Component
     public $attachments = [];
 //
 //    protected $queryString = ['openTab' => ['except' => 1]];
-   public $initWithTags = [];
+    public $initWithTags = [];
 
     public $testName = 'test_name';
 
@@ -57,6 +58,7 @@ class OpenShort extends Component
 
     public $questionId;
 
+    public $pValues = [];
 
 
     public $question = [
@@ -119,6 +121,13 @@ class OpenShort extends Component
                 }
                 $translation = 'cms.completion-question';
                 break;
+            case 'OpenQuestion':
+                if ($this->question['subtype'] == 'short') {
+                    $translation = 'cms.open-question-short';
+                    break;
+                }
+                $translation = 'cms.open-question-medium';
+                break;
             default:
                 $translation = 'cms.open-question';
                 break;
@@ -132,8 +141,6 @@ class OpenShort extends Component
         $this->action = $action;
         $this->question['type'] = $type;
         $this->question['subtype'] = $subType;
-
-
 
 
         $this->answerEditorId = Str::uuid()->__toString();
@@ -154,6 +161,14 @@ class OpenShort extends Component
 
             if ($this->test_question_id) {
                 $q = TestQuestion::whereUuid($this->test_question_id)->first()->question;
+
+                if ($q) {
+                    $q = (new QuestionHelper())->getTotalQuestion($q->question);
+
+                    $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
+                }
+
+
                 $this->questionId = $q->question->getKey();
                 $this->question['bloom'] = $q->bloom;
                 $this->question['rtti'] = $q->rtti;
@@ -162,7 +177,9 @@ class OpenShort extends Component
                 $this->question['question'] = $q->question->getQuestionHTML();
                 $this->question['score'] = $q->score;
                 $this->question['note_type'] = $q->note_type;
-               $this->question['attainments']=$q->getQuestionAttainmentsAsArray();
+                $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
+
+
 
 
                 $this->initWithTags = $q->tags;
@@ -262,9 +279,9 @@ class OpenShort extends Component
         $this->question['tags'] = array_values($tags);
     }
 
-    public function handleAttainment($attainmentId)
+    public function handleAttainment(array $attainments)
     {
-          $this->question['attainments'] = [$attainmentId];
+        $this->question['attainments'] = $attainments;
     }
 
     public function updatingUploads(&$value)

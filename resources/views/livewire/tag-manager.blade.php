@@ -20,7 +20,7 @@
             <x-input.text
                     type="text"
                     class="z-10"
-                    placeholder="Search tags..."
+                    placeholder="{{ __('cms.Zoek tags ...') }}"
                     wire:model="query"
                     wire:keydown.escape="resetValues()"
                     wire:keydown.tab="resetValues()"

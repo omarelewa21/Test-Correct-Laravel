@@ -295,3 +295,9 @@ input[type=number] {
 .test-take-code-component .form-input.disabled {
     color: var(--mid-grey);
 }
+
+.taxonomie input[type=radio] {
+    line-height: 25px;
+    width: 20px;
+    height:20px;
+}
