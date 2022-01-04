@@ -135,41 +135,50 @@
                 <x-content-section>
                     <x-slot name="title">{{ __('Algemeen') }}</x-slot>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-x-4">
                         @if($action == 'edit')
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
-                                    <span class="bold">{{ __('cms.unieke id') }} {{ $questionId }}</span>
+                                    <span class="bold text-base">{{ __('cms.unieke id') }}</span>
+                                    <span class="ml-10 text-base">{{ $questionId }}</span>
                                 </div>
                             </div>
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
-                                    <span class="bold">{{ __('cms.auteur(s)') }} {{ $testAuthors }}</span>
+                                    <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
+                                    <span class="ml-10 text-base">{{ $testAuthors }}</span>
                                 </div>
                             </div>
                         @endif
 
-                        <x-input.toggle-row-with-title wire:model="question.maintain_position">
-                            <x-icon.locked class="flex "></x-icon.locked>
-                            <span class="bold"> {{ __('Vraag vastzetten') }}</span>
+                        <x-input.toggle-row-with-title wire:model="question.closable"
+                            :toolTip="__('Sluiten na beantwoorden')"
+                        >
+                            <x-icon.locked></x-icon.locked>
+                            <span class="bold">{{ __('Sluiten na beantwoorden') }}</span>
                         </x-input.toggle-row-with-title>
                         <x-input.toggle-row-with-title wire:model="question.add_to_database">
                             <x-icon.preview class="flex "></x-icon.preview>
                             <span class="bold"> {{ __('Openbaar maken') }}</span>
                         </x-input.toggle-row-with-title>
-                        <x-input.toggle-row-with-title wire:model="question.closable">
-                            <x-icon.close class="flex "></x-icon.close>
-                            <span class="bold"> {{ __('Sluiten na beantwoorden') }}</span>
+
+                        <x-input.toggle-row-with-title wire:model="question.maintain_position">
+                            <x-icon.shuffle-off/>
+                            <span class="bold"> {{ __('Deze vraag niet shuffelen') }}</span>
                         </x-input.toggle-row-with-title>
                         <x-input.toggle-row-with-title wire:model="question.discuss">
                             <x-icon.discuss class="flex "></x-icon.discuss>
                             <span class="bold"> {{ __('Bespreken in de klas') }}</span>
                         </x-input.toggle-row-with-title>
-                        <x-input.toggle-radio-row-with-title wire:model="question.note_type" value-on="TEXT"
-                                                             value-off="NONE">
-                            <x-icon.locked class="flex "></x-icon.locked>
+
+                        <x-input.toggle-radio-row-with-title wire:model="question.note_type" value-on="TEXT" value-off="NONE">
+                            <x-icon.notepad/>
                             <span class="bold"> {{ __('Notities toestaan') }}</span>
                         </x-input.toggle-radio-row-with-title>
+                        <x-input.toggle-row-with-title wire:model="question.decimal_score">
+                            <x-icon.half-points/>
+                            <span class="bold"> {{ __('Halve puntenbeoordeling mogelijk') }}</span>
+                        </x-input.toggle-row-with-title>
                     </div>
 
                 </x-content-section>
@@ -188,7 +197,7 @@
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
                                                name="rtti" type="radio"
-                                               wire:model="question.rtti"
+                                               wire:model.defer="question.rtti"
                                                value="{{ $value }}"/>
                                         <span>{{ $value }}</span>
                                     </label>
@@ -204,7 +213,7 @@
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
                                                name="bloom" type="radio"
-                                               wire:model="question.bloom"
+                                               wire:model.defer="question.bloom"
                                                value="{{ $value }}"/>
                                         <span>{{ __($value) }}</span>
                                     </label>
@@ -220,7 +229,7 @@
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
                                                name="miller" type="radio"
-                                               wire:model="question.miller"
+                                               wire:model.defer="question.miller"
                                                value="{{ $value }}"/>
                                         <span>{{ __($value) }}</span>
                                     </label>

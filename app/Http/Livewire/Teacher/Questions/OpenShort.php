@@ -265,7 +265,9 @@ class OpenShort extends Component
 
     public function handleAttainment(array $attainments)
     {
-        $this->question['attainments'] = $attainments;
+//        if (!empty($attainments[0])) {
+            $this->question['attainments'] = $attainments;
+//        }
     }
 
     public function updatingUploads(&$value)

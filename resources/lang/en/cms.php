@@ -15,7 +15,7 @@ return [
     'Vraagstelling'        => 'Question',
     'Antwoordmodel'        => 'Answer model',
     'Toets'                => 'Test',
-    'unieke id'            => 'Unique id',
+    'unieke id'            => 'Unique ID',
     'auteur(s)'            => 'Author(s)',
     'Zoek tags ...'        => 'Search tags ...',
     'Statistiek'           => 'Statistics',

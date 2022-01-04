@@ -13,7 +13,7 @@ return [
     'Vraagstelling'                    => 'Vraagstelling',
     'Antwoordmodel'                    => 'Antwoordmodel',
     'Toets'                            => 'Toets',
-    'unieke id'                        => 'Unieke id',
+    'unieke id'                        => 'Unieke ID',
     'auteur(s)'                        => 'Auteur(s)',
     'Zoek tags ...'                    => 'Zoek tags ...',
     'Statistiek'                       => 'Statistiek',
