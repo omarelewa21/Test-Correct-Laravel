@@ -26,7 +26,7 @@ class OpenShort extends Component
 
     public $showSelectionOptionsModal = false;
 
-    public $openTab = 1;
+    public $openTab = 3;
 
     public $owner_id;
 
