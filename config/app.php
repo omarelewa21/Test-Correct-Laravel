@@ -17,7 +17,7 @@
 return [
 
     'url_login' => env('URL_LOGIN'),
-    'url_logout' => sprintf('%s/logout', env('URL_LOGIN')),
+    'url_logout' => sprintf('%susers/logoutFromLaravel', env('URL_LOGIN')),
 
     'base_url' => env('BASE_URL',''),
 
