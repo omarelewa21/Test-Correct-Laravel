@@ -1,0 +1,26 @@
+<?php
+return [
+    'Bijlage toevoegen'                => 'Add attachment',
+    'Of sleep je bijlage over dit vak' => 'Or drop the attachment here..',
+    'Antwoordtijd'                     => 'Answer time',
+    'Pauzeerbaar'                      => 'Pausable',
+    'Eenmalig afspelen'                => 'Playable once',
+
+    'completion-question'  => 'Completion Question',
+    'selection-question'   => 'Selection Question',
+    'max_characters'       => 'Max characters',
+    'open-question'        => 'Open question',
+    'open-question-short'  => 'Open question short',
+    'open-question-medium' => 'Open question long',
+    'Vraagstelling'        => 'Question',
+    'Antwoordmodel'        => 'Answer model',
+    'Toets'                => 'Test',
+    'unieke id'            => 'Unique ID',
+    'auteur(s)'            => 'Author(s)',
+    'Zoek tags ...'        => 'Search tags ...',
+    'Statistiek'           => 'Statistics',
+    'p-waarde'             => 'P-Value',
+    'keer afgenomen'       => 'times taken',
+    'Verwijderen'          => 'Delete',
+    'Upload'               => 'Video URL',
+];
