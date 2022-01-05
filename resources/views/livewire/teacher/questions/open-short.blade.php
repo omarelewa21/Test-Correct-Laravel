@@ -16,7 +16,7 @@
             <x-input.score wire:model.defer="question.score"></x-input.score>
         </div>
 
-        <div class="flex flex-col flex-1" x-data="{openTab:@entangle('openTab')}">
+        <div class="flex flex-col flex-1" x-data="{openTab: 1}" @opentab.window="openTab = $event.detail">
             <div class="flex w-full space-x-6 mb-5 border-b border-grey">
                 <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}">
                     <x-button.text-button
@@ -45,7 +45,11 @@
             </div>
 
 
-            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1">
+            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1"
+                 x-transition:enter="transition duration-200"
+                 x-transition:enter-start="opacity-0 delay-200"
+                 x-transition:enter-end="opacity-100"
+            >
 
                 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
@@ -84,7 +88,7 @@
                     </x-slot>
                     @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion())
                         <x-input.rich-textarea
-                            wire:model.defer="question.question"
+                            wire:model.debounce.1000ms="question.question"
                             editorId="{{ $questionEditorId }}"
                             type="cms"
                         />
@@ -109,14 +113,14 @@
                     @enderror
                 </x-upload.section>
 
-                @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion())
+                @if($this->requiresAnswer())
                     <x-content-section>
                         <x-slot name="title">
                             {{ __('cms.Antwoordmodel') }}
                         </x-slot>
 
                         <x-input.rich-textarea
-                            wire:model.defer="question.answer"
+                            wire:model.debounce.1000ms="question.answer"
                             editorId="{{ $answerEditorId }}"
                             type="student"
                         />
@@ -131,7 +135,11 @@
                 @endif
             </div>
 
-            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2">
+            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 2"
+                 x-transition:enter="transition duration-200"
+                 x-transition:enter-start="opacity-0 delay-200"
+                 x-transition:enter-end="opacity-100"
+            >
                 <x-content-section>
                     <x-slot name="title">{{ __('Algemeen') }}</x-slot>
 
@@ -255,7 +263,11 @@
 
 
             </div>
-            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 3">
+            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 3"
+                 x-transition:enter="transition duration-200"
+                 x-transition:enter-start="opacity-0 delay-200"
+                 x-transition:enter-end="opacity-100"
+            >
                 <x-content-section>
                     <x-slot name="title">{{ __('cms.Statistiek') }}</x-slot>
                     <div class="grid grid-cols-2 gap-4">
