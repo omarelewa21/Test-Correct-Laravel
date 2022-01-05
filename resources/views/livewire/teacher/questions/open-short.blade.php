@@ -277,16 +277,16 @@
                                 </div>
                             </div>
 
-                            @foreach($this->pValues as $pValue)
-                                <div class="border-b flex w-full justify-between items-center">
+                            @foreach($pValues as $pValue)
+                                <div class="border-b flex w-full justify-between items-center col-span-2" wire:key="pvalue-{{ $pValue->getKey() }}" wire:ignore>
                                     <div class="flex items-center space-x-2.5 py-3">
-                                        <span class="bold">{{ __('cms.p-waarde') }} {{ $pValue->education_level_year }} {{ $pValue->education_level->name }}</span>
+                                        <span class="bold">{{ __('cms.p-waarde') }} {{ $pValue->education_level_year }} {{ optional($pValue->educationLevel)->name }}</span>
                                     </div>
                                     <div class="flex items-center space-x-2.5 py-3">
                                         {!! number_format( $pValue->p_value, 2) !!}
                                     </div>
                                     <div class="flex items-center space-x-2.5 py-3">
-                                        {{ $pvalue->p_value_count }} {{ __("cms.keer afgenomen") }}
+                                        {{ $pValue->p_value_count }} {{ __("cms.keer afgenomen") }}
                                     </div>
 
 {{--                                    <div class="flex items-center space-x-2.5 py-3">--}}
