@@ -54,6 +54,8 @@ class OpenShort extends Component
 
     public $subjectId;
 
+    public $educationLevelId;
+
     public $action;
 
     protected $tags = [];
@@ -163,6 +165,7 @@ class OpenShort extends Component
             $this->testAuthors = $activeTest->AuthorsAsString;
             $this->subjectId = $activeTest->subjectId;
             $this->question['test_id'] = $activeTest->id;
+            $this->educationLevelId = $activeTest->education_level_id;
 
             if ($this->test_question_id) {
                 $tq = TestQuestion::whereUuid($this->test_question_id)->first();
@@ -185,6 +188,8 @@ class OpenShort extends Component
                 $this->question['note_type'] = $q->note_type;
                 $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
                 $this->question['order'] = $tq->order;
+
+                $this->educationLevelId = $q->education_level_id;
 
                 $this->initWithTags = $q->tags;
                 $this->attachments = $q->attachments;

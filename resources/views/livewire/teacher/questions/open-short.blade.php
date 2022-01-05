@@ -160,12 +160,14 @@
                         @endif
 
                         <x-input.toggle-row-with-title wire:model="question.closable"
-                            :toolTip="__('Sluiten na beantwoorden')"
+                            :toolTip="__('cms.close_after_answer_tooltip_text')"
                         >
                             <x-icon.locked></x-icon.locked>
                             <span class="bold">{{ __('Sluiten na beantwoorden') }}</span>
                         </x-input.toggle-row-with-title>
-                        <x-input.toggle-row-with-title wire:model="question.add_to_database">
+                        <x-input.toggle-row-with-title wire:model="question.add_to_database"
+                            :toolTip="__('cms.make_public_tooltip_text')"
+                        >
                             <x-icon.preview class="flex "></x-icon.preview>
                             <span class="bold"> {{ __('Openbaar maken') }}</span>
                         </x-input.toggle-row-with-title>
@@ -251,8 +253,8 @@
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
-                    <livewire:attainment-manager :value="$question['attainments']" subject-id="2"
-                                                 eduction-level-id="1"/>
+                    <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
+                                                 :eduction-level-id="$educationLevelId"/>
                 </x-content-section>
 
 

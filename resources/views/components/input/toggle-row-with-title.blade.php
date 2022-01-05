@@ -6,7 +6,7 @@
     <div class="flex items-center">
         @if($toolTip)
             <x-tooltip class="mr-2">
-                <span>{{ $toolTip }}</span>
+                <span class="text-base">{{ $toolTip }}</span>
             </x-tooltip>
         @endif
         <label class="switch">

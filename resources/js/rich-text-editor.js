@@ -30,7 +30,10 @@ RichTextEditor = {
         if (editor) {
             editor.destroy(true)
         }
-        CKEDITOR.replace(editorId, {})
+        CKEDITOR.replace(editorId, {
+            removePlugins: '',
+
+        })
         CKEDITOR.instances[editorId]
             .on('change', function (e) {
                 var textarea = document.getElementById(editorId);
