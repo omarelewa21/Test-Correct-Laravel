@@ -160,7 +160,8 @@ class OpenShort extends Component
             $this->question['test_id'] = $activeTest->id;
 
             if ($this->test_question_id) {
-                $q = TestQuestion::whereUuid($this->test_question_id)->first()->question;
+                $tq = TestQuestion::whereUuid($this->test_question_id)->first();
+                $q = $tq->question;
 
                 if ($q) {
                     $q = (new QuestionHelper())->getTotalQuestion($q->question);
@@ -178,6 +179,7 @@ class OpenShort extends Component
                 $this->question['score'] = $q->score;
                 $this->question['note_type'] = $q->note_type;
                 $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
+                $this->question['order'] = $tq->order;
 
                 $this->initWithTags = $q->tags;
                 $this->attachments = $q->attachments;

@@ -13,7 +13,7 @@
     </div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class=" mt-20 flex justify-end">
-            <x-input.score wire:model="question.score"></x-input.score>
+            <x-input.score wire:model.defer="question.score"></x-input.score>
         </div>
 
         <div class="flex flex-col flex-1" x-data="{openTab:@entangle('openTab')}">
