@@ -3,7 +3,7 @@
         open: false,
         url: false,
         addLink() {
-                if (this.$refs.videolink.value) {
+                if (this.$refs.videolink.value.length > 0) {
                     $wire.emit('new-video-attachment', this.$refs.videolink.value);
                     this.$refs.videolink.value = '';
                 }

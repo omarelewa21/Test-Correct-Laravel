@@ -262,12 +262,18 @@
                         @if($action == 'edit')
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
-                                    <span class="bold">{{ __('cms.unieke id') }} {{ $questionId }}</span>
+                                    <div class="flex items-center space-x-2.5">
+                                        <span class="bold text-base">{{ __('cms.unieke id') }}</span>
+                                        <span class="ml-10 text-base">{{ $questionId }}</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
-                                    <span class="bold">{{ __('cms.auteur(s)') }} {{ $testAuthors }}</span>
+                                    <div class="flex items-center space-x-2.5">
+                                        <span class="bold text-base">{{ __('cms.auteur(s)') }}</span>
+                                        <span class="ml-10 text-base">{{ $testAuthors }}</span>
+                                    </div>
                                 </div>
                             </div>
 

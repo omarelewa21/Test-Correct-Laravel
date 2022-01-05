@@ -1,5 +1,5 @@
 <div class="relative flex flex-wrap items-center"
-     x-data="{selectedTags: @entangle('selectedTags')}"
+     x-data="{query: @entangle('query'), selectedTags: @entangle('selectedTags')}"
      x-init="$watch('selectedTags', value => $wire.emitUp('new-tags-for-question', value));"
 >
     <div class="flex mb-2">
@@ -27,7 +27,7 @@
                     wire:keydown.arrow-up="decrementHighlight()"
                     wire:keydown.arrow-down="incrementHighlight()"
                     wire:keydown.enter="selectTag()"
-                    @click.outside="$wire.set('query', '')"
+                    @click.outside="if (query) { query = ''}"
             />
         </div>
         @if(!empty($query))

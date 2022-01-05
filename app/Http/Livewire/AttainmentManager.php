@@ -57,7 +57,7 @@ class AttainmentManager extends Component
 
     private function emitUpdatedValuesEvent()
     {
-        $this->emitUp('updated-attainment', [$this->domainId, $this->subdomainId]);
+            $this->emitUp('updated-attainment', array_filter([$this->domainId, $this->subdomainId]));
     }
 
     public function updatedDomainId($value)

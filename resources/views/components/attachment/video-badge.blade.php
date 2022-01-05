@@ -27,13 +27,13 @@
              x-transition:leave-end="opacity-0 transform scale-90"
         >
 
-            <div class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition"
+            <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                  wire:click="removeVideo('{{ $video }}')"
                  @click="options = false"
             >
                 <x-icon.trash/>
                 <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
-            </div>
+            </button>
         </div>
 
     </div>

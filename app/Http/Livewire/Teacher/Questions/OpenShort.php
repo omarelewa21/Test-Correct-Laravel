@@ -79,7 +79,7 @@ class OpenShort extends Component
         'question'               => '',
         'rtti'                   => '',
         'score'                  => 6,
-        'subtype'               => '',
+        'subtype'                => '',
         'type'                   => '',
         "attainments"            => [],
         "test_id"                => '',
@@ -106,9 +106,9 @@ class OpenShort extends Component
     protected function getListeners()
     {
         return [
-            'new-tags-for-question'      => 'handleTags',
-            'updated-attainment'         => 'handleAttainment',
-            'attachment-setting-changed' => 'handleAttachmentSettingChange'
+            'new-tags-for-question' => 'handleTags',
+            'updated-attainment'    => 'handleAttainment',
+            'new-video-attachment'  => 'handleNewVideoAttachment'
         ];
     }
 
@@ -265,9 +265,7 @@ class OpenShort extends Component
 
     public function handleAttainment(array $attainments)
     {
-//        if (!empty($attainments[0])) {
-            $this->question['attainments'] = $attainments;
-//        }
+        $this->question['attainments'] = $attainments;
     }
 
     public function updatingUploads(&$value)
@@ -340,7 +338,7 @@ class OpenShort extends Component
             ->destroy($testQuestion, $attachment);
 
         if ($response->getStatusCode() == 200) {
-            $this->attachments = collect($this->attachments)->reject(function($attachment) use ($attachmentUuid) {
+            $this->attachments = collect($this->attachments)->reject(function ($attachment) use ($attachmentUuid) {
                 return $attachment->uuid == $attachmentUuid;
             });
         }
@@ -355,7 +353,7 @@ class OpenShort extends Component
 
     public function removeVideo($video)
     {
-        $this->videos = collect($this->videos)->reject(function($item) use ($video) {
+        $this->videos = collect($this->videos)->reject(function ($item) use ($video) {
             return $item == $video;
         })->toArray();
     }

@@ -39,10 +39,15 @@
         @endif
     </div>
     <div class="flex base items-center relative">
-        <span class="p-2 text-base max-w-[200px] truncate"
-                title="{{ $title }}">
+        @if($type == 'video')
+        <span class="p-2 text-base max-w-[200px] truncate" title="{{ $attachment->link }}">
+            {{ $attachment->link }}
+        </span>
+        @else
+        <span class="p-2 text-base max-w-[200px] truncate" title="{{ $title }}">
             {{ $title }}
         </span>
+        @endif
         <button class="py-3 px-4 flex items-center h-full rounded-md hover:bg-primary hover:text-white transition"
                 @click="options = true"
         >
@@ -133,7 +138,7 @@
                 </div>
                 <div class="flex w-full h-px bg-blue-grey mb-2"></div>
             @endif
-            <div class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition"
+            <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                  @if($upload)
                  wire:click="removeFromUploads('{{ $title }}')"
                  @else
@@ -143,7 +148,7 @@
             >
                 <x-icon.trash/>
                 <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
-            </div>
+            </button>
         </div>
 
     </div>
