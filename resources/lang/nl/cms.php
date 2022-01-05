@@ -22,4 +22,5 @@ return [
     'Verwijderen'                      => 'Verwijderen',
     'Upload'                           => 'Upload',
     'Video URL'                        => 'Video URL',
+    'make_public_tooltip_text'         => 'In de nabije toekomst zullen wij Test-Correct uitbreiden met de Nationale Itembank. U krijgt dan de mogelijkheid om items van uw vakcollega’s uit het hele land te gebruiken. Als deze optie is aangevinkt geeft u uw vakcollega’s (buiten uw school) de mogelijkheid om dit item te vinden in de Nationale Itembank en te gebruiken binnen hun eigen toets. U blijft overigens auteur van dit item. U blijft de zeggenschap houden, ook als u wenst te delen met uw collega’s.',
 ];

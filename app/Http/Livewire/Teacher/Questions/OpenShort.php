@@ -70,7 +70,7 @@ class OpenShort extends Component
         'closable'               => 0,
         'decimal_score'          => 0,
         'discuss'                => 1,
-        'maintain_position'      => 1,
+        'maintain_position'      => 0,
         'miller'                 => '',
         "is_open_source_content" => 1,
         "tags"                   => [],
@@ -87,20 +87,25 @@ class OpenShort extends Component
 
     protected function rules()
     {
-        $rules = collect(['question.question' => 'required',]);
+        $rules = ['question.question' => 'required'];
 
         if ($this->requiresAnswer()) {
-            $rules->merge([
-                'question.answer' => 'required',
-            ]);
+            $rules += ['question.answer' => 'required'];
         }
-
-        return $rules->toArray();
+        return $rules;
     }
 
-    private function requiresAnswer()
+    protected function getValidationAttributes()
     {
-        return $this->isShortOpenQuestion();
+        return [
+            'question.question' => __('cms.Vraagstelling'),
+            'question.answer'   => __('cms.Antwoordmodel')
+        ];
+    }
+
+    public function requiresAnswer()
+    {
+        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion();
     }
 
     protected function getListeners()
@@ -290,7 +295,7 @@ class OpenShort extends Component
         try {
             $this->validate();
         } catch (ValidationException $e) {
-            $this->openTab = 1;
+            $this->dispatchBrowserEvent('opentab', 1);
             throw ($e);
         }
     }
