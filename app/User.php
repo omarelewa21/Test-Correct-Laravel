@@ -375,7 +375,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function updateExternalIdWithSchoolLocation($externalId,$schoolLocationId)
     {
         $handled = false;
-        foreach ($this->allowedSchoolLocations() as $schoolLocation){
+
+        foreach ($this->allowedSchoolLocations()->get() as $schoolLocation){
             if($schoolLocation->id != $schoolLocationId){
                 continue;
             }
