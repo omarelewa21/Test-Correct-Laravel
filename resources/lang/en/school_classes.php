@@ -1,5 +1,5 @@
 <?php
 	return [
-		'guest_accounts' => 'Guest accounts'
+		'guest_accounts' => 'Test-Direct'
 	];
 ?>
