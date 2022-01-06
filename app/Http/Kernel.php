@@ -9,6 +9,7 @@ use tcCore\Http\Middleware\AuthenticateWithTemporaryLogin;
 use tcCore\Http\Middleware\CheckForDeploymentMaintenance;
 use tcCore\Http\Middleware\GuestChoice;
 use tcCore\Http\Middleware\LocaleMiddleware;
+use tcCore\Http\Middleware\Logging;
 use tcCore\Http\Middleware\RequestLogger;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
 
@@ -28,6 +29,7 @@ class Kernel extends HttpKernel
         //'Illuminate\Session\Middleware\StartSession',
         //'Illuminate\View\Middleware\ShareErrorsFromSession',
         RequestLogger::class,
+        Logging::class,
     ];
 
     /**

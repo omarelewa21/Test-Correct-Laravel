@@ -81,6 +81,15 @@ class LokiJson extends NormalizerFormatter
         $normalized['ip'] = request()->ip();
         $normalized['request_path'] = request()->path();
         $normalized['request_method'] = request()->method();
+        $normalized['action'] = class_basename(request()->route()->getAction()['controller']);
+        
+        # Store GET parameters in logs
+        $normalized = array_merge($normalized, array_map(
+                    function($v) {try { return $v->getKey();
+                } catch (\Throwable $th) {
+                    return $v;
+                }
+            }, request()->route()->parameters()));
         if (request()->user() != null) {
             $normalized['user_id'] = request()->user()->id;
             foreach (request()->user()->roles as $key => $value) {
