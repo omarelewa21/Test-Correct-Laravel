@@ -64,14 +64,23 @@ class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
     {
         $validator->after(function ($validator) {
             $question = request()->input('question');
-            if (!strstr($question, '[') && !strstr($question, ']')) {
-                $validator->errors()->add('question', 'U dient minimaal &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
-            }
 
-            $completionQuestion = request()->route()->parameter('test_question')->question;
+            if(request()->route()->hasParameter('test_question')) {
+                $completionQuestion = request()->route()->parameter('test_question')->question;
+            } else if (request()->route()->hasParameter('group_question_question_id')){
+                $completionQuestion = request()->route()->parameter('group_question_question_id')->question;
+            }
 
             if ($completionQuestion->subtype == 'completion' && strstr($question, '|')) {
                 $validator->errors()->add('question', 'U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
+            }
+
+            if (!strstr($question, '[') && !strstr($question, ']')) {
+                if($completionQuestion->subtype === 'completion'){
+                    $validator->errors()->add('question', 'U dient &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
+                } else {
+                    $validator->errors()->add('question', 'U dient minimaal &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
+                }
             }
 
             if($completionQuestion->subtype == 'multi'){
