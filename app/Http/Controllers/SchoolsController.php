@@ -17,7 +17,6 @@ class SchoolsController extends Controller {
      */
     public function index(Request $request)
     {
-        Log::stack(['loki'])->info("index Schools");
         $schools = School::filtered($request->get('filter', []), $request->get('order', []))->with('umbrellaOrganization');
 
         switch(strtolower($request->get('mode', 'paginate'))) {

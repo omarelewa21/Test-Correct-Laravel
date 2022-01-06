@@ -18,7 +18,6 @@ class SchoolYearsController extends Controller
      */
     public function index(Request $request)
     {
-        Log::stack(['loki'])->info("index School Years");
         $schoolYears = SchoolYear::filtered($request->get('filter', []), $request->get('order', []))->with('schoolLocations');
         switch (strtolower($request->get('mode', 'paginate'))) {
             case 'all':
@@ -104,7 +103,6 @@ class SchoolYearsController extends Controller
         $schoolYear->fill($request->all());
 
         if ($schoolYear->save()) {
-            Log::stack(['loki'])->info("store School Years", ['school_year' => $schoolYear->getKey()]);
             return Response::make($schoolYear, 200);
         } else {
             return Response::make('Failed to create school year', 500);
@@ -119,7 +117,6 @@ class SchoolYearsController extends Controller
      */
     public function show(SchoolYear $schoolYear)
     {
-        Log::stack(['loki'])->info("showing School Years", ['school_year' => $schoolYear->getKey()]);
         $schoolYear->load('periods', 'schoolLocations');
         return Response::make($schoolYear, 200);
     }
@@ -135,7 +132,6 @@ class SchoolYearsController extends Controller
     {
         $schoolYear->fill($request->all());
         if ($schoolYear->save()) {
-            Log::stack(['loki'])->info("update School Years", ['school_year' => $schoolYear->getKey()]);
             return Response::make($schoolYear, 200);
         } else {
             return Response::make('Failed to update school year', 500);
@@ -151,7 +147,6 @@ class SchoolYearsController extends Controller
     public function destroy(SchoolYear $schoolYear)
     {
         if ($schoolYear->delete()) {
-            Log::stack(['loki'])->info("deleting School Years", ['school_year' => $schoolYear->getKey()]);
             return Response::make($schoolYear, 200);
         } else {
             return Response::make('Failed to delete school year', 500);

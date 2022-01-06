@@ -17,7 +17,6 @@ class SalesOrganizationsController extends Controller
      */
     public function index(Request $request)
     {
-        Log::stack(['loki'])->info("index Sales Organisations");
         $salesOrganizations = SalesOrganization::filtered($request->get('filter', []), $request->get('order', []));
 
         switch (strtolower($request->get('mode', 'paginate'))) {

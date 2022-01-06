@@ -141,7 +141,6 @@ class Login extends Component
         $credentials = $this->validate();
 
         if (!auth()->attempt($credentials)) {
-            Log::stack(['loki'])->info("authentication incorrect", ['username' => $this->username]);
             if ($this->requireCaptcha) {
                 $this->reset('captcha');
                 $this->emit('refresh-captcha');
@@ -219,7 +218,6 @@ class Login extends Component
         LoginLog::create(['user_id' => $user->getKey()]);
         AppVersionInfo::createFromSession();
         FailedLogin::solveForUsernameAndIp($this->username, request()->ip());
-        Log::stack(['loki'])->info("authentication successfull: " . $user->getKey());
     }
 
     private function createFailedLogin()
