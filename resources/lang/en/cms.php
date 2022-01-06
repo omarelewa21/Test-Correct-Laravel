@@ -1,0 +1,27 @@
+<?php
+return [
+    'Bijlage toevoegen'                => 'Add attachment',
+    'Of sleep je bijlage over dit vak' => 'Or drop the attachment here..',
+    'Antwoordtijd'                     => 'Answer time',
+    'Pauzeerbaar'                      => 'Pausable',
+    'Eenmalig afspelen'                => 'Playable once',
+
+    'completion-question'  => 'Completion Question',
+    'selection-question'   => 'Selection Question',
+    'max_characters'       => 'Max characters',
+    'open-question'        => 'Open question',
+    'open-question-short'  => 'Open question short',
+    'open-question-medium' => 'Open question long',
+    'Vraagstelling'        => 'Question',
+    'Antwoordmodel'        => 'Answer model',
+    'Toets'                => 'Test',
+    'unieke id'            => 'Unique ID',
+    'auteur(s)'            => 'Author(s)',
+    'Zoek tags ...'        => 'Search tags ...',
+    'Statistiek'           => 'Statistics',
+    'p-waarde'             => 'P-Value',
+    'keer afgenomen'       => 'times taken',
+    'Verwijderen'          => 'Delete',
+    'Upload'               => 'Video URL',
+    'make_public_tooltip_text'         => 'In de nabije toekomst zullen wij Test-Correct uitbreiden met de Nationale Itembank. U krijgt dan de mogelijkheid om items van uw vakcollega’s uit het hele land te gebruiken. Als deze optie is aangevinkt geeft u uw vakcollega’s (buiten uw school) de mogelijkheid om dit item te vinden in de Nationale Itembank en te gebruiken binnen hun eigen toets. U blijft overigens auteur van dit item. U blijft de zeggenschap houden, ook als u wenst te delen met uw collega’s.',
+];
