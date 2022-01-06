@@ -808,4 +808,37 @@ class EntreeHelperTest extends TestCase
             $url
         );
     }
+
+    /** @test */
+    public function it_should_transfer_external_id_in_entree_helper()
+    {
+        $user = User::where('username', static::USER_SCHOOLBEHEERDER_LOCATION1)->first();
+        $this->actingAs($user);
+        $location = SchoolLocation::where('external_main_code', '8888')->where('external_sub_code', '00')->first();
+        $oldUser = User::where('username',static::USER_TEACHER)->firstOrFail();
+        $user = $this->createTeacher('meOkayOrso', $location);
+        $user->eckId = 'eckid_L2';
+        $user->external_id = 'test_gmw1';
+        $user->save();
+        $userId = $user->id;
+        $helper = new EntreeHelper(
+            [
+                'nlEduPersonHomeOrganizationBranchId' => ['888800'],
+                'mail'                                => ['martin@sobit.nl'],
+                'eckId'                               => ['eckid_L2'],
+            ],
+            'abcd'
+        );
+        $helper->copyEckIdNameNameSuffixNameFirstAndTransferClassesUpdateTestParticipantsAndDeleteUser($oldUser, $user);
+        $checkUser = User::withTrashed()->find($userId);
+        $this->assertNotNull($checkUser);
+        $this->assertNotNull($checkUser->deleted_at);
+        $this->assertNull($checkUser->external_id);
+        $checkOldUser = User::where('username',static::USER_TEACHER)->firstOrFail();
+        $this->assertEquals($checkOldUser->external_id,'test_gmw1');
+        $externalIdSchoolLocationUser = DB::table('school_location_user')->where('school_location_id',$location->id)->where('user_id',$checkOldUser->id)->first();
+        $this->assertEquals($externalIdSchoolLocationUser->external_id,'test_gmw1');
+        $externalIdUser = DB::table('users')->where('id',$checkOldUser->id)->first();
+        $this->assertEquals($externalIdUser->external_id,'test_gmw1');
+    }
 }

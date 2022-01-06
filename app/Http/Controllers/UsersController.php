@@ -515,7 +515,7 @@ class UsersController extends Controller
         return Response::make($users, 200);
     }
 
-    protected function handleExternalId($user,$attributes)
+    protected function handleExternalId(&$user,$attributes)
     {
         if(!array_key_exists('external_id',$attributes)){
             return;
@@ -529,7 +529,13 @@ class UsersController extends Controller
                 return;
             }
         }
+        foreach ($schoolLocations as $schoolLocation){
+            if((is_null($schoolLocation->pivot->external_id) || $schoolLocation->pivot->external_id == '') && $attributes['school_location_id']==$schoolLocation->id){
+                $user->allowedSchoolLocations()->detach($schoolLocation);
+            }
+        }
         $user->allowedSchoolLocations()->attach([$attributes['school_location_id'] => ['external_id' => $attributes['external_id']]]);
+        $user->external_id = $attributes['external_id'];
     }
 
     protected function getExternalIdForSchoolLocationOfLoggedInUser(User $user)
