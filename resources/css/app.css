@@ -212,10 +212,6 @@ svg {
     border-color: var(--primary-light);
 }
 
-.border-secondary {
-    border-color: var(--secondary);
-}
-
 .border-highlight-primary {
     border-color: var(--highlight-primary);
 }

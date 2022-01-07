@@ -6200,11 +6200,7 @@ RichTextEditor = {
       }]
     });
     CKEDITOR.instances[editorId].on('change', function (e) {
-      var textarea = document.getElementById(editorId);
-      setTimeout(function () {
-        textarea.value = e.editor.getData();
-      }, 300);
-      textarea.dispatchEvent(new Event('input'));
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
   },
   initCMS: function initCMS(editorId) {
@@ -6259,11 +6255,7 @@ RichTextEditor = {
       }]
     });
     CKEDITOR.instances[editorId].on('change', function (e) {
-      var textarea = document.getElementById(editorId);
-      setTimeout(function () {
-        textarea.value = e.editor.getData();
-      }, 300);
-      textarea.dispatchEvent(new Event('input'));
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
   },
   initCompletionCMS: function initCompletionCMS(editorId) {
@@ -6297,11 +6289,7 @@ RichTextEditor = {
       }]
     });
     CKEDITOR.instances[editorId].on('change', function (e) {
-      var textarea = document.getElementById(editorId);
-      setTimeout(function () {
-        textarea.value = e.editor.getData();
-      }, 300);
-      textarea.dispatchEvent(new Event('input'));
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
   },
   sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
