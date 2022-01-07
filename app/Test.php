@@ -1121,4 +1121,12 @@ class Test extends BaseModel
     public function isAssignment() {
         return $this->test_kind_id == TestKind::ASSESSMENT_TYPE;
     }
+
+    public function getAuthorsAsStringAttribute()
+    {
+        return $this->testAuthors()->get()->map(function($author) {
+            return implode(' ', array_filter([$author->user->name_first, $author->user->name_suffix, $author->user->name]));
+        })->join(',');
+
+    }
 }

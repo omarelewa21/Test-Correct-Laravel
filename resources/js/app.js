@@ -4,6 +4,7 @@ require('./swipe');
 require('./core');
 require('./notify');
 require('./alpine');
+require('./rich-text-editor');
 
 addIdsToQuestionHtml = function () {
     let id = 1;

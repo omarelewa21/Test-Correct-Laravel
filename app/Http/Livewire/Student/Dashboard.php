@@ -50,8 +50,11 @@ class Dashboard extends Component
     {
         $device = session()->get('TLCOs') == 'iOS' ? 'ipad' : '';
         UserHelper::logout();
-
-        return redirect(route('auth.login', ['device' => $device]));
+        return redirect(
+            config('app.url_logout')
+        );
+        // @TODO MF 21-12-2021 remove redirect statement; this is still here because I don't know the function of the device parameter;
+       // return redirect(route('auth.login', ['device' => $device]));
     }
 
     public function getMessages()

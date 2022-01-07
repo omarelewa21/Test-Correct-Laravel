@@ -32,4 +32,6 @@ storage/*/*
 storage/*/*/*
 !.gitignore
 /public/vendor/telescope/
-/LocalValetDriver.php
+LocalValetDriver.php
+/public/ckeditor/plugins/ckeditor_wiris/cache
+/public/ckeditor/plugins/ckeditor_wiris/formulas

@@ -42,5 +42,6 @@
     Alpine.start();
     Core.init();
 </script>
+
 </body>
 </html>
