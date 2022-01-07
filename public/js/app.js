@@ -6214,15 +6214,18 @@ RichTextEditor = {
       editor.destroy(true);
     }
 
-    CKEDITOR.replace(editorId, {
-      removePlugins: ''
+    CKEDITOR.replace(editorId, {});
+    editor = CKEDITOR.instances[editorId];
+    editor.on('change', function (e) {
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      var textarea = document.getElementById(editorId);
-      setTimeout(function () {
-        textarea.value = e.editor.getData();
-      }, 300);
-      textarea.dispatchEvent(new Event('input'));
+    editor.on('simpleuploads.startUpload', function (e) {
+      e.data.extraHeaders = {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
+      };
+    });
+    editor.on('simpleuploads.finishedUpload', function (e) {
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
@@ -6300,6 +6303,13 @@ RichTextEditor = {
       }, 300);
       textarea.dispatchEvent(new Event('input'));
     });
+  },
+  sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
+    var textarea = document.getElementById(editorId);
+    setTimeout(function () {
+      textarea.value = e.editor.getData();
+    }, 300);
+    textarea.dispatchEvent(new Event('input'));
   }
 };
 

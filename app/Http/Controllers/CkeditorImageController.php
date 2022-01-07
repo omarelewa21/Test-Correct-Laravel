@@ -9,17 +9,23 @@ class CkeditorImageController extends Controller
 {
     public function store(Request $request, $type)
     {
+        if($request->hasFile('upload')) {
+
+            $request->file('upload')->store('', 'inline_images');
+
+            return [
+                "uploaded" => 1,
+                "fileName" => $request->file('upload')->hashName(),
+                "url"      => route('inline-image', $request->file('upload')->hashName(), false)
+            ];
+        }
 
         return [
-            "uploaded" => 1,
-            "fileName" => "foo.jpg",
-            "url"      => route('cms.upload.get', 'uYm8FfLjPW-Collegas-aan-tafel.png')
+            "uploaded" => 0,
+            "error" => [
+                "message" => "Something went wrong"
+            ]
         ];
 
-    }
-
-    public function show($filename)
-    {
-        return Storage::disk('cake')->get("questionanswers/$filename");
     }
 }

@@ -16,6 +16,6 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'livewire/message/preview*',
-        'cms/ckeditor_upload/*',
+
     ];
 }
