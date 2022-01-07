@@ -376,7 +376,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         $handled = false;
 
-        foreach ($this->allowedSchoolLocations()->get() as $schoolLocation){
+        foreach ($this->allowedSchoolLocations as $schoolLocation){
             if($schoolLocation->id != $schoolLocationId){
                 continue;
             }
