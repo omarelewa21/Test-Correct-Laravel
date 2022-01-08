@@ -78,6 +78,7 @@ class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
 				$qHelper = new QuestionHelper();
 				$questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, true);
 				if($questionData["error"]){
+                    
 					$validator->errors()->add('question', $questionData["error"]);
 				}
 			}
