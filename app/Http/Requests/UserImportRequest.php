@@ -63,7 +63,7 @@ class UserImportRequest extends Request {
                                                                                 return $fail(sprintf('The user email address contains international characters  (%s).', $value));
                                                                             }
                                                                         }];
-                    $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
+                    $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username'],false);
                 } else {
                     $extra_rule[sprintf('data.%d.external_id', $key)] = ['required',sprintf('unique:users,external_id,%s,username,school_location_id,%d', $value['username'],  $this->schoolLocation)];
                 }

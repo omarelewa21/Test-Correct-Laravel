@@ -16,6 +16,15 @@ class BaseHelper
 {
     protected $errors = [];
 
+    public static function getCurrentVersion(): string
+    {
+        $file = base_path('version.txt');
+        if(file_exists($file)){
+            return file_get_contents($file);
+        }
+        return '-';
+    }
+
     public static function onProduction(): bool
     {
         return request()->getHost() === 'welcome.test-correct.nl';

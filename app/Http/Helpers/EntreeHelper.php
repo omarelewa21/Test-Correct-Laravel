@@ -562,6 +562,14 @@ class EntreeHelper
 
         $eckId = $user->eckId;
         $user->removeEckId();
+        if(!is_null($user->user_table_external_id)&&!empty($user->user_table_external_id)){
+            if($user->isA('teacher')) {
+                $oldUser->updateExternalIdWithSchoolLocation($user->user_table_external_id, $user->school_location_id);
+            }
+            $oldUser->external_id = $user->user_table_external_id;
+            $user->removeExternalId();
+            $user->save();
+        }
         $oldUser->setEckidAttribute($eckId);
         $oldUser->transferClassesFromUser($user);
         foreach (['name', 'name_first'] as $key) {

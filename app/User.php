@@ -372,6 +372,27 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->eckidFromRelation()->save($eckIdUser);
     }
 
+    public function updateExternalIdWithSchoolLocation($externalId,$schoolLocationId)
+    {
+        $handled = false;
+
+        foreach ($this->allowedSchoolLocations as $schoolLocation){
+            if($schoolLocation->id != $schoolLocationId){
+                continue;
+            }
+            if($schoolLocation->pivot->external_id == $externalId){
+                $handled = true;
+                break;
+            }
+            $this->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id,['external_id'=>$externalId]);
+            $handled = true;
+            break;
+        }
+        if(!$handled){
+            $this->allowedSchoolLocations()->attach([$schoolLocation->id =>['external_id'=>$externalId]]);
+        }
+    }
+
     public function scopeFindByEckidAndSchoolLocationIdForTeacher($query, $eckid, $school_location_id)
     {
         $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
@@ -2197,6 +2218,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function removeEckId()
     {
         $this->eckidFromRelation()->delete();
+        return $this;
+    }
+
+    public function removeExternalId()
+    {
+        $this->external_id = null;
         return $this;
     }
 

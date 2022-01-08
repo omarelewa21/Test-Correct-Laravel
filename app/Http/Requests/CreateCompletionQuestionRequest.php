@@ -55,7 +55,11 @@ class CreateCompletionQuestionRequest extends CreateQuestionRequest {
 		$validator->after(function ($validator) {
 			$question = request()->input('question');
 			if(!strstr($question, '[') && !strstr($question, ']')) {
-				$validator->errors()->add('question','U dient minimaal &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
+                if(request()->input('subtype') === 'completion'){
+                    $validator->errors()->add('question', 'U dient &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
+                } else {
+                    $validator->errors()->add('question', 'U dient minimaal &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
+                }
 			}
 
 			if(request()->input('subtype') == 'completion' && strstr($question,'|')){

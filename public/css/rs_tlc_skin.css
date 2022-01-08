@@ -1,0 +1,71 @@
+.rsbtn.rs_tlc_skin {
+    margin-bottom: 0px;
+}
+.rsbtn.rs_tlc_skin .rsbtn_play {
+    background: #F0F2F5;
+    border-color: #041f74;
+    display: inline;
+}
+.rsbtn.rs_tlc_skin .rsbtn_play .rsbtn_left .rsbtn_text {
+    display: inline;
+}
+.rsbtn.rs_tlc_skin .rsbtn_play .rsbtn_left .rsbtn_text::before {
+    color: #041f74;
+    /* Speaker icon */
+    display: none;
+}
+.rsbtn.rs_tlc_skin .rsbtn_play .rsbtn_left .rsbtn_text .rsbtn_label {
+    color: #041f74;
+    /* Listen label */
+    font-family: "Nunito Bold", sans-serif;
+    font-size: 18px;
+    padding-left: 0.2em;
+    display: inline;
+}
+.rsbtn.rs_tlc_skin .rsbtn_play .rsbtn_right {
+    border-color: #041f74;
+}
+.rsbtn.rs_tlc_skin .rsbtn_play .rsbtn_right::before {
+    color: #041f74;
+    /* Play icon */
+}
+.rsbtn.rs_tlc_skin .rsbtn_play:hover {
+    background: #fff;
+}
+.rsbtn.rs_tlc_skin .rsbtn_play:hover .rsbtn_left .rsbtn_text::before {
+    color: #004df5;
+    /* Speaker icon */
+}
+.rsbtn.rs_tlc_skin .rsbtn_play:hover .rsbtn_left .rsbtn_text .rsbtn_label {
+    color: #004df5;
+    /* Listen label */
+}
+.rsbtn.rs_tlc_skin .rsbtn_play:hover .rsbtn_right::before {
+    color: #004df5;
+    /* Play icon */
+}
+.rsbtn.rs_tlc_skin .rsbtn_play:hover .svg-icon-audio {
+    color: #004df5;
+}
+.rsbtn.rs_tlc_skin .rsbtn_tooltoggle {
+    background: #F0F2F5;
+    border-color: #041f74;
+    color: #041f74;
+}
+.rsbtn.rs_tlc_skin.zoom-tooltoggler .rsbtn_tooltoggle {
+    background: #fff;
+    border-color: #041f74;
+    color: #004df5;
+}
+.rsbtn.rs_tlc_skin .svg-icon-audio {
+    display: inline;
+    vertical-align: text-bottom;
+    color: #041f74;
+}
+.rsbtn.rs_tlc_skin.rsexpanded .rsbtn_exp {
+    display: inline;
+}
+
+#rsbtn_scrollcontrols{
+    margin-left: 30%;
+}

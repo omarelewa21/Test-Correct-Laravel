@@ -4,7 +4,7 @@
             <livewire:student.intense-observer :deviceId="$testParticipant->user_id" :sessionId="$testParticipant->id"></livewire:student.intense-observer>
         @endif
         <livewire:question.navigation  :nav="$nav" :testTakeUuid="$uuid"/>
-        <div class="">
+        <div >
             @push('styling')
                 <style>
                     {!! $styling !!}
