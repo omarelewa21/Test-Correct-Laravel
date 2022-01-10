@@ -166,6 +166,7 @@ class OpenShort extends Component
             $this->subjectId = $activeTest->subjectId;
             $this->question['test_id'] = $activeTest->id;
             $this->educationLevelId = $activeTest->education_level_id;
+            $this->question['order'] = $activeTest->testQuestions()->count();
 
             if ($this->test_question_id) {
                 $tq = TestQuestion::whereUuid($this->test_question_id)->first();

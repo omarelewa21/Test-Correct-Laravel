@@ -931,7 +931,7 @@ input[type=number] {
     border: dashed 3px var(--primary);
     background: var(--off-white);
 }
-/*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v2.2.7 | MIT License | https://tailwindcss.com */
 
 /*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
 
@@ -1385,18 +1385,6 @@ button,
   cursor: pointer;
 }
 
-/**
- * Override legacy focus reset from Normalize with modern Firefox focus styles.
- *
- * This is actually an improvement over the new defaults in Firefox in our testing,
- * as it triggers the better focus styles even for links, which still use a dotted
- * outline in Firefox by default.
- */
-
-:-moz-focusring {
-	outline: auto;
-}
-
 table {
   border-collapse: collapse;
 }
@@ -1652,11 +1640,17 @@ video {
 .right-2{
 	right: 0.5rem;
 }
+.left-4{
+	left: 1rem;
+}
 .-right-4{
 	right: -1rem;
 }
 .-left-4{
 	left: -1rem;
+}
+.-bottom-px{
+	bottom: -1px;
 }
 .top-1\/2{
 	top: 50%;
@@ -1678,12 +1672,6 @@ video {
 }
 .-right-1{
 	right: -0.25rem;
-}
-.left-4{
-	left: 1rem;
-}
-.-bottom-px{
-	bottom: -1px;
 }
 .z-10{
 	z-index: 10;
@@ -1891,23 +1879,17 @@ video {
 .-ml-px{
 	margin-left: -1px;
 }
-.mt-20{
-	margin-top: 5rem;
-}
-.ml-10{
-	margin-left: 2.5rem;
-}
 .mt-\[70px\]{
 	margin-top: 70px;
 }
-.-mr-5{
-	margin-right: -1.25rem;
+.ml-2\.5{
+	margin-left: 0.625rem;
 }
 .-mr-4{
 	margin-right: -1rem;
 }
-.ml-2\.5{
-	margin-left: 0.625rem;
+.ml-10{
+	margin-left: 2.5rem;
 }
 .block{
 	display: block;
@@ -3024,6 +3006,10 @@ video {
 	--tw-text-opacity: 1;
 	color: rgba(107, 114, 128, var(--tw-text-opacity));
 }
+.text-allred{
+	--tw-text-opacity: 1;
+	color: rgba(207, 27, 4, var(--tw-text-opacity));
+}
 .text-red-600{
 	--tw-text-opacity: 1;
 	color: rgba(220, 38, 38, var(--tw-text-opacity));
@@ -3035,10 +3021,6 @@ video {
 .text-blue-600{
 	--tw-text-opacity: 1;
 	color: rgba(37, 99, 235, var(--tw-text-opacity));
-}
-.text-allred{
-	--tw-text-opacity: 1;
-	color: rgba(207, 27, 4, var(--tw-text-opacity));
 }
 .underline{
 	text-decoration: underline;
