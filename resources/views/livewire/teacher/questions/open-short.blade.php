@@ -16,15 +16,20 @@
             <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
                 <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
                     <div class="flex items-center">
-                        <span class="py-[5px] px-[11px] inline-flex text-center rounded-full bg-sysbase text-white text-sm">{{ $this->question['order'] }}</span>
+                        <span class="py-[5px] px-[11px] inline-flex text-center rounded-full bg-sysbase text-white text-sm">{{ $this->question['order'] ?? '1' }}</span>
                         <h2 class="ml-2.5">{{ $this->questionType }}</h2>
                     </div>
                     <div class="flex items-center">
                         <div class="inline-flex mr-2.5">
-                            <x-icon.locked/>
+                            @if($this->question['closable'])
+                                <x-icon.locked/>
+                            @else
+                                <x-icon.unlocked class="text-midgrey"/>
+                            @endif
                         </div>
                         <div class="relative" x-data="{questionOptionMenu: false}">
                             <button class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
+                                    :class="{'bg-primary text-white' : questionOptionMenu === true}"
                                     @click="questionOptionMenu = true">
                                 <x-icon.options/>
                             </button>
@@ -41,7 +46,7 @@
                                  x-transition:leave-end="opacity-0 transform scale-90"
                             >
                                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                                        @click="questionOptionMenu = false"
+                                        @click="$dispatch('delete-modal', 'question')"
                                 >
                                     <x-icon.trash/>
                                     <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
@@ -370,8 +375,6 @@
             </div>
         </div>
 
-
-
         <div class="question-editor-footer">
             <div class="question-editor-footer-button-container">
                 <button type="button" wire:click="returnToTestOverview();"
@@ -385,7 +388,50 @@
             </div>
         </div>
 
+        <div id="delete-modal"
+             class="fixed mx-auto w-full bg-gray-100 flex items-center justify-center h-screen z-[101]"
+             x-data="{showModal: false, deleteAction: null}"
+             x-show="showModal"
+             x-cloak
+             @delete-modal.window="showModal = true; deleteAction = $event.detail"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 scale-90"
+             x-transition:enter-end="opacity-100 scale-100"
+             x-transition:leave="ease-in duration-300"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-90"
+        >
 
+            <section class="flex flex-wrap p-4 h-full items-center">
+                <!--Overlay-->
+                <div class="overflow-auto"
+                     style="background-color: rgba(0,0,0,0.5)"
+                     :class="{ 'fixed inset-0 z-[101] flex items-center justify-center': showModal }"
+                >
+                    <div class="flex flex-col py-5 px-7 bg-white rounded-10 content-section"
+                         @click.away="showModal = false"
+
+                    >
+                        <div class="px-2.5 flex justify-between items-center">
+                            <h2>{{ __('cms.delete') }}</h2>
+                            <x-icon.close class="cursor-pointer hover:text-primary" @click="showModal = false"/>
+                        </div>
+                        <div class="divider mb-5 mt-2.5"></div>
+                        <div class="flex flex-1 h-full w-full px-2.5 body1 mb-5 space-x-2.5 ">
+                            <div class="flex flex-1 flex-col ">
+                                <span x-show="deleteAction === 'question'">{{ __('cms.delete_question_confirm_text') }}</span>
+                                <span x-show="deleteAction === 'attachment'">{{ __('cms.delete_attachment_confirm_text') }}</span>
+                                <div class="flex w-full justify-end">
+
+                                <x-button.cta >
+                                    ja
+                                </x-button.cta>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
-
 </div>

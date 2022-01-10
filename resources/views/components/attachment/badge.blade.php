@@ -139,12 +139,12 @@
                 <div class="flex w-full h-px bg-blue-grey mb-2"></div>
             @endif
             <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                 @if($upload)
-                 wire:click="removeFromUploads('{{ $title }}')"
-                 @else
-                 wire:click="removeAttachment('{{ $attachment->uuid }}')"
-                 @endif
-                 @click="options = false"
+{{--                 @if($upload)--}}
+{{--                 wire:click="removeFromUploads('{{ $title }}')"--}}
+{{--                 @else--}}
+{{--                 wire:click="removeAttachment('{{ $attachment->uuid }}')"--}}
+{{--                 @endif--}}
+                    @click="$dispatch('delete-modal', 'attachment')"
             >
                 <x-icon.trash/>
                 <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>

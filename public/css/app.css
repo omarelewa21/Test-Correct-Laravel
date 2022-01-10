@@ -931,7 +931,7 @@ input[type=number] {
     border: dashed 3px var(--primary);
     background: var(--off-white);
 }
-/*! tailwindcss v2.2.7 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
 /*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
 
@@ -1385,6 +1385,18 @@ button,
   cursor: pointer;
 }
 
+/**
+ * Override legacy focus reset from Normalize with modern Firefox focus styles.
+ *
+ * This is actually an improvement over the new defaults in Firefox in our testing,
+ * as it triggers the better focus styles even for links, which still use a dotted
+ * outline in Firefox by default.
+ */
+
+:-moz-focusring {
+	outline: auto;
+}
+
 table {
   border-collapse: collapse;
 }
@@ -1690,6 +1702,9 @@ video {
 }
 .z-30{
 	z-index: 30;
+}
+.z-\[101\]{
+	z-index: 101;
 }
 .order-2{
 	order: 2;
@@ -2093,6 +2108,9 @@ video {
 }
 .w-80{
 	width: 20rem;
+}
+.w-11\/12{
+	width: 91.666667%;
 }
 .min-w-full{
 	min-width: 100%;
@@ -2568,6 +2586,10 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(206, 218, 243, var(--tw-border-opacity));
 }
+.border-gray-500{
+	--tw-border-opacity: 1;
+	border-color: rgba(107, 114, 128, var(--tw-border-opacity));
+}
 .bg-white{
 	--tw-bg-opacity: 1;
 	background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
@@ -2615,6 +2637,13 @@ video {
 .bg-sysbase{
 	--tw-bg-opacity: 1;
 	background-color: rgba(4, 31, 116, var(--tw-bg-opacity));
+}
+.bg-transparent{
+	background-color: transparent;
+}
+.bg-indigo-500{
+	--tw-bg-opacity: 1;
+	background-color: rgba(99, 102, 241, var(--tw-bg-opacity));
 }
 .bg-opacity-0{
 	--tw-bg-opacity: 0;
@@ -2891,6 +2920,9 @@ video {
 .pt-16{
 	padding-top: 4rem;
 }
+.pb-3{
+	padding-bottom: 0.75rem;
+}
 .text-left{
 	text-align: left;
 }
@@ -2930,6 +2962,10 @@ video {
 }
 .text-\[32px\]{
 	font-size: 32px;
+}
+.text-2xl{
+	font-size: 1.5rem;
+	line-height: 2rem;
 }
 .font-medium{
 	font-weight: 500;
@@ -3021,6 +3057,18 @@ video {
 .text-blue-600{
 	--tw-text-opacity: 1;
 	color: rgba(37, 99, 235, var(--tw-text-opacity));
+}
+.text-midgrey{
+	--tw-text-opacity: 1;
+	color: rgba(146, 157, 175, var(--tw-text-opacity));
+}
+.text-black{
+	--tw-text-opacity: 1;
+	color: rgba(0, 0, 0, var(--tw-text-opacity));
+}
+.text-indigo-500{
+	--tw-text-opacity: 1;
+	color: rgba(99, 102, 241, var(--tw-text-opacity));
 }
 .underline{
 	text-decoration: underline;
@@ -3696,6 +3744,10 @@ ul ul ul {
 	--tw-border-opacity: 1;
 	border-color: rgba(209, 213, 219, var(--tw-border-opacity));
 }
+.hover\:border-indigo-500:hover{
+	--tw-border-opacity: 1;
+	border-color: rgba(99, 102, 241, var(--tw-border-opacity));
+}
 .hover\:bg-indigo-500:hover{
 	--tw-bg-opacity: 1;
 	background-color: rgba(99, 102, 241, var(--tw-bg-opacity));
@@ -3711,6 +3763,14 @@ ul ul ul {
 .hover\:bg-white:hover{
 	--tw-bg-opacity: 1;
 	background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
+}
+.hover\:bg-gray-100:hover{
+	--tw-bg-opacity: 1;
+	background-color: rgba(243, 244, 246, var(--tw-bg-opacity));
+}
+.hover\:bg-indigo-400:hover{
+	--tw-bg-opacity: 1;
+	background-color: rgba(129, 140, 248, var(--tw-bg-opacity));
 }
 .hover\:font-bold:hover{
 	font-weight: 700;
@@ -3738,6 +3798,10 @@ ul ul ul {
 .hover\:text-gray-400:hover{
 	--tw-text-opacity: 1;
 	color: rgba(156, 163, 175, var(--tw-text-opacity));
+}
+.hover\:text-indigo-400:hover{
+	--tw-text-opacity: 1;
+	color: rgba(129, 140, 248, var(--tw-text-opacity));
 }
 .hover\:underline:hover{
 	text-decoration: underline;
@@ -4080,6 +4144,10 @@ ul ul ul {
 
 	.md\:w-full{
 		width: 100%;
+	}
+
+	.md\:max-w-md{
+		max-width: 28rem;
 	}
 
 	.md\:grid-cols-3{

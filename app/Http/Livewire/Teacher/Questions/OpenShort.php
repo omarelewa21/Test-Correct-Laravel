@@ -78,7 +78,7 @@ class OpenShort extends Component
         "is_open_source_content" => 1,
         "tags"                   => [],
         'note_type'              => 'NONE',
-        'order'                  => '1',
+        'order'                  => 0,
         'question'               => '',
         'rtti'                   => '',
         'score'                  => 6,
