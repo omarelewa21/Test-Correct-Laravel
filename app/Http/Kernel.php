@@ -11,6 +11,7 @@ use tcCore\Http\Middleware\GuestChoice;
 use tcCore\Http\Middleware\LocaleMiddleware;
 use tcCore\Http\Middleware\RequestLogger;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
+use tcCore\Http\Middleware\TrustProxies;
 
 class Kernel extends HttpKernel
 {
@@ -53,7 +54,8 @@ class Kernel extends HttpKernel
         'student'               => AuthenticatedAsStudent::class,
         'forceTaken'            => TestTakeForceTakenAwayCheck::class,
         'guest_choice'          => GuestChoice::class,
-        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'throttle'              => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'trustProxies'          => TrustProxies::class,
     ];
 
     /**
