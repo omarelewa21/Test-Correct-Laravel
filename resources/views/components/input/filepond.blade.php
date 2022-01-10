@@ -11,11 +11,11 @@
                 server: {
                     process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
                         @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, (uploadedFilename) => {
-                            // Success callback.
+
                         }, () => {
-                            // Error callback.
+
                         }, (event) => {
-                            // Progress callback.
+
                         })
                     },
                     revert: (filename, load) => {
