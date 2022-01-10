@@ -24,4 +24,7 @@ return [
     'Video URL'                        => 'Video URL',
     'make_public_tooltip_text'         => 'In de nabije toekomst zullen wij Test-Correct uitbreiden met de Nationale Itembank. U krijgt dan de mogelijkheid om items van uw vakcollega’s uit het hele land te gebruiken. Als deze optie is aangevinkt geeft u uw vakcollega’s (buiten uw school) de mogelijkheid om dit item te vinden in de Nationale Itembank en te gebruiken binnen hun eigen toets. U blijft overigens auteur van dit item. U blijft de zeggenschap houden, ook als u wenst te delen met uw collega’s.',
     'close_after_answer_tooltip_text'  => 'Als u kiest om de vraag af te sluiten zal de student bij het maken van de toets niet meer terug kunnen keren naar deze vraag als de vraag is verlaten. Deze functie is bijvoorbeeld handig als u niet wilt dat studenten informatie die u in deze vraag geeft nogmaals kunnen bekijken. De student wordt gevraagd of hij/zij het zeker weet bij het verlaten van de vraag.',
+    'delete'                           => 'Verwijderen',
+    'delete_attachment_confirm_text'   => 'Weet je zeker dat je deze bijlage wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
+    'delete_question_confirm_text'     => 'Weet je zeker dat je deze vraag wilt verwijderen? Je kunt deze actie niet ongedaan maken.',
 ];

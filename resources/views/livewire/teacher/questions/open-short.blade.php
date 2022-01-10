@@ -410,7 +410,6 @@
                 >
                     <div class="flex flex-col py-5 px-7 bg-white rounded-10 content-section"
                          @click.away="showModal = false"
-
                     >
                         <div class="px-2.5 flex justify-between items-center">
                             <h2>{{ __('cms.delete') }}</h2>
@@ -421,11 +420,15 @@
                             <div class="flex flex-1 flex-col ">
                                 <span x-show="deleteAction === 'question'">{{ __('cms.delete_question_confirm_text') }}</span>
                                 <span x-show="deleteAction === 'attachment'">{{ __('cms.delete_attachment_confirm_text') }}</span>
-                                <div class="flex w-full justify-end">
 
-                                <x-button.cta >
-                                    ja
-                                </x-button.cta>
+                                <div class="flex w-full justify-end">
+                                    <x-button.text-button>
+                                        <span>{{ __('test-take.Terug') }}</span>
+                                    </x-button.text-button>
+                                    <x-button.cta>
+                                        <x-icon.trash/>
+                                        ja
+                                    </x-button.cta>
                                 </div>
                             </div>
                         </div>
