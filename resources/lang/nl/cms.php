@@ -10,6 +10,7 @@ return [
     'open-question'                    => 'Open vraag',
     'open-question-short'              => 'Open vraag kort',
     'open-question-medium'             => 'Open vraag lang',
+    'multiplechoice-question-multiplechoice' => 'Meerkeuze vraag',
     'Vraagstelling'                    => 'Vraagstelling',
     'Antwoordmodel'                    => 'Antwoordmodel',
     'Toets'                            => 'Toets',
@@ -24,4 +25,6 @@ return [
     'Video URL'                        => 'Video URL',
     'make_public_tooltip_text'         => 'In de nabije toekomst zullen wij Test-Correct uitbreiden met de Nationale Itembank. U krijgt dan de mogelijkheid om items van uw vakcollega’s uit het hele land te gebruiken. Als deze optie is aangevinkt geeft u uw vakcollega’s (buiten uw school) de mogelijkheid om dit item te vinden in de Nationale Itembank en te gebruiken binnen hun eigen toets. U blijft overigens auteur van dit item. U blijft de zeggenschap houden, ook als u wenst te delen met uw collega’s.',
     'close_after_answer_tooltip_text'  => 'Als u kiest om de vraag af te sluiten zal de student bij het maken van de toets niet meer terug kunnen keren naar deze vraag als de vraag is verlaten. Deze functie is bijvoorbeeld handig als u niet wilt dat studenten informatie die u in deze vraag geeft nogmaals kunnen bekijken. De student wordt gevraagd of hij/zij het zeker weet bij het verlaten van de vraag.',
+    'all_or_nothing_tooltip_text'       => 'Wijs alleen punten toe als alle onderdelen goed beantwoord zijn',
+    'Alles of niets correct'            => 'Alles of niets correct',
 ];

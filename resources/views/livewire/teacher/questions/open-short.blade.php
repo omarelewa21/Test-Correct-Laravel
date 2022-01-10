@@ -126,7 +126,7 @@
                     <x-slot name="title">
                         {{ __('cms.Vraagstelling') }}
                     </x-slot>
-                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion())
+                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion())
                         <x-input.rich-textarea
                             wire:model.debounce.1000ms="question.question"
                             editorId="{{ $questionEditorId }}"
@@ -159,11 +159,24 @@
                             {{ __('cms.Antwoordmodel') }}
                         </x-slot>
 
-                        <x-input.rich-textarea
-                            wire:model.debounce.1000ms="question.answer"
-                            editorId="{{ $answerEditorId }}"
-                            type="cms"
-                        />
+                        @if($this->hasAllOrNothing())
+                            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
+                                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
+                            >
+                                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
+                            </x-input.toggle-row-with-title>
+
+                        @endif
+
+                        @if($this->isMultipleChoiceQuestion())
+
+                        @else
+                            <x-input.rich-textarea
+                                wire:model.debounce.1000ms="question.answer"
+                                editorId="{{ $answerEditorId }}"
+                                type="cms"
+                            />
+                        @endif
 
                         @error('question.answer')
                         <div class="notification error stretched mt-4">

@@ -7,6 +7,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 // http://test-correct.test/teacher/questions/open-short/add?owner=test&owner_id=7dfda5b2-c0fc-44c0-8ff9-e7a3c831e4a6&test_question_id=a01fd5e2-36dc-4bc1-823f-ca794e034c3f
 //
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -85,6 +86,7 @@ class OpenShort extends Component
         'type'                   => '',
         "attainments"            => [],
         "test_id"                => '',
+        'all_or_nothing'        => false,
     ];
 
     protected function rules()
@@ -107,7 +109,7 @@ class OpenShort extends Component
 
     public function requiresAnswer()
     {
-        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion();
+        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion();
     }
 
     protected function getListeners()
@@ -136,6 +138,11 @@ class OpenShort extends Component
                 }
                 $translation = 'cms.open-question-medium';
                 break;
+            case 'MultipleChoice':
+                if(Str::lower($this->question['subtype']) == 'multiplechoice') {
+                    $translation = 'cms.multiplechoice-question-multiplechoice';
+                    break;
+                }
             default:
                 $translation = 'cms.open-question';
                 break;
@@ -188,7 +195,8 @@ class OpenShort extends Component
                 $this->question['score'] = $q->score;
                 $this->question['note_type'] = $q->note_type;
                 $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
-                $this->question['order'] = $tq->order;
+                $this->question['order'] = $tq->order || $q->testQuestions()->count();
+                $this->question['all_or_nothing'] = $q->all_or_nothing;
 
                 $this->educationLevelId = $q->education_level_id;
 
@@ -248,6 +256,20 @@ class OpenShort extends Component
         }
 
         return $this->question['subtype'] == 'multi';
+    }
+
+    public function isMultipleChoiceQuestion()
+    {
+        if ($this->question['type'] !== 'MultipleChoiceQuestion') {
+            return false;
+        }
+
+        return Str::lower($this->question['subtype']) == 'multiplechoice';
+    }
+
+    public function hasAllOrNothing()
+    {
+        return $this->isMultipleChoiceQuestion();
     }
 
     private function saveNewQuestion()

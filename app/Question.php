@@ -23,6 +23,7 @@ class Question extends MtiBaseModel {
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
+        'all_or_nothing' => 'boolean',
     ];
 
     public $mtiBaseClass = 'tcCore\Question';
@@ -70,7 +71,8 @@ class Question extends MtiBaseModel {
                             'styling',
                             'closeable',
                             'html_specialchars_encoded',
-                            'is_subquestion'
+                            'is_subquestion',
+                            'all_or_nothing',
                             ];
 
     /**
