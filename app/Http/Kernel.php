@@ -55,7 +55,6 @@ class Kernel extends HttpKernel
         'forceTaken'            => TestTakeForceTakenAwayCheck::class,
         'guest_choice'          => GuestChoice::class,
         'throttle'              => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'trustProxies'          => TrustProxies::class,
     ];
 
     /**
