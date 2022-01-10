@@ -27,6 +27,7 @@ window.rsConf = {
 };
 
 function handleFocusForReadspeaker(){
+    //if clickListen is activated you cannot type an L in a textfield
     rspkr.ui.Tools.ClickListen.deactivate();
 }
 function handleBlurForReadspeaker(){
