@@ -6,7 +6,7 @@
 
 			'nodigt je uit om Test-Correct uit te proberen, een platform voor digitaal toetsen.' => 'nodigt je uit om Test-Correct uit te proberen, een platform voor digitaal toetsen.',
 
-			'We have immediately created an account for you for Test-Correct.' => 'We have immediately created an account for you for Test-Correct.',
+			'We hebben direct een account voor je aangemaakt voor Test-Correct.' => 'We hebben direct een account voor je aangemaakt voor Test-Correct.',
 
 			'Je bent daarmee een stap dichterbij een onderwijsinnovatie die echt eenvoudig is om te gebruiken en toch een wezenlijk verschil maakt!' => 'Je bent daarmee een stap dichterbij een onderwijsinnovatie die echt eenvoudig is om te gebruiken en toch een wezenlijk verschil maakt!',
 
