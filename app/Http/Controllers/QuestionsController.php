@@ -17,6 +17,7 @@ class QuestionsController extends Controller {
     public function inlineimage(Request $request, $image){
 
         $path = storage_path(sprintf('inlineimages/%s',$image));
+        dump($path);
         if(file_exists($path)){
             echo base64_encode(file_get_contents($path));exit;
         }

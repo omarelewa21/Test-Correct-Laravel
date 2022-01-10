@@ -17,11 +17,7 @@ RichTextEditor = {
         })
         CKEDITOR.instances[editorId]
             .on('change', function (e) {
-                var textarea = document.getElementById(editorId);
-                setTimeout(function () {
-                    textarea.value = e.editor.getData();
-                }, 300);
-                textarea.dispatchEvent(new Event('input'))
+                RichTextEditor.sendInputEventToEditor(editorId, e);
             });
     },
 
@@ -30,15 +26,20 @@ RichTextEditor = {
         if (editor) {
             editor.destroy(true)
         }
-        CKEDITOR.replace(editorId, {})
-        CKEDITOR.instances[editorId]
-            .on('change', function (e) {
-                var textarea = document.getElementById(editorId);
-                setTimeout(function () {
-                    textarea.value = e.editor.getData();
-                }, 300);
-                textarea.dispatchEvent(new Event('input'))
-            });
+        CKEDITOR.replace(editorId, {});
+        editor = CKEDITOR.instances[editorId];
+
+        editor.on('change', function (e) {
+            RichTextEditor.sendInputEventToEditor(editorId, e);
+        });
+        editor.on('simpleuploads.startUpload', function (e) {
+            e.data.extraHeaders = {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content,
+            }
+        });
+        editor.on('simpleuploads.finishedUpload', function (e) {
+            RichTextEditor.sendInputEventToEditor(editorId, e);
+        });
     },
     initSelectionCMS:function(editorId) {
         var editor = CKEDITOR.instances[editorId]
@@ -60,11 +61,7 @@ RichTextEditor = {
         })
         CKEDITOR.instances[editorId]
             .on('change', function (e) {
-                var textarea = document.getElementById(editorId);
-                setTimeout(function () {
-                    textarea.value = e.editor.getData();
-                }, 300);
-                textarea.dispatchEvent(new Event('input'))
+                RichTextEditor.sendInputEventToEditor(editorId, e);
             });
     },
     initCompletionCMS: function (editorId) {
@@ -88,11 +85,15 @@ RichTextEditor = {
         })
         CKEDITOR.instances[editorId]
             .on('change', function (e) {
-                var textarea = document.getElementById(editorId);
-                setTimeout(function () {
-                    textarea.value = e.editor.getData();
-                }, 300);
-                textarea.dispatchEvent(new Event('input'))
+                RichTextEditor.sendInputEventToEditor(editorId, e);
             });
-    }
+    },
+
+    sendInputEventToEditor: function (editorId, e) {
+        var textarea = document.getElementById(editorId);
+        setTimeout(function () {
+            textarea.value = e.editor.getData();
+        }, 300);
+        textarea.dispatchEvent(new Event('input'))
+    },
 }

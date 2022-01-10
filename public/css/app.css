@@ -931,7 +931,7 @@ input[type=number] {
     border: dashed 3px var(--primary);
     background: var(--off-white);
 }
-/*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v2.2.7 | MIT License | https://tailwindcss.com */
 
 /*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
 
@@ -1385,18 +1385,6 @@ button,
   cursor: pointer;
 }
 
-/**
- * Override legacy focus reset from Normalize with modern Firefox focus styles.
- *
- * This is actually an improvement over the new defaults in Firefox in our testing,
- * as it triggers the better focus styles even for links, which still use a dotted
- * outline in Firefox by default.
- */
-
-:-moz-focusring {
-	outline: auto;
-}
-
 table {
   border-collapse: collapse;
 }
@@ -1613,11 +1601,11 @@ video {
 .right-0{
 	right: 0px;
 }
-.top-8{
-	top: 2rem;
-}
 .left-1\/2{
 	left: 50%;
+}
+.top-8{
+	top: 2rem;
 }
 .bottom-0{
 	bottom: 0px;
@@ -1652,11 +1640,17 @@ video {
 .right-2{
 	right: 0.5rem;
 }
+.left-4{
+	left: 1rem;
+}
 .-right-4{
 	right: -1rem;
 }
 .-left-4{
 	left: -1rem;
+}
+.-bottom-px{
+	bottom: -1px;
 }
 .top-1\/2{
 	top: 50%;
@@ -1885,8 +1879,14 @@ video {
 .-ml-px{
 	margin-left: -1px;
 }
-.mt-20{
-	margin-top: 5rem;
+.mt-\[70px\]{
+	margin-top: 70px;
+}
+.ml-2\.5{
+	margin-left: 0.625rem;
+}
+.-mr-4{
+	margin-right: -1rem;
 }
 .ml-10{
 	margin-left: 2.5rem;
@@ -1998,6 +1998,9 @@ video {
 }
 .max-h-0{
 	max-height: 0px;
+}
+.max-h-\[50px\]{
+	max-height: 50px;
 }
 .min-h-screen{
 	min-height: 100vh;
@@ -2561,6 +2564,10 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(199, 210, 254, var(--tw-border-opacity));
 }
+.border-secondary{
+	--tw-border-opacity: 1;
+	border-color: rgba(206, 218, 243, var(--tw-border-opacity));
+}
 .bg-white{
 	--tw-bg-opacity: 1;
 	background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
@@ -2604,6 +2611,10 @@ video {
 .bg-\[\#2e3192\]{
 	--tw-bg-opacity: 1;
 	background-color: rgba(46, 49, 146, var(--tw-bg-opacity));
+}
+.bg-sysbase{
+	--tw-bg-opacity: 1;
+	background-color: rgba(4, 31, 116, var(--tw-bg-opacity));
 }
 .bg-opacity-0{
 	--tw-bg-opacity: 0;
@@ -2749,6 +2760,10 @@ video {
 .py-\[70px\]{
 	padding-top: 70px;
 	padding-bottom: 70px;
+}
+.px-\[11px\]{
+	padding-left: 11px;
+	padding-right: 11px;
 }
 .pt-4{
 	padding-top: 1rem;
@@ -2990,6 +3005,10 @@ video {
 .text-gray-500{
 	--tw-text-opacity: 1;
 	color: rgba(107, 114, 128, var(--tw-text-opacity));
+}
+.text-allred{
+	--tw-text-opacity: 1;
+	color: rgba(207, 27, 4, var(--tw-text-opacity));
 }
 .text-red-600{
 	--tw-text-opacity: 1;
@@ -3315,10 +3334,6 @@ svg {
 
 .border-primary-light {
     border-color: var(--primary-light);
-}
-
-.border-secondary {
-    border-color: var(--secondary);
 }
 
 .border-highlight-primary {

@@ -11,13 +11,53 @@
             <span class="bold">{{ $testName }}</span>
         </div>
     </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class=" mt-20 flex justify-end">
-            <x-input.score wire:model.defer="question.score"></x-input.score>
-        </div>
+    <div class="max-w-7xl mx-auto mt-[70px]">
+        <div class="flex w-full flex-col">
+            <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
+                <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
+                    <div class="flex items-center">
+                        <span class="py-[5px] px-[11px] inline-flex text-center rounded-full bg-sysbase text-white text-sm">{{ $this->question['order'] }}</span>
+                        <h2 class="ml-2.5">{{ $this->questionType }}</h2>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="inline-flex mr-2.5">
+                            <x-icon.locked/>
+                        </div>
+                        <div class="relative" x-data="{questionOptionMenu: false}">
+                            <button class="px-4 py-1.5 -mr-4 rounded-full hover:bg-primary hover:text-white transition-all"
+                                    @click="questionOptionMenu = true">
+                                <x-icon.options/>
+                            </button>
 
-        <div class="flex flex-col flex-1" x-data="{openTab: 1}" @opentab.window="openTab = $event.detail">
-            <div class="flex w-full space-x-6 mb-5 border-b border-grey">
+                            <div x-cloak
+                                 x-show="questionOptionMenu"
+                                 class="absolute right-0 top-10 bg-white py-2 main-shadow rounded-10 w-72 z-30 "
+                                 @click.outside="questionOptionMenu=false"
+                                 x-transition:enter="transition ease-out origin-top-right duration-200"
+                                 x-transition:enter-start="opacity-0 transform scale-90"
+                                 x-transition:enter-end="opacity-100 transform scale-100"
+                                 x-transition:leave="transition origin-top-right ease-in duration-100"
+                                 x-transition:leave-start="opacity-100 transform scale-100"
+                                 x-transition:leave-end="opacity-0 transform scale-90"
+                            >
+                                <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
+                                        @click="questionOptionMenu = false"
+                                >
+                                    <x-icon.trash/>
+                                    <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
+                <x-input.score wire:model.defer="question.score"></x-input.score>
+            </div>
+        </div>
+        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8" x-data="{openTab: 1}" @opentab.window="openTab = $event.detail">
+            <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]">
                 <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}">
                     <x-button.text-button
                         style="color:inherit"
@@ -122,7 +162,7 @@
                         <x-input.rich-textarea
                             wire:model.debounce.1000ms="question.answer"
                             editorId="{{ $answerEditorId }}"
-                            type="student"
+                            type="cms"
                         />
 
                         @error('question.answer')
@@ -160,12 +200,14 @@
                         @endif
 
                         <x-input.toggle-row-with-title wire:model="question.closable"
-                            :toolTip="__('Sluiten na beantwoorden')"
+                            :toolTip="__('cms.close_after_answer_tooltip_text')"
                         >
                             <x-icon.locked></x-icon.locked>
                             <span class="bold">{{ __('Sluiten na beantwoorden') }}</span>
                         </x-input.toggle-row-with-title>
-                        <x-input.toggle-row-with-title wire:model="question.add_to_database">
+                        <x-input.toggle-row-with-title wire:model="question.add_to_database"
+                            :toolTip="__('cms.make_public_tooltip_text')"
+                        >
                             <x-icon.preview class="flex "></x-icon.preview>
                             <span class="bold"> {{ __('Openbaar maken') }}</span>
                         </x-input.toggle-row-with-title>
@@ -251,8 +293,8 @@
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
-                    <livewire:attainment-manager :value="$question['attainments']" subject-id="2"
-                                                 eduction-level-id="1"/>
+                    <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
+                                                 :eduction-level-id="$educationLevelId"/>
                 </x-content-section>
 
 
