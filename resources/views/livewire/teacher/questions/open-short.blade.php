@@ -180,15 +180,29 @@
                                     }
                                 @endphp
                                 @foreach($mcAnswerStruct as $answer)
-                                    @php $answer = (object) $answer; @endphp
+                                    @php
+                                        $answer = (object) $answer;
+                                        $errorAnswerClass = '';
+                                        $errorScoreClass = '';
+                                    @endphp
+                                    @error('question.answers.'.$loop->index.'.answer')
+                                        @php
+                                            $errorAnswerClass = 'border-red'
+                                        @endphp
+                                    @enderror
+                                    @error('question.answers.'.$loop->index.'.score')
+                                    @php
+                                        $errorScoreClass = 'border-red'
+                                    @endphp
+                                    @enderror
                                     <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
                                                  wireKey="option-{{ $answer->id }}" selid="drag-box"
                                                  useHandle="true"
                                                  class="flex px-0 py-0 border-0 bg-system-white"
                                                  slotClasses="w-full"
                                     >
-                                        <x-input.text class="w-full mr-2" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.answer"/>
-                                        <x-input.text class="w-10 text-center" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.score"/>
+                                        <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.answer"/>
+                                        <x-input.text class="w-10 text-center {{ $errorScoreClass }}" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.score"/>
                                             <x-slot name="after">
                                                 <x-icon.trash class="mx-2 w-4 {{ $disabledClass }}" id="trash_{{ $answer->order }}" wire:click="mcDelete('{{$answer->id}}')"></x-icon.trash>
                                             </x-slot>
@@ -203,6 +217,11 @@
                                     </span>
                                 </x-button.primary>
                             </div>
+                            @error('question.answers.*.*')
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
+                            </div>
+                            @enderror
                         @else
                             <x-input.rich-textarea
                                 wire:model.debounce.1000ms="question.answer"

@@ -28,4 +28,5 @@ return [
     'all_or_nothing_tooltip_text'       => 'Wijs alleen punten toe als alle onderdelen goed beantwoord zijn',
     'Alles of niets correct'            => 'Alles of niets correct',
     'Item toevoegen'                    => 'Item toevoegen',
+    'De gemarkeerde velden zijn verplicht'=> 'De gemarkeerde velden zijn verplicht',
 ];

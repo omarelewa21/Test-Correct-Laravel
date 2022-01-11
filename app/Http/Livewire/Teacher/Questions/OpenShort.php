@@ -67,7 +67,7 @@ class OpenShort extends Component
     public $pValues = [];
 
     public $mcAnswerStruct = [];
-    public $mcAnswerCount = 3;
+    public $mcAnswerCount = 2;
     public $mcAnswerMinCount = 2;
 
 
@@ -100,7 +100,12 @@ class OpenShort extends Component
 
         if ($this->requiresAnswer()) {
             if($this->isMultipleChoiceQuestion()){
-                $rules += ['question.answers' => 'required'];
+                $rules += [
+                    'question.answers' => 'required|array|min:2',
+                    'question.answers.*.score' => 'required|integer',
+                    'question.answers.*.answer' => 'required',
+//                    'question.answers.*.order' => 'required',
+                ];
             } else {
                 $rules += ['question.answer' => 'required'];
             }
@@ -293,6 +298,7 @@ class OpenShort extends Component
                 'score' => $answer['score'],
             ];
         })->toArray());
+        unset($this->question['answer']);
     }
 
     public function save()
@@ -418,6 +424,7 @@ class OpenShort extends Component
 
     private function validateAndReturnErrorsToTabOne()
     {
+
         try {
             $this->validate();
         } catch (ValidationException $e) {
