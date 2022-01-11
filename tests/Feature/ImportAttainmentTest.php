@@ -241,7 +241,34 @@ class ImportAttainmentTest extends TestCase
         $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
         dump($response->getContent());
         $this->assertEquals(200,$response->getStatusCode());
+        $attainments = Attainment::whereNotNull('subsubcode')->get();
+        foreach ($attainments as $attainment){
+            $this->assertNotNull($attainment->attainment_id);
+        }
+        $this->logoutAdmin();
+    }
 
+    /** @test */
+    public function existing_attainments_file_08_11_21_integrity_test()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_existing_attainments_08nov21.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        dump($response->getContent());
+        $this->assertEquals(200,$response->getStatusCode());
+        $attainments = Attainment::whereNotNull('subsubcode')->get();
+        foreach ($attainments as $attainment){
+            $this->assertNotNull($attainment->attainment_id);
+        }
         $this->logoutAdmin();
     }
 
@@ -394,6 +421,30 @@ class ImportAttainmentTest extends TestCase
         $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
         $this->assertEquals(500,$response->getStatusCode());
         $this->assertStringContainsString('duplicate education_level_id',$response->getContent());
+        $this->logoutAdmin();
+    }
+
+    /** @test */
+    public function it_should_fail_add_attainment_id_on_subsubcode_attainments()
+    {
+        $this->loginAdmin();
+        $this->inactivateAttainmentToMakeImportPossible();
+        $testXslx = __DIR__.'/../files/import_existing_attainments.xlsx';
+        $this->assertFileExists($testXslx);
+        $request  = new Request();
+        $params = [
+            'session_hash' => Auth::user()->session_hash,
+            'user'         => Auth::user()->username,
+            'attainments' => $testXslx,
+        ];
+        $request->merge($params);
+        $response = (new AttainmentImportController())->importForUpdateOrCreate($request);
+        $this->assertEquals(200,$response->getStatusCode());
+        $attainments = Attainment::whereNotNull('subsubcode')->get();
+        foreach ($attainments as $attainment){
+            $this->assertNotNull($attainment->attainment_id);
+        }
+
         $this->logoutAdmin();
     }
 
