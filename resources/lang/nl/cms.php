@@ -27,4 +27,5 @@ return [
     'close_after_answer_tooltip_text'  => 'Als u kiest om de vraag af te sluiten zal de student bij het maken van de toets niet meer terug kunnen keren naar deze vraag als de vraag is verlaten. Deze functie is bijvoorbeeld handig als u niet wilt dat studenten informatie die u in deze vraag geeft nogmaals kunnen bekijken. De student wordt gevraagd of hij/zij het zeker weet bij het verlaten van de vraag.',
     'all_or_nothing_tooltip_text'       => 'Wijs alleen punten toe als alle onderdelen goed beantwoord zijn',
     'Alles of niets correct'            => 'Alles of niets correct',
+    'Item toevoegen'                    => 'Item toevoegen',
 ];

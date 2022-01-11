@@ -828,7 +828,7 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-.test-take-code-component .form-input.disabled {
+.test-take-code-component .form-input.disabled, .icon.disabled {
     color: var(--mid-grey);
 }
 
@@ -931,7 +931,7 @@ input[type=number] {
     border: dashed 3px var(--primary);
     background: var(--off-white);
 }
-/*! tailwindcss v2.2.7 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 
 /*! modern-normalize v1.1.0 | MIT License | https://github.com/sindresorhus/modern-normalize */
 
@@ -1383,6 +1383,18 @@ textarea::placeholder {
 button,
 [role="button"] {
   cursor: pointer;
+}
+
+/**
+ * Override legacy focus reset from Normalize with modern Firefox focus styles.
+ *
+ * This is actually an improvement over the new defaults in Firefox in our testing,
+ * as it triggers the better focus styles even for links, which still use a dotted
+ * outline in Firefox by default.
+ */
+
+:-moz-focusring {
+	outline: auto;
 }
 
 table {
@@ -2765,6 +2777,10 @@ video {
 	padding-left: 11px;
 	padding-right: 11px;
 }
+.px-0{
+	padding-left: 0px;
+	padding-right: 0px;
+}
 .pt-4{
 	padding-top: 1rem;
 }
@@ -3163,6 +3179,7 @@ video {
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
+    --white: #ffffff;
 }
 
 @font-face {
@@ -3298,6 +3315,10 @@ svg {
 
 .bg-system-secondary {
     background: var(--system-secondary);
+}
+
+.bg-system-white {
+    background: var(--system-white);
 }
 
 .bg-mid-grey {

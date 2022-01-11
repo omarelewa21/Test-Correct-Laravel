@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
@@ -64,6 +65,10 @@ class OpenShort extends Component
     public $questionId;
 
     public $pValues = [];
+
+    public $mcAnswerStruct = [];
+    public $mcAnswerCount = 3;
+    public $mcAnswerMinCount = 2;
 
 
     public $question = [
@@ -138,7 +143,7 @@ class OpenShort extends Component
                 }
                 $translation = 'cms.open-question-medium';
                 break;
-            case 'MultipleChoice':
+            case 'MultipleChoiceQuestion':
                 if(Str::lower($this->question['subtype']) == 'multiplechoice') {
                     $translation = 'cms.multiplechoice-question-multiplechoice';
                     break;
@@ -202,8 +207,77 @@ class OpenShort extends Component
 
                 $this->initWithTags = $q->tags;
                 $this->attachments = $q->attachments;
+
+                if($this->isMultipleChoiceQuestion()){
+                    $this->mcAnswerStruct = $q->multiple_choice_question_answers->map(function($answer){
+                        return (object)[
+                            'id'    => Uuid::uuid4(),
+                            'order' => $answer->pivot->order,
+                            'score' => $answer->score,
+                            'answer'=> $answer->answer,
+                        ];
+                    })->toArray();
+                }
+            }
+            if($this->isMultipleChoiceQuestion()){
+                $this->createMCAnswerStruct();
             }
         }
+    }
+
+    public function updateMCOrder($value)
+    {
+        foreach($value as $key => $item){
+            $this->mcAnswerStruct[((int) $item['value'])-1]['order'] = $item['order'];
+        }
+
+        $this->mcAnswerStruct = array_values(collect($this->mcAnswerStruct)->sortBy('order')->toArray());
+        $this->createMCAnswerStruct();
+
+    }
+
+    public function mcDelete($id)
+    {
+        if($this->mcAnswerMinCount >= count($this->mcAnswerStruct)) {
+            return;
+        }
+
+        $this->mcAnswerStruct = array_values(collect($this->mcAnswerStruct)->filter(function($answer) use ($id){
+           return $answer['id'] != $id;
+        })->toArray());
+
+        if($this->mcAnswerMinCount < $this->mcAnswerCount) {
+            $this->mcAnswerCount--;
+        }
+        $this->createMCAnswerStruct();
+    }
+
+    public function mcAddAnswerItem()
+    {
+        $this->mcAnswerCount++;
+        $this->createMCAnswerStruct();
+    }
+
+    public function createMCAnswerStruct()
+    {
+        $result = [];
+
+        collect($this->mcAnswerStruct)->each(function ($value, $key) use (&$result) {
+            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer'], 'score' => $value['score']];
+        })->toArray();
+
+        if(count($this->mcAnswerStruct) < $this->mcAnswerCount){
+            for($i = count($this->mcAnswerStruct);$i < $this->mcAnswerCount;$i++){
+                $result[] = (object)[
+                    'id'    => Uuid::uuid4(),
+                    'order' => $i+1,
+                    'score' => 0,
+                    'answer' => ''
+                ];
+            }
+        }
+
+        $this->mcAnswerStruct  = $result;
     }
 
     public function save()
@@ -270,6 +344,11 @@ class OpenShort extends Component
     public function hasAllOrNothing()
     {
         return $this->isMultipleChoiceQuestion();
+    }
+
+    public function showQuestionScore()
+    {
+        return ! ($this->isMultipleChoiceQuestion());
     }
 
     private function saveNewQuestion()

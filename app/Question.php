@@ -381,7 +381,7 @@ class Question extends MtiBaseModel {
 
     protected function allOrNothingQuestion()
     {
-        return $this->isCitoQuestion();
+        return $this->isCitoQuestion() || $this->all_or_nothing;
     }
 
     public function isCitoQuestion()
