@@ -177,6 +177,20 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
+    Alpine.data('badge', () => ({
+        options: false,
+        init() {
+            this.$watch('options', value => {
+                if (value) {
+                    let pWidth = this.$refs.optionscontainer.parentElement.offsetWidth;
+                    let pPos = this.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+                    if ((pWidth + pPos) < 288) {
+                        this.$refs.optionscontainer.classList.remove('right-0');
+                    }
+                }
+            })
+        }
+    }));
 
 
     Alpine.directive('global', function (el, {expression}) {

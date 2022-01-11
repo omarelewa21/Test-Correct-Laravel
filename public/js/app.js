@@ -5604,6 +5604,26 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('badge', function () {
+    return {
+      options: false,
+      init: function init() {
+        var _this4 = this;
+
+        this.$watch('options', function (value) {
+          if (value) {
+            var pWidth = _this4.$refs.optionscontainer.parentElement.offsetWidth;
+
+            var pPos = _this4.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+
+            if (pWidth + pPos < 288) {
+              _this4.$refs.optionscontainer.classList.remove('right-0');
+            }
+          }
+        });
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive('global', function (el, _ref) {
     var expression = _ref.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');

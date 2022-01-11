@@ -65,6 +65,10 @@ class OpenShort extends Component
 
     public $pValues = [];
 
+    public $questionIndex;
+
+    public $attachmentsCount = 0;
+
 
     public $question = [
         'add_to_database'        => 1,
@@ -209,6 +213,7 @@ class OpenShort extends Component
 
             $this->initWithTags = $q->tags;
             $this->attachments = $q->attachments;
+            $this->attachmentsCount = count($q->attachments);
         }
 
 }
@@ -370,6 +375,7 @@ class OpenShort extends Component
                 return $attachment->uuid == $attachmentUuid;
             });
         }
+        $this->attachmentsCount--;
     }
 
     public function removeFromUploads($tempFile)
@@ -377,6 +383,7 @@ class OpenShort extends Component
         $this->uploads = collect($this->uploads)->reject(function ($tempUpload) use ($tempFile) {
             return $tempUpload->getClientOriginalName() == $tempFile;
         })->toArray();
+        $this->attachmentsCount--;
     }
 
     public function removeVideo($video)
@@ -384,11 +391,13 @@ class OpenShort extends Component
         $this->videos = collect($this->videos)->reject(function ($item) use ($video) {
             return $item == $video;
         })->toArray();
+        $this->attachmentsCount--;
     }
 
     public function handleNewVideoAttachment($link)
     {
         $this->videos[] = $link;
+        $this->attachmentsCount++;
     }
 
     private function handleFileAttachments($response): void
@@ -422,5 +431,42 @@ class OpenShort extends Component
             $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
                 ->store($testQuestion, $attachementRequest);
         });
+    }
+
+    public function removeItem($item, $id)
+    {
+        if ($item === 'attachment') {
+            $this->removeAttachment($id);
+        }
+        if ($item === 'upload') {
+            $this->removeFromUploads($id);
+        }
+        if ($item === 'video') {
+            $this->removeVideo($id);
+        }
+        if ($item === 'question') {
+            $this->removeQuestion();
+        }
+    }
+
+    private function removeQuestion()
+    {
+        if (!$this->questionId) {
+            $this->returnToTestOverview();
+        }
+
+        $testQuestion = TestQuestion::whereUuid($this->test_question_id)->firstOrFail();
+
+        $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)
+            ->destroy($testQuestion);
+
+        if ($response->getStatusCode() == 200) {
+            $this->returnToTestOverview();
+        }
+    }
+
+    public function updatedUploads($value)
+    {
+        $this->attachmentsCount++;
     }
 }

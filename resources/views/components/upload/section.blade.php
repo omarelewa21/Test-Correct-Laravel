@@ -17,11 +17,11 @@
         {{ $title }}
     </x-slot>
     <div>
-        <div class="flex items-center mb-4 flex-wrap">
+        <div class="flex mb-4 flex-wrap">
             {{ $files }}
 
             <x-input.filepond wire:model="{{ $uploadModel }}"
-                              class="flex items-center space-x-4 flex-wrap"
+                              class="flex space-x-4 flex-wrap"
                               multiple="{{ $multiple ? 'true' : 'false' }}"
                               :showDefault="$defaultFilepond"
             >
