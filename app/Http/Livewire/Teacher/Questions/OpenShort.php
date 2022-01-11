@@ -14,9 +14,11 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use tcCore\Attachment;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -47,6 +49,8 @@ class OpenShort extends Component
 
     public $initWithTags = [];
 
+    public $isPartOfGroupQuestion = false;
+
     public $videos = [];
 
     public $testName = 'test_name';
@@ -68,7 +72,7 @@ class OpenShort extends Component
     public $questionIndex;
 
     public $attachmentsCount = 0;
-
+public $activeTestId = 0;
 
     public $question = [
         'add_to_database'        => 1,
@@ -154,36 +158,37 @@ class OpenShort extends Component
         $this->action = $action;
         $this->question['type'] = $type;
         $this->question['subtype'] = $subType;
+        $this->setIsPartOfGroupQuestion();
 
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
         $activeTest = (request()->input('owner') == 'group') ?
-            TestQuestion::find(request()->input('owner_id'))->test :
-            Test::whereUuid(request()->input('owner_id'))->first();
-
+            Test::whereUuid(request()->input('owner_id'))->first() :
+            TestQuestion::whereUuid(request()->input('owner_id'))->test;
 
 
         $activeTest->load('testAuthors', 'testAuthors.user');
 
 
+        // @TODO mag ik deze test zien;
+        // @TODO mag ik deze testQuestion editen?
+        // @TODO is deze test uberhaupt onderdeel van deze test?
+        // @TODO what to do when owner is a GroupQuestion?
 
-            // @TODO mag ik deze test zien;
-            // @TODO mag ik deze testQuestion editen?
-            // @TODO is deze test uberhaupt onderdeel van deze test?
-            // @TODO what to do when owner is a GroupQuestion?
+        $this->activeTestId = $activeTest->id;
 
         $this->testName = $activeTest->name;
         $this->testAuthors = $activeTest->AuthorsAsString;
         $this->subjectId = $activeTest->subjectId;
         $this->question['test_id'] = $activeTest->id;
         $this->educationLevelId = $activeTest->education_level_id;
-       // $this->question['order'] = $activeTest->testQuestions()->count();
+        // $this->question['order'] = $activeTest->testQuestions()->count();
 
 
         if ($this->test_question_id) {
 //            dd($this->test_question_id);
-            if (request('owner') == 'group') {
+            if ($this->isPartOfGroupQuestion()) {
                 $tq = GroupQuestionQuestion::whereUuid($this->test_question_id)->first();
                 $q = $tq->question;
             } else {
@@ -216,7 +221,7 @@ class OpenShort extends Component
             $this->attachmentsCount = count($q->attachments);
         }
 
-}
+    }
 
     public function save()
     {
@@ -331,11 +336,31 @@ class OpenShort extends Component
         $request = new Request();
         $request->merge($this->question);
 
-        return app(\tcCore\Http\Controllers\TestQuestionsController::class)
-            ->updateFromWithin(
+        if ($this->isPartOfGroupQuestion()) {
+
+            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->test_question_id)->first();
+            $tq = TestQuestion::where('question_id', $groupQuestionQuestion->group_question_id)->where('test_id',
+                $this->activeTestId)->first();
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstance($tq->id); //'577fa17d-68b7-4695-ace5-e14afd913757');
+
+
+            $request = new Request();
+            $request->merge($this->question);
+            $response = (new GroupQuestionQuestionsController())->updateFromWithin(
+                $groupQuestionQuestionManager,
+                $groupQuestionQuestion,
+                $request
+            );
+
+
+        } else {
+            $ressponse = app(\tcCore\Http\Controllers\TestQuestionsController::class)->updateFromWithin(
                 TestQuestion::whereUUID($this->test_question_id)->first(),
                 $request
             );
+        }
+
+        return $response;
     }
 
     public function handleAttachmentSettingChange($data, $attachmentUuid)
@@ -355,7 +380,8 @@ class OpenShort extends Component
         $changedSetting = [$setting => $value];
 
         if (array_key_exists($attachmentName, $this->audioUploadOptions)) {
-            $this->audioUploadOptions[$attachmentName] = array_merge($this->audioUploadOptions[$attachmentName], $changedSetting);
+            $this->audioUploadOptions[$attachmentName] = array_merge($this->audioUploadOptions[$attachmentName],
+                $changedSetting);
             return;
         }
 
@@ -468,5 +494,15 @@ class OpenShort extends Component
     public function updatedUploads($value)
     {
         $this->attachmentsCount++;
+    }
+
+    private function isPartOfGroupQuestion(): bool
+    {
+        return $this->isPartOfGroupQuestion;
+    }
+
+    private function setIsPartOfGroupQuestion()
+    {
+        $this->isPartOfGroupQuestion = (request('owner') == 'group');
     }
 }
