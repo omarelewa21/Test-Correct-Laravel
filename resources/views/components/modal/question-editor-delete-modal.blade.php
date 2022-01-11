@@ -28,7 +28,7 @@
          x-transition:leave="ease-in duration-100"
          x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
          x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-        <div class="px-2.5 flex justify-between items-center">
+        <div class="px-2.5 flex justify-between items-center mt-2">
             <h2>{{ __('cms.delete') }}</h2>
             <x-icon.close class="cursor-pointer hover:text-primary" @click="show = false"/>
         </div>
@@ -43,10 +43,10 @@
                         <x-icon.chevron/>
                         <span>{{ __('test-take.Terug') }}</span>
                     </x-button.text-button>
-                    <x-button.cta @click="$wire.removeItem(item, identifier); show = false;">
+                    <x-button.primary @click="$wire.removeItem(item, identifier); show = false;">
                         <x-icon.trash/>
                         <span>{{ __('cms.delete') }}</span>
-                    </x-button.cta>
+                    </x-button.primary>
                 </div>
             </div>
         </div>
