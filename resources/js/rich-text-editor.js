@@ -6,7 +6,7 @@ RichTextEditor = {
         }
         CKEDITOR.replace(editorId, {
             removePlugins: 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-            extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+            extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar: [
                 {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
                 {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
@@ -48,7 +48,7 @@ RichTextEditor = {
 
         CKEDITOR.replace(editorId, {
             removePlugins: 'pastefromword,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-            extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+            extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar: [
                 {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
                 {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
@@ -76,7 +76,7 @@ RichTextEditor = {
 
         CKEDITOR.replace(editorId, {
             removePlugins: 'pastefromword,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-            extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+            extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar: [
                 {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
                 {name: 'paragraph', items: ['NumberedList', 'BulletedList']},

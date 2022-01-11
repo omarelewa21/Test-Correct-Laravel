@@ -100,7 +100,7 @@ CKEDITOR.editorConfig = function( config ) {
 
 CKEDITOR.studentEditorConfig = {
     removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris',
+    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,wordcount,notification',
     toolbar: [
         { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
         { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
