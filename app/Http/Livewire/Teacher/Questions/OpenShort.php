@@ -99,7 +99,11 @@ class OpenShort extends Component
         $rules = ['question.question' => 'required'];
 
         if ($this->requiresAnswer()) {
-            $rules += ['question.answer' => 'required'];
+            if($this->isMultipleChoiceQuestion()){
+                $rules += ['question.answers' => 'required'];
+            } else {
+                $rules += ['question.answer' => 'required'];
+            }
         }
         return $rules;
     }
@@ -178,7 +182,7 @@ class OpenShort extends Component
             $this->subjectId = $activeTest->subjectId;
             $this->question['test_id'] = $activeTest->id;
             $this->educationLevelId = $activeTest->education_level_id;
-            $this->question['order'] = $activeTest->testQuestions()->count();
+            $this->question['order'] = $activeTest->testQuestions()->count()+1;
 
             if ($this->test_question_id) {
                 $tq = TestQuestion::whereUuid($this->test_question_id)->first();
@@ -280,8 +284,23 @@ class OpenShort extends Component
         $this->mcAnswerStruct  = $result;
     }
 
+    protected function prepareMultipleChoiceQuestionForSave()
+    {
+        $this->question['answers'] = array_values(collect($this->mcAnswerStruct)->map(function($answer){
+            return [
+                'order' => $answer['order'],
+                'answer' => $answer['answer'],
+                'score' => $answer['score'],
+            ];
+        })->toArray());
+    }
+
     public function save()
     {
+        $prepareFunction = sprintf('prepare%sForSave',$this->question['type']);
+        if(method_exists($this,$prepareFunction)){
+            $this->$prepareFunction();
+        }
         $this->validateAndReturnErrorsToTabOne();
 
         if ($this->action == 'edit') {
