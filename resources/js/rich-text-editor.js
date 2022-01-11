@@ -70,17 +70,17 @@ RichTextEditor = {
         if (editor) {
             editor.destroy(true)
         }
-
         CKEDITOR.replace(editorId, {
-            removePlugins: 'pastefromword,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-            extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow',
-            toolbar: [
-                {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
-                {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
-                {name: 'insert', items: ['Table']},
-                {name: 'styles', items: ['Font', 'FontSize']},
-                {name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']},
-                {name: 'extra', items: ['completion']}
+            extraPlugins: 'completion',
+            toolbar : [
+                { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
+                { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript' ] },
+                { name: 'paragraph', items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote' ] },
+                { name: 'insert', items: [ 'addImage', 'Table' ] },
+                { name: 'styles', items: [ 'Format', 'Font', 'FontSize' ] },
+                { name: 'colors', items: [ 'TextColor', 'BGColor', 'CopyFormatting' ] },
+                { name: 'align', items: [ 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
+                { name: 'extra', items: ['completion']},
             ]
         })
         CKEDITOR.instances[editorId]

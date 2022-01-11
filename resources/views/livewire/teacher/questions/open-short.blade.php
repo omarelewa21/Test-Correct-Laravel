@@ -150,7 +150,7 @@
                     @endif
                     @if($this->isCompletionQuestion())
                         <x-input.rich-textarea
-                            wire:model.defer="question.question"
+                            wire:model.debounce.1000ms="question.question"
                             editorId="{{ $questionEditorId }}"
                             type="cms-completion"
                         />

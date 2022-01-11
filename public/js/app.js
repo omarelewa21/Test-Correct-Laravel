@@ -6286,23 +6286,28 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-      extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+      extraPlugins: 'completion',
       toolbar: [{
+        name: 'clipboard',
+        items: ['Undo', 'Redo']
+      }, {
         name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
+        items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript']
       }, {
         name: 'paragraph',
-        items: ['NumberedList', 'BulletedList']
+        items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote']
       }, {
         name: 'insert',
-        items: ['Table']
+        items: ['addImage', 'Table']
       }, {
         name: 'styles',
-        items: ['Font', 'FontSize']
+        items: ['Format', 'Font', 'FontSize']
       }, {
-        name: 'wirisplugins',
-        items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']
+        name: 'colors',
+        items: ['TextColor', 'BGColor', 'CopyFormatting']
+      }, {
+        name: 'align',
+        items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
       }, {
         name: 'extra',
         items: ['completion']

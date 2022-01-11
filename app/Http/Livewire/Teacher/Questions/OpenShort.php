@@ -197,7 +197,6 @@ class OpenShort extends Component
                 $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
             }
 
-
             $this->questionId = $q->question->getKey();
             $this->question['bloom'] = $q->bloom;
             $this->question['rtti'] = $q->rtti;
@@ -214,6 +213,10 @@ class OpenShort extends Component
             $this->initWithTags = $q->tags;
             $this->attachments = $q->attachments;
             $this->attachmentsCount = count($q->attachments);
+
+            if ($this->isCompletionQuestion()) {
+                $this->question['question'] = $this->decodeCompletionTags($q);
+            }
         }
 
 }
@@ -468,5 +471,27 @@ class OpenShort extends Component
     public function updatedUploads($value)
     {
         $this->attachmentsCount++;
+    }
+
+    private function decodeCompletionTags($question)
+    {
+        if (!$question->completionQuestionAnswers) {
+            return $question->getQuestionHtml();
+        }
+
+        $tags = [];
+        $question->completionQuestionAnswers->each(function ($tag) use (&$tags) {
+            $tags[$tag['tag']][] = $tag['answer'];
+        });
+
+        $searchPattern = '/\[([0-9]+)\]/i';
+        $replacementFunction = function ($matches) use ($question, $tags) {
+            $tag_id = $matches[1]; // the completion_question_answers list is 1 based
+            if (isset($tags[$tag_id])) {
+                return sprintf('[%s]', implode('|', $tags[$tag_id]));
+            }
+        };
+
+        return preg_replace_callback($searchPattern, $replacementFunction, $question->getQuestionHtml());
     }
 }
