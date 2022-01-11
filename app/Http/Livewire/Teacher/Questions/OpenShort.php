@@ -204,7 +204,7 @@ class OpenShort extends Component
                 $this->question['score'] = $q->score;
                 $this->question['note_type'] = $q->note_type;
                 $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
-                $this->question['order'] = $tq->order || $q->testQuestions()->count();
+                $this->question['order'] = $tq->order || $q->testQuestions()->count()+1;
                 $this->question['all_or_nothing'] = $q->all_or_nothing;
 
                 $this->educationLevelId = $q->education_level_id;
