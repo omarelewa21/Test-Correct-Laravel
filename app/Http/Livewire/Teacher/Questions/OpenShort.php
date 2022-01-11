@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use tcCore\Attachment;
+use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -54,6 +55,8 @@ class OpenShort extends Component
 
     public $subjectId;
 
+    public $educationLevelId;
+
     public $action;
 
     protected $tags = [];
@@ -61,6 +64,10 @@ class OpenShort extends Component
     public $questionId;
 
     public $pValues = [];
+
+    public $questionIndex;
+
+    public $attachmentsCount = 0;
 
 
     public $question = [
@@ -151,46 +158,65 @@ class OpenShort extends Component
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
-        if (request()->input('owner') == 'test') {
+        $activeTest = (request()->input('owner') == 'group') ?
+            TestQuestion::find(request()->input('owner_id'))->test :
+            Test::whereUuid(request()->input('owner_id'))->first();
+
+
+
+        $activeTest->load('testAuthors', 'testAuthors.user');
+
+
+
             // @TODO mag ik deze test zien;
             // @TODO mag ik deze testQuestion editen?
             // @TODO is deze test uberhaupt onderdeel van deze test?
             // @TODO what to do when owner is a GroupQuestion?
 
-            $activeTest = Test::with('testAuthors',
-                'testAuthors.user')->whereUuid(request()->input('owner_id'))->first();
-            $this->testName = $activeTest->name;
-            $this->testAuthors = $activeTest->AuthorsAsString;
-            $this->subjectId = $activeTest->subjectId;
-            $this->question['test_id'] = $activeTest->id;
+        $this->testName = $activeTest->name;
+        $this->testAuthors = $activeTest->AuthorsAsString;
+        $this->subjectId = $activeTest->subjectId;
+        $this->question['test_id'] = $activeTest->id;
+        $this->educationLevelId = $activeTest->education_level_id;
+       // $this->question['order'] = $activeTest->testQuestions()->count();
 
-            if ($this->test_question_id) {
+
+        if ($this->test_question_id) {
+//            dd($this->test_question_id);
+            if (request('owner') == 'group') {
+                $tq = GroupQuestionQuestion::whereUuid($this->test_question_id)->first();
+                $q = $tq->question;
+            } else {
                 $tq = TestQuestion::whereUuid($this->test_question_id)->first();
                 $q = $tq->question;
-
-                if ($q) {
-                    $q = (new QuestionHelper())->getTotalQuestion($q->question);
-
-                    $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
-                }
-
-
-                $this->questionId = $q->question->getKey();
-                $this->question['bloom'] = $q->bloom;
-                $this->question['rtti'] = $q->rtti;
-                $this->question['miller'] = $q->miller;
-                $this->question['answer'] = $q->answer;
-                $this->question['question'] = $q->question->getQuestionHTML();
-                $this->question['score'] = $q->score;
-                $this->question['note_type'] = $q->note_type;
-                $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
-                $this->question['order'] = $tq->order;
-
-                $this->initWithTags = $q->tags;
-                $this->attachments = $q->attachments;
             }
+
+            if ($q) {
+                $q = (new QuestionHelper())->getTotalQuestion($q->question);
+
+                $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
+            }
+
+
+            $this->questionId = $q->question->getKey();
+            $this->question['bloom'] = $q->bloom;
+            $this->question['rtti'] = $q->rtti;
+            $this->question['miller'] = $q->miller;
+            $this->question['answer'] = $q->answer;
+            $this->question['question'] = $q->question->getQuestionHTML();
+            $this->question['score'] = $q->score;
+            $this->question['note_type'] = $q->note_type;
+            $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
+            $this->question['order'] = $tq->order;
+
+            $this->educationLevelId = $q->education_level_id;
+
+            $this->initWithTags = $q->tags;
+            $this->attachments = $q->attachments;
+            $this->attachmentsCount = count($q->attachments);
         }
-    }
+
+}
 
     public function save()
     {
@@ -349,6 +375,7 @@ class OpenShort extends Component
                 return $attachment->uuid == $attachmentUuid;
             });
         }
+        $this->attachmentsCount--;
     }
 
     public function removeFromUploads($tempFile)
@@ -356,6 +383,7 @@ class OpenShort extends Component
         $this->uploads = collect($this->uploads)->reject(function ($tempUpload) use ($tempFile) {
             return $tempUpload->getClientOriginalName() == $tempFile;
         })->toArray();
+        $this->attachmentsCount--;
     }
 
     public function removeVideo($video)
@@ -363,11 +391,13 @@ class OpenShort extends Component
         $this->videos = collect($this->videos)->reject(function ($item) use ($video) {
             return $item == $video;
         })->toArray();
+        $this->attachmentsCount--;
     }
 
     public function handleNewVideoAttachment($link)
     {
         $this->videos[] = $link;
+        $this->attachmentsCount++;
     }
 
     private function handleFileAttachments($response): void
@@ -401,5 +431,42 @@ class OpenShort extends Component
             $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
                 ->store($testQuestion, $attachementRequest);
         });
+    }
+
+    public function removeItem($item, $id)
+    {
+        if ($item === 'attachment') {
+            $this->removeAttachment($id);
+        }
+        if ($item === 'upload') {
+            $this->removeFromUploads($id);
+        }
+        if ($item === 'video') {
+            $this->removeVideo($id);
+        }
+        if ($item === 'question') {
+            $this->removeQuestion();
+        }
+    }
+
+    private function removeQuestion()
+    {
+        if (!$this->questionId) {
+            $this->returnToTestOverview();
+        }
+
+        $testQuestion = TestQuestion::whereUuid($this->test_question_id)->firstOrFail();
+
+        $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)
+            ->destroy($testQuestion);
+
+        if ($response->getStatusCode() == 200) {
+            $this->returnToTestOverview();
+        }
+    }
+
+    public function updatedUploads($value)
+    {
+        $this->attachmentsCount++;
     }
 }

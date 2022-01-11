@@ -5604,6 +5604,26 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('badge', function () {
+    return {
+      options: false,
+      init: function init() {
+        var _this4 = this;
+
+        this.$watch('options', function (value) {
+          if (value) {
+            var pWidth = _this4.$refs.optionscontainer.parentElement.offsetWidth;
+
+            var pPos = _this4.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+
+            if (pWidth + pPos < 288) {
+              _this4.$refs.optionscontainer.classList.remove('right-0');
+            }
+          }
+        });
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive('global', function (el, _ref) {
     var expression = _ref.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
@@ -6200,11 +6220,7 @@ RichTextEditor = {
       }]
     });
     CKEDITOR.instances[editorId].on('change', function (e) {
-      var textarea = document.getElementById(editorId);
-      setTimeout(function () {
-        textarea.value = e.editor.getData();
-      }, 300);
-      textarea.dispatchEvent(new Event('input'));
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
   },
   initCMS: function initCMS(editorId) {
@@ -6215,12 +6231,17 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {});
-    CKEDITOR.instances[editorId].on('change', function (e) {
-      var textarea = document.getElementById(editorId);
-      setTimeout(function () {
-        textarea.value = e.editor.getData();
-      }, 300);
-      textarea.dispatchEvent(new Event('input'));
+    editor = CKEDITOR.instances[editorId];
+    editor.on('change', function (e) {
+      RichTextEditor.sendInputEventToEditor(editorId, e);
+    });
+    editor.on('simpleuploads.startUpload', function (e) {
+      e.data.extraHeaders = {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content
+      };
+    });
+    editor.on('simpleuploads.finishedUpload', function (e) {
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
   },
   initSelectionCMS: function initSelectionCMS(editorId) {
@@ -6254,11 +6275,7 @@ RichTextEditor = {
       }]
     });
     CKEDITOR.instances[editorId].on('change', function (e) {
-      var textarea = document.getElementById(editorId);
-      setTimeout(function () {
-        textarea.value = e.editor.getData();
-      }, 300);
-      textarea.dispatchEvent(new Event('input'));
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
   },
   initCompletionCMS: function initCompletionCMS(editorId) {
@@ -6292,12 +6309,15 @@ RichTextEditor = {
       }]
     });
     CKEDITOR.instances[editorId].on('change', function (e) {
-      var textarea = document.getElementById(editorId);
-      setTimeout(function () {
-        textarea.value = e.editor.getData();
-      }, 300);
-      textarea.dispatchEvent(new Event('input'));
+      RichTextEditor.sendInputEventToEditor(editorId, e);
     });
+  },
+  sendInputEventToEditor: function sendInputEventToEditor(editorId, e) {
+    var textarea = document.getElementById(editorId);
+    setTimeout(function () {
+      textarea.value = e.editor.getData();
+    }, 300);
+    textarea.dispatchEvent(new Event('input'));
   }
 };
 

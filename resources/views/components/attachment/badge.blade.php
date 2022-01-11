@@ -12,18 +12,7 @@
 @endphp
 
 <div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2"
-     x-data="{options: false}"
-     x-init="
-        $watch('options', value => {
-            if (value) {
-                let pWidth = $refs.optionscontainer.parentElement.offsetWidth;
-                let pPos = $refs.optionscontainer.parentElement.getBoundingClientRect().left;
-                if ((pWidth + pPos) < 288) {
-                    $refs.optionscontainer.classList.remove('right-0');
-                }
-            }
-        })
-     "
+     x-data="badge()"
 >
     <div class="flex p-2 border-r border-blue-grey h-full items-center">
         @if($type == 'image')
@@ -118,7 +107,7 @@
                                 <x-input.text
                                         type="number"
                                         maxlength="4"
-                                        class="w-24 pr-10"
+                                        class="w-24 pr-10 text-base"
                                         placeholder="250"
                                         @change="$wire.handleUploadSettingChange('timeout', $event.target.value, '{{ $title }}')"
                                 />
@@ -126,7 +115,7 @@
                                 <x-input.text
                                         type="number"
                                         maxlength="4"
-                                        class="w-24 pr-10"
+                                        class="w-24 pr-10 text-base"
                                         placeholder="250"
                                         @change="$wire.handleAttachmentSettingChange({'timeout': $event.target.value}, '{{ $attachment->uuid }}')"
                                         :value="optional(json_decode($attachment->json))->timeout"
@@ -139,12 +128,7 @@
                 <div class="flex w-full h-px bg-blue-grey mb-2"></div>
             @endif
             <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                 @if($upload)
-                 wire:click="removeFromUploads('{{ $title }}')"
-                 @else
-                 wire:click="removeAttachment('{{ $attachment->uuid }}')"
-                 @endif
-                 @click="options = false"
+                    @click="$dispatch('delete-modal', ['{{ $upload ? 'upload' : 'attachment'}}', '{{ $upload ? $title : $attachment->uuid }}'])"
             >
                 <x-icon.trash/>
                 <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>

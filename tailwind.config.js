@@ -16,6 +16,7 @@ module.exports = {
                 offwhite: '#f9faff',
                 allred: '#cf1b04',
                 cta: '#3ab753',
+                midgrey: '#929DAF',
             },
         },
     },

@@ -69,6 +69,11 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::get('/entree-link', tcCore\Http\Livewire\Auth\EntreeLink::class)->name('entree-link');
+
+    Route::middleware(['dll', 'teacher'])->prefix('cms')->name('cms.')->group(function () {
+        Route::post('/ckeditor_upload/{type}', [tcCore\Http\Controllers\CkeditorImageController::class, 'store'])->name('upload');
+        Route::get('/ckeditor_upload/{filename}', [tcCore\Http\Controllers\CkeditorImageController::class, 'show'])->name('upload.get');
+    });
 });
 Route::middleware(['guest', 'auth.temp'])->group(function () {
     Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview'])->name('auth.teacher.show-test-with-short-code');
