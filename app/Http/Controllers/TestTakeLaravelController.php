@@ -134,12 +134,19 @@ class TestTakeLaravelController extends Controller
                 return $question->uuid == $questionUuid;
             });
 
+            $closeable = $question->closeable;
+            foreach ($question->attachments as $attachment){
+                if($attachment->audioOnlyPlayOnce()){
+                    $closeable = true;
+                    break;
+                }
+            }
             return [
                 'uuid'      => $question->uuid,
                 'id'        => $question->id,
                 'answer_id' => $answer['id'],
                 'answered'  => $answer['answered'],
-                'closeable' => $question->closeable,
+                'closeable' => $closeable,
                 'closed'    => $answer['closed'],
                 'group'     => [
                     'id'        => $answer['group_id'],
