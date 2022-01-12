@@ -16,7 +16,7 @@ return [
     'unieke id'                        => 'Unieke ID',
     'auteur(s)'                        => 'Auteur(s)',
     'Zoek tags ...'                    => 'Zoek tags ...',
-    'Statistiek'                       => 'Statistiek',
+    'Statistiek'                       => 'Statistieken',
     'p-waarde'                         => 'P-waarde',
     'keer afgenomen'                   => 'keer afgenomen',
     'Verwijderen'                      => 'Verwijderen',
