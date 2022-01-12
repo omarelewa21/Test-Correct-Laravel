@@ -175,7 +175,7 @@
                                  wire:sortable="updateMCOrder">
                                 @php
                                     $disabledClass = "icon disabled";
-                                    if($this->mcAnswerMinCount < $this->mcAnswerCount) {
+                                    if($this->mcCanDelete()) {
                                         $disabledClass = "";
                                     }
                                 @endphp

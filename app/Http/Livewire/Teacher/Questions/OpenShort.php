@@ -209,7 +209,7 @@ class OpenShort extends Component
                 $this->question['score'] = $q->score;
                 $this->question['note_type'] = $q->note_type;
                 $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
-                $this->question['order'] = $tq->order || $q->testQuestions()->count()+1;
+                $this->question['order'] = $tq->order;
                 $this->question['all_or_nothing'] = $q->all_or_nothing;
 
                 $this->educationLevelId = $q->education_level_id;
@@ -218,10 +218,11 @@ class OpenShort extends Component
                 $this->attachments = $q->attachments;
 
                 if($this->isMultipleChoiceQuestion()){
-                    $this->mcAnswerStruct = $q->multiple_choice_question_answers->map(function($answer){
-                        return (object)[
+
+                    $this->mcAnswerStruct = $q->multipleChoiceQuestionAnswers->map(function($answer,$key){
+                        return [
                             'id'    => Uuid::uuid4(),
-                            'order' => $answer->pivot->order,
+                            'order' => $key+1,
                             'score' => $answer->score,
                             'answer'=> $answer->answer,
                         ];
@@ -245,9 +246,14 @@ class OpenShort extends Component
 
     }
 
+    public function mcCanDelete()
+    {
+        return $this->mcAnswerMinCount < count($this->mcAnswerStruct);
+    }
+
     public function mcDelete($id)
     {
-        if($this->mcAnswerMinCount >= count($this->mcAnswerStruct)) {
+        if(!$this->mcCanDelete()) {
             return;
         }
 
@@ -287,6 +293,7 @@ class OpenShort extends Component
         }
 
         $this->mcAnswerStruct  = $result;
+        $this->mcAnswerCount = count($this->mcAnswerStruct);
     }
 
     protected function prepareMultipleChoiceQuestionForSave()
@@ -299,6 +306,7 @@ class OpenShort extends Component
             ];
         })->toArray());
         unset($this->question['answer']);
+        $this->question['score'] = collect($this->mcAnswerStruct)->sum('score');
     }
 
     public function save()
