@@ -70,6 +70,7 @@ class OpenShort extends Component
     public $mcAnswerCount = 2;
     public $mcAnswerMinCount = 2;
 
+    public $tfTrue = true;
 
     public $question = [
         'add_to_database'        => 1,
@@ -99,13 +100,17 @@ class OpenShort extends Component
         $rules = ['question.question' => 'required'];
 
         if ($this->requiresAnswer()) {
-            if($this->isMultipleChoiceQuestion()){
+            if($this->isMultipleChoiceQuestion()) {
                 $rules += [
                     'question.answers' => 'required|array|min:2',
                     'question.answers.*.score' => 'required|integer',
                     'question.answers.*.answer' => 'required',
                     'question.answers.*.order' => 'required',
                     'question.score' => 'required|integer|min:1',
+                ];
+            } else if($this->isTrueFalseQuestion()){
+                $rules = [
+                    'question.answers' => 'required|array|min:2|max:2',
                 ];
             } else {
                 $rules += ['question.answer' => 'required'];
@@ -124,7 +129,7 @@ class OpenShort extends Component
 
     public function requiresAnswer()
     {
-        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion();
+        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion();
     }
 
     protected function getListeners()
@@ -158,6 +163,11 @@ class OpenShort extends Component
                     $translation = 'cms.multiplechoice-question-multiplechoice';
                     break;
                 }
+                if(Str::lower($this->question['subtype']) == 'truefalse') {
+                    $translation = 'cms.multiplechoice-question-truefalse';
+                    break;
+                }
+
             default:
                 $translation = 'cms.open-question';
                 break;
@@ -229,11 +239,48 @@ class OpenShort extends Component
                         ];
                     })->toArray();
                 }
+
+                if($this->isTrueFalseQuestion()){
+                    $q->multipleChoiceQuestionAnswers->each(function($answer){
+                       if(Str::lower($answer->answer) === 'juist' && $answer->score > 0){
+                           $this->tfTrue = true;
+                       }
+                        if(Str::lower($answer->answer) === 'onjuist' && $answer->score > 0){
+                            $this->tfTrue = false;
+                        }
+                    });
+                }
             }
             if($this->isMultipleChoiceQuestion()){
                 $this->createMCAnswerStruct();
             }
         }
+    }
+
+    public function tfIsActiveAnswer($val)
+    {
+        return ($this->tfTrue == ($val == 'true'));
+    }
+
+    public function updatedTfTrue($val)
+    {
+        $this->tfTrue = ($val == 'true');
+    }
+
+    protected function prepareMultipleChoiceQuestionTrueFalseForSave()
+    {
+        $result = [];
+        $nr = 1;
+        foreach(['Juist' => true,'Onjuist' => false] as $option => $value){
+            $result[] = [
+                'order' => $nr,
+                'answer' => $option,
+                'score' => ($this->tfTrue === $value) ? $this->question['score'] : 0,
+            ];
+            $nr++;
+        }
+        $this->question['answers'] = $result;
+        unset($this->question['answer']);
     }
 
     public function updateMCOrder($value)
@@ -297,7 +344,7 @@ class OpenShort extends Component
         $this->mcAnswerCount = count($this->mcAnswerStruct);
     }
 
-    protected function prepareMultipleChoiceQuestionForSave()
+    protected function prepareMultipleChoiceQuestionMultipleChoiceForSave()
     {
         $this->question['answers'] = array_values(collect($this->mcAnswerStruct)->map(function($answer){
             return [
@@ -312,7 +359,7 @@ class OpenShort extends Component
 
     public function save()
     {
-        $prepareFunction = sprintf('prepare%sForSave',$this->question['type']);
+        $prepareFunction = sprintf('prepare%s%sForSave',$this->question['type'], $this->question['subtype']);
         if(method_exists($this,$prepareFunction)){
             $this->$prepareFunction();
         }
@@ -364,6 +411,15 @@ class OpenShort extends Component
         }
 
         return $this->question['subtype'] == 'multi';
+    }
+
+    public function isTrueFalseQuestion()
+    {
+        if ($this->question['type'] !== 'MultipleChoiceQuestion') {
+            return false;
+        }
+
+        return Str::lower($this->question['subtype']) == 'truefalse';
     }
 
     public function isMultipleChoiceQuestion()

@@ -128,7 +128,7 @@
                     <x-slot name="title">
                         {{ __('cms.Vraagstelling') }}
                     </x-slot>
-                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion())
+                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion())
                         <x-input.rich-textarea
                             wire:model.debounce.1000ms="question.question"
                             editorId="{{ $questionEditorId }}"
@@ -223,13 +223,45 @@
                             </div>
                             @enderror
 
-                            @if($this->isMultipleChoiceQuestion())
-                                @error('question.score')
-                                <div class="notification error stretched mt-4">
-                                    <span class="title">{{ __('cms.Er dient minimaal 1 punt toegekend te worden') }}</span>
+                            @error('question.score')
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ __('cms.Er dient minimaal 1 punt toegekend te worden') }}</span>
+                            </div>
+                            @enderror
+
+                        @elseif($this->isTrueFalseQuestion())
+                            <div class="flex  col-2 space-x-2 w-full mt-4">
+                                <div class="flex inline-block w-full items-center">{{ __('cms.Is bovenstaande vraag/ stelling juist of onjuist?') }}</div>
+                                <div class="inline-flex bg-off-white max-w-max border border-blue-grey rounded-lg truefalse-container transition duration-150">
+                                    @foreach( ['true', 'false'] as $optionValue)
+
+                                        <label id="truefalse-{{$optionValue}}" wire:key="truefalse-{{$optionValue}}"
+                                               for="link{{ $optionValue }}"
+                                               class="bg-off-white border border-off-white rounded-lg trueFalse bold transition duration-150
+                                          @if($loop->iteration == 1) true border-r-0 @else false border-l-0 @endif
+                                               {!! $this->tfIsActiveAnswer($optionValue) ? 'active' : '' !!}">
+                                            <input wire:model="tfTrue"
+                                                   id="link{{ $optionValue }}"
+                                                   name="Question_TrueFalse"
+                                                   type="radio"
+                                                   class="hidden"
+                                                   value="{{ $optionValue }}"
+                                                   selid="testtake-radiobutton"
+                                            >
+                                            <span>
+                                                @if ($optionValue == 'true')
+                                                    <x-icon.checkmark/>
+                                                @else
+                                                    <x-icon.close/>
+                                                @endif
+                                            </span>
+                                        </label>
+                                        @if($loop->first)
+                                            <div class="bg-blue-grey" style="width: 1px; height: 30px; margin-top: 3px"></div>
+                                        @endif
+                                    @endforeach
                                 </div>
-                                @enderror
-                            @endif
+                            </div>
                         @else
                             <x-input.rich-textarea
                                 wire:model.debounce.1000ms="question.answer"

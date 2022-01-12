@@ -11,6 +11,7 @@ return [
     'open-question-short'              => 'Open vraag kort',
     'open-question-medium'             => 'Open vraag lang',
     'multiplechoice-question-multiplechoice' => 'Meerkeuze vraag',
+    'multiplechoice-question-truefalse' => 'Juist/ onjuist vraag',
     'Vraagstelling'                    => 'Vraagstelling',
     'Antwoordmodel'                    => 'Antwoordmodel',
     'Toets'                            => 'Toets',
@@ -29,5 +30,6 @@ return [
     'Alles of niets correct'            => 'Alles of niets correct',
     'Item toevoegen'                    => 'Item toevoegen',
     'De gemarkeerde velden zijn verplicht'=> 'De gemarkeerde velden zijn verplicht',
-    'Er dient minimaal 1 punt toegekend te worden' => 'Er dient minimaal 1 punt toegekend te worden'
+    'Er dient minimaal 1 punt toegekend te worden' => 'Er dient minimaal 1 punt toegekend te worden',
+    'Is bovenstaande vraag/ stelling juist of onjuist?' => 'Is bovenstaande vraag/ stelling juist of onjuist?'
 ];
