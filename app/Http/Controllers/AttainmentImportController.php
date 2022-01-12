@@ -180,6 +180,7 @@ class AttainmentImportController extends Controller
         $attainmentManifest = new ExcelAttainmentUpdateOrCreateManifest($excelFile);
         $added = 0;
         $updated = 0;
+        $updatedIds = [];
         DB::beginTransaction();
         try {
             $this->checkSheetsIntegrity($attainmentManifest);
@@ -190,7 +191,7 @@ class AttainmentImportController extends Controller
             $this->checkCodeIntegrity();
             $this->checkLevelCodeSubcodeSubsubcodeCombination();
             $this->fillInParents();
-            $this->attainmentsCollection->each(function ($resource) use (&$added,&$updated) {
+            $this->attainmentsCollection->each(function ($resource) use (&$added,&$updated,&$updatedIds) {
                 $parentId = $this->findParent($resource);
                 $resource->attainment_id = $parentId;
                 if(is_null($resource->id)){
@@ -199,8 +200,10 @@ class AttainmentImportController extends Controller
                     return true;
                 }
                 $this->updateAttainment($resource);
+                $updatedIds[] = $resource->id;
                 $updated++;
             });
+            $this->repairQuestionAttainments($updatedIds);
         } catch (\Exception $e) {
             DB::rollback();
             logger($e);
@@ -310,7 +313,6 @@ class AttainmentImportController extends Controller
 
         $attainment->fill($data);
         $attainment->save();
-        $this->repairQuestionAttainments($attainment);
     }
 
     protected function checkLevelCodeSubcodeSubsubcodeCombination()
@@ -441,8 +443,42 @@ class AttainmentImportController extends Controller
         ];
     }
 
-    protected function repairQuestionAttainments($attainment)
+    protected function repairQuestionAttainments($updatedIds)
     {
-
+        $handled = [];
+        foreach ($updatedIds as $attainmentId){
+            $attainment = Attainment::findOrFail($attainmentId);
+            $questions = $attainment->questions;
+            foreach ($questions as $question){
+                $this->repairAttainmentsForQuestion($question,$attainmentId,$updatedIds,$handled);
+            }
+        }
     }
+
+    protected function repairAttainmentsForQuestion($question,$attainmentId,$updatedIds,&$handled)
+    {
+        $currentAttainments = $question->getQuestionInstance()->attainments;
+        $deepestAttainment = $this->getDeepestAttainment($currentAttainments);
+    }
+
+    protected function getDeepestAttainment($currentAttainments)
+    {
+        foreach ($currentAttainments as $attainment){
+            if(!is_null($attainment->subsubcode)&&!empty($attainment->subsubcode)){
+                return $attainment;
+            }
+        }
+        foreach ($currentAttainments as $attainment){
+            if(!is_null($attainment->subcode)&&!empty($attainment->subcode)){
+                return $attainment;
+            }
+        }
+        foreach ($currentAttainments as $attainment){
+            if(!is_null($attainment->code)&&!empty($attainment->code)){
+                return $attainment;
+            }
+        }
+        throw new \Exception('error in finding attainment taxanomy');
+    }
+
 }
