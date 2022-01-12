@@ -109,7 +109,8 @@ class OpenShort extends Component
                     'question.answers' => 'required|array|min:2',
                     'question.answers.*.score' => 'required|integer',
                     'question.answers.*.answer' => 'required',
-//                    'question.answers.*.order' => 'required',
+                    'question.answers.*.order' => 'required',
+                    'question.score' => 'required|integer|min:1',
                 ];
             } else {
                 $rules += ['question.answer' => 'required'];

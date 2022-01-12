@@ -237,6 +237,14 @@
                                 <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
                             </div>
                             @enderror
+
+                            @if($this->isMultipleChoiceQuestion())
+                                @error('question.score')
+                                <div class="notification error stretched mt-4">
+                                    <span class="title">{{ __('cms.Er dient minimaal 1 punt toegekend te worden') }}</span>
+                                </div>
+                                @enderror
+                            @endif
                         @else
                             <x-input.rich-textarea
                                 wire:model.debounce.1000ms="question.answer"
