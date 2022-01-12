@@ -443,6 +443,6 @@ class AttainmentImportController extends Controller
 
     protected function repairQuestionAttainments($attainment)
     {
-        
+
     }
 }
