@@ -29,4 +29,5 @@ return [
     'Alles of niets correct'            => 'Alles of niets correct',
     'Item toevoegen'                    => 'Item toevoegen',
     'De gemarkeerde velden zijn verplicht'=> 'De gemarkeerde velden zijn verplicht',
+    'Er dient minimaal 1 punt toegekend te worden' => 'Er dient minimaal 1 punt toegekend te worden'
 ];
