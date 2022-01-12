@@ -256,7 +256,7 @@
                 <x-content-section class="taxonomie"
                                    x-data="{ rtti:{{ $question['rtti'] ? 'true': 'false'  }}, bloom: {{ $question['bloom'] ? 'true': 'false' }}, miller: {{ $question['miller'] ? 'true': 'false' }} }">
                     <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
-                    <p>{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
+                    <p class="text-base">{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <x-input.toggle-row-with-title x-model="rtti">

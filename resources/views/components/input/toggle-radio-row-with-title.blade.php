@@ -3,7 +3,7 @@
 'valueOn' => 1
 ])
 <div class="border-b flex w-full justify-between items-center py-2">
-    <div class="flex items-center space-x-2.5">
+    <div class="flex items-center space-x-2.5 text-base">
         {{ $slot }}
     </div>
     <div>
