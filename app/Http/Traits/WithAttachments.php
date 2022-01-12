@@ -17,6 +17,9 @@ trait WithAttachments
     public $attachmentType = '';
     public $positionTop;
     public $positionLeft;
+    public $blockAttachments = false;
+
+
 
     public function mountWithAttachments()
     {
@@ -100,4 +103,5 @@ trait WithAttachments
 
         return 'w-5/6 lg:w-4/6';
     }
+    
 }

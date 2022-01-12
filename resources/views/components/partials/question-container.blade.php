@@ -33,6 +33,7 @@
         }
     "
      x-on:start-timeout="
+             $wire.set('blockAttachments',true);
              progressBar = true;
              startTime = $event.detail.timeout;
              progress = startTime;
@@ -53,7 +54,7 @@
      x-on:force-taken-away-blur.window="$el.style.opacity = $event.detail.shouldBlur ? 0 : 1 ;"
 >
     <div class="flex justify-end space-x-4 mt-6">
-        @if(!$this->closed)
+        @if(!$this->closed && !$this->blockAttachments)
             <x-attachment.attachments-button :question="$question"></x-attachment.attachments-button>
             <x-question.notepad-button :question="$question"></x-question.notepad-button>
         @endif
