@@ -310,6 +310,7 @@ class AttainmentImportController extends Controller
 
         $attainment->fill($data);
         $attainment->save();
+        $this->repairQuestionAttainments($attainment);
     }
 
     protected function checkLevelCodeSubcodeSubsubcodeCombination()
@@ -440,4 +441,8 @@ class AttainmentImportController extends Controller
         ];
     }
 
+    protected function repairQuestionAttainments($attainment)
+    {
+        
+    }
 }
