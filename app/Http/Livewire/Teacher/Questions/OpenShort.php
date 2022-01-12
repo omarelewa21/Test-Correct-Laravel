@@ -197,7 +197,7 @@ class OpenShort extends Component
 
         $this->testName = $activeTest->name;
         $this->testAuthors = $activeTest->AuthorsAsString;
-        $this->subjectId = $activeTest->subjectId;
+        $this->subjectId = $activeTest->subject_id;
         $this->question['test_id'] = $activeTest->id;
         $this->educationLevelId = $activeTest->education_level_id;
        // $this->question['order'] = $activeTest->testQuestions()->count()+1;
