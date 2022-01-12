@@ -36,7 +36,7 @@
             <br/>
             <a href="{{ config('app.url_login')}}" style="background-color: #42b947;padding: 15px 30px;margin-bottom: 30px;display: inline-block;color:#ffffff;text-decoration:none">{{__('invitebywelcome-staff.Login en start demo')}}</a><br/>
             <br/>
-            {{ __("invitebywelcome-staff.Met vriendelijke groet") }},<br/>
+            {{ __("invitebywelcome-staff.invitebywelcome-staff.Met vriendelijke groet") }},<br/>
             <br/>
             Alex<br />
             Test-Correct Mentor

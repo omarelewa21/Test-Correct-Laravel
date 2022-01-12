@@ -14,7 +14,7 @@ return [
 
     'Test-Correct supportteam' => 'Test-Correct supportteam',
 
-    'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken.' => 'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken.',
+    'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken' => 'Op het verzoek van jouw school sturen we hierbij je inloggegevens van Test-Correct. Hiermee kun je inloggen om toetsen te maken',
 
     'Lees de onderstaande punten goed door voordat je de applicatie gaat downloaden' => 'Lees de onderstaande punten goed door voordat je de applicatie gaat downloaden',
 
