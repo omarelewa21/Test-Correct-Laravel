@@ -64,10 +64,12 @@
                     </div>
                 </div>
             </div>
-
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
+                @if($this->showQuestionScore())
                 <x-input.score wire:model.defer="question.score"></x-input.score>
+                @endif
             </div>
+
         </div>
         <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8" x-data="{openTab: 1}" @opentab.window="openTab = $event.detail">
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]">
@@ -141,7 +143,7 @@
                     <x-slot name="title">
                         {{ __('cms.Vraagstelling') }}
                     </x-slot>
-                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion())
+                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion())
                         <x-input.rich-textarea
                             wire:model.debounce.1000ms="question.question"
                             editorId="{{ $questionEditorId }}"
@@ -174,11 +176,74 @@
                             {{ __('cms.Antwoordmodel') }}
                         </x-slot>
 
-                        <x-input.rich-textarea
-                            wire:model.debounce.1000ms="question.answer"
-                            editorId="{{ $answerEditorId }}"
-                            type="cms"
-                        />
+                        @if($this->hasAllOrNothing())
+                            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
+                                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
+                            >
+                                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
+                            </x-input.toggle-row-with-title>
+
+                        @endif
+
+                        @if($this->isMultipleChoiceQuestion())
+                            <div class="flex flex-col space-y-2 w-full mt-4"
+                                 wire:sortable="updateMCOrder">
+                                @php
+                                    $disabledClass = "icon disabled";
+                                    if($this->mcCanDelete()) {
+                                        $disabledClass = "";
+                                    }
+                                @endphp
+                                @foreach($mcAnswerStruct as $answer)
+                                    @php
+                                        $answer = (object) $answer;
+                                        $errorAnswerClass = '';
+                                        $errorScoreClass = '';
+                                    @endphp
+                                    @error('question.answers.'.$loop->index.'.answer')
+                                        @php
+                                            $errorAnswerClass = 'border-red'
+                                        @endphp
+                                    @enderror
+                                    @error('question.answers.'.$loop->index.'.score')
+                                    @php
+                                        $errorScoreClass = 'border-red'
+                                    @endphp
+                                    @enderror
+                                    <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
+                                                 wireKey="option-{{ $answer->id }}" selid="drag-box"
+                                                 useHandle="true"
+                                                 class="flex px-0 py-0 border-0 bg-system-white"
+                                                 slotClasses="w-full"
+                                    >
+                                        <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.answer"/>
+                                        <x-input.text class="w-10 text-center {{ $errorScoreClass }}" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.score"/>
+                                            <x-slot name="after">
+                                                <x-icon.trash class="mx-2 w-4 {{ $disabledClass }}" id="trash_{{ $answer->order }}" wire:click="mcDelete('{{$answer->id}}')"></x-icon.trash>
+                                            </x-slot>
+                                    </x-drag-item>
+                                @endforeach
+                            </div>
+                            <div class="flex flex-col space-y-2 w-full">
+                                <x-button.primary class="mt-3 justify-center" wire:click="mcAddAnswerItem">
+                                    <x-icon.plus/>
+                                    <span >
+                                    {{ __('cms.Item toevoegen') }}
+                                    </span>
+                                </x-button.primary>
+                            </div>
+                            @error('question.answers.*.*')
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
+                            </div>
+                            @enderror
+                        @else
+                            <x-input.rich-textarea
+                                wire:model.debounce.1000ms="question.answer"
+                                editorId="{{ $answerEditorId }}"
+                                type="cms"
+                            />
+                        @endif
 
                         @error('question.answer')
                         <div class="notification error stretched mt-4">

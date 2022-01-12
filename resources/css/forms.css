@@ -292,7 +292,7 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-.test-take-code-component .form-input.disabled {
+.test-take-code-component .form-input.disabled, .icon.disabled {
     color: var(--mid-grey);
 }
 

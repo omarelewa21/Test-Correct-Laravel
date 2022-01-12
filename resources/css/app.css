@@ -39,6 +39,7 @@
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
+    --white: #ffffff;
 }
 
 @font-face {
@@ -174,6 +175,10 @@ svg {
 
 .bg-system-secondary {
     background: var(--system-secondary);
+}
+
+.bg-system-white {
+    background: var(--system-white);
 }
 
 .bg-mid-grey {
