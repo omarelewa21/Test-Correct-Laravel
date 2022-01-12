@@ -15,6 +15,7 @@ use Livewire\WithFileUploads;
 use tcCore\Attachment;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
+use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -31,9 +32,13 @@ class OpenShort extends Component
 
     public $openTab = 1;
 
-    public $owner_id;
-
     public $test_question_id;
+
+    public $test_id;
+
+    public $owner;
+
+    public $group_question_question_id;
 
     public $uploads = [];
 
@@ -43,13 +48,13 @@ class OpenShort extends Component
 
     public $questionEditorId;
 
-    protected $queryString = ['owner_id', 'test_question_id'];
-
     public $attachments = [];
 
     public $initWithTags = [];
 
     public $isPartOfGroupQuestion = false;
+
+    protected $queryString = ['test_id', 'test_question_id', 'group_question_question_id', 'owner'];
 
     public $videos = [];
 
@@ -72,7 +77,6 @@ class OpenShort extends Component
     public $questionIndex;
 
     public $attachmentsCount = 0;
-public $activeTestId = 0;
 
     public $question = [
         'add_to_database'        => 1,
@@ -163,9 +167,9 @@ public $activeTestId = 0;
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
-        $activeTest = (request()->input('owner') == 'group') ?
-            Test::whereUuid(request()->input('owner_id'))->first() :
-            TestQuestion::whereUuid(request()->input('owner_id'))->test;
+//        dd([request('owner'), request('owner_id')]);
+
+        $activeTest = Test::whereUuid($this->test_id)->first();
 
 
         $activeTest->load('testAuthors', 'testAuthors.user');
@@ -176,8 +180,6 @@ public $activeTestId = 0;
         // @TODO is deze test uberhaupt onderdeel van deze test?
         // @TODO what to do when owner is a GroupQuestion?
 
-        $this->activeTestId = $activeTest->id;
-
         $this->testName = $activeTest->name;
         $this->testAuthors = $activeTest->AuthorsAsString;
         $this->subjectId = $activeTest->subjectId;
@@ -185,11 +187,13 @@ public $activeTestId = 0;
         $this->educationLevelId = $activeTest->education_level_id;
         // $this->question['order'] = $activeTest->testQuestions()->count();
 
+        // request('owner_id') => tcCore\GroupQuestion
+        // $this->>test_question_id => tcCore\GroupQuestionQuestion;
 
         if ($this->test_question_id) {
 //            dd($this->test_question_id);
             if ($this->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->test_question_id)->first();
+                $tq = GroupQuestionQuestion::whereUuid($this->group_question_question_id)->first();
                 $q = $tq->question;
             } else {
                 $tq = TestQuestion::whereUuid($this->test_question_id)->first();
@@ -315,7 +319,14 @@ public $activeTestId = 0;
 
     public function returnToTestOverview(): void
     {
-        $url = sprintf("tests/view/%s", $this->owner_id);
+        $url = sprintf("tests/view/%s", $this->test_id);
+        if ($this->isPartOfGroupQuestion()) {
+            $url = sprintf(
+                'questions/view_group/%s/%s',
+                $this->test_id,
+                $this->test_question_id
+            );
+        }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
@@ -337,24 +348,17 @@ public $activeTestId = 0;
         $request->merge($this->question);
 
         if ($this->isPartOfGroupQuestion()) {
+            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->group_question_question_id)->first();
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->test_question_id); //'577fa17d-68b7-4695-ace5-e14afd913757');
 
-            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->test_question_id)->first();
-            $tq = TestQuestion::where('question_id', $groupQuestionQuestion->group_question_id)->where('test_id',
-                $this->activeTestId)->first();
-            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstance($tq->id); //'577fa17d-68b7-4695-ace5-e14afd913757');
-
-
-            $request = new Request();
-            $request->merge($this->question);
-            $response = (new GroupQuestionQuestionsController())->updateFromWithin(
+            $response = (new GroupQuestionQuestionsController)->updateFromWithin(
                 $groupQuestionQuestionManager,
                 $groupQuestionQuestion,
                 $request
             );
 
-
         } else {
-            $ressponse = app(\tcCore\Http\Controllers\TestQuestionsController::class)->updateFromWithin(
+            $response = (new TestQuestionsController)->updateFromWithin(
                 TestQuestion::whereUUID($this->test_question_id)->first(),
                 $request
             );
@@ -483,8 +487,7 @@ public $activeTestId = 0;
 
         $testQuestion = TestQuestion::whereUuid($this->test_question_id)->firstOrFail();
 
-        $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)
-            ->destroy($testQuestion);
+        $response = (new TestQuestionsController)->destroy($testQuestion);
 
         if ($response->getStatusCode() == 200) {
             $this->returnToTestOverview();
