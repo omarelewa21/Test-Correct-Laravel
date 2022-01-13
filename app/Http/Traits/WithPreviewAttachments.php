@@ -14,6 +14,7 @@ trait WithPreviewAttachments
     public $timeout;
     public $questionId;
     public $attachmentType = '';
+    public $blockAttachments = false;
 
     public function showAttachment($attachmentUuid)
     {
