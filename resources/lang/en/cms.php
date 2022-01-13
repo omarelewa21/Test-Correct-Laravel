@@ -30,5 +30,7 @@ return [
     'Alles of niets correct'            => 'All or none correct',
     'Item toevoegen'                    => 'Add item',
     'De gemarkeerde velden zijn verplicht'=> 'The marked fields are required',
-    'Er dient minimaal 1 punt toegekend te worden' => 'You need to give at least one answer a point'
+    'Er dient minimaal 1 punt toegekend te worden' => 'You need to give at least one answer a point',
+    'Antwoord'                          => 'Answer',
+    'Punten'                            => 'Points',
 ];
