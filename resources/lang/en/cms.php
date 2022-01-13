@@ -12,6 +12,7 @@ return [
     'open-question'                   => 'Open question',
     'open-question-short'             => 'Open question short',
     'open-question-medium'            => 'Open question long',
+    'ranking-question'                  => 'Rangking question',
     'Vraagstelling'                   => 'Question',
     'Antwoordmodel'                   => 'Answer model',
     'Toets'                           => 'Test',
