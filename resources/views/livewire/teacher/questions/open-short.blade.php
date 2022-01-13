@@ -235,6 +235,9 @@
                             @enderror
 
                         @elseif($this->isRankingQuestion())
+                                <div class="flex w-full mt-0">
+                                    {{ __('cms.Ranking Question Uitleg Text') }}
+                                </div>
                                 <div class="flex flex-col space-y-2 w-full mt-4"
                                      wire:sortable="updateRankingOrder">
                                     <div class="flex px-0 py-0 border-0 bg-system-white">
@@ -262,6 +265,7 @@
                                                      class="flex px-0 py-0 border-0 bg-system-white"
                                                      slotClasses="w-full mr-0 "
                                                      dragClasses="flex form-input w-10 items-center border-l-0 rounded-tl-none rounded-bl-none"
+                                                     useHandle="true"
                                         >
                                             <x-input.text class="w-full mr-0 {{ $errorAnswerClass }} border-r-0 rounded-tr-none rounded-br-none" wire:model.lazy="rankingAnswerStruct.{{ $loop->index }}.answer"/>
                                             <x-slot name="after">

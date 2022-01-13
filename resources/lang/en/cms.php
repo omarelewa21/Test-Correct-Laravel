@@ -34,4 +34,6 @@ return [
     'Er dient minimaal 1 punt toegekend te worden' => 'You need to give at least one answer a point',
     'Antwoord'                          => 'Answer',
     'Punten'                            => 'Points',
+    'Ranking Question Uitleg Text'      => 'The ranking question needs at least 2 items. Drag the items in the correct order for the answer model.',
+    'Stel je te rankgschikken items op' => 'Add the ranking items',
 ];

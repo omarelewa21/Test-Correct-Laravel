@@ -547,12 +547,12 @@
 }
 
 .form-input:hover {
-    border: 1px solid var(--primary);
+    border-color: var(--primary);
 }
 
 .form-input:focus, .form-input:active {
     color: var(--primary);
-    border: 1px solid var(--primary);
+    border-color: var(--primary);
     outline: none;
 }
 
@@ -1727,6 +1727,9 @@ video {
 .m-4{
 	margin: 1rem;
 }
+.m-0{
+	margin: 0px;
+}
 .mx-auto{
 	margin-left: auto;
 	margin-right: auto;
@@ -1902,6 +1905,9 @@ video {
 }
 .ml-10{
 	margin-left: 2.5rem;
+}
+.mt-0{
+	margin-top: 0px;
 }
 .block{
 	display: block;

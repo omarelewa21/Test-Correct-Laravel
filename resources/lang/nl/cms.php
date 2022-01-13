@@ -33,4 +33,6 @@ return [
     'Er dient minimaal 1 punt toegekend te worden' => 'Er dient minimaal 1 punt toegekend te worden',
     'Antwoord'                          => 'Antwoord',
     'Punten'                            => 'Punten',
+    'Ranking Question Uitleg Text'      => 'De rangschikvraag heeft min. 2 items nodig om het antwoord te kunnen rangschikken. Sleep deze voor het antwoordmodel in de juiste volgorde.',
+    'Stel je te rankgschikken items op' => 'Stel je te rankgschikken items op',
 ];

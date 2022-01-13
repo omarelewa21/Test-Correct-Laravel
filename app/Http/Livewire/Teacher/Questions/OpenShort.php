@@ -104,13 +104,19 @@ class OpenShort extends Component
         $rules = ['question.question' => 'required'];
 
         if ($this->requiresAnswer()) {
-            if($this->isMultipleChoiceQuestion()){
+            if($this->isMultipleChoiceQuestion()) {
                 $rules += [
                     'question.answers' => 'required|array|min:2',
                     'question.answers.*.score' => 'required|integer',
                     'question.answers.*.answer' => 'required',
                     'question.answers.*.order' => 'required',
                     'question.score' => 'required|integer|min:1',
+                ];
+            } else if($this->isRankingQuestion()){
+                $rules += [
+                    'question.answers' => 'required|array|min:2',
+                    'question.answers.*.answer' => 'required',
+                    'question.answers.*.order' => 'required',
                 ];
             } else {
                 $rules += ['question.answer' => 'required'];
@@ -240,7 +246,7 @@ class OpenShort extends Component
 
                 if($this->isRankingQuestion()){
 
-                    $this->rankAnswerStruct = $q->rankingQuestionAnswers->map(function($answer,$key){
+                    $this->rankingAnswerStruct = $q->rankingQuestionAnswers->map(function($answer,$key){
                         return [
                             'id'    => Uuid::uuid4(),
                             'order' => $key+1,
