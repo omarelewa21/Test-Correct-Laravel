@@ -155,6 +155,7 @@
                             rspkr.ui.getActivePlayer().close();
                     }
                 });
+                rspkr.ui.Tools.ClickListen.activate();
             </script>
         @endpush
     @endif

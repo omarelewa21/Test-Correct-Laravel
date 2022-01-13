@@ -1,6 +1,5 @@
 ReadSpeaker.q(function() {
     console.log('rs_tlc_skin initialized!');
-    rspkr.ui.Tools.ClickListen.activate();
 });
 window.rsConf = {
     general: {
