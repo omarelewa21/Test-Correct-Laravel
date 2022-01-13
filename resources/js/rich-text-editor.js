@@ -6,7 +6,7 @@ RichTextEditor = {
         }
         CKEDITOR.replace(editorId, {
             removePlugins: 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-            extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+            extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar: [
                 {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
                 {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
@@ -49,7 +49,7 @@ RichTextEditor = {
 
         CKEDITOR.replace(editorId, {
             removePlugins: 'pastefromword,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-            extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow',
+            extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar: [
                 {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']},
                 {name: 'paragraph', items: ['NumberedList', 'BulletedList']},
@@ -71,7 +71,7 @@ RichTextEditor = {
             editor.destroy(true)
         }
         CKEDITOR.replace(editorId, {
-            extraPlugins: 'completion',
+            extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
             toolbar : [
                 { name: 'clipboard', items: [ 'Undo', 'Redo' ] },
                 { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript' ] },
@@ -80,6 +80,7 @@ RichTextEditor = {
                 { name: 'styles', items: [ 'Format', 'Font', 'FontSize' ] },
                 { name: 'colors', items: [ 'TextColor', 'BGColor', 'CopyFormatting' ] },
                 { name: 'align', items: [ 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] },
+                {name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']},
                 { name: 'extra', items: ['completion']},
             ]
         })
