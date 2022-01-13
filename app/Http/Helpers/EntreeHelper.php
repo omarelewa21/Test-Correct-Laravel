@@ -344,7 +344,9 @@ class EntreeHelper
         if ($this->laravelUser) {
             // return true is hier waarschijnlijk voldoende omdat je dan via scenario 1 wordt ingelogged;
             $this->handleUpdateUserWithSamlAttributes();
-            $url = $this->laravelUser->getTemporaryCakeLoginUrl();
+            // if student get url to redirect
+            // redirect naar splash screen
+            $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
             return $this->redirectToUrlAndExit($url);
         }
 // redirect to maak koppelingscherm;
@@ -473,7 +475,8 @@ class EntreeHelper
         }
 
         $this->handleUpdateUserWithSamlAttributes();
-        $url = $this->laravelUser->getTemporaryCakeLoginUrl();
+        // if student redirect to splash screen
+        $url = $this->laravelUser->getRedirectUrlSplashOrStartAndLoginIfNeeded();
         return $this->redirectToUrlAndExit($url);
 
     }
@@ -559,6 +562,14 @@ class EntreeHelper
 
         $eckId = $user->eckId;
         $user->removeEckId();
+        if(!is_null($user->user_table_external_id)&&!empty($user->user_table_external_id)){
+            if($user->isA('teacher')) {
+                $oldUser->updateExternalIdWithSchoolLocation($user->user_table_external_id, $user->school_location_id);
+            }
+            $oldUser->external_id = $user->user_table_external_id;
+            $user->removeExternalId();
+            $user->save();
+        }
         $oldUser->setEckidAttribute($eckId);
         $oldUser->transferClassesFromUser($user);
         foreach (['name', 'name_first'] as $key) {

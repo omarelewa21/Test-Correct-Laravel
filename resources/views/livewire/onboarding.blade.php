@@ -22,7 +22,7 @@
                             <div class="inline-block rounded-full header-number mr-2">3</div>
                             <span class="mt-1">{{ __("onboarding.Klaar") }}!</span>
                         </div>
-                        <iframe id="frame-step1" src="https://www.test-correct.nl/bedankt-aanmelding-docent/" style="height: 1px; width:1px"></iframe>
+
                     @endif
                     @if($this->step === 2)
                         <div class="flex items-center">
@@ -39,7 +39,7 @@
                             <div class="inline-block rounded-full header-number mr-2">3</div>
                             <span>{{ __("onboarding.Klaar") }}!</span>
                         </div>
-                            <iframe id="frame-step2" src="https://www.test-correct.nl/bedankt-aanmelding-docent/" style="height: 1px; width:1px"></iframe>
+
                     @endif
                     @if($this->step === 3)
                         <div class="flex items-center">
@@ -60,7 +60,7 @@
                             </div>
                             <span class="active">{{ __("onboarding.Klaar") }}!</span>
                         </div>
-                            <iframe id="frame-step3" src="https://www.test-correct.nl/bedankt-aanmelding-docent/" style="height: 1px; width:1px"></iframe>
+
                     @endif
                 </div>
             </div>
@@ -506,7 +506,7 @@
                                         <div class="w-full sm:w-1/2 sm:pl-2 mb-4 relative">
                                             <img src="/svg/stickers/toetsen-beoordelen-bespreken.svg" alt=""
                                                  class="mr-4 float-left">
-                                            <span class="klaar-text">{{ __("onboarding.Toetsen beoordelen en samen de CO-learning doorlopen") }}.</span>
+                                            <span class="klaar-text">{{ __("onboarding.Toetsen beoordelen en samen de CO-Learning doorlopen") }}.</span>
                                         </div>
                                     </div>
                                     <div class="flex flex-wrap mb-4">

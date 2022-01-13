@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Livewire\Student;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 use tcCore\Http\Traits\WithStudentTestTakes;
@@ -31,16 +32,7 @@ class TestTakes extends Component
     public function changeActiveTab($tab)
     {
         $this->tab = $tab;
+        $this->emitTo("student.$tab", 'tab-selected');
         $this->resetPage();
-
-    }
-
-    private function goToTab()
-    {
-        if($this->tab === 'planned') $this->changeActiveTab($this->plannedTab);
-        if($this->tab === 'discuss') $this->changeActiveTab($this->discussTab);
-        if($this->tab === 'review') $this->changeActiveTab($this->reviewTab);
-        if($this->tab === 'graded') $this->changeActiveTab($this->gradedTab);
-
     }
 }

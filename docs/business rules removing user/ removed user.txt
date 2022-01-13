@@ -1,0 +1,4 @@
+If a user is removed in the boot-delete method all relations should be soft-deleted
+One-to-many and many-to-many relations that need to be available after delete of the user, should not be soft-deleted.
+These relations should have a with-trashed condition on it.
+A delete method/route should be available for these relations.

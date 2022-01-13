@@ -3,7 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
-    <title>Test-Correct</title>
+    <title version="{{ \tcCore\Http\Helpers\BaseHelper::getCurrentVersion() }}">Test-Correct</title>
     <link rel="icon" href="{{ asset('img/icons/Logo-Test-Correct-recolored-icon-only.svg') }}"/>
     {{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
     <script src="/ckeditor/ckeditor.js" type="text/javascript"></script>
@@ -15,7 +15,6 @@
         <script>Bugsnag.start({ apiKey: '{{ config('bugsnag.browser_key') }}' })</script>
     @endif
     @stack('styling')
-    <link rel="stylesheet" type="text/css" href="/css/rs_tlc_skin.css" />
 </head>
 <body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
 {{ $slot }}
@@ -43,7 +42,6 @@
     Alpine.start();
     Core.init();
 </script>
-<script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;skin=rs_tlc_skin" type="text/javascript" id="rs_req_Init"></script>
-<script src="/js/rs_tlc_skin.js"></script>
+
 </body>
 </html>

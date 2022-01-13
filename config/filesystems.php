@@ -47,6 +47,16 @@ return [
 			'driver' => 'local',
 			'root'   => storage_path().'/app',
 		],
+		'inline_images' => [
+			'driver' => 'local',
+			'root'   => storage_path().'/inlineimages',
+		],
+
+        'attachments' => [
+            'driver' => 'local',
+            'root'   => storage_path().'/attachments',
+        ],
+
 
         'cake' => [
             'driver' => 'local',

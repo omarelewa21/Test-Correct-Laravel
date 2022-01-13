@@ -101,6 +101,8 @@ class DemoHelper
         return null;
     }
 
+
+
     public function hasTeacherDemoSetup(User $user)
     {
         $this->setSchoolLocation($user->schoolLocation);

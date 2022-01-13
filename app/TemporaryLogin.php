@@ -5,6 +5,7 @@ namespace tcCore;
 use Carbon\Carbon;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use tcCore\Traits\UuidTrait;
 
 class TemporaryLogin extends Model
@@ -44,7 +45,7 @@ class TemporaryLogin extends Model
     }
 
     public function createCakeUrl() {
-        return config('app.url_login').'users/temporary_login/'.$this->uuid;
+        return sprintf('%susers/temporary_login/%s', $this->getCorrectCakeUrl(), $this->uuid);
     }
 
     public static function createForUser(User $user)
@@ -111,5 +112,14 @@ class TemporaryLogin extends Model
     public static function getOptionsForUser(User $user)
     {
         return TemporaryLogin::whereUserId($user->getKey())->value('options');
+    }
+
+    public function getCorrectCakeUrl()
+    {
+        if (Str::contains(url('/'), 'welcome2.test')) {
+            return Str::replaceFirst('portal', 'portal2', config('app.url_login'));
+        }
+
+        return config('app.url_login');
     }
 }

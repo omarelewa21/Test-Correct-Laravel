@@ -34,7 +34,7 @@ class QuestionsController extends Controller {
                 $query->where('scope', '!=', 'cito') // should be in filtered, but can't be due to the way it is build starting with an or
                 ->orWhereNull('scope');
                 })
-            ->with(['questionAttainments', 'questionAttainments.attainment', 'authors', 'tags']);
+            ->with(['questionAttainments', 'questionAttainments.attainment', 'tags','authors']);
 
         // Log::debug($questions);
 
@@ -91,11 +91,13 @@ class QuestionsController extends Controller {
     public function inlineImageLaravel(Request $request, $image)
     {
         if (Storage::disk('cake')->exists("questionanswers/$image")) {
-            return Storage::disk('cake')->get("questionanswers/$image");
+            $path = Storage::disk('cake')->path("questionanswers/$image");
+            return Response::file($path);
         }
 
-        if (Storage::exists("inlineimages/$image")) {
-            return Storage::get("inlineimages/$image");
+        if (Storage::disk('inline_images')->exists($image)) {
+            $path = Storage::disk('inline_images')->path($image);
+            return Response::file($path);
         }
 
         abort(404);

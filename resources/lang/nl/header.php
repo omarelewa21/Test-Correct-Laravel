@@ -14,10 +14,12 @@ return [
 
     'Gepland' => 'Gepland',
 
-    'CO-learning' => 'CO-learning',
+    'CO-Learning' => 'CO-Learning',
 
     'Inzien' => 'Inzien',
 
     'Becijferd' => 'Becijferd',
+
+    'change_password' => 'Wachtwoord wijzigen',
 ];
 ?>

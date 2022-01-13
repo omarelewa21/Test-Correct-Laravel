@@ -372,6 +372,13 @@ class GroupQuestionQuestionsController extends Controller
         $question = $groupQuestionPivot->question;
         DB::beginTransaction();
         try {
+            if($question->type == "CompletionQuestion" && $question->subtype == "multi"){
+                $qHelper = new QuestionHelper();
+				$questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($request->question, true);
+				if($questionData["error"]){
+					throw new QuestionException($questionData["error"]);
+				}
+            }
             $groupQuestionPivot->fill($request->all());
             $question->handleGroupDuplication($request,$groupQuestionQuestionManager,$groupQuestionPivot);
             $groupQuestionPivot = $question->getGroupQuestionPivotAfterPossibleDuplication($groupQuestionPivot);

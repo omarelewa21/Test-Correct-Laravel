@@ -61,7 +61,7 @@ class TeachersImportRequest extends Request {
                             return $fail(sprintf('The user email address contains international characters  (%s).', $value));
                         }
                     }];
-                $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username']);
+                $extra_rule[sprintf('data.%d.external_id', $key)] = new SameSchoollocationSameUserNameDifferentExternalId($this->schoolLocation,$value['username'],true);
             }
             if ($this->hasEntry('username', $value)&&$this->hasEntry('school_class',$value)&&$this->hasEntry('subject',$value)) {
                 $extra_rule[sprintf('data.%d.subject', $key)] = [

@@ -44,10 +44,6 @@ class AppVersionDetector
         ],
         "iOS" => [
             "ok" => [
-                "2.3.3",
-                "2.3.4",
-                "2.3.5",
-                "2.4.0",
                 "2.4.1",
                 "2.4.2",
                 "2.4.3",
@@ -92,8 +88,10 @@ class AppVersionDetector
                 "3.1.0",
             ],
             "needsUpdate" => [
+                "2.4.0",
             ],
             "needsUpdateDeadline" => [
+                "2.4.0" => "10 februari 2022",
             ],
         ],
         "ChromeOS" => [
@@ -143,10 +141,8 @@ class AppVersionDetector
                 "3.1.0",
             ],
             "needsUpdate" => [
-                "2.4",
             ],
             "needsUpdateDeadline" => [
-                "2.4" => "27 december 2021",
             ],
         ],
         "windowsElectron" => [
@@ -171,12 +167,6 @@ class AppVersionDetector
                 "3.2.0-beta.5",
             ],
             "needsUpdate" => [
-                "3.1.1",
-                "3.1.1-beta.1",
-                "3.1.1-beta.2",
-                "3.1.1-beta.3",
-                "3.1.1-beta.4",
-                "3.1.1-beta.5",
                 "3.1.2",
                 "3.1.2-beta.1",
                 "3.1.2-beta.2",
@@ -185,7 +175,6 @@ class AppVersionDetector
                 "3.1.2-beta.5",
             ],
             "needsUpdateDeadline" => [
-                "3.1.1" => "27 december 2021",
                 "3.1.2" => "16 januari 2022",
             ],
         ],
@@ -223,10 +212,8 @@ class AppVersionDetector
                 "3.2.0-beta.5",
             ],
             "needsUpdate" => [
-                "3.1.0"
             ],
             "needsUpdateDeadline" => [
-                "3.1.0" => "12 december 2021",
             ],
         ]
     ];
@@ -235,6 +222,9 @@ class AppVersionDetector
     {
         if (!$headers) {
             $headers = self::getAllHeaders();
+        }
+        if(is_object($headers)){
+            $headers = (array) $headers;
         }
 
         /**
@@ -304,6 +294,9 @@ class AppVersionDetector
     {
         if (!$headers) {
             $headers = self::getAllHeaders();
+        }
+        if(is_object($headers)){
+            $headers = (array) $headers;
         }
         $version = self::detect($headers);
         if(!isset(self::$allowedVersions[$version["os"]])){

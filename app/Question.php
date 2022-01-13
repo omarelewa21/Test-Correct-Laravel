@@ -255,7 +255,10 @@ class Question extends MtiBaseModel {
     }
 
     public function authors() {
-        return $this->belongsToMany('tcCore\User', 'question_authors', 'question_id', 'user_id')->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])->wherePivot($this->getDeletedAtColumn(), null);
+        return $this->belongsToMany('tcCore\User', 'question_authors', 'question_id', 'user_id')
+                ->withTrashed()
+                ->withPivot([$this->getCreatedAtColumn(), $this->getUpdatedAtColumn(), $this->getDeletedAtColumn()])
+                ->wherePivot($this->getDeletedAtColumn(), null);
     }
 
     public function groupQuestionQuestions() {
@@ -1351,5 +1354,12 @@ class Question extends MtiBaseModel {
     public function getConvertedQuestionHtmlAttribute()
     {
         return $this->convertInlineImageSources();
+    }
+
+    public function getQuestionAttainmentsAsArray()
+    {
+        return $this->questionAttainments->map(function($relation) {
+            return $relation->attainment_id;
+        })->toArray();
     }
 }

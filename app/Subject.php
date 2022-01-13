@@ -2,6 +2,7 @@
 
 use Closure;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Lib\Models\AccessCheckable;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -90,12 +91,30 @@ class Subject extends BaseModel implements AccessCheckable
     public function scopeFiltered($query, $filters = [], $sorting = [])
     {
         $roles = Roles::getUserRoles();
-        if (!in_array('Administrator', $roles)) {
+        $user = Auth::user();
+
+        if (!in_array('Administrator', $roles)&&!$user->isPartOfSharedSection()) {
             $query->whereIn('section_id', function ($query) {
                 $query->select('id')
                     ->from(with(new Section())->getTable())
                     ->whereNull('deleted_at');
                 with(new Section())->scopeFiltered($query);
+            });
+        }elseif(!in_array('Administrator', $roles)&&$user->isPartOfSharedSection()){
+            $query->whereIn('section_id',
+                    $user->sections()
+                ->union(
+                    $user->sectionsOnlyShared()
+                )->pluck('id')
+            );
+        }
+
+        $subject = (new DemoHelper())->getDemoSectionForSchoolLocation($user->getAttribute('school_location_id'));
+        if(!is_null($subject)){
+            $query->where(function ($q) use ($subject) {
+                $q->where(function ($query) use ($subject) {
+                    $query->where('demo', false);
+                })->orWhere('id', $subject->getKey());
             });
         }
 

@@ -12,7 +12,7 @@ class SchoolClassImportLog extends Model
 
     public function schoolClass()
     {
-        return $this->belongsTo(SchoolClass::class, 'class_id', 'id');
+        return $this->belongsTo(SchoolClass::class, 'class_id', 'id')->withTrashed();
 
    }
 }

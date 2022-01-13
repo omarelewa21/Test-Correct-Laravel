@@ -53,6 +53,7 @@ class Kernel extends HttpKernel
         'student'               => AuthenticatedAsStudent::class,
         'forceTaken'            => TestTakeForceTakenAwayCheck::class,
         'guest_choice'          => GuestChoice::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
     ];
 
     /**

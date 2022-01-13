@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\DemoHelper;
 use tcCore\Http\Helpers\ImportHelper;
 use tcCore\Http\Helpers\GlobalStateHelper;
@@ -371,6 +372,27 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $this->eckidFromRelation()->save($eckIdUser);
     }
 
+    public function updateExternalIdWithSchoolLocation($externalId,$schoolLocationId)
+    {
+        $handled = false;
+
+        foreach ($this->allowedSchoolLocations as $schoolLocation){
+            if($schoolLocation->id != $schoolLocationId){
+                continue;
+            }
+            if($schoolLocation->pivot->external_id == $externalId){
+                $handled = true;
+                break;
+            }
+            $this->allowedSchoolLocations()->updateExistingPivot($schoolLocation->id,['external_id'=>$externalId]);
+            $handled = true;
+            break;
+        }
+        if(!$handled){
+            $this->allowedSchoolLocations()->attach([$schoolLocation->id =>['external_id'=>$externalId]]);
+        }
+    }
+
     public function scopeFindByEckidAndSchoolLocationIdForTeacher($query, $eckid, $school_location_id)
     {
         $list = DB::table('eckid_user')->where('eckid_hash', md5($eckid))->get();
@@ -601,7 +623,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             if (static::isLoggedInUserAnActiveSchoolLocationMemberOfTheUserToBeRemovedFromThisLocation($user)) {
                 $user->removeSchoolLocation(Auth::user()->schoolLocation);
                 $user->removeSchoolLocationTeachers(Auth::user()->schoolLocation);
-                return false;
+                throw new \Exception(__('Deze gebruiker is ook aanwezig in een andere locatie. Alleen het account voor deze locatie is verwijderd!'));
             }
         });
 
@@ -1027,6 +1049,15 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return $query;
     }
 
+    public function otherSchoolLocationsSharedSectionsWithMe()
+    {
+        $schoolLocationSharedSections = SchoolLocationSharedSection::where('school_location_id',$this->schoolLocation->getKey());
+        if($schoolLocationSharedSections->count()===0){
+            return false;
+        }
+        return true;
+    }
+
     public function subjectsOnlyShared($query = null)
     {
         $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
@@ -1068,6 +1099,28 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
             $user->subjects($query)->select('section_id');
         });
 
+        return $query;
+    }
+
+    public function sectionsOnlyShared($query = null)
+    {
+        $sharedSectionIds = $this->schoolLocation->sharedSections()->pluck('id')->unique();
+        $baseSubjectIds = $this->subjects()->pluck('base_subject_id')->unique();
+
+        $sectionIdsFromShared = collect([]);
+
+        if (count($sharedSectionIds) > 0) {
+            $sectionIdsFromShared = Subject::whereIn('section_id', $sharedSectionIds)->whereIn('base_subject_id',
+                $baseSubjectIds)->pluck('section_id')->unique();
+        }
+
+        if ($query === null) {
+            $query = Section::whereIn('id', $sectionIdsFromShared);
+        } else {
+            $query->from(with(new Section())->getTable())
+                ->where('deleted_at', null)
+                ->whereIn('id', $sectionIdsFromShared);
+        }
         return $query;
     }
 
@@ -1267,6 +1320,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function hasSharedSections()
     {
         return (bool) (null !== $this->schoolLocation && $this->schoolLocation->sharedSections()->count());
+    }
+
+    public function isPartOfSharedSection()
+    {
+        if(!$this->otherSchoolLocationsSharedSectionsWithMe()){
+            return false;
+        }
+        if($this->subjectsOnlyShared()->count()===0){
+            return false;
+        }
+        return true;
     }
 
     public function scopeStudentFiltered($query, $filters = [], $sorting = [])
@@ -2083,6 +2147,27 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return redirect()->to($redirectUrl);
     }
 
+    public function getRedirectUrlSplashOrStartAndLoginIfNeeded($options = null)
+    {
+        if($this->isA('student')){
+            if($this->schoolLocation->allow_new_student_environment){
+                $this->loginThisUser();
+                $options = [
+                  'internal_page' => '/users/student_splash',
+                ];
+                return $this->getTemporaryCakeLoginUrl($options);
+            }
+        }
+
+        return $this->getTemporaryCakeLoginUrl($options);
+    }
+
+    public function loginThisUser()
+    {
+        Auth::login($this);
+        session()->put('session_hash', $this->getAttribute('session_hash'));
+    }
+
     /**
      * @return mixed
      */
@@ -2133,6 +2218,12 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function removeEckId()
     {
         $this->eckidFromRelation()->delete();
+        return $this;
+    }
+
+    public function removeExternalId()
+    {
+        $this->external_id = null;
         return $this;
     }
 
@@ -2310,5 +2401,25 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getActiveLanguage()
     {
         return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ??  config('app.locale');
+    }
+
+    public function hasSingleSchoolLocationNoSharedSections()
+    {
+        return ($this->allowedSchoolLocations()->count() == 1 && !$this->isPartOfSharedSection());
+    }
+
+    public function hasMultipleSchoolLocationsNoSharedSections()
+    {
+        return ($this->allowedSchoolLocations()->count() > 1  && !$this->isPartOfSharedSection());
+    }
+
+    public function hasSingleSchoolLocationSharedSections()
+    {
+        return ($this->allowedSchoolLocations()->count() == 1 && $this->isPartOfSharedSection());
+    }
+
+    public function hasMultipleSchoolLocationsSharedSections()
+    {
+        return ($this->allowedSchoolLocations()->count() > 1  && $this->isPartOfSharedSection());
     }
 }

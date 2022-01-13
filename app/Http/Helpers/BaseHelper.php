@@ -16,6 +16,15 @@ class BaseHelper
 {
     protected $errors = [];
 
+    public static function getCurrentVersion(): string
+    {
+        $file = base_path('version.txt');
+        if(file_exists($file)){
+            return file_get_contents($file);
+        }
+        return '-';
+    }
+
     public static function onProduction(): bool
     {
         return request()->getHost() === 'welcome.test-correct.nl';
@@ -59,7 +68,7 @@ class BaseHelper
         return false;
     }
 
-    public static function createRedirectUrlWithTemporaryLoginUuid($uuid, $redirectUrl)
+    public static function createRedirectUrlWithTemporaryLoginUuid($uuid, $redirectUrl, $returnUrl = false)
     {
         $response = new \stdClass;
 
@@ -72,7 +81,9 @@ class BaseHelper
         }
 
         $response->url = sprintf('%s%s',config('app.base_url'), $relativeUrl);
-
+        if($returnUrl){
+            return $response->url;
+        }
         return  response()->json($response);
     }
 

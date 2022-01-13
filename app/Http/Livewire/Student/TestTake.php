@@ -73,11 +73,17 @@ class TestTake extends Component
             'test_take_event_type_id' => $eventType->getKey(),
         ]);
 
-        if ($eventType->requires_confirming) {
-            $this->emitTo('student.fraud-detection', 'setFraudDetected');
-        }
+        $currentTestTake = \tcCore\TestTake::whereUuid($this->testTakeUuid)->first();
+        $participant = TestParticipant::find($this->testParticipantId);
 
-        \tcCore\TestTake::whereUuid($this->testTakeUuid)->first()->testTakeEvents()->save($testTakeEvent);
+
+        if ($currentTestTake && $participant->shouldFraudNotificationsBeShown()) {
+            // turn off fraud detection;
+            if ($eventType->requires_confirming) {
+                $this->emitTo('student.fraud-detection', 'setFraudDetected');
+            }
+            $currentTestTake->testTakeEvents()->save($testTakeEvent);
+        }
     }
 
     private function getEventType($event)
@@ -180,5 +186,11 @@ class TestTake extends Component
         }
 
         return $parameters;
+    }
+
+    public function shouldFraudNotificationsBeShown()
+    {
+        return ['shouldFraudNotificationsBeShown' => TestParticipant::find($this->testParticipantId)->shouldFraudNotificationsBeShown()];
+
     }
 }
