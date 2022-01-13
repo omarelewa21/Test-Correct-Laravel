@@ -32,4 +32,5 @@ return [
     'Er dient minimaal 1 punt toegekend te worden' => 'Er dient minimaal 1 punt toegekend te worden',
     'Antwoord'                          => 'Antwoord',
     'Punten'                            => 'Punten',
+    'MultipleChoice Question Uitleg Text' => 'De meerkeuzevraag kan ook meerdere antwoorden als correct accepteren door er punten aan toe te kennen.',
 ];
