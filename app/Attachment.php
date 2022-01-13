@@ -265,23 +265,32 @@ class Attachment extends BaseModel
 
     public function audioIsPausable()
     {
-        return json_decode($this->json)->pausable;
+        return $this->getJsonPropertyValueBool('pausable');
     }
 
     public function audioOnlyPlayOnce()
     {
-        return json_decode($this->json)->play_once;
+        return $this->getJsonPropertyValueBool('play_once');
     }
 
     public function audioTimeoutTime()
+    {
+        return $this->getJsonPropertyValue('timeout');
+    }
+
+    public function getJsonPropertyValueBool($propertyName){
+        return is_null($this->getJsonPropertyValue($propertyName))?false:$this->getJsonPropertyValue($propertyName);
+    }
+
+    public function getJsonPropertyValue($propertyName)
     {
         $json = null;
         if ($this->json) {
             $json = json_decode($this->json);
         }
 
-        if ($json != null && property_exists($json, 'timeout')) {
-            return $json->timeout;
+        if ($json != null && property_exists($json, $propertyName)) {
+            return $json->$propertyName;
         }
 
         return null;
