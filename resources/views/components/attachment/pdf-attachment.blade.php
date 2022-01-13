@@ -55,7 +55,7 @@ See https://github.com/adobe-type-tools/cmap-resources
     <style>
         .rs_textnode{
             position: relative;
-            top: 5px;
+            /*top: 5px;*/
         }
         #readspeaker_button1{
             margin-left: 20px;
