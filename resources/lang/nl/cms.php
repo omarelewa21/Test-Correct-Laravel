@@ -42,4 +42,5 @@ return [
     'Is bovenstaande vraag/stelling juist of onjuist?' => 'Is bovenstaande vraag/stelling juist of onjuist?',
     'Ranking Question Uitleg Text'      => 'De rangschikvraag heeft min. 2 items nodig om het antwoord te kunnen rangschikken. Sleep deze voor het antwoordmodel in de juiste volgorde.',
     'Stel je te rankgschikken items op' => 'Stel je te rankgschikken items op',
+    'MultipleChoice Question Uitleg Text' => 'De meerkeuzevraag kan ook meerdere antwoorden als correct accepteren door er punten aan toe te kennen.',
 ];

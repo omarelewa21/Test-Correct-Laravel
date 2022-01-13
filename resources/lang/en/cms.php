@@ -44,4 +44,5 @@ return [
     'Ranking Question Uitleg Text'      => 'The ranking question needs at least 2 items. Drag the items in the correct order for the answer model.',
     'Stel je te rankgschikken items op' => 'Add the ranking items',
     'Is bovenstaande vraag/stelling juist of onjuist?' => 'Is the above question/statement true or false',
+    'MultipleChoice Question Uitleg Text' => 'The multiple choice question can have more than one correct answer by giving points to it.',
 ];
