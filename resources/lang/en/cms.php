@@ -33,5 +33,5 @@ return [
     'Item toevoegen'                    => 'Add item',
     'De gemarkeerde velden zijn verplicht'=> 'The marked fields are required',
     'Er dient minimaal 1 punt toegekend te worden' => 'You need to give at least one answer a point',
-    'Is bovenstaande vraag/ stelling juist of onjuist?' => 'Is the above question/ statement correct or incorrect'
+    'Is bovenstaande vraag/stelling juist of onjuist?' => 'Is the above question/statement true or false'
 ];
