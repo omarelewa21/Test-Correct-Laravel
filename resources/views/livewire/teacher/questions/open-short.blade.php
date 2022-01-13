@@ -256,7 +256,7 @@
 
                         @elseif($this->isTrueFalseQuestion())
                             <div class="flex  col-2 space-x-2 w-full mt-4">
-                                <div class="flex inline-block w-full items-center">{{ __('cms.Is bovenstaande vraag/ stelling juist of onjuist?') }}</div>
+                                <div class="flex inline-block w-full items-center">{{ __('cms.Is bovenstaande vraag/stelling juist of onjuist?') }}</div>
                                 <div class="inline-flex bg-off-white max-w-max border border-blue-grey rounded-lg truefalse-container transition duration-150">
                                     @foreach( ['true', 'false'] as $optionValue)
 
