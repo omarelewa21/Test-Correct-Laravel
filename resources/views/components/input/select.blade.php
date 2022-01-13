@@ -13,7 +13,7 @@
     'trailingAddOn' => null,
 ])
 
-  <select {{ $attributes->merge(['class' => 'form-input '])}}>
+  <select {{ $attributes->merge(['class' => 'form-input rs_clicklistenexclude'])}}>
     @if ($placeholder)
         <option value="">{{ $placeholder }}</option>
     @endif
