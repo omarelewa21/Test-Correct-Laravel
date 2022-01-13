@@ -14,6 +14,7 @@ return [
     'open-question-medium'            => 'Open question long',
     'multiplechoice-question-multiplechoice' => 'Multiplechoice question',
     'multiplechoice-question-truefalse' => 'True/ false question',
+    'ranking-question'                  => 'Rangking question',
     'Vraagstelling'                   => 'Question',
     'Antwoordmodel'                   => 'Answer model',
     'Toets'                           => 'Test',
@@ -40,5 +41,7 @@ return [
     'Er dient minimaal 1 punt toegekend te worden' => 'You need to give at least one answer a point',
     'Antwoord'                          => 'Answer',
     'Punten'                            => 'Points',
+    'Ranking Question Uitleg Text'      => 'The ranking question needs at least 2 items. Drag the items in the correct order for the answer model.',
+    'Stel je te rankgschikken items op' => 'Add the ranking items',
     'Is bovenstaande vraag/stelling juist of onjuist?' => 'Is the above question/statement true or false',
 ];

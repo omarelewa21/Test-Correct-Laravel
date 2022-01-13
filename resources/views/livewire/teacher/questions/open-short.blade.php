@@ -148,7 +148,7 @@
                     <x-slot name="title">
                         {{ __('cms.Vraagstelling') }}
                     </x-slot>
-                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion())
+                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion() || $this->isRankingQuestion())
                         <x-input.rich-textarea
                             wire:model.debounce.1000ms="question.question"
                             editorId="{{ $questionEditorId }}"
@@ -287,6 +287,59 @@
                                     @endforeach
                                 </div>
                             </div>
+                        @elseif($this->isRankingQuestion())
+                            <div class="flex w-full mt-0">
+                                {{ __('cms.Ranking Question Uitleg Text') }}
+                            </div>
+                            <div class="flex flex-col space-y-2 w-full mt-4"
+                                 wire:sortable="updateRankingOrder">
+                                <div class="flex px-0 py-0 border-0 bg-system-white">
+                                    <div class="w-full mr-2">{{ __('cms.Stel je te rankgschikken items op') }}</div>
+                                    <div class="w-20"></div>
+                                </div>
+                                @php
+                                    $disabledClass = "icon disabled";
+                                    if($this->rankingCanDelete()) {
+                                        $disabledClass = "";
+                                    }
+                                @endphp
+                                @foreach($rankingAnswerStruct as $answer)
+                                    @php
+                                        $answer = (object) $answer;
+                                        $errorAnswerClass = '';
+                                    @endphp
+                                    @error('question.answers.'.$loop->index.'.answer')
+                                    @php
+                                        $errorAnswerClass = 'border-red'
+                                    @endphp
+                                    @enderror
+                                    <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
+                                                 wireKey="option-{{ $answer->id }}" selid="drag-box"
+                                                 class="flex px-0 py-0 border-0 bg-system-white"
+                                                 slotClasses="w-full mr-0 "
+                                                 dragClasses="flex form-input w-10 items-center border-l-0 rounded-tl-none rounded-bl-none"
+                                                 useHandle="true"
+                                    >
+                                        <x-input.text class="w-full mr-0 {{ $errorAnswerClass }} border-r-0 rounded-tr-none rounded-br-none" wire:model.lazy="rankingAnswerStruct.{{ $loop->index }}.answer"/>
+                                        <x-slot name="after">
+                                            <x-icon.trash class="mx-2 w-4 {{ $disabledClass }}" id="trash_{{ $answer->order }}" wire:click="rankingDelete('{{$answer->id}}')"></x-icon.trash>
+                                        </x-slot>
+                                    </x-drag-item>
+                                @endforeach
+                            </div>
+                            <div class="flex flex-col space-y-2 w-full">
+                                <x-button.primary class="mt-3 justify-center" wire:click="rankingAddAnswerItem">
+                                    <x-icon.plus/>
+                                    <span >
+                                    {{ __('cms.Item toevoegen') }}
+                                    </span>
+                                </x-button.primary>
+                            </div>
+                            @error('question.answers.*.*')
+                            <div class="notification error stretched mt-4">
+                                <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
+                            </div>
+                            @enderror
                         @else
                             <x-input.rich-textarea
                                 wire:model.debounce.1000ms="question.answer"

@@ -77,6 +77,12 @@ class OpenShort extends Component
 
     public $tfTrue = true;
 
+    public $rankingAnswerStruct = [];
+    public $rankingAnswerCount = 2;
+    public $rankingAnswerMinCount = 2;
+
+
+
     public $question = [
         'add_to_database'        => 1,
         'answer'                 => '',
@@ -117,6 +123,12 @@ class OpenShort extends Component
                 $rules = [
                     'question.answers' => 'required|array|min:2|max:2',
                 ];
+            } else if($this->isRankingQuestion()){
+                $rules += [
+                    'question.answers' => 'required|array|min:2',
+                    'question.answers.*.answer' => 'required',
+                    'question.answers.*.order' => 'required',
+                ];
             } else {
                 $rules += ['question.answer' => 'required'];
             }
@@ -134,7 +146,7 @@ class OpenShort extends Component
 
     public function requiresAnswer()
     {
-        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion();
+        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion() || $this->isRankingQuestion();;
     }
 
     protected function getListeners()
@@ -166,13 +178,14 @@ class OpenShort extends Component
             case 'MultipleChoiceQuestion':
                 if(Str::lower($this->question['subtype']) == 'multiplechoice') {
                     $translation = 'cms.multiplechoice-question-multiplechoice';
-                    break;
                 }
                 if(Str::lower($this->question['subtype']) == 'truefalse') {
                     $translation = 'cms.multiplechoice-question-truefalse';
-                    break;
                 }
-
+                break;
+            case 'RankingQuestion':
+               $translation = 'cms.ranking-question';
+               break;
             default:
                 $translation = 'cms.open-question';
                 break;
@@ -262,18 +275,33 @@ class OpenShort extends Component
                 })->toArray();
             }
 
-        if($this->isTrueFalseQuestion()){
-                    $q->multipleChoiceQuestionAnswers->each(function($answer){
-                       if(Str::lower($answer->answer) === 'juist' && $answer->score > 0){
-                           $this->tfTrue = true;
-                       }
-                        if(Str::lower($answer->answer) === 'onjuist' && $answer->score > 0){
-                            $this->tfTrue = false;
-                        }
-                    });
-                }
-            }if($this->isMultipleChoiceQuestion()){
+            if($this->isTrueFalseQuestion()){
+                $q->multipleChoiceQuestionAnswers->each(function($answer){
+                   if(Str::lower($answer->answer) === 'juist' && $answer->score > 0){
+                       $this->tfTrue = true;
+                   }
+                    if(Str::lower($answer->answer) === 'onjuist' && $answer->score > 0){
+                        $this->tfTrue = false;
+                    }
+                });
+            }
+
+            if($this->isRankingQuestion()){
+                $this->rankingAnswerStruct = $q->rankingQuestionAnswers->map(function($answer,$key){
+                    return [
+                        'id'    => Uuid::uuid4(),
+                        'order' => $key+1,
+                        'answer'=> $answer->answer,
+                    ];
+                })->toArray();
+            }
+        }
+        if($this->isMultipleChoiceQuestion()){
             $this->createMCAnswerStruct();
+        }
+
+        if($this->isRankingQuestion()){
+            $this->createRankingAnswerStruct();
         }
     }
 
@@ -303,6 +331,7 @@ class OpenShort extends Component
         unset($this->question['answer']);
     }
 
+    // Multiple Choice
     public function updateMCOrder($value)
     {
         foreach($value as $key => $item){
@@ -382,6 +411,84 @@ class OpenShort extends Component
         $this->question['score'] = collect($this->mcAnswerStruct)->sum('score');
     }
 
+    // Ranking
+
+    public function updateRankingOrder($value)
+    {
+        foreach($value as $key => $item){
+            $this->rankingAnswerStruct[((int) $item['value'])-1]['order'] = $item['order'];
+        }
+
+        $this->rankingAnswerStruct = array_values(collect($this->rankingAnswerStruct)->sortBy('order')->toArray());
+        $this->createRankingAnswerStruct();
+
+    }
+
+    public function rankingCanDelete()
+    {
+        return $this->rankingAnswerMinCount < count($this->rankingAnswerStruct);
+    }
+
+    public function rankingDelete($id)
+    {
+        if(!$this->rankingCanDelete()) {
+            return;
+        }
+
+        $this->rankingAnswerStruct = array_values(collect($this->rankingAnswerStruct)->filter(function($answer) use ($id){
+            return $answer['id'] != $id;
+        })->toArray());
+
+        if($this->rankingAnswerMinCount < $this->rankingAnswerCount) {
+            $this->rankingAnswerCount--;
+        }
+        $this->createRankingAnswerStruct();
+    }
+
+    public function rankingAddAnswerItem()
+    {
+        $this->rankingAnswerCount++;
+        $this->createRankingAnswerStruct();
+    }
+
+    public function rankingUpdated($name,$value)
+    {
+        $this->createRankingAnswerStruct();
+    }
+
+    public function createRankingAnswerStruct()
+    {
+        $result = [];
+
+        collect($this->rankingAnswerStruct)->each(function ($value, $key) use (&$result) {
+            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer']];
+        })->toArray();
+
+        if(count($this->rankingAnswerStruct) < $this->rankingAnswerCount){
+            for($i = count($this->rankingAnswerStruct);$i < $this->rankingAnswerCount;$i++){
+                $result[] = (object)[
+                    'id'    => Uuid::uuid4(),
+                    'order' => $i+1,
+                    'answer' => ''
+                ];
+            }
+        }
+
+        $this->rankingAnswerStruct  = $result;
+        $this->rankingAnswerCount = count($this->rankingAnswerStruct);
+    }
+
+    protected function prepareRankingQuestionForSave()
+    {
+        $this->question['answers'] = array_values(collect($this->rankingAnswerStruct)->map(function($answer){
+            return [
+                'order' => $answer['order'],
+                'answer' => $answer['answer'],
+            ];
+        })->toArray());
+        unset($this->question['answer']);
+    }
+
     public function save()
     {
         $prepareFunction = sprintf('prepare%s%sForSave',$this->question['type'], $this->question['subtype']);
@@ -410,6 +517,13 @@ class OpenShort extends Component
         }
     }
 
+    public function isRankingQuestion()
+    {
+        if ($this->question['type'] !== 'RankingQuestion') {
+            return false;
+        }
+        return true;
+    }
 
     public function isShortOpenQuestion()
     {

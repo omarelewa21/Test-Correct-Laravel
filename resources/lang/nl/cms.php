@@ -12,6 +12,7 @@ return [
     'open-question-medium'             => 'Open vraag lang',
     'multiplechoice-question-multiplechoice' => 'Meerkeuze vraag',
     'multiplechoice-question-truefalse' => 'Juist/ onjuist vraag',
+    'ranking-question'                  => 'Rangschik vraag',
     'Vraagstelling'                    => 'Vraagstelling',
     'Antwoordmodel'                    => 'Antwoordmodel',
     'Toets'                            => 'Toets',
@@ -39,4 +40,6 @@ return [
     'Antwoord'                          => 'Antwoord',
     'Punten'                            => 'Punten',
     'Is bovenstaande vraag/stelling juist of onjuist?' => 'Is bovenstaande vraag/stelling juist of onjuist?',
+    'Ranking Question Uitleg Text'      => 'De rangschikvraag heeft min. 2 items nodig om het antwoord te kunnen rangschikken. Sleep deze voor het antwoordmodel in de juiste volgorde.',
+    'Stel je te rankgschikken items op' => 'Stel je te rankgschikken items op',
 ];
