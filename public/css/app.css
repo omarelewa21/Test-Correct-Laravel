@@ -1903,6 +1903,15 @@ video {
 .ml-10{
 	margin-left: 2.5rem;
 }
+.mr-10{
+	margin-right: 2.5rem;
+}
+.mr-28{
+	margin-right: 7rem;
+}
+.mr-8{
+	margin-right: 2rem;
+}
 .block{
 	display: block;
 }

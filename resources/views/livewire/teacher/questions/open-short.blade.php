@@ -193,6 +193,11 @@
                         @if($this->isMultipleChoiceQuestion())
                             <div class="flex flex-col space-y-2 w-full mt-4"
                                  wire:sortable="updateMCOrder">
+                                <div class="flex px-0 py-0 border-0 bg-system-white">
+                                    <div class="w-full mr-2">{{ __('cms.Antwoord') }}</div>
+                                    <div class="w-20 text-center mr-4">{{ __('cms.Punten') }}</div>
+                                    <div class="w-20"></div>
+                                </div>
                                 @php
                                     $disabledClass = "icon disabled";
                                     if($this->mcCanDelete()) {
@@ -222,7 +227,7 @@
                                                  slotClasses="w-full"
                                     >
                                         <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.answer"/>
-                                        <x-input.text class="w-10 text-center {{ $errorScoreClass }}" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.score"/>
+                                        <div class="w-20 text-center justify-center"><x-input.text class="w-12 text-center {{ $errorScoreClass }}" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.score"/></div>
                                             <x-slot name="after">
                                                 <x-icon.trash class="mx-2 w-4 {{ $disabledClass }}" id="trash_{{ $answer->order }}" wire:click="mcDelete('{{$answer->id}}')"></x-icon.trash>
                                             </x-slot>

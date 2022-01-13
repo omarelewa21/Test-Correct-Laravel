@@ -341,12 +341,17 @@ class OpenShort extends Component
         $this->createMCAnswerStruct();
     }
 
+    public function mcUpdated($name,$value)
+    {
+        $this->createMCAnswerStruct();
+    }
+
     public function createMCAnswerStruct()
     {
         $result = [];
 
         collect($this->mcAnswerStruct)->each(function ($value, $key) use (&$result) {
-            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer'], 'score' => $value['score']];
+            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer'], 'score' => (int) $value['score']];
         })->toArray();
 
         if(count($this->mcAnswerStruct) < $this->mcAnswerCount){
@@ -396,6 +401,13 @@ class OpenShort extends Component
         }
 
         $this->returnToTestOverview();
+    }
+
+    public function updated($name, $value)
+    {
+        if($this->isMultipleChoiceQuestion() && Str::startsWith($name,'mc')){
+            $this->mcUpdated($name,$value);
+        }
     }
 
 
