@@ -478,7 +478,7 @@ class OpenShort extends Component
         $this->rankingAnswerCount = count($this->rankingAnswerStruct);
     }
 
-    protected function prepareRankingQuestionForSave()
+    protected function prepareRankingQuestionRankingForSave()
     {
         $this->question['answers'] = array_values(collect($this->rankingAnswerStruct)->map(function($answer){
             return [
@@ -491,6 +491,7 @@ class OpenShort extends Component
 
     public function save()
     {
+
         $prepareFunction = sprintf('prepare%s%sForSave',$this->question['type'], $this->question['subtype']);
         if(method_exists($this,$prepareFunction)){
             $this->$prepareFunction();
