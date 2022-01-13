@@ -259,11 +259,11 @@
                                         @enderror
                                         <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
                                                      wireKey="option-{{ $answer->id }}" selid="drag-box"
-                                                     useHandle="true"
                                                      class="flex px-0 py-0 border-0 bg-system-white"
-                                                     slotClasses="w-full"
+                                                     slotClasses="w-full mr-0 "
+                                                     dragClasses="flex form-input w-10 items-center border-l-0 rounded-tl-none rounded-bl-none"
                                         >
-                                            <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="rankingAnswerStruct.{{ $loop->index }}.answer"/>
+                                            <x-input.text class="w-full mr-0 {{ $errorAnswerClass }} border-r-0 rounded-tr-none rounded-br-none" wire:model.lazy="rankingAnswerStruct.{{ $loop->index }}.answer"/>
                                             <x-slot name="after">
                                                 <x-icon.trash class="mx-2 w-4 {{ $disabledClass }}" id="trash_{{ $answer->order }}" wire:click="rankingDelete('{{$answer->id}}')"></x-icon.trash>
                                             </x-slot>
