@@ -5,21 +5,22 @@
     'name'
 ])
 
-<div class="max-w-xs" wire:key="select_{{ $name }}">
+<div class="" wire:key="select_{{ $name }}">
     <div
         x-data="selectSearch({value:@entangle($attributes->wire('model')), data: @entangle($name), emptyOptionsMessage: '{{ $emptyOptionsMessage }}', name: '{{ $name }}', placeholder: '{{ $placeholder }}' })"
         @click.away="closeListbox()"
         @keydown.escape="closeListbox()"
-        class="relative"
+        class="relative h-10"
         x-effect="()=> options = data; "
     >
-                <span class="inline-block w-full rounded-md shadow-sm">
+                <span class="inline-block w-full h-full rounded-md shadow-sm">
                       <button
                           x-ref="button"
                           @click="toggleListboxVisibility()"
                           :aria-expanded="open"
                           aria-haspopup="listbox"
-                          class="relative z-0 w-full py-2 pl-3 pr-10 text-left transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md cursor-default focus:outline-none focus:shadow-outline-blue focus:border-blue-300 sm:text-sm sm:leading-5"
+                          class="relative z-0 w-full h-full py-2 pl-3 pr-10 text-left transition duration-150 ease-in-out bg-offwhite border rounded-10 border-bluegrey  cursor-default focus:outline-none focus:shadow-outline-blue focus:border-blue-300 text-base sm:leading-5"
+                          :title="value in options ? options[value] : placeholder"
                       >
                             <span
                                 x-show="! open"
@@ -36,7 +37,7 @@
                                 @keydown.arrow-up.prevent="focusPreviousOption()"
                                 @keydown.arrow-down.prevent="focusNextOption()"
                                 type="search"
-                                class="w-full h-full form-control focus:outline-none"
+                                class="w-full h-full form-control outline-none focus:outline-none focus-within:outline-none focus-visible:outline-none bg-offwhite"
                             />
 
                             <span class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -54,10 +55,10 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             x-cloak
-            class="absolute z-30 w-full mt-1 bg-white rounded-md shadow-lg"
+            class="absolute z-30 w-full bg-white main-shadow rounded-10 mt-1"
         >
-            <ul
-                style="list-style-type:none !important"
+            <div
+                style=""
                 x-ref="listbox"
                 @keydown.enter.stop.prevent="selectOption()"
                 @keydown.arrow-up.prevent="focusPreviousOption()"
@@ -65,18 +66,19 @@
                 role="listbox"
                 :aria-activedescendant="focusedOptionIndex ? name + 'Option' + focusedOptionIndex : null"
                 tabindex="-1"
-                class="py-1 overflow-auto text-base leading-6 rounded-md shadow-xs max-h-60 focus:outline-none sm:text-sm sm:leading-5"
+                class="py-2 px-0 overflow-auto text-base max-h-60 focus:outline-none list-none"
             >
                 <template x-for="(key, index) in Object.keys(options)" :key="index">
-                    <li
+                    <div
                         :id="name + 'Option' + focusedOptionIndex"
                         @click="selectOption()"
                         @mouseenter="focusedOptionIndex = index"
                         @mouseleave="focusedOptionIndex = null"
                         role="option"
                         :aria-selected="focusedOptionIndex === index"
-                        :class="{ 'text-white bg-indigo-600': index === focusedOptionIndex, 'text-gray-900': index !== focusedOptionIndex }"
-                        class="relative py-2 pl-3 text-gray-900 cursor-default select-none pr-9"
+                        :class="{ 'text-white bg-primary': index === focusedOptionIndex, 'text-gray-900': index !== focusedOptionIndex }"
+                        class="relative py-2 cursor-default select-none px-2"
+                        :title="Object.values(options)[index]"
                     >
                                 <span x-text="Object.values(options)[index]"
                                       :class="{ 'font-semibold': index === focusedOptionIndex, 'font-normal': index !== focusedOptionIndex }"
@@ -85,7 +87,7 @@
 
                         <span
                             x-show="key === value"
-                            :class="{ 'text-white': index === focusedOptionIndex, 'text-indigo-600': index !== focusedOptionIndex }"
+                            :class="{ 'text-white': index === focusedOptionIndex, 'text-sysbase': index !== focusedOptionIndex }"
                             class="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600"
                         >
                                     <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
@@ -94,14 +96,14 @@
                                               clip-rule="evenodd"/>
                                     </svg>
                                 </span>
-                    </li>
+                    </div>
                 </template>
 
                 <div
                     x-show="! Object.keys(options).length"
                     x-text="emptyOptionsMessage"
                     class="px-3 py-2 text-gray-900 cursor-default select-none"></div>
-            </ul>
+            </div>
         </div>
 
     </div>

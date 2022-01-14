@@ -4,7 +4,7 @@
 'disabled' => false
 ])
 <div class="border-b flex w-full justify-between items-center py-2">
-    <div {{ $attributes->merge(['class' => 'flex items-center space-x-2.5']) }}>
+    <div {{ $attributes->merge(['class' => 'flex items-center space-x-2.5 text-base']) }}>
         {{ $slot }}
     </div>
     <div>

@@ -34,7 +34,7 @@ class AttainmentManager extends Component
             ->whereNull('attainment_id')
             ->get()
             ->each(function ($domain) {
-                    $this->domains[$domain->id] = $domain->description;
+                    $this->domains[$domain->id] = sprintf("[%s] %s", $domain->code, $domain->description);
             });
         if ($this->value){
             Attainment::whereIn('id',$this->value)->each(function($attainment){
