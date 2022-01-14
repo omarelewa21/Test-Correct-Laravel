@@ -197,7 +197,7 @@ class GroupQuestionQuestionsController extends Controller
 
     /**
      * Display the specified question.
-     *
+     * @param  GroupQuestionQuestionManager $groupQuestionQuestionManager
      * @param  GroupQuestionQuestion $question
      * @return Response
      */

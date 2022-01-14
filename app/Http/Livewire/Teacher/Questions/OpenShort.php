@@ -16,9 +16,15 @@ use Livewire\WithFileUploads;
 use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
+use tcCore\Http\Controllers\AttachmentsController;
+use tcCore\Http\Controllers\GroupQuestionQuestionsController;
+use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
+use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
 use tcCore\TestQuestion;
@@ -31,9 +37,13 @@ class OpenShort extends Component
 
     public $openTab = 1;
 
-    public $owner_id;
-
     public $test_question_id;
+
+    public $test_id;
+
+    public $owner;
+
+    public $group_question_question_id;
 
     public $uploads = [];
 
@@ -43,11 +53,13 @@ class OpenShort extends Component
 
     public $questionEditorId;
 
-    protected $queryString = ['owner_id', 'test_question_id'];
-
     public $attachments = [];
 
     public $initWithTags = [];
+
+    public $isPartOfGroupQuestion = false;
+
+    protected $queryString = ['test_id', 'test_question_id', 'group_question_question_id', 'owner'];
 
     public $videos = [];
 
@@ -80,8 +92,6 @@ class OpenShort extends Component
     public $rankingAnswerStruct = [];
     public $rankingAnswerCount = 2;
     public $rankingAnswerMinCount = 2;
-
-
 
     public $question = [
         'add_to_database'        => 1,
@@ -201,31 +211,30 @@ class OpenShort extends Component
         $this->action = $action;
         $this->question['type'] = $type;
         $this->question['subtype'] = $subType;
+        $this->setIsPartOfGroupQuestion();
 
         $this->answerEditorId = Str::uuid()->__toString();
         $this->questionEditorId = Str::uuid()->__toString();
 
-        $activeTest = (request()->input('owner') == 'group') ?
-            TestQuestion::find(request()->input('owner_id'))->test :
-            Test::whereUuid(request()->input('owner_id'))->first();
+//        dd([request('owner'), request('owner_id')]);
 
+        $activeTest = Test::whereUuid($this->test_id)->first();
 
 
         $activeTest->load('testAuthors', 'testAuthors.user');
 
 
-
-            // @TODO mag ik deze test zien;
-            // @TODO mag ik deze testQuestion editen?
-            // @TODO is deze test uberhaupt onderdeel van deze test?
-            // @TODO what to do when owner is a GroupQuestion?
+        // @TODO mag ik deze test zien;
+        // @TODO mag ik deze testQuestion editen?
+        // @TODO is deze test uberhaupt onderdeel van deze test?
+        // @TODO what to do when owner is a GroupQuestion?
 
         $this->testName = $activeTest->name;
         $this->testAuthors = $activeTest->AuthorsAsString;
         $this->subjectId = $activeTest->subject_id;
         $this->question['test_id'] = $activeTest->id;
         $this->educationLevelId = $activeTest->education_level_id;
-       // $this->question['order'] = $activeTest->testQuestions()->count()+1;
+        // $this->question['order'] = $activeTest->testQuestions()->count();
 
         if($this->isInfoscreenQuestion()){
             $questionOptions = [
@@ -241,22 +250,22 @@ class OpenShort extends Component
                 $this->question[$key] = $value;
             }
         }
+        // request('owner_id') => tcCore\GroupQuestion
+        // $this->>test_question_id => tcCore\GroupQuestionQuestion;
 
-        if ($this->test_question_id) {
+        if ($this->editModeForExistingQuestion()) {
 //            dd($this->test_question_id);
-            if (request('owner') == 'group') {
-                $tq = GroupQuestionQuestion::whereUuid($this->test_question_id)->first();
+            if ($this->isPartOfGroupQuestion()) {
+                $tq = GroupQuestionQuestion::whereUuid($this->group_question_question_id)->first();
+                $this->attachments = $tq->groupQuestion->attachments;
                 $q = $tq->question;
             } else {
                 $tq = TestQuestion::whereUuid($this->test_question_id)->first();
                 $q = $tq->question;
+                $this->attachments = $q->attachments;
             }
-
-            if ($q) {
-                $q = (new QuestionHelper())->getTotalQuestion($q->question);
-
-                $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
-            }
+            $q = (new QuestionHelper())->getTotalQuestion($q->question);
+            $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
 
             $this->questionId = $q->question->getKey();
             $this->question['bloom'] = $q->bloom;
@@ -273,8 +282,8 @@ class OpenShort extends Component
             $this->educationLevelId = $q->education_level_id;
 
             $this->initWithTags = $q->tags;
-            $this->attachments = $q->attachments;
-            $this->attachmentsCount = count($q->attachments);
+
+            $this->attachmentsCount = count($this->attachments);
 
             if ($this->isCompletionQuestion()) {
                 $this->question['question'] = $this->decodeCompletionTags($q);
@@ -294,9 +303,9 @@ class OpenShort extends Component
 
             if($this->isTrueFalseQuestion()){
                 $q->multipleChoiceQuestionAnswers->each(function($answer){
-                   if(Str::lower($answer->answer) === 'juist' && $answer->score > 0){
-                       $this->tfTrue = true;
-                   }
+                    if(Str::lower($answer->answer) === 'juist' && $answer->score > 0){
+                        $this->tfTrue = true;
+                    }
                     if(Str::lower($answer->answer) === 'onjuist' && $answer->score > 0){
                         $this->tfTrue = false;
                     }
@@ -320,6 +329,7 @@ class OpenShort extends Component
         if($this->isRankingQuestion()){
             $this->createRankingAnswerStruct();
         }
+
     }
 
     public function tfIsActiveAnswer($val)
@@ -505,7 +515,6 @@ class OpenShort extends Component
         })->toArray());
         unset($this->question['answer']);
     }
-
     public function save()
     {
 
@@ -615,7 +624,14 @@ class OpenShort extends Component
 
     private function saveNewQuestion()
     {
-        return app(\tcCore\Http\Controllers\TestQuestionsController::class)->store(new CreateTestQuestionRequest($this->question));
+        if ($this->isPartOfGroupQuestion()) {
+            $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->test_question_id);
+            $cgqqr = new CreateGroupQuestionQuestionRequest($this->question);
+
+            return (new GroupQuestionQuestionsController)->store($gqqm, $cgqqr);
+        }
+
+        return (new TestQuestionsController)->store(new CreateTestQuestionRequest($this->question));
     }
 
     private function handleAttachments($response)
@@ -653,7 +669,14 @@ class OpenShort extends Component
 
     public function returnToTestOverview(): void
     {
-        $url = sprintf("tests/view/%s", $this->owner_id);
+        $url = sprintf("tests/view/%s", $this->test_id);
+        if ($this->isPartOfGroupQuestion()) {
+            $url = sprintf(
+                'questions/view_group/%s/%s',
+                $this->test_id,
+                $this->test_question_id
+            );
+        }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
 
         Auth::user()->redirectToCakeWithTemporaryLogin($options);
@@ -661,7 +684,6 @@ class OpenShort extends Component
 
     private function validateAndReturnErrorsToTabOne()
     {
-
         try {
             $this->validate();
         } catch (ValidationException $e) {
@@ -675,11 +697,24 @@ class OpenShort extends Component
         $request = new Request();
         $request->merge($this->question);
 
-        return app(\tcCore\Http\Controllers\TestQuestionsController::class)
-            ->updateFromWithin(
+        if ($this->isPartOfGroupQuestion()) {
+            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->group_question_question_id)->first();
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->test_question_id); //'577fa17d-68b7-4695-ace5-e14afd913757');
+
+            $response = (new GroupQuestionQuestionsController)->updateFromWithin(
+                $groupQuestionQuestionManager,
+                $groupQuestionQuestion,
+                $request
+            );
+
+        } else {
+            $response = (new TestQuestionsController)->updateFromWithin(
                 TestQuestion::whereUUID($this->test_question_id)->first(),
                 $request
             );
+        }
+
+        return $response;
     }
 
     public function isClosableDisabled($asText = false)
@@ -771,7 +806,8 @@ class OpenShort extends Component
         $changedSetting = [$setting => $value];
 
         if (array_key_exists($attachmentName, $this->audioUploadOptions)) {
-            $this->audioUploadOptions[$attachmentName] = array_merge($this->audioUploadOptions[$attachmentName], $changedSetting);
+            $this->audioUploadOptions[$attachmentName] = array_merge($this->audioUploadOptions[$attachmentName],
+                $changedSetting);
             return;
         }
 
@@ -780,11 +816,21 @@ class OpenShort extends Component
 
     public function removeAttachment($attachmentUuid)
     {
-        $testQuestion = TestQuestion::whereUuid($this->test_question_id)->first();
         $attachment = Attachment::whereUuid($attachmentUuid)->first();
 
-        $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
-            ->destroy($testQuestion, $attachment);
+        if ($this->isPartOfGroupQuestion()) {
+            $response = (new GroupAttachmentsController)
+                ->destroy(
+                    GroupQuestionQuestionManager::getInstanceWithUuid($this->test_question_id),
+                   $attachment
+                );
+        } else {
+            $response = (new AttachmentsController)
+                ->destroy(
+                    TestQuestion::whereUuid($this->test_question_id)->first(),
+                    $attachment
+                );
+        }
 
         if ($response->getStatusCode() == 200) {
             $this->attachments = collect($this->attachments)->reject(function ($attachment) use ($attachmentUuid) {
@@ -821,17 +867,13 @@ class OpenShort extends Component
         collect($this->uploads)->each(function ($upload) use ($response) {
             $upload->store('', 'attachments');
             $uploadJson = $this->audioUploadOptions[$upload->getClientOriginalName()] ?? [];
-
-            $testQuestion = $response->original;
-            $attachementRequest = new  CreateAttachmentRequest([
+            $attachementRequest = new CreateAttachmentRequest([
                 "type"       => "file",
                 "title"      => $upload->getClientOriginalName(),
                 "json"       => json_encode($uploadJson),
                 "attachment" => $upload,
             ]);
-
-            $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
-                ->store($testQuestion, $attachementRequest);
+            $this->createAttachementWithRequest($attachementRequest, $response);
         });
     }
 
@@ -844,10 +886,26 @@ class OpenShort extends Component
                 "link" => $video
             ]);
 
-            $response = app(\tcCore\Http\Controllers\TestQuestions\AttachmentsController::class)
-                ->store($testQuestion, $attachementRequest);
+            $response = $this->createAttachementWithRequest($attachementRequest, $response);
         });
     }
+
+    public function createAttachementWithRequest(CreateAttachmentRequest $request, $response)
+    {
+        if ($this->isPartOfGroupQuestion()) {
+            return (new GroupAttachmentsController)
+                ->store(
+                    GroupQuestionQuestionManager::getInstanceWithUuid($response->original->group_question_question_path),
+                    $request
+                );
+        }
+        return (new AttachmentsController)
+            ->store(
+                $testQuestion = $response->original,
+                $request
+            );
+    }
+
 
     public function removeItem($item, $id)
     {
@@ -873,8 +931,7 @@ class OpenShort extends Component
 
         $testQuestion = TestQuestion::whereUuid($this->test_question_id)->firstOrFail();
 
-        $response = app(\tcCore\Http\Controllers\TestQuestionsController::class)
-            ->destroy($testQuestion);
+        $response = (new TestQuestionsController)->destroy($testQuestion);
 
         if ($response->getStatusCode() == 200) {
             $this->returnToTestOverview();
@@ -906,5 +963,30 @@ class OpenShort extends Component
         };
 
         return preg_replace_callback($searchPattern, $replacementFunction, $question->getQuestionHtml());
+    }
+
+    private function isPartOfGroupQuestion(): bool
+    {
+        return $this->isPartOfGroupQuestion;
+    }
+
+    private function setIsPartOfGroupQuestion()
+    {
+        $this->isPartOfGroupQuestion = (request('owner') == 'group');
+    }
+
+    private function editModeForExistingQuestion()
+    {
+        if (empty($this->test_question_id)) {
+            return false;
+        }
+
+        if ($this->isPartOfGroupQuestion()) {
+            if (empty($this->group_question_question_id)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
