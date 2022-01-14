@@ -5604,6 +5604,26 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].data('badge', function () {
+    return {
+      options: false,
+      init: function init() {
+        var _this4 = this;
+
+        this.$watch('options', function (value) {
+          if (value) {
+            var pWidth = _this4.$refs.optionscontainer.parentElement.offsetWidth;
+
+            var pPos = _this4.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+
+            if (pWidth + pPos < 288) {
+              _this4.$refs.optionscontainer.classList.remove('right-0');
+            }
+          }
+        });
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_0__["default"].directive('global', function (el, _ref) {
     var expression = _ref.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
@@ -6266,20 +6286,28 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
       extraPlugins: 'completion,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
+        name: 'clipboard',
+        items: ['Undo', 'Redo']
+      }, {
         name: 'basicstyles',
-        items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
+        items: ['Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat', 'Subscript', 'Superscript']
       }, {
         name: 'paragraph',
-        items: ['NumberedList', 'BulletedList']
+        items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote']
       }, {
         name: 'insert',
-        items: ['Table']
+        items: ['addImage', 'Table']
       }, {
         name: 'styles',
-        items: ['Font', 'FontSize']
+        items: ['Format', 'Font', 'FontSize']
+      }, {
+        name: 'colors',
+        items: ['TextColor', 'BGColor', 'CopyFormatting']
+      }, {
+        name: 'align',
+        items: ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock']
       }, {
         name: 'wirisplugins',
         items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']

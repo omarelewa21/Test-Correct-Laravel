@@ -392,6 +392,10 @@ h6 {
     font-size: 1.25rem;
 }
 
+.text-disabled {
+    color: var(--mid-grey);
+}
+
 
 /*NOG VERWERKEN IN CSS FILES*/
 

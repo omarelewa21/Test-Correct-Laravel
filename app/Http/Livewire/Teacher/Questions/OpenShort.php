@@ -123,12 +123,14 @@ class OpenShort extends Component
                 $rules = [
                     'question.answers' => 'required|array|min:2|max:2',
                 ];
-            } else if($this->isRankingQuestion()){
+            } else if($this->isRankingQuestion()) {
                 $rules += [
                     'question.answers' => 'required|array|min:2',
                     'question.answers.*.answer' => 'required',
                     'question.answers.*.order' => 'required',
                 ];
+            } else if ($this->isInfoscreenQuestion()){
+
             } else {
                 $rules += ['question.answer' => 'required'];
             }
@@ -224,6 +226,21 @@ class OpenShort extends Component
         $this->question['test_id'] = $activeTest->id;
         $this->educationLevelId = $activeTest->education_level_id;
        // $this->question['order'] = $activeTest->testQuestions()->count()+1;
+
+        if($this->isInfoscreenQuestion()){
+            $questionOptions = [
+                'add_to_database'        => 0,
+                'decimal_score'          => 0,
+                'discuss'                => 0,
+                "is_open_source_content" => 0,
+                'note_type'              => 'NONE',
+                'score'                  => 0,
+                'all_or_nothing'        => false,
+            ];
+            foreach($questionOptions as $key => $value){
+                $this->question[$key] = $value;
+            }
+        }
 
         if ($this->test_question_id) {
 //            dd($this->test_question_id);
@@ -518,6 +535,14 @@ class OpenShort extends Component
         }
     }
 
+    public function isInfoscreenQuestion()
+    {
+        if (Str::lower($this->question['type']) !== 'infoscreenquestion') {
+            return false;
+        }
+        return true;
+    }
+
     public function isRankingQuestion()
     {
         if ($this->question['type'] !== 'RankingQuestion') {
@@ -585,7 +610,7 @@ class OpenShort extends Component
 
     public function showQuestionScore()
     {
-        return ! ($this->isMultipleChoiceQuestion());
+        return ! ($this->isMultipleChoiceQuestion() || $this->isInfoscreenQuestion());
     }
 
     private function saveNewQuestion()
@@ -655,6 +680,78 @@ class OpenShort extends Component
                 TestQuestion::whereUUID($this->test_question_id)->first(),
                 $request
             );
+    }
+
+    public function isClosableDisabled($asText = false)
+    {
+        if($asText){
+            return 'false';
+        }
+        return false;
+    }
+
+    public function isMaintainPositionDisabled($asText = false)
+    {
+        if($asText){
+            return 'false';
+        }
+        return false;
+    }
+
+    public function isAllowNotesDisabled($asText = false)
+    {
+        if($this->isInfoscreenQuestion()){
+            if($asText){
+                return 'true';
+            }
+            return true;
+        }
+        if($asText){
+            return 'false';
+        }
+        return false;
+    }
+
+    public function isAddToDatabaseDisabled($asText = false)
+    {
+        if($this->isInfoscreenQuestion()){
+            if($asText){
+                return 'true';
+            }
+            return true;
+        }
+        if($asText){
+            return 'false';
+        }
+        return false;
+    }
+
+    public function isDiscussDisabled($asText = false)
+    {
+        if($this->isInfoscreenQuestion()){
+            if($asText){
+                return 'true';
+            }
+            return true;
+        }
+        if($asText){
+            return 'false';
+        }
+        return false;
+    }
+
+    public function isDecimalOptionDisabled($asText = false)
+    {
+        if($this->isInfoscreenQuestion()){
+            if($asText){
+                return 'true';
+            }
+            return true;
+        }
+        if($asText){
+            return 'false';
+        }
+        return false;
     }
 
     public function handleAttachmentSettingChange($data, $attachmentUuid)

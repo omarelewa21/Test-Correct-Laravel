@@ -148,7 +148,7 @@
                     <x-slot name="title">
                         {{ __('cms.Vraagstelling') }}
                     </x-slot>
-                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion() || $this->isRankingQuestion())
+                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion() || $this->isRankingQuestion() || $this->isInfoScreenQuestion())
                         <x-input.rich-textarea
                             wire:model.debounce.1000ms="question.question"
                             editorId="{{ $questionEditorId }}"
@@ -385,34 +385,56 @@
 
                         <x-input.toggle-row-with-title wire:model="question.closable"
                             :toolTip="__('cms.close_after_answer_tooltip_text')"
+                           class="{{ $this->isClosableDisabled() ? 'text-disabled' : '' }}"
+                           :disabled="$this->isClosableDisabled()"
                         >
                             <x-icon.locked></x-icon.locked>
                             <span class="bold">{{ __('Sluiten na beantwoorden') }}</span>
                         </x-input.toggle-row-with-title>
+
                         <x-input.toggle-row-with-title wire:model="question.add_to_database"
                             :toolTip="__('cms.make_public_tooltip_text')"
+                           class="{{ $this->isAddToDatabaseDisabled() ? 'text-disabled' : '' }}"
+                           :disabled="$this->isAddToDatabaseDisabled()"
                         >
                             <x-icon.preview class="flex "></x-icon.preview>
                             <span class="bold"> {{ __('Openbaar maken') }}</span>
                         </x-input.toggle-row-with-title>
 
-                        <x-input.toggle-row-with-title wire:model="question.maintain_position">
+
+                        <x-input.toggle-row-with-title wire:model="question.maintain_position"
+                           class="{{ $this->isMaintainPositionDisabled() ? 'text-disabled' : '' }}"
+                           :disabled="$this->isMaintainPositionDisabled()"
+                        >
                             <x-icon.shuffle-off/>
                             <span class="bold"> {{ __('Deze vraag niet shuffelen') }}</span>
                         </x-input.toggle-row-with-title>
-                        <x-input.toggle-row-with-title wire:model="question.discuss">
+
+                        <x-input.toggle-row-with-title wire:model="question.discuss"
+                               class="{{ $this->isDiscussDisabled() ? 'text-disabled' : '' }}"
+                               :disabled="$this->isDiscussDisabled()"
+                        >
                             <x-icon.discuss class="flex "></x-icon.discuss>
                             <span class="bold"> {{ __('Bespreken in de klas') }}</span>
                         </x-input.toggle-row-with-title>
 
-                        <x-input.toggle-radio-row-with-title wire:model="question.note_type" value-on="TEXT" value-off="NONE">
+
+                        <x-input.toggle-radio-row-with-title wire:model="question.note_type" value-on="TEXT" value-off="NONE"
+                           class="{{ $this->isAllowNotesDisabled() ? 'text-disabled' : '' }}"
+                           :disabled="$this->isAllowNotesDisabled()"
+                        >
                             <x-icon.notepad/>
                             <span class="bold"> {{ __('Notities toestaan') }}</span>
                         </x-input.toggle-radio-row-with-title>
-                        <x-input.toggle-row-with-title wire:model="question.decimal_score">
+
+                        <x-input.toggle-row-with-title wire:model="question.decimal_score"
+                            class="{{ $this->isDecimalOptionDisabled() ? 'text-disabled' : '' }}"
+                            :disabled="$this->isDecimalOptionDisabled()"
+                        >
                             <x-icon.half-points/>
-                            <span class="bold"> {{ __('Halve puntenbeoordeling mogelijk') }}</span>
+                            <span class="bold @if($this->isDecimalOptionDisabled()) disabled @endif"> {{ __('Halve puntenbeoordeling mogelijk') }}</span>
                         </x-input.toggle-row-with-title>
+
                     </div>
 
                 </x-content-section>

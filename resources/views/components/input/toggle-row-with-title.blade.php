@@ -1,6 +1,9 @@
-@props(['toolTip' => ''])
+@props([
+    'toolTip' => '',
+    'disabled' => false,
+])
 <div class="border-b flex w-full justify-between items-center pt-2.5 pb-[11px]">
-    <div class="flex items-center space-x-2.5 text-base">
+    <div {{ $attributes->merge(['class' => 'flex items-center space-x-2.5 text-base']) }}>
         {{ $slot }}
     </div>
     <div class="flex items-center">
@@ -11,7 +14,9 @@
         @endif
         <label class="switch">
             <input type="checkbox" {{ $attributes->merge() }} value="1" autocapitalize="none" autocorrect="off"
-                   autocomplete="off" spellcheck="false" class="verify-ok">
+                   autocomplete="off" spellcheck="false" class="verify-ok"
+                   @if($disabled) disabled @endif
+            >
             <span class="slider round"></span>
         </label>
     </div>
