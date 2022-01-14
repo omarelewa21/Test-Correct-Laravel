@@ -206,130 +206,14 @@ class OpenShort extends Component
         return __($translation);
     }
 
+    // @TODO mag ik deze test zien;
+    // @TODO mag ik deze testQuestion editen?
+    // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount($action, $type, $subType)
     {
-        $this->action = $action;
-        $this->question['type'] = $type;
-        $this->question['subtype'] = $subType;
-        $this->setIsPartOfGroupQuestion();
-
-        $this->answerEditorId = Str::uuid()->__toString();
-        $this->questionEditorId = Str::uuid()->__toString();
-
-//        dd([request('owner'), request('owner_id')]);
-
-        $activeTest = Test::whereUuid($this->testId)->first();
-
-
-        $activeTest->load('testAuthors', 'testAuthors.user');
-
-
-        // @TODO mag ik deze test zien;
-        // @TODO mag ik deze testQuestion editen?
-        // @TODO is deze test uberhaupt onderdeel van deze test?
-        // @TODO what to do when owner is a GroupQuestion?
-
-        $this->testName = $activeTest->name;
-        $this->testAuthors = $activeTest->AuthorsAsString;
-        $this->subjectId = $activeTest->subject_id;
-        $this->question['test_id'] = $activeTest->id;
-        $this->educationLevelId = $activeTest->education_level_id;
-        // $this->question['order'] = $activeTest->testQuestions()->count();
-
-        if($this->isInfoscreenQuestion()){
-            $questionOptions = [
-                'add_to_database'        => 0,
-                'decimal_score'          => 0,
-                'discuss'                => 0,
-                "is_open_source_content" => 0,
-                'note_type'              => 'NONE',
-                'score'                  => 0,
-                'all_or_nothing'        => false,
-            ];
-            foreach($questionOptions as $key => $value){
-                $this->question[$key] = $value;
-            }
-        }
-        // request('owner_id') => tcCore\GroupQuestion
-        // $this->>test_question_id => tcCore\GroupQuestionQuestion;
-
-        if ($this->editModeForExistingQuestion()) {
-//            dd($this->test_question_id);
-            if ($this->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-                $this->attachments = $tq->groupQuestion->attachments;
-                $q = $tq->question;
-            } else {
-                $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
-                $q = $tq->question;
-                $this->attachments = $q->attachments;
-            }
-            $q = (new QuestionHelper())->getTotalQuestion($q->question);
-            $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
-
-            $this->questionId = $q->question->getKey();
-            $this->question['bloom'] = $q->bloom;
-            $this->question['rtti'] = $q->rtti;
-            $this->question['miller'] = $q->miller;
-            $this->question['answer'] = $q->answer;
-            $this->question['question'] = $q->question->getQuestionHTML();
-            $this->question['score'] = $q->score;
-            $this->question['note_type'] = $q->note_type;
-            $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
-            $this->question['order'] = $tq->order;
-            $this->question['all_or_nothing'] = $q->all_or_nothing;
-
-            $this->educationLevelId = $q->education_level_id;
-
-            $this->initWithTags = $q->tags;
-
-            $this->attachmentsCount = count($this->attachments);
-
-            if ($this->isCompletionQuestion()) {
-                $this->question['question'] = $this->decodeCompletionTags($q);
-            }
-
-            if($this->isMultipleChoiceQuestion()){
-
-                $this->mcAnswerStruct = $q->multipleChoiceQuestionAnswers->map(function($answer,$key){
-                    return [
-                        'id'    => Uuid::uuid4(),
-                        'order' => $key+1,
-                        'score' => $answer->score,
-                        'answer'=> $answer->answer,
-                    ];
-                })->toArray();
-            }
-
-            if($this->isTrueFalseQuestion()){
-                $q->multipleChoiceQuestionAnswers->each(function($answer){
-                    if(Str::lower($answer->answer) === 'juist' && $answer->score > 0){
-                        $this->tfTrue = true;
-                    }
-                    if(Str::lower($answer->answer) === 'onjuist' && $answer->score > 0){
-                        $this->tfTrue = false;
-                    }
-                });
-            }
-
-            if($this->isRankingQuestion()){
-                $this->rankingAnswerStruct = $q->rankingQuestionAnswers->map(function($answer,$key){
-                    return [
-                        'id'    => Uuid::uuid4(),
-                        'order' => $key+1,
-                        'answer'=> $answer->answer,
-                    ];
-                })->toArray();
-            }
-        }
-        if($this->isMultipleChoiceQuestion()){
-            $this->createMCAnswerStruct();
-        }
-
-        if($this->isRankingQuestion()){
-            $this->createRankingAnswerStruct();
-        }
-
+        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        $this->initializeContext($action, $type, $subType, $activeTest);
+        $this->initializePropertyBag($activeTest);
     }
 
     public function tfIsActiveAnswer($val)
@@ -988,5 +872,116 @@ class OpenShort extends Component
         }
 
         return true;
+    }
+
+    private function initializeContext($action, $type, $subType, Test $activeTest): void
+    {
+        $this->action = $action;
+        $this->question['type'] = $type;
+        $this->question['subtype'] = $subType;
+        $this->setIsPartOfGroupQuestion();
+
+        $this->answerEditorId = Str::uuid()->__toString();
+        $this->questionEditorId = Str::uuid()->__toString();
+
+        $this->testName = $activeTest->name;
+        $this->testAuthors = $activeTest->AuthorsAsString;
+        $this->subjectId = $activeTest->subject_id;
+        $this->educationLevelId = $activeTest->education_level_id;
+    }
+
+    private function initializePropertyBag($activeTest): void
+    {
+        if ($this->isInfoscreenQuestion()) {
+            $questionOptions = [
+                'add_to_database'        => 0,
+                'decimal_score'          => 0,
+                'discuss'                => 0,
+                "is_open_source_content" => 0,
+                'note_type'              => 'NONE',
+                'score'                  => 0,
+                'all_or_nothing'         => false,
+            ];
+            foreach ($questionOptions as $key => $value) {
+                $this->question[$key] = $value;
+            }
+        }
+        $this->question['test_id'] = $activeTest->id;
+
+        if ($this->editModeForExistingQuestion()) {
+            if ($this->isPartOfGroupQuestion()) {
+                $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
+                $this->attachments = $tq->groupQuestion->attachments;
+                $q = $tq->question;
+            } else {
+                $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
+                $q = $tq->question;
+                $this->attachments = $q->attachments;
+            }
+            $q = (new QuestionHelper())->getTotalQuestion($q->question);
+            $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
+
+            $this->questionId = $q->question->getKey();
+            $this->question['bloom'] = $q->bloom;
+            $this->question['rtti'] = $q->rtti;
+            $this->question['miller'] = $q->miller;
+            $this->question['answer'] = $q->answer;
+            $this->question['question'] = $q->question->getQuestionHTML();
+            $this->question['score'] = $q->score;
+            $this->question['note_type'] = $q->note_type;
+            $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
+            $this->question['order'] = $tq->order;
+            $this->question['all_or_nothing'] = $q->all_or_nothing;
+
+            $this->educationLevelId = $q->education_level_id;
+
+            $this->initWithTags = $q->tags;
+
+            $this->attachmentsCount = count($this->attachments);
+
+            if ($this->isCompletionQuestion()) {
+                $this->question['question'] = $this->decodeCompletionTags($q);
+            }
+
+            if ($this->isMultipleChoiceQuestion()) {
+
+                $this->mcAnswerStruct = $q->multipleChoiceQuestionAnswers->map(function ($answer, $key) {
+                    return [
+                        'id'     => Uuid::uuid4(),
+                        'order'  => $key + 1,
+                        'score'  => $answer->score,
+                        'answer' => $answer->answer,
+                    ];
+                })->toArray();
+            }
+
+            if ($this->isTrueFalseQuestion()) {
+                $q->multipleChoiceQuestionAnswers->each(function ($answer) {
+                    if (Str::lower($answer->answer) === 'juist' && $answer->score > 0) {
+                        $this->tfTrue = true;
+                    }
+                    if (Str::lower($answer->answer) === 'onjuist' && $answer->score > 0) {
+                        $this->tfTrue = false;
+                    }
+                });
+            }
+
+            if ($this->isRankingQuestion()) {
+                $this->rankingAnswerStruct = $q->rankingQuestionAnswers->map(function ($answer, $key) {
+                    return [
+                        'id'     => Uuid::uuid4(),
+                        'order'  => $key + 1,
+                        'answer' => $answer->answer,
+                    ];
+                })->toArray();
+            }
+        }
+        if ($this->isMultipleChoiceQuestion()) {
+            $this->createMCAnswerStruct();
+        }
+
+        if ($this->isRankingQuestion()) {
+            $this->createRankingAnswerStruct();
+        }
     }
 }
