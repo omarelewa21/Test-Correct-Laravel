@@ -1,6 +1,6 @@
 <div class="flex flex-col flex-1">
     <p class="text-base">{{ __('Selecteer het domein en het subdomein waaraan deze vraag bijdraagt.') }}</p>
-    <div class="grid grid-cols-2 gap-x-4 mt-4">
+    <div class="grid grid-cols-2 gap-x-6 mt-4">
         <x-input.group label="{{ __('Domein') }}" class="text-base">
             <x-input.select-search name="domains"  wire:model="domainId"  placeholder="{{ __('Selecteer een waarde') }}">
 

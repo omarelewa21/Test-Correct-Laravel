@@ -5479,7 +5479,7 @@ document.addEventListener('alpine:init', function () {
       emptyOptionsMessage: (_config$emptyOptionsM = config.emptyOptionsMessage) !== null && _config$emptyOptionsM !== void 0 ? _config$emptyOptionsM : 'No results match your search.',
       focusedOptionIndex: null,
       name: config.name,
-      open: false,
+      open: true,
       options: {},
       placeholder: (_config$placeholder = config.placeholder) !== null && _config$placeholder !== void 0 ? _config$placeholder : 'Select an option',
       search: '',
