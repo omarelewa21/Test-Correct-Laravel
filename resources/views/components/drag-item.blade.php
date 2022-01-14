@@ -3,6 +3,7 @@
 'wireKey' => false,
 'useHandle' => false,
 'after' => false,
+'keepWidth' => false,
 ])
 
 
@@ -16,8 +17,10 @@
          wire:key="{{ $wireKey }}"
      @endif
     {{ $attributes }}
-        x-data=""
+    @if($keepWidth)
+     x-data=""
      :style="'width:' +$el.parentElement.offsetWidth+'px'"
+     @endif
 >
 
     <span id="span_{{ $attributes->get('id') }}" class="mr-3 flex items-center {{ $attributes->get('slotClasses') }}" >{!! $slot !!}</span>
