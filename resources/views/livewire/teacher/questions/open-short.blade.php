@@ -61,7 +61,7 @@
                                 <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                                         @click="$dispatch('delete-modal', ['question'])"
                                 >
-                                    <x-icon.trash/>
+                                    <x-icon.remove/>
                                     <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
                                 </button>
                             </div>
@@ -223,14 +223,16 @@
                                     @enderror
                                     <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
                                                  wireKey="option-{{ $answer->id }}" selid="drag-box"
-                                                 useHandle="true"
+                                                 :useHandle="true"
+                                                 :keepWidth="true"
                                                  class="flex px-0 py-0 border-0 bg-system-white"
                                                  slotClasses="w-full"
+                                                 sortIcon="reorder"
                                     >
                                         <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.answer" title="{{ $answer->score }}"/>
                                         <div class="w-20 text-center justify-center"><x-input.text class="w-12 text-center {{ $errorScoreClass }}" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.score"/></div>
                                             <x-slot name="after">
-                                                <x-icon.trash class="mx-2 w-4 {{ $disabledClass }}" id="trash_{{ $answer->order }}" wire:click="mcDelete('{{$answer->id}}')"></x-icon.trash>
+                                                <x-icon.remove class="mx-2 w-4 {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="mcDelete('{{$answer->id}}')"></x-icon.remove>
                                             </x-slot>
                                     </x-drag-item>
                                 @endforeach
@@ -316,14 +318,16 @@
                                     @enderror
                                     <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
                                                  wireKey="option-{{ $answer->id }}" selid="drag-box"
-                                                 class="flex px-0 py-0 border-0 bg-system-white"
+                                                 class="flex px-0 py-0 border-0 bg-system-white relative"
                                                  slotClasses="w-full mr-0 "
-                                                 dragClasses="flex form-input w-10 items-center border-l-0 rounded-tl-none rounded-bl-none"
-                                                 useHandle="true"
+                                                 dragClasses="absolute right-14 hover:text-primary transition"
+                                                 :useHandle="true"
+                                                 :keepWidth="true"
+                                                 sortIcon="reorder"
                                     >
-                                        <x-input.text class="w-full mr-0 {{ $errorAnswerClass }} border-r-0 rounded-tr-none rounded-br-none" wire:model.lazy="rankingAnswerStruct.{{ $loop->index }}.answer"/>
+                                        <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="rankingAnswerStruct.{{ $loop->index }}.answer"/>
                                         <x-slot name="after">
-                                            <x-icon.trash class="mx-2 w-4 {{ $disabledClass }}" id="trash_{{ $answer->order }}" wire:click="rankingDelete('{{$answer->id}}')"></x-icon.trash>
+                                            <x-icon.remove class="mx-2 w-4 {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="rankingDelete('{{$answer->id}}')"></x-icon.remove>
                                         </x-slot>
                                     </x-drag-item>
                                 @endforeach

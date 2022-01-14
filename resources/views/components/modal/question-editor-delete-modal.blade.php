@@ -44,7 +44,7 @@
                         <span>{{ __('test-take.Terug') }}</span>
                     </x-button.text-button>
                     <x-button.primary @click="$wire.removeItem(item, identifier); show = false;">
-                        <x-icon.trash/>
+                        <x-icon.remove/>
                         <span>{{ __('cms.delete') }}</span>
                     </x-button.primary>
                 </div>

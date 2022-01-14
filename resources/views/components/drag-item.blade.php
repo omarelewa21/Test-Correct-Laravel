@@ -3,6 +3,8 @@
 'wireKey' => false,
 'useHandle' => false,
 'after' => false,
+'keepWidth' => false,
+'sortIcon' => 'grab',
 ])
 
 
@@ -16,16 +18,26 @@
          wire:key="{{ $wireKey }}"
      @endif
     {{ $attributes }}
-        x-data=""
+    @if($keepWidth)
+     x-data=""
      :style="'width:' +$el.parentElement.offsetWidth+'px'"
+     @endif
 >
 
     <span id="span_{{ $attributes->get('id') }}" class="mr-3 flex items-center {{ $attributes->get('slotClasses') }}" >{!! $slot !!}</span>
     <div id="icon_{{ $attributes->get('id') }}" class="w-4 {{ $attributes->get('dragClasses') }}">
-        @if($useHandle)
-            <x-icon.grab wire:sortable.handle id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.grab>
+        @if($sortIcon == 'reorder')
+            @if($useHandle)
+                <x-icon.reorder wire:sortable.handle id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.reorder>
+            @else
+                <x-icon.reorder id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.reorder>
+            @endif
         @else
-            <x-icon.grab id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.grab>
+            @if($useHandle)
+                <x-icon.grab wire:sortable.handle id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.grab>
+            @else
+                <x-icon.grab id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.grab>
+            @endif
         @endif
     </div>
 

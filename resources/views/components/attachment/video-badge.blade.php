@@ -31,7 +31,7 @@
             <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
                     @click="$dispatch('delete-modal', ['video', '{{ $video }}'])"
             >
-                <x-icon.trash/>
+                <x-icon.remove/>
                 <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>
             </button>
         </div>

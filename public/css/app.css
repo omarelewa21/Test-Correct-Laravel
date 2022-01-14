@@ -1699,6 +1699,12 @@ video {
 .-right-1{
 	right: -0.25rem;
 }
+.right-12{
+	right: 3rem;
+}
+.right-14{
+	right: 3.5rem;
+}
 .z-10{
 	z-index: 10;
 }
@@ -2530,18 +2536,6 @@ video {
 }
 .rounded-br-md{
 	border-bottom-right-radius: 0.375rem;
-}
-.rounded-tl-none{
-	border-top-left-radius: 0px;
-}
-.rounded-bl-none{
-	border-bottom-left-radius: 0px;
-}
-.rounded-tr-none{
-	border-top-right-radius: 0px;
-}
-.rounded-br-none{
-	border-bottom-right-radius: 0px;
 }
 .border{
 	border-width: 1px;
