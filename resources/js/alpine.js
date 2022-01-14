@@ -31,7 +31,7 @@ document.addEventListener('alpine:init', () => {
 
         name: config.name,
 
-        open: true,
+        open: false,
 
         options: {},
 
