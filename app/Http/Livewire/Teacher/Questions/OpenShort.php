@@ -37,13 +37,13 @@ class OpenShort extends Component
 
     public $openTab = 1;
 
-    public $test_question_id;
+    public $testQuestionId;
 
-    public $test_id;
+    public $testId;
 
     public $owner;
 
-    public $group_question_question_id;
+    public $groupQuestionQuestionId;
 
     public $uploads = [];
 
@@ -59,7 +59,7 @@ class OpenShort extends Component
 
     public $isPartOfGroupQuestion = false;
 
-    protected $queryString = ['test_id', 'test_question_id', 'group_question_question_id', 'owner'];
+    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner'];
 
     public $videos = [];
 
@@ -218,7 +218,7 @@ class OpenShort extends Component
 
 //        dd([request('owner'), request('owner_id')]);
 
-        $activeTest = Test::whereUuid($this->test_id)->first();
+        $activeTest = Test::whereUuid($this->testId)->first();
 
 
         $activeTest->load('testAuthors', 'testAuthors.user');
@@ -256,11 +256,11 @@ class OpenShort extends Component
         if ($this->editModeForExistingQuestion()) {
 //            dd($this->test_question_id);
             if ($this->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->group_question_question_id)->first();
+                $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
                 $this->attachments = $tq->groupQuestion->attachments;
                 $q = $tq->question;
             } else {
-                $tq = TestQuestion::whereUuid($this->test_question_id)->first();
+                $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
                 $q = $tq->question;
                 $this->attachments = $q->attachments;
             }
@@ -625,7 +625,7 @@ class OpenShort extends Component
     private function saveNewQuestion()
     {
         if ($this->isPartOfGroupQuestion()) {
-            $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->test_question_id);
+            $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
             $cgqqr = new CreateGroupQuestionQuestionRequest($this->question);
 
             return (new GroupQuestionQuestionsController)->store($gqqm, $cgqqr);
@@ -669,12 +669,12 @@ class OpenShort extends Component
 
     public function returnToTestOverview(): void
     {
-        $url = sprintf("tests/view/%s", $this->test_id);
+        $url = sprintf("tests/view/%s", $this->testId);
         if ($this->isPartOfGroupQuestion()) {
             $url = sprintf(
                 'questions/view_group/%s/%s',
-                $this->test_id,
-                $this->test_question_id
+                $this->testId,
+                $this->testQuestionId
             );
         }
         $options = TemporaryLogin::buildValidOptionObject('page', $url);
@@ -698,8 +698,8 @@ class OpenShort extends Component
         $request->merge($this->question);
 
         if ($this->isPartOfGroupQuestion()) {
-            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->group_question_question_id)->first();
-            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->test_question_id); //'577fa17d-68b7-4695-ace5-e14afd913757');
+            $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
+            $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId); //'577fa17d-68b7-4695-ace5-e14afd913757');
 
             $response = (new GroupQuestionQuestionsController)->updateFromWithin(
                 $groupQuestionQuestionManager,
@@ -709,7 +709,7 @@ class OpenShort extends Component
 
         } else {
             $response = (new TestQuestionsController)->updateFromWithin(
-                TestQuestion::whereUUID($this->test_question_id)->first(),
+                TestQuestion::whereUUID($this->testQuestionId)->first(),
                 $request
             );
         }
@@ -821,13 +821,13 @@ class OpenShort extends Component
         if ($this->isPartOfGroupQuestion()) {
             $response = (new GroupAttachmentsController)
                 ->destroy(
-                    GroupQuestionQuestionManager::getInstanceWithUuid($this->test_question_id),
+                    GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId),
                    $attachment
                 );
         } else {
             $response = (new AttachmentsController)
                 ->destroy(
-                    TestQuestion::whereUuid($this->test_question_id)->first(),
+                    TestQuestion::whereUuid($this->testQuestionId)->first(),
                     $attachment
                 );
         }
@@ -929,7 +929,7 @@ class OpenShort extends Component
             $this->returnToTestOverview();
         }
 
-        $testQuestion = TestQuestion::whereUuid($this->test_question_id)->firstOrFail();
+        $testQuestion = TestQuestion::whereUuid($this->testQuestionId)->firstOrFail();
 
         $response = (new TestQuestionsController)->destroy($testQuestion);
 
@@ -977,12 +977,12 @@ class OpenShort extends Component
 
     private function editModeForExistingQuestion()
     {
-        if (empty($this->test_question_id)) {
+        if (empty($this->testQuestionId)) {
             return false;
         }
 
         if ($this->isPartOfGroupQuestion()) {
-            if (empty($this->group_question_question_id)) {
+            if (empty($this->groupQuestionQuestionId)) {
                 return false;
             }
         }
