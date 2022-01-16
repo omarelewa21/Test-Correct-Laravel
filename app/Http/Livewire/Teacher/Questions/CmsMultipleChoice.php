@@ -99,9 +99,8 @@ class CmsMultipleChoice
         return $this->instance->mcAnswerMinCount < count($this->instance->mcAnswerStruct);
     }
 
-    public function mcDelete($args)
+    public function mcDelete($id)
     {
-        $id = $args[0];
 
         if(!$this->mcCanDelete()) {
             return;

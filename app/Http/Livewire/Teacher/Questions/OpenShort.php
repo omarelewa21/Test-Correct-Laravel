@@ -218,6 +218,19 @@ class OpenShort extends Component
         return parent::__call($name, $arguments);
     }
 
+    public function forwardToService($method, $arg = false)
+    {
+        $obj = CmsFactory::create($this->question, $this);
+
+        if ($obj && method_exists($obj, $method)) {
+            if ($arg) {
+                return $obj->$method($arg);
+            }
+            return $obj->$method();
+        }
+
+    }
+
 
 
 
