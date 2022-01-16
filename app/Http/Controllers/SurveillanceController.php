@@ -224,8 +224,8 @@ class SurveillanceController extends Controller
     }
 
     public function destroy() {
-        cache()->forget(self::getCacheKey(Auth::user()->uuid));
-        cache()->forget(self::getCacheKey(Auth::user()->uuid), true);
+        cache()->forget(self::getCacheKey(Auth::user()));
+        cache()->forget(self::getCacheKey(Auth::user(), true));
     }
 
     private function getCacheKey($owner, $withoutParticipants = false) {
