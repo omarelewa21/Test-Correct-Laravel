@@ -119,32 +119,23 @@ class OpenShort extends Component
     protected function rules()
     {
         $rules = ['question.question' => 'required'];
-
         if ($this->requiresAnswer()) {
-            if($this->isMultipleChoiceQuestion()) {
-                $rules += [
-                    'question.answers' => 'required|array|min:2',
-                    'question.answers.*.score' => 'required|integer',
-                    'question.answers.*.answer' => 'required',
-                    'question.answers.*.order' => 'required',
-                    'question.score' => 'required|integer|min:1',
-                ];
-            } else if($this->isTrueFalseQuestion()){
-                $rules = [
-                    'question.answers' => 'required|array|min:2|max:2',
-                ];
-            } else if($this->isRankingQuestion()) {
-                $rules += [
-                    'question.answers' => 'required|array|min:2',
-                    'question.answers.*.answer' => 'required',
-                    'question.answers.*.order' => 'required',
-                ];
-            } else if ($this->isInfoscreenQuestion()){
+            $obj = CmsFactory::create($this->question, $this);
+            if ($obj) {
+                $obj->mergeRules($rules);
+                return $rules;
 
-            } else {
-                $rules += ['question.answer' => 'required'];
             }
+            if ($this->isRankingQuestion()) {
+                $rules += [
+                    'question.answers'          => 'required|array|min:2',
+                    'question.answers.*.answer' => 'required',
+                    'question.answers.*.order'  => 'required',
+                ];
+            }
+            $rules += ['question.answer' => 'required'];
         }
+
         return $rules;
     }
 
@@ -158,7 +149,7 @@ class OpenShort extends Component
 
     public function requiresAnswer()
     {
-        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion() || $this->isRankingQuestion();;
+        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion() || $this->isRankingQuestion();
     }
 
     protected function getListeners()
@@ -172,6 +163,11 @@ class OpenShort extends Component
 
     public function getQuestionTypeProperty()
     {
+        $obj = CmsFactory::create($this->question, $this);
+        if ($obj && method_exists($obj, 'getTranslationKey')) {
+            return __($obj->getTranslationKey());
+        }
+
         switch ($this->question['type']) {
             case 'CompletionQuestion':
                 if ($this->question['subtype'] == 'multi') {
@@ -186,14 +182,6 @@ class OpenShort extends Component
                     break;
                 }
                 $translation = 'cms.open-question-medium';
-                break;
-            case 'MultipleChoiceQuestion':
-                if(Str::lower($this->question['subtype']) == 'multiplechoice') {
-                    $translation = 'cms.multiplechoice-question-multiplechoice';
-                }
-                if(Str::lower($this->question['subtype']) == 'truefalse') {
-                    $translation = 'cms.multiplechoice-question-truefalse';
-                }
                 break;
             case 'RankingQuestion':
                $translation = 'cms.ranking-question';
@@ -216,111 +204,30 @@ class OpenShort extends Component
         $this->initializePropertyBag($activeTest);
     }
 
-    public function tfIsActiveAnswer($val)
+    public function __call($name, $arguments)
     {
-        return ($this->tfTrue == ($val == 'true'));
-    }
-
-    public function updatedTfTrue($val)
-    {
-        $this->tfTrue = ($val == 'true');
-    }
-
-    protected function prepareMultipleChoiceQuestionTrueFalseForSave()
-    {
-        $result = [];
-        $nr = 1;
-        foreach(['Juist' => true,'Onjuist' => false] as $option => $value){
-            $result[] = [
-                'order' => $nr,
-                'answer' => $option,
-                'score' => ($this->tfTrue === $value) ? $this->question['score'] : 0,
-            ];
-            $nr++;
-        }
-        $this->question['answers'] = $result;
-        unset($this->question['answer']);
-    }
-
-    // Multiple Choice
-    public function updateMCOrder($value)
-    {
-        foreach($value as $key => $item){
-            $this->mcAnswerStruct[((int) $item['value'])-1]['order'] = $item['order'];
+        if ($name === 'mcAddAnswerItem') {
+            $a = 'b';
         }
 
-        $this->mcAnswerStruct = array_values(collect($this->mcAnswerStruct)->sortBy('order')->toArray());
-        $this->createMCAnswerStruct();
+        $obj = CmsFactory::create($this->question, $this);
 
-    }
-
-    public function mcCanDelete()
-    {
-        return $this->mcAnswerMinCount < count($this->mcAnswerStruct);
-    }
-
-    public function mcDelete($id)
-    {
-        if(!$this->mcCanDelete()) {
-            return;
+        if ($obj && method_exists($obj, $name) ) {
+          return  $obj->$name($arguments);
         }
-
-        $this->mcAnswerStruct = array_values(collect($this->mcAnswerStruct)->filter(function($answer) use ($id){
-            return $answer['id'] != $id;
-        })->toArray());
-
-        if($this->mcAnswerMinCount < $this->mcAnswerCount) {
-            $this->mcAnswerCount--;
-        }
-        $this->createMCAnswerStruct();
+        return parent::__call($name, $arguments);
     }
 
-    public function mcAddAnswerItem()
-    {
-        $this->mcAnswerCount++;
-        $this->createMCAnswerStruct();
-    }
 
-    public function mcUpdated($name,$value)
-    {
-        $this->createMCAnswerStruct();
-    }
 
-    public function createMCAnswerStruct()
-    {
-        $result = [];
 
-        collect($this->mcAnswerStruct)->each(function ($value, $key) use (&$result) {
-            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer'], 'score' => (int) $value['score']];
-        })->toArray();
 
-        if(count($this->mcAnswerStruct) < $this->mcAnswerCount){
-            for($i = count($this->mcAnswerStruct);$i < $this->mcAnswerCount;$i++){
-                $result[] = (object)[
-                    'id'    => Uuid::uuid4(),
-                    'order' => $i+1,
-                    'score' => 0,
-                    'answer' => ''
-                ];
-            }
-        }
 
-        $this->mcAnswerStruct  = $result;
-        $this->mcAnswerCount = count($this->mcAnswerStruct);
-    }
 
-    protected function prepareMultipleChoiceQuestionMultipleChoiceForSave()
-    {
-        $this->question['answers'] = array_values(collect($this->mcAnswerStruct)->map(function($answer){
-            return [
-                'order' => $answer['order'],
-                'answer' => $answer['answer'],
-                'score' => $answer['score'],
-            ];
-        })->toArray());
-        unset($this->question['answer']);
-        $this->question['score'] = collect($this->mcAnswerStruct)->sum('score');
-    }
+
+
+
+
 
     // Ranking
 
@@ -401,6 +308,11 @@ class OpenShort extends Component
     }
     public function save()
     {
+        $obj = CmsFactory::create($this->question, $this);
+        if ($obj && method_exists($obj, 'prepareForSave')) {
+            $obj->prepareForSave();
+        }
+
 
         $prepareFunction = sprintf('prepare%s%sForSave',$this->question['type'], $this->question['subtype']);
         if(method_exists($this,$prepareFunction)){
@@ -423,6 +335,13 @@ class OpenShort extends Component
 
     public function updated($name, $value)
     {
+        $obj = CmsFactory::create($this->question, $this);
+        $method = 'updated'.ucfirst($name);
+        if ($obj && method_exists($obj, $method)) {
+            $obj->$method($value);
+        }
+
+
         if($this->isMultipleChoiceQuestion() && Str::startsWith($name,'mc')){
             $this->mcUpdated($name,$value);
         }
@@ -430,18 +349,12 @@ class OpenShort extends Component
 
     public function isInfoscreenQuestion()
     {
-        if (Str::lower($this->question['type']) !== 'infoscreenquestion') {
-            return false;
-        }
-        return true;
+        return !! (Str::lower($this->question['type']) == 'infoscreenquestion');
     }
 
     public function isRankingQuestion()
     {
-        if ($this->question['type'] !== 'RankingQuestion') {
-            return false;
-        }
-        return true;
+        return !! ($this->question['type'] == 'RankingQuestion');
     }
 
     public function isShortOpenQuestion()
@@ -892,20 +805,13 @@ class OpenShort extends Component
 
     private function initializePropertyBag($activeTest): void
     {
-        if ($this->isInfoscreenQuestion()) {
-            $questionOptions = [
-                'add_to_database'        => 0,
-                'decimal_score'          => 0,
-                'discuss'                => 0,
-                "is_open_source_content" => 0,
-                'note_type'              => 'NONE',
-                'score'                  => 0,
-                'all_or_nothing'         => false,
-            ];
-            foreach ($questionOptions as $key => $value) {
-                $this->question[$key] = $value;
-            }
+        $obj = CmsFactory::create($this->question, $this);
+
+        if ($obj && method_exists($obj, 'preparePropertyBag')) {
+            $obj->preparePropertyBag();
         }
+
+
         $this->question['test_id'] = $activeTest->id;
 
         if ($this->editModeForExistingQuestion()) {
@@ -943,27 +849,10 @@ class OpenShort extends Component
                 $this->question['question'] = $this->decodeCompletionTags($q);
             }
 
-            if ($this->isMultipleChoiceQuestion()) {
 
-                $this->mcAnswerStruct = $q->multipleChoiceQuestionAnswers->map(function ($answer, $key) {
-                    return [
-                        'id'     => Uuid::uuid4(),
-                        'order'  => $key + 1,
-                        'score'  => $answer->score,
-                        'answer' => $answer->answer,
-                    ];
-                })->toArray();
-            }
 
-            if ($this->isTrueFalseQuestion()) {
-                $q->multipleChoiceQuestionAnswers->each(function ($answer) {
-                    if (Str::lower($answer->answer) === 'juist' && $answer->score > 0) {
-                        $this->tfTrue = true;
-                    }
-                    if (Str::lower($answer->answer) === 'onjuist' && $answer->score > 0) {
-                        $this->tfTrue = false;
-                    }
-                });
+            if ($obj && method_exists($obj, 'initializePropertyBag')) {
+                $obj->initializePropertyBag($q);
             }
 
             if ($this->isRankingQuestion()) {
@@ -976,9 +865,12 @@ class OpenShort extends Component
                 })->toArray();
             }
         }
-        if ($this->isMultipleChoiceQuestion()) {
-            $this->createMCAnswerStruct();
+
+        if ($obj && method_exists($obj, 'createMCAnswerStruct')) {
+            $obj->createMCAnswerStruct();
         }
+
+
 
         if ($this->isRankingQuestion()) {
             $this->createRankingAnswerStruct();

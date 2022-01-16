@@ -45,4 +45,5 @@ return [
     'Stel je te rankgschikken items op' => 'Add the ranking items',
     'Is bovenstaande vraag/stelling juist of onjuist?' => 'Is the above question/statement true or false',
     'MultipleChoice Question Uitleg Text' => 'The multiple choice question can have more than one correct answer by giving points to it.',
+    'infoscreen-question' => 'Info Screen',
 ];
