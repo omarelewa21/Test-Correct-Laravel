@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 class CmsTrueFalse
 {
     private $instance;
+    public $requiresAnswer = true;
 
     public function __construct(OpenShort $instance) {
         $this->instance = $instance;
@@ -60,6 +61,6 @@ class CmsTrueFalse
     }
 
     public function getTranslationKey() {
-        return 'cms.multiplechoice-question-truefalse';
+        return __('cms.multiplechoice-question-truefalse');
     }
 }

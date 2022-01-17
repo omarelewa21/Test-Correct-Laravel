@@ -25,6 +25,10 @@ class CmsFactory
             return new CmsRanking($instance);
         }
 
+        if ($instance->question['type'] == 'OpenQuestion') {
+            return new CmsOpen($instance);
+        }
+
         return null;
     }
 }

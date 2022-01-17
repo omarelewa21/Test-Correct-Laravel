@@ -107,14 +107,17 @@ class OpenShort extends Component
         'test_id'                => '',
         'all_or_nothing'         => false,
     ];
+    /**
+     * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
+     */
+    private $obj;
 
     protected function rules()
     {
         $rules = ['question.question' => 'required'];
         if ($this->requiresAnswer()) {
-            $obj = CmsFactory::create($this);
-            if ($obj) {
-                $obj->mergeRules($rules);
+            if ($this->obj) {
+                $this->obj->mergeRules($rules);
                 return $rules;
             }
             $rules += ['question.answer' => 'required'];
@@ -133,7 +136,10 @@ class OpenShort extends Component
 
     public function requiresAnswer()
     {
-        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion() || $this->isRankingQuestion();
+        if ($this->obj && property_exists($this->obj, 'requiresAnswer')) {
+            return $this->obj->requiresAnswer;
+        }
+        return false;
     }
 
     protected function getListeners()
@@ -147,9 +153,8 @@ class OpenShort extends Component
 
     public function getQuestionTypeProperty()
     {
-        $obj = CmsFactory::create($this);
-        if ($obj && method_exists($obj, 'getTranslationKey')) {
-            return __($obj->getTranslationKey());
+        if ($this->obj && method_exists($this->obj, 'getTranslationKey')) {
+            return __($this->obj->getTranslationKey());
         }
 
         switch ($this->question['type']) {
@@ -175,6 +180,11 @@ class OpenShort extends Component
         return __($translation);
     }
 
+    public function booted()
+    {
+        $this->obj = CmsFactory::create($this);
+    }
+
     // @TODO mag ik deze test zien;
     // @TODO mag ik deze testQuestion editen?
     // @TODO is deze test uberhaupt onderdeel van deze test?
@@ -182,40 +192,37 @@ class OpenShort extends Component
     {
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
         $this->initializeContext($action, $type, $subType, $activeTest);
+        $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
     }
 
     public function __call($name, $arguments)
     {
-        $obj = CmsFactory::create($this);
-        if ($obj && method_exists($obj, $name) ) {
-          return  $obj->$name($arguments);
+        if ($this->obj && method_exists($this->obj, $name) ) {
+          return  $this->obj->$name($arguments);
         }
         return parent::__call($name, $arguments);
     }
 
     public function forwardToService($method, $arg = false)
     {
-        $obj = CmsFactory::create($this);
-
-        if ($obj && is_array($method) && method_exists($obj, 'arrayCallback')) {
-            return $obj->arrayCallback($method);
+        if ($this->obj && is_array($method) && method_exists($this->obj, 'arrayCallback')) {
+            return $this->obj->arrayCallback($method);
         }
 
-        if ($obj && method_exists($obj, $method)) {
+        if ($this->obj && method_exists($this->obj, $method)) {
             if ($arg) {
-                return $obj->$method($arg);
+                return $this->obj->$method($arg);
             }
-            return $obj->$method();
+            return $this->obj->$method();
         }
 
     }
 
     public function save()
     {
-        $obj = CmsFactory::create($this);
-        if ($obj && method_exists($obj, 'prepareForSave')) {
-            $obj->prepareForSave();
+        if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
+            $this->obj->prepareForSave();
         }
 
         $this->validateAndReturnErrorsToTabOne();
@@ -235,10 +242,9 @@ class OpenShort extends Component
 
     public function updated($name, $value)
     {
-        $obj = CmsFactory::create($this);
         $method = 'updated'.ucfirst($name);
-        if ($obj && method_exists($obj, $method)) {
-            $obj->$method($value);
+        if ($this->obj && method_exists($this->obj, $method)) {
+            $this->obj->$method($value);
         }
 
     }
@@ -340,6 +346,10 @@ class OpenShort extends Component
 
     public function render()
     {
+        if ($this->obj && method_exists($this->obj, 'getTemplate')) {
+            return view('livewire.teacher.questions.'.$this->obj->getTemplate())->layout('layouts.base');
+        }
+
         return view('livewire.teacher.questions.open-short')->layout('layouts.base');
     }
 
@@ -701,10 +711,8 @@ class OpenShort extends Component
 
     private function initializePropertyBag($activeTest): void
     {
-        $obj = CmsFactory::create($this);
-
-        if ($obj && method_exists($obj, 'preparePropertyBag')) {
-            $obj->preparePropertyBag();
+        if ($this->obj && method_exists($this->obj, 'preparePropertyBag')) {
+            $this->obj->preparePropertyBag();
         }
 
         $this->question['test_id'] = $activeTest->id;
@@ -749,13 +757,13 @@ class OpenShort extends Component
                 $this->question['question'] = $this->decodeCompletionTags($q);
             }
 
-            if ($obj && method_exists($obj, 'initializePropertyBag')) {
-                $obj->initializePropertyBag($q);
+            if ($this->obj && method_exists($this->obj, 'initializePropertyBag')) {
+                $this->obj->initializePropertyBag($q);
             }
         }
 
-        if ($obj && method_exists($obj, 'createAnswerStruct')) {
-            $obj->createAnswerStruct();
+        if ($this->obj && method_exists($this->obj, 'createAnswerStruct')) {
+            $this->obj->createAnswerStruct();
         }
     }
 }

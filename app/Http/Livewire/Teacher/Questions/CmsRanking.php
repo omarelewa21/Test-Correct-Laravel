@@ -12,6 +12,7 @@ class CmsRanking
 
     private $instance;
     private $answerCount = 2;
+    public $requiresAnswer = true;
 
     public function __construct(OpenShort $instance) {
         $this->instance = $instance;
@@ -19,7 +20,7 @@ class CmsRanking
     }
 
     public function getTranslationKey() {
-        return 'cms.ranking-question';
+        return __('cms.ranking-question');
     }
 
     public function initializePropertyBag($q)

@@ -12,6 +12,8 @@ class CmsMultipleChoice
 
     private $instance;
     private $answerCount = 2;
+    public $requiresAnswer = true;
+
 
     public function __construct(OpenShort $instance) {
         $this->instance = $instance;
@@ -74,7 +76,7 @@ class CmsMultipleChoice
 
 
     public function getTranslationKey() {
-        return 'cms.multiplechoice-question-multiplechoice';
+        return __('cms.multiplechoice-question-multiplechoice');
     }
 
     // Multiple Choice

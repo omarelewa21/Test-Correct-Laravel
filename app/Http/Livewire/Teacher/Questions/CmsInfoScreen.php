@@ -30,7 +30,7 @@ class CmsInfoScreen
 
 
     public function getTranslationKey() {
-        return 'cms.infoscreen-question';
+        return __('cms.infoscreen-question');
     }
 
 
