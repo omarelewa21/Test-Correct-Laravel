@@ -38,7 +38,7 @@
                             <span class="align-middle px-1.5">{{ ++$key }}</span>
                         </section>
                         <div class="max-h-4 flex justify-center -ml-2 mt-1">
-                            @if($q['closeable'])
+                            @if($q['closeable']||$q['closeable_audio'])
                                 <x-icon.unlocked/>
                             @endif
                         </div>

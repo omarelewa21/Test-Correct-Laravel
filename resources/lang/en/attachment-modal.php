@@ -9,6 +9,8 @@ return [
 
     'Let op' => 'look out',
 
+    'Groupquestion attachment error 1' => 'Within a groupquestion you may not combine a one time play with a timer.',
+
 ];
 
 
