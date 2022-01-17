@@ -229,8 +229,8 @@
                                                  slotClasses="w-full"
                                                  sortIcon="reorder"
                                     >
-                                        <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.answer" title="{{ $answer->score }}"/>
-                                        <div class="w-20 text-center justify-center"><x-input.text class="w-12 text-center {{ $errorScoreClass }}" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.score"/></div>
+                                        <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.answer"/>
+                                        <div class="w-20 text-center justify-center"><x-input.text class="w-12 text-center {{ $errorScoreClass }}" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.score" title="{{ $answer->score }}"/></div>
                                             <x-slot name="after">
                                                 <x-icon.remove class="mx-2 w-4 {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="mcDelete('{{$answer->id}}')"></x-icon.remove>
                                             </x-slot>
