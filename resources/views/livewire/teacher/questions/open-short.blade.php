@@ -87,7 +87,7 @@
                         {{ __('Instellingen') }}
                     </x-button.text-button>
                 </div>
-                @if($this->test_question_id)
+                @if($this->testQuestionId)
                 <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}">
                     <x-button.text-button
                         style="color:inherit"
