@@ -34,7 +34,7 @@
                         </div>
                         @endif
                         <div class="inline-flex mx-2.5">
-                            @if($this->question['closable'])
+                            @if($this->question['closeable'])
                                 <x-icon.locked/>
                             @else
                                 <x-icon.unlocked class="text-midgrey"/>
@@ -205,7 +205,7 @@
                                         $disabledClass = "";
                                     }
                                 @endphp
-                                @foreach($mcAnswerStruct as $answer)
+                                @foreach($cmsPropertyBag['answerStruct'] as $answer)
                                     @php
                                         $answer = (object) $answer;
                                         $errorAnswerClass = '';
@@ -229,8 +229,8 @@
                                                  slotClasses="w-full"
                                                  sortIcon="reorder"
                                     >
-                                        <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.answer" title="{{ $answer->score }}"/>
-                                        <div class="w-20 text-center justify-center"><x-input.text class="w-12 text-center {{ $errorScoreClass }}" wire:model.lazy="mcAnswerStruct.{{ $loop->index }}.score"/></div>
+                                        <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer" title="{{ $answer->score }}"/>
+                                        <div class="w-20 text-center justify-center"><x-input.text class="w-12 text-center {{ $errorScoreClass }}" wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"/></div>
                                             <x-slot name="after">
                                                 <x-icon.remove class="mx-2 w-4 {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="forwardToService('mcDelete', '{{$answer->id}}')"></x-icon.remove>
                                             </x-slot>
@@ -387,10 +387,10 @@
                             </div>
                         @endif
 
-                        <x-input.toggle-row-with-title wire:model="question.closable"
+                        <x-input.toggle-row-with-title wire:model="question.closeable"
                             :toolTip="__('cms.close_after_answer_tooltip_text')"
-                           class="{{ $this->isClosableDisabled() ? 'text-disabled' : '' }}"
-                           :disabled="$this->isClosableDisabled()"
+                           class="{{ $this->isCloseableDisabled() ? 'text-disabled' : '' }}"
+                           :disabled="$this->isCloseableDisabled()"
                         >
                             <x-icon.locked></x-icon.locked>
                             <span class="bold">{{ __('Sluiten na beantwoorden') }}</span>
@@ -444,7 +444,12 @@
                 </x-content-section>
 
                 <x-content-section class="taxonomie"
-                                   x-data="{ rtti:{{ $question['rtti'] ? 'true': 'false'  }}, bloom: {{ $question['bloom'] ? 'true': 'false' }}, miller: {{ $question['miller'] ? 'true': 'false' }} }">
+                                   x-data="{
+                                       rtti:{{ $question['rtti'] ? 'true': 'false'  }},
+                                       bloom: {{ $question['bloom'] ? 'true': 'false' }},
+                                       miller: {{ $question['miller'] ? 'true': 'false' }}
+                                   }"
+                >
                     <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
                     <p class="text-base">{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
                     <div class="grid grid-cols-3 gap-4">

@@ -83,21 +83,19 @@ class OpenShort extends Component
 
     public $attachmentsCount = 0;
 
-    public $mcAnswerStruct = [];
-    public $mcAnswerCount = 2;
-    public $mcAnswerMinCount = 2;
-
     public $tfTrue = true;
 
     public $rankingAnswerStruct = [];
     public $rankingAnswerCount = 2;
     public $rankingAnswerMinCount = 2;
 
+    public $cmsPropertyBag = [];
+
     public $question = [
         'add_to_database'        => 1,
         'answer'                 => '',
         'bloom'                  => '',
-        'closable'               => 0,
+        'closeable'              => 0,
         'decimal_score'          => 0,
         'discuss'                => 1,
         'maintain_position'      => 0,
@@ -113,7 +111,7 @@ class OpenShort extends Component
         'type'                   => '',
         "attainments"            => [],
         "test_id"                => '',
-        'all_or_nothing'        => false,
+        'all_or_nothing'         => false,
     ];
 
     protected function rules()
@@ -206,10 +204,6 @@ class OpenShort extends Component
 
     public function __call($name, $arguments)
     {
-        if ($name === 'mcAddAnswerItem') {
-            $a = 'b';
-        }
-
         $obj = CmsFactory::create($this->question, $this);
 
         if ($obj && method_exists($obj, $name) ) {
@@ -222,6 +216,10 @@ class OpenShort extends Component
     {
         $obj = CmsFactory::create($this->question, $this);
 
+        if ($obj && is_array($method) && method_exists($obj, 'arrayCallback')) {
+            return $obj->arrayCallback($method);
+        }
+
         if ($obj && method_exists($obj, $method)) {
             if ($arg) {
                 return $obj->$method($arg);
@@ -230,17 +228,6 @@ class OpenShort extends Component
         }
 
     }
-
-
-
-
-
-
-
-
-
-
-
 
     // Ranking
 
@@ -354,10 +341,6 @@ class OpenShort extends Component
             $obj->$method($value);
         }
 
-
-        if($this->isMultipleChoiceQuestion() && Str::startsWith($name,'mc')){
-            $this->mcUpdated($name,$value);
-        }
     }
 
     public function isInfoscreenQuestion()
@@ -527,7 +510,7 @@ class OpenShort extends Component
         return $response;
     }
 
-    public function isClosableDisabled($asText = false)
+    public function isCloseableDisabled($asText = false)
     {
         if($asText){
             return 'false';
@@ -775,7 +758,7 @@ class OpenShort extends Component
         return preg_replace_callback($searchPattern, $replacementFunction, $question->getQuestionHtml());
     }
 
-    private function isPartOfGroupQuestion(): bool
+    public function isPartOfGroupQuestion(): bool
     {
         return $this->isPartOfGroupQuestion;
     }
@@ -824,7 +807,6 @@ class OpenShort extends Component
             $obj->preparePropertyBag();
         }
 
-
         $this->question['test_id'] = $activeTest->id;
 
         if ($this->editModeForExistingQuestion()) {
@@ -851,6 +833,11 @@ class OpenShort extends Component
             $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
             $this->question['order'] = $tq->order;
             $this->question['all_or_nothing'] = $q->all_or_nothing;
+            $this->question['closeable'] = $q->closeable;
+            $this->question['maintain_position'] = $q->maintain_position;
+            $this->question['add_to_database'] = $q->add_to_database;
+            $this->question['discuss'] = $q->discuss;
+            $this->question['decimal_score'] = $q->decimal_score;
 
             $this->educationLevelId = $q->education_level_id;
 
@@ -882,8 +869,6 @@ class OpenShort extends Component
         if ($obj && method_exists($obj, 'createMCAnswerStruct')) {
             $obj->createMCAnswerStruct();
         }
-
-
 
         if ($this->isRankingQuestion()) {
             $this->createRankingAnswerStruct();
