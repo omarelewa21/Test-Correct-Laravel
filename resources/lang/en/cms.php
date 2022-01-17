@@ -13,7 +13,7 @@ return [
     'open-question-short'             => 'Open question short',
     'open-question-medium'            => 'Open question long',
     'multiplechoice-question-multiplechoice' => 'Multiplechoice question',
-    'multiplechoice-question-truefalse' => 'True/ false question',
+    'multiplechoice-question-truefalse' => 'True/false question',
     'ranking-question'                  => 'Rangking question',
     'Vraagstelling'                   => 'Question',
     'Antwoordmodel'                   => 'Answer model',

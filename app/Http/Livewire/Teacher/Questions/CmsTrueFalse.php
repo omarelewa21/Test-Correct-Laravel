@@ -21,23 +21,24 @@ class CmsTrueFalse
 
     public function updatedTfTrue($val)
     {
-        $this->instance->tfTrue = ($val == 'true');
+        $this->instance->cmsPropertyBag['tfTrue'] = ($val == 'true');
     }
 
     public function tfIsActiveAnswer($args)
     {
         $val = $args[0];
-        return ($this->instance->tfTrue == ($val == 'true'));
+        return ($this->instance->cmsPropertyBag['tfTrue'] == ($val == 'true'));
     }
 
-    public function initializePropertyBag($q){
-
+    public function initializePropertyBag($q)
+    {
         $q->multipleChoiceQuestionAnswers->each(function ($answer) {
             if (Str::lower($answer->answer) === 'juist' && $answer->score > 0) {
-                $this->instance->tfTrue = true;
+                $this->instance->cmsPropertyBag['tfTrue'] = 'true';
             }
             if (Str::lower($answer->answer) === 'onjuist' && $answer->score > 0) {
-                $this->instance->tfTrue = false;
+
+                $this->instance->cmsPropertyBag['tfTrue'] = 'false';
             }
         });
     }
@@ -46,11 +47,11 @@ class CmsTrueFalse
     {
         $result = [];
         $nr = 1;
-        foreach(['Juist' => true,'Onjuist' => false] as $option => $value){
+        foreach(['Juist' => 'true','Onjuist' => 'false'] as $option => $value){
             $result[] = [
                 'order' => $nr,
                 'answer' => $option,
-                'score' => ($this->instance->tfTrue === $value) ? $this->instance->question['score'] : 0,
+                'score' => ($this->instance->cmsPropertyBag['tfTrue'] === $value) ? $this->instance->question['score'] : 0,
             ];
             $nr++;
         }
@@ -61,7 +62,4 @@ class CmsTrueFalse
     public function getTranslationKey() {
         return 'cms.multiplechoice-question-truefalse';
     }
-
-
-
 }

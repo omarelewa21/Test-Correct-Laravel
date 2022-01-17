@@ -6,7 +6,7 @@ use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
 use tcCore\TestQuestion;
 
-class CmsMultipleChoice
+class CmsRanking
 {
     CONST MIN_ANSWER_COUNT = 2;
 
@@ -18,69 +18,27 @@ class CmsMultipleChoice
         $this->setAnswerStruct();
     }
 
-    public function mergeRules(&$rules)
-    {
-        $rules +=
-            [
-                'question.answers'          => 'required|array|min:2',
-                'question.answers.*.score'  => 'required|integer',
-                'question.answers.*.answer' => 'required',
-                'question.answers.*.order'  => 'required',
-                'question.score'            => 'required|integer|min:1',
-
-        ];
+    public function getTranslationKey() {
+        return 'cms.ranking-question';
     }
 
     public function initializePropertyBag($q)
     {
+
     }
 
-    public function prepareForSave()
+    public function mergeRules(&$rules)
     {
-        $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function($answer){
-            return [
-                'order' => $answer['order'],
-                'answer' => $answer['answer'],
-                'score' => $answer['score'],
-            ];
-        })->toArray());
-        unset($this->instance->question['answer']);
-        $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->sum('score');
-
+        $rules += [
+            'question.answers'          => 'required|array|min:2',
+            'question.answers.*.answer' => 'required',
+            'question.answers.*.order'  => 'required',
+        ];
     }
 
-    public function createAnswerStruct()
+    public function updateRankingOrder($value)
     {
-        $result = [];
-
-        collect($this->instance->cmsPropertyBag['answerStruct'])->each(function ($value, $key) use (&$result) {
-            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer'], 'score' => (int) $value['score']];
-        })->toArray();
-
-        if(count($this->instance->cmsPropertyBag['answerStruct']) < $this->answerCount){
-            for($i = count($this->instance->cmsPropertyBag['answerStruct']);$i < $this->answerCount; $i++){
-                $result[] = (object)[
-                    'id'    => Uuid::uuid4(),
-                    'order' => $i+1,
-                    'score' => 0,
-                    'answer' => ''
-                ];
-            }
-        }
-
-        $this->instance->cmsPropertyBag['answerStruct']  = $result;
-        $this->answerCount = count($this->instance->cmsPropertyBag['answerStruct']);
-    }
-
-
-    public function getTranslationKey() {
-        return 'cms.multiplechoice-question-multiplechoice';
-    }
-
-    // Multiple Choice
-    public function updateMCOrder($value)
-    {
-        foreach($value as $item){
+        foreach($value as $key => $item){
             $this->instance->cmsPropertyBag['answerStruct'][((int) $item['value'])-1]['order'] = $item['order'];
         }
 
@@ -96,7 +54,6 @@ class CmsMultipleChoice
 
     public function delete($id)
     {
-
         if(!$this->canDelete()) {
             return;
         }
@@ -117,14 +74,47 @@ class CmsMultipleChoice
         $this->createAnswerStruct();
     }
 
-    public function mcUpdated($args)
+    public function rankingUpdated($name,$value)
     {
         $this->createAnswerStruct();
     }
 
+    public function createAnswerStruct()
+    {
+        $result = [];
+
+        collect($this->instance->cmsPropertyBag['answerStruct'])->each(function ($value, $key) use (&$result) {
+            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer']];
+        })->toArray();
+
+        if(count($this->instance->cmsPropertyBag['answerStruct']) < $this->answerCount){
+            for($i = count($this->instance->cmsPropertyBag['answerStruct']);$i < $this->answerCount;$i++){
+                $result[] = (object)[
+                    'id'    => Uuid::uuid4(),
+                    'order' => $i+1,
+                    'answer' => ''
+                ];
+            }
+        }
+
+        $this->instance->cmsPropertyBag['answerStruct']  = $result;
+        $this->answerCount = count($this->instance->cmsPropertyBag['answerStruct']);
+    }
+
+    public function prepareForSave()
+    {
+        $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function($answer){
+            return [
+                'order' => $answer['order'],
+                'answer' => $answer['answer'],
+            ];
+        })->toArray());
+        unset($this->instance->question['answer']);
+    }
+
     public function arrayCallback($args)
     {
-        $this->updateMCOrder($args);
+        $this->updateRankingOrder($args);
     }
 
     private function setAnswerStruct()
@@ -138,16 +128,14 @@ class CmsMultipleChoice
                 $q = $tq->question;
             }
 
-            $this->instance->cmsPropertyBag['answerStruct'] = $q->multipleChoiceQuestionAnswers->map(function ($answer, $key) {
+            $this->instance->cmsPropertyBag['answerStruct'] = $q->rankingQuestionAnswers->map(function ($answer, $key) {
                 return [
                     'id'     => Uuid::uuid4(),
                     'order'  => $key + 1,
-                    'score'  => $answer->score,
                     'answer' => $answer->answer,
                 ];
             })->toArray();
         }
-
         $this->answerCount = count($this->instance->cmsPropertyBag['answerStruct']);
     }
 }

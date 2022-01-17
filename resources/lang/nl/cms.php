@@ -11,7 +11,7 @@ return [
     'open-question-short'              => 'Open vraag kort',
     'open-question-medium'             => 'Open vraag lang',
     'multiplechoice-question-multiplechoice' => 'Meerkeuze vraag',
-    'multiplechoice-question-truefalse' => 'Juist/ onjuist vraag',
+    'multiplechoice-question-truefalse' => 'Juist/onjuist vraag',
     'ranking-question'                  => 'Rangschik vraag',
     'Vraagstelling'                    => 'Vraagstelling',
     'Antwoordmodel'                    => 'Antwoordmodel',

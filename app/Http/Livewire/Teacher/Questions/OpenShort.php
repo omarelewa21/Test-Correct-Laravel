@@ -83,12 +83,6 @@ class OpenShort extends Component
 
     public $attachmentsCount = 0;
 
-    public $tfTrue = true;
-
-    public $rankingAnswerStruct = [];
-    public $rankingAnswerCount = 2;
-    public $rankingAnswerMinCount = 2;
-
     public $cmsPropertyBag = [];
 
     public $question = [
@@ -118,18 +112,10 @@ class OpenShort extends Component
     {
         $rules = ['question.question' => 'required'];
         if ($this->requiresAnswer()) {
-            $obj = CmsFactory::create($this->question, $this);
+            $obj = CmsFactory::create($this);
             if ($obj) {
                 $obj->mergeRules($rules);
                 return $rules;
-
-            }
-            if ($this->isRankingQuestion()) {
-                $rules += [
-                    'question.answers'          => 'required|array|min:2',
-                    'question.answers.*.answer' => 'required',
-                    'question.answers.*.order'  => 'required',
-                ];
             }
             $rules += ['question.answer' => 'required'];
         }
@@ -161,7 +147,7 @@ class OpenShort extends Component
 
     public function getQuestionTypeProperty()
     {
-        $obj = CmsFactory::create($this->question, $this);
+        $obj = CmsFactory::create($this);
         if ($obj && method_exists($obj, 'getTranslationKey')) {
             return __($obj->getTranslationKey());
         }
@@ -181,9 +167,6 @@ class OpenShort extends Component
                 }
                 $translation = 'cms.open-question-medium';
                 break;
-            case 'RankingQuestion':
-               $translation = 'cms.ranking-question';
-               break;
             default:
                 $translation = 'cms.open-question';
                 break;
@@ -204,8 +187,7 @@ class OpenShort extends Component
 
     public function __call($name, $arguments)
     {
-        $obj = CmsFactory::create($this->question, $this);
-
+        $obj = CmsFactory::create($this);
         if ($obj && method_exists($obj, $name) ) {
           return  $obj->$name($arguments);
         }
@@ -214,7 +196,7 @@ class OpenShort extends Component
 
     public function forwardToService($method, $arg = false)
     {
-        $obj = CmsFactory::create($this->question, $this);
+        $obj = CmsFactory::create($this);
 
         if ($obj && is_array($method) && method_exists($obj, 'arrayCallback')) {
             return $obj->arrayCallback($method);
@@ -229,95 +211,13 @@ class OpenShort extends Component
 
     }
 
-    // Ranking
-
-    public function updateRankingOrder($value)
-    {
-        foreach($value as $key => $item){
-            $this->rankingAnswerStruct[((int) $item['value'])-1]['order'] = $item['order'];
-        }
-
-        $this->rankingAnswerStruct = array_values(collect($this->rankingAnswerStruct)->sortBy('order')->toArray());
-        $this->createRankingAnswerStruct();
-
-    }
-
-    public function rankingCanDelete()
-    {
-        return $this->rankingAnswerMinCount < count($this->rankingAnswerStruct);
-    }
-
-    public function rankingDelete($id)
-    {
-        if(!$this->rankingCanDelete()) {
-            return;
-        }
-
-        $this->rankingAnswerStruct = array_values(collect($this->rankingAnswerStruct)->filter(function($answer) use ($id){
-            return $answer['id'] != $id;
-        })->toArray());
-
-        if($this->rankingAnswerMinCount < $this->rankingAnswerCount) {
-            $this->rankingAnswerCount--;
-        }
-        $this->createRankingAnswerStruct();
-    }
-
-    public function rankingAddAnswerItem()
-    {
-        $this->rankingAnswerCount++;
-        $this->createRankingAnswerStruct();
-    }
-
-    public function rankingUpdated($name,$value)
-    {
-        $this->createRankingAnswerStruct();
-    }
-
-    public function createRankingAnswerStruct()
-    {
-        $result = [];
-
-        collect($this->rankingAnswerStruct)->each(function ($value, $key) use (&$result) {
-            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer']];
-        })->toArray();
-
-        if(count($this->rankingAnswerStruct) < $this->rankingAnswerCount){
-            for($i = count($this->rankingAnswerStruct);$i < $this->rankingAnswerCount;$i++){
-                $result[] = (object)[
-                    'id'    => Uuid::uuid4(),
-                    'order' => $i+1,
-                    'answer' => ''
-                ];
-            }
-        }
-
-        $this->rankingAnswerStruct  = $result;
-        $this->rankingAnswerCount = count($this->rankingAnswerStruct);
-    }
-
-    protected function prepareRankingQuestionRankingForSave()
-    {
-        $this->question['answers'] = array_values(collect($this->rankingAnswerStruct)->map(function($answer){
-            return [
-                'order' => $answer['order'],
-                'answer' => $answer['answer'],
-            ];
-        })->toArray());
-        unset($this->question['answer']);
-    }
     public function save()
     {
-        $obj = CmsFactory::create($this->question, $this);
+        $obj = CmsFactory::create($this);
         if ($obj && method_exists($obj, 'prepareForSave')) {
             $obj->prepareForSave();
         }
 
-
-        $prepareFunction = sprintf('prepare%s%sForSave',$this->question['type'], $this->question['subtype']);
-        if(method_exists($this,$prepareFunction)){
-            $this->$prepareFunction();
-        }
         $this->validateAndReturnErrorsToTabOne();
 
         if ($this->action == 'edit') {
@@ -335,7 +235,7 @@ class OpenShort extends Component
 
     public function updated($name, $value)
     {
-        $obj = CmsFactory::create($this->question, $this);
+        $obj = CmsFactory::create($this);
         $method = 'updated'.ucfirst($name);
         if ($obj && method_exists($obj, $method)) {
             $obj->$method($value);
@@ -801,7 +701,7 @@ class OpenShort extends Component
 
     private function initializePropertyBag($activeTest): void
     {
-        $obj = CmsFactory::create($this->question, $this);
+        $obj = CmsFactory::create($this);
 
         if ($obj && method_exists($obj, 'preparePropertyBag')) {
             $obj->preparePropertyBag();
@@ -849,29 +749,13 @@ class OpenShort extends Component
                 $this->question['question'] = $this->decodeCompletionTags($q);
             }
 
-
-
             if ($obj && method_exists($obj, 'initializePropertyBag')) {
                 $obj->initializePropertyBag($q);
             }
-
-            if ($this->isRankingQuestion()) {
-                $this->rankingAnswerStruct = $q->rankingQuestionAnswers->map(function ($answer, $key) {
-                    return [
-                        'id'     => Uuid::uuid4(),
-                        'order'  => $key + 1,
-                        'answer' => $answer->answer,
-                    ];
-                })->toArray();
-            }
         }
 
-        if ($obj && method_exists($obj, 'createMCAnswerStruct')) {
-            $obj->createMCAnswerStruct();
-        }
-
-        if ($this->isRankingQuestion()) {
-            $this->createRankingAnswerStruct();
+        if ($obj && method_exists($obj, 'createAnswerStruct')) {
+            $obj->createAnswerStruct();
         }
     }
 }

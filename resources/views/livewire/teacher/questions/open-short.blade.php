@@ -206,7 +206,7 @@
                                 </div>
                                 @php
                                     $disabledClass = "icon disabled";
-                                    if($this->forwardToService('mcCanDelete')) {
+                                    if($this->forwardToService('canDelete')) {
                                         $disabledClass = "";
                                     }
                                 @endphp
@@ -245,13 +245,13 @@
                                         <x-slot name="after">
                                             <x-icon.remove class="cursor-pointer {{ $disabledClass }}"
                                                            id="remove_{{ $answer->order }}"
-                                                           wire:click="forwardToService('mcDelete', '{{$answer->id}}')"/>
+                                                           wire:click="forwardToService('delete', '{{$answer->id}}')"/>
                                         </x-slot>
                                     </x-drag-item>
                                 @endforeach
                             </div>
                             <div class="flex flex-col space-y-2 w-full">
-                                <x-button.primary class="mt-3 justify-center" wire:click="forwardToService('mcAddAnswerItem')">
+                                <x-button.primary class="mt-3 justify-center" wire:click="forwardToService('addAnswerItem')">
                                     <x-icon.plus/>
                                     <span >
                                     {{ __('cms.Item toevoegen') }}
@@ -280,8 +280,10 @@
                                                for="link{{ $optionValue }}"
                                                class="bg-off-white border border-off-white rounded-lg trueFalse bold transition duration-150
                                           @if($loop->iteration == 1) true border-r-0 @else false border-l-0 @endif
-                                               {!! $this->tfIsActiveAnswer($optionValue) ? 'active' : '' !!}">
-                                            <input wire:model="tfTrue"
+                                               {!! $cmsPropertyBag['tfTrue'] === $optionValue ? 'active' : '' !!}"
+                                        >
+                                            <input
+                                                    wire:model="cmsPropertyBag.tfTrue"
                                                    id="link{{ $optionValue }}"
                                                    name="Question_TrueFalse"
                                                    type="radio"
@@ -308,18 +310,18 @@
                                 {{ __('cms.Ranking Question Uitleg Text') }}
                             </div>
                             <div class="flex flex-col space-y-2 w-full mt-4"
-                                 wire:sortable="updateRankingOrder">
+                                 wire:sortable="forwardToService('updateRankingOrder')">
                                 <div class="flex px-0 py-0 border-0 bg-system-white">
                                     <div class="w-full mr-2">{{ __('cms.Stel je te rankgschikken items op') }}</div>
                                     <div class="w-20"></div>
                                 </div>
                                 @php
                                     $disabledClass = "icon disabled";
-                                    if($this->rankingCanDelete()) {
+                                    if($this->forwardToService('canDelete')) {
                                         $disabledClass = "";
                                     }
                                 @endphp
-                                @foreach($rankingAnswerStruct as $answer)
+                                @foreach($cmsPropertyBag['answerStruct'] as $answer)
                                     @php
                                         $answer = (object) $answer;
                                         $errorAnswerClass = '';
@@ -338,15 +340,15 @@
                                                  :keepWidth="true"
                                                  sortIcon="reorder"
                                     >
-                                        <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="rankingAnswerStruct.{{ $loop->index }}.answer"/>
+                                        <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"/>
                                         <x-slot name="after">
-                                            <x-icon.remove class="mx-2 w-4 {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="rankingDelete('{{$answer->id}}')"></x-icon.remove>
+                                            <x-icon.remove class="mx-2 w-4 {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="forwardToService('delete','{{$answer->id}}')"></x-icon.remove>
                                         </x-slot>
                                     </x-drag-item>
                                 @endforeach
                             </div>
                             <div class="flex flex-col space-y-2 w-full">
-                                <x-button.primary class="mt-3 justify-center" wire:click="rankingAddAnswerItem">
+                                <x-button.primary class="mt-3 justify-center" wire:click="forwardToService('addAnswerItem')">
                                     <x-icon.plus/>
                                     <span >
                                     {{ __('cms.Item toevoegen') }}
