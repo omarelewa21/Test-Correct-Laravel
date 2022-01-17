@@ -193,11 +193,16 @@
                         @if($this->isMultipleChoiceQuestion())
                             <div class="flex w-full mt-4">{{ __('cms.MultipleChoice Question Uitleg Text') }}</div>
                             <div class="flex flex-col space-y-2 w-full mt-4"
-                                 wire:sortable="forwardToService('updateMCOrder')">
-                                <div class="flex px-0 py-0 border-0 bg-system-white">
-                                    <div class="w-full mr-2">{{ __('cms.Antwoord') }}</div>
-                                    <div class="w-20 text-center mr-4">{{ __('cms.Punten') }}</div>
-                                    <div class="w-20"></div>
+                                 wire:sortable="forwardToService('updateMCOrder')"
+                                 x-data="{}"
+                                 x-init="
+                                    $refs.punten.style.left = ($el.querySelector('input').offsetWidth+10) +'px';
+                                   "
+                                 @resize.window.debounce.100ms="$refs.punten.style.left = ($el.querySelector('input').offsetWidth+10) +'px';"
+                            >
+                                <div class="flex px-0 py-0 border-0 bg-system-white justify-between relative">
+                                    <div class="">{{ __('cms.Antwoord') }}</div>
+                                    <div wire:ignore.self x-ref="punten" class="absolute">{{ __('cms.Punten') }}</div>
                                 </div>
                                 @php
                                     $disabledClass = "icon disabled";
@@ -226,14 +231,22 @@
                                                  :useHandle="true"
                                                  :keepWidth="true"
                                                  class="flex px-0 py-0 border-0 bg-system-white"
-                                                 slotClasses="w-full"
+                                                 slotClasses="w-full space-x-2.5"
                                                  sortIcon="reorder"
                                     >
-                                        <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer" title="{{ $answer->score }}"/>
-                                        <div class="w-20 text-center justify-center"><x-input.text class="w-12 text-center {{ $errorScoreClass }}" wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"/></div>
-                                            <x-slot name="after">
-                                                <x-icon.remove class="mx-2 w-4 {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="forwardToService('mcDelete', '{{$answer->id}}')"></x-icon.remove>
-                                            </x-slot>
+                                        <x-input.text class="w-full  {{ $errorAnswerClass }} "
+                                                      wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"
+                                                      title="{{ $answer->score }}"
+                                        />
+                                        <div class=" text-center justify-center">
+                                            <x-input.text class="w-12 text-center {{ $errorScoreClass }}"
+                                                          wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"/>
+                                        </div>
+                                        <x-slot name="after">
+                                            <x-icon.remove class="cursor-pointer {{ $disabledClass }}"
+                                                           id="remove_{{ $answer->order }}"
+                                                           wire:click="forwardToService('mcDelete', '{{$answer->id}}')"/>
+                                        </x-slot>
                                     </x-drag-item>
                                 @endforeach
                             </div>

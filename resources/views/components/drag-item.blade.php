@@ -21,10 +21,15 @@
     @if($keepWidth)
      x-data=""
      :style="'width:' +$el.parentElement.offsetWidth+'px'"
+     @resize.window="$el.style.width = 'auto'"
+     @resize.window.debounce.75ms="$el.style.width = $el.parentElement.offsetWidth+'px'"
      @endif
 >
 
     <span id="span_{{ $attributes->get('id') }}" class="mr-3 flex items-center {{ $attributes->get('slotClasses') }}" >{!! $slot !!}</span>
+    @if($after)
+        <div class="flex items-center space-x-2.5">
+    @endif
     <div id="icon_{{ $attributes->get('id') }}" class="w-4 {{ $attributes->get('dragClasses') }}">
         @if($sortIcon == 'reorder')
             @if($useHandle)
@@ -43,5 +48,6 @@
 
     @if($after)
         {{ $after }}
+        </div>
     @endif
 </div>

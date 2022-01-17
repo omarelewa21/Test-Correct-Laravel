@@ -100,8 +100,8 @@ class OpenShort extends Component
         'discuss'                => 1,
         'maintain_position'      => 0,
         'miller'                 => '',
-        "is_open_source_content" => 1,
-        "tags"                   => [],
+        'is_open_source_content' => 1,
+        'tags'                   => [],
         'note_type'              => 'NONE',
         'order'                  => 0,
         'question'               => '',
@@ -109,8 +109,8 @@ class OpenShort extends Component
         'score'                  => 6,
         'subtype'                => '',
         'type'                   => '',
-        "attainments"            => [],
-        "test_id"                => '',
+        'attainments'            => [],
+        'test_id'                => '',
         'all_or_nothing'         => false,
     ];
 
