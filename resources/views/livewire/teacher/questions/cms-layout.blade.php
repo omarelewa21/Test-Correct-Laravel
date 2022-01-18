@@ -270,6 +270,13 @@
                                        bloom: {{ $question['bloom'] ? 'true': 'false' }},
                                        miller: {{ $question['miller'] ? 'true': 'false' }}
                                    }"
+                                   x-init="
+                                        ['rtti', 'bloom', 'miller'].forEach((method) => {
+                                            $watch(method, (value) => {
+                                                value === false ? $wire.set('question.'+method, '') : ''
+                                            })
+                                        });
+                                   "
                 >
                     <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
                     <p class="text-base">{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>

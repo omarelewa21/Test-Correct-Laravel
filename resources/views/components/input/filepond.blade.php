@@ -4,6 +4,7 @@
     wire:ignore
     x-data="{
     post: null,
+    allowedTypes: ['jpeg', 'jpg', 'png', 'pdf' ],
     init: () => {
         this.post = FilePond.create($refs.input);
             this.post.setOptions({

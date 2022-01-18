@@ -75,3 +75,22 @@
     font-size: 14px;
     font-style: italic;
 }
+
+.pvalue-indicator {
+    height: 1rem;
+    width: 3px;
+    position: absolute;
+    background: var(--system-base);
+    bottom: -2px;
+    border-radius: 2px;
+}
+.pvalue-indicator:before {
+    content: '';
+    background: var(--system-base);
+    width: 7px;
+    height: 7px;
+    position: absolute;
+    top: -4px;
+    left: -2px;
+    border-radius: 10px;
+}

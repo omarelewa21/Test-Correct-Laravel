@@ -20,6 +20,7 @@ use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as Grou
 use tcCore\Http\Controllers\AttachmentsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestionsController;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
@@ -116,7 +117,7 @@ class OpenShort extends Component
     {
         $rules = ['question.question' => 'required'];
         if ($this->requiresAnswer()) {
-            if ($this->obj) {
+            if ($this->obj && method_exists($this->obj, 'mergeRules')) {
                 $this->obj->mergeRules($rules);
                 return $rules;
             }
@@ -643,6 +644,9 @@ class OpenShort extends Component
 
     public function updatedUploads($value)
     {
+        $this->validate([
+            'uploads' => 'image|max:'.BaseHelper::getMaxFileUploadSize(),
+        ]);
         $this->attachmentsCount++;
     }
 
