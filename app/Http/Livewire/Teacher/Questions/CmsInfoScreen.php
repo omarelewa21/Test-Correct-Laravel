@@ -33,6 +33,19 @@ class CmsInfoScreen
         return __('cms.infoscreen-question');
     }
 
+    public function showSettingsTaxonomy()
+    {
+        return false;
+    }
 
+    public function showSettingsAttainments()
+    {
+        return false;
+    }
+
+    public function showSettingsTags()
+    {
+        return false;
+    }
 
 }

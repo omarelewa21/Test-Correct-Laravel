@@ -193,7 +193,7 @@
                         @if($this->isMultipleChoiceQuestion())
                             <div class="flex w-full mt-4">{{ __('cms.MultipleChoice Question Uitleg Text') }}</div>
                             <div class="flex flex-col space-y-2 w-full mt-4"
-                                 wire:sortable="forwardToService('updateMCOrder')"
+                                 wire:sortable="__call('updateMCOrder')"
                                  x-data="{}"
                                  x-init="
                                     $refs.punten.style.left = ($el.querySelector('input').offsetWidth+10) +'px';
@@ -206,7 +206,7 @@
                                 </div>
                                 @php
                                     $disabledClass = "icon disabled cursor-not-allowed";
-                                    if($this->forwardToService('canDelete')) {
+                                    if($this->__call('canDelete')) {
                                         $disabledClass = "";
                                     }
                                 @endphp
@@ -247,13 +247,13 @@
                                         <x-slot name="after">
                                             <x-icon.remove class="cursor-pointer {{ $disabledClass }}"
                                                            id="remove_{{ $answer->order }}"
-                                                           wire:click="forwardToService('delete', '{{$answer->id}}')"/>
+                                                           wire:click="__call('delete', '{{$answer->id}}')"/>
                                         </x-slot>
                                     </x-drag-item>
                                 @endforeach
                             </div>
                             <div class="flex flex-col space-y-2 w-full">
-                                <x-button.primary class="mt-3 justify-center" wire:click="forwardToService('addAnswerItem')">
+                                <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')">
                                     <x-icon.plus/>
                                     <span >
                                     {{ __('cms.Item toevoegen') }}
@@ -312,14 +312,14 @@
                                 {{ __('cms.Ranking Question Uitleg Text') }}
                             </div>
                             <div class="flex flex-col space-y-2 w-full mt-4"
-                                 wire:sortable="forwardToService('updateRankingOrder')">
+                                 wire:sortable="__call('updateRankingOrder')">
                                 <div class="flex px-0 py-0 border-0 bg-system-white">
                                     <div class="w-full mr-2">{{ __('cms.Stel je te rankgschikken items op') }}</div>
                                     <div class="w-20"></div>
                                 </div>
                                 @php
                                     $disabledClass = "icon disabled cursor-not-allowed";
-                                    if($this->forwardToService('canDelete')) {
+                                    if($this->__call('canDelete')) {
                                         $disabledClass = "";
                                     }
                                 @endphp
@@ -345,13 +345,13 @@
                                     >
                                         <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"/>
                                         <x-slot name="after">
-                                            <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="forwardToService('delete','{{$answer->id}}')"></x-icon.remove>
+                                            <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="__call('delete','{{$answer->id}}')"></x-icon.remove>
                                         </x-slot>
                                     </x-drag-item>
                                 @endforeach
                             </div>
                             <div class="flex flex-col space-y-2 w-full">
-                                <x-button.primary class="mt-3 justify-center" wire:click="forwardToService('addAnswerItem')">
+                                <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')">
                                     <x-icon.plus/>
                                     <span >
                                     {{ __('cms.Item toevoegen') }}
@@ -460,7 +460,7 @@
                     </div>
 
                 </x-content-section>
-
+                @if($this->showSettingsTaxonomy())
                 <x-content-section class="taxonomie"
                                    x-data="{
                                        rtti:{{ $question['rtti'] ? 'true': 'false'  }},
@@ -523,19 +523,22 @@
 
                     </div>
                 </x-content-section>
+                @endif
 
+                @if($this->showSettingsAttainments())
                 <x-content-section>
                     <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
                     <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
                                                  :eduction-level-id="$educationLevelId"/>
                 </x-content-section>
+                @endif
 
-
+                @if($this->showSettingsTags())
                 <x-content-section>
                     <x-slot name="title">{{ __('Tags') }}</x-slot>
                     <livewire:tag-manager :init-with-tags="$initWithTags"/>
                 </x-content-section>
-
+                @endif
 
             </div>
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 3"

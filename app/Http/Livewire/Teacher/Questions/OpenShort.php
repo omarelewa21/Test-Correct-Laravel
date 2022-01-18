@@ -196,27 +196,25 @@ class OpenShort extends Component
         $this->initializePropertyBag($activeTest);
     }
 
-    public function __call($name, $arguments)
-    {
-        if ($this->obj && method_exists($this->obj, $name) ) {
-          return  $this->obj->$name($arguments);
-        }
-        return parent::__call($name, $arguments);
-    }
-
-    public function forwardToService($method, $arg = false)
+    public function __call($method, $arguments = null)
     {
         if ($this->obj && is_array($method) && method_exists($this->obj, 'arrayCallback')) {
             return $this->obj->arrayCallback($method);
         }
 
-        if ($this->obj && method_exists($this->obj, $method)) {
-            if ($arg) {
-                return $this->obj->$method($arg);
+        if ($this->obj && method_exists($this->obj, $method) ) {
+            if ($arguments) {
+                return $this->obj->$method($arguments);
             }
             return $this->obj->$method();
         }
 
+        $newName = '_'.$method;
+        if (method_exists($this, $newName) ) {
+            return  $this->$newName($arguments);
+        }
+
+        return parent::__call($method, $arguments);
     }
 
     public function save()
@@ -247,6 +245,21 @@ class OpenShort extends Component
             $this->obj->$method($value);
         }
 
+    }
+
+    protected function _showSettingsTaxonomy()
+    {
+        return true;
+    }
+
+    protected function _showSettingsAttainments()
+    {
+        return true;
+    }
+
+    protected function _showSettingsTags()
+    {
+        return true;
     }
 
     public function isInfoscreenQuestion()
@@ -727,6 +740,7 @@ class OpenShort extends Component
                 $q = $tq->question;
                 $this->attachments = $q->attachments;
             }
+
             $q = (new QuestionHelper())->getTotalQuestion($q->question);
             $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
 
