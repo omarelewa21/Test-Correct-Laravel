@@ -16,6 +16,7 @@ class GlobalStateHelper
 {
     protected static $instance;
     protected $queueAllowed = true;
+    protected $hasMaintenanceMode = false;
 
     protected function __construct()
     {
@@ -51,4 +52,15 @@ class GlobalStateHelper
         $this->resetQueueAllowed();
         return $this;
     }
+
+    public function hasActiveMaintenance()
+    {
+        return $this->hasMaintenanceMode;
+    }
+
+    public function setHasActiveMaintenance($val)
+    {
+        $this->hasMaintenanceMode = (bool) $val;
+    }
+
 }

@@ -1,4 +1,4 @@
-<header id="header" class="header fixed w-full content-center z-10 main-shadow"
+<header id="header" class="header fixed w-full content-center z-10 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif"
         x-data="{activeIcon: null, showKnowledgebankModal: @entangle('showKnowledgebankModal'), showChangePasswordModal: @entangle('showChangePasswordModal')}"
         @password-changed-success.window="showChangePasswordModal = false;"
 >
