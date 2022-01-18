@@ -1,5 +1,7 @@
 <?php namespace tcCore\Http\Requests;
 
+use tcCore\Rules\GroupQuestionAudioAttachment;
+
 class CreateAttachmentRequest extends Request {
 
 	/**
@@ -19,6 +21,11 @@ class CreateAttachmentRequest extends Request {
 	 */
 	public function rules()
 	{
+        if(!is_null(request()->route('test_question'))){
+            return [
+                'json' => ['sometimes',new GroupQuestionAudioAttachment(request()->type,request()->title)]
+            ];
+        }
 		return [
 			//
 		];

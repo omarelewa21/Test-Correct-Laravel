@@ -6,12 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Traits\TestTakeNavigationForController;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
 use tcCore\TestTake as Test;
 
 class TestTakeLaravelController extends Controller
 {
+    use TestTakeNavigationForController;
+
     public function overview(TestTake $testTake, Request $request)
     {
         $testParticipant = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->first();
@@ -113,7 +116,9 @@ class TestTakeLaravelController extends Controller
             return $testTake->test->testQuestions->flatMap(function ($testQuestion) {
                 $testQuestion->question->loadRelated();
                 if ($testQuestion->question->type === 'GroupQuestion') {
-                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) {
+                    $groupQuestion = $testQuestion->question;
+                    return $testQuestion->question->groupQuestionQuestions->map(function ($item) use($groupQuestion){
+                        $item->question->belongs_to_groupquestion_id = $groupQuestion->getKey();
                         return $item->question;
                     });
                 }
@@ -135,18 +140,14 @@ class TestTakeLaravelController extends Controller
             });
 
             $closeable = $question->closeable;
-            foreach ($question->attachments as $attachment){
-                if($attachment->audioOnlyPlayOnce()){
-                    $closeable = true;
-                    break;
-                }
-            }
+            $closeableAudio = $this->getCloseableAudio($question);
             return [
                 'uuid'      => $question->uuid,
                 'id'        => $question->id,
                 'answer_id' => $answer['id'],
                 'answered'  => $answer['answered'],
                 'closeable' => $closeable,
+                'closeable_audio' => $closeableAudio,
                 'closed'    => $answer['closed'],
                 'group'     => [
                     'id'        => $answer['group_id'],

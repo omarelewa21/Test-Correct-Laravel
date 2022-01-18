@@ -38,3 +38,17 @@ public function dump(Data $data)
     {
         logger($this->connection->write($data));
     }
+
+
+    voeg in vendor/symfony/var-dumper/Dumper/Server/Connection@write:
+        $attempts = 0;
+        while(-1 == stream_socket_sendto($this->socket, $encodedPayload)){
+            if (-1 !== stream_socket_sendto($this->socket, $encodedPayload)) {
+                return true;
+            }
+            $attempts++;
+            if($attempts>1000){
+                break;
+            }
+        }
+
