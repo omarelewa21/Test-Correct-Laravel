@@ -205,7 +205,7 @@
                                     <div wire:ignore.self x-ref="punten" class="absolute">{{ __('cms.Punten') }}</div>
                                 </div>
                                 @php
-                                    $disabledClass = "icon disabled";
+                                    $disabledClass = "icon disabled cursor-not-allowed";
                                     if($this->forwardToService('canDelete')) {
                                         $disabledClass = "";
                                     }
@@ -233,6 +233,7 @@
                                                  class="flex px-0 py-0 border-0 bg-system-white"
                                                  slotClasses="w-full space-x-2.5"
                                                  sortIcon="reorder"
+                                                 dragIconClasses="cursor-move"
                                     >
                                         <x-input.text class="w-full  {{ $errorAnswerClass }} "
                                                       wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"
@@ -317,7 +318,7 @@
                                     <div class="w-20"></div>
                                 </div>
                                 @php
-                                    $disabledClass = "icon disabled";
+                                    $disabledClass = "icon disabled cursor-not-allowed";
                                     if($this->forwardToService('canDelete')) {
                                         $disabledClass = "";
                                     }
@@ -337,13 +338,14 @@
                                                  class="flex px-0 py-0 border-0 bg-system-white relative"
                                                  slotClasses="w-full mr-0 "
                                                  dragClasses="absolute right-14 hover:text-primary transition"
+                                                 dragIconClasses=" cursor-move"
                                                  :useHandle="true"
                                                  :keepWidth="true"
                                                  sortIcon="reorder"
                                     >
                                         <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"/>
                                         <x-slot name="after">
-                                            <x-icon.remove class="mx-2 w-4 {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="forwardToService('delete','{{$answer->id}}')"></x-icon.remove>
+                                            <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="forwardToService('delete','{{$answer->id}}')"></x-icon.remove>
                                         </x-slot>
                                     </x-drag-item>
                                 @endforeach

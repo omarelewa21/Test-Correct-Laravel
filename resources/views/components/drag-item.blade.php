@@ -33,15 +33,15 @@
     <div id="icon_{{ $attributes->get('id') }}" class="w-4 {{ $attributes->get('dragClasses') }}">
         @if($sortIcon == 'reorder')
             @if($useHandle)
-                <x-icon.reorder wire:sortable.handle id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.reorder>
+                <x-icon.reorder wire:sortable.handle id="grab_{{ $attributes->get('id') }}" class="cursor-pointer  {{ $attributes->get('dragIconClasses') }}"></x-icon.reorder>
             @else
-                <x-icon.reorder id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.reorder>
+                <x-icon.reorder id="grab_{{ $attributes->get('id') }}" class="cursor-pointer  {{ $attributes->get('dragIconClasses') }}"></x-icon.reorder>
             @endif
         @else
             @if($useHandle)
-                <x-icon.grab wire:sortable.handle id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.grab>
+                <x-icon.grab wire:sortable.handle id="grab_{{ $attributes->get('id') }}" class="cursor-pointer {{ $attributes->get('dragIconClasses') }}"></x-icon.grab>
             @else
-                <x-icon.grab id="grab_{{ $attributes->get('id') }}" class="cursor-pointer"></x-icon.grab>
+                <x-icon.grab id="grab_{{ $attributes->get('id') }}" class="cursor-pointer  {{ $attributes->get('dragIconClasses') }}"></x-icon.grab>
             @endif
         @endif
     </div>
