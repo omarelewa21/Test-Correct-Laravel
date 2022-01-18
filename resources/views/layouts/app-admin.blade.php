@@ -1,5 +1,5 @@
 <x-layouts.base>
-    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20">
+    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif">
         <a class="mr-4 flex" href="#">
             <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
                  alt="Test-Correct">

@@ -39,6 +39,7 @@
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
+    --maintenance-header-bg: #ff6666;
 }
 
 @font-face {
@@ -537,4 +538,8 @@ ul ul ul {
 }
 .validate-green {
     color: var(--cta-primary);
+}
+
+.maintenance-header-bg {
+    background: var(--maintenance-header-bg)
 }
