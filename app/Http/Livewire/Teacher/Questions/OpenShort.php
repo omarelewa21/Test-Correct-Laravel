@@ -83,27 +83,19 @@ class OpenShort extends Component
 
     public $attachmentsCount = 0;
 
-    public $mcAnswerStruct = [];
-    public $mcAnswerCount = 2;
-    public $mcAnswerMinCount = 2;
-
-    public $tfTrue = true;
-
-    public $rankingAnswerStruct = [];
-    public $rankingAnswerCount = 2;
-    public $rankingAnswerMinCount = 2;
+    public $cmsPropertyBag = [];
 
     public $question = [
         'add_to_database'        => 1,
         'answer'                 => '',
         'bloom'                  => '',
-        'closable'               => 0,
+        'closeable'              => 0,
         'decimal_score'          => 0,
         'discuss'                => 1,
         'maintain_position'      => 0,
         'miller'                 => '',
-        "is_open_source_content" => 1,
-        "tags"                   => [],
+        'is_open_source_content' => 1,
+        'tags'                   => [],
         'note_type'              => 'NONE',
         'order'                  => 0,
         'question'               => '',
@@ -111,40 +103,26 @@ class OpenShort extends Component
         'score'                  => 6,
         'subtype'                => '',
         'type'                   => '',
-        "attainments"            => [],
-        "test_id"                => '',
-        'all_or_nothing'        => false,
+        'attainments'            => [],
+        'test_id'                => '',
+        'all_or_nothing'         => false,
     ];
+    /**
+     * @var CmsInfoScreen|CmsMultipleChoice|CmsOpen|CmsRanking|CmsTrueFalse|null
+     */
+    private $obj;
 
     protected function rules()
     {
         $rules = ['question.question' => 'required'];
-
         if ($this->requiresAnswer()) {
-            if($this->isMultipleChoiceQuestion()) {
-                $rules += [
-                    'question.answers' => 'required|array|min:2',
-                    'question.answers.*.score' => 'required|integer',
-                    'question.answers.*.answer' => 'required',
-                    'question.answers.*.order' => 'required',
-                    'question.score' => 'required|integer|min:1',
-                ];
-            } else if($this->isTrueFalseQuestion()){
-                $rules = [
-                    'question.answers' => 'required|array|min:2|max:2',
-                ];
-            } else if($this->isRankingQuestion()) {
-                $rules += [
-                    'question.answers' => 'required|array|min:2',
-                    'question.answers.*.answer' => 'required',
-                    'question.answers.*.order' => 'required',
-                ];
-            } else if ($this->isInfoscreenQuestion()){
-
-            } else {
-                $rules += ['question.answer' => 'required'];
+            if ($this->obj) {
+                $this->obj->mergeRules($rules);
+                return $rules;
             }
+            $rules += ['question.answer' => 'required'];
         }
+
         return $rules;
     }
 
@@ -158,7 +136,10 @@ class OpenShort extends Component
 
     public function requiresAnswer()
     {
-        return $this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion() || $this->isRankingQuestion();;
+        if ($this->obj && property_exists($this->obj, 'requiresAnswer')) {
+            return $this->obj->requiresAnswer;
+        }
+        return false;
     }
 
     protected function getListeners()
@@ -172,6 +153,10 @@ class OpenShort extends Component
 
     public function getQuestionTypeProperty()
     {
+        if ($this->obj && method_exists($this->obj, 'getTranslationKey')) {
+            return __($this->obj->getTranslationKey());
+        }
+
         switch ($this->question['type']) {
             case 'CompletionQuestion':
                 if ($this->question['subtype'] == 'multi') {
@@ -187,17 +172,6 @@ class OpenShort extends Component
                 }
                 $translation = 'cms.open-question-medium';
                 break;
-            case 'MultipleChoiceQuestion':
-                if(Str::lower($this->question['subtype']) == 'multiplechoice') {
-                    $translation = 'cms.multiplechoice-question-multiplechoice';
-                }
-                if(Str::lower($this->question['subtype']) == 'truefalse') {
-                    $translation = 'cms.multiplechoice-question-truefalse';
-                }
-                break;
-            case 'RankingQuestion':
-               $translation = 'cms.ranking-question';
-               break;
             default:
                 $translation = 'cms.open-question';
                 break;
@@ -206,322 +180,49 @@ class OpenShort extends Component
         return __($translation);
     }
 
+    public function booted()
+    {
+        $this->obj = CmsFactory::create($this);
+    }
+
+    // @TODO mag ik deze test zien;
+    // @TODO mag ik deze testQuestion editen?
+    // @TODO is deze test uberhaupt onderdeel van deze test?
     public function mount($action, $type, $subType)
     {
-        $this->action = $action;
-        $this->question['type'] = $type;
-        $this->question['subtype'] = $subType;
-        $this->setIsPartOfGroupQuestion();
+        $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
+        $this->initializeContext($action, $type, $subType, $activeTest);
+        $this->obj = CmsFactory::create($this);
+        $this->initializePropertyBag($activeTest);
+    }
 
-        $this->answerEditorId = Str::uuid()->__toString();
-        $this->questionEditorId = Str::uuid()->__toString();
+    public function __call($method, $arguments = null)
+    {
+        if ($this->obj && is_array($method) && method_exists($this->obj, 'arrayCallback')) {
+            return $this->obj->arrayCallback($method);
+        }
 
-//        dd([request('owner'), request('owner_id')]);
-
-        $activeTest = Test::whereUuid($this->testId)->first();
-
-
-        $activeTest->load('testAuthors', 'testAuthors.user');
-
-
-        // @TODO mag ik deze test zien;
-        // @TODO mag ik deze testQuestion editen?
-        // @TODO is deze test uberhaupt onderdeel van deze test?
-        // @TODO what to do when owner is a GroupQuestion?
-
-        $this->testName = $activeTest->name;
-        $this->testAuthors = $activeTest->AuthorsAsString;
-        $this->subjectId = $activeTest->subject_id;
-        $this->question['test_id'] = $activeTest->id;
-        $this->educationLevelId = $activeTest->education_level_id;
-        // $this->question['order'] = $activeTest->testQuestions()->count();
-
-        if($this->isInfoscreenQuestion()){
-            $questionOptions = [
-                'add_to_database'        => 0,
-                'decimal_score'          => 0,
-                'discuss'                => 0,
-                "is_open_source_content" => 0,
-                'note_type'              => 'NONE',
-                'score'                  => 0,
-                'all_or_nothing'        => false,
-            ];
-            foreach($questionOptions as $key => $value){
-                $this->question[$key] = $value;
+        if ($this->obj && method_exists($this->obj, $method) ) {
+            if ($arguments) {
+                return $this->obj->$method($arguments);
             }
-        }
-        // request('owner_id') => tcCore\GroupQuestion
-        // $this->>test_question_id => tcCore\GroupQuestionQuestion;
-
-        if ($this->editModeForExistingQuestion()) {
-//            dd($this->test_question_id);
-            if ($this->isPartOfGroupQuestion()) {
-                $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
-                $this->attachments = $tq->groupQuestion->attachments;
-                $q = $tq->question;
-            } else {
-                $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
-                $q = $tq->question;
-                $this->attachments = $q->attachments;
-            }
-            $q = (new QuestionHelper())->getTotalQuestion($q->question);
-            $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
-
-            $this->questionId = $q->question->getKey();
-            $this->question['bloom'] = $q->bloom;
-            $this->question['rtti'] = $q->rtti;
-            $this->question['miller'] = $q->miller;
-            $this->question['answer'] = $q->answer;
-            $this->question['question'] = $q->question->getQuestionHTML();
-            $this->question['score'] = $q->score;
-            $this->question['note_type'] = $q->note_type;
-            $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
-            $this->question['order'] = $tq->order;
-            $this->question['all_or_nothing'] = $q->all_or_nothing;
-
-            $this->educationLevelId = $q->education_level_id;
-
-            $this->initWithTags = $q->tags;
-
-            $this->attachmentsCount = count($this->attachments);
-
-            if ($this->isCompletionQuestion()) {
-                $this->question['question'] = $this->decodeCompletionTags($q);
-            }
-
-            if($this->isMultipleChoiceQuestion()){
-
-                $this->mcAnswerStruct = $q->multipleChoiceQuestionAnswers->map(function($answer,$key){
-                    return [
-                        'id'    => Uuid::uuid4(),
-                        'order' => $key+1,
-                        'score' => $answer->score,
-                        'answer'=> $answer->answer,
-                    ];
-                })->toArray();
-            }
-
-            if($this->isTrueFalseQuestion()){
-                $q->multipleChoiceQuestionAnswers->each(function($answer){
-                    if(Str::lower($answer->answer) === 'juist' && $answer->score > 0){
-                        $this->tfTrue = true;
-                    }
-                    if(Str::lower($answer->answer) === 'onjuist' && $answer->score > 0){
-                        $this->tfTrue = false;
-                    }
-                });
-            }
-
-            if($this->isRankingQuestion()){
-                $this->rankingAnswerStruct = $q->rankingQuestionAnswers->map(function($answer,$key){
-                    return [
-                        'id'    => Uuid::uuid4(),
-                        'order' => $key+1,
-                        'answer'=> $answer->answer,
-                    ];
-                })->toArray();
-            }
-        }
-        if($this->isMultipleChoiceQuestion()){
-            $this->createMCAnswerStruct();
+            return $this->obj->$method();
         }
 
-        if($this->isRankingQuestion()){
-            $this->createRankingAnswerStruct();
+        $newName = '_'.$method;
+        if (method_exists($this, $newName) ) {
+            return  $this->$newName($arguments);
         }
 
+        return parent::__call($method, $arguments);
     }
 
-    public function tfIsActiveAnswer($val)
-    {
-        return ($this->tfTrue == ($val == 'true'));
-    }
-
-    public function updatedTfTrue($val)
-    {
-        $this->tfTrue = ($val == 'true');
-    }
-
-    protected function prepareMultipleChoiceQuestionTrueFalseForSave()
-    {
-        $result = [];
-        $nr = 1;
-        foreach(['Juist' => true,'Onjuist' => false] as $option => $value){
-            $result[] = [
-                'order' => $nr,
-                'answer' => $option,
-                'score' => ($this->tfTrue === $value) ? $this->question['score'] : 0,
-            ];
-            $nr++;
-        }
-        $this->question['answers'] = $result;
-        unset($this->question['answer']);
-    }
-
-    // Multiple Choice
-    public function updateMCOrder($value)
-    {
-        foreach($value as $key => $item){
-            $this->mcAnswerStruct[((int) $item['value'])-1]['order'] = $item['order'];
-        }
-
-        $this->mcAnswerStruct = array_values(collect($this->mcAnswerStruct)->sortBy('order')->toArray());
-        $this->createMCAnswerStruct();
-
-    }
-
-    public function mcCanDelete()
-    {
-        return $this->mcAnswerMinCount < count($this->mcAnswerStruct);
-    }
-
-    public function mcDelete($id)
-    {
-        if(!$this->mcCanDelete()) {
-            return;
-        }
-
-        $this->mcAnswerStruct = array_values(collect($this->mcAnswerStruct)->filter(function($answer) use ($id){
-            return $answer['id'] != $id;
-        })->toArray());
-
-        if($this->mcAnswerMinCount < $this->mcAnswerCount) {
-            $this->mcAnswerCount--;
-        }
-        $this->createMCAnswerStruct();
-    }
-
-    public function mcAddAnswerItem()
-    {
-        $this->mcAnswerCount++;
-        $this->createMCAnswerStruct();
-    }
-
-    public function mcUpdated($name,$value)
-    {
-        $this->createMCAnswerStruct();
-    }
-
-    public function createMCAnswerStruct()
-    {
-        $result = [];
-
-        collect($this->mcAnswerStruct)->each(function ($value, $key) use (&$result) {
-            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer'], 'score' => (int) $value['score']];
-        })->toArray();
-
-        if(count($this->mcAnswerStruct) < $this->mcAnswerCount){
-            for($i = count($this->mcAnswerStruct);$i < $this->mcAnswerCount;$i++){
-                $result[] = (object)[
-                    'id'    => Uuid::uuid4(),
-                    'order' => $i+1,
-                    'score' => 0,
-                    'answer' => ''
-                ];
-            }
-        }
-
-        $this->mcAnswerStruct  = $result;
-        $this->mcAnswerCount = count($this->mcAnswerStruct);
-    }
-
-    protected function prepareMultipleChoiceQuestionMultipleChoiceForSave()
-    {
-        $this->question['answers'] = array_values(collect($this->mcAnswerStruct)->map(function($answer){
-            return [
-                'order' => $answer['order'],
-                'answer' => $answer['answer'],
-                'score' => $answer['score'],
-            ];
-        })->toArray());
-        unset($this->question['answer']);
-        $this->question['score'] = collect($this->mcAnswerStruct)->sum('score');
-    }
-
-    // Ranking
-
-    public function updateRankingOrder($value)
-    {
-        foreach($value as $key => $item){
-            $this->rankingAnswerStruct[((int) $item['value'])-1]['order'] = $item['order'];
-        }
-
-        $this->rankingAnswerStruct = array_values(collect($this->rankingAnswerStruct)->sortBy('order')->toArray());
-        $this->createRankingAnswerStruct();
-
-    }
-
-    public function rankingCanDelete()
-    {
-        return $this->rankingAnswerMinCount < count($this->rankingAnswerStruct);
-    }
-
-    public function rankingDelete($id)
-    {
-        if(!$this->rankingCanDelete()) {
-            return;
-        }
-
-        $this->rankingAnswerStruct = array_values(collect($this->rankingAnswerStruct)->filter(function($answer) use ($id){
-            return $answer['id'] != $id;
-        })->toArray());
-
-        if($this->rankingAnswerMinCount < $this->rankingAnswerCount) {
-            $this->rankingAnswerCount--;
-        }
-        $this->createRankingAnswerStruct();
-    }
-
-    public function rankingAddAnswerItem()
-    {
-        $this->rankingAnswerCount++;
-        $this->createRankingAnswerStruct();
-    }
-
-    public function rankingUpdated($name,$value)
-    {
-        $this->createRankingAnswerStruct();
-    }
-
-    public function createRankingAnswerStruct()
-    {
-        $result = [];
-
-        collect($this->rankingAnswerStruct)->each(function ($value, $key) use (&$result) {
-            $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer']];
-        })->toArray();
-
-        if(count($this->rankingAnswerStruct) < $this->rankingAnswerCount){
-            for($i = count($this->rankingAnswerStruct);$i < $this->rankingAnswerCount;$i++){
-                $result[] = (object)[
-                    'id'    => Uuid::uuid4(),
-                    'order' => $i+1,
-                    'answer' => ''
-                ];
-            }
-        }
-
-        $this->rankingAnswerStruct  = $result;
-        $this->rankingAnswerCount = count($this->rankingAnswerStruct);
-    }
-
-    protected function prepareRankingQuestionRankingForSave()
-    {
-        $this->question['answers'] = array_values(collect($this->rankingAnswerStruct)->map(function($answer){
-            return [
-                'order' => $answer['order'],
-                'answer' => $answer['answer'],
-            ];
-        })->toArray());
-        unset($this->question['answer']);
-    }
     public function save()
     {
-
-        $prepareFunction = sprintf('prepare%s%sForSave',$this->question['type'], $this->question['subtype']);
-        if(method_exists($this,$prepareFunction)){
-            $this->$prepareFunction();
+        if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
+            $this->obj->prepareForSave();
         }
+
         $this->validateAndReturnErrorsToTabOne();
 
         if ($this->action == 'edit') {
@@ -539,25 +240,36 @@ class OpenShort extends Component
 
     public function updated($name, $value)
     {
-        if($this->isMultipleChoiceQuestion() && Str::startsWith($name,'mc')){
-            $this->mcUpdated($name,$value);
+        $method = 'updated'.ucfirst($name);
+        if ($this->obj && method_exists($this->obj, $method)) {
+            $this->obj->$method($value);
         }
+
+    }
+
+    protected function _showSettingsTaxonomy()
+    {
+        return true;
+    }
+
+    protected function _showSettingsAttainments()
+    {
+        return true;
+    }
+
+    protected function _showSettingsTags()
+    {
+        return true;
     }
 
     public function isInfoscreenQuestion()
     {
-        if (Str::lower($this->question['type']) !== 'infoscreenquestion') {
-            return false;
-        }
-        return true;
+        return !! (Str::lower($this->question['type']) == 'infoscreenquestion');
     }
 
     public function isRankingQuestion()
     {
-        if ($this->question['type'] !== 'RankingQuestion') {
-            return false;
-        }
-        return true;
+        return !! ($this->question['type'] == 'RankingQuestion');
     }
 
     public function isShortOpenQuestion()
@@ -647,6 +359,10 @@ class OpenShort extends Component
 
     public function render()
     {
+        if ($this->obj && method_exists($this->obj, 'getTemplate')) {
+            return view('livewire.teacher.questions.'.$this->obj->getTemplate())->layout('layouts.base');
+        }
+
         return view('livewire.teacher.questions.open-short')->layout('layouts.base');
     }
 
@@ -717,7 +433,7 @@ class OpenShort extends Component
         return $response;
     }
 
-    public function isClosableDisabled($asText = false)
+    public function isCloseableDisabled($asText = false)
     {
         if($asText){
             return 'false';
@@ -965,7 +681,7 @@ class OpenShort extends Component
         return preg_replace_callback($searchPattern, $replacementFunction, $question->getQuestionHtml());
     }
 
-    private function isPartOfGroupQuestion(): bool
+    public function isPartOfGroupQuestion(): bool
     {
         return $this->isPartOfGroupQuestion;
     }
@@ -988,5 +704,80 @@ class OpenShort extends Component
         }
 
         return true;
+    }
+
+    private function initializeContext($action, $type, $subType, Test $activeTest): void
+    {
+        $this->action = $action;
+        $this->question['type'] = $type;
+        $this->question['subtype'] = $subType;
+        $this->setIsPartOfGroupQuestion();
+
+        $this->answerEditorId = Str::uuid()->__toString();
+        $this->questionEditorId = Str::uuid()->__toString();
+
+        $this->testName = $activeTest->name;
+        $this->testAuthors = $activeTest->AuthorsAsString;
+        $this->subjectId = $activeTest->subject_id;
+        $this->educationLevelId = $activeTest->education_level_id;
+    }
+
+    private function initializePropertyBag($activeTest): void
+    {
+        if ($this->obj && method_exists($this->obj, 'preparePropertyBag')) {
+            $this->obj->preparePropertyBag();
+        }
+
+        $this->question['test_id'] = $activeTest->id;
+
+        if ($this->editModeForExistingQuestion()) {
+            if ($this->isPartOfGroupQuestion()) {
+                $tq = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
+                $this->attachments = $tq->groupQuestion->attachments;
+                $q = $tq->question;
+            } else {
+                $tq = TestQuestion::whereUuid($this->testQuestionId)->first();
+                $q = $tq->question;
+                $this->attachments = $q->attachments;
+            }
+
+            $q = (new QuestionHelper())->getTotalQuestion($q->question);
+            $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
+
+            $this->questionId = $q->question->getKey();
+            $this->question['bloom'] = $q->bloom;
+            $this->question['rtti'] = $q->rtti;
+            $this->question['miller'] = $q->miller;
+            $this->question['answer'] = $q->answer;
+            $this->question['question'] = $q->question->getQuestionHTML();
+            $this->question['score'] = $q->score;
+            $this->question['note_type'] = $q->note_type;
+            $this->question['attainments'] = $q->getQuestionAttainmentsAsArray();
+            $this->question['order'] = $tq->order;
+            $this->question['all_or_nothing'] = $q->all_or_nothing;
+            $this->question['closeable'] = $q->closeable;
+            $this->question['maintain_position'] = $q->maintain_position;
+            $this->question['add_to_database'] = $q->add_to_database;
+            $this->question['discuss'] = $q->discuss;
+            $this->question['decimal_score'] = $q->decimal_score;
+
+            $this->educationLevelId = $q->education_level_id;
+
+            $this->initWithTags = $q->tags;
+
+            $this->attachmentsCount = count($this->attachments);
+
+            if ($this->isCompletionQuestion()) {
+                $this->question['question'] = $this->decodeCompletionTags($q);
+            }
+
+            if ($this->obj && method_exists($this->obj, 'initializePropertyBag')) {
+                $this->obj->initializePropertyBag($q);
+            }
+        }
+
+        if ($this->obj && method_exists($this->obj, 'createAnswerStruct')) {
+            $this->obj->createAnswerStruct();
+        }
     }
 }

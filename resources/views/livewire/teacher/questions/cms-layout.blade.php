@@ -112,7 +112,6 @@
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
             >
-
                 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
                         <div id="attachment-badges" class="flex flex-wrap">
@@ -129,7 +128,8 @@
                             @if ($uploads)
                                 @if(is_array($uploads))
                                     @foreach($uploads as $upload)
-                                        <x-attachment.badge :upload="true" :attachment="$upload" :title="$upload->getClientOriginalName()"/>
+                                        <x-attachment.badge :upload="true" :attachment="$upload"
+                                                            :title="$upload->getClientOriginalName()"/>
                                     @endforeach
                                 @endif
                             @endif
@@ -148,26 +148,8 @@
                     <x-slot name="title">
                         {{ __('cms.Vraagstelling') }}
                     </x-slot>
-                    @if($this->isShortOpenQuestion() || $this->isMediumOpenQuestion() || $this->isMultipleChoiceQuestion() || $this->isTrueFalseQuestion() || $this->isRankingQuestion() || $this->isInfoScreenQuestion())
-                        <x-input.rich-textarea
-                            wire:model.debounce.1000ms="question.question"
-                            editorId="{{ $questionEditorId }}"
-                            type="cms"
-                        />
-                    @endif
-                    @if($this->isCompletionQuestion())
-                        <x-input.rich-textarea
-                            wire:model.debounce.1000ms="question.question"
-                            editorId="{{ $questionEditorId }}"
-                            type="cms-completion"
-                        />
-                    @endif
-                    @if($this->isSelectionQuestion())
-                        <x-input.selection-textarea
-                            wire:model.defer="question.question"
-                            editorId="{{ $questionEditorId }}"
-                        />
-                    @endif
+                    @yield('question-cms-question')
+
                     @error('question.question')
                     <div class="notification error stretched mt-4">
                         <span class="title">{{ $message }}</span>
@@ -176,207 +158,29 @@
                 </x-upload.section>
 
                 @if($this->requiresAnswer())
-                    <x-content-section>
-                        <x-slot name="title">
-                            {{ __('cms.Antwoordmodel') }}
-                        </x-slot>
+                <x-content-section>
+                    <x-slot name="title">
+                        {{ __('cms.Antwoordmodel') }}
+                    </x-slot>
 
-                        @if($this->hasAllOrNothing())
-                            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-                            >
-                                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-                            </x-input.toggle-row-with-title>
+                    @if($this->hasAllOrNothing())
+                        <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
+                                                       :toolTip="__('cms.all_or_nothing_tooltip_text')"
+                        >
+                            <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
+                        </x-input.toggle-row-with-title>
 
-                        @endif
+                    @endif
 
-                        @if($this->isMultipleChoiceQuestion())
-                            <div class="flex w-full mt-4">{{ __('cms.MultipleChoice Question Uitleg Text') }}</div>
-                            <div class="flex flex-col space-y-2 w-full mt-4"
-                                 wire:sortable="__call('updateMCOrder')"
-                                 x-data="{}"
-                                 x-init="
-                                    $refs.punten.style.left = ($el.querySelector('input').offsetWidth+10) +'px';
-                                   "
-                                 @resize.window.debounce.100ms="$refs.punten.style.left = ($el.querySelector('input').offsetWidth+10) +'px';"
-                            >
-                                <div class="flex px-0 py-0 border-0 bg-system-white justify-between relative">
-                                    <div class="">{{ __('cms.Antwoord') }}</div>
-                                    <div wire:ignore.self x-ref="punten" class="absolute">{{ __('cms.Punten') }}</div>
-                                </div>
-                                @php
-                                    $disabledClass = "icon disabled cursor-not-allowed";
-                                    if($this->__call('canDelete')) {
-                                        $disabledClass = "";
-                                    }
-                                @endphp
-                                @foreach($cmsPropertyBag['answerStruct'] as $answer)
-                                    @php
-                                        $answer = (object) $answer;
-                                        $errorAnswerClass = '';
-                                        $errorScoreClass = '';
-                                    @endphp
-                                    @error('question.answers.'.$loop->index.'.answer')
-                                        @php
-                                            $errorAnswerClass = 'border-red'
-                                        @endphp
-                                    @enderror
-                                    @error('question.answers.'.$loop->index.'.score')
-                                    @php
-                                        $errorScoreClass = 'border-red'
-                                    @endphp
-                                    @enderror
-                                    <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
-                                                 wireKey="option-{{ $answer->id }}" selid="drag-box"
-                                                 :useHandle="true"
-                                                 :keepWidth="true"
-                                                 class="flex px-0 py-0 border-0 bg-system-white"
-                                                 slotClasses="w-full space-x-2.5"
-                                                 sortIcon="reorder"
-                                                 dragIconClasses="cursor-move"
-                                    >
-                                        <x-input.text class="w-full  {{ $errorAnswerClass }} "
-                                                      wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"/>
-                                        <div class=" text-center justify-center">
-                                            <x-input.text class="w-12 text-center {{ $errorScoreClass }}"
-                                                          wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.score" title="{{ $answer->score }}"
-                                                          title="{{ $answer->score }}"
-                                            />
-                                        </div>
-                                        <x-slot name="after">
-                                            <x-icon.remove class="cursor-pointer {{ $disabledClass }}"
-                                                           id="remove_{{ $answer->order }}"
-                                                           wire:click="__call('delete', '{{$answer->id}}')"/>
-                                        </x-slot>
-                                    </x-drag-item>
-                                @endforeach
-                            </div>
-                            <div class="flex flex-col space-y-2 w-full">
-                                <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')">
-                                    <x-icon.plus/>
-                                    <span >
-                                    {{ __('cms.Item toevoegen') }}
-                                    </span>
-                                </x-button.primary>
-                            </div>
-                            @error('question.answers.*.*')
-                            <div class="notification error stretched mt-4">
-                                <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
-                            </div>
-                            @enderror
+                    @yield('question-cms-answer')
 
-                            @error('question.score')
-                            <div class="notification error stretched mt-4">
-                                <span class="title">{{ __('cms.Er dient minimaal 1 punt toegekend te worden') }}</span>
-                            </div>
-                            @enderror
+                    @error('question.answer')
+                    <div class="notification error stretched mt-4">
+                        <span class="title">{{ $message }}</span>
+                    </div>
+                    @enderror
 
-                        @elseif($this->isTrueFalseQuestion())
-                            <div class="flex  col-2 space-x-2 w-full mt-4">
-                                <div class="flex inline-block w-full items-center">{{ __('cms.Is bovenstaande vraag/stelling juist of onjuist?') }}</div>
-                                <div class="inline-flex bg-off-white max-w-max border border-blue-grey rounded-lg truefalse-container transition duration-150">
-                                    @foreach( ['true', 'false'] as $optionValue)
-
-                                        <label id="truefalse-{{$optionValue}}" wire:key="truefalse-{{$optionValue}}"
-                                               for="link{{ $optionValue }}"
-                                               class="bg-off-white border border-off-white rounded-lg trueFalse bold transition duration-150
-                                          @if($loop->iteration == 1) true border-r-0 @else false border-l-0 @endif
-                                               {!! $cmsPropertyBag['tfTrue'] === $optionValue ? 'active' : '' !!}"
-                                        >
-                                            <input
-                                                    wire:model="cmsPropertyBag.tfTrue"
-                                                   id="link{{ $optionValue }}"
-                                                   name="Question_TrueFalse"
-                                                   type="radio"
-                                                   class="hidden"
-                                                   value="{{ $optionValue }}"
-                                                   selid="testtake-radiobutton"
-                                            >
-                                            <span>
-                                                @if ($optionValue == 'true')
-                                                    <x-icon.checkmark/>
-                                                @else
-                                                    <x-icon.close/>
-                                                @endif
-                                            </span>
-                                        </label>
-                                        @if($loop->first)
-                                            <div class="bg-blue-grey" style="width: 1px; height: 30px; margin-top: 3px"></div>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        @elseif($this->isRankingQuestion())
-                            <div class="flex w-full mt-4">
-                                {{ __('cms.Ranking Question Uitleg Text') }}
-                            </div>
-                            <div class="flex flex-col space-y-2 w-full mt-4"
-                                 wire:sortable="__call('updateRankingOrder')">
-                                <div class="flex px-0 py-0 border-0 bg-system-white">
-                                    <div class="w-full mr-2">{{ __('cms.Stel je te rankgschikken items op') }}</div>
-                                    <div class="w-20"></div>
-                                </div>
-                                @php
-                                    $disabledClass = "icon disabled cursor-not-allowed";
-                                    if($this->__call('canDelete')) {
-                                        $disabledClass = "";
-                                    }
-                                @endphp
-                                @foreach($cmsPropertyBag['answerStruct'] as $answer)
-                                    @php
-                                        $answer = (object) $answer;
-                                        $errorAnswerClass = '';
-                                    @endphp
-                                    @error('question.answers.'.$loop->index.'.answer')
-                                    @php
-                                        $errorAnswerClass = 'border-red'
-                                    @endphp
-                                    @enderror
-                                    <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
-                                                 wireKey="option-{{ $answer->id }}" selid="drag-box"
-                                                 class="flex px-0 py-0 border-0 bg-system-white relative"
-                                                 slotClasses="w-full mr-0 "
-                                                 dragClasses="absolute right-14 hover:text-primary transition"
-                                                 dragIconClasses=" cursor-move"
-                                                 :useHandle="true"
-                                                 :keepWidth="true"
-                                                 sortIcon="reorder"
-                                    >
-                                        <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"/>
-                                        <x-slot name="after">
-                                            <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="__call('delete','{{$answer->id}}')"></x-icon.remove>
-                                        </x-slot>
-                                    </x-drag-item>
-                                @endforeach
-                            </div>
-                            <div class="flex flex-col space-y-2 w-full">
-                                <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')">
-                                    <x-icon.plus/>
-                                    <span >
-                                    {{ __('cms.Item toevoegen') }}
-                                    </span>
-                                </x-button.primary>
-                            </div>
-                            @error('question.answers.*.*')
-                            <div class="notification error stretched mt-4">
-                                <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
-                            </div>
-                            @enderror
-                        @else
-                            <x-input.rich-textarea
-                                wire:model.debounce.1000ms="question.answer"
-                                editorId="{{ $answerEditorId }}"
-                                type="cms"
-                            />
-                        @endif
-
-                        @error('question.answer')
-                        <div class="notification error stretched mt-4">
-                            <span class="title">{{ $message }}</span>
-                        </div>
-                        @enderror
-
-                    </x-content-section>
+                </x-content-section>
                 @endif
             </div>
 
@@ -459,7 +263,7 @@
                     </div>
 
                 </x-content-section>
-                @if($this->showSettingsTaxonomy())
+
                 <x-content-section class="taxonomie"
                                    x-data="{
                                        rtti:{{ $question['rtti'] ? 'true': 'false'  }},
@@ -522,22 +326,19 @@
 
                     </div>
                 </x-content-section>
-                @endif
 
-                @if($this->showSettingsAttainments())
                 <x-content-section>
                     <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
                     <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
                                                  :eduction-level-id="$educationLevelId"/>
                 </x-content-section>
-                @endif
 
-                @if($this->showSettingsTags())
+
                 <x-content-section>
                     <x-slot name="title">{{ __('Tags') }}</x-slot>
                     <livewire:tag-manager :init-with-tags="$initWithTags"/>
                 </x-content-section>
-                @endif
+
 
             </div>
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 3"
