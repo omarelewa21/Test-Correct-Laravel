@@ -84,7 +84,7 @@ class UpdateCompletionQuestionRequest extends UpdateQuestionRequest
             }
 
             $check         = false;
-            $errorMessage  = "U heeft het verkeerde formaat van de vraag ingevoerd, zorg ervoor dat elk haakje '[' gesloten is en er geen onderschepping tussen haakjes is.";
+            $errorMessage  = "U heeft het verkeerde formaat van de vraag ingevoerd, zorg ervoor dat elk haakje '[' gesloten is en er geen overlap tussen haakjes is.";
             for ($charIndex = 0; $charIndex < strlen($question); $charIndex++){
                 if($question[$charIndex] == '[' && !$check){        // set check to true if [ char found
                     $check = true;
