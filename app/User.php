@@ -2407,6 +2407,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ??  config('app.locale');
     }
 
+    public function hasSingleSchoolLocation()
+    {
+        return ($this->allowedSchoolLocations()->count() == 1);
+    }
+
+    public function hasMultipleSchoolLocations()
+    {
+        return ($this->allowedSchoolLocations()->count() > 1);
+    }
+
     public function hasSingleSchoolLocationNoSharedSections()
     {
         return ($this->allowedSchoolLocations()->count() == 1 && !$this->isPartOfSharedSection());
