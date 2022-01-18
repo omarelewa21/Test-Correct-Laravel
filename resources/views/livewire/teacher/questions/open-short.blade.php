@@ -236,11 +236,12 @@
                                     >
                                         <x-input.text class="w-full  {{ $errorAnswerClass }} "
                                                       wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"
-                                                      title="{{ $answer->score }}"
                                         />
                                         <div class=" text-center justify-center">
                                             <x-input.text class="w-12 text-center {{ $errorScoreClass }}"
-                                                          wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"/>
+                                                          wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"
+                                                          title="{{ $answer->score }}"
+                                            />
                                         </div>
                                         <x-slot name="after">
                                             <x-icon.remove class="cursor-pointer {{ $disabledClass }}"
