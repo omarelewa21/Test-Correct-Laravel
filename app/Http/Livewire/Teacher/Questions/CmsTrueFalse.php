@@ -11,6 +11,12 @@ class CmsTrueFalse
 
     public function __construct(OpenShort $instance) {
         $this->instance = $instance;
+
+//        if ($this->instance->action == 'edit') {
+        if(!array_key_exists('tfTrue', $this->instance->cmsPropertyBag)) {
+            $this->instance->cmsPropertyBag['tfTrue'] = [];
+        }
+
     }
 
     public function mergeRules(&$rules)
@@ -38,7 +44,6 @@ class CmsTrueFalse
                 $this->instance->cmsPropertyBag['tfTrue'] = 'true';
             }
             if (Str::lower($answer->answer) === 'onjuist' && $answer->score > 0) {
-
                 $this->instance->cmsPropertyBag['tfTrue'] = 'false';
             }
         });
@@ -62,5 +67,10 @@ class CmsTrueFalse
 
     public function getTranslationKey() {
         return __('cms.multiplechoice-question-truefalse');
+    }
+
+    public function getTemplate()
+    {
+        return 'true-false-question';
     }
 }

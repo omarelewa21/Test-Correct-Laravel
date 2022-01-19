@@ -21,3 +21,5 @@
         </tbody>
     </table>
 </div>
+
+<x-table id="my" iets="anders"></x-table>

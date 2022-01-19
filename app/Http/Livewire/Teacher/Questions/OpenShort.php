@@ -2,23 +2,17 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-// http://test-correct.test/teacher/questions/open-short/add?owner=test&owner_id=2a60f858-3129-4903-b275-796cbce5f610&test_question_id=4a508b73-d01b-4729-be38-440f8fd76c8e
-
-// http://test-correct.test/teacher/questions/open-short/add?owner=test&owner_id=7dfda5b2-c0fc-44c0-8ff9-e7a3c831e4a6&test_question_id=a01fd5e2-36dc-4bc1-823f-ca794e034c3f
-//
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
-use tcCore\Http\Controllers\AttachmentsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
+use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
@@ -115,11 +109,11 @@ class OpenShort extends Component
     protected function rules()
     {
         $rules = ['question.question' => 'required'];
+        if ($this->obj && method_exists( $this->obj, 'mergeRules')) {
+            $this->obj->mergeRules($rules);
+            return $rules;
+        }
         if ($this->requiresAnswer()) {
-            if ($this->obj) {
-                $this->obj->mergeRules($rules);
-                return $rules;
-            }
             $rules += ['question.answer' => 'required'];
         }
 
@@ -158,13 +152,6 @@ class OpenShort extends Component
         }
 
         switch ($this->question['type']) {
-            case 'CompletionQuestion':
-                if ($this->question['subtype'] == 'multi') {
-                    $translation = 'cms.selection-question';
-                    break;
-                }
-                $translation = 'cms.completion-question';
-                break;
             case 'OpenQuestion':
                 if ($this->question['subtype'] == 'short') {
                     $translation = 'cms.open-question-short';
@@ -556,7 +543,7 @@ class OpenShort extends Component
         $this->attachmentsCount--;
     }
 
-    public function removeFromUploads($tempFile)
+    public function removeUpload($tempFile)
     {
         $this->uploads = collect($this->uploads)->reject(function ($tempUpload) use ($tempFile) {
             return $tempUpload->getClientOriginalName() == $tempFile;
@@ -574,8 +561,12 @@ class OpenShort extends Component
 
     public function handleNewVideoAttachment($link)
     {
-        $this->videos[] = $link;
-        $this->attachmentsCount++;
+        if($this->validateVideoLink($link)) {
+            $this->videos[] = $link;
+            return $this->attachmentsCount++;
+        }
+
+        $this->dispatchBrowserEvent('video-url-not-supported', __('cms.Video URL not supported'));
     }
 
     private function handleFileAttachments($response): void
@@ -625,17 +616,9 @@ class OpenShort extends Component
 
     public function removeItem($item, $id)
     {
-        if ($item === 'attachment') {
-            $this->removeAttachment($id);
-        }
-        if ($item === 'upload') {
-            $this->removeFromUploads($id);
-        }
-        if ($item === 'video') {
-            $this->removeVideo($id);
-        }
-        if ($item === 'question') {
-            $this->removeQuestion();
+        $method = 'remove'. Str::ucfirst($item);
+        if(method_exists($this, $method)) {
+            $this->$method($id);
         }
     }
 
@@ -779,5 +762,31 @@ class OpenShort extends Component
         if ($this->obj && method_exists($this->obj, 'createAnswerStruct')) {
             $this->obj->createAnswerStruct();
         }
+    }
+
+    private function validateVideoLink($link)
+    {
+        return !! $this->getVideoHost($link);
+    }
+
+    private function getVideoHost($link)
+    {
+        $youtube = collect(['youtube.com', 'youtu.be']);
+        $vimeo = collect(['vimeo.com']);
+        $host = null;
+
+        $youtube->each(function($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'youtube';
+            }
+        });
+
+        $vimeo->each(function($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'vimeo';
+            }
+        });
+
+        return $host;
     }
 }

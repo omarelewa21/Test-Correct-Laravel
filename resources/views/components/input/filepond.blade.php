@@ -4,19 +4,27 @@
     wire:ignore
     x-data="{
     post: null,
+    allowedTypes: ['jpg', 'jpeg', 'JPG', 'PEG', 'GIF', 'gif', 'PNG', 'png', 'PDF', 'pdf', 'mpeg', 'mp3'],
     init: () => {
         this.post = FilePond.create($refs.input);
             this.post.setOptions({
                 allowMultiple: {{ $multiple }},
+                maxParallelUploads: 10,
                 server: {
                     process:(fieldName, file, metadata, load, error, progress, abort, transfer, options) => {
-                        @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, (uploadedFilename) => {
+                        var fileType = file.type.split('/').pop();
+                        if ($data.allowedTypes.includes(fileType)) {
+                            @this.upload('{{ $attributes->whereStartsWith('wire:model')->first() }}', file, (uploadedFilename) => {
 
-                        }, () => {
+                            }, () => {
 
-                        }, (event) => {
+                            }, (event) => {
 
-                        })
+                            })
+                        } else {
+                            Notify.notify('{{ __('cms.file type not allowed') }} {{ __('cms.bestand')}}: '+file.name, 'error');
+                        }
+
                     },
                     revert: (filename, load) => {
                         @this.removeUpload('{{ $attributes->whereStartsWith('wire:model')->first() }}', filename, load)
@@ -30,12 +38,12 @@
             });
     },
     newFilesReceived: (event) => {
+                var files = [];
                 for (var i = 0; i < event.detail.dataTransfer.items.length; i++) {
-
-                    this.post.addFile(event.detail.dataTransfer.items[i].getAsFile())
+                   files.push(event.detail.dataTransfer.items[i].getAsFile());
                 }
-
-    }
+                this.post.addFiles(files)
+        }
     }
 "
 

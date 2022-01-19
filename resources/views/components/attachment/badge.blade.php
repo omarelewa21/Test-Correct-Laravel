@@ -9,6 +9,9 @@
     } else {
         $type = $attachment->getFileType();
     }
+    if($type == 'video') {
+        $host = $this->getVideoHost($attachment->link);
+    }
 @endphp
 
 <div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2"
@@ -18,7 +21,11 @@
         @if($type == 'image')
             <x-icon.image/>
         @elseif($type == 'video')
-            <x-icon.youtube/>
+            @if($host === 'vimeo')
+                <x-icon.vimeo/>
+            @else
+                <x-icon.youtube/>
+            @endif
         @elseif($type == 'audio')
             <x-icon.audiofile/>
         @elseif($type == 'pdf')

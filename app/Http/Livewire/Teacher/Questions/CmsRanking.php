@@ -11,12 +11,17 @@ class CmsRanking
     CONST MIN_ANSWER_COUNT = 2;
 
     private $instance;
-    private $answerCount = 2;
     public $requiresAnswer = true;
 
     public function __construct(OpenShort $instance) {
         $this->instance = $instance;
-        $this->setAnswerStruct();
+        if ($this->instance->action == 'edit') {
+            $this->setAnswerStruct();
+        } elseif(!array_key_exists('answerStruct', $this->instance->cmsPropertyBag)) {
+            $this->instance->cmsPropertyBag['answerStruct'] = [];
+            $this->instance->cmsPropertyBag['answerCount'] = 2;
+        }
+
     }
 
     public function getTranslationKey() {
@@ -63,15 +68,15 @@ class CmsRanking
             return $answer['id'] != $id;
         })->toArray());
 
-        if(self::MIN_ANSWER_COUNT < $this->answerCount) {
-            $this->answerCount--;
+        if(self::MIN_ANSWER_COUNT < $this->instance->cmsPropertyBag['answerCount']) {
+            $this->instance->cmsPropertyBag['answerCount']--;
         }
         $this->createAnswerStruct();
     }
 
     public function addAnswerItem()
     {
-        $this->answerCount++;
+        $this->instance->cmsPropertyBag['answerCount']++;
         $this->createAnswerStruct();
     }
 
@@ -88,8 +93,8 @@ class CmsRanking
             $result[] = (object)['id' => $value['id'], 'order' => $key + 1, 'answer' => $value['answer']];
         })->toArray();
 
-        if(count($this->instance->cmsPropertyBag['answerStruct']) < $this->answerCount){
-            for($i = count($this->instance->cmsPropertyBag['answerStruct']);$i < $this->answerCount;$i++){
+        if(count($this->instance->cmsPropertyBag['answerStruct']) < $this->instance->cmsPropertyBag['answerCount']){
+            for($i = count($this->instance->cmsPropertyBag['answerStruct']);$i < $this->instance->cmsPropertyBag['answerCount'];$i++){
                 $result[] = (object)[
                     'id'    => Uuid::uuid4(),
                     'order' => $i+1,
@@ -99,7 +104,7 @@ class CmsRanking
         }
 
         $this->instance->cmsPropertyBag['answerStruct']  = $result;
-        $this->answerCount = count($this->instance->cmsPropertyBag['answerStruct']);
+        $this->instance->cmsPropertyBag['answerCount'] = count($this->instance->cmsPropertyBag['answerStruct']);
     }
 
     public function prepareForSave()
@@ -137,6 +142,11 @@ class CmsRanking
                 ];
             })->toArray();
         }
-        $this->answerCount = count($this->instance->cmsPropertyBag['answerStruct']);
+        $this->instance->cmsPropertyBag['answerCount'] = count($this->instance->cmsPropertyBag['answerStruct']);
+    }
+
+    public function getTemplate()
+    {
+        return 'ranking-question';
     }
 }

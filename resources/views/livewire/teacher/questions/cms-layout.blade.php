@@ -122,7 +122,7 @@
                             @endif
                             @if($videos)
                                 @foreach($videos as $video)
-                                    <x-attachment.video-badge :video="$video"/>
+                                    <x-attachment.video-badge :video="$video" :host="$this->getVideoHost($video)"/>
                                 @endforeach
                             @endif
                             @if ($uploads)
@@ -270,6 +270,13 @@
                                        bloom: {{ $question['bloom'] ? 'true': 'false' }},
                                        miller: {{ $question['miller'] ? 'true': 'false' }}
                                    }"
+                                   x-init="
+                                        ['rtti', 'bloom', 'miller'].forEach((method) => {
+                                            $watch(method, (value) => {
+                                                value === false ? $wire.set('question.'+method, '') : ''
+                                            })
+                                        });
+                                   "
                 >
                     <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
                     <p class="text-base">{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
@@ -278,7 +285,10 @@
                             <x-input.toggle-row-with-title x-model="rtti">
                                 <span class="bold"> {{ __('RTTI methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div x-show="rtti" class="flex flex-col">
+                            <div class="flex flex-col relative overflow-hidden transition-all max-h-0 duration-200"
+                                 x-ref="rttiinputs"
+                                 :style="rtti ? 'max-height: ' + $refs.rttiinputs.scrollHeight + 'px' : ''"
+                            >
                                 @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
@@ -294,7 +304,10 @@
                             <x-input.toggle-row-with-title x-model="bloom">
                                 <span class="bold"> {{ __('BLOOM methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div x-show="bloom" class="flex flex-col">
+                            <div class="flex flex-col relative overflow-hidden transition-all max-h-0 duration-200"
+                                 x-ref="bloominputs"
+                                 :style="bloom ? 'max-height: ' + $refs.bloominputs.scrollHeight + 'px' : ''"
+                            >
                                 @foreach(['Onthouden', 'Begrijpen', 'Toepassen', 'Analyseren', 'Evalueren', 'Creëren'] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
@@ -310,7 +323,10 @@
                             <x-input.toggle-row-with-title x-model="miller">
                                 <span class="bold"> {{ __('Miller methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div x-show="miller" class="flex flex-col">
+                            <div class="flex flex-col relative overflow-hidden transition-all max-h-0 duration-200"
+                                 x-ref="millerinputs"
+                                 :style="miller ? 'max-height: ' + $refs.millerinputs.scrollHeight + 'px' : ''"
+                            >
                                 @foreach(['Weten', 'Weten hoe', 'Laten zien', 'Doen',] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
@@ -368,36 +384,7 @@
                             </div>
 
                             @foreach($pValues as $pValue)
-                                <div class="border-b flex w-full justify-between items-center col-span-2" wire:key="pvalue-{{ $pValue->getKey() }}" wire:ignore>
-                                    <div class="flex items-center space-x-2.5 py-3">
-                                        <span class="bold">{{ __('cms.p-waarde') }} {{ $pValue->education_level_year }} {{ optional($pValue->educationLevel)->name }}</span>
-                                    </div>
-                                    <div class="flex items-center space-x-2.5 py-3">
-                                        {!! number_format( $pValue->p_value, 2) !!}
-                                    </div>
-                                    <div class="flex items-center space-x-2.5 py-3">
-                                        {{ $pValue->p_value_count }} {{ __("cms.keer afgenomen") }}
-                                    </div>
-
-{{--                                    <div class="flex items-center space-x-2.5 py-3">--}}
-{{--                                        <?--}}
-
-{{--                                        $error = '';--}}
-
-{{--                                        if($pvalue['p_value'] > 0.9) {--}}
-{{--                                            $error = __("De vraag is te makkelijk voor dit niveau.");--}}
-{{--                                        }elseif($pvalue['p_value'] < 0.2) {--}}
-{{--                                            $error = __("De vraag is te moeilijk voor dit niveau. (controleer de vraag op eventuele vormfouten als u van mening bent dat de vraag geschikt is voor dit niveau)");--}}
-{{--                                        }--}}
-
-{{--                                        if(!empty($error)) {--}}
-{{--                                        ?>--}}
-{{--                                        <span class="fa fa-warning" onclick="Questions.showPvalueError('<?=$error?>');" style="cursor:pointer; color:orange"></span>--}}
-{{--                                        <?--}}
-{{--                                        }--}}
-{{--                                        ?>--}}
-{{--                                    </div>--}}
-                                </div>
+                                <x-pvalues :pValue="$pValue"/>
                             @endforeach
 
                         @endif
@@ -420,5 +407,6 @@
         </div>
 
         <x-modal.question-editor-delete-modal />
+        <x-notification/>
     </div>
 </div>
