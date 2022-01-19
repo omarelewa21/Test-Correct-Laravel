@@ -19,32 +19,21 @@
     <div>
         <div class="flex mb-4 flex-wrap">
             {{ $files }}
-
-            <x-input.filepond wire:model="{{ $uploadModel }}"
-                              class="flex space-x-4 flex-wrap"
-                              multiple="{{ $multiple ? 'true' : 'false' }}"
-                              :showDefault="$defaultFilepond"
-            >
-                {{ $filepond }}
-            </x-input.filepond>
+            <div>
+                <x-input.filepond wire:model="{{ $uploadModel }}"
+                                  class="flex space-x-4 flex-wrap"
+                                  multiple="{{ $multiple ? 'true' : 'false' }}"
+                                  :showDefault="$defaultFilepond"
+                >
+                    {{ $filepond }}
+                </x-input.filepond>
+                @error($uploadModel)
+                    <span class="text-base all-red">{{ __('cms.file type not allowed') }}</span>
+                @enderror
+            </div>
         </div>
     </div>
 
 
     {{ $slot }}
-
 </x-content-section>
-
-
-    <script>
-        function handleFileDrop(ev) {
-
-
-            var filepond = document.getElementById('filepond-upload');
-
-            for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-
-                filepond._x_dataStack[0].$data.post.addFile(ev.dataTransfer.items[i].getAsFile());
-            }
-        }
-    </script>

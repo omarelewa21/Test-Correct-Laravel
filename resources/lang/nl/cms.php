@@ -44,6 +44,11 @@ return [
     'Stel je te rankgschikken items op' => 'Stel je te rankgschikken items op',
     'MultipleChoice Question Uitleg Text' => 'De meerkeuzevraag kan ook meerdere antwoorden als correct accepteren door er punten aan toe te kennen.',
     'infoscreen-question' => 'Informatiescherm',
-
     'selection-question' => 'Selectie vraag',
+    'pvalue_too_hard' => 'De vraag is te moeilijk voor dit niveau. Controleer de vraag op eventuele vormfouten als je van mening bent dat de vraag geschikt is voor dit niveau.',
+    'pvalue_too_easy' => 'De vraag is te makkelijk voor dit niveau.',
+    'pvalue_support_link' => 'https://support.test-correct.nl/knowledge/p-waarde',
+    'Lees meer hierover op de Kennisbank' => 'Lees meer hierover op de Kennisbank',
+    'file type not allowed' => 'Dit bestandstype is niet toegestaan als bijlage.',
+    'bestand' => 'Bestand',
 ];
