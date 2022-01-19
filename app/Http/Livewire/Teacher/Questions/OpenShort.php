@@ -747,6 +747,9 @@ class OpenShort extends Component
             $this->educationLevelId = $q->education_level_id;
 
             $this->initWithTags = $q->tags;
+            $this->initWithTags->each(function($tag) {
+                $this->question['tags'][] = $tag->name;
+            });
 
             $this->attachmentsCount = count($this->attachments);
 
