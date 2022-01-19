@@ -7,28 +7,43 @@ use Illuminate\Support\Str;
 class CmsFactory
 {
 
+    private static $self;
+
     public static function create(OpenShort $instance)
     {
+        if (static::$self) {
+            return static::$self;
+        }
+
+        if ($instance->question['type'] == 'CompletionQuestion') {
+            if (Str::lower($instance->question['subtype']) == 'multi') {
+               static::$self = new CmsSelection($instance);
+            }
+            if (Str::lower($instance->question['subtype']) == 'completion') {
+                static::$self = new CmsCompletion($instance);
+            }
+        }
+
         if ($instance->question['type'] == 'MultipleChoiceQuestion' && Str::lower($instance->question['subtype']) == 'truefalse') {
-            return new CmsTrueFalse($instance);
+            static::$self =  new CmsTrueFalse($instance);
         }
 
         if ($instance->question['type'] == 'MultipleChoiceQuestion' && Str::lower($instance->question['subtype']) == 'multiplechoice') {
-            return new CmsMultipleChoice($instance);
+            static::$self =new CmsMultipleChoice($instance);
         }
 
         if ($instance->question['type'] == 'InfoscreenQuestion') {
-            return new CmsInfoScreen($instance);
+            static::$self = new CmsInfoScreen($instance);
         }
 
         if ($instance->question['type'] == 'RankingQuestion') {
-            return new CmsRanking($instance);
+            static::$self =  new CmsRanking($instance);
         }
 
         if ($instance->question['type'] == 'OpenQuestion') {
-            return new CmsOpen($instance);
+            static::$self =  new CmsOpen($instance);
         }
 
-        return null;
+        return static::$self ;
     }
 }

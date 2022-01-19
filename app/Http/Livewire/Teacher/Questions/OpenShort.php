@@ -2,10 +2,6 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-// http://test-correct.test/teacher/questions/open-short/add?owner=test&owner_id=2a60f858-3129-4903-b275-796cbce5f610&test_question_id=4a508b73-d01b-4729-be38-440f8fd76c8e
-
-// http://test-correct.test/teacher/questions/open-short/add?owner=test&owner_id=7dfda5b2-c0fc-44c0-8ff9-e7a3c831e4a6&test_question_id=a01fd5e2-36dc-4bc1-823f-ca794e034c3f
-//
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -44,6 +40,8 @@ class OpenShort extends Component
     public $owner;
 
     public $groupQuestionQuestionId;
+
+
 
     public $uploads = [];
 
@@ -115,11 +113,11 @@ class OpenShort extends Component
     protected function rules()
     {
         $rules = ['question.question' => 'required'];
+        if ($this->obj && method_exists( $this->obj, 'mergeRules')) {
+            $this->obj->mergeRules($rules);
+            return $rules;
+        }
         if ($this->requiresAnswer()) {
-            if ($this->obj) {
-                $this->obj->mergeRules($rules);
-                return $rules;
-            }
             $rules += ['question.answer' => 'required'];
         }
 
@@ -158,13 +156,6 @@ class OpenShort extends Component
         }
 
         switch ($this->question['type']) {
-            case 'CompletionQuestion':
-                if ($this->question['subtype'] == 'multi') {
-                    $translation = 'cms.selection-question';
-                    break;
-                }
-                $translation = 'cms.completion-question';
-                break;
             case 'OpenQuestion':
                 if ($this->question['subtype'] == 'short') {
                     $translation = 'cms.open-question-short';

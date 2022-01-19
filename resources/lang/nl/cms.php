@@ -44,4 +44,6 @@ return [
     'Stel je te rankgschikken items op' => 'Stel je te rankgschikken items op',
     'MultipleChoice Question Uitleg Text' => 'De meerkeuzevraag kan ook meerdere antwoorden als correct accepteren door er punten aan toe te kennen.',
     'infoscreen-question' => 'Informatiescherm',
+
+    'selection-question' => 'Selectie vraag',
 ];
