@@ -1,5 +1,5 @@
 <div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2"
-     x-data="badge()"
+     x-data="badge('{{ $video }}')"
 >
     <div class="flex p-2 border-r border-blue-grey h-full items-center">
         @if($host === 'vimeo')
@@ -10,8 +10,10 @@
     </div>
     <div class="flex base items-center relative">
         <span class="p-2 text-base max-w-[200px] truncate"
-                title="{{ $video }}">
-            {{ $video }}
+              :class="{'text-midgrey': resolvingTitle}"
+              :title:="videoTitle"
+              x-text="videoTitle"
+        >
         </span>
         <button class="py-3 px-4 flex items-center h-full rounded-md hover:bg-primary hover:text-white transition"
                 @click="options = true"

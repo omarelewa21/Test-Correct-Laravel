@@ -131,7 +131,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         initWithSelection() {
-           let text = window.editor.getSelection();
+            let text = window.editor.getSelection();
 
         },
 
@@ -177,9 +177,11 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
-    Alpine.data('badge', () => ({
+    Alpine.data('badge', (videoUrl = null) => ({
         options: false,
-        init() {
+        videoTitle: videoUrl,
+        resolvingTitle: true,
+        async init() {
             this.$watch('options', value => {
                 if (value) {
                     let pWidth = this.$refs.optionscontainer.parentElement.offsetWidth;
@@ -189,12 +191,27 @@ document.addEventListener('alpine:init', () => {
                     }
                 }
             })
-        }
+            if (videoUrl) {
+                const fetchedTitle = await getTitleForVideoUrl(videoUrl);
+                this.videoTitle = fetchedTitle || videoUrl;
+                this.resolvingTitle = false;
+            }
+        },
     }));
-
 
     Alpine.directive('global', function (el, {expression}) {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
         f(window, el._x_dataStack[0]);
     });
 });
+
+function getTitleForVideoUrl(videoUrl) {
+    return fetch('https://noembed.com/embed?url=' + videoUrl)
+        .then((response) => response.json())
+        .then((data) => {
+            if (!data.error) {
+                return data.title;
+            }
+            return null;
+        });
+}
