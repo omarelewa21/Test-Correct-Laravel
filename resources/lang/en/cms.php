@@ -50,4 +50,7 @@ return [
     'pvalue_too_easy' => 'The question is too easy for this level.',
     'pvalue_support_link' => 'https://support.test-correct.nl/knowledge/p-waarde',
     'Lees meer hierover op de Kennisbank' => 'Read more in the knowledgebank',
+    'file type not allowed' => 'This type of file is not allowed as attachment',
+    'bestand' => 'File',
+
 ];

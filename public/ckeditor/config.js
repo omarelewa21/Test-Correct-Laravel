@@ -16,6 +16,7 @@ CKEDITOR.editorConfig = function( config ) {
     // config.filebrowserUploadUrl = 'base64';
     config.filebrowserImageUploadUrl = '/cms/ckeditor_upload/images';
     // config.filebrowserImageUploadUrl = 'base64';
+    config.simpleuploads_acceptedExtensions = "jpg|jpeg|gif|png";
 
     config.toolbarCanCollapse = true;
 

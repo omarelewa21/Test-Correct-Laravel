@@ -644,9 +644,6 @@ class OpenShort extends Component
 
     public function updatedUploads($value)
     {
-        $this->validate([
-            'uploads' => 'image|max:'.BaseHelper::getMaxFileUploadSize(),
-        ]);
         $this->attachmentsCount++;
     }
 

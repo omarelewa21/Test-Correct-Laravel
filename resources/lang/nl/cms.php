@@ -48,4 +48,6 @@ return [
     'pvalue_too_easy' => 'De vraag is te makkelijk voor dit niveau.',
     'pvalue_support_link' => 'https://support.test-correct.nl/knowledge/p-waarde',
     'Lees meer hierover op de Kennisbank' => 'Lees meer hierover op de Kennisbank',
+    'file type not allowed' => 'Dit bestandstype is niet toegestaan als bijlage.',
+    'bestand' => 'Bestand',
 ];

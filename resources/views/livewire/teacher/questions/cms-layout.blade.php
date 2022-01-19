@@ -427,5 +427,6 @@
         </div>
 
         <x-modal.question-editor-delete-modal />
+        <x-notification/>
     </div>
 </div>
