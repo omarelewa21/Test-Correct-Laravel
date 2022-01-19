@@ -51,4 +51,5 @@ return [
     'Lees meer hierover op de Kennisbank' => 'Lees meer hierover op de Kennisbank',
     'file type not allowed' => 'Dit bestandstype is niet toegestaan als bijlage.',
     'bestand' => 'Bestand',
+    'Video URL not supported' => 'Video URL wordt niet ondersteund.'
 ];

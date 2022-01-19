@@ -3,20 +3,17 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
-use tcCore\Http\Controllers\AttachmentsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
+use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
-use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
@@ -546,7 +543,7 @@ class OpenShort extends Component
         $this->attachmentsCount--;
     }
 
-    public function removeFromUploads($tempFile)
+    public function removeUpload($tempFile)
     {
         $this->uploads = collect($this->uploads)->reject(function ($tempUpload) use ($tempFile) {
             return $tempUpload->getClientOriginalName() == $tempFile;
@@ -564,8 +561,12 @@ class OpenShort extends Component
 
     public function handleNewVideoAttachment($link)
     {
-        $this->videos[] = $link;
-        $this->attachmentsCount++;
+        if($this->validateVideoLink($link)) {
+            $this->videos[] = $link;
+            return $this->attachmentsCount++;
+        }
+
+        $this->dispatchBrowserEvent('video-url-not-supported', __('cms.Video URL not supported'));
     }
 
     private function handleFileAttachments($response): void
@@ -615,17 +616,9 @@ class OpenShort extends Component
 
     public function removeItem($item, $id)
     {
-        if ($item === 'attachment') {
-            $this->removeAttachment($id);
-        }
-        if ($item === 'upload') {
-            $this->removeFromUploads($id);
-        }
-        if ($item === 'video') {
-            $this->removeVideo($id);
-        }
-        if ($item === 'question') {
-            $this->removeQuestion();
+        $method = 'remove'. Str::ucfirst($item);
+        if(method_exists($this, $method)) {
+            $this->$method($id);
         }
     }
 
@@ -769,5 +762,31 @@ class OpenShort extends Component
         if ($this->obj && method_exists($this->obj, 'createAnswerStruct')) {
             $this->obj->createAnswerStruct();
         }
+    }
+
+    private function validateVideoLink($link)
+    {
+        return !! $this->getVideoHost($link);
+    }
+
+    private function getVideoHost($link)
+    {
+        $youtube = collect(['youtube.com', 'youtu.be']);
+        $vimeo = collect(['vimeo.com']);
+        $host = null;
+
+        $youtube->each(function($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'youtube';
+            }
+        });
+
+        $vimeo->each(function($opt) use ($link, &$host) {
+            if (Str::contains($link, $opt)) {
+                $host = 'vimeo';
+            }
+        });
+
+        return $host;
     }
 }

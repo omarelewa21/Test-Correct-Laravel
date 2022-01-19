@@ -53,5 +53,5 @@ return [
     'Lees meer hierover op de Kennisbank' => 'Read more in the knowledgebank',
     'file type not allowed' => 'This type of file is not allowed as attachment',
     'bestand' => 'File',
-
+    'Video URL not supported' => 'Video URL not supported'
 ];

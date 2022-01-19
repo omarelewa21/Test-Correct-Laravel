@@ -12,6 +12,7 @@
                    @dragleave.prevent="$el.classList.remove('dragover')"
                    @drop.prevent="$el.classList.remove('dragover');  $dispatch('newfile', $event)"
                    droppable
+                   @video-url-not-supported.window="Notify.notify($event.detail, 'error')"
 >
     <x-slot name="title">
         {{ $title }}
