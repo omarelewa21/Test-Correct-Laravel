@@ -2149,13 +2149,17 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function getRedirectUrlSplashOrStartAndLoginIfNeeded($options = null)
     {
-        if($this->isA('student')){
-            if($this->schoolLocation->allow_new_student_environment){
-                $this->loginThisUser();
-                $options = [
-                  'internal_page' => '/users/student_splash',
-                ];
-                return $this->getTemporaryCakeLoginUrl($options);
+        // added conditional for Thijs to test the new app with fallback if we forget to remove the conditional
+        // should be removed before deployment to live
+        if(Carbon::now() > Carbon::createFromFormat('Y-m-d','2022-01-20')) {
+            if ($this->isA('student')) {
+                if ($this->schoolLocation->allow_new_student_environment) {
+                    $this->loginThisUser();
+                    $options = [
+                        'internal_page' => '/users/student_splash',
+                    ];
+                    return $this->getTemporaryCakeLoginUrl($options);
+                }
             }
         }
 
@@ -2401,6 +2405,16 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function getActiveLanguage()
     {
         return session()->has('locale') ? session()->get('locale') : optional($this->schoolLocation)->school_language ??  config('app.locale');
+    }
+
+    public function hasSingleSchoolLocation()
+    {
+        return ($this->allowedSchoolLocations()->count() == 1);
+    }
+
+    public function hasMultipleSchoolLocations()
+    {
+        return ($this->allowedSchoolLocations()->count() > 1);
     }
 
     public function hasSingleSchoolLocationNoSharedSections()

@@ -1,5 +1,5 @@
 <x-layouts.base>
-    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 main-shadow"
+    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif"
             x-data="{}"
             x-on:set-red-header-border.window="$el.classList.add('red-header-border')"
             x-on:remove-red-header-border.window="$el.classList.remove('red-header-border')"

@@ -136,6 +136,7 @@ class FileManagement extends BaseModel {
 
         $query->join('school_locations','file_managements.school_location_id','=','school_locations.id')->with('schoolLocation');
 
+        $query->join('file_management_statuses','file_managements.file_management_status_id','=','file_management_statuses.id');
 
         $this->handleFilters($query,$filters);
 
@@ -301,6 +302,11 @@ class FileManagement extends BaseModel {
     protected function handleSortingCreatedAt($query,$dir)
     {
         $query->orderBy('file_managements.created_at', $dir);
+    }
+
+    protected function handleSortingStatus($query,$dir)
+    {
+        $query->orderBy('file_management_statuses.displayorder', $dir)->orderBy('file_managements.created_at', 'desc');
     }
 
     public static function getBuilderForUsers(User $user, $type = 'testupload')

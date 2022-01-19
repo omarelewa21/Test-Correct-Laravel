@@ -39,6 +39,7 @@
     --note: #6b7789;
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
+    --white: #ffffff;
 }
 
 @font-face {
@@ -176,6 +177,10 @@ svg {
     background: var(--system-secondary);
 }
 
+.bg-system-white {
+    background: var(--system-white);
+}
+
 .bg-mid-grey {
     background: var(--mid-grey);
 }
@@ -210,10 +215,6 @@ svg {
 
 .border-primary-light {
     border-color: var(--primary-light);
-}
-
-.border-secondary {
-    border-color: var(--secondary);
 }
 
 .border-highlight-primary {
@@ -389,6 +390,10 @@ h6 {
 
 .font-size-20 {
     font-size: 1.25rem;
+}
+
+.text-disabled {
+    color: var(--mid-grey);
 }
 
 

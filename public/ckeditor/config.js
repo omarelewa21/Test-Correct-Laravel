@@ -12,9 +12,9 @@ CKEDITOR.editorConfig = function( config ) {
     config.allowedContent = true;
     config.disableNativeSpellChecker = true;
 
-    config.filebrowserUploadUrl = '/custom/uploader.php?command=QuickUpload&type=Files';
+    config.filebrowserUploadUrl = '/cms/ckeditor_upload/files';
     // config.filebrowserUploadUrl = 'base64';
-    config.filebrowserImageUploadUrl = '/custom/uploader.php?command=QuickUpload&type=Images';
+    config.filebrowserImageUploadUrl = '/cms/ckeditor_upload/images';
     // config.filebrowserImageUploadUrl = 'base64';
 
     config.toolbarCanCollapse = true;
@@ -100,7 +100,7 @@ CKEDITOR.editorConfig = function( config ) {
 
 CKEDITOR.studentEditorConfig = {
     removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris',
+    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,wordcount,notification',
     toolbar: [
         { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
         { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },

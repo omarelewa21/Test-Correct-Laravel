@@ -24,7 +24,7 @@
         <audio id="player" src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $this->answerId], false) }}"
                x-ref="player"
                @if($attachment->audioOnlyPlayOnce())
-                    x-on:ended="@this.audioIsPlayedOnce(attachment);"
+                    x-on:ended="@this.audioIsPlayedOnce(attachment);@this.closeAttachmentModal()"
                @endif
         ></audio>
         <div class="flex justify-center">

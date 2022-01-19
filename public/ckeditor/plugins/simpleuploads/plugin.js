@@ -1009,9 +1009,9 @@ https://bugzilla.mozilla.org/show_bug.cgi?id=454832
 				}
 			}
 
-			CKEDITOR.document.on('dragenter', CKEDITORdragenter);
-			CKEDITOR.document.on('dragleave', CKEDITORdragleave);
-			CKEDITOR.document.on('dragover', CKEDITORdragover);
+			// CKEDITOR.document.on('dragenter', CKEDITORdragenter);
+			// CKEDITOR.document.on('dragleave', CKEDITORdragleave);
+			// CKEDITOR.document.on('dragover', CKEDITORdragover);
 
 			function rootDropListener(e) {
 				// editor

@@ -716,6 +716,11 @@ class Test extends BaseModel
 
     private function switchScopeFilteredSubQueryForDifferentScenarios($user)
     {
+        if ($user->hasSingleSchoolLocation()) {
+            return $this->getSubQueryForScopeFilteredSingleSchoolLocation($user);
+        }
+        return $this->getSubQueryForScopeFilteredMultipleSchoolLocations($user);
+
         if ($user->hasSingleSchoolLocationNoSharedSections()) {
             return $this->getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user);
         } elseif ($user->hasMultipleSchoolLocationsNoSharedSections()) {
@@ -937,50 +942,70 @@ class Test extends BaseModel
         return $query;
     }
 
-    private function getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user)
+    private function getSubQueryForScopeFilteredSingleSchoolLocation($user)
     {
         return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
-                                 ' union '.
-                                 $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-                                ') as t1'
+            ' union '.
+            $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
+            ') as t1'
         );
     }
 
-    private function getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user)
-    {
-        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
-                                 ' union '.
-                                $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
-                                 ' union '.
-                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-                                ' ) as t1'
-        );
-    }
-
-    private function getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user)
-    {
-        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
-                                ' union  '.
-                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-                                ' union '.
-                                 $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
-                                ' ) as t1'
-        );
-    }
-
-    private function getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user)
+    private function getSubQueryForScopeFilteredMultipleSchoolLocations($user)
     {
         return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
             ' union '.
             $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
             ' union '.
             $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
-            ' union '.
-            $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
             ' ) as t1'
         );
-
     }
+
+//    private function getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user)
+//    {
+//        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
+//                                 ' union '.
+//                                 $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
+//                                ') as t1'
+//        );
+//    }
+//
+//    private function getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user)
+//    {
+//        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
+//                                 ' union '.
+//                                $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
+//                                 ' union '.
+//                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
+//                                ' ) as t1'
+//        );
+//    }
+//
+//    private function getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user)
+//    {
+//        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
+//                                ' union  '.
+//                                $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
+//                                ' union '.
+//                                 $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
+//                                ' ) as t1'
+//        );
+//    }
+//
+//    private function getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user)
+//    {
+//        return DB::raw('('.$this->getQueryGetTestsFromSchoolLocationAuthoredByUser($user).
+//            ' union '.
+//            $this->getQueryGetTestsFromAllSchoolLocationsAuthoredByUserCurrentlyTaughtByUserInActiveSchoolLocation($user).
+//            ' union '.
+//            $this->getQueryGetTestsFromSectionWithinSchoolLocation($user).
+//            ' union '.
+//            $this->getQueryGetTestsFromSharedSectionsWhereUserHasAccess($user).
+//            ' ) as t1'
+//        );
+//
+//    }
 
     public function hasOpenQuestion(){
         return !! collect(QuestionGatherer::getQuestionsOfTest($this->getKey(), true))->search(function(Question $question){

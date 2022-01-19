@@ -10,6 +10,8 @@ return [
 
     'Let op' => 'Let op',
 
+    'Groupquestion attachment error 1' => 'Binnen een groepsvraag kan niet eenmalig afspelen worden gecombineerd met een timer.',
+
 ];
 
 ?>
