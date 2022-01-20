@@ -11,7 +11,7 @@
     <div class="flex base items-center relative">
         <span class="p-2 text-base max-w-[200px] truncate"
               :class="{'text-midgrey': resolvingTitle}"
-              :title:="videoTitle"
+              :title="videoTitle"
               x-text="videoTitle"
         >
         </span>
