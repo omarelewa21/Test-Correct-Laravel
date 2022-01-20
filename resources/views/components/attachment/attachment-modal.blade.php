@@ -21,9 +21,15 @@
                               d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
                     </svg>
                 </x-button.secondary>
-                <x-button.primary wire:click="closeAttachmentModal">
-                    <x-icon.close class="text-white"/>
-                </x-button.primary>
+                @if($this->attachmentType == 'audio')
+                    <x-button.primary wire:click="$emit('clickPauseButtonAndCloseModal')">
+                        <x-icon.close class="text-white"/>
+                    </x-button.primary>
+                @else
+                    <x-button.primary wire:click="closeAttachmentModal">
+                        <x-icon.close class="text-white"/>
+                    </x-button.primary>
+                @endif
             </div>
             <div class="flex w-full h-full rounded-10 attachment-iframe-wrapper @if($this->attachmentType == 'image') max-h-[80vh] @endif">
                 @if($this->attachmentType == 'video')
@@ -32,7 +38,7 @@
                     <iframe class="w-full h-full"
                             src="{{ route('student.question-pdf-attachment-show', ['attachment' => $attachment, 'answer' => $answerId], false) }}"></iframe>
                 @elseif($this->attachmentType == 'audio')
-                    <x-attachment.audio :attachment="$attachment"/>
+                    <x-attachment.audio :attachment="$attachment" />
                 @else
                         <img class="w-full h-full block"
                             src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $answerId], false) }}" alt=""/>
@@ -55,3 +61,18 @@
     </script>
     </div>
 @endif
+@push('scripts')
+    <script>
+        document.addEventListener('livewire:load', function () {
+            @this.on('clickPauseButtonAndCloseModal', event => {
+                var pauseButtons = document.getElementsByClassName('pause_button');
+                for (let item of pauseButtons) {
+                    item.click();
+                }
+                @this.call('closeAttachmentModal');
+            });
+
+        });
+    </script>
+
+@endpush

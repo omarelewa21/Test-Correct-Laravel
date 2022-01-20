@@ -1,8 +1,9 @@
+
 <div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10"
      x-data="{attachment: null}"
      x-init="
         attachment = '{{ $attachment->uuid }}'
-             $refs.player.currentTime = {{ $attachment->audioHasCurrentTime() }}"
+             $refs.player.currentTime = {{ $this->getCurrentTime() }}"
 >
     <div class="text-center">
         @if(!$attachment->audioCanBePlayedAgain())
@@ -36,8 +37,8 @@
                 {{__('test_take.play')}}
             </button>
             @if($attachment->audioIsPausable())
-                <button class="button secondary-button ml-2"
-                        x-on:click.prevent="$refs.player.pause(); $wire.audioStoreCurrentTime(attachment, $refs.player.currentTime)"
+                <button class="button secondary-button ml-2 pause_button"
+                        x-on:click.prevent="$refs.player.pause(); $wire.audioStoreCurrentTime($refs.player.currentTime)"
                         @if(!$attachment->audioCanBePlayedAgain()) disabled @endif
                 >
                     {{__('test_take.pause')}}
@@ -46,3 +47,4 @@
         </div>
     </div>
 </div>
+

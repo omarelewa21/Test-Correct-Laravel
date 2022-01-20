@@ -17,6 +17,7 @@ trait WithAttachments
     public $attachmentType = '';
     public $positionTop;
     public $positionLeft;
+    public $currentTimes = [];
 
     public function mountWithAttachments()
     {
@@ -66,6 +67,15 @@ trait WithAttachments
     {
         $sessionValue = 'attachment_' . $this->attachment->uuid . '_currentTime';
         session()->put($sessionValue, $currentTime);
+        $this->currentTimes[$this->question->uuid][$this->attachment->uuid] = $currentTime;
+    }
+
+    public function getCurrentTime()
+    {
+        if(array_key_exists($this->question->uuid,$this->currentTimes)&&array_key_exists($this->attachment->uuid,$this->currentTimes[$this->question->uuid])){
+            return $this->currentTimes[$this->question->uuid][$this->attachment->uuid];
+        }
+        return 0;
     }
 
     private function audioIsPlayedAndCanBePlayedAgain()
