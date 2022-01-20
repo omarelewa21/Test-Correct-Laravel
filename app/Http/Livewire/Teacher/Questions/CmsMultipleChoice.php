@@ -61,7 +61,7 @@ class CmsMultipleChoice
             return [
                 'order'  => $answer['order'],
                 'answer' => $answer['answer'],
-                'score'  => $answer['score'],
+                'score'  => (int) $answer['score'],
             ];
         })->toArray());
         unset($this->instance->question['answer']);
@@ -77,7 +77,9 @@ class CmsMultipleChoice
             $value = (array) $value;
 
             $result[] = (object) [
-                'id'    => $value['id'], 'order' => $key + 1, 'answer' => $value['answer'],
+                'id'    => $value['id'],
+                'order' => $key + 1,
+                'answer' => $value['answer'],
                 'score' => (int) $value['score']
             ];
         })->toArray();
@@ -145,7 +147,7 @@ class CmsMultipleChoice
         $this->createAnswerStruct();
     }
 
-    public function mcUpdated($args)
+    public function updated($args)
     {
         $this->createAnswerStruct();
     }

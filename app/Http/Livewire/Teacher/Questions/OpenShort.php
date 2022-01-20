@@ -231,7 +231,9 @@ class OpenShort extends Component
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
-
+        if($this->obj && method_exists($this->obj, 'updated')){
+            $this->obj->updated($value);
+        }
     }
 
     protected function _showSettingsTaxonomy()
