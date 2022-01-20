@@ -1,5 +1,6 @@
 <?php namespace tcCore;
 
+use Illuminate\Validation\Validator;
 use Illuminate\Support\Str;
 use tcCore\Exceptions\QuestionException;
 use tcCore\Http\Helpers\QuestionHelper;
@@ -415,5 +416,49 @@ class CompletionQuestion extends Question implements QuestionInterface {
             return true;
         }
         return parent::needsToBeUpdated($request);
+    }
+
+    public static function validateWithValidator(Validator $validator, $questionString, $subType, $fieldPreFix = '')
+    {
+        if(!strstr($questionString, '[') && !strstr($questionString, ']')) {
+            if(request()->input('subtype') === 'completion'){
+                $validator->errors()->add($fieldPreFix.'question', 'U dient één woord tussen vierkante haakjes te plaatsen.');
+            } else {
+                $validator->errors()->add($fieldPreFix.'question', 'U dient minimaal één woord tussen vierkante haakjes te plaatsen.');
+            }
+        }
+
+        if($subType == 'completion' && strstr($questionString,'|')){
+            $validator->errors()->add($fieldPreFix.'question','U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
+        }
+
+        $check         = false;
+        $errorMessage  = "U heeft het verkeerde formaat van de vraag ingevoerd, zorg ervoor dat elk haakje '[' gesloten is en er geen overlap tussen haakjes is.";
+        for ($charIndex = 0; $charIndex < strlen($questionString); $charIndex++){
+            if($questionString[$charIndex] == '[' && !$check){        // set check to true if [ char found
+                $check = true;
+            }elseif($questionString[$charIndex] == ']' && $check){     // if ] char found return check to false
+                $check = false;
+            }elseif($questionString[$charIndex] == ']' && !$check){    // if ] char found and there was no [ before resutls in an error
+                $check = false;
+                $validator->errors()->add($fieldPreFix.'question', $errorMessage);
+                break;
+            }elseif($check && $questionString[$charIndex] == '['){     // if [ char found with check set to true results in an error
+                $check = false;
+                $validator->errors()->add($fieldPreFix.'question', $errorMessage);
+                break;
+            }
+        }
+        if($check){                                             // if check is true results in an error
+            $validator->errors()->add('question', $errorMessage);
+        }
+
+        if($subType == 'multi'){
+            $qHelper = new QuestionHelper();
+            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionString, true);
+            if($questionData["error"]){
+                $validator->errors()->add('question', $questionData["error"]);
+            }
+        }
     }
 }

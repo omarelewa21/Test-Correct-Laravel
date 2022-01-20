@@ -391,6 +391,9 @@ class OpenShort extends Component
     {
         try {
             $this->validate();
+            if($this->obj && method_exists($this->obj, 'customValidation')){
+                $this->obj->customValidation();
+            }
         } catch (ValidationException $e) {
             $this->dispatchBrowserEvent('opentab', 1);
             throw ($e);
