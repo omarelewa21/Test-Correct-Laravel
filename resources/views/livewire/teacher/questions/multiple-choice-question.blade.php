@@ -60,6 +60,7 @@
                     <x-input.text class="w-12 text-center {{ $errorScoreClass }}"
                                   wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.score"
                                   title="{{ $answer->score }}"
+                                  type="number"
                     />
                 </div>
                 <x-slot name="after">
