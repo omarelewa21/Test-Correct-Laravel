@@ -88,7 +88,7 @@ class OpenShort extends Component
         'discuss'                => 1,
         'maintain_position'      => 0,
         'miller'                 => '',
-        'is_open_source_content' => 1,
+        'is_open_source_content' => 0,
         'tags'                   => [],
         'note_type'              => 'NONE',
         'order'                  => 0,
@@ -712,6 +712,7 @@ class OpenShort extends Component
         }
 
         $this->question['test_id'] = $activeTest->id;
+        $this->question['is_open_source_content'] = $activeTest->is_open_source_content ?? 0;
 
         if ($this->editModeForExistingQuestion()) {
             if ($this->isPartOfGroupQuestion()) {
