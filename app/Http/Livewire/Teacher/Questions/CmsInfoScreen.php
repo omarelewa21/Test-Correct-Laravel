@@ -8,6 +8,13 @@ class CmsInfoScreen
 {
     private $instance;
 
+    public $settingsGeneralDisabledProperties = [
+        'allowNotes',
+        'addToDatabase',
+        'discuss',
+        'decimalOption',
+    ];
+
     public function __construct(OpenShort $instance) {
         $this->instance = $instance;
     }

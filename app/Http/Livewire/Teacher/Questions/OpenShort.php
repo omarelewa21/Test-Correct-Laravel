@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -54,6 +55,11 @@ class OpenShort extends Component
     public $isPartOfGroupQuestion = false;
 
     protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner'];
+
+    protected $settingsGeneralPropertiesVisibility = [
+        'autoCheckAnswer' => false,
+        'autoCheckAnswerCaseSensitive' => false
+    ];
 
     public $videos = [];
 
@@ -425,67 +431,23 @@ class OpenShort extends Component
         return $response;
     }
 
-    public function isCloseableDisabled($asText = false)
+    public function isSettingsGeneralPropertyVisible($property)
     {
-        if($asText){
-            return 'false';
+        if($this->obj && property_exists($this->obj,'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
+            $this->settingsGeneralPropertiesVisibility = array_merge($this->settingsGeneralPropertiesVisibility, $this->obj->settingsGeneralPropertiesVisibility);
         }
-        return false;
+
+        if(array_key_exists($property,$this->settingsGeneralPropertiesVisibility)){
+            return (bool) $this->settingsGeneralPropertiesVisibility[$property];
+        }
+
+        return true;
     }
 
-    public function isMaintainPositionDisabled($asText = false)
+    public function isSettingsGeneralPropertyDisabled($property, $asText = false)
     {
-        if($asText){
-            return 'false';
-        }
-        return false;
-    }
 
-    public function isAllowNotesDisabled($asText = false)
-    {
-        if($this->isInfoscreenQuestion()){
-            if($asText){
-                return 'true';
-            }
-            return true;
-        }
-        if($asText){
-            return 'false';
-        }
-        return false;
-    }
-
-    public function isAddToDatabaseDisabled($asText = false)
-    {
-        if($this->isInfoscreenQuestion()){
-            if($asText){
-                return 'true';
-            }
-            return true;
-        }
-        if($asText){
-            return 'false';
-        }
-        return false;
-    }
-
-    public function isDiscussDisabled($asText = false)
-    {
-        if($this->isInfoscreenQuestion()){
-            if($asText){
-                return 'true';
-            }
-            return true;
-        }
-        if($asText){
-            return 'false';
-        }
-        return false;
-    }
-
-    public function isDecimalOptionDisabled($asText = false)
-    {
-        if($this->isInfoscreenQuestion()){
+        if($this->obj && property_exists($this->obj,'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property,$this->obj->settingsGeneralDisabledProperties)){
             if($asText){
                 return 'true';
             }
