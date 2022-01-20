@@ -238,7 +238,7 @@ class OpenShort extends Component
             $this->obj->$method($value);
         }
         if($this->obj && method_exists($this->obj, 'updated')){
-            $this->obj->updated($value);
+            $this->obj->updated($name, $value);
         }
     }
 

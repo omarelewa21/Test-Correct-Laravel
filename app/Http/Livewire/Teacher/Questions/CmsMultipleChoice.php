@@ -147,7 +147,7 @@ class CmsMultipleChoice
         $this->createAnswerStruct();
     }
 
-    public function updated($args)
+    public function updated($prop, $args)
     {
         $this->createAnswerStruct();
     }

@@ -52,10 +52,10 @@ class CmsCompletion
         return false;
     }
 
-    public function updated($val)
+    public function updated($prop, $val)
     {
-        if(!$this->instance->question['auto_check_answer']){
-            $this->instance->question['auto_check_answer_case_sensitive'] = false;
+        if($prop === 'question.auto_check_answer' && $this->instance->question['auto_check_answer']){
+            $this->instance->question['auto_check_answer_case_sensitive'] = true;
         }
     }
 
