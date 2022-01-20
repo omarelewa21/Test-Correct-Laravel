@@ -32,6 +32,10 @@ class CmsFactory
             static::$self =new CmsMultipleChoice($instance);
         }
 
+        if ($instance->question['type'] == 'MultipleChoiceQuestion' && Str::lower($instance->question['subtype']) == 'arq') {
+            static::$self =new CmsArq($instance);
+        }
+
         if ($instance->question['type'] == 'InfoscreenQuestion') {
             static::$self = new CmsInfoScreen($instance);
         }

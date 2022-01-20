@@ -310,6 +310,15 @@ class OpenShort extends Component
         return Str::lower($this->question['subtype']) == 'truefalse';
     }
 
+    public function isArqQuestion()
+    {
+        if ($this->question['type'] !== 'MultipleChoiceQuestion') {
+            return false;
+        }
+
+        return Str::lower($this->question['subtype']) == 'arq';
+    }
+
     public function isMultipleChoiceQuestion()
     {
         if ($this->question['type'] !== 'MultipleChoiceQuestion') {
@@ -326,7 +335,7 @@ class OpenShort extends Component
 
     public function showQuestionScore()
     {
-        return ! ($this->isMultipleChoiceQuestion() || $this->isInfoscreenQuestion());
+        return ! ($this->isMultipleChoiceQuestion() || $this->isInfoscreenQuestion() || $this->isArqQuestion());
     }
 
     private function saveNewQuestion()
