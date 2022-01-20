@@ -446,16 +446,27 @@ class OpenShort extends Component
 
     public function isSettingsGeneralPropertyDisabled($property, $asText = false)
     {
+        if($this->obj && method_exists($this->obj,'isSettingsGeneralPropertyDisabled')){
+            return $this->obj->isSettingsGeneralPropertyDisabled($property, $asText);
+        }
 
         if($this->obj && property_exists($this->obj,'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property,$this->obj->settingsGeneralDisabledProperties)){
             if($asText){
                 return 'true';
             }
+            logger([
+                'key' => $property,
+                'val' => true,
+            ]);
             return true;
         }
         if($asText){
             return 'false';
         }
+        logger([
+            'key' => $property,
+            'val' => false,
+        ]);
         return false;
     }
 

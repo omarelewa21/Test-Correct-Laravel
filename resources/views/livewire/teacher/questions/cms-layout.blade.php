@@ -208,57 +208,87 @@
                             </div>
                         @endif
 
-                        <x-input.toggle-row-with-title wire:model="question.closeable"
-                            :toolTip="__('cms.close_after_answer_tooltip_text')"
-                           class="{{ $this->isCloseableDisabled() ? 'text-disabled' : '' }}"
-                           :disabled="$this->isCloseableDisabled()"
-                        >
-                            <x-icon.locked></x-icon.locked>
-                            <span class="bold">{{ __('Sluiten na beantwoorden') }}</span>
-                        </x-input.toggle-row-with-title>
+                            @if($this->isSettingsGeneralPropertyVisible('closeable'))
+                                <x-input.toggle-row-with-title wire:model="question.closeable"
+                                                               :toolTip="__('cms.close_after_answer_tooltip_text')"
+                                                               class="{{ $this->isSettingsGeneralPropertyDisabled('closeable') ? 'text-disabled' : '' }}"
+                                                               :disabled="$this->isSettingsGeneralPropertyDisabled('closeable')"
+                                >
+                                    <x-icon.locked></x-icon.locked>
+                                    <span class="bold">{{ __('Sluiten na beantwoorden') }}</span>
+                                </x-input.toggle-row-with-title>
+                            @endif
 
-                        <x-input.toggle-row-with-title wire:model="question.add_to_database"
-                            :toolTip="__('cms.make_public_tooltip_text')"
-                           class="{{ $this->isAddToDatabaseDisabled() ? 'text-disabled' : '' }}"
-                           :disabled="$this->isAddToDatabaseDisabled()"
-                        >
-                            <x-icon.preview class="flex "></x-icon.preview>
-                            <span class="bold"> {{ __('Openbaar maken') }}</span>
-                        </x-input.toggle-row-with-title>
+                            @if($this->isSettingsGeneralPropertyVisible('addToDatabase'))
+                                <x-input.toggle-row-with-title wire:model="question.add_to_database"
+                                                               :toolTip="__('cms.make_public_tooltip_text')"
+                                                               class="{{ $this->isSettingsGeneralPropertyDisabled('addToDatabase') ? 'text-disabled' : '' }}"
+                                                               :disabled="$this->isSettingsGeneralPropertyDisabled('addToDatabase')"
+                                >
+                                    <x-icon.preview class="flex "></x-icon.preview>
+                                    <span class="bold"> {{ __('Openbaar maken') }}</span>
+                                </x-input.toggle-row-with-title>
+                            @endif
 
+                            @if($this->isSettingsGeneralPropertyVisible('maintainPosition'))
+                                <x-input.toggle-row-with-title wire:model="question.maintain_position"
+                                                               class="{{ $this->isSettingsGeneralPropertyDisabled('maintainPosition') ? 'text-disabled' : '' }}"
+                                                               :disabled="$this->isSettingsGeneralPropertyDisabled('maintainPosition')"
+                                >
+                                    <x-icon.shuffle-off/>
+                                    <span class="bold"> {{ __('Deze vraag niet shuffelen') }}</span>
+                                </x-input.toggle-row-with-title>
+                            @endif
 
-                        <x-input.toggle-row-with-title wire:model="question.maintain_position"
-                           class="{{ $this->isMaintainPositionDisabled() ? 'text-disabled' : '' }}"
-                           :disabled="$this->isMaintainPositionDisabled()"
-                        >
-                            <x-icon.shuffle-off/>
-                            <span class="bold"> {{ __('Deze vraag niet shuffelen') }}</span>
-                        </x-input.toggle-row-with-title>
+                            @if($this->isSettingsGeneralPropertyVisible('discuss'))
+                                <x-input.toggle-row-with-title wire:model="question.discuss"
+                                                               class="{{ $this->isSettingsGeneralPropertyDisabled('discuss') ? 'text-disabled' : '' }}"
+                                                               :disabled="$this->isSettingsGeneralPropertyDisabled('discuss')"
+                                >
+                                    <x-icon.discuss class="flex "></x-icon.discuss>
+                                    <span class="bold"> {{ __('Bespreken in de klas') }}</span>
+                                </x-input.toggle-row-with-title>
+                            @endif
 
-                        <x-input.toggle-row-with-title wire:model="question.discuss"
-                               class="{{ $this->isDiscussDisabled() ? 'text-disabled' : '' }}"
-                               :disabled="$this->isDiscussDisabled()"
-                        >
-                            <x-icon.discuss class="flex "></x-icon.discuss>
-                            <span class="bold"> {{ __('Bespreken in de klas') }}</span>
-                        </x-input.toggle-row-with-title>
+                            @if($this->isSettingsGeneralPropertyVisible('allowNotes'))
+                                <x-input.toggle-radio-row-with-title wire:model="question.note_type" value-on="TEXT" value-off="NONE"
+                                                                     class="{{ $this->isSettingsGeneralPropertyDisabled('allowNotes') ? 'text-disabled' : '' }}"
+                                                                     :disabled="$this->isSettingsGeneralPropertyDisabled('allowNotes')"
+                                >
+                                    <x-icon.notepad/>
+                                    <span class="bold"> {{ __('Notities toestaan') }}</span>
+                                </x-input.toggle-radio-row-with-title>
+                            @endif
 
+                            @if($this->isSettingsGeneralPropertyVisible('decimalScore'))
+                                <x-input.toggle-row-with-title wire:model="question.decimal_score"
+                                                               class="{{ $this->isSettingsGeneralPropertyDisabled('decimalOption') ? 'text-disabled' : '' }}"
+                                                               :disabled="$this->isSettingsGeneralPropertyDisabled('decimalOption')"
+                                >
+                                    <x-icon.half-points/>
+                                    <span class="bold @if($this->isSettingsGeneralPropertyDisabled('decimalOption')) disabled @endif"> {{ __('Halve puntenbeoordeling mogelijk') }}</span>
+                                </x-input.toggle-row-with-title>
+                            @endif
 
-                        <x-input.toggle-radio-row-with-title wire:model="question.note_type" value-on="TEXT" value-off="NONE"
-                           class="{{ $this->isAllowNotesDisabled() ? 'text-disabled' : '' }}"
-                           :disabled="$this->isAllowNotesDisabled()"
-                        >
-                            <x-icon.notepad/>
-                            <span class="bold"> {{ __('Notities toestaan') }}</span>
-                        </x-input.toggle-radio-row-with-title>
+                            @if($this->isSettingsGeneralPropertyVisible('autoCheckAnswer'))
+                                <x-input.toggle-row-with-title wire:model="question.auto_check_answer"
+                                                               class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswer') ? 'text-disabled' : '' }}"
+                                                               :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')"
+                                >
+                                    <x-icon.preview class="flex "></x-icon.preview>
+                                    <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')) disabled @endif"> {{ __('Automatisch nakijken') }}</span>
+                                </x-input.toggle-row-with-title>
+                            @endif
 
-                        <x-input.toggle-row-with-title wire:model="question.decimal_score"
-                            class="{{ $this->isDecimalOptionDisabled() ? 'text-disabled' : '' }}"
-                            :disabled="$this->isDecimalOptionDisabled()"
-                        >
-                            <x-icon.half-points/>
-                            <span class="bold @if($this->isDecimalOptionDisabled()) disabled @endif"> {{ __('Halve puntenbeoordeling mogelijk') }}</span>
-                        </x-input.toggle-row-with-title>
+                            @if($this->isSettingsGeneralPropertyVisible('autoCheckAnswerCaseSensitive'))
+                                <x-input.toggle-row-with-title wire:model="question.auto_check_answer_case_sensitive"
+                                                               class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive') ? 'text-disabled' : '' }}"
+                                                               :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')"
+                                >
+                                    <x-icon.notepad/>
+                                    <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')) disabled @endif"> {{ __('Hoofdletter gevoelig nakijken') }}</span>
+                                </x-input.toggle-row-with-title>
+                            @endif
 
                     </div>
 
