@@ -450,14 +450,14 @@ class CompletionQuestion extends Question implements QuestionInterface {
             }
         }
         if($check){                                             // if check is true results in an error
-            $validator->errors()->add('question', $errorMessage);
+            $validator->errors()->add($fieldPreFix.'question', $errorMessage);
         }
 
         if($subType == 'multi'){
             $qHelper = new QuestionHelper();
             $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionString, true);
             if($questionData["error"]){
-                $validator->errors()->add('question', $questionData["error"]);
+                $validator->errors()->add($fieldPreFix.'question', $questionData["error"]);
             }
         }
     }
