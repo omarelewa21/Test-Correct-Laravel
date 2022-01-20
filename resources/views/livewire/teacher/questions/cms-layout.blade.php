@@ -94,7 +94,7 @@
                         {{ __('Instellingen') }}
                     </x-button.text-button>
                 </div>
-                @if($this->testQuestionId)
+                @if($this->testQuestionId && $this->showStatistics())
                 <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}">
                     <x-button.text-button
                         style="color:inherit"
@@ -357,6 +357,7 @@
 
 
             </div>
+            @if($this->showStatistics())
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 3"
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
@@ -391,6 +392,7 @@
                     </div>
                 </x-content-section>
             </div>
+                @endif
         </div>
 
         <div class="question-editor-footer">
