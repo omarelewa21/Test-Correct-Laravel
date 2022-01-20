@@ -13,7 +13,6 @@
     <div class="flex flex-col space-y-2 w-full mt-4"
     >
         <div class="flex px-0 py-0 border-0 bg-system-white justify-between relative">
-            </div>
             <table class="min-w-full devide-y devide-gray-200">
                 <thead class="border-b-gray-200">
                     <tr>
