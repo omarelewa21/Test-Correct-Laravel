@@ -242,6 +242,15 @@ class OpenShort extends Component
         }
     }
 
+    public function showStatistics()
+    {
+        $method = 'showStatistics';
+        if(method_exists($this->obj, $method)) {
+            return $this->obj->$method();
+        }
+        return true;
+    }
+
     protected function _showSettingsTaxonomy()
     {
         return true;

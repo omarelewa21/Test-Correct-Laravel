@@ -55,4 +55,9 @@ class CmsInfoScreen
         return false;
     }
 
+    public function showStatistics()
+    {
+        return false;
+    }
+
 }
