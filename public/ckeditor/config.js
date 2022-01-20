@@ -17,7 +17,7 @@ CKEDITOR.editorConfig = function( config ) {
     config.filebrowserImageUploadUrl = '/cms/ckeditor_upload/images';
     // config.filebrowserImageUploadUrl = 'base64';
     config.simpleuploads_acceptedExtensions = "jpg|jpeg|gif|png";
-
+    config.fileTools_requestHeaders = {'X-CSRF-TOKEN': document.querySelector('meta[name="_token"]').content};
     config.toolbarCanCollapse = true;
 
     simpleuploads_acceptedExtensions : 'jpeg|jpg|png|PNG';
