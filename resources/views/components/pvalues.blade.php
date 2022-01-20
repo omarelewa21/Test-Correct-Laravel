@@ -3,8 +3,8 @@
      wire:ignore
      x-data="{
          errorOpen: false,
-         tooEasy: !!({{ $pValue->p_value }} < 0.2),
-         tooHard: !!({{ $pValue->p_value }} > 0.9),
+         tooEasy: !!({{ $pValue->p_value }} < 0.8),
+         tooHard: !!({{ $pValue->p_value }} > 0.2),
          error: null,
          orange: [1,7],
          yellow: [2,6],

@@ -285,10 +285,7 @@
                             <x-input.toggle-row-with-title x-model="rtti">
                                 <span class="bold"> {{ __('RTTI methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div class="flex flex-col relative overflow-hidden transition-all max-h-0 duration-200"
-                                 x-ref="rttiinputs"
-                                 :style="rtti ? 'max-height: ' + $refs.rttiinputs.scrollHeight + 'px' : ''"
-                            >
+                            <div x-show="bloom" class="flex flex-col">
                                 @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
@@ -304,10 +301,7 @@
                             <x-input.toggle-row-with-title x-model="bloom">
                                 <span class="bold"> {{ __('BLOOM methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div class="flex flex-col relative overflow-hidden transition-all max-h-0 duration-200"
-                                 x-ref="bloominputs"
-                                 :style="bloom ? 'max-height: ' + $refs.bloominputs.scrollHeight + 'px' : ''"
-                            >
+                            <div x-show="bloom" class="flex flex-col">
                                 @foreach(['Onthouden', 'Begrijpen', 'Toepassen', 'Analyseren', 'Evalueren', 'Creëren'] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
@@ -323,10 +317,7 @@
                             <x-input.toggle-row-with-title x-model="miller">
                                 <span class="bold"> {{ __('Miller methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div class="flex flex-col relative overflow-hidden transition-all max-h-0 duration-200"
-                                 x-ref="millerinputs"
-                                 :style="miller ? 'max-height: ' + $refs.millerinputs.scrollHeight + 'px' : ''"
-                            >
+                            <div x-show="bloom" class="flex flex-col">
                                 @foreach(['Weten', 'Weten hoe', 'Laten zien', 'Doen',] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"

@@ -94,7 +94,7 @@ class OpenShort extends Component
         'discuss'                => 1,
         'maintain_position'      => 0,
         'miller'                 => '',
-        'is_open_source_content' => 1,
+        'is_open_source_content' => 0,
         'tags'                   => [],
         'note_type'              => 'NONE',
         'order'                  => 0,
@@ -679,6 +679,7 @@ class OpenShort extends Component
         }
 
         $this->question['test_id'] = $activeTest->id;
+        $this->question['is_open_source_content'] = $activeTest->is_open_source_content ?? 0;
 
         if ($this->editModeForExistingQuestion()) {
             if ($this->isPartOfGroupQuestion()) {
@@ -706,9 +707,9 @@ class OpenShort extends Component
             $this->question['order'] = $tq->order;
             $this->question['all_or_nothing'] = $q->all_or_nothing;
             $this->question['closeable'] = $q->closeable;
-            $this->question['maintain_position'] = $q->maintain_position;
+            $this->question['maintain_position'] = $tq->maintain_position;
             $this->question['add_to_database'] = $q->add_to_database;
-            $this->question['discuss'] = $q->discuss;
+            $this->question['discuss'] = $tq->discuss;
             $this->question['decimal_score'] = $q->decimal_score;
 
             $this->educationLevelId = $q->education_level_id;
