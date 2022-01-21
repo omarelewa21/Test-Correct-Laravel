@@ -164,24 +164,28 @@
                 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
                         <div id="attachment-badges" class="flex flex-wrap">
-                            @if($attachments)
-                                @foreach($attachments as $attachment)
-                                    <x-attachment.badge :upload="false" :attachment="$attachment" :title="$attachment->title"/>
+                                @foreach($attachments as  $key => $attachment)
+                                    <x-attachment.badge :upload="false" :attachment="$attachment" wire:key="a-badge-{{$key}}" :title="$attachment->title"/>
                                 @endforeach
-                            @endif
-                            @if($videos)
-                                @foreach($videos as $video)
-                                    <x-attachment.video-badge :video="$video" :host="$this->getVideoHost($video)"/>
+
+                                @foreach($sortOrderAttachments as $item)
+                                    @php
+                                        list($upload, $video) = $this->getUploadOrVideo($item)
+                                    @endphp
+
+                                    @if($upload)
+                                        <x-attachment.badge
+                                            :upload="true"
+                                            :attachment="$upload"
+                                           :title="$upload->getClientOriginalName()"
+                                        />
+                                    @elseif($video)
+                                        <x-attachment.video-badge
+                                            :video="$video"
+                                            :host="$this->getVideoHost($video)"
+                                        />
+                                    @endif
                                 @endforeach
-                            @endif
-                            @if ($uploads)
-                                @if(is_array($uploads))
-                                    @foreach($uploads as $upload)
-                                        <x-attachment.badge :upload="true" :attachment="$upload"
-                                                            :title="$upload->getClientOriginalName()"/>
-                                    @endforeach
-                                @endif
-                            @endif
                             <x-attachment.dummy-badge model="uploads"/>
                         </div>
                     </x-slot>

@@ -1,3 +1,9 @@
+@props([
+    'title' => 'unkown',
+    'upload',
+    'attachment',
+])
+
 @php
     $type =  '';
     if($upload) {

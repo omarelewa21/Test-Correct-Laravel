@@ -113,6 +113,9 @@ class OpenShort extends Component
      */
     private $obj;
 
+    public $sortOrderAttachments = [];
+
+
     protected function rules()
     {
         $rules = ['question.question' => 'required'];
@@ -385,6 +388,14 @@ class OpenShort extends Component
         if (!is_array($value) && Str::contains($value, 'fake')) {
             $value = $this->uploads;
         }
+
+        if (is_array($value)) {
+            $lastIndex = array_key_last($value);
+            if(array_key_exists($lastIndex, $value)) {
+                $tmpFileUpload = $value[array_key_last($value)];
+                $this->sortOrderAttachments[] = $tmpFileUpload->getFileName();
+            }
+        }
     }
 
     public function returnToTestOverview(): void
@@ -582,6 +593,7 @@ class OpenShort extends Component
     {
         if($this->validateVideoLink($link)) {
             $this->videos[] = $link;
+            $this->sortOrderAttachments[] = $link;
             return $this->attachmentsCount++;
         }
 
@@ -833,5 +845,20 @@ class OpenShort extends Component
         if($rulesToValidate) {
             $this->validate($rulesToValidate);
         }
+    }
+
+    public function getUploadOrVideo($sortHash)
+    {
+        $video = $upload = null;
+
+        $upload = collect($this->uploads)->first(function($upload) use ($sortHash){
+            return $upload->getFileName() === $sortHash;
+        });
+
+        $video = collect($this->videos)->first(function($video) use ($sortHash) {
+            return $video == $sortHash;
+        });
+
+        return [$upload, $video];
     }
 }
