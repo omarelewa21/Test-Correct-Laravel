@@ -3,17 +3,18 @@
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Illuminate\Support\Str;
+use tcCore\Rules\TrueFalseRule;
 
 class CmsTrueFalse
 {
     private $instance;
     public $requiresAnswer = true;
 
-    public function __construct(OpenShort $instance) {
+    public function __construct(OpenShort $instance)
+    {
         $this->instance = $instance;
 
-//        if ($this->instance->action == 'edit') {
-        if(!array_key_exists('tfTrue', $this->instance->cmsPropertyBag)) {
+        if (!array_key_exists('tfTrue', $this->instance->cmsPropertyBag)) {
             $this->instance->cmsPropertyBag['tfTrue'] = [];
         }
 
@@ -22,7 +23,13 @@ class CmsTrueFalse
     public function mergeRules(&$rules)
     {
         $rules += [
-            'question.answers' => 'required|array|min:2|max:2',
+            'question.answers' => [
+                'required',
+                'array',
+                ['min' => 2],
+                ['max' => 2],
+                new TrueFalseRule
+            ]
         ];
     }
 
@@ -53,11 +60,11 @@ class CmsTrueFalse
     {
         $result = [];
         $nr = 1;
-        foreach(['Juist' => 'true','Onjuist' => 'false'] as $option => $value){
+        foreach (['Juist' => 'true', 'Onjuist' => 'false'] as $option => $value) {
             $result[] = [
-                'order' => $nr,
+                'order'  => $nr,
                 'answer' => $option,
-                'score' => ($this->instance->cmsPropertyBag['tfTrue'] === $value) ? $this->instance->question['score'] : 0,
+                'score'  => ($this->instance->cmsPropertyBag['tfTrue'] === $value) ? $this->instance->question['score'] : 0,
             ];
             $nr++;
         }
@@ -65,7 +72,8 @@ class CmsTrueFalse
         unset($this->instance->question['answer']);
     }
 
-    public function getTranslationKey() {
+    public function getTranslationKey()
+    {
         return __('cms.multiplechoice-question-truefalse');
     }
 

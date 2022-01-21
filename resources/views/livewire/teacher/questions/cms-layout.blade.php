@@ -80,6 +80,12 @@
                     <span class="title">{{ $message }}</span>
                 </div>
                 @enderror
+                @error('question.answers')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+
                 @error('question.answers.*.*')
                 <div class="notification error stretched mt-4">
                     <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
@@ -293,7 +299,7 @@
                     </div>
 
                 </x-content-section>
-
+                @if($this->showSettingsTaxonomy())
                 <x-content-section class="taxonomie"
                                    x-data="{
                                         rtti: $wire.entangle('rttiToggle'),
@@ -365,19 +371,23 @@
 
                     </div>
                 </x-content-section>
+                @endif
 
+                @if($this->showSettingsAttainments())
                 <x-content-section>
                     <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
                     <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
                                                  :eduction-level-id="$educationLevelId"/>
                 </x-content-section>
+                @endif
 
+                @if($this->showSettingsTags())
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Tags') }}</x-slot>
                     <livewire:tag-manager :init-with-tags="$initWithTags"/>
                 </x-content-section>
-
+                @endif
 
             </div>
             <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 3"

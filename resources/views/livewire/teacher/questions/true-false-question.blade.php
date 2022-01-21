@@ -11,7 +11,9 @@
 
     <div class="flex  col-2 space-x-2 w-full mt-4">
         <div class="flex inline-block w-full items-center">{{ __('cms.Is bovenstaande vraag/stelling juist of onjuist?') }}</div>
-        <div class="inline-flex bg-off-white max-w-max border border-blue-grey rounded-lg truefalse-container transition duration-150">
+        <div class="inline-flex bg-off-white max-w-max border rounded-lg truefalse-container transition duration-150
+                    @error('question.answers') border-allred @else border-blue-grey @enderror
+                    ">
             @foreach( ['true', 'false'] as $optionValue)
 
                 <label id="truefalse-{{$optionValue}}" wire:key="truefalse-{{$optionValue}}"

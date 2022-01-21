@@ -55,4 +55,5 @@ return [
     'rtti warning' => 'Je hebt de RTTI taxonomie methode geopend, maar geen waarde geselecteerd. Weet je zeker dat je wilt opslaan?',
     'bloom warning' => 'Je hebt de BLOOM taxonomie methode geopend, maar geen waarde geselecteerd. Weet je zeker dat je wilt opslaan?',
     'miller warning' => 'Je hebt de Miller taxonomie methode geopend, maar geen waarde geselecteerd. Weet je zeker dat je wilt opslaan?',
+    'truefalse no answer' => 'Het is verplicht een antwoord optie te kiezen.',
 ];

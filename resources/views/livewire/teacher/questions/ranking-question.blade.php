@@ -31,7 +31,7 @@
             @endphp
             @error('question.answers.'.$loop->index.'.answer')
             @php
-                $errorAnswerClass = 'border-red'
+                $errorAnswerClass = 'border-allred'
             @endphp
             @enderror
             <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
@@ -59,9 +59,4 @@
                                     </span>
         </x-button.primary>
     </div>
-    @error('question.answers.*.*')
-    <div class="notification error stretched mt-4">
-        <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
-    </div>
-    @enderror
 @endsection
