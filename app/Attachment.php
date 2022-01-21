@@ -275,7 +275,8 @@ class Attachment extends BaseModel
 
     public function audioTimeoutTime()
     {
-        return $this->getJsonPropertyValue('timeout');
+        $timeOutTime = $this->getJsonPropertyValue('timeout');
+        return ($timeOutTime===0||empty($timeOutTime))?null:$timeOutTime;
     }
 
     public function hasAudioTimeout()
