@@ -11,7 +11,7 @@ trait WithAttachments
 {
     public $attachment;
     public $audioCloseWarning = false;
-    public $pressedPlay = false;
+    public $pressedPlays = [];
     public $timeout;
     public $answerId;
     public $attachmentType = '';
@@ -35,20 +35,22 @@ trait WithAttachments
     public function closeAttachmentModal()
     {
         if (optional($this->attachment)->file_mime_type == 'audio/mpeg') {
-            if ($this->audioIsPlayedAndCanBePlayedAgain() && !$this->audioCloseWarning) {
+            if ($this->audioHasTimerAndIsStartedAndNotFinished()&& !$this->audioCloseWarning){
+                $this->audioCloseWarning = true;
+                return;
+            }
+            if ($this->audioOnlyPlayOnceAndIsStartedAndNotFinished() && !$this->audioCloseWarning) {
                 if (!$this->attachment->audioIsPausable()) {
                     $this->audioCloseWarning = true;
                     return;
-                } else {
-                    $this->dispatchBrowserEvent('pause-audio-player');
                 }
             }
 
-            if ($this->audioCloseWarning) {
+            if ($this->audioCloseWarning&&$this->attachment->audioOnlyPlayOnce()) {
                 $this->attachment->audioIsPlayedOnce();
-                $this->audioCloseWarning = false;
             }
-            if ($this->timeout != null) {
+            $this->audioCloseWarning = false;
+            if ($this->timeout != null && $this->playStarted()) {
                 $data = ['timeout' => $this->timeout, 'attachment' => $this->attachment->getKey()];
                 $this->dispatchBrowserEvent('start-timeout', $data);
             }
@@ -70,6 +72,19 @@ trait WithAttachments
         $this->currentTimes[$this->question->uuid][$this->attachment->uuid] = $currentTime;
     }
 
+    public function registerPlayStart()
+    {
+        $this->pressedPlays[$this->question->uuid][$this->attachment->uuid] = true;
+    }
+
+    public function playStarted()
+    {
+        if(array_key_exists($this->question->uuid,$this->pressedPlays)&&array_key_exists($this->attachment->uuid,$this->pressedPlays[$this->question->uuid])){
+            return true;
+        }
+        return false;
+    }
+
     public function getCurrentTime()
     {
         if(array_key_exists($this->question->uuid,$this->currentTimes)&&array_key_exists($this->attachment->uuid,$this->currentTimes[$this->question->uuid])){
@@ -78,12 +93,19 @@ trait WithAttachments
         return 0;
     }
 
-    private function audioIsPlayedAndCanBePlayedAgain()
+    private function audioOnlyPlayOnceAndIsStartedAndNotFinished()
     {
         return $this->attachment->audioOnlyPlayOnce()
             && $this->attachment->audioCanBePlayedAgain()
             && ($this->attachment->audioHasCurrentTime()
-                || $this->pressedPlay);
+                || $this->playStarted());
+    }
+
+    private function audioHasTimerAndIsStartedAndNotFinished()
+    {
+        return $this->attachment->hasAudioTimeout()
+            && ($this->attachment->audioHasCurrentTime()
+                || $this->playStarted());
     }
 
     private function getAttachmentType($attachment)

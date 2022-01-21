@@ -24,15 +24,18 @@
     <div>
         <audio id="player" src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $this->answerId], false) }}"
                x-ref="player"
+               x-on:play="@this.registerPlayStart()"
                @if($attachment->audioOnlyPlayOnce())
                     x-on:ended="@this.audioIsPlayedOnce(attachment);@this.closeAttachmentModal()"
+               @elseif($attachment->hasAudioTimeout())
+                    x-on:ended="@this.closeAttachmentModal()"
                @endif
         ></audio>
         <div class="flex justify-center">
             <button class="button primary-button
                     @if(!$attachment->audioCanBePlayedAgain()) cursor-default disabled @endif "
                     @if(!$attachment->audioCanBePlayedAgain()) disabled @endif
-                    x-on:click.prevent="$refs.player.play(), $wire.set('pressedPlay', true)"
+                    x-on:click.prevent="$refs.player.play()"
             >
                 {{__('test_take.play')}}
             </button>
