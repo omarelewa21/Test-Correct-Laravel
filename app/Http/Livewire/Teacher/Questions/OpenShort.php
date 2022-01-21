@@ -54,7 +54,9 @@ class OpenShort extends Component
 
     public $isPartOfGroupQuestion = false;
 
-    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner'];
+    public $isCloneRequest = false;
+
+    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'];
 
     protected $settingsGeneralPropertiesVisibility = [
         'autoCheckAnswer' => false,
@@ -218,9 +220,12 @@ class OpenShort extends Component
 
         $this->validateAndReturnErrorsToTabOne();
 
-        if ($this->action == 'edit') {
+        if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
         } else {
+            if($this->isCloneRequest){
+                $this->prepareForClone();
+            }
             $response = $this->saveNewQuestion();
         }
 
@@ -229,6 +234,16 @@ class OpenShort extends Component
         }
 
         $this->returnToTestOverview();
+    }
+
+    protected function prepareForClone()
+    {
+        $this->question['order'] = 0;
+        if(count($this->attachments)){
+            $this->question['clone_attachments'] = collect($this->attachments)->map(function ($attachment) {
+                return $attachment->uuid;
+            })->toArray();
+        }
     }
 
     public function updated($name, $value)
@@ -472,19 +487,11 @@ class OpenShort extends Component
             if($asText){
                 return 'true';
             }
-            logger([
-                'key' => $property,
-                'val' => true,
-            ]);
             return true;
         }
         if($asText){
             return 'false';
         }
-        logger([
-            'key' => $property,
-            'val' => false,
-        ]);
         return false;
     }
 
@@ -517,21 +524,23 @@ class OpenShort extends Component
     {
         $attachment = Attachment::whereUuid($attachmentUuid)->first();
 
-        if ($this->isPartOfGroupQuestion()) {
-            $response = (new GroupAttachmentsController)
-                ->destroy(
-                    GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId),
-                   $attachment
-                );
-        } else {
-            $response = (new AttachmentsController)
-                ->destroy(
-                    TestQuestion::whereUuid($this->testQuestionId)->first(),
-                    $attachment
-                );
+        if(!$this->isCloneRequest) {
+            if ($this->isPartOfGroupQuestion()) {
+                $response = (new GroupAttachmentsController)
+                    ->destroy(
+                        GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId),
+                        $attachment
+                    );
+            } else {
+                $response = (new AttachmentsController)
+                    ->destroy(
+                        TestQuestion::whereUuid($this->testQuestionId)->first(),
+                        $attachment
+                    );
+            }
         }
 
-        if ($response->getStatusCode() == 200) {
+        if ($this->isCloneRequest || $response->getStatusCode() ) {
             $this->attachments = collect($this->attachments)->reject(function ($attachment) use ($attachmentUuid) {
                 return $attachment->uuid == $attachmentUuid;
             });
