@@ -69,6 +69,34 @@
                     </div>
                 </div>
             </div>
+            <div class="px-4 sm:px-6 lg:px-8 ">
+                @error('question.question')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+                @error('question.answer')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+                @error('question.rtti')
+                <div class="notification warning stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+                @error('question.bloom')
+                <div class="notification warning stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+                @error('question.miller')
+                <div class="notification warning stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+
+            </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
                 @if($this->showQuestionScore())
                 <x-input.score wire:model.defer="question.score"></x-input.score>
@@ -149,12 +177,6 @@
                         {{ __('cms.Vraagstelling') }}
                     </x-slot>
                     @yield('question-cms-question')
-
-                    @error('question.question')
-                    <div class="notification error stretched mt-4">
-                        <span class="title">{{ $message }}</span>
-                    </div>
-                    @enderror
                 </x-upload.section>
 
                 @if($this->requiresAnswer())
@@ -173,13 +195,6 @@
                     @endif
 
                     @yield('question-cms-answer')
-
-                    @error('question.answer')
-                    <div class="notification error stretched mt-4">
-                        <span class="title">{{ $message }}</span>
-                    </div>
-                    @enderror
-
                 </x-content-section>
                 @endif
             </div>
@@ -266,26 +281,22 @@
 
                 <x-content-section class="taxonomie"
                                    x-data="{
-                                       rtti:{{ $question['rtti'] ? 'true': 'false'  }},
-                                       bloom: {{ $question['bloom'] ? 'true': 'false' }},
-                                       miller: {{ $question['miller'] ? 'true': 'false' }}
-                                   }"
-                                   x-init="
-                                        ['rtti', 'bloom', 'miller'].forEach((method) => {
-                                            $watch(method, (value) => {
-                                                value === false ? $wire.set('question.'+method, '') : ''
-                                            })
-                                        });
-                                   "
+                                        rtti: $wire.entangle('rttiToggle'),
+                                        bloom: $wire.entangle('bloomToggle'),
+                                        miller: $wire.entangle('millerToggle')
+                                        }"
                 >
                     <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
                     <p class="text-base">{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <x-input.toggle-row-with-title x-model="rtti">
+                                @error('question.rtti')
+                                <x-icon.exclamation class="text-allred"/>
+                                @enderror
                                 <span class="bold"> {{ __('RTTI methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div x-show="bloom" class="flex flex-col">
+                            <div x-show="rtti" class="flex flex-col">
                                 @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
@@ -299,6 +310,9 @@
                         </div>
                         <div>
                             <x-input.toggle-row-with-title x-model="bloom">
+                                @error('question.bloom')
+                                <x-icon.exclamation class="text-allred"/>
+                                @enderror
                                 <span class="bold"> {{ __('BLOOM methode') }}</span>
                             </x-input.toggle-row-with-title>
                             <div x-show="bloom" class="flex flex-col">
@@ -315,9 +329,12 @@
                         </div>
                         <div>
                             <x-input.toggle-row-with-title x-model="miller">
+                                @error('question.miller')
+                                <x-icon.exclamation class="text-allred"/>
+                                @enderror
                                 <span class="bold"> {{ __('Miller methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div x-show="bloom" class="flex flex-col">
+                            <div x-show="miller" class="flex flex-col">
                                 @foreach(['Weten', 'Weten hoe', 'Laten zien', 'Doen',] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"

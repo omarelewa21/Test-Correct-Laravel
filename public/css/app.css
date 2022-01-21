@@ -2663,6 +2663,10 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(206, 218, 243, var(--tw-border-opacity));
 }
+.border-allred{
+	--tw-border-opacity: 1;
+	border-color: rgba(207, 27, 4, var(--tw-border-opacity));
+}
 .bg-white{
 	--tw-bg-opacity: 1;
 	background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
@@ -3152,6 +3156,14 @@ video {
 .text-blue-600{
 	--tw-text-opacity: 1;
 	color: rgba(37, 99, 235, var(--tw-text-opacity));
+}
+.text-student{
+	--tw-text-opacity: 1;
+	color: rgba(236, 219, 0, var(--tw-text-opacity));
+}
+.text-allred{
+	--tw-text-opacity: 1;
+	color: rgba(207, 27, 4, var(--tw-text-opacity));
 }
 .underline{
 	text-decoration: underline;

@@ -51,5 +51,8 @@ return [
     'Lees meer hierover op de Kennisbank' => 'Lees meer hierover op de Kennisbank',
     'file type not allowed' => 'Dit bestandstype is niet toegestaan als bijlage.',
     'bestand' => 'Bestand',
-    'Video URL not supported' => 'Video URL wordt niet ondersteund.'
+    'Video URL not supported' => 'Video URL wordt niet ondersteund.',
+    'rtti warning' => 'Je hebt de RTTI taxonomie methode geopend, maar geen waarde geselecteerd. Weet je zeker dat je wilt opslaan?',
+    'bloom warning' => 'Je hebt de BLOOM taxonomie methode geopend, maar geen waarde geselecteerd. Weet je zeker dat je wilt opslaan?',
+    'miller warning' => 'Je hebt de Miller taxonomie methode geopend, maar geen waarde geselecteerd. Weet je zeker dat je wilt opslaan?',
 ];
