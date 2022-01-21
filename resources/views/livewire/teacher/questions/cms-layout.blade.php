@@ -69,6 +69,51 @@
                     </div>
                 </div>
             </div>
+            <div class="px-4 sm:px-6 lg:px-8 ">
+                @error('question.question')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+                @error('question.answer')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+                @error('question.answers')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+
+                @error('question.answers.*.*')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
+                </div>
+                @enderror
+
+                @error('question.score')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ __('cms.Er dient minimaal 1 punt toegekend te worden') }}</span>
+                </div>
+                @enderror
+                @error('question.rtti')
+                <div class="notification warning stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+                @error('question.bloom')
+                <div class="notification warning stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+                @error('question.miller')
+                <div class="notification warning stretched mt-4">
+                    <span class="title">{{ $message }}</span>
+                </div>
+                @enderror
+
+            </div>
             <div class="flex justify-end px-4 sm:px-6 lg:px-8 py-5">
                 @if($this->showQuestionScore())
                 <x-input.score wire:model.defer="question.score"></x-input.score>
@@ -76,7 +121,11 @@
             </div>
 
         </div>
-        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8" x-data="{openTab: 1}" @opentab.window="openTab = $event.detail">
+        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8"
+             x-data="{openTab: 1}"
+             x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
+             @opentab.window="openTab = $event.detail"
+        >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]">
                 <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}">
                     <x-button.text-button
@@ -149,12 +198,6 @@
                         {{ __('cms.Vraagstelling') }}
                     </x-slot>
                     @yield('question-cms-question')
-
-                    @error('question.question')
-                    <div class="notification error stretched mt-4">
-                        <span class="title">{{ $message }}</span>
-                    </div>
-                    @enderror
                 </x-upload.section>
 
                 @if($this->requiresAnswer())
@@ -173,13 +216,6 @@
                     @endif
 
                     @yield('question-cms-answer')
-
-                    @error('question.answer')
-                    <div class="notification error stretched mt-4">
-                        <span class="title">{{ $message }}</span>
-                    </div>
-                    @enderror
-
                 </x-content-section>
                 @endif
             </div>
@@ -293,29 +329,25 @@
                     </div>
 
                 </x-content-section>
-
+                @if($this->showSettingsTaxonomy())
                 <x-content-section class="taxonomie"
                                    x-data="{
-                                       rtti:{{ $question['rtti'] ? 'true': 'false'  }},
-                                       bloom: {{ $question['bloom'] ? 'true': 'false' }},
-                                       miller: {{ $question['miller'] ? 'true': 'false' }}
-                                   }"
-                                   x-init="
-                                        ['rtti', 'bloom', 'miller'].forEach((method) => {
-                                            $watch(method, (value) => {
-                                                value === false ? $wire.set('question.'+method, '') : ''
-                                            })
-                                        });
-                                   "
+                                        rtti: $wire.entangle('rttiToggle'),
+                                        bloom: $wire.entangle('bloomToggle'),
+                                        miller: $wire.entangle('millerToggle')
+                                        }"
                 >
                     <x-slot name="title">{{ __('Taxonomie') }}</x-slot>
                     <p class="text-base">{{ __('Deel de vraag taxonomisch in per methode. Je kunt meerder methodes tegelijk gebruiken.') }}</p>
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <x-input.toggle-row-with-title x-model="rtti">
+                                @error('question.rtti')
+                                <x-icon.exclamation class="text-allred"/>
+                                @enderror
                                 <span class="bold"> {{ __('RTTI methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div x-show="bloom" class="flex flex-col">
+                            <div x-show="rtti" class="flex flex-col">
                                 @foreach(['R'  , 'T1' , 'T2' , 'I'] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
@@ -329,6 +361,9 @@
                         </div>
                         <div>
                             <x-input.toggle-row-with-title x-model="bloom">
+                                @error('question.bloom')
+                                <x-icon.exclamation class="text-allred"/>
+                                @enderror
                                 <span class="bold"> {{ __('BLOOM methode') }}</span>
                             </x-input.toggle-row-with-title>
                             <div x-show="bloom" class="flex flex-col">
@@ -345,9 +380,12 @@
                         </div>
                         <div>
                             <x-input.toggle-row-with-title x-model="miller">
+                                @error('question.miller')
+                                <x-icon.exclamation class="text-allred"/>
+                                @enderror
                                 <span class="bold"> {{ __('Miller methode') }}</span>
                             </x-input.toggle-row-with-title>
-                            <div x-show="bloom" class="flex flex-col">
+                            <div x-show="miller" class="flex flex-col">
                                 @foreach(['Weten', 'Weten hoe', 'Laten zien', 'Doen',] as $value)
                                     <label class="flex space-x-2.5 items-center">
                                         <input wire:key="{{ $value }}"
@@ -363,19 +401,23 @@
 
                     </div>
                 </x-content-section>
+                @endif
 
+                @if($this->showSettingsAttainments())
                 <x-content-section>
                     <x-slot name="title">{{ __('Eindtermen') }}</x-slot>
                     <livewire:attainment-manager :value="$question['attainments']" :subject-id="$subjectId"
                                                  :eduction-level-id="$educationLevelId"/>
                 </x-content-section>
+                @endif
 
+                @if($this->showSettingsTags())
 
                 <x-content-section>
                     <x-slot name="title">{{ __('Tags') }}</x-slot>
                     <livewire:tag-manager :init-with-tags="$initWithTags"/>
                 </x-content-section>
-
+                @endif
 
             </div>
             @if($this->showStatistics())

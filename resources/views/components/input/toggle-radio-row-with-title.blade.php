@@ -8,8 +8,17 @@
         {{ $slot }}
     </div>
     <div>
-        <label class="switch @if($disabled) disabled @endif" @if(!$disabled) x-data="{ value:@entangle($attributes->wire('model')) }" @click="if (value=='{{ $valueOff }}') {value='{{ $valueOn }}'} else {value='{{ $valueOff }}'} " @endif>
-            <span class="slider round" :class="{checked: value=='{{ $valueOn }}'}"></span>
+        <label class="switch @if($disabled) disabled @endif"
+               x-data="{ value: @entangle($attributes->wire('model')) }"
+               @if(!$disabled)
+               @click="if (value=='{{ $valueOff }}') {
+                            value='{{ $valueOn }}'
+                        } else {
+                            value='{{ $valueOff }}'
+                        }"
+                @endif
+        >
+            <span class="slider round" :class="{'checked': value === '{{ $valueOn }}' }"></span>
         </label>
     </div>
 </div>

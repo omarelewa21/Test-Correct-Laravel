@@ -87,6 +87,13 @@ class OpenShort extends Component
 
     public $cmsPropertyBag = [];
 
+    public $rttiToggle = false;
+    public $bloomToggle = false;
+    public $millerToggle = false;
+    public $rttiWarningShown = false;
+    public $bloomWarningShown = false;
+    public $millerWarningShown = false;
+
     public $question = [
         'add_to_database'        => 1,
         'answer'                 => '',
@@ -135,6 +142,16 @@ class OpenShort extends Component
             'question.answer'   => __('cms.Antwoordmodel')
         ];
     }
+
+    protected function getMessages()
+    {
+        return [
+            'question.rtti.required'   => __('cms.rtti warning'),
+            'question.bloom.required'  => __('cms.bloom warning'),
+            'question.miller.required' => __('cms.miller warning'),
+        ];
+    }
+
 
     public function requiresAnswer()
     {
@@ -433,6 +450,8 @@ class OpenShort extends Component
             if($this->obj && method_exists($this->obj, 'customValidation')){
                 $this->obj->customValidation();
             }
+            $this->checkTaxonomyValues();
+
         } catch (ValidationException $e) {
             $this->dispatchBrowserEvent('opentab', 1);
             throw ($e);
@@ -751,7 +770,9 @@ class OpenShort extends Component
             $this->question['decimal_score'] = $q->decimal_score;
 
             $this->educationLevelId = $q->education_level_id;
-
+            $this->rttiToggle = filled($this->question['rtti']);
+            $this->bloomToggle = filled($this->question['bloom']);
+            $this->millerToggle = filled($this->question['miller']);
             $this->initWithTags = $q->tags;
             $this->initWithTags->each(function($tag) {
                 $this->question['tags'][] = $tag->name;
@@ -797,5 +818,25 @@ class OpenShort extends Component
         });
 
         return $host;
+    }
+
+    private function checkTaxonomyValues()
+    {
+        $rulesToValidate = null;
+        collect(['rtti', 'bloom', 'miller'])->each(function($taxonomy) use (&$rulesToValidate) {
+            $toggle = $taxonomy.'Toggle';
+            $warningShow = $taxonomy.'WarningShown';
+            if ($this->$toggle && blank($this->question[$taxonomy]) && !$this->$warningShow) {
+                $this->$warningShow = true;
+                $rulesToValidate["question.$taxonomy"] = 'required';
+            }
+            if (!$this->$toggle && filled($this->question[$taxonomy])) {
+                $this->question[$taxonomy] = '';
+            }
+        });
+
+        if($rulesToValidate) {
+            $this->validate($rulesToValidate);
+        }
     }
 }

@@ -36,12 +36,12 @@
             @endphp
             @error('question.answers.'.$loop->index.'.answer')
             @php
-                $errorAnswerClass = 'border-red'
+                $errorAnswerClass = 'border-allred';
             @endphp
             @enderror
-            @error('question.answers.'.$loop->index.'.score')
+            @error('question.score')
             @php
-                $errorScoreClass = 'border-red'
+                $errorScoreClass = 'border-allred';
             @endphp
             @enderror
             <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
@@ -79,16 +79,4 @@
                                     </span>
         </x-button.primary>
     </div>
-    @error('question.answers.*.*')
-    <div class="notification error stretched mt-4">
-        <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
-    </div>
-    @enderror
-
-    @error('question.score')
-    <div class="notification error stretched mt-4">
-        <span class="title">{{ __('cms.Er dient minimaal 1 punt toegekend te worden') }}</span>
-    </div>
-    @enderror
-
 @endsection

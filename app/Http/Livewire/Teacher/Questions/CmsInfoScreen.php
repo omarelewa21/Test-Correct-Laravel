@@ -15,11 +15,13 @@ class CmsInfoScreen
         'decimalOption',
     ];
 
-    public function __construct(OpenShort $instance) {
+    public function __construct(OpenShort $instance)
+    {
         $this->instance = $instance;
     }
 
-    public function preparePropertyBag(){
+    public function preparePropertyBag()
+    {
         $questionOptions = [
             'add_to_database'        => 0,
             'decimal_score'          => 0,
@@ -32,11 +34,10 @@ class CmsInfoScreen
         foreach ($questionOptions as $key => $value) {
             $this->instance->question[$key] = $value;
         }
-
     }
 
-
-    public function getTranslationKey() {
+    public function getTranslationKey()
+    {
         return __('cms.infoscreen-question');
     }
 
@@ -60,4 +61,8 @@ class CmsInfoScreen
         return false;
     }
 
+    public function getTemplate()
+    {
+        return 'infoscreen-question';
+    }
 }

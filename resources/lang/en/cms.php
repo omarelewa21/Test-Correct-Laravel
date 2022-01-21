@@ -53,5 +53,9 @@ return [
     'Lees meer hierover op de Kennisbank' => 'Read more in the knowledgebank',
     'file type not allowed' => 'This type of file is not allowed as attachment',
     'bestand' => 'File',
-    'Video URL not supported' => 'Video URL not supported'
+    'Video URL not supported' => 'Video URL not supported',
+    'rtti warning' => 'You\'ve opened the RTTI taxonomy method, but did not select a value. Are you sure you want to save?',
+    'bloom warning' => 'You\'ve opened the BLOOM taxonomy method, but did not select a value. Are you sure you want to save?',
+    'miller warning' => 'You\'ve opened the Miller taxonomy method, but did not select a value. Are you sure you want to save?',
+    'truefalse no answer' => 'It is required to select an answer option.',
 ];

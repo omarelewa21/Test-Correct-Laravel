@@ -21,6 +21,7 @@
     @if($keepWidth)
      x-data=""
      :style="'width:' +$el.parentElement.offsetWidth+'px'"
+     @tabchange.window="$nextTick(() => {$el.style.width = $el.parentElement.offsetWidth+'px'})"
      @resize.window="$el.style.width = 'auto'"
      @resize.window.debounce.75ms="$el.style.width = $el.parentElement.offsetWidth+'px'"
      @endif
