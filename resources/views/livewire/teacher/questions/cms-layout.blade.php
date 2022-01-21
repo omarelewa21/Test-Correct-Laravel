@@ -164,8 +164,13 @@
                 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
                         <div id="attachment-badges" class="flex flex-wrap">
-                                @foreach($attachments as  $key => $attachment)
-                                    <x-attachment.badge :upload="false" :attachment="$attachment" wire:key="a-badge-{{$key}}" :title="$attachment->title"/>
+                                @foreach($attachments as  $attachment)
+                                  @php
+                                    if (is_array($attachment)) {
+                                        $attachment = tcCore\Attachment::find($attachment['id']);
+                                    }
+                                  @endphp
+                                    <x-attachment.badge :upload="false" :attachment="$attachment" wire:key="a-badge-{{ $attachment->id }}" :title="$attachment->title"/>
                                 @endforeach
 
                                 @foreach($sortOrderAttachments as $item)
@@ -175,12 +180,14 @@
 
                                     @if($upload)
                                         <x-attachment.badge
+                                            wire:key="upload-{{ rand(0,100) }}"
                                             :upload="true"
                                             :attachment="$upload"
                                            :title="$upload->getClientOriginalName()"
                                         />
                                     @elseif($video)
                                         <x-attachment.video-badge
+                                            wire:key="video-{{ rand(0,100) }}"
                                             :video="$video"
                                             :host="$this->getVideoHost($video)"
                                         />
@@ -432,12 +439,24 @@
 
         <div class="question-editor-footer">
             <div class="question-editor-footer-button-container">
-                <button type="button" wire:click="returnToTestOverview();"
-                        class="button text-button button-md pr-4">
+
+                <button
+                    wire:loading.attr="disabled"
+                    type="button"
+                    wire:click="returnToTestOverview();"
+                    class="button text-button button-md pr-4"
+                >
                     <span> {{ __("Annuleer") }}</span>
                 </button>
 
-                <button type="button" wire:click="save" class="button cta-button button-sm">
+
+
+                <button
+                    wire:loading.attr="disabled"
+                    type="button"
+                    wire:click="save"
+                    class="button cta-button button-sm"
+                >
                     <span>{{ __("Vraag opslaan") }}</span>
                 </button>
             </div>
