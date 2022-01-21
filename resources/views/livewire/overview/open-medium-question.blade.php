@@ -17,7 +17,8 @@
                                     { name: 'insert', items: [ 'Table' ] },
                                     { name: 'styles', items: ['Font', 'FontSize' ] },
                                     { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
-                                ]
+                                ],
+                                contentsCss : '/ckeditor/student.css'
                             })
                             CKEDITOR.config.readOnly = true
                             CKEDITOR.instances['{{ $editorId }}']
