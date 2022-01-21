@@ -102,7 +102,7 @@ class OpenShort extends Component
         'order'                  => 0,
         'question'               => '',
         'rtti'                   => '',
-        'score'                  => 6,
+        'score'                  => 5,
         'subtype'                => '',
         'type'                   => '',
         'attainments'            => [],
