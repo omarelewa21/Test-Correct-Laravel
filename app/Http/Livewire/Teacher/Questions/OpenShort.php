@@ -405,11 +405,11 @@ class OpenShort extends Component
     private function validateAndReturnErrorsToTabOne()
     {
         try {
+            $this->validate();
             $this->checkTaxonomyValues();
 
-            $this->validate();
         } catch (ValidationException $e) {
-//            $this->dispatchBrowserEvent('opentab', 1);
+            $this->dispatchBrowserEvent('opentab', 1);
             throw ($e);
         }
     }

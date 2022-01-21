@@ -80,6 +80,17 @@
                     <span class="title">{{ $message }}</span>
                 </div>
                 @enderror
+                @error('question.answers.*.*')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ __('cms.De gemarkeerde velden zijn verplicht') }}</span>
+                </div>
+                @enderror
+
+                @error('question.score')
+                <div class="notification error stretched mt-4">
+                    <span class="title">{{ __('cms.Er dient minimaal 1 punt toegekend te worden') }}</span>
+                </div>
+                @enderror
                 @error('question.rtti')
                 <div class="notification warning stretched mt-4">
                     <span class="title">{{ $message }}</span>
@@ -104,7 +115,11 @@
             </div>
 
         </div>
-        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8" x-data="{openTab: 1}" @opentab.window="openTab = $event.detail">
+        <div class="flex flex-col flex-1 px-4 sm:px-6 lg:px-8"
+             x-data="{openTab: 1}"
+             x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
+             @opentab.window="openTab = $event.detail"
+        >
             <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]">
                 <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}">
                     <x-button.text-button
