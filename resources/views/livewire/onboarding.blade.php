@@ -424,7 +424,7 @@
                                     </div>
                                     <div>
                                         <p class="text-note">
-                                            {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover" href="https://support.test-correct.nl/hubfs/Downloads%20Documenten%20Website/Algemene-Voorwaarden-2021-The-Teach-and-Learn-Company-BV-Test-Correct-versie-20210618.pdf" target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
+                                            {{ __('onboarding.general_terms_text_pt_1') }} <a class="underline primary-hover" href="https://www.test-correct.nl/algemene-voorwaarden" target="_blank">{{ __('onboarding.general_terms') }}</a> {{ __('onboarding.general_terms_text_pt_2') }}
                                         </p>
                                     </div>
                                     <div class="mb-16">
