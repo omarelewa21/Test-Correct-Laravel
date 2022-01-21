@@ -2419,6 +2419,9 @@ video {
 	--tw-divide-opacity: 1;
 	border-color: rgba(195, 208, 237, var(--tw-divide-opacity));
 }
+.justify-self-end{
+	justify-self: end;
+}
 .overflow-auto{
 	overflow: auto;
 }
