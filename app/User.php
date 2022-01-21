@@ -2151,7 +2151,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     {
         // added conditional for Thijs to test the new app with fallback if we forget to remove the conditional
         // should be removed before deployment to live
-        if(Carbon::now() > Carbon::createFromFormat('Y-m-d','2022-01-20')) {
+        if(Carbon::now() > Carbon::createFromFormat('Y-m-d','2022-01-22')) {
             if ($this->isA('student')) {
                 if ($this->schoolLocation->allow_new_student_environment) {
                     $this->loginThisUser();
