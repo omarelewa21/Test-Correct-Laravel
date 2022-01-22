@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Response;
@@ -347,6 +348,7 @@ class UsersController extends Controller
     {
 
         if ($request->has('password')) {
+            Log::stack(['loki'])->info("updateStudent@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
         }
 
@@ -370,6 +372,7 @@ class UsersController extends Controller
         $user->fill($request->only('password'));
 
         if ($request->filled('password')) {
+            Log::stack(['loki'])->info("updatePasswordForUser@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
         }
 
@@ -398,6 +401,7 @@ class UsersController extends Controller
 
         if ($request->filled('password')) {
 //		    logger('try updating passwrd '. $request->get('password'));
+            Log::stack(['loki'])->info("update@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
         }
 
