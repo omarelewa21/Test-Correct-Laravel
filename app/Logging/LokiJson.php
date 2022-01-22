@@ -78,7 +78,18 @@ class LokiJson extends NormalizerFormatter
         $normalized = $this->normalize($record);
 
         // Add default context
-        $normalized['ip'] = request()->ip();
+
+        //Request was from Cake
+        if (request()->ip() == config('cake_laravel_filter.remote_addr')) {
+            $normalized['ip'] = request()->header('cakeRealIP',request()->ip());
+
+            if (request()->header('cakeUrlPath', null)) {
+                $normalized['cake_url_path'] = request()->header('cakeUrlPath', null);
+            }
+        } else {
+            $normalized['ip'] = request()->ip();
+        }
+        
         $normalized['request_path'] = request()->path();
         $normalized['request_method'] = request()->method();
         $normalized['action'] = class_basename(request()->route()->getAction()['controller']);
@@ -91,9 +102,9 @@ class LokiJson extends NormalizerFormatter
                 }
             }, request()->route()->parameters()));
         if (request()->user() != null) {
-            $normalized['user_id'] = request()->user()->id;
+            $normalized['current_user_id'] = request()->user()->id;
             foreach (request()->user()->roles as $key => $value) {
-                $normalized['role'][] = $value['name'];
+                $normalized['current_role'][] = $value['name'];
             }
         }
 
