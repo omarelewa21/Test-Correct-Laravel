@@ -27,8 +27,12 @@ window.rsConf = {
                 var playerStarted = (typeof rspkr.cke_play_started != "undefined")?rspkr.cke_play_started:false;
                 if(oldEl && playerStarted){
                     oldEl.remove();
-                    if(document.getElementsByClassName('readspeaker_hidden_element')){
-                        document.getElementsByClassName('readspeaker_hidden_element')[0].classList.remove('hidden');
+                    var els = document.getElementsByClassName('readspeaker_hidden_element');
+                    if(els){
+                        [].forEach.call(els, function (el) {
+                            el.classList.remove('hidden');
+                            el.classList.remove('readspeaker_hidden_element');
+                        });
                     }
                 }
             },
@@ -50,9 +54,39 @@ function handleBlurForReadspeaker()
     rspkr.ui.Tools.ClickListen.activate();
 }
 
-function handleMouseupForReadspeaker(id)
+function handleMouseupForReadspeaker(e,obj)
 {
-    console.dir(id);
+    if(obj.getSelection().toString()==''){
+        return;
+    }
+    var xpath = './/input[contains(@value,"'+obj.getSelection().toString()+'")]';
+    var matchingElementList = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);
+    //var matchingElement = matchingElementList.iterateNext();
+    var thisNode = matchingElementList.iterateNext();
+    var matchingElement = null;
+    while (thisNode) {
+        console.dir( thisNode );
+        matchingElement = thisNode;
+        thisNode = matchingElementList.iterateNext();
+    }
+    console.dir(matchingElement);
+    if(matchingElement == null){
+        return;
+    }
+    console.dir(matchingElement);
+    //rspkr.popup.showPopup(e);
+    var hidden_div = document.createElement('div');
+    matchingElement.parentNode.insertBefore(hidden_div,matchingElement);
+    hidden_div.id = 'there_can_only_be_one';
+    hidden_div.innerHTML = obj.getSelection().toString();
+    hidden_div.style.height = matchingElement.offsetHeight+'px';
+    hidden_div.style.width = matchingElement.offsetWidth+'px';
+    hidden_div.style.display = 'inline-flex';
+    hidden_div.classList.add('rs-click-listen');
+    matchingElement.classList.add('hidden');
+    matchingElement.classList.add('readspeaker_hidden_element');
+    rspkr.ui.Tools.ClickListen.activate();
+    hidden_div.click();
 }
 
 function readCkEditorOnSelect(editor)
