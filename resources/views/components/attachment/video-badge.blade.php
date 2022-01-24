@@ -1,5 +1,5 @@
 <div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2"
-     x-data="badge('{{ $video }}')"
+     x-data="badge('{{ $video['link'] }}')"
 >
     <div class="flex p-2 border-r border-blue-grey h-full items-center">
         @if($host === 'vimeo')
@@ -35,7 +35,7 @@
         >
 
             <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                    @click="$dispatch('delete-modal', ['video', '{{ $video }}'])"
+                    @click="$dispatch('delete-modal', ['video', '{{ $video['id'] }}'])"
             >
                 <x-icon.remove/>
                 <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>

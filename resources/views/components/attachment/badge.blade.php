@@ -145,7 +145,7 @@
                 <div class="flex w-full h-px bg-blue-grey mb-2"></div>
             @endif
             <button class="flex items-center space-x-2 py-1 px-4 base hover:text-primary hover:bg-offwhite transition w-full"
-                    @click="$dispatch('delete-modal', ['{{ $upload ? 'upload' : 'attachment'}}', '{{ $upload ? $title : $attachment->uuid }}'])"
+                    @click="$dispatch('delete-modal', ['{{ $upload ? 'upload' : 'attachment'}}', '{{ $upload ? $attachment->getFileName() : $attachment->uuid }}'])"
             >
                 <x-icon.remove/>
                 <span class="text-base bold inherit">{{ __('cms.Verwijderen') }}</span>

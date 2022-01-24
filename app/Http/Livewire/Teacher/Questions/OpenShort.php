@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Ramsey\Uuid\Uuid;
 use tcCore\Attachment;
 use tcCore\GroupQuestionQuestion;
 use tcCore\Http\Controllers\GroupQuestionQuestions\AttachmentsController as GroupAttachmentsController;
@@ -581,24 +582,29 @@ class OpenShort extends Component
     public function removeUpload($tempFile)
     {
         $this->uploads = collect($this->uploads)->reject(function ($tempUpload) use ($tempFile) {
-            return $tempUpload->getClientOriginalName() == $tempFile;
+            return $tempUpload->getFileName() == $tempFile;
         })->toArray();
         $this->attachmentsCount--;
     }
 
-    public function removeVideo($video)
+    public function removeVideo($videoId)
     {
-        $this->videos = collect($this->videos)->reject(function ($item) use ($video) {
-            return $item == $video;
+        $this->videos = collect($this->videos)->reject(function ($item) use ($videoId) {
+            return $item['id'] == $videoId;
         })->toArray();
+        $this->sortOrderAttachments = collect($this->sortOrderAttachments)->reject(function($item) use ($videoId){
+            return $item == $videoId;
+        })->toArray();
+
         $this->attachmentsCount--;
     }
 
     public function handleNewVideoAttachment($link)
     {
         if($this->validateVideoLink($link)) {
-            $this->videos[] = $link;
-            $this->sortOrderAttachments[] = $link;
+            $video =  ['id' => Uuid::uuid4()->toString(), 'link' =>$link];
+            $this->videos[] = $video;
+            $this->sortOrderAttachments[] = $video['id'];
             return $this->attachmentsCount++;
         }
 
@@ -626,7 +632,7 @@ class OpenShort extends Component
             $testQuestion = $response->original;
             $attachementRequest = new  CreateAttachmentRequest([
                 "type" => "video",
-                "link" => $video
+                "link" => $video['link']
             ]);
 
             $response = $this->createAttachementWithRequest($attachementRequest, $response);
@@ -858,9 +864,11 @@ class OpenShort extends Component
 
         $upload = collect($this->uploads)->first(function($upload) use ($sortHash){
             return $upload->getFileName() === $sortHash;
+            return $upload->id == $sortHash;
         });
 
         $video = collect($this->videos)->first(function($video) use ($sortHash) {
+            return $video['id'] = $sortHash;
             return $video == $sortHash;
         });
 

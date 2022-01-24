@@ -189,7 +189,7 @@
                                         <x-attachment.video-badge
                                             wire:key="video-{{ $key }}"
                                             :video="$video"
-                                            :host="$this->getVideoHost($video)"
+                                            :host="$this->getVideoHost($video['link'])"
                                         />
                                     @endif
                                 @endforeach
