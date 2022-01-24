@@ -94,7 +94,7 @@
                         {{ __('Instellingen') }}
                     </x-button.text-button>
                 </div>
-                @if($this->testQuestionId && $this->showStatistics())
+                @if($this->testQuestionId && $this->showStatistics() )
                 <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}">
                     <x-button.text-button
                         style="color:inherit"
@@ -217,7 +217,7 @@
                     <x-slot name="title">{{ __('Algemeen') }}</x-slot>
 
                     <div class="grid grid-cols-2 gap-x-4">
-                        @if($action == 'edit')
+                        @if($action == 'edit' & !$this->isCloneRequest)
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
                                     <span class="bold text-base">{{ __('cms.unieke id') }}</span>

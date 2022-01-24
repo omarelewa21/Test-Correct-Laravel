@@ -240,7 +240,7 @@
                     <x-slot name="title">{{ __('Algemeen') }}</x-slot>
 
                     <div class="grid grid-cols-2 gap-x-4">
-                        @if($action == 'edit')
+                        @if($action == 'edit' && !$isCloneRequest)
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">
                                     <span class="bold text-base">{{ __('cms.unieke id') }}</span>
