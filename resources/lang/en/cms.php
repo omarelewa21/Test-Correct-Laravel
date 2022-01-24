@@ -59,4 +59,5 @@ return [
     'bloom warning' => 'You\'ve opened the BLOOM taxonomy method, but did not select a value. Are you sure you want to save?',
     'miller warning' => 'You\'ve opened the Miller taxonomy method, but did not select a value. Are you sure you want to save?',
     'truefalse no answer' => 'It is required to select an answer option.',
+    'File too large, max file size' => 'The file size for this upload is too large. The maximum file size is 25MB'
 ];
