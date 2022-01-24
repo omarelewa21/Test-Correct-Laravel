@@ -631,8 +631,9 @@ class OpenShort extends Component
         collect($this->videos)->each(function ($video) use ($response) {
             $testQuestion = $response->original;
             $attachementRequest = new  CreateAttachmentRequest([
-                "type" => "video",
-                "link" => $video['link']
+                "type"  => "video",
+                "link"  => $video['link'],
+                "title" => $video['title']
             ]);
 
             $response = $this->createAttachementWithRequest($attachementRequest, $response);
@@ -873,5 +874,15 @@ class OpenShort extends Component
         });
 
         return [$upload, $video];
+    }
+
+    public function setVideoTitle($videoUrl, $title)
+    {
+        $this->videos = collect($this->videos)->map(function($video) use ($title, $videoUrl) {
+           if ($video['link'] == $videoUrl) {
+                $video['title'] = $title;
+           }
+           return $video;
+        })->toArray();
     }
 }

@@ -195,6 +195,7 @@ document.addEventListener('alpine:init', () => {
                 const fetchedTitle = await getTitleForVideoUrl(videoUrl);
                 this.videoTitle = fetchedTitle || videoUrl;
                 this.resolvingTitle = false;
+                this.$wire.setVideoTitle(videoUrl, this.videoTitle);
             }
         },
     }));
