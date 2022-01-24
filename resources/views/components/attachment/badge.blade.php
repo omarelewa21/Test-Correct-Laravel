@@ -1,3 +1,9 @@
+@props([
+    'title' => 'unkown',
+    'upload',
+    'attachment',
+])
+
 @php
     $type =  '';
     if($upload) {
@@ -16,6 +22,7 @@
 
 <div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2"
      x-data="badge('{{ $type == 'video' ? $attachment->link : null }}')"
+     wire:key="{{ $attributes['wire:key'] }}"
 >
     <div class="flex p-2 border-r border-blue-grey h-full items-center">
         @if($type == 'image')
