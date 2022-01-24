@@ -55,15 +55,16 @@ class CmsMultipleChoice
 
     public function prepareForSave()
     {
-        $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function (
-            $answer
-        ) {
-            return [
-                'order'  => $answer['order'],
-                'answer' => $answer['answer'],
-                'score'  => (int) $answer['score'],
-            ];
-        })->toArray());
+        $this->instance->question['answers'] = collect($this->instance->cmsPropertyBag['answerStruct'])
+                ->map(function ($answer) {
+                    $answer = (array) $answer;
+                    return [
+                        'order'  => $answer['order'],
+                        'answer' => $answer['answer'],
+                        'score'  => (int)$answer['score'],
+                    ];
+                })
+                ->toArray();
         unset($this->instance->question['answer']);
         $this->instance->question['score'] = collect($this->instance->cmsPropertyBag['answerStruct'])->sum('score');
 

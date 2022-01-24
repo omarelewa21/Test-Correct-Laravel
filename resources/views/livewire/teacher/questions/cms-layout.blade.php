@@ -173,21 +173,21 @@
                                     <x-attachment.badge :upload="false" :attachment="$attachment" wire:key="a-badge-{{ $attachment->id }}" :title="$attachment->title"/>
                                 @endforeach
 
-                                @foreach($sortOrderAttachments as $item)
+                                @foreach($sortOrderAttachments as $key => $item)
                                     @php
                                         list($upload, $video) = $this->getUploadOrVideo($item)
                                     @endphp
 
                                     @if($upload)
                                         <x-attachment.badge
-                                            wire:key="upload-{{ rand(0,100) }}"
+                                            wire:key="upload-{{ $key }}"
                                             :upload="true"
                                             :attachment="$upload"
                                            :title="$upload->getClientOriginalName()"
                                         />
                                     @elseif($video)
                                         <x-attachment.video-badge
-                                            wire:key="video-{{ rand(0,100) }}"
+                                            wire:key="video-{{ $key }}"
                                             :video="$video"
                                             :host="$this->getVideoHost($video)"
                                         />
