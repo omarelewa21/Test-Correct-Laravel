@@ -149,6 +149,8 @@ class OpenShort extends Component
         if($this->isInfoscreenQuestion()){
             $return['question.question'] = __('cms.Informatietekst');
         }
+
+        return $return;
     }
 
     protected function getMessages()
