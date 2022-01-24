@@ -141,10 +141,14 @@ class OpenShort extends Component
 
     protected function getValidationAttributes()
     {
-        return [
+
+        $return = [
             'question.question' => __('cms.Vraagstelling'),
             'question.answer'   => __('cms.Antwoordmodel')
         ];
+        if($this->isInfoscreenQuestion()){
+            $return['question.question'] = __('cms.Informatietekst');
+        }
     }
 
     protected function getMessages()

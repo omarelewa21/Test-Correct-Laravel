@@ -14,6 +14,7 @@ return [
     'multiplechoice-question-truefalse' => 'Juist/onjuist vraag',
     'ranking-question'                  => 'Rangschik vraag',
     'Vraagstelling'                    => 'Vraagstelling',
+    'Informatietekst'                   => 'Informatietekst',
     'Antwoordmodel'                    => 'Antwoordmodel',
     'Toets'                            => 'Toets',
     'unieke id'                        => 'Unieke ID',
