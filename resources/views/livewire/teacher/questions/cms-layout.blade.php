@@ -164,24 +164,35 @@
                 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
                         <div id="attachment-badges" class="flex flex-wrap">
-                            @if($attachments)
-                                @foreach($attachments as $attachment)
-                                    <x-attachment.badge :upload="false" :attachment="$attachment" :title="$attachment->title"/>
+                                @foreach($attachments as  $attachment)
+                                  @php
+                                    if (is_array($attachment)) {
+                                        $attachment = tcCore\Attachment::find($attachment['id']);
+                                    }
+                                  @endphp
+                                    <x-attachment.badge :upload="false" :attachment="$attachment" wire:key="a-badge-{{ $attachment->id }}" :title="$attachment->title"/>
                                 @endforeach
-                            @endif
-                            @if($videos)
-                                @foreach($videos as $video)
-                                    <x-attachment.video-badge :video="$video" :host="$this->getVideoHost($video)"/>
+
+                                @foreach($sortOrderAttachments as $item)
+                                    @php
+                                        list($upload, $video) = $this->getUploadOrVideo($item)
+                                    @endphp
+
+                                    @if($upload)
+                                        <x-attachment.badge
+                                            wire:key="upload-{{ rand(0,100) }}"
+                                            :upload="true"
+                                            :attachment="$upload"
+                                           :title="$upload->getClientOriginalName()"
+                                        />
+                                    @elseif($video)
+                                        <x-attachment.video-badge
+                                            wire:key="video-{{ rand(0,100) }}"
+                                            :video="$video"
+                                            :host="$this->getVideoHost($video)"
+                                        />
+                                    @endif
                                 @endforeach
-                            @endif
-                            @if ($uploads)
-                                @if(is_array($uploads))
-                                    @foreach($uploads as $upload)
-                                        <x-attachment.badge :upload="true" :attachment="$upload"
-                                                            :title="$upload->getClientOriginalName()"/>
-                                    @endforeach
-                                @endif
-                            @endif
                             <x-attachment.dummy-badge model="uploads"/>
                         </div>
                     </x-slot>
@@ -460,12 +471,24 @@
 
         <div class="question-editor-footer">
             <div class="question-editor-footer-button-container">
-                <button type="button" wire:click="returnToTestOverview();"
-                        class="button text-button button-md pr-4">
+
+                <button
+                    wire:loading.attr="disabled"
+                    type="button"
+                    wire:click="returnToTestOverview();"
+                    class="button text-button button-md pr-4"
+                >
                     <span> {{ __("Annuleer") }}</span>
                 </button>
 
-                <button type="button" wire:click="save" class="button cta-button button-sm">
+
+
+                <button
+                    wire:loading.attr="disabled"
+                    type="button"
+                    wire:click="save"
+                    class="button cta-button button-sm"
+                >
                     <span>{{ __("Vraag opslaan") }}</span>
                 </button>
             </div>
