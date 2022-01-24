@@ -193,4 +193,17 @@ class TestTake extends Component
         return ['shouldFraudNotificationsBeShown' => TestParticipant::find($this->testParticipantId)->shouldFraudNotificationsBeShown()];
 
     }
+
+    public function showAssignmentElements()
+    {
+        $test = \tcCore\TestTake::whereUuid($this->testTakeUuid)
+            ->select('id', 'test_id')
+            ->with('test:id,test_kind_id')
+            ->first()
+            ->test;
+
+        if ($test->isAssignment()) {
+            $this->dispatchBrowserEvent('show-to-dashboard');
+        }
+    }
 }
