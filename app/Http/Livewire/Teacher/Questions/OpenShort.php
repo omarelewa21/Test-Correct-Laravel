@@ -583,6 +583,9 @@ class OpenShort extends Component
 
         if ($this->isCloneRequest || $response->getStatusCode() ) {
             $this->attachments = collect($this->attachments)->reject(function ($attachment) use ($attachmentUuid) {
+                if (is_array($attachment)) {
+                    $attachment = Attachment::find($attachment['id']);
+                }
                 return $attachment->uuid == $attachmentUuid;
             });
         }
