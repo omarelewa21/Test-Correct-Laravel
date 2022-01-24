@@ -206,7 +206,11 @@
                     </x-slot>
 
                     <x-slot name="title">
-                        {{ __('cms.Vraagstelling') }}
+                        @if($this->isInfoscreenQuestion())
+                            {{ __('cms.Informatietekst') }}
+                        @else
+                            {{ __('cms.Vraagstelling') }}
+                        @endif
                     </x-slot>
                     @yield('question-cms-question')
                 </x-upload.section>
