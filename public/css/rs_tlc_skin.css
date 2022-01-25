@@ -69,3 +69,8 @@
 #rsbtn_scrollcontrols{
     margin-left: 30%;
 }
+
+.rs-shadow-input{
+    padding-top: 8px;
+    text-align: center;
+}

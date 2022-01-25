@@ -32,8 +32,10 @@ window.rsConf = {
                         [].forEach.call(els, function (el) {
                             el.classList.remove('hidden');
                             el.classList.remove('readspeaker_hidden_element');
+                            el.focus();
                         });
                     }
+                    window.getSelection().removeAllRanges();
                 }
             },
             play: function() {
@@ -54,25 +56,19 @@ function handleBlurForReadspeaker()
     rspkr.ui.Tools.ClickListen.activate();
 }
 
+
 function handleMouseupForReadspeaker(e,obj)
 {
+    removeOldElement();
+    rspkr.cke_play_started = false;
+    console.dir(e);
     if(obj.getSelection().toString()==''){
         return;
     }
-    var xpath = './/input[contains(@value,"'+obj.getSelection().toString()+'")]';
-    var matchingElementList = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);
-    //var matchingElement = matchingElementList.iterateNext();
-    var thisNode = matchingElementList.iterateNext();
-    var matchingElement = null;
-    while (thisNode) {
-        console.dir( thisNode );
-        matchingElement = thisNode;
-        thisNode = matchingElementList.iterateNext();
-    }
-    console.dir(matchingElement);
-    if(matchingElement == null){
+    if(e.toElement == ''  || e.toElement == null){
         return;
     }
+    var matchingElement = e.toElement;
     console.dir(matchingElement);
     //rspkr.popup.showPopup(e);
     var hidden_div = document.createElement('div');
@@ -83,6 +79,9 @@ function handleMouseupForReadspeaker(e,obj)
     hidden_div.style.width = matchingElement.offsetWidth+'px';
     hidden_div.style.display = 'inline-flex';
     hidden_div.classList.add('rs-click-listen');
+    hidden_div.classList.add('rs-shadow-input');
+    hidden_div.classList.add('form-input');
+    hidden_div.classList.add('overflow-ellipsis');
     matchingElement.classList.add('hidden');
     matchingElement.classList.add('readspeaker_hidden_element');
     rspkr.ui.Tools.ClickListen.activate();
