@@ -19,7 +19,7 @@ class AppApiHandInRequest extends FormRequest
             Auth::user()->isA('Student') &&
             $this->route('test_participant') &&
             Auth::user()->id == $this->route('test_participant')->user_id &&
-            Session::get('isInBrowser') === false;
+            $this->route('test_participant')->isInBrowser() === false;
     }
 
     /**
