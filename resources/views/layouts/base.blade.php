@@ -30,7 +30,7 @@
 
             return false;
         }
-        if (statusCode === 440 || statusCode === 419) {
+        if (statusCode === 440) {
             location.href = '{{ config('app.url_login') }}';
 
             return false
