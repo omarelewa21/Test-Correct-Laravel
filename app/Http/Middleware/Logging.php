@@ -46,6 +46,7 @@ class Logging
                             return request()->is($endpoint['path']) && ($endpoint['method'] == "ALL" || request()->isMethod($endpoint['method']));
                         })){
                         if (request()->isMethod('POST')) {
+                            $extraContext = [];
                             try {
                                 $extraContext['created_object_id'] = json_decode($response->getContent(), true)['id'];
                             } catch (\Throwable $th) {}
