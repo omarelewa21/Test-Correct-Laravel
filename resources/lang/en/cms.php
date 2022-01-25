@@ -14,6 +14,7 @@ return [
     'open-question-medium'            => 'Open question long',
     'multiplechoice-question-multiplechoice' => 'Multiplechoice question',
     'multiplechoice-question-truefalse' => 'True/false question',
+    'multiplechoice-question-arq' => 'ARQ question',
     'ranking-question'                  => 'Rangking question',
     'Vraagstelling'                   => 'Question',
     'Informatietekst'                   => 'Information text',
