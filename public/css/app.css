@@ -2675,6 +2675,10 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(206, 218, 243, var(--tw-border-opacity));
 }
+.border-offwhite{
+	--tw-border-opacity: 1;
+	border-color: rgba(249, 250, 255, var(--tw-border-opacity));
+}
 .border-b-gray-200{
 	--tw-border-opacity: 1;
 	border-bottom-color: rgba(229, 231, 235, var(--tw-border-opacity));

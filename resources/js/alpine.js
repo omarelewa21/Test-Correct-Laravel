@@ -118,7 +118,8 @@ document.addEventListener('alpine:init', () => {
             // })
         },
     }));
-    Alpine.data('selectionOptions', () => ({
+    Alpine.data('selectionOptions', (entangle) => ({
+        showPopup: entangle.value,
         data: {
             elements: [],
 
@@ -131,15 +132,23 @@ document.addEventListener('alpine:init', () => {
         },
 
         initWithSelection() {
-            let text = window.editor.getSelection();
+            let text = window.editor.getSelectedHtml();
+            text = text.$.textContent;
+            let replaced = text.replace('[', '');
+            let alsorepl = replaced.replace(']', '')
 
+            const content = alsorepl.split("|");
+            content.forEach((word, key) => {
+                console.log(word);
+                this.data.elements[key].value = word;
+            })
         },
 
-        addRow() {
+        addRow(value = '', checked = 'false') {
             let component = {
                 id: this.data.elements.length,
-                checked: 'false',
-                value: '',
+                checked: checked,
+                value: value,
             };
             this.data.elements.push(component);
         },
