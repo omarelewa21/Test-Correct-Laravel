@@ -6132,6 +6132,7 @@ Core = {
   setAppTestConfigIfNecessary: function setAppTestConfigIfNecessary(participantId) {
     try {
       electron.setTestConfig(participantId);
+      fetch('test_takes/take/');
     } catch (error) {}
 
     try {
@@ -6315,7 +6316,6 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
       extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',
