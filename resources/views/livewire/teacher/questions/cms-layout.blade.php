@@ -279,7 +279,7 @@
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswer') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')"
                             >
-                                <x-icon.preview class="flex "></x-icon.preview>
+                                <x-icon.autocheck/>
                                 <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswer')) disabled @endif"> {{ __('Automatisch nakijken') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
@@ -289,7 +289,7 @@
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')"
                             >
-                                <x-icon.notepad/>
+                                <x-icon.case-sensitive/>
                                 <span class="bold @if($this->isSettingsGeneralPropertyDisabled('autoCheckAnswerCaseSensitive')) disabled @endif"> {{ __('Hoofdletter gevoelig nakijken') }}</span>
                             </x-input.toggle-row-with-title>
                         @endif
