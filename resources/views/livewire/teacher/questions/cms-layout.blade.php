@@ -179,7 +179,7 @@
 
                                 @foreach($sortOrderAttachments as $key => $item)
                                     @php
-                                        list($upload, $video) = $this->getUploadOrVideo($item)
+                                        list($upload, $video) = $this->getUploadOrVideo($item);
                                     @endphp
 
                                     @if($upload)
