@@ -2,7 +2,6 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -482,7 +481,7 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
-        $request = new Request();
+        $request = new CmsRequest();
         $request->merge($this->question);
         $request->filterInput();
 
