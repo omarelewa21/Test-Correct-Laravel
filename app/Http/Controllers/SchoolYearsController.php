@@ -6,6 +6,7 @@ use tcCore\Http\Requests\CreateSchoolYearRequest;
 use tcCore\Http\Requests\UpdateSchoolYearRequest;
 use tcCore\SchoolYear;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SchoolYearsController extends Controller
 {
