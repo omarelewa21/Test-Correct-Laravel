@@ -1874,9 +1874,6 @@ video {
 .mr-40{
 	margin-right: 10rem;
 }
-.mb-2{
-	margin-bottom: 0.5rem;
-}
 .mr-2{
 	margin-right: 0.5rem;
 }
@@ -1897,6 +1894,9 @@ video {
 }
 .mt-3{
 	margin-top: 0.75rem;
+}
+.mb-2{
+	margin-bottom: 0.5rem;
 }
 .mr-2\.5{
 	margin-right: 0.625rem;
