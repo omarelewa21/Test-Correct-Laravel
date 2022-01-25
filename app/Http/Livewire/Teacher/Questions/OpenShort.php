@@ -420,8 +420,7 @@ class OpenShort extends Component
         if ($this->obj && method_exists($this->obj, 'getTemplate')) {
             return view('livewire.teacher.questions.'.$this->obj->getTemplate())->layout('layouts.base');
         }
-
-        return view('livewire.teacher.questions.open-short')->layout('layouts.base');
+        throw new \Exception('No template found for this question type.');
     }
 
     public function handleTags($tags)
