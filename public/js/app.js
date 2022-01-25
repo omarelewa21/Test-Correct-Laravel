@@ -5629,6 +5629,7 @@ document.addEventListener('alpine:init', function () {
       options: false,
       videoTitle: videoUrl,
       resolvingTitle: true,
+      index: 1,
       init: function init() {
         var _this4 = this;
 
@@ -5638,6 +5639,8 @@ document.addEventListener('alpine:init', function () {
             while (1) {
               switch (_context.prev = _context.next) {
                 case 0:
+                  _this4.setIndex();
+
                   _this4.$watch('options', function (value) {
                     if (value) {
                       var pWidth = _this4.$refs.optionscontainer.parentElement.offsetWidth;
@@ -5651,27 +5654,31 @@ document.addEventListener('alpine:init', function () {
                   });
 
                   if (!videoUrl) {
-                    _context.next = 8;
+                    _context.next = 9;
                     break;
                   }
 
-                  _context.next = 4;
+                  _context.next = 5;
                   return getTitleForVideoUrl(videoUrl);
 
-                case 4:
+                case 5:
                   fetchedTitle = _context.sent;
                   _this4.videoTitle = fetchedTitle || videoUrl;
                   _this4.resolvingTitle = false;
 
                   _this4.$wire.setVideoTitle(videoUrl, _this4.videoTitle);
 
-                case 8:
+                case 9:
                 case "end":
                   return _context.stop();
               }
             }
           }, _callee);
         }))();
+      },
+      setIndex: function setIndex() {
+        var parent = document.getElementById('attachment-badges');
+        this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
       }
     };
   });

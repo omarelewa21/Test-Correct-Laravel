@@ -164,13 +164,17 @@
                 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true">
                     <x-slot name="files">
                         <div id="attachment-badges" class="flex flex-wrap">
-                                @foreach($attachments as  $attachment)
+                                @foreach($attachments as $attachment)
                                   @php
                                     if (is_array($attachment)) {
                                         $attachment = tcCore\Attachment::find($attachment['id']);
                                     }
                                   @endphp
-                                    <x-attachment.badge :upload="false" :attachment="$attachment" wire:key="a-badge-{{ $attachment->id }}" :title="$attachment->title"/>
+                                    <x-attachment.badge :upload="false"
+                                                        :attachment="$attachment"
+                                                        :title="$attachment->title"
+                                                        wire:key="a-badge-{{ $attachment->id }}"
+                                    />
                                 @endforeach
 
                                 @foreach($sortOrderAttachments as $key => $item)
@@ -183,7 +187,7 @@
                                             wire:key="upload-{{ $key }}"
                                             :upload="true"
                                             :attachment="$upload"
-                                           :title="$upload->getClientOriginalName()"
+                                            :title="$upload->getClientOriginalName()"
                                         />
                                     @elseif($video)
                                         <x-attachment.video-badge

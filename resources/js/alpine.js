@@ -181,7 +181,10 @@ document.addEventListener('alpine:init', () => {
         options: false,
         videoTitle: videoUrl,
         resolvingTitle: true,
+        index: 1,
         async init() {
+            this.setIndex();
+
             this.$watch('options', value => {
                 if (value) {
                     let pWidth = this.$refs.optionscontainer.parentElement.offsetWidth;
@@ -198,6 +201,10 @@ document.addEventListener('alpine:init', () => {
                 this.$wire.setVideoTitle(videoUrl, this.videoTitle);
             }
         },
+        setIndex() {
+            const parent = document.getElementById('attachment-badges')
+            this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+        }
     }));
 
     Alpine.directive('global', function (el, {expression}) {

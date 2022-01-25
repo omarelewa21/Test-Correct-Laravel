@@ -1,5 +1,6 @@
 <div class="flex border rounded-lg border-blue-grey items-center mr-4 mb-2"
      x-data="badge('{{ $video['link'] }}')"
+     @attachments-updated.window="setIndex()"
 >
     <div class="flex p-2 border-r border-blue-grey h-full items-center">
         @if($host === 'vimeo')
@@ -9,6 +10,7 @@
         @endif
     </div>
     <div class="flex base items-center relative">
+        <span class="pl-2" x-text="index + ':'"></span>
         <span class="p-2 text-base max-w-[200px] truncate"
               :class="{'text-midgrey': resolvingTitle}"
               :title="videoTitle"

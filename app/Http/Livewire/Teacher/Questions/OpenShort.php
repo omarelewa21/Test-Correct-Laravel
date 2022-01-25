@@ -674,6 +674,7 @@ class OpenShort extends Component
         if(method_exists($this, $method)) {
             $this->$method($id);
         }
+        $this->dispatchBrowserEvent('attachments-updated');
     }
 
     private function removeQuestion()
