@@ -26,9 +26,9 @@
                x-ref="player"
                x-on:play="@this.registerPlayStart()"
                @if($attachment->audioOnlyPlayOnce())
-                    x-on:ended="@this.audioIsPlayedOnce(attachment);@this.closeAttachmentModal()"
+                    x-on:ended="@this.registerEndOfAudio($refs.player.currentTime,$refs.player.duration),@this.audioIsPlayedOnce(attachment);@this.closeAttachmentModal()"
                @elseif($attachment->hasAudioTimeout())
-                    x-on:ended="@this.closeAttachmentModal()"
+                    x-on:ended="@this.registerEndOfAudio($refs.player.currentTime,$refs.player.duration),@this.closeAttachmentModal()"
                @endif
         ></audio>
         <div class="flex justify-center">
