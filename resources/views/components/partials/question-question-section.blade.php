@@ -1,7 +1,7 @@
 <x-upload.section uploadModel="uploads" :defaultFilepond="false" :multiple="true" :disableUpload="$this->isPartOfGroupQuestion">
     <x-slot name="files">
         <div id="attachment-badges" class="flex flex-wrap">
-            @foreach($attachments as $attachment)
+            @foreach($this->attachments as $attachment)
                 <x-attachment.badge :upload="false"
                                     :attachment="$attachment"
                                     :title="$attachment->title"
@@ -9,7 +9,7 @@
                 />
             @endforeach
 
-            @foreach($sortOrderAttachments as $key => $item)
+            @foreach($this->sortOrderAttachments as $key => $item)
                 @php
                     list($upload, $video) = $this->getUploadOrVideo($item);
                 @endphp
