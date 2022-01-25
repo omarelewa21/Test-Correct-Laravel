@@ -484,6 +484,7 @@ class OpenShort extends Component
     {
         $request = new Request();
         $request->merge($this->question);
+        $request->filterInput();
 
         if ($this->isPartOfGroupQuestion()) {
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
@@ -676,6 +677,7 @@ class OpenShort extends Component
         if(method_exists($this, $method)) {
             $this->$method($id);
         }
+        $this->dispatchBrowserEvent('attachments-updated');
     }
 
     private function removeQuestion()

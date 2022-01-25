@@ -4,6 +4,7 @@
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta charset="UTF-8">
     <meta name="_token" content="{{ csrf_token() }}">
+    <meta http-equiv="refresh" content="{{ config('session.lifetime') * 60 }}">
     <title version="{{ \tcCore\Http\Helpers\BaseHelper::getCurrentVersion() }}">Test-Correct</title>
     <link rel="icon" href="{{ asset('img/icons/Logo-Test-Correct-recolored-icon-only.svg') }}"/>
     {{--    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">--}}
@@ -29,7 +30,7 @@
 
             return false;
         }
-        if (statusCode === 440) {
+        if (statusCode === 440 || statusCode === 419) {
             location.href = '{{ config('app.url_login') }}';
 
             return false
