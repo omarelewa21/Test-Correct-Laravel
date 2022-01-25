@@ -8,6 +8,7 @@
     init: () => {
         this.post = FilePond.create($refs.input);
             this.post.setOptions({
+                maxFileSize: '25MB',
                 allowMultiple: {{ $multiple }},
                 maxParallelUploads: 10,
                 server: {
@@ -34,7 +35,11 @@
                     let dummy = document.querySelector('#attachment-badges > #dummy');
                     dummy.querySelector('span').innerHTML = file.filename;
                 },
-
+                onerror: (error, file, status) => {
+                    if (error.main === 'File is too large' ) {
+                        Notify.notify('{{ __('cms.File too large, max file size') }}', 'error');
+                    }
+                }
             });
     },
     newFilesReceived: (event) => {
@@ -52,14 +57,3 @@
     {{ $slot }}
     <input {{ $attributes->wire('model') }} type="file" x-ref="input" class="hidden" name="filepond"/>
 </div>
-@push('styling')
-    @once
-        <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
-    @endonce
-@endpush
-
-@push('scripts')
-    @once
-        <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
-    @endonce
-@endpush

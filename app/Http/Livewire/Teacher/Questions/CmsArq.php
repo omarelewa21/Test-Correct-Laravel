@@ -94,7 +94,7 @@ class CmsArq
 
     public function getTranslationKey()
     {
-        return __('cms.multiplechoice-question-multiplechoice');
+        return __('cms.multiplechoice-question-arq');
     }
 
     public function updated($prop, $args)

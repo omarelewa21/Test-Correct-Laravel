@@ -2,7 +2,6 @@
 
 namespace tcCore\Http\Livewire\Teacher\Questions;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -267,7 +266,7 @@ class OpenShort extends Component
     {
         $this->question['order'] = 0;
         if(count($this->attachments)){
-            $this->question['clone_attachments'] = collect($this->attachments)->map(function ($attachment) {
+            $this->question['clone_attachments'] = $this->attachments->map(function ($attachment) {
                 return $attachment->uuid;
             })->toArray();
         }
@@ -482,8 +481,9 @@ class OpenShort extends Component
 
     private function updateQuestion()
     {
-        $request = new Request();
+        $request = new CmsRequest();
         $request->merge($this->question);
+        $request->filterInput();
 
         if ($this->isPartOfGroupQuestion()) {
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
@@ -538,7 +538,7 @@ class OpenShort extends Component
 
     public function handleAttachmentSettingChange($data, $attachmentUuid)
     {
-        $attachment = collect($this->attachments)->where('uuid', $attachmentUuid)->first();
+        $attachment = $this->attachments->where('uuid', $attachmentUuid)->first();
 
         $currentJson = json_decode($attachment->json, true);
         $json = array_merge($currentJson, $data);
@@ -582,7 +582,7 @@ class OpenShort extends Component
         }
 
         if ($this->isCloneRequest || $response->getStatusCode() ) {
-            $this->attachments = collect($this->attachments)->reject(function ($attachment) use ($attachmentUuid) {
+            $this->attachments = $this->attachments->reject(function ($attachment) use ($attachmentUuid) {
                 return $attachment->uuid == $attachmentUuid;
             });
         }
@@ -673,6 +673,7 @@ class OpenShort extends Component
         if(method_exists($this, $method)) {
             $this->$method($id);
         }
+        $this->dispatchBrowserEvent('attachments-updated');
     }
 
     private function removeQuestion()
@@ -875,12 +876,12 @@ class OpenShort extends Component
 
         $upload = collect($this->uploads)->first(function($upload) use ($sortHash){
             return $upload->getFileName() === $sortHash;
-            return $upload->id == $sortHash;
+//            return $upload->id == $sortHash;
         });
 
         $video = collect($this->videos)->first(function($video) use ($sortHash) {
-            return $video['id'] = $sortHash;
-            return $video == $sortHash;
+            return $video['id'] == $sortHash;
+//            return $video == $sortHash;
         });
 
         return [$upload, $video];
