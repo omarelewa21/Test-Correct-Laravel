@@ -41,17 +41,17 @@ class Logging
             foreach (Logging::$URL_PATH_LOGGING as $role => $routes) {
 
                 if (request()->user()->hasRole($role)) {
-                    foreach ($routes as $endpoint) {
-                        if (request()->is($endpoint['path']) && ($endpoint['method'] == "ALL" || request()->isMethod($endpoint['method']))) {
-                            $extraContext = [];
-                            if (request()->isMethod('POST')) {
-                                try {
-                                    $extraContext['created_object_id'] = json_decode($response->getContent(), true)['id'];
-                                } catch (\Throwable $th) {}
-                            }
-                            Log::stack(['loki'])->info("Middleware logging for $role", $extraContext);
+                    if(
+                        collect($routes)->first(function($endpoint){
+                            return request()->is($endpoint['path']) && ($endpoint['method'] == "ALL" || request()->isMethod($endpoint['method']));
+                        })){
+                        if (request()->isMethod('POST')) {
+                            try {
+                                $extraContext['created_object_id'] = json_decode($response->getContent(), true)['id'];
+                            } catch (\Throwable $th) {}
                         }
-                    }
+                        Log::stack(['loki'])->info("Middleware logging for $role", $extraContext);
+                    };
                 }
             }
         }
