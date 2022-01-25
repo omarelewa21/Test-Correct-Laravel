@@ -165,11 +165,6 @@
                     <x-slot name="files">
                         <div id="attachment-badges" class="flex flex-wrap">
                                 @foreach($attachments as $attachment)
-                                  @php
-                                    if (is_array($attachment)) {
-                                        $attachment = tcCore\Attachment::find($attachment['id']);
-                                    }
-                                  @endphp
                                     <x-attachment.badge :upload="false"
                                                         :attachment="$attachment"
                                                         :title="$attachment->title"
