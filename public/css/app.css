@@ -2419,9 +2419,6 @@ video {
 	--tw-divide-opacity: 1;
 	border-color: rgba(195, 208, 237, var(--tw-divide-opacity));
 }
-.justify-self-end{
-	justify-self: end;
-}
 .overflow-auto{
 	overflow: auto;
 }
@@ -3130,6 +3127,7 @@ video {
     --primary-opacity-10: rgba(0, 77, 245, 0.1);
     --primary-opacity-05: rgba(0, 77, 245, 0.05);
     --primary-light: #e6edfa;
+    --teacher-primary: #004df5;
     --teacher-primary-light: #4781ff;
     --secondary: #ECDB00;
     --highlight-primary: #ECDB00;

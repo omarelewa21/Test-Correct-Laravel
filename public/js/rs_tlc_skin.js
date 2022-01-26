@@ -46,6 +46,17 @@ window.rsConf = {
     }
 };
 
+function startRsPlayer()
+{
+    var els = document.getElementsByClassName('rsplay');
+    if(els){
+        [].forEach.call(els, function (el) {
+            el.click();
+        });
+        return;
+    }
+}
+
 function handleFocusForReadspeaker()
 {
     //if clickListen is activated you cannot type an L in a textfield
