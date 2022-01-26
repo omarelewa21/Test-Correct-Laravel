@@ -44,5 +44,6 @@
     Alpine.start();
     Core.init();
 </script>
+<span class="fixed bottom-0 right-2 bg-white" style="z-index: 1000">{{ csrf_token() }} | {{ now() }}</span>
 </body>
 </html>
