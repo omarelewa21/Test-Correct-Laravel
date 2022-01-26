@@ -960,6 +960,22 @@ input[type=number] {
     border-radius: 10px;
 }
 
+.selection-toggle-label {
+    border: solid 2px transparent;
+    border-radius: 8px;
+    transition: all 150ms ease-in;
+    box-sizing: content-box;
+    margin: -1px;
+    height: calc(100% - 2px);
+}
+.selection-toggle-label:hover {
+    border-color: var(--blue-grey);
+}
+.selection-toggle-label.active {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
 /*!
  * FilePond 4.30.3
  * Licensed under MIT, https://opensource.org/licenses/MIT/
@@ -1732,6 +1748,15 @@ video {
 }
 .right-14{
 	right: 3.5rem;
+}
+.left-px{
+	left: 1px;
+}
+.left-1{
+	left: 0.25rem;
+}
+.left-0\.5{
+	left: 0.125rem;
 }
 .z-10{
 	z-index: 10;
@@ -2667,6 +2692,10 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(207, 27, 4, var(--tw-border-opacity));
 }
+.border-offwhite{
+	--tw-border-opacity: 1;
+	border-color: rgba(249, 250, 255, var(--tw-border-opacity));
+}
 .border-indigo-200{
 	--tw-border-opacity: 1;
 	border-color: rgba(199, 210, 254, var(--tw-border-opacity));
@@ -2674,10 +2703,6 @@ video {
 .border-secondary{
 	--tw-border-opacity: 1;
 	border-color: rgba(206, 218, 243, var(--tw-border-opacity));
-}
-.border-offwhite{
-	--tw-border-opacity: 1;
-	border-color: rgba(249, 250, 255, var(--tw-border-opacity));
 }
 .border-b-gray-200{
 	--tw-border-opacity: 1;
@@ -3037,6 +3062,9 @@ video {
 }
 .pt-16{
 	padding-top: 4rem;
+}
+.pb-6{
+	padding-bottom: 1.5rem;
 }
 .text-left{
 	text-align: left;
@@ -3860,9 +3888,16 @@ ul ul ul {
 	--tw-scale-y: 1.1;
 	transform: var(--tw-transform);
 }
+.hover\:border:hover{
+	border-width: 1px;
+}
 .hover\:border-gray-300:hover{
 	--tw-border-opacity: 1;
 	border-color: rgba(209, 213, 219, var(--tw-border-opacity));
+}
+.hover\:border-primary:hover{
+	--tw-border-opacity: 1;
+	border-color: rgba(0, 77, 245, var(--tw-border-opacity));
 }
 .hover\:bg-indigo-500:hover{
 	--tw-bg-opacity: 1;

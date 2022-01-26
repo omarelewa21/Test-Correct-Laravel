@@ -107,7 +107,7 @@ class OpenShort extends Component
         'tags'                   => [],
         'note_type'              => 'NONE',
         'order'                  => 0,
-        'question'               => '',
+        'question'               => 'Kielbasa filet mignon ground round [turkey porchetta meatloaf landjaeger] alcatra drumstick ham.  Ball tip burgdoggen shankle spare ribs, corned beef porchetta biltong filet mignon kielbasa',
         'rtti'                   => '',
         'score'                  => 5,
         'subtype'                => '',

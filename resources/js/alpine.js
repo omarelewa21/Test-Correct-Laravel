@@ -120,35 +120,43 @@ document.addEventListener('alpine:init', () => {
     }));
     Alpine.data('selectionOptions', (entangle) => ({
         showPopup: entangle.value,
+        editorId: entangle.editor,
         data: {
             elements: [],
 
         },
 
         init() {
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 2; i++) {
                 this.addRow();
             }
         },
 
         initWithSelection() {
-            const brackets = ['[', ']'];
-            const seperator = ['|'];
+            let text = window.editor.getSelectedHtml().$.textContent
+                .trim()
+                .replace('[', '')
+                .replace(']', '');
 
-            let text = window.editor.getSelectedHtml().$.textContent;
-            if (text.contains(brackets)) {
-                text = text.replace('[', '').replace('[', '')
+            let content = text;
+            if (text.contains('|')) {
+                content = text.split("|");
+            } else if (text.contains([" "])) {
+                content = text.split(" ")
             }
 
-            const content = text.split("|");
-            const currentDataRows =  data.elements.length;
+            let currentDataRows =  this.data.elements.length;
+            if (!Array.isArray(content)) {
+                this.data.elements[0].value = content;
+                return;
+            }
 
             content.forEach((word, key) => {
-                console.log(word);
-                if (key > currentDataRows) {
+                if (key === currentDataRows) {
                     this.addRow();
+                    currentDataRows++;
                 }
-                this.data.elements[key].value = word;
+                this.data.elements[key].value = word.trim();
             })
         },
 
@@ -164,6 +172,7 @@ document.addEventListener('alpine:init', () => {
         trash(event, element) {
             event.stopPropagation();
             this.data.elements = this.data.elements.filter(el => el.id != element.id);
+            this.data.elements.forEach((el, key) => el.id = key);
         },
 
         toggleChecked(event, element) {
@@ -189,10 +198,24 @@ document.addEventListener('alpine:init', () => {
 
                 window.editor.insertText(result);
 
+                this.closePopup();
             } else {
+                console.log(this.data.elements.find(element => element.value === ''))
                 alert('none correct');
             }
         },
+        emptyOptions() {
+            const empty = this.data.elements.find(element => element.value === '');
+            return empty === undefined;
+        },
+        closePopup() {
+            this.showPopup = false;
+            this.data.elements = [];
+            this.init();
+        },
+        canDelete() {
+            return this.data.elements.length <= 2
+        }
     }));
     Alpine.data('badge', (videoUrl = null) => ({
         options: false,

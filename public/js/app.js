@@ -5565,25 +5565,42 @@ document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('selectionOptions', function (entangle) {
     return {
       showPopup: entangle.value,
+      editorId: entangle.editor,
       data: {
         elements: []
       },
       init: function init() {
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < 2; i++) {
           this.addRow();
         }
       },
       initWithSelection: function initWithSelection() {
         var _this3 = this;
 
-        var text = window.editor.getSelectedHtml();
-        text = text.$.textContent;
-        var replaced = text.replace('[', '');
-        var alsorepl = replaced.replace(']', '');
-        var content = alsorepl.split("|");
+        var text = window.editor.getSelectedHtml().$.textContent.trim().replace('[', '').replace(']', '');
+        var content = text;
+
+        if (text.contains('|')) {
+          content = text.split("|");
+        } else if (text.contains([" "])) {
+          content = text.split(" ");
+        }
+
+        var currentDataRows = this.data.elements.length;
+
+        if (!Array.isArray(content)) {
+          this.data.elements[0].value = content;
+          return;
+        }
+
         content.forEach(function (word, key) {
-          console.log(word);
-          _this3.data.elements[key].value = word;
+          if (key === currentDataRows) {
+            _this3.addRow();
+
+            currentDataRows++;
+          }
+
+          _this3.data.elements[key].value = word.trim();
         });
       },
       addRow: function addRow() {
@@ -5600,6 +5617,9 @@ document.addEventListener('alpine:init', function () {
         event.stopPropagation();
         this.data.elements = this.data.elements.filter(function (el) {
           return el.id != element.id;
+        });
+        this.data.elements.forEach(function (el, key) {
+          return el.id = key;
         });
       },
       toggleChecked: function toggleChecked(event, element) {
@@ -5630,9 +5650,27 @@ document.addEventListener('alpine:init', function () {
           var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
           lw.set('showSelectionOptionsModal', true);
           window.editor.insertText(result);
+          this.closePopup();
         } else {
+          console.log(this.data.elements.find(function (element) {
+            return element.value === '';
+          }));
           alert('none correct');
         }
+      },
+      emptyOptions: function emptyOptions() {
+        var empty = this.data.elements.find(function (element) {
+          return element.value === '';
+        });
+        return empty === undefined;
+      },
+      closePopup: function closePopup() {
+        this.showPopup = false;
+        this.data.elements = [];
+        this.init();
+      },
+      canDelete: function canDelete() {
+        return this.data.elements.length <= 2;
       }
     };
   });
@@ -5955,6 +5993,11 @@ countPresentStudents = function countPresentStudents(members) {
     }
   });
   return activeStudents;
+};
+
+String.prototype.contains = function (text) {
+  if (text === '') return false;
+  return this.includes(text);
 };
 
 /***/ }),

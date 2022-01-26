@@ -3,7 +3,7 @@
 'editorId',
 ])
 <div class="relative"
-     x-data="selectionOptions({ value: $wire.entangle('showSelectionOptionsModal') })"
+     x-data="selectionOptions({ value: $wire.entangle('showSelectionOptionsModal'), editorId: '{{ $editorId }}' })"
      @initwithselection.window="initWithSelection()"
 >
     <x-input.rich-textarea
@@ -11,52 +11,79 @@
             editorId="{{ $editorId }}"
             type="{{ $type }}"
     />
-    <div x-show="showPopup"
-         @click.outside="showPopup = false"
-         x-cloak
-         class="absolute bg-white p-2 top-0 border border-offwhite main-shadow rounded-10"
-    >
-        <template x-for="element in data.elements">
-            <div>
-                <x-input.text x-model="element.value"/>
-                <div class="inline-flex bg-off-white border border-blue-grey rounded-lg truefalse-container transition duration-150">
-                    @foreach( ['true', 'false'] as $optionValue)
-                        <div x-id="['text-radio']" @click="toggleChecked($event,element)">
-                            <label
-                                    :for="$id('text-radio')"
-                                    class="bg-off-white border border-off-white rounded-lg trueFalse bold transition duration-150
-                                      @if($loop->iteration == 1) true border-r-0 @else false border-l-0 @endif
 
-                                            "
-                                    :class="{'active': element.checked == '{{ $optionValue }}'}"
-                            >
-                                <input
-                                        :id="$id('text-radio')"
-                                        type="radio"
-                                        class="hidden"
-                                        x-model="element.checked"
-                                        value="{{ $optionValue }}"
-                                >
-                                <span>
-                                        @if ($optionValue == 'true')
-                                        <x-icon.checkmark/>
-                                    @else
-                                        <x-icon.close/>
-                                    @endif
-                                    </span>
-                            </label>
-                        </div>
-                        @if($loop->first)
-                            <div class="bg-blue-grey" style="width: 1px; height: 30px; margin-top: 3px"></div>
-                        @endif
-                    @endforeach
-                </div>
-                <x-icon.trash @click="trash($event, element)"/>
+    <div x-show="showPopup"
+         @click.outside="closePopup()"
+         x-cloak
+         class="absolute bg-white left-1/2 -translate-x-1/2 -top-10  border border-offwhite main-shadow rounded-10"
+    >
+        <div class="flex items-center justify-between py-2 px-4 border-b border-secondary">
+            <div class="flex items-center space-x-2.5">
+                <x-icon.plus/>
+                <span class="bold text-base">Selectievak toevoegen</span>
             </div>
-        </template>
-        <div>
-            <button @click="addRow()">{{ __('add extra') }}</button>
-            <button></button>
+            <div class="flex">
+                <x-tooltip>
+                    Dit is een selectie vraag!
+                </x-tooltip>
+            </div>
+        </div>
+        <div class="flex flex-col px-6 py-4">
+            <div>
+                <span class="text-base">Antwoordopties</span>
+            </div>
+            <template x-for="element in data.elements">
+                <div class="flex flex-1 space-x-2 mb-2">
+                    <x-input.text x-model="element.value"/>
+                    <div class="inline-flex bg-off-white border border-blue-grey rounded-lg truefalse-container transition duration-150 pr-0.5">
+                        @foreach( ['true', 'false'] as $optionValue)
+                            <div x-id="['text-radio']"
+                                 @click="toggleChecked($event,element)"
+                                 :class="{'relative left-0.5': '{{ $optionValue }}' === 'false'}"
+                            >
+                                <label
+                                        :for="$id('text-radio')"
+                                        class="flex selection-toggle-label"
+                                        :class="{'active': element.checked === '{{ $optionValue }}'}"
+                                >
+                                    <input
+                                            :id="$id('text-radio')"
+                                            type="radio"
+                                            class="hidden"
+                                            x-model="element.checked"
+                                            value="{{ $optionValue }}"
+                                    >
+                                    <span class="flex h-full items-center px-3">
+                                @if ($optionValue == 'true')
+                                            <x-icon.checkmark/>
+                                        @else
+                                            <x-icon.close/>
+                                        @endif
+                                </span>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                    <button :disabled="canDelete()" :class="{'text-midgrey' : canDelete()}" @click="trash($event, element)">
+                        <x-icon.trash/>
+                    </button>
+                </div>
+            </template>
+            <x-button.primary x-bind:disabled="!emptyOptions()" @click="addRow()" class="justify-center">
+                <x-icon.plus/>
+                <span>{{ __('Optie toevoegen') }}</span>
+            </x-button.primary>
+        </div>
+
+        <div class="flex items-center px-6 pb-6">
+            <div class="ml-auto space-x-2">
+                <x-button.text-button @click="closePopup()" size="sm">
+                    {{ __('Annuleer') }}
+                </x-button.text-button>
+                <x-button.cta @click="save()" size="sm">
+                    {{ __('Toevoegen') }}
+                </x-button.cta>
+            </div>
         </div>
     </div>
 </div>
