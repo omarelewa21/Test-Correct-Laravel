@@ -132,14 +132,22 @@ document.addEventListener('alpine:init', () => {
         },
 
         initWithSelection() {
-            let text = window.editor.getSelectedHtml();
-            text = text.$.textContent;
-            let replaced = text.replace('[', '');
-            let alsorepl = replaced.replace(']', '')
+            const brackets = ['[', ']'];
+            const seperator = ['|'];
 
-            const content = alsorepl.split("|");
+            let text = window.editor.getSelectedHtml().$.textContent;
+            if (text.contains(brackets)) {
+                text = text.replace('[', '').replace('[', '')
+            }
+
+            const content = text.split("|");
+            const currentDataRows =  data.elements.length;
+
             content.forEach((word, key) => {
                 console.log(word);
+                if (key > currentDataRows) {
+                    this.addRow();
+                }
                 this.data.elements[key].value = word;
             })
         },
