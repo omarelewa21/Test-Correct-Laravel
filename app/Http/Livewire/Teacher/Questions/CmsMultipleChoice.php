@@ -6,7 +6,7 @@ use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
 use tcCore\TestQuestion;
 
-class CmsMultipleChoice
+class CmsMultipleChoice extends CmsBase
 {
     const MIN_ANSWER_COUNT = 2;
 
@@ -60,7 +60,7 @@ class CmsMultipleChoice
                     $answer = (array) $answer;
                     return [
                         'order'  => $answer['order'],
-                        'answer' => $answer['answer'],
+                        'answer' => $this->transformHtmlChars($answer['answer']),
                         'score'  => (int)$answer['score'],
                     ];
                 })
@@ -174,7 +174,7 @@ class CmsMultipleChoice
                     'id'     => Uuid::uuid4(),
                     'order'  => $key + 1,
                     'score'  => $answer->score,
-                    'answer' => $answer->answer,
+                    'answer' => $this->transformHtmlCharsReverse($answer->answer),
                 ];
             })->toArray();
         }
