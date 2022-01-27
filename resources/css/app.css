@@ -40,6 +40,8 @@
     --orange: #eca000;
     --main-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.3);
     --white: #ffffff;
+    --maintenance-header-bg: #ff6666;
+    --deployment-testing-color: darkorange;
 }
 
 @font-face {
@@ -542,4 +544,12 @@ ul ul ul {
 }
 .validate-green {
     color: var(--cta-primary);
+}
+
+.maintenance-header-bg {
+    background: var(--maintenance-header-bg);
+}
+
+.deployment-testing-marker {
+    border-top: 4px solid var(--deployment-testing-color);
 }
