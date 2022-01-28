@@ -10,6 +10,7 @@ namespace tcCore\Http\Helpers;
 
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use tcCore\User;
 
 class GlobalStateHelper
@@ -17,6 +18,7 @@ class GlobalStateHelper
     protected static $instance;
     protected $queueAllowed = true;
     protected $hasMaintenanceMode = false;
+    protected $onDeploymentTesting = false;
 
     protected function __construct()
     {
@@ -63,4 +65,8 @@ class GlobalStateHelper
         $this->hasMaintenanceMode = (bool) $val;
     }
 
+    public function isOnDeploymentTesting()
+    {
+        return Str::contains(request()->getHost(),'welcome2.test');
+    }
 }

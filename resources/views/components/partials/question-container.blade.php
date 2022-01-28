@@ -56,7 +56,7 @@
     <div class="flex justify-end space-x-4 mt-6">
         @if(!$this->closed )
             <x-attachment.attachments-button :question="$question" :blockAttachments="$this->blockAttachments"></x-attachment.attachments-button>
-            <x-question.notepad-button :question="$question" :blockAttachments="$this->blockAttachments"></x-question.notepad-button>
+            <x-question.notepad-button :question="$question" ></x-question.notepad-button>
         @endif
     </div>
 
