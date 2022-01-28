@@ -1,8 +1,9 @@
 <x-layouts.base>
-    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif"
-            x-data="{}"
+    <header class="header top-0 px-8 xl:px-28 flex flex-wrap content-center fixed w-full z-20 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif"
+            x-data="{showToDashboard: false}"
             x-on:set-red-header-border.window="$el.classList.add('red-header-border')"
             x-on:remove-red-header-border.window="$el.classList.remove('red-header-border')"
+            x-on:show-to-dashboard.window="showToDashboard = true;"
         >
         <a class="mr-4 flex relative" href="#">
             <img class="" src="/svg/logos/Logo-Test-Correct-2.svg"
@@ -21,11 +22,16 @@
             @if(Auth::user()->isA('Teacher'))
                 <span class="bold">{{ Auth::user()->getNameFullAttribute() }}</span>
             @else
-            <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
-                <x-dropdown.item onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
-                    {{ __("app.Inleveren") }}
-                </x-dropdown.item>
-            </x-dropdown>
+                <x-dropdown label="{{ Auth::user()->getNameFullAttribute() }}">
+                    <x-dropdown.item
+                            onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('turnInModal')">
+                        {{ __("app.Inleveren") }}
+                    </x-dropdown.item>
+                    <x-dropdown.item x-show="showToDashboard"
+                                     onclick="livewire.find(document.querySelector('[testtakemanager]').getAttribute('wire:id')).call('returnToDashboard')">
+                        {{ __('app.Ga naar dashboard') }}
+                    </x-dropdown.item>
+                </x-dropdown>
             @endif
         </div>
     </header>

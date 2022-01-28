@@ -65,4 +65,5 @@ class CmsInfoScreen
     {
         return 'infoscreen-question';
     }
+
 }

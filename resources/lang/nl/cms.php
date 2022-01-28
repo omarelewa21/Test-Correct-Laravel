@@ -12,6 +12,7 @@ return [
     'open-question-medium'             => 'Open vraag lang',
     'multiplechoice-question-multiplechoice' => 'Meerkeuze vraag',
     'multiplechoice-question-truefalse' => 'Juist/onjuist vraag',
+    'multiplechoice-question-arq' => 'ARQ vraag',
     'ranking-question'                  => 'Rangschik vraag',
     'Vraagstelling'                    => 'Vraagstelling',
     'Informatietekst'                   => 'Informatietekst',

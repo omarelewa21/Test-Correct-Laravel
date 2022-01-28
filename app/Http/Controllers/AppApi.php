@@ -11,8 +11,9 @@ use tcCore\TestParticipant;
 class AppApi extends Controller
 {
     public function handIn(AppApiHandInRequest $request, TestParticipant $testParticipant) {
-        $testParticipant->handInTestTake();
-
+        if (!$testParticipant->testTake->test->isAssignment()) {
+            $testParticipant->handInTestTake();
+        }
         return Response::make(null, 200);
     }
 }

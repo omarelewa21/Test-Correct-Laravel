@@ -6,7 +6,7 @@ use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
 use tcCore\TestQuestion;
 
-class CmsRanking
+class CmsRanking extends CmsBase
 {
     CONST MIN_ANSWER_COUNT = 2;
 
@@ -112,7 +112,7 @@ class CmsRanking
         $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function($answer){
             return [
                 'order' => $answer['order'],
-                'answer' => $answer['answer'],
+                'answer' => $this->transformHtmlChars($answer['answer']),
             ];
         })->toArray());
         unset($this->instance->question['answer']);
@@ -138,7 +138,7 @@ class CmsRanking
                 return [
                     'id'     => Uuid::uuid4(),
                     'order'  => $key + 1,
-                    'answer' => $answer->answer,
+                    'answer' => $this->transformHtmlCharsReverse($answer->answer),
                 ];
             })->toArray();
         }
