@@ -17,7 +17,7 @@ class AppVersionDetector
         "windows" => "windowsOS",
         "macbook" => "macOS",
         "ipad" => "iOS",
-        "iPhone" => "iOS",
+        "iphone" => "iOS",
         "chromebook" => "ChromeOS",
         "win32" => "windowsElectron",
         "darwin" => "macosElectron"
