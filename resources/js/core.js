@@ -140,10 +140,17 @@ Core = {
             open('/login', '_self').close();
         } else if (cmd == 'close') {
             try {
-                electron.closeApp();
-            } catch (error) {
-                window.close();
-            }
+				chrome.runtime.sendMessage(
+					document.getElementById("chromeos-extension-id").name,
+					{ close: true }
+				);
+			} catch {
+				try {
+					electron.closeApp();
+				} catch (error) {
+					window.close();
+				}
+			}
         }
         return false;
     },
