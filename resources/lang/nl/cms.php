@@ -14,6 +14,7 @@ return [
     'multiplechoice-question-truefalse' => 'Juist/onjuist vraag',
     'multiplechoice-question-arq' => 'ARQ vraag',
     'ranking-question'                  => 'Rangschik vraag',
+    'drawing-question'                  => 'Teken vraag',
     'Vraagstelling'                    => 'Vraagstelling',
     'Informatietekst'                   => 'Informatietekst',
     'Antwoordmodel'                    => 'Antwoordmodel',
@@ -58,5 +59,6 @@ return [
     'bloom warning' => 'Je hebt de BLOOM taxonomie methode geopend, maar geen waarde geselecteerd. Weet je zeker dat je wilt opslaan?',
     'miller warning' => 'Je hebt de Miller taxonomie methode geopend, maar geen waarde geselecteerd. Weet je zeker dat je wilt opslaan?',
     'truefalse no answer' => 'Het is verplicht een antwoord optie te kiezen.',
-    'File too large, max file size' => 'De bestandsgrootte van je upload is te groot. De maximale toegestande grootte is 25MB'
+    'File too large, max file size' => 'De bestandsgrootte van je upload is te groot. De maximale toegestande grootte is 25MB',
+    'coordinaten' => 'Coördinaten',
 ];
