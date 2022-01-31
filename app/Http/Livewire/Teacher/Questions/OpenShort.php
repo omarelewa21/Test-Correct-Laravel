@@ -19,6 +19,7 @@ use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Http\Requests\Request;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
@@ -394,6 +395,8 @@ class OpenShort extends Component
 
     private function saveNewQuestion()
     {
+        Request::filter($this->question);
+
         if ($this->isPartOfGroupQuestion()) {
             $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
             $cgqqr = new CreateGroupQuestionQuestionRequest($this->question);
