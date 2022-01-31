@@ -32,13 +32,16 @@
             <div>
                 <span class="text-base">Antwoordopties</span>
             </div>
-            <template x-for="element in data.elements">
-                <div class="flex flex-1 space-x-2 mb-2">
-                    <x-input.text x-model="element.value"/>
-                    <div class="inline-flex bg-off-white border border-blue-grey rounded-lg truefalse-container transition duration-150 pr-0.5">
+            <template x-for="(element, key) in data.elements" :key="element.id">
+                <div class="flex flex-1 space-x-2 mb-2" :id="`element${key}`">
+                    <x-input.text x-model="element.value" x-bind:class="{'border-allred': hasError.empty.includes(element.id)}"/>
+                    <div class="inline-flex bg-off-white border rounded-lg truefalse-container transition duration-150 pr-0.5"
+                         x-bind:class="hasError.false.includes(element.id) ? 'border-allred' : 'border-blue-grey'"
+                    >
                         @foreach( ['true', 'false'] as $optionValue)
                             <div x-id="['text-radio']"
                                  @click="toggleChecked($event,element)"
+                                 @change="resetHasError()"
                                  :class="{'relative left-0.5': '{{ $optionValue }}' === 'false'}"
                             >
                                 <label
@@ -69,7 +72,7 @@
                     </button>
                 </div>
             </template>
-            <x-button.primary x-bind:disabled="!emptyOptions()" @click="addRow()" class="justify-center">
+            <x-button.primary x-bind:disabled="emptyOptions()" @click="addRow()" class="justify-center">
                 <x-icon.plus/>
                 <span>{{ __('Optie toevoegen') }}</span>
             </x-button.primary>

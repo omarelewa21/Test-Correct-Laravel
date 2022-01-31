@@ -5565,7 +5565,11 @@ document.addEventListener('alpine:init', function () {
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('selectionOptions', function (entangle) {
     return {
       showPopup: entangle.value,
-      editorId: entangle.editor,
+      editorId: entangle.editorId,
+      hasError: {
+        empty: [],
+        "false": []
+      },
       data: {
         elements: []
       },
@@ -5582,11 +5586,10 @@ document.addEventListener('alpine:init', function () {
 
         if (text.contains('|')) {
           content = text.split("|");
-        } else if (text.contains([" "])) {
-          content = text.split(" ");
         }
 
         var currentDataRows = this.data.elements.length;
+        this.data.elements[0].checked = 'true';
 
         if (!Array.isArray(content)) {
           this.data.elements[0].value = content;
@@ -5634,7 +5637,9 @@ document.addEventListener('alpine:init', function () {
           }
         });
       },
-      save: function save() {
+      insertDataInEditor: function insertDataInEditor() {
+        var _this5 = this;
+
         var correct = this.data.elements.find(function (el) {
           return el.value != '' && el.checked == 'true';
         });
@@ -5643,26 +5648,52 @@ document.addEventListener('alpine:init', function () {
         }).map(function (el) {
           return el.value;
         });
-
-        if (correct) {
-          result.unshift(correct.value);
-          result = '[' + result.join('|') + ']';
-          var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
-          lw.set('showSelectionOptionsModal', true);
-          window.editor.insertText(result);
-          this.closePopup();
-        } else {
-          console.log(this.data.elements.find(function (element) {
-            return element.value === '';
-          }));
-          alert('none correct');
-        }
+        result.unshift(correct.value);
+        result = '[' + result.join('|') + ']';
+        var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
+        lw.set('showSelectionOptionsModal', true);
+        window.editor.insertText(result);
+        setTimeout(function () {
+          _this5.$wire.setQuestionProperty('question', window.editor.getData());
+        }, 300);
       },
-      emptyOptions: function emptyOptions() {
-        var empty = this.data.elements.find(function (element) {
+      validateInput: function validateInput() {
+        var emptyFields = this.data.elements.filter(function (element) {
           return element.value === '';
         });
-        return empty === undefined;
+        var falseValues = this.data.elements.filter(function (element) {
+          return element.checked === 'false';
+        });
+
+        if (emptyFields.length !== 0 || this.data.elements.length === falseValues.length) {
+          this.hasError.empty = emptyFields.map(function (item) {
+            return item.id;
+          });
+
+          if (this.data.elements.length === falseValues.length) {
+            this.hasError["false"] = falseValues.map(function (item) {
+              return item.id;
+            });
+          }
+
+          Notify.notify('Niet alle velden zijn (correct) ingevuld', 'error');
+          return false;
+        }
+
+        return true;
+      },
+      save: function save() {
+        if (!this.validateInput()) {
+          return;
+        }
+
+        this.insertDataInEditor();
+        this.closePopup();
+      },
+      emptyOptions: function emptyOptions() {
+        return !!this.data.elements.find(function (element) {
+          return element.value === '';
+        });
       },
       closePopup: function closePopup() {
         this.showPopup = false;
@@ -5671,6 +5702,10 @@ document.addEventListener('alpine:init', function () {
       },
       canDelete: function canDelete() {
         return this.data.elements.length <= 2;
+      },
+      resetHasError: function resetHasError() {
+        this.hasError.empty = [];
+        this.hasError["false"] = [];
       }
     };
   });
@@ -5682,7 +5717,7 @@ document.addEventListener('alpine:init', function () {
       resolvingTitle: true,
       index: 1,
       init: function init() {
-        var _this5 = this;
+        var _this6 = this;
 
         return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
           var fetchedTitle;
@@ -5690,16 +5725,16 @@ document.addEventListener('alpine:init', function () {
             while (1) {
               switch (_context.prev = _context.next) {
                 case 0:
-                  _this5.setIndex();
+                  _this6.setIndex();
 
-                  _this5.$watch('options', function (value) {
+                  _this6.$watch('options', function (value) {
                     if (value) {
-                      var pWidth = _this5.$refs.optionscontainer.parentElement.offsetWidth;
+                      var pWidth = _this6.$refs.optionscontainer.parentElement.offsetWidth;
 
-                      var pPos = _this5.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+                      var pPos = _this6.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
 
                       if (pWidth + pPos < 288) {
-                        _this5.$refs.optionscontainer.classList.remove('right-0');
+                        _this6.$refs.optionscontainer.classList.remove('right-0');
                       }
                     }
                   });
@@ -5714,10 +5749,10 @@ document.addEventListener('alpine:init', function () {
 
                 case 5:
                   fetchedTitle = _context.sent;
-                  _this5.videoTitle = fetchedTitle || videoUrl;
-                  _this5.resolvingTitle = false;
+                  _this6.videoTitle = fetchedTitle || videoUrl;
+                  _this6.resolvingTitle = false;
 
-                  _this5.$wire.setVideoTitle(videoUrl, _this5.videoTitle);
+                  _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
 
                 case 9:
                 case "end":

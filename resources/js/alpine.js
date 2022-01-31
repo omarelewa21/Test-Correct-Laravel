@@ -120,7 +120,8 @@ document.addEventListener('alpine:init', () => {
     }));
     Alpine.data('selectionOptions', (entangle) => ({
         showPopup: entangle.value,
-        editorId: entangle.editor,
+        editorId: entangle.editorId,
+        hasError: {empty: [], false: []},
         data: {
             elements: [],
 
@@ -141,11 +142,11 @@ document.addEventListener('alpine:init', () => {
             let content = text;
             if (text.contains('|')) {
                 content = text.split("|");
-            } else if (text.contains([" "])) {
-                content = text.split(" ")
             }
 
-            let currentDataRows =  this.data.elements.length;
+            let currentDataRows = this.data.elements.length;
+            this.data.elements[0].checked = 'true';
+
             if (!Array.isArray(content)) {
                 this.data.elements[0].value = content;
                 return;
@@ -186,27 +187,49 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        save() {
+        insertDataInEditor: function () {
             let correct = this.data.elements.find(el => el.value != '' && el.checked == 'true');
             let result = this.data.elements.filter(el => el.value != '' && el.checked == 'false').map(el => el.value);
 
-            if (correct) {
-                result.unshift(correct.value)
-                result = '[' + result.join('|') + ']';
-                let lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
-                lw.set('showSelectionOptionsModal', true)
+            result.unshift(correct.value)
+            result = '[' + result.join('|') + ']';
+            let lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
+            lw.set('showSelectionOptionsModal', true)
 
-                window.editor.insertText(result);
+            window.editor.insertText(result);
 
-                this.closePopup();
-            } else {
-                console.log(this.data.elements.find(element => element.value === ''))
-                alert('none correct');
+            setTimeout(() => {
+                this.$wire.setQuestionProperty('question',window.editor.getData());
+            }, 300);
+        },
+        validateInput: function () {
+            const emptyFields = this.data.elements.filter(element => element.value === '')
+            const falseValues = this.data.elements.filter(element => element.checked === 'false')
+
+            if (emptyFields.length !== 0 || this.data.elements.length === falseValues.length) {
+                this.hasError.empty = emptyFields.map(item => item.id);
+
+                if (this.data.elements.length === falseValues.length) {
+                    this.hasError.false = falseValues.map(item => item.id);
+                }
+
+                Notify.notify('Niet alle velden zijn (correct) ingevuld', 'error');
+                return false;
             }
+
+            return true;
+        },
+        save() {
+            if (!this.validateInput()) {
+                return;
+            }
+
+            this.insertDataInEditor();
+
+            this.closePopup();
         },
         emptyOptions() {
-            const empty = this.data.elements.find(element => element.value === '');
-            return empty === undefined;
+            return !!this.data.elements.find(element => element.value === '');
         },
         closePopup() {
             this.showPopup = false;
@@ -215,6 +238,10 @@ document.addEventListener('alpine:init', () => {
         },
         canDelete() {
             return this.data.elements.length <= 2
+        },
+        resetHasError() {
+            this.hasError.empty = [];
+            this.hasError.false = [];
         }
     }));
     Alpine.data('badge', (videoUrl = null) => ({

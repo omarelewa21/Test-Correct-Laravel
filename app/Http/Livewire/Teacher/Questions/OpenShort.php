@@ -107,7 +107,7 @@ class OpenShort extends Component
         'tags'                   => [],
         'note_type'              => 'NONE',
         'order'                  => 0,
-        'question'               => 'Kielbasa filet mignon ground round [turkey porchetta meatloaf landjaeger] alcatra drumstick ham.  Ball tip burgdoggen shankle spare ribs, corned beef porchetta biltong filet mignon kielbasa',
+        'question'               => '',
         'rtti'                   => '',
         'score'                  => 5,
         'subtype'                => '',
@@ -695,7 +695,7 @@ class OpenShort extends Component
         $this->attachmentsCount++;
     }
 
-    private function decodeCompletionTags($question)
+    public function decodeCompletionTags($question)
     {
         if (!$question->completionQuestionAnswers) {
             return $question->getQuestionHtml();
@@ -809,10 +809,6 @@ class OpenShort extends Component
 
             $this->attachmentsCount = count($this->attachments);
 
-            if ($this->isCompletionQuestion()) {
-                $this->question['question'] = $this->decodeCompletionTags($q);
-            }
-
             if ($this->obj && method_exists($this->obj, 'initializePropertyBag')) {
                 $this->obj->initializePropertyBag($q);
             }
@@ -894,5 +890,10 @@ class OpenShort extends Component
            }
            return $video;
         })->toArray();
+    }
+
+    public function setQuestionProperty($property, $value)
+    {
+        $this->question[$property] = $value;
     }
 }
