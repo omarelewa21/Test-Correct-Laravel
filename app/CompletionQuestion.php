@@ -466,9 +466,27 @@ class CompletionQuestion extends Question implements QuestionInterface
             $validator->errors()->add($fieldPreFix . 'question', $errorMessage);
         }
 
+        $qHelper = new QuestionHelper();
+        $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionString, true);
+
+        foreach($questionData['answers'] as $answer){
+            logger($answer);
+            if(trim($answer['answer']) == ''){
+                if (request()->input('subtype') === 'completion') {
+                    $validator->errors()->add($fieldPreFix . 'question', 'U dient één woord tussen vierkante haakjes te plaatsen.');
+                } else {
+                    $validator->errors()->add($fieldPreFix . 'question', 'U dient minimaal één woord tussen vierkante haakjes te plaatsen.');
+                }
+                break;
+            }
+
+            if(trim(clean(html_entity_decode($answer['answer']))) == ''){
+                $validator->errors()->add($fieldPreFix . 'question', 'U heeft tekens gebruikt die hier niet mogelijk zijn');
+                break;
+            }
+        }
+
         if ($subType == 'multi') {
-            $qHelper = new QuestionHelper();
-            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionString, true);
             if ($questionData["error"]) {
                 $validator->errors()->add($fieldPreFix . 'question', $questionData["error"]);
             }
