@@ -88,8 +88,8 @@
             </div>
             @if(Auth::user()->text2speech)
                 <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve ">
-                    <a rel="nofollow" class="rsbtn_play" accesskey="L" title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
-                        <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio/></span>
+                    <a rel="nofollow" class="rsbtn_play"  title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
+                        <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
                         <span class="rsbtn_right rsimg rsplay rspart"></span>
                     </a>
                 </div>

@@ -15,7 +15,8 @@
         <script>Bugsnag.start({ apiKey: '{{ config('bugsnag.browser_key') }}' })</script>
     @endif
     @stack('styling')
-    <link rel="stylesheet" type="text/css" href="/css/rs_tlc_skin.css" />
+
+        <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
 </head>
 <body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
 {{ $slot }}
@@ -38,8 +39,10 @@
 </script>
 <script src="{{ mix('/js/app.js') }}"></script>
 <script src="https://www.wiris.net/client/plugins/app/WIRISplugins.js?viewer=image"></script>
-<script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;skin=rs_tlc_skin" type="text/javascript" id="rs_req_Init"></script>
+@if(Auth::user()->text2speech)
+<script src="//cdn-eu.readspeaker.com/script/12749/webReader/webReader.js?pids=wr&amp;noDefaultSkin=1" type="text/javascript" id="rs_req_Init"></script>
 <script src="/js/rs_tlc_skin.js"></script>
+@endif
 @stack('scripts')
 <script>
     Alpine.start();
