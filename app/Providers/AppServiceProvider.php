@@ -7,6 +7,7 @@ use Livewire\Livewire;
 use tcCore\Http\Middleware\AuthenticatedAsStudent;
 use tcCore\Http\Middleware\AuthenticatedAsTeacher;
 use tcCore\Http\Middleware\DuplicateLogin;
+use tcCore\Http\Middleware\DuplicateLoginLivewire;
 use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
 
 class AppServiceProvider extends ServiceProvider {
@@ -52,6 +53,7 @@ class AppServiceProvider extends ServiceProvider {
             AuthenticatedAsStudent::class,
             AuthenticatedAsTeacher::class,
             DuplicateLogin::class,
+            DuplicateLoginLivewire::class,
             TestTakeForceTakenAwayCheck::class,
         ]);
 	}
