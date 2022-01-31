@@ -698,7 +698,7 @@ class OpenShort extends Component
         $this->attachmentsCount++;
     }
 
-    private function decodeCompletionTags($question)
+    public function decodeCompletionTags($question)
     {
         if (!$question->completionQuestionAnswers) {
             return $question->getQuestionHtml();
@@ -812,10 +812,6 @@ class OpenShort extends Component
 
             $this->attachmentsCount = count($this->attachments);
 
-            if ($this->isCompletionQuestion()) {
-                $this->question['question'] = $this->decodeCompletionTags($q);
-            }
-
             if ($this->obj && method_exists($this->obj, 'initializePropertyBag')) {
                 $this->obj->initializePropertyBag($q);
             }
@@ -897,5 +893,10 @@ class OpenShort extends Component
            }
            return $video;
         })->toArray();
+    }
+
+    public function setQuestionProperty($property, $value)
+    {
+        $this->question[$property] = $value;
     }
 }

@@ -94,3 +94,19 @@
     left: -2px;
     border-radius: 10px;
 }
+
+.selection-toggle-label {
+    border: solid 2px transparent;
+    border-radius: 8px;
+    transition: all 150ms ease-in;
+    box-sizing: content-box;
+    margin: -1px;
+    height: calc(100% - 2px);
+}
+.selection-toggle-label:hover {
+    border-color: var(--blue-grey);
+}
+.selection-toggle-label.active {
+    border-color: var(--primary);
+    color: var(--primary);
+}

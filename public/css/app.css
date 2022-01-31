@@ -960,6 +960,22 @@ input[type=number] {
     border-radius: 10px;
 }
 
+.selection-toggle-label {
+    border: solid 2px transparent;
+    border-radius: 8px;
+    transition: all 150ms ease-in;
+    box-sizing: content-box;
+    margin: -1px;
+    height: calc(100% - 2px);
+}
+.selection-toggle-label:hover {
+    border-color: var(--blue-grey);
+}
+.selection-toggle-label.active {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
 /*!
  * FilePond 4.30.3
  * Licensed under MIT, https://opensource.org/licenses/MIT/
@@ -1709,14 +1725,17 @@ video {
 .-left-4{
 	left: -1rem;
 }
+.-top-10{
+	top: -2.5rem;
+}
+.left-0\.5{
+	left: 0.125rem;
+}
 .top-1\/2{
 	top: 50%;
 }
 .-top-px{
 	top: -1px;
-}
-.-top-10{
-	top: -2.5rem;
 }
 .bottom-3{
 	bottom: 0.75rem;
@@ -2667,13 +2686,17 @@ video {
 	--tw-border-opacity: 1;
 	border-color: rgba(207, 27, 4, var(--tw-border-opacity));
 }
-.border-indigo-200{
+.border-offwhite{
 	--tw-border-opacity: 1;
-	border-color: rgba(199, 210, 254, var(--tw-border-opacity));
+	border-color: rgba(249, 250, 255, var(--tw-border-opacity));
 }
 .border-secondary{
 	--tw-border-opacity: 1;
 	border-color: rgba(206, 218, 243, var(--tw-border-opacity));
+}
+.border-indigo-200{
+	--tw-border-opacity: 1;
+	border-color: rgba(199, 210, 254, var(--tw-border-opacity));
 }
 .border-b-gray-200{
 	--tw-border-opacity: 1;
@@ -2989,6 +3012,15 @@ video {
 .pr-6{
 	padding-right: 1.5rem;
 }
+.pr-0\.5{
+	padding-right: 0.125rem;
+}
+.pr-0{
+	padding-right: 0px;
+}
+.pb-6{
+	padding-bottom: 1.5rem;
+}
 .pt-2\.5{
 	padding-top: 0.625rem;
 }
@@ -3015,12 +3047,6 @@ video {
 }
 .pt-\[70px\]{
 	padding-top: 70px;
-}
-.pr-0\.5{
-	padding-right: 0.125rem;
-}
-.pr-0{
-	padding-right: 0px;
 }
 .pb-16{
 	padding-bottom: 4rem;
