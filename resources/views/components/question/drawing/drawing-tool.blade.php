@@ -637,7 +637,7 @@
         }
         <? } ?>
 
-        drawingApp.init();
+        // drawingApp.init();
 
 
         @if(Auth::user()->isA('teacher'))

@@ -46,7 +46,7 @@ window.initDrawingQuestion = function () {
         init() {
             this.bindEventListeners(eventListenerSettings);
             const pollingFunction = setInterval(function () {
-                if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
+                if (UI.svgCanvas.getBoundingClientRect().width !== 0 ) {
                     setCorrectPopupHeight();
                     calculateCanvasBounds();
                     updateClosedSidebarWidth();

@@ -2870,6 +2870,9 @@ video {
 .h-28{
 	height: 7rem;
 }
+.h-\[500px\]{
+	height: 500px;
+}
 .max-h-60{
 	max-height: 15rem;
 }
@@ -2890,6 +2893,9 @@ video {
 }
 .min-h-screen{
 	min-height: 100vh;
+}
+.min-h-\[500px\]{
+	min-height: 500px;
 }
 .w-1\/2{
 	width: 50%;
