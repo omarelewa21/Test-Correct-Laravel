@@ -76,7 +76,7 @@
 .Rectangle {
     width: 140px;
     height: 40px;
-    margin: 0 213px 1px 356px;
+    margin: auto;
     padding: 5px 16px 5px 11px;
     border-radius: 20px;
     color: var(--system-base);
@@ -157,7 +157,15 @@
 }
 
 .rsicn-arrow-down:before {
-    content: "\edbf"
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/icons-options.svg");
+    background-position-x: 13px;
+    background-position-y: 12px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
 }
 
 .rsicn-arrow-up2:before {
@@ -201,13 +209,21 @@
 }
 
 .rsicn-cross-bold:before {
-    content: "\ed6c"
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/close.svg");
+    background-position-x: 13px;
+    background-position-y: 12px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
 }
 
 .rsicn-cross:before {
     display: inline-block;
     content: '';
-    background-image: url("/svg/icons/icons-options.svg");
+    background-image: url("/svg/icons/close-small.svg");
     background-position-x: 13px;
     background-position-y: 12px;
     background-size: auto;
@@ -421,14 +437,14 @@
     top: -10px;
 }
 
-#readspeaker_button1{
+#readspeaker_button{
     position: relative;
 }
 
 .rsbtn .rs-player-loadindicator {
     display: block;
     position: absolute;
-    left: 0;
+    left: 0 !important;
     right: -1px;
     top: -3px;
     height: 6px;
@@ -540,7 +556,15 @@
 }
 
 .rsbtn .rsbtn_exp .rsbtn_exp_inner .rsbtn_closer:focus span.rsicn:before,.rsbtn .rsbtn_exp .rsbtn_exp_inner .rsbtn_closer:hover span.rsicn:before {
-    content: "\ed6c"
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/close.svg");
+    background-position-x: 13px;
+    background-position-y: 12px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
 }
 
 .rsbtn.has-seekbar .rsbtn_exp .rsbtn_exp_inner .rsbtn_player_item.rsbtn_volume {
@@ -592,4 +616,17 @@ input[type="range"]::-ms-fill-upper {
     background-color: var(--teacher-primary-light);
 }
 
+.rs_addtools .rsbtn_tooltoggle, .rsbtn .rsbtn_tooltoggle {
+    display: inline-block !important;
+    z-index: 1;
+}
 
+.rsbtn_toolpanel{
+    position: relative;
+    top: -20em;
+}
+
+#rsbtn_scrollcontrols{
+    display: none !important;
+    width: 30px;
+}

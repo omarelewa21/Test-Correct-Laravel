@@ -8,8 +8,11 @@ window.rsConf = {
     },
     ui: {
         scrollcontrols: {
-            vertical : 'bottom',
+            vertical : 'top',
             horizontal: 'left'
+        },
+        toolbar: {
+            inverted : false
         }
     },
     cb: {
@@ -37,6 +40,7 @@ window.rsConf = {
                     }
                     window.getSelection().removeAllRanges();
                 }
+                hideRsPlayer();
             },
             play: function() {
                 console.log('Play callback fired!');
@@ -48,6 +52,7 @@ window.rsConf = {
 
 function startRsPlayer()
 {
+    showRsPlayer();
     var els = document.getElementsByClassName('rsplay');
     if(els){
         [].forEach.call(els, function (el) {
@@ -167,4 +172,52 @@ function readTextArea(questionId)
     textarea.classList.add('hidden');
     textarea.classList.add('readspeaker_hidden_element');
     hidden_div.click();
+}
+
+function showRsPlayer()
+{
+    hideByClassName('rs_starter_button');
+    showById('readspeaker_button');
+}
+
+function hideRsPlayer()
+{
+    showByClassName('rs_starter_button');
+    hideById('readspeaker_button');
+}
+
+function showById(id)
+{
+    var element = document.getElementById(id);
+    if(element){
+        element.classList.remove('hidden');
+    }
+}
+
+function hideById(id)
+{
+    var element = document.getElementById(id);
+    if(element){
+        element.classList.add('hidden');
+    }
+}
+
+function showByClassName(class_name)
+{
+    var elements = document.getElementsByClassName(class_name);
+    if(elements){
+        [].forEach.call(elements, function (el) {
+            el.classList.remove('hidden');
+        });
+    }
+}
+
+function hideByClassName(class_name)
+{
+    var elements = document.getElementsByClassName(class_name);
+    if(elements){
+        [].forEach.call(elements, function (el) {
+            el.classList.add('hidden');
+        });
+    }
 }

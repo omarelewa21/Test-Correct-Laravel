@@ -38,7 +38,9 @@
         <div class="flex items-center">
             {{ $fraudDetection }}
         </div>
-
+        <div class="flex items-center ml-auto space-x-4" >
+            {{ $readspeaker }}
+        </div>
         <div class="flex items-center ml-auto space-x-6">
             {{ $footerbuttons }}
         </div>
