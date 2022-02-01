@@ -1,4 +1,4 @@
-<div id="drawing-tool" wire:ignore>
+<div id="drawing-tool" wire:ignore x-data="{}">
     <div class="section-container">
         <section>
             <div id="tools">
@@ -235,7 +235,7 @@
                 </div>
             </div>
         </section>
-        <button id="exit-btn" title="Sluiten">
+        <button id="exit-btn" title="Sluiten" @click="show = false">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="16">
                 <g stroke="currentColor" stroke-width="3" fill="none" fill-rule="evenodd" stroke-linecap="round">
                     <path d="M1.5 13.5l11-11M12.5 13.5l-11-11"/>
@@ -243,7 +243,7 @@
             </svg>
         </button>
     </div>
-    <div id="canvas-sidebar-container">
+    <div id="canvas-sidebar-container" class="overflow-auto">
         <article id="canvas">
             <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -645,11 +645,10 @@
         Canvas.setCurrentLayer("answer");
         @endif
 
-            window.drawingSaveUrl = '/questions/save_drawing';
+        window.drawingSaveUrl = '/questions/save_drawing';
         window.drawingCallback = function () {
             {{--window.parent.Answer.drawingPadClose('<?=$question_id?>');--}}
             window.parent.Answer.drawingPadClose('1');
-            Popup.closeLast();
         };
     </script>
 @endpush

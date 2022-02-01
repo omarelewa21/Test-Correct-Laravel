@@ -573,7 +573,7 @@ window.initDrawingQuestion = function () {
             events: {
                 "click": {
                     callback: () => {
-                        window.Popup.closeLast();
+                        // window.Popup.closeLast();
                     }
                 }
             }
@@ -811,7 +811,7 @@ window.initDrawingQuestion = function () {
     }
 
     function setCorrectPopupHeight() {
-        UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
+        // UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
     }
 
     function submitDrawingData() {

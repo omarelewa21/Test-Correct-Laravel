@@ -6923,8 +6923,7 @@ window.initDrawingQuestion = function () {
     element: UI.exitBtn,
     events: {
       "click": {
-        callback: function callback() {
-          window.Popup.closeLast();
+        callback: function callback() {// window.Popup.closeLast();
         }
       }
     }
@@ -7172,8 +7171,7 @@ window.initDrawingQuestion = function () {
     setRootCSSProperty("--pop-up-z-index", popUpParentZIndex);
   }
 
-  function setCorrectPopupHeight() {
-    UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
+  function setCorrectPopupHeight() {// UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
   }
 
   function submitDrawingData() {
@@ -10030,7 +10028,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         id: "add-text-input",
         type: "text",
         placeholder: "Type here...",
-        style: "position: absolute;                top: ".concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "px;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";"),
+        style: "position: absolute;                top: ".concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "px;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                display: inline-flex;"),
         autocomplete: "off",
         spellcheck: "false"
       });
@@ -10051,6 +10049,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
 
         _this5.updateCornerElements();
       });
+      debugger;
     }
   }]);
 

@@ -368,7 +368,8 @@ export class Text extends svgShape {
                 left: ${windowCursor.x - 2}px;\
                 font-size: ${fontSize}px;\
                 color: ${this.mainElement.getAttribute("fill")};\
-                font-weight: ${this.mainElement.element.style.fontWeight || "normal"};`,
+                font-weight: ${this.mainElement.element.style.fontWeight || "normal"};\
+                display: inline-flex;`,
             autocomplete: "off",
             spellcheck: "false",
         });
@@ -385,6 +386,7 @@ export class Text extends svgShape {
             this.updateBorderElement();
             this.updateCornerElements();
         });
+        debugger;
     }
 }
 

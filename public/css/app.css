@@ -1036,7 +1036,7 @@ input[type=number] {
 
 #drawing-tool {
     width: 100%;
-    height: 800px;
+    /*height: 800px;*/
     display: flex;
     flex-direction: column;
     border-radius: inherit;
@@ -2870,9 +2870,6 @@ video {
 .h-28{
 	height: 7rem;
 }
-.h-\[500px\]{
-	height: 500px;
-}
 .max-h-60{
 	max-height: 15rem;
 }
@@ -3605,6 +3602,9 @@ video {
 }
 .p-20{
 	padding: 5rem;
+}
+.p-2\.5{
+	padding: 0.625rem;
 }
 .p-0{
 	padding: 0px;
