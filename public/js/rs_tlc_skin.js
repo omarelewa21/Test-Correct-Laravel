@@ -40,7 +40,7 @@ window.rsConf = {
                     }
                     window.getSelection().removeAllRanges();
                 }
-                hideRsPlayer();
+                //hideRsPlayer();
             },
             play: function() {
                 console.log('Play callback fired!');
