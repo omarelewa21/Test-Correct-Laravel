@@ -8,6 +8,7 @@
 @import url("pages.css");
 @import url("question-editor.css");
 @import url("filepond.css");
+@import url("drawing-question.css");
 
 @tailwind base;
 @tailwind components;

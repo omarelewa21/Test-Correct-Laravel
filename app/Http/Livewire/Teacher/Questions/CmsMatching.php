@@ -163,6 +163,7 @@ class CmsMatching extends CmsBase
                     throw new \Exception('Mismatch in the answer details, get in contact with the Test-Correct Helpdesk and notify them about this error with question ID '.$this->instance->question['id']);
                 }
             })->filter(function($answer, $key) { return $answer != null; })->toArray();
+            $this->instance->cmsPropertyBag['answerStruct'] = array_values($this->instance->cmsPropertyBag['answerStruct']);
         }
         $this->instance->cmsPropertyBag['answerCount'] = count($this->instance->cmsPropertyBag['answerStruct']);
     }

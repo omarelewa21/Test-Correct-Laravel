@@ -5,6 +5,7 @@ require('./core');
 require('./notify');
 require('./alpine');
 require('./rich-text-editor');
+require('./drawing/drawing-question');
 
 addIdsToQuestionHtml = function () {
     let id = 1;

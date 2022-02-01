@@ -191,6 +191,7 @@
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
+                 x-cloak
             >
                 <x-content-section>
                     <x-slot name="title">{{ __('Algemeen') }}</x-slot>
