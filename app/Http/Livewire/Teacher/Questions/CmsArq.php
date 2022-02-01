@@ -12,7 +12,6 @@ class CmsArq
     private $instance;
     public $requiresAnswer = true;
 
-
     public function __construct(OpenShort $instance)
     {
         $this->instance = $instance;
@@ -23,6 +22,11 @@ class CmsArq
             $this->instance->cmsPropertyBag['answerStruct'] = [];
         }
 
+    }
+
+    public function showQuestionScore()
+    {
+        return false;
     }
 
     public function mergeRules(&$rules)

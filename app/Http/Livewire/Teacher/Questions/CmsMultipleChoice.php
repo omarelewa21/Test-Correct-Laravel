@@ -28,6 +28,11 @@ class CmsMultipleChoice extends CmsBase
 
     }
 
+    public function showQuestionScore()
+    {
+        return false;
+    }
+
     public function mergeRules(&$rules)
     {
         $rules +=

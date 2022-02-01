@@ -146,7 +146,7 @@ class OpenShort extends Component
             'question.question' => __('cms.Vraagstelling'),
             'question.answer'   => __('cms.Antwoordmodel')
         ];
-        if($this->isInfoscreenQuestion()){
+        if($this->obj instanceof CmsInfoScreen){
             $return['question.question'] = __('cms.Informatietekst');
         }
 
@@ -312,94 +312,20 @@ class OpenShort extends Component
         return true;
     }
 
-    public function isInfoscreenQuestion()
-    {
-        return !! (Str::lower($this->question['type']) == 'infoscreenquestion');
-    }
 
-    public function isRankingQuestion()
-    {
-        return !! ($this->question['type'] == 'RankingQuestion');
-    }
-
-    public function isShortOpenQuestion()
-    {
-        if ($this->question['type'] !== 'OpenQuestion') {
-            return false;
-        }
-        return ($this->question['subtype'] === 'short');
-    }
-
-    public function isMediumOpenQuestion()
-    {
-        if ($this->question['type'] !== 'OpenQuestion') {
-            return false;
-        }
-        return ($this->question['subtype'] === 'medium');
-    }
-
-    public function isCompletionQuestion()
-    {
-        if ($this->question['type'] !== 'CompletionQuestion') {
-            return false;
-        }
-
-        return $this->question['subtype'] == 'completion';
-    }
-
-    public function isSelectionQuestion()
-    {
-        if ($this->question['type'] !== 'CompletionQuestion') {
-            return false;
-        }
-
-        return $this->question['subtype'] == 'multi';
-    }
-
-    public function isTrueFalseQuestion()
-    {
-        if ($this->question['type'] !== 'MultipleChoiceQuestion') {
-            return false;
-        }
-
-        return Str::lower($this->question['subtype']) == 'truefalse';
-    }
-
-    public function isArqQuestion()
-    {
-        if ($this->question['type'] !== 'MultipleChoiceQuestion') {
-            return false;
-        }
-
-        return Str::lower($this->question['subtype']) == 'arq';
-    }
-
-    public function isMultipleChoiceQuestion()
-    {
-        if ($this->question['type'] !== 'MultipleChoiceQuestion') {
-            return false;
-        }
-
-        return Str::lower($this->question['subtype']) == 'multiplechoice';
-    }
-
-    public function isMatchingQuestion()
-    {
-        if ($this->question['type'] !== 'MatchingChoiceQuestion') {
-            return false;
-        }
-
-        return Str::lower($this->question['subtype']) == 'Matching';
-    }
 
     public function hasAllOrNothing()
     {
-        return $this->isMultipleChoiceQuestion();
+        return $this->obj instanceof CmsMultipleChoice;
     }
 
     public function showQuestionScore()
     {
-        return ! ($this->isMultipleChoiceQuestion() || $this->isInfoscreenQuestion() || $this->isArqQuestion());
+        $method = 'showQuestionScore';
+        if(method_exists($this->obj,$method)){
+            return $this->obj->$method();
+        }
+        return true;
     }
 
     private function saveNewQuestion()
