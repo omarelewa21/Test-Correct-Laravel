@@ -17,7 +17,7 @@ class CmsFactory
 
         if ($instance->question['type'] == 'CompletionQuestion') {
             if (Str::lower($instance->question['subtype']) == 'multi') {
-               static::$self = new CmsSelection($instance);
+                static::$self = new CmsSelection($instance);
             }
             if (Str::lower($instance->question['subtype']) == 'completion') {
                 static::$self = new CmsCompletion($instance);
@@ -25,29 +25,33 @@ class CmsFactory
         }
 
         if ($instance->question['type'] == 'MultipleChoiceQuestion' && Str::lower($instance->question['subtype']) == 'truefalse') {
-            static::$self =  new CmsTrueFalse($instance);
+            static::$self = new CmsTrueFalse($instance);
         }
 
         if ($instance->question['type'] == 'MultipleChoiceQuestion' && Str::lower($instance->question['subtype']) == 'multiplechoice') {
-            static::$self =new CmsMultipleChoice($instance);
+            static::$self = new CmsMultipleChoice($instance);
         }
 
         if ($instance->question['type'] == 'MultipleChoiceQuestion' && Str::lower($instance->question['subtype']) == 'arq') {
-            static::$self =new CmsArq($instance);
+            static::$self = new CmsArq($instance);
         }
 
         if ($instance->question['type'] == 'InfoscreenQuestion') {
             static::$self = new CmsInfoScreen($instance);
         }
 
+        if ($instance->question['type'] == 'MatchingQuestion' && Str::lower($instance->question['subtype']) == 'matching') {
+            static::$self = new CmsMatching($instance);
+        }
+
         if ($instance->question['type'] == 'RankingQuestion') {
-            static::$self =  new CmsRanking($instance);
+            static::$self = new CmsRanking($instance);
         }
 
         if ($instance->question['type'] == 'OpenQuestion') {
-            static::$self =  new CmsOpen($instance);
+            static::$self = new CmsOpen($instance);
         }
 
-        return static::$self ;
+        return static::$self;
     }
 }

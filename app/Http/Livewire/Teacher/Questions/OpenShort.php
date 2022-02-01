@@ -383,6 +383,15 @@ class OpenShort extends Component
         return Str::lower($this->question['subtype']) == 'multiplechoice';
     }
 
+    public function isMatchingQuestion()
+    {
+        if ($this->question['type'] !== 'MatchingChoiceQuestion') {
+            return false;
+        }
+
+        return Str::lower($this->question['subtype']) == 'Matching';
+    }
+
     public function hasAllOrNothing()
     {
         return $this->isMultipleChoiceQuestion();
