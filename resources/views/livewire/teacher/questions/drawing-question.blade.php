@@ -8,7 +8,7 @@
 @endsection
 
 @section('question-cms-answer')
-    <div x-data="{show: false}">
+    <div x-data="{ show: false }">
         <div class="flex mb-4 space-x-4">
             <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
                                            :toolTip="__('cms.all_or_nothing_tooltip_text')"
@@ -52,7 +52,7 @@
         {!!  base64_decode($this->question['answer_svg']) !!}
         </svg>
             <div class="flex">
-                <x-button.primary @click="show = !show; drawingApp.init()">
+                <x-button.primary @click="show = !show;">
                     Antwoordmodel tekenen
                 </x-button.primary>
             </div>

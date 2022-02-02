@@ -425,7 +425,7 @@ export class Layer extends sidebarComponent {
         );
     }
 
-    checkVisibility() {
+    unhideIfHidden() {
         if(this.isHidden()) {
             this.unhide();
         }

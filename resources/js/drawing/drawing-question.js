@@ -1,15 +1,7 @@
-import {panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
+import {canvasParams, panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
-
-window.cleanDrawingTool = function (){
-    window.UI = null;
-    window.Canvas = null;
-    window.drawingApp = null;
-    document.getElementById('question-group').remove()
-    document.getElementById('answer-group').remove()
-};
 
 window.initDrawingQuestion = function () {
 
@@ -49,18 +41,26 @@ window.initDrawingQuestion = function () {
             gridSize: 1,
             spacebarPressed: false,
         },
+        firstInit: true,
         warnings: {},
         init() {
-            this.bindEventListeners(eventListenerSettings);
+            if (this.firstInit) {
+                this.bindEventListeners(eventListenerSettings);
+            }
+
+            const drawingApp = this
             const pollingFunction = setInterval(function () {
                 if (UI.svgCanvas.getBoundingClientRect().width !== 0 ) {
                     setCorrectPopupHeight();
                     calculateCanvasBounds();
                     updateClosedSidebarWidth();
-                    makeGrid();
-                    processGridToggleChange();
-                    updateMidPoint();
 
+                        makeGrid();
+                    if (drawingApp.firstInit) {
+                        updateMidPoint();
+                    }
+
+                    processGridToggleChange();
                     retrieveSavedDrawingData();
 
                     Canvas.setCurrentLayer(Canvas.params.currentLayer);
@@ -85,6 +85,8 @@ window.initDrawingQuestion = function () {
                     2000
                 ),
             };
+
+            this.firstInit = false;
         },
         convertCanvas2DomCoordinates(coordinates) {
             const matrix = Canvas.params.domMatrix;
@@ -937,7 +939,7 @@ window.initDrawingQuestion = function () {
         const shapeObjectID = `${currentTool}-${shapeID}`;
         const layerObject = Canvas.layers[Canvas.params.currentLayer];
         layerObject.shapes[shapeObjectID] = newShape;
-        layerObject.checkVisibility();
+        layerObject.unhideIfHidden();
         Canvas.params.draw.newShape = newShape;
     }
 
@@ -1418,13 +1420,13 @@ window.initDrawingQuestion = function () {
             size: (drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize),
         }
         Canvas.layers.grid.shape = new svgShape.Grid(0, props, UI.svgGridGroup);
+        debugger;
     }
 
     function updateGridVisibility() {
         const grid = Canvas.layers.grid,
             shape = grid.shape;
-        if (!grid.params.hidden &&
-            (drawingApp.isTeacher() ? valueWithinBounds(UI.gridSize) : true)) {
+        if (!grid.params.hidden && (drawingApp.isTeacher() ? valueWithinBounds(UI.gridSize) : true)) {
             shape.show();
             return;
         }

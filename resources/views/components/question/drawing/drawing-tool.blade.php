@@ -1,4 +1,7 @@
-<div id="drawing-tool" wire:ignore x-data="{}">
+<div id="drawing-tool"
+     wire:ignore
+     x-init="$watch('show', show => { if (show) drawingApp.init(); })"
+>
     <div class="section-container">
         <section>
             <div id="tools">
@@ -616,29 +619,21 @@
     <script>
         initDrawingQuestion();
 
+        Canvas.data.answer = "{{ $svg_answer ?? '' }}";
+        Canvas.data.question = "{{ $svg_question ?? '' }}";
 
-            Canvas.data.answer = "<?= $svg_answer ?? '' ?>";
-
-
-
-            Canvas.data.question = "<?= $svg_question ?? '' ?>";
-
-
-            <? if(isset($svg_grid)) { ?>
-        if (<?=$svg_grid?> !== "0.00") {
-            let parsedGrid = parseFloat(<?=$svg_grid?>);
-            if (drawingApp.isTeacher()) {
-                UI.gridSize.value = parsedGrid;
-                UI.gridToggle.checked = true;
-            } else {
-                drawingApp.params.gridSize = parsedGrid;
-                Canvas.layers.grid.params.hidden = false;
-            }
-        }
-        <? } ?>
+        {{--if ({{ $svg_grid ??  "0.00"}} !== "0.00") {--}}
+        {{--    let parsedGrid = parseFloat({{ $svg_grid }});--}}
+        {{--    if (drawingApp.isTeacher()) {--}}
+        {{--        UI.gridSize.value = parsedGrid;--}}
+        {{--        UI.gridToggle.checked = true;--}}
+        {{--    } else {--}}
+        {{--        drawingApp.params.gridSize = parsedGrid;--}}
+        {{--        Canvas.layers.grid.params.hidden = false;--}}
+        {{--    }--}}
+        {{--}--}}
 
         // drawingApp.init();
-
 
         @if(Auth::user()->isA('teacher'))
         Canvas.layers.answer.enable();
@@ -647,7 +642,7 @@
 
         window.drawingSaveUrl = '/questions/save_drawing';
         window.drawingCallback = function () {
-            {{--window.parent.Answer.drawingPadClose('<?=$question_id?>');--}}
+{{--            window.parent.Answer.drawingPadClose('{{ $question_id  ?? ''}}');--}}
             window.parent.Answer.drawingPadClose('1');
         };
     </script>
