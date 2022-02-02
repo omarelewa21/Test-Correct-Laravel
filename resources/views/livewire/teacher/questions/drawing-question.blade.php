@@ -8,7 +8,7 @@
 @endsection
 
 @section('question-cms-answer')
-    <div x-data="{ show: false }">
+    <div x-data="{ show: false, answerSvg: @entangle('question.answer_svg') , questionSvg: @entangle('question.question_svg'), gridSvg: @entangle('question.grid_svg')}">
         <div class="flex mb-4 space-x-4">
             <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
                                            :toolTip="__('cms.all_or_nothing_tooltip_text')"
@@ -51,10 +51,14 @@
 
         @else
             <div class="absolute top-0 left-0 w-full h-full">
-                <svg style="width:800px; height:800px" id="" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
-                    {!!  base64_decode($this->question['answer_svg']) !!}
-                    {!!  base64_decode($this->question['question_svg']) !!}
+                <svg class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
+                    <g class="answer-svg">{!!  base64_decode($this->question['answer_svg']) !!}</g>
+                    <g class="question-svg">{!!  base64_decode($this->question['question_svg']) !!}</g>
+                    <g id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
                 </svg>
+
+                {{-- extra div overlay so the svg is not hoverable--}}
+                <div class="w-full h-full absolute top-0"></div>
             </div>
             <div class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
                 <div class="absolute bg-white opacity-80 w-full h-full"></div>

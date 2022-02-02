@@ -6393,16 +6393,17 @@ window.initDrawingQuestion = function () {
         if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
           setCorrectPopupHeight();
           calculateCanvasBounds();
-          updateClosedSidebarWidth();
-          makeGrid();
+          updateClosedSidebarWidth(); // updateMidPoint();
 
           if (drawingApp.firstInit) {
-            updateMidPoint();
+            console.log('firstinit');
+            makeGrid();
           }
 
           processGridToggleChange();
           retrieveSavedDrawingData();
           Canvas.setCurrentLayer(Canvas.params.currentLayer);
+          drawingApp.firstInit = false;
           clearInterval(pollingFunction);
         }
 
@@ -6420,7 +6421,6 @@ window.initDrawingQuestion = function () {
       this.warnings = {
         whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 2000)
       };
-      this.firstInit = false;
     },
     convertCanvas2DomCoordinates: function convertCanvas2DomCoordinates(coordinates) {
       var matrix = Canvas.params.domMatrix;
@@ -7028,8 +7028,8 @@ window.initDrawingQuestion = function () {
       Canvas.layers.answer.enable();
     }
 
-    if (data.question || data.answer) {
-      fitDrawingToScreen();
+    if (data.question || data.answer) {//Disabled as it causes unnecessary zooming
+      // fitDrawingToScreen();
     }
   }
 
@@ -7191,7 +7191,6 @@ window.initDrawingQuestion = function () {
       svg_question: b64Strings.question,
       svg_grid: Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString()
     });
-    console.log('submit');
   }
   /**
    * Event handler for down events of the cursor.
@@ -8000,6 +7999,22 @@ window.initDrawingQuestion = function () {
 
     selectedBtn.classList.add("active");
   }
+};
+
+window.makePreviewGrid = function (gridSvg) {
+  var props = {
+    group: {
+      style: ""
+    },
+    main: {},
+    origin: {
+      stroke: "var(--teacher-Primary)",
+      id: "grid-origin"
+    },
+    size: gridSvg
+  };
+  var parent = document.getElementById('grid-preview-svg');
+  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent);
 };
 
 /***/ }),
@@ -10122,7 +10137,7 @@ var Grid = /*#__PURE__*/function (_Path) {
    * @param {?propObj} props
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param {HTMLElement} parent The parent the shape should be appended to.
    */
   function Grid(shapeId, props, parent) {
     var _this6;

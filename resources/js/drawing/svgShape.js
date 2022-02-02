@@ -421,7 +421,7 @@ export class Grid extends Path {
      * @param {?propObj} props
      * All properties (attributes) to be assigned to the shape,
      * when omitted the properties of the shape are loaded.
-     * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param {HTMLElement} parent The parent the shape should be appended to.
      */
     constructor(shapeId, props, parent) {
         super(shapeId, props, parent, false);

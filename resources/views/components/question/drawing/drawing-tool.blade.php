@@ -1,6 +1,24 @@
 <div id="drawing-tool"
      wire:ignore
-     x-init="$watch('show', show => { if (show) drawingApp.init(); })"
+     x-init="$watch('show', show => {
+            if (show) {
+                Canvas.data.answer = answerSvg;
+                Canvas.data.question = questionSvg;
+
+                if (gridSvg !== '0.00') {
+                    let parsedGrid = parseFloat(gridSvg);
+                    if (drawingApp.isTeacher()) {
+                        UI.gridSize.value = parsedGrid;
+                        UI.gridToggle.checked = true;
+                    } else {
+                        drawingApp.params.gridSize = parsedGrid;
+                        Canvas.layers.grid.params.hidden = false;
+                    }
+                }
+
+                drawingApp.init();
+             }
+        })"
 >
     <div class="section-container">
         <section>
@@ -618,20 +636,6 @@
 @push('scripts')
     <script>
         initDrawingQuestion();
-
-        Canvas.data.answer = '{!!  $this->question['answer_svg'] !!}';
-        Canvas.data.question = '{!! $this->question['question_svg'] !!}';
-
-        {{--if ({{ $svg_grid ??  "0.00"}} !== "0.00") {--}}
-        {{--    let parsedGrid = parseFloat({{ $svg_grid }});--}}
-        {{--    if (drawingApp.isTeacher()) {--}}
-        {{--        UI.gridSize.value = parsedGrid;--}}
-        {{--        UI.gridToggle.checked = true;--}}
-        {{--    } else {--}}
-        {{--        drawingApp.params.gridSize = parsedGrid;--}}
-        {{--        Canvas.layers.grid.params.hidden = false;--}}
-        {{--    }--}}
-        {{--}--}}
 
         // drawingApp.init();
 

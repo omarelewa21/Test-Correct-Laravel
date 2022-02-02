@@ -55,9 +55,10 @@ window.initDrawingQuestion = function () {
                     calculateCanvasBounds();
                     updateClosedSidebarWidth();
 
-                        makeGrid();
+                    // updateMidPoint();
                     if (drawingApp.firstInit) {
-                        updateMidPoint();
+                        console.log('firstinit');
+                        makeGrid();
                     }
 
                     processGridToggleChange();
@@ -65,6 +66,7 @@ window.initDrawingQuestion = function () {
 
                     Canvas.setCurrentLayer(Canvas.params.currentLayer);
 
+                    drawingApp.firstInit = false;
                     clearInterval(pollingFunction);
                 }
                 console.log("loop");
@@ -85,8 +87,6 @@ window.initDrawingQuestion = function () {
                     2000
                 ),
             };
-
-            this.firstInit = false;
         },
         convertCanvas2DomCoordinates(coordinates) {
             const matrix = Canvas.params.domMatrix;
@@ -682,7 +682,8 @@ window.initDrawingQuestion = function () {
             Canvas.layers.answer.enable();
         }
         if (data.question || data.answer) {
-            fitDrawingToScreen();
+            //Disabled as it causes unnecessary zooming
+            // fitDrawingToScreen();
         }
     }
 
@@ -831,7 +832,6 @@ window.initDrawingQuestion = function () {
             svg_question: b64Strings.question,
             svg_grid: (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString()
         });
-        console.log('submit')
     }
 
     /**
@@ -1596,3 +1596,20 @@ window.initDrawingQuestion = function () {
     }
 
 }
+
+window.makePreviewGrid = function(gridSvg) {
+    const props = {
+        group: {
+            style: "",
+        },
+        main: {},
+        origin: {
+            stroke: "var(--teacher-Primary)",
+            id: "grid-origin",
+        },
+        size: gridSvg,
+    }
+    let parent = document.getElementById('grid-preview-svg')
+    return new svgShape.Grid(0, props, parent);
+}
+
