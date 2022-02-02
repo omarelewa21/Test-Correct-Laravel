@@ -16,6 +16,7 @@ use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Livewire\Preview\DrawingQuestion;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -175,8 +176,14 @@ class OpenShort extends Component
         return [
             'new-tags-for-question' => 'handleTags',
             'updated-attainment'    => 'handleAttainment',
-            'new-video-attachment'  => 'handleNewVideoAttachment'
+            'new-video-attachment'  => 'handleNewVideoAttachment',
+            'drawing_data_updated'  => 'handleUpdateDrawingData',
         ];
+    }
+    public function handleUpdateDrawingData($data){
+        $this->question['answer_svg'] = $data['svg_answer'];
+        $this->question['question_svg'] = $data['svg_question'];
+        $this->question['grid_svg'] = $data['svg_grid'];
     }
 
     public function getQuestionTypeProperty()
@@ -777,8 +784,13 @@ class OpenShort extends Component
                 $q = $tq->question;
                 $this->attachments = $q->attachments;
             }
+//            if ($q instanceof \tcCore\DrawingQuestion) {
+//                $q = (new QuestionHelper())->getTotalQuestion($q);
+//            } else {
+                $q = (new QuestionHelper())->getTotalQuestion($q->question);
+//            }
 
-            $q = (new QuestionHelper())->getTotalQuestion($q->question);
+
             $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
 
             $this->questionId = $q->question->getKey();

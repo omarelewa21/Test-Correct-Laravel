@@ -823,22 +823,12 @@ window.initDrawingQuestion = function () {
     function submitDrawingData() {
         // parent.skip = true;
         const b64Strings = encodeSvgLayersAsBase64Strings();
-        // Loading.show();
-        $.post(drawingSaveUrl,
-            {
-                svg_answer: b64Strings.answer,
-                svg_question: b64Strings.question,
-                svg_grid: (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString()
-            },
-            function (response) {
-                if (response == 1) {
-                    Loading.hide();
-                    drawingCallback();
-                } else {
-                    alert('Er ging iets mis');
-                }
-            }
-        );
+
+        Livewire.emit("drawing_data_updated", {
+            svg_answer: b64Strings.answer,
+            svg_question: b64Strings.question,
+            svg_grid: (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString()
+        });
     }
 
     /**

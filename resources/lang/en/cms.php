@@ -63,4 +63,6 @@ return [
     'truefalse no answer' => 'It is required to select an answer option.',
     'File too large, max file size' => 'The file size for this upload is too large. The maximum file size is 25MB',
     'coordinaten' => 'Coordinates',
+    'Teken in de tekentool het antwoordmodel voor de vraag.' => 'Draw the answer model for the question using the drawing tool.',
+    'waarschuwing_aanpassen_oude_tekenvraag' => 'You can edit the questions created with the new drawing tool. Drawings created with the old tool cannot be edited.'
 ];

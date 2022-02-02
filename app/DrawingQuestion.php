@@ -223,4 +223,8 @@ class DrawingQuestion extends Question implements QuestionInterface {
 
         return $backgroundImage;
     }
+
+    public function question() {
+        return $this->belongsTo('tcCore\Question', $this->getKeyName());
+    }
 }
