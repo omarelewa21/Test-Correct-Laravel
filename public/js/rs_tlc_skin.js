@@ -177,13 +177,13 @@ function readTextArea(questionId)
 function showRsPlayer()
 {
     hideByClassName('rs_starter_button');
-    showById('readspeaker_button');
+    showById('readspeaker_button1');
 }
 
 function hideRsPlayer()
 {
     showByClassName('rs_starter_button');
-    hideById('readspeaker_button');
+    hideById('readspeaker_button1');
 }
 
 function showById(id)

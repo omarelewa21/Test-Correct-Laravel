@@ -87,7 +87,7 @@
                         {{ __('test_take.speak') }}
                     </div>
                 </div>
-                <div id="readspeaker_button" wire:ignore class="rs_skip rsbtn rs_preserve hidden" >
+                <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve hidden" >
                     <a rel="nofollow" class="rsbtn_play"  title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
                         <span class="rsbtn_left rsimg rspart oval"><x-icon.rs-audio-inverse/></span>
                         <span class="rsbtn_right rsimg rsplay rspart"></span>

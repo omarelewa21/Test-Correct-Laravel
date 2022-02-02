@@ -16,7 +16,7 @@
     @endif
     @stack('styling')
 
-    <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
+        <link rel="stylesheet" type="text/css" href="/css/rs_tlc.css" />
 </head>
 <body id="body" class="flex flex-col min-h-screen" onload="addIdsToQuestionHtml()">
 {{ $slot }}
