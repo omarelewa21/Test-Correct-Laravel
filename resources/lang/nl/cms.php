@@ -15,6 +15,7 @@ return [
     'multiplechoice-question-arq' => 'ARQ vraag',
     'ranking-question'                  => 'Rangschik vraag',
     'matching-question'                  => 'Combineer vraag',
+    'classify-question'                  => 'Rubriceer vraag',
     'drawing-question'                  => 'Teken vraag',
     'Vraagstelling'                    => 'Vraagstelling',
     'Informatietekst'                   => 'Informatietekst',

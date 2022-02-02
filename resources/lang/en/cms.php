@@ -18,6 +18,7 @@ return [
     'ranking-question'                  => 'Ranking question',
     'drawing-question'                  => 'Drawing question',
     'matching-question'                  => 'Matching question',
+    'classify-question'                  => 'Classify question',
     'Vraagstelling'                   => 'Question',
     'Informatietekst'                   => 'Information text',
     'Antwoordmodel'                   => 'Answer model',
