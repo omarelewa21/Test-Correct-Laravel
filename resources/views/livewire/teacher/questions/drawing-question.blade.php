@@ -51,7 +51,7 @@
 
         @else
             <div class="absolute top-0 left-0 w-full h-full">
-                <svg style="width:800px; height:800px" id="svg-canvas" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
+                <svg style="width:800px; height:800px" id="" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
                     {!!  base64_decode($this->question['answer_svg']) !!}
                     {!!  base64_decode($this->question['question_svg']) !!}
                 </svg>
@@ -65,7 +65,6 @@
                 </div>
             </div>
         @endif
-
 
         </div>
         <x-modal.question-editor-drawing-modal/>

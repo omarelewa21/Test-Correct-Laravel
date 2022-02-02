@@ -321,7 +321,7 @@
                 </label>
                 <div id="layers-container"></div>
                 <div id="submit">
-                    <button class="CTA" id="submit-btn">
+                    <button class="CTA" id="submit-btn" @click="show = false">
                         Opslaan
                     </button>
                 </div>
@@ -619,8 +619,8 @@
     <script>
         initDrawingQuestion();
 
-        Canvas.data.answer = "{{ $svg_answer ?? '' }}";
-        Canvas.data.question = "{{ $svg_question ?? '' }}";
+        Canvas.data.answer = '{!!  $this->question['answer_svg'] !!}';
+        Canvas.data.question = '{!! $this->question['question_svg'] !!}';
 
         {{--if ({{ $svg_grid ??  "0.00"}} !== "0.00") {--}}
         {{--    let parsedGrid = parseFloat({{ $svg_grid }});--}}

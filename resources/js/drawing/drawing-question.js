@@ -831,6 +831,7 @@ window.initDrawingQuestion = function () {
             svg_question: b64Strings.question,
             svg_grid: (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString()
         });
+        console.log('submit')
     }
 
     /**
