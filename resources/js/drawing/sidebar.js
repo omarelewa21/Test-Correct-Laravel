@@ -33,7 +33,7 @@ export class Entry extends sidebarComponent {
             drag: templateCopy.querySelector(".drag-btn")
         };
 
-        this.type = this.svgShape.type == "path" ? "freehand" : this.svgShape.type;
+        this.type = this.svgShape.type === "path" ? "freehand" : this.svgShape.type;
         this.id = `${this.type}-${this.svgShape.shapeId}`;
         this.entryContainer.id = `shape-${this.id}`;
         this.entryTitle.innerText = `${
@@ -423,5 +423,11 @@ export class Layer extends sidebarComponent {
             },
             {offset: Number.NEGATIVE_INFINITY}
         );
+    }
+
+    checkVisibility() {
+        if(this.isHidden()) {
+            this.unhide();
+        }
     }
 }

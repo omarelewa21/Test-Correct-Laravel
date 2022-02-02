@@ -6344,6 +6344,14 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
+window.cleanDrawingTool = function () {
+  window.UI = null;
+  window.Canvas = null;
+  window.drawingApp = null;
+  document.getElementById('question-group').remove();
+  document.getElementById('answer-group').remove();
+};
+
 window.initDrawingQuestion = function () {
   /**
    * @typedef Cursor
@@ -6923,8 +6931,7 @@ window.initDrawingQuestion = function () {
     element: UI.exitBtn,
     events: {
       "click": {
-        callback: function callback() {// window.Popup.closeLast();
-        }
+        callback: function callback() {}
       }
     }
   }];
@@ -7294,6 +7301,7 @@ window.initDrawingQuestion = function () {
     var shapeObjectID = "".concat(currentTool, "-").concat(shapeID);
     var layerObject = Canvas.layers[Canvas.params.currentLayer];
     layerObject.shapes[shapeObjectID] = newShape;
+    layerObject.checkVisibility();
     Canvas.params.draw.newShape = newShape;
   }
 
@@ -7457,7 +7465,8 @@ window.initDrawingQuestion = function () {
     var _evt$touches2;
 
     var CTM = UI.svgPanZoomGroup.getScreenCTM();
-    evt = ((_evt$touches2 = evt.touches) === null || _evt$touches2 === void 0 ? void 0 : _evt$touches2[0]) || evt;
+    evt = ((_evt$touches2 = evt.touches) === null || _evt$touches2 === void 0 ? void 0 : _evt$touches2[0]) || evt; // debugger;
+
     return {
       x: (evt.clientX - CTM.e) / CTM.a,
       y: (evt.clientY - CTM.f) / CTM.d
@@ -8197,7 +8206,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       hide: templateCopy.querySelector(".hide-btn"),
       drag: templateCopy.querySelector(".drag-btn")
     };
-    _this.type = _this.svgShape.type == "path" ? "freehand" : _this.svgShape.type;
+    _this.type = _this.svgShape.type === "path" ? "freehand" : _this.svgShape.type;
     _this.id = "".concat(_this.type, "-").concat(_this.svgShape.shapeId);
     _this.entryContainer.id = "shape-".concat(_this.id);
     _this.entryTitle.innerText = "".concat(_constants_js__WEBPACK_IMPORTED_MODULE_0__.nameInSidebarEntryForShape[_this.svgShape.type], " ").concat(_this.svgShape.shapeId);
@@ -8639,6 +8648,13 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       }, {
         offset: Number.NEGATIVE_INFINITY
       });
+    }
+  }, {
+    key: "checkVisibility",
+    value: function checkVisibility() {
+      if (this.isHidden()) {
+        this.unhide();
+      }
     }
   }]);
 
@@ -10028,7 +10044,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         id: "add-text-input",
         type: "text",
         placeholder: "Type here...",
-        style: "position: absolute;                top: ".concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "px;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                display: inline-flex;"),
+        style: "width: ".concat(canvasContainer.getBoundingClientRect().right - windowCursor.x, "px;                position: absolute;                top: ").concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "px;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";"),
         autocomplete: "off",
         spellcheck: "false"
       });
@@ -10049,7 +10065,6 @@ var Text = /*#__PURE__*/function (_svgShape4) {
 
         _this5.updateCornerElements();
       });
-      debugger;
     }
   }]);
 

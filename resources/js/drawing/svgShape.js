@@ -363,13 +363,13 @@ export class Text extends svgShape {
             type: "text",
             placeholder: "Type here...",
             style:
-                `position: absolute;\
+                `width: ${canvasContainer.getBoundingClientRect().right - windowCursor.x}px;\
+                position: absolute;\
                 top: ${windowCursor.y - fontSize}px;\
                 left: ${windowCursor.x - 2}px;\
                 font-size: ${fontSize}px;\
                 color: ${this.mainElement.getAttribute("fill")};\
-                font-weight: ${this.mainElement.element.style.fontWeight || "normal"};\
-                display: inline-flex;`,
+                font-weight: ${this.mainElement.element.style.fontWeight || "normal"};`,
             autocomplete: "off",
             spellcheck: "false",
         });
@@ -386,7 +386,6 @@ export class Text extends svgShape {
             this.updateBorderElement();
             this.updateCornerElements();
         });
-        debugger;
     }
 }
 

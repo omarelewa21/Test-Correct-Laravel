@@ -3,6 +3,13 @@ import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
 
+window.cleanDrawingTool = function (){
+    window.UI = null;
+    window.Canvas = null;
+    window.drawingApp = null;
+    document.getElementById('question-group').remove()
+    document.getElementById('answer-group').remove()
+};
 
 window.initDrawingQuestion = function () {
 
@@ -573,7 +580,6 @@ window.initDrawingQuestion = function () {
             events: {
                 "click": {
                     callback: () => {
-                        // window.Popup.closeLast();
                     }
                 }
             }
@@ -815,9 +821,9 @@ window.initDrawingQuestion = function () {
     }
 
     function submitDrawingData() {
-        parent.skip = true;
+        // parent.skip = true;
         const b64Strings = encodeSvgLayersAsBase64Strings();
-        Loading.show();
+        // Loading.show();
         $.post(drawingSaveUrl,
             {
                 svg_answer: b64Strings.answer,
@@ -941,6 +947,7 @@ window.initDrawingQuestion = function () {
         const shapeObjectID = `${currentTool}-${shapeID}`;
         const layerObject = Canvas.layers[Canvas.params.currentLayer];
         layerObject.shapes[shapeObjectID] = newShape;
+        layerObject.checkVisibility();
         Canvas.params.draw.newShape = newShape;
     }
 
@@ -1087,6 +1094,7 @@ window.initDrawingQuestion = function () {
     function getCursorPosition(evt) {
         let CTM = UI.svgPanZoomGroup.getScreenCTM();
         evt = evt.touches?.[0] || evt;
+        // debugger;
         return {
             x: (evt.clientX - CTM.e) / CTM.a,
             y: (evt.clientY - CTM.f) / CTM.d,

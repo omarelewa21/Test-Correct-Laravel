@@ -244,8 +244,8 @@
         </button>
     </div>
     <div id="canvas-sidebar-container" class="overflow-auto">
-        <article id="canvas">
-            <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg">
+        <article id="canvas" class="overflow-hidden">
+            <svg id="svg-canvas" xmlns="http://www.w3.org/2000/svg" class="overflow-hidden">
                 <defs>
                     <marker id="svg-filled-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6"
                             orient="auto-start-reverse">
@@ -292,7 +292,7 @@
                 </div>
             </div>
         </article>
-        <aside>
+        <aside class="relative">
             <input type="checkbox" name="sidebar-toggle" id="sidebar-toggle">
             <div id="sidebar">
                 <label id="sidebar-btn" for="sidebar-toggle">
@@ -616,13 +616,13 @@
     <script>
         initDrawingQuestion();
 
-        <? if(isset($svg_answer)) { ?>
-            Canvas.data.answer = "<?= $svg_answer ?>";
-        <? } ?>
 
-            <? if(isset($svg_question)) { ?>
-            Canvas.data.question = "<?= $svg_question ?>";
-        <? } ?>
+            Canvas.data.answer = "<?= $svg_answer ?? '' ?>";
+
+
+
+            Canvas.data.question = "<?= $svg_question ?? '' ?>";
+
 
             <? if(isset($svg_grid)) { ?>
         if (<?=$svg_grid?> !== "0.00") {
