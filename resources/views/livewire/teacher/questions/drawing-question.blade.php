@@ -31,30 +31,38 @@
             <span>{{ __('cms.Teken in de tekentool het antwoordmodel voor de vraag.') }}</span>
         </div>
 
-    <div class="flex flex-1 min-h-[500px] w-full border border-allred rounded-10 mt-4 items-center justify-center">
+    <div class="flex flex-1 min-h-[500px] w-full border border-allred rounded-10 mt-4 items-center justify-center relative overflow-auto">
 
         @if($this->isOldDrawingQuestion())
 
-            <div class="flex position-relative bg-white opacity-30">
-                <img class="w-full" src="{{ $this->question['answer'] }}">
-
-                <div class="">
-
-
-                <x-button.primary @click="show = !show; drawingApp.init()" >
-                    Antwoordmodel tekenen
-                </x-button.primary>
-                    <p>{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p>
+                <div class="absolute top-0 left-0 w-full h-full">
+                    <img class="object-cover" src="{{ $this->question['answer'] }}" alt="">
                 </div>
-            </div>
+
+                <div class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
+                    <div class="absolute bg-white opacity-80 w-full h-full"></div>
+                    <div class="z-0 flex flex-col items-center justify-center">
+                        <x-button.primary @click="show = !show" >
+                            Antwoordmodel tekenen
+                        </x-button.primary>
+                        <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p>
+                    </div>
+                </div>
+
         @else
-        <svg style="width:800px; height:800px" id="svg-canvas" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
-        {!!  base64_decode($this->question['answer_svg']) !!}
-        </svg>
-            <div class="flex">
-                <x-button.primary @click="show = !show;">
-                    Antwoordmodel tekenen
-                </x-button.primary>
+            <div class="absolute top-0 left-0 w-full h-full">
+                <svg style="width:800px; height:800px" id="svg-canvas" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
+                    {!!  base64_decode($this->question['answer_svg']) !!}
+                    {!!  base64_decode($this->question['question_svg']) !!}
+                </svg>
+            </div>
+            <div class="max-w-2xl z-0  p-8 flex flex-col items-center justify-center relative rounded-10 overflow-auto">
+                <div class="absolute bg-white opacity-80 w-full h-full"></div>
+                <div class="z-0 flex flex-col items-center justify-center">
+                    <x-button.primary @click="show = !show" >
+                        Antwoordmodel tekenen
+                    </x-button.primary>
+                </div>
             </div>
         @endif
 

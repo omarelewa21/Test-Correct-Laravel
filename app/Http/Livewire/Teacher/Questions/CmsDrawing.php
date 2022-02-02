@@ -26,7 +26,7 @@ class CmsDrawing
 
     public function isOldDrawingQuestion()
     {
-        return true;
+        return false;
     }
 
     public function getOldDrawingQuestionHTML() {

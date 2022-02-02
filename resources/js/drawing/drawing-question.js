@@ -1086,7 +1086,7 @@ window.initDrawingQuestion = function () {
     function getCursorPosition(evt) {
         let CTM = UI.svgPanZoomGroup.getScreenCTM();
         evt = evt.touches?.[0] || evt;
-        // debugger;
+
         return {
             x: (evt.clientX - CTM.e) / CTM.a,
             y: (evt.clientY - CTM.f) / CTM.d,
@@ -1420,7 +1420,6 @@ window.initDrawingQuestion = function () {
             size: (drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize),
         }
         Canvas.layers.grid.shape = new svgShape.Grid(0, props, UI.svgGridGroup);
-        debugger;
     }
 
     function updateGridVisibility() {
