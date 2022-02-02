@@ -31,7 +31,12 @@
                  x-show.transition="opened">
                 @include('components.question.drawing-modal', ['drawing' => $question->answer])
             </div>
-
+        </div>
+        <div x-data="{ show: false, answerSvg: @entangle('question.answer_svg') , questionSvg: @entangle('question.question_svg'), gridSvg: @entangle('question.grid_svg')}">
+            <x-button.primary @click="show = !show" >
+                Antwoordmodel tekenen (nieuwe speler)
+            </x-button.primary>
+            <x-modal.question-editor-drawing-modal/>
         </div>
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>

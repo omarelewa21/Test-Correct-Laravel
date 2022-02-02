@@ -29,10 +29,6 @@ class CmsDrawing
         return false;
     }
 
-    public function getOldDrawingQuestionHTML() {
-        return sprintf('<img src="%s"/>', 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png');
-    }
-
     public function mergeRules(&$rules)
     {
         $rules += [
@@ -46,5 +42,11 @@ class CmsDrawing
         $this->instance->question['answer_svg'] =$q['answer_svg'];
         $this->instance->question['question_svg'] =$q['question_svg'];
         $this->instance->question['grid_svg'] =$q['grid_svg'];
+    }
+
+    public function preparePropertyBag() {
+        $this->instance->question['answer_svg'] = '';
+        $this->instance->question['question_svg'] = '';
+        $this->instance->question['grid_svg'] = '';
     }
 }
