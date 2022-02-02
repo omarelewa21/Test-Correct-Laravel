@@ -201,11 +201,29 @@
 }
 
 .rsicn-click-listen:before {
-    content: "\e905"
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/icons-click-and-read.svg");
+    background-position-x: 13px;
+    background-position-y: 5px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
+    vertical-align: top;
 }
 
 .rsicn-cogs:before {
-    content: "\e912"
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/icons-settings.svg");
+    background-position-x: 13px;
+    background-position-y: 5px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
+    vertical-align: top;
 }
 
 .rsicn-cross-bold:before {
@@ -241,7 +259,16 @@
 }
 
 .rsicn-enlarged-text:before {
-    content: "\e907"
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/icons-enlarge-text.svg");
+    background-position-x: 13px;
+    background-position-y: 5px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
+    vertical-align: top;
 }
 
 .rsicn-first:before {
@@ -273,7 +300,16 @@
 }
 
 .rsicn-help:before {
-    content: "\ed56"
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/icons-help.svg");
+    background-position-x: 13px;
+    background-position-y: 5px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
+    vertical-align: top;
 }
 
 .rsicn-keyboard:before {
@@ -317,7 +353,16 @@
 }
 
 .rsicn-pagemask:before {
-    content: "\e910"
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/icons-readspeaker-mask-page.svg");
+    background-position-x: 13px;
+    background-position-y: 5px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
+    vertical-align: top;
 }
 
 .rsicn-pause:before {
@@ -345,7 +390,16 @@
 }
 
 .rsicn-pop-out:before {
-    content: "\ee05"
+    display: inline-block;
+    content: '';
+    background-image: url("/svg/icons/icons-readspeaker-text-version-blue.svg");
+    background-position-x: 13px;
+    background-position-y: 5px;
+    background-size: auto;
+    height: 40px;
+    width: 40px;
+    background-repeat: no-repeat;
+    vertical-align: top;
 }
 
 .rsicn-previous2:before {
@@ -629,15 +683,15 @@ input[type="range"]::-ms-fill-upper {
 }
 
 .rs_addtools.toolsopen .rsbtn_toolpanel .rsbtn_tools, .rsbtn.toolsopen .rsbtn_toolpanel .rsbtn_tools {
-    border-top-left-radius: 0;
+    /*border-top-left-radius: 0;*/
 }
 
 .rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools {
-    background: #f6f9fc;
-    border: 1px solid #677077;
-    border-radius: 2px;
-    display: inline-block;
-    position: absolute;
+    /*background: #f6f9fc;*/
+    /*border: 1px solid #677077;*/
+    /*border-radius: 2px;*/
+    /*display: inline-block;*/
+    /*position: absolute;*/
 }
 .rs_addtools a, .rs_addtools abbr, .rs_addtools acronym, .rs_addtools address, .rs_addtools applet, .rs_addtools article, .rs_addtools aside, .rs_addtools audio, .rs_addtools b, .rs_addtools big, .rs_addtools blockquote, .rs_addtools body, .rs_addtools canvas, .rs_addtools caption, .rs_addtools center, .rs_addtools cite, .rs_addtools code, .rs_addtools dd, .rs_addtools del, .rs_addtools details, .rs_addtools dfn, .rs_addtools div, .rs_addtools dl, .rs_addtools dt, .rs_addtools em, .rs_addtools embed, .rs_addtools fieldset, .rs_addtools figcaption, .rs_addtools figure, .rs_addtools footer, .rs_addtools form, .rs_addtools h1, .rs_addtools h2, .rs_addtools h3, .rs_addtools h4, .rs_addtools h5, .rs_addtools h6, .rs_addtools header, .rs_addtools hgroup, .rs_addtools html, .rs_addtools i, .rs_addtools iframe, .rs_addtools img, .rs_addtools ins, .rs_addtools kbd, .rs_addtools label, .rs_addtools legend, .rs_addtools li, .rs_addtools mark, .rs_addtools menu, .rs_addtools nav, .rs_addtools object, .rs_addtools ol, .rs_addtools output, .rs_addtools p, .rs_addtools pre, .rs_addtools q, .rs_addtools ruby, .rs_addtools s, .rs_addtools samp, .rs_addtools section, .rs_addtools small, .rs_addtools span, .rs_addtools strike, .rs_addtools strong, .rs_addtools sub, .rs_addtools summary, .rs_addtools sup, .rs_addtools table, .rs_addtools tbody, .rs_addtools td, .rs_addtools tfoot, .rs_addtools th, .rs_addtools thead, .rs_addtools time, .rs_addtools tr, .rs_addtools tt, .rs_addtools u, .rs_addtools ul, .rs_addtools var, .rs_addtools video, .rsbtn a, .rsbtn abbr, .rsbtn acronym, .rsbtn address, .rsbtn applet, .rsbtn article, .rsbtn aside, .rsbtn audio, .rsbtn b, .rsbtn big, .rsbtn blockquote, .rsbtn body, .rsbtn canvas, .rsbtn caption, .rsbtn center, .rsbtn cite, .rsbtn code, .rsbtn dd, .rsbtn del, .rsbtn details, .rsbtn dfn, .rsbtn div, .rsbtn dl, .rsbtn dt, .rsbtn em, .rsbtn embed, .rsbtn fieldset, .rsbtn figcaption, .rsbtn figure, .rsbtn footer, .rsbtn form, .rsbtn h1, .rsbtn h2, .rsbtn h3, .rsbtn h4, .rsbtn h5, .rsbtn h6, .rsbtn header, .rsbtn hgroup, .rsbtn html, .rsbtn i, .rsbtn iframe, .rsbtn img, .rsbtn ins, .rsbtn kbd, .rsbtn label, .rsbtn legend, .rsbtn li, .rsbtn mark, .rsbtn menu, .rsbtn nav, .rsbtn object, .rsbtn ol, .rsbtn output, .rsbtn p, .rsbtn pre, .rsbtn q, .rsbtn ruby, .rsbtn s, .rsbtn samp, .rsbtn section, .rsbtn small, .rsbtn span, .rsbtn strike, .rsbtn strong, .rsbtn sub, .rsbtn summary, .rsbtn sup, .rsbtn table, .rsbtn tbody, .rsbtn td, .rsbtn tfoot, .rsbtn th, .rsbtn thead, .rsbtn time, .rsbtn tr, .rsbtn tt, .rsbtn u, .rsbtn ul, .rsbtn var, .rsbtn video {
     margin: 0;
@@ -653,9 +707,94 @@ input[type="range"]::-ms-fill-upper {
 .rs_addtools .rsbtn_toolpanel.vertical, .rsbtn .rsbtn_toolpanel.vertical {
     clear: left;
     position: relative;
-    top: -14em;
+    top: -25em;
     z-index: 1;
+    left: 23em;
 }
 .rs_addtools .rsbtn_toolpanel, .rsbtn .rsbtn_toolpanel {
     display: none;
+}
+.rsbtn_tools{
+    width: 289px !important;
+    height: 305px;
+    padding: 1px 0 0;
+    border-radius: 8px;
+    box-shadow: 0 1px 13px 2px rgba(4, 31, 116, 0.2);
+    background-color: #ffffff;
+}
+.rsbtn_toollist{
+    list-style-type: none !important;
+}
+
+.rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler {
+    position: relative;
+    float: right;
+    font-size: 10px;
+    width: 4em;
+    height: 2em;
+    border-radius: 2em;
+    margin: 0.5em 0.2em 0 2em;
+    border: solid 1px var(--blue-grey);
+    background-color: #cedaf3;
+}
+
+.rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool.active .rs_minitoggler span.on-icon, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool.active .rs_minitoggler {
+    background-color: #3dbb56;
+    border: solid 1px #27973d;
+}
+
+.rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool.active .rs_minitoggler span.on-icon, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool.active .rs_minitoggler span.on-icon {
+    /*opacity: 1;*/
+    display: none;
+}
+
+.rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler span.on-icon, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler span.on-icon {
+    color: #6ddb8f;
+    left: 0.4em;
+    opacity: 0;
+}
+.rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler span, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler span {
+    position: absolute;
+    font-size: 16px;
+    line-height: 20px;
+    color: #ccc;
+    transition: opacity .5s;
+}
+
+.rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler span.off-icon, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler span.off-icon {
+    /*color: #ffd2d2;*/
+    /*right: 0.35em;*/
+    /*opacity: 1;*/
+    display: none;
+}
+
+button.rsbtn_tool span.rsbtn_btnlabel{
+    display: inline-block;
+    vertical-align: top;
+    float: left;
+}
+
+.rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler:after, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool .rs_minitoggler:after {
+    content: '';
+    position: absolute;
+    width: 1.6em;
+    height: 1.6em;
+    left: 5%;
+    top: 0.2em;
+    background-color: #ffffff;
+    border-radius: 50%;
+    transition: all .25s ease-in-out;
+}
+
+.rs_addtools .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool.active .rs_minitoggler:after, .rsbtn .rsbtn_toolpanel.vertical .rsbtn_tools .rsbtn_tools_inner .rsbtn_toolcontainer ul.rsbtn_toollist li button.rsbtn_tool.active .rs_minitoggler:after {
+    left: 55%;
+    background-color: #ffffff;
+}
+
+button.rsbtn_tool{
+    width:100%;
+}
+
+button.rsbtn_tool span.rsicn:before{
+    float: left;
 }
