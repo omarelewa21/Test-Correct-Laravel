@@ -19,16 +19,16 @@
                 }
                 CKEDITOR.replace( '{{ $editorId }}', {
                     removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification, readspeaker',
+                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification,readspeaker',
                     toolbar: [
                         { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
                         { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
                         { name: 'insert', items: [ 'Table' ] },
                         { name: 'styles', items: ['Font', 'FontSize' ] },
-                        { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']},
                         @if(Auth::user()->text2speech)
                         { name: 'readspeaker_toolbar', items: ['readContent'] },
                         @endif
+                        { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
                     ],
                     fontSize_sizes : '1/1.000em;2/1.1250em;3/1.250em;4/1.375em;5/1.4375em;6/1.5em;7/1.625em;8/1.750em;9/2.250em;10/3em;11/4.5em',
                     contentsCss : '/ckeditor/student.css'
@@ -60,7 +60,6 @@
                         });
                         @endif
                     });
-
             })();
         </script>
     </div>

@@ -95,7 +95,7 @@ class CompletionQuestion extends Component
 
                 $answers = $random;
 
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden rs_clicklistenexclude" @change="$event.target.setAttribute(\'title\', $event.target.value);" selid="testtake-select">%s</select>',
+                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden rs_clicklistenexclude"  @change="$event.target.setAttribute(\'title\', $event.target.value);" selid="testtake-select">%s</select>',
                     $matches[1],
                     $this->getOptions($answers));
 
