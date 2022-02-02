@@ -148,7 +148,10 @@ Core = {
         return false;
     },
     setAppTestConfigIfNecessary(participantId) {
-        try {electron.setTestConfig(participantId);} catch (error) {}
+        try {
+            electron.setTestConfig(participantId);
+            fetch('test_takes/take/');
+        } catch (error) {}
         try {webview.setTestConfig(participantId);} catch (error) {}
     },
     changeAppTypeToIos()

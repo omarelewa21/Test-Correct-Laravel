@@ -19,7 +19,7 @@
                 }
                 CKEDITOR.replace( '{{ $editorId }}', {
                     removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,readspeaker',
+                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,readspeaker,wordcount,notification',
                     toolbar: [
                         { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
                         { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
@@ -29,7 +29,9 @@
                         @if(Auth::user()->text2speech)
                         { name: 'readspeaker_toolbar', items: ['readContent'] }
                         @endif
-                    ]
+                    ],
+                    fontSize_sizes : '1/1.000em;2/1.1250em;3/1.250em;4/1.375em;5/1.4375em;6/1.5em;7/1.625em;8/1.750em;9/2.250em;10/3em;11/4.5em',
+                    contentsCss : '/ckeditor/student.css'
                 })
                 CKEDITOR.instances['{{ $editorId }}']
                     .on('change', function (e) {
@@ -58,7 +60,6 @@
                         });
                         @endif
                     });
-
             })();
         </script>
     </div>

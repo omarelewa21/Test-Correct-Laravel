@@ -1,8 +1,9 @@
+
 <div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10"
      x-data="{attachment: null}"
      x-init="
         attachment = '{{ $attachment->uuid }}'
-             $refs.player.currentTime = {{ $attachment->audioHasCurrentTime() }}"
+             $refs.player.currentTime = {{ $this->getCurrentTime() }}"
 >
     <div class="text-center">
         @if(!$attachment->audioCanBePlayedAgain())
@@ -23,21 +24,24 @@
     <div>
         <audio id="player" src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $this->answerId], false) }}"
                x-ref="player"
+               x-on:play="@this.registerPlayStart()"
                @if($attachment->audioOnlyPlayOnce())
-                    x-on:ended="@this.audioIsPlayedOnce(attachment);"
+                    x-on:ended="@this.registerEndOfAudio($refs.player.currentTime,$refs.player.duration),@this.audioIsPlayedOnce(attachment);@this.closeAttachmentModal()"
+               @elseif($attachment->hasAudioTimeout())
+                    x-on:ended="@this.registerEndOfAudio($refs.player.currentTime,$refs.player.duration),@this.closeAttachmentModal()"
                @endif
         ></audio>
         <div class="flex justify-center">
             <button class="button primary-button
                     @if(!$attachment->audioCanBePlayedAgain()) cursor-default disabled @endif "
                     @if(!$attachment->audioCanBePlayedAgain()) disabled @endif
-                    x-on:click.prevent="$refs.player.play(), $wire.set('pressedPlay', true)"
+                    x-on:click.prevent="$refs.player.play()"
             >
                 {{__('test_take.play')}}
             </button>
             @if($attachment->audioIsPausable())
-                <button class="button secondary-button ml-2"
-                        x-on:click.prevent="$refs.player.pause(); $wire.audioStoreCurrentTime(attachment, $refs.player.currentTime)"
+                <button class="button secondary-button ml-2 pause_button"
+                        x-on:click.prevent="$refs.player.pause(); $wire.audioStoreCurrentTime($refs.player.currentTime)"
                         @if(!$attachment->audioCanBePlayedAgain()) disabled @endif
                 >
                     {{__('test_take.pause')}}
@@ -46,3 +50,4 @@
         </div>
     </div>
 </div>
+

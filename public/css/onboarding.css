@@ -114,6 +114,10 @@
     background: var(--system-secondary);
 }
 
+.bg-system-white {
+    background: var(--system-white);
+}
+
 .bg-mid-grey {
     background: var(--mid-grey);
 }

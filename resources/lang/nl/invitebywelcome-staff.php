@@ -6,7 +6,7 @@
 
 			'nodigt je uit om Test-Correct uit te proberen, een platform voor digitaal toetsen.' => 'nodigt je uit om Test-Correct uit te proberen, een platform voor digitaal toetsen.',
 
-			'We have immediately created an account for you for Test-Correct.' => 'We have immediately created an account for you for Test-Correct.',
+			'We hebben direct een account voor je aangemaakt voor Test-Correct.' => 'We hebben direct een account voor je aangemaakt voor Test-Correct.',
 
 			'Je bent daarmee een stap dichterbij een onderwijsinnovatie die echt eenvoudig is om te gebruiken en toch een wezenlijk verschil maakt!' => 'Je bent daarmee een stap dichterbij een onderwijsinnovatie die echt eenvoudig is om te gebruiken en toch een wezenlijk verschil maakt!',
 
@@ -29,5 +29,7 @@
 			'U kunt uw wachtwoord instellen op' => 'U kunt uw wachtwoord instellen op',
 
 			"Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit." => "Deze link verloopt vier uur nadat dit e-mailbericht werd verstuurd. U kunt een nieuwe link laten opsturen via de wachtwoord vergeten functionaliteit.",
+
+			'Nieuw verzoek opsturen' => 'Nieuw verzoek opsturen',
 ];
 ?>

@@ -2,6 +2,7 @@
 
 namespace tcCore\Http\Requests;
 
+use tcCore\CompletionQuestion;
 use tcCore\Http\Helpers\QuestionHelper;
 
 /**
@@ -53,26 +54,9 @@ class CreateCompletionQuestionRequest extends CreateQuestionRequest {
 	 */
 	public function getWithValidator($validator){
 		$validator->after(function ($validator) {
-			$question = request()->input('question');
-			if(!strstr($question, '[') && !strstr($question, ']')) {
-                if(request()->input('subtype') === 'completion'){
-                    $validator->errors()->add('question', 'U dient &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
-                } else {
-                    $validator->errors()->add('question', 'U dient minimaal &eacute;&eacute;n woord tussen vierkante haakjes te plaatsen.');
-                }
-			}
-
-			if(request()->input('subtype') == 'completion' && strstr($question,'|')){
-				$validator->errors()->add('substype','U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
-			}
-
-			if(request()->input('subtype') == 'multi'){
-				$qHelper = new QuestionHelper();
-				$questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($question, true);
-				if($questionData["error"]){
-					$validator->errors()->add('question', $questionData["error"]);
-				}
-			}
+			$questionString = request()->input('question');
+            $subType = request()->input('subtype');
+            CompletionQuestion::validateWithValidator($validator,$questionString,$subType);
 		});
 	}
 

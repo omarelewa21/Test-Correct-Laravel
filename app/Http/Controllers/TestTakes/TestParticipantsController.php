@@ -58,7 +58,10 @@ class TestParticipantsController extends Controller
                     //$query->where('test_take_id', $testTake->getKey());
                 }]);
 
-                $testParticipants = $testParticipants->get();
+                $testParticipants = $testParticipants->get()->sortBy(function ($testParticipant, $key) {
+                    return $testParticipant->user->name.$testParticipant->user->name_suffix.$testParticipant->user->name_first;
+                });
+
                 if ($isTeacherOrInvigilator && is_array($request->get('with')) && in_array('statistics', $request->get('with'))) {
                     $testParticipantUserIds = $testParticipants->pluck('id', 'user_id')->all();
                     $userHasRated = AnswerRating::where('type', 'STUDENT')->where('test_take_id', $testTake->getKey())->whereNotNull('rating')->distinct()->pluck('user_id')->all();

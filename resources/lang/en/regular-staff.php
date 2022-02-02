@@ -12,7 +12,7 @@
 
 			'Lees deze tips voordat u aan de slag gaat' => 'Read these tips before you get started',
 
-			'Toets cre�ren' => 'Create test',
+			'Toets creëren' => 'Create test',
 
 			'Toets afnemen' => 'To take a test',
 

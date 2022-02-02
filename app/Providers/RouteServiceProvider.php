@@ -134,6 +134,9 @@ class RouteServiceProvider extends ServiceProvider
             throw new RouteModelBindingNotFoundHttpException('Group question not found');
         });
 
+        /**
+         * @param id tcCore\TestQuestion::uuid
+         */
         Route::bind('group_question_question', function ($id) {
             try {
                 return \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstanceWithUuid($id);
@@ -368,9 +371,9 @@ class RouteServiceProvider extends ServiceProvider
              * a Test UUID, but a TestQuestion UUID that
              * should be handled as it were a 'group_question_question'
              * So now we handle both cases
-             * 
+             *
              * This inconsistency is also the case for 'question'
-             * 
+             *
              * Relates to TCP-833
              */
             $test = Test::whereUuid($item)->first();
@@ -378,8 +381,8 @@ class RouteServiceProvider extends ServiceProvider
                 return $test;
             }
 
-            $testQuestion = \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstanceWithUuid($item);
-            return $testQuestion->getQuestionLink()->test;
+            $groupQuestionQuestionManager = \tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager::getInstanceWithUuid($item);
+            return $groupQuestionQuestionManager->getQuestionLink()->test;
         });
 
         Route::bind('onboarding_wizard', function($item) {

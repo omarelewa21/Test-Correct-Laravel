@@ -19,10 +19,10 @@
 <br/>
 {{ __("regular-staff.Lees deze tips voordat u aan de slag gaat") }}:<br/>
 <ul>
-<li><a href="http://www.test-correct.nl/support/toets-creeren/">{{ __("Toets creëren") }}</a><br/>{{ __("Welke vraagsoorten kan je maken en hoe maak je daar optimaal gebruik van. Waarop let als je een bestaande toets importeert") }}. </li>
-<li><a href="http://www.test-correct.nl/support/toets-afnemen/">{{ __("Toets afnemen") }}</a><br/>{{ __("Het inplannen & surveilleren van de toets. Tips & Trucs bij het surveilleren") }}.</li>
-<li><a href="http://www.test-correct.nl/support/toets-bespreken/">{{ __("CO-Learning") }}</a><br/>{{ __("De kracht van Test-Correct. Onderwijskundige Tips & Trucs bij het bespreken") }}.</li>
-<li><a href="http://www.test-correct.nl/support/toets-nakijken-en-analyseren/">{{ __("Toets nakijken en analyseren") }}</a><br/>{{ __("Je eigen manier van nakijken. De interessantste analyses") }}.</li>
+<li><a href="http://www.test-correct.nl/support/toets-creeren/">{{ __("regular-staff.Toets creëren") }}</a><br/>{{ __("regular-staff.Welke vraagsoorten kan je maken en hoe maak je daar optimaal gebruik van. Waarop let als je een bestaande toets importeert") }}. </li>
+<li><a href="http://www.test-correct.nl/support/toets-afnemen/">{{ __("regular-staff.Toets afnemen") }}</a><br/>{{ __("regular-staff.Het inplannen & surveilleren van de toets. Tips & Trucs bij het surveilleren") }}.</li>
+<li><a href="http://www.test-correct.nl/support/toets-bespreken/">{{ __("regular-staff.CO-Learning") }}</a><br/>{{ __("regular-staff.De kracht van Test-Correct. Onderwijskundige Tips & Trucs bij het bespreken") }}.</li>
+<li><a href="http://www.test-correct.nl/support/toets-nakijken-en-analyseren/">{{ __("regular-staff.Toets nakijken en analyseren") }}</a><br/>{{ __("regular-staff.Je eigen manier van nakijken. De interessantste analyses") }}.</li>
 </ul>
 <br/>
 {{ __("regular-staff.Veel plezier met Test-Correct") }}!<br/>

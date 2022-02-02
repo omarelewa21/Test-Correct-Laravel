@@ -131,7 +131,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         initWithSelection() {
-           let text = window.editor.getSelection();
+            let text = window.editor.getSelection();
 
         },
 
@@ -177,10 +177,49 @@ document.addEventListener('alpine:init', () => {
             }
         },
     }));
+    Alpine.data('badge', (videoUrl = null) => ({
+        options: false,
+        videoTitle: videoUrl,
+        resolvingTitle: true,
+        index: 1,
+        async init() {
+            this.setIndex();
 
+            this.$watch('options', value => {
+                if (value) {
+                    let pWidth = this.$refs.optionscontainer.parentElement.offsetWidth;
+                    let pPos = this.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+                    if ((pWidth + pPos) < 288) {
+                        this.$refs.optionscontainer.classList.remove('right-0');
+                    }
+                }
+            })
+            if (videoUrl) {
+                const fetchedTitle = await getTitleForVideoUrl(videoUrl);
+                this.videoTitle = fetchedTitle || videoUrl;
+                this.resolvingTitle = false;
+                this.$wire.setVideoTitle(videoUrl, this.videoTitle);
+            }
+        },
+        setIndex() {
+            const parent = document.getElementById('attachment-badges')
+            this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+        }
+    }));
 
     Alpine.directive('global', function (el, {expression}) {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
         f(window, el._x_dataStack[0]);
     });
 });
+
+function getTitleForVideoUrl(videoUrl) {
+    return fetch('https://noembed.com/embed?url=' + videoUrl)
+        .then((response) => response.json())
+        .then((data) => {
+            if (!data.error) {
+                return data.title;
+            }
+            return null;
+        });
+}

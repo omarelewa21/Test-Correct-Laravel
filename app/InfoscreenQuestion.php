@@ -43,6 +43,10 @@ class InfoscreenQuestion extends Question implements QuestionInterface {
     protected $hidden = [];
 
 
+    public function question() {
+        return $this->belongsTo('tcCore\Question', $this->getKeyName());
+    }
+
     public function loadRelated()
     {
         // Open questions do not have related stuff, so this does nothing!

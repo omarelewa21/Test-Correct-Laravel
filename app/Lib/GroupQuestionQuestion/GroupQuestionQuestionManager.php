@@ -54,7 +54,7 @@ class GroupQuestionQuestionManager {
             }
             $nextGroupQuestionQuestionId = $testQuestion->getAttribute('question_id');
             $groupQuestionQuestionsCount = count($groupQuestionQuestions);
-    
+
             while($nextGroupQuestionQuestionId !== false && count($groupQuestionQuestionsOrdered) < $groupQuestionQuestionsCount) {
                 $found = false;
                 foreach($groupQuestionQuestions as $groupQuestionQuestion) {
@@ -65,7 +65,7 @@ class GroupQuestionQuestionManager {
                         break;
                     }
                 }
-    
+
                 if ($found === false) {
                     throw new ModelNotFoundException('group question question not found');
                 }
@@ -75,6 +75,10 @@ class GroupQuestionQuestionManager {
         return new static($testQuestion, $groupQuestionQuestionsOrdered);
     }
 
+    /**
+     * @param tcCore\TestQuestion $testQuestion
+     * @param array of tcCore\GroupQuestionQuestion $groupQuestionQuestions
+     */
     public function __construct($testQuestion, $groupQuestionQuestions)
     {
         $this->testQuestion = $testQuestion;

@@ -38,7 +38,7 @@ return [
     'next_question'                                => 'Volgende vraag',
     'turn_in'                                      => 'Inleveren',
     'speak'                                        => 'Lees voor',
-    'overview'                                     => 'Bekijk antwoorden',
+    'overview'                                     => 'Mijn antwoorden bekijken',
     'answered'                                     => 'Beantwoord',
     'not_answered'                                 => 'Niet beantwoord',
     'partly_answered'                              => 'Deels beantwoord',

@@ -27,3 +27,7 @@ window.Echo = new Echo({
     forceTLS: true
 });
 window.$ = window.jQuery = require('jquery');
+
+window.FilePond = require('filepond');
+import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+FilePond.registerPlugin(FilePondPluginFileValidateSize);

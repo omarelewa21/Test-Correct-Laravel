@@ -101,4 +101,25 @@ class BaseHelper
 
         return sprintf('%s%s',config('app.url_login'), $relativeUrl);
     }
+
+    public static function getMaxFileUploadSize()
+    {
+        return BaseHelper::returnBytes(ini_get('upload_max_filesize'));
+    }
+
+    private static function returnBytes($value)
+    {
+        $value = trim($value);
+        $last = strtolower($value[strlen($value)-1]);
+        $value = Str::substr($value, 0, -1);
+        switch($last) {
+            case 'g':
+                $value *= 1024;
+            case 'm':
+                $value *= 1024;
+            case 'k':
+                $value *= 1024;
+        }
+        return $value;
+    }
 }
