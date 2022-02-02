@@ -98,17 +98,18 @@ class DrawingQuestion extends Component
 
     public function handleUpdateDrawingData($data)
     {
-        $svg = base64_encode(
-            sprintf('<svg class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
+        $svg = sprintf('<svg class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
                     <g class="answer-svg">%s</g>
                     <g class="question-svg">%s</g>
                     <g id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
                 </svg>',
-                base64_decode($data['svg_answer']),
-                base64_decode($data['svg_question'])
-            )
-        );
-        dd('<img src="'.$svg.'"/>');
+                    base64_decode($data['svg_answer']),
+                    base64_decode($data['svg_question'])
+                );
+
+         $base64 = base64_encode($svg );
+
+        $str = sprintf('data:image/svg+xml;base64,%s',$base64 );
 
         $this->updatedAnswer($svg);
     }
