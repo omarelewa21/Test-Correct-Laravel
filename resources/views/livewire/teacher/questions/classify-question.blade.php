@@ -16,10 +16,15 @@
         @foreach($cmsPropertyBag['answerStruct'] as $key => $subStruct)
             @php
             $subStruct = (object) $subStruct;
+            $disabledMainClass = "icon disabled cursor-not-allowed";
+            if($this->__call('canDelete',$key)) {
+                $disabledMainClass = "";
+            }
             @endphp
             <div>
-                <div>
+                <div class="flex items-center space-x-2.5">
                     <x-input.text class="w-full mr-1 " wire:key="left-{{$key}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.left"/>
+                    <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledMainClass }}" wire:key="remove-{{$key}}" id="remove_{{ $key }}" wire:click="__call('delete','{{ $key }}')"></x-icon.remove>
                 </div>
                 <div class="w-full mt-4"
                      wire:sortable="__call('updateRankingOrder')">
