@@ -26,7 +26,7 @@
                         { name: 'insert', items: [ 'Table' ] },
                         { name: 'styles', items: ['Font', 'FontSize' ] },
                         @if(Auth::user()->text2speech)
-                        { name: 'readspeaker_toolbar', items: ['readContent'] },
+                            { name: 'readspeaker_toolbar', items: ['readContent'] },
                         @endif
                         { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
                     ],
