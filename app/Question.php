@@ -195,6 +195,12 @@ class Question extends MtiBaseModel {
         {
             QuestionAuthor::addAuthorToQuestion($question);
         });
+        static::saving(function(Question $question)
+        {
+            if(Auth::user()->isInExamSchool()){
+                $question->setAttribute('scope', 'exam');
+            }
+        });
 
         static::saved(function(Question $question)
         {

@@ -233,6 +233,19 @@ class Subject extends BaseModel implements AccessCheckable
         throw new AccessDeniedHttpException('Access to subject denied');
     }
 
+    public function getSubjectsOfCustomSchoolForUser($customerCode,$user): array
+    {
+        $school = SchoolLocation::where('customer_code', $customerCode)->first();
+        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
+        if ($school) {
+            $classIds = $school->schoolClasses()->pluck('id');
+            $tempSubjectIds = Teacher::whereIn('class_id', $classIds)->pluck('subject_id')->unique();
+            $baseSubjects = Subject::whereIn('id', $tempSubjectIds)->get();
+            return $baseSubjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
+        }
+        return [];
+    }
+
     public static function boot()
     {
         parent::boot();

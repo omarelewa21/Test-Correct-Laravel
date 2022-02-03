@@ -1297,6 +1297,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         return (bool) $this->subjects()->where('name', 'like', 'cito%')->count() > 0;
     }
 
+    public function isInExamSchool(): bool
+    {
+        if($this->schoolLocation()->customerCode=='OPENSOURCE1'){
+            return true;
+        }
+        return false;
+    }
+
     public function getNameFullAttribute()
     {
         $result = '';
