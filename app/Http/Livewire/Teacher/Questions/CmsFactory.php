@@ -51,6 +51,7 @@ class CmsFactory
             ],
             'MatchingQuestion'      => [
                 'matching'  => CmsMatching::class,
+                'classify'  => CmsClassify::class,
             ]
         ];
     }

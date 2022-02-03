@@ -1,4 +1,11 @@
-<svg {{ $attributes }} width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+@props([
+'wireKey' => false
+])
+<svg {{ $attributes }} width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"
+     @if($wireKey)
+     wire:key="{{ $wireKey }}"
+     @endif
+>
     <defs>
         <filter x="-1.7%" y="-3.4%" width="103.4%" height="106.9%" filterUnits="objectBoundingBox" id="a">
             <feOffset dy="3" in="SourceAlpha" result="shadowOffsetOuter1"/>

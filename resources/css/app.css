@@ -555,3 +555,24 @@ ul ul ul {
 .deployment-testing-marker {
     border-top: 4px solid var(--deployment-testing-color);
 }
+
+.sub-item-with-connecting-line::before {
+    position: absolute;
+    width: 6px;
+    height: 50px;
+    border-left: 1px solid var(--blue-grey);
+    border-bottom-left-radius: 4px;
+    border-bottom: 1px solid var(--blue-grey);
+    left:-5px;
+    top: -1.8rem;
+    content: ' ';
+}
+
+.draggable-mirror.sub-item-with-connecting-line::before {
+    display:none;
+}
+.draggable--over.sub-item-with-connecting-line::before,
+.draggable--original.sub-item-with-connecting-line::before,
+.draggable-source--is-dragging.sub-item-with-connecting-line::before{
+    left:-7px;
+}
