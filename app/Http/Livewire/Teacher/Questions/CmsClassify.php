@@ -82,9 +82,9 @@ class CmsClassify extends CmsBase
             return;
         }
 
-        $this->instance->cmsPropertyBag['answerStruct'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->filter(function ($answer) use ($id) {
+        $this->instance->cmsPropertyBag['answerStruct'] = collect($this->instance->cmsPropertyBag['answerStruct'])->filter(function ($answer) use ($id) {
             return $answer['id'] != $id;
-        })->toArray());
+        })->toArray();
 
         if (self::MIN_ANSWER_COUNT < $this->instance->cmsPropertyBag['answerCount']) {
             $this->instance->cmsPropertyBag['answerCount']--;
@@ -132,7 +132,7 @@ class CmsClassify extends CmsBase
         $result = [];
         $nr = 0;
         foreach ($this->instance->cmsPropertyBag['answerStruct'] as $key => $value) {
-            $result[$key] = (object)['id' => $value['id'], 'order' => $nr + 1, 'left' => $value['left'], 'rights' => $value['rights']];
+            $result[$key] = (object)['id' => $key, 'order' => $nr + 1, 'left' => $value['left'], 'rights' => $value['rights']];
             if (!isset($this->instance->cmsPropertyBag['answerSubCount'][$key])) {
                 $this->instance->cmsPropertyBag['answerSubCount'][$key] = 1;
             }
@@ -153,10 +153,9 @@ class CmsClassify extends CmsBase
         if (count($this->instance->cmsPropertyBag['answerStruct']) < $this->instance->cmsPropertyBag['answerCount']) {
             for ($i = count($this->instance->cmsPropertyBag['answerStruct']); $i < $this->instance->cmsPropertyBag['answerCount']; $i++) {
                 $key = Uuid::uuid4()->toString();
-                $uuidMain = Uuid::uuid4()->toString();
                 $uuidSub = Uuid::uuid4()->toString();
                 $result[$key] = (object)[
-                    'id' => $uuidMain,
+                    'id' => $key,
                     'order' => $i + 1,
                     'left' => '',
                     'rights' => [
@@ -179,12 +178,16 @@ class CmsClassify extends CmsBase
     public function prepareForSave()
     {
         $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function ($answer) {
+            $rights = collect($answer['rights'])->map(function($ar){
+               return $ar['answer'];
+            })->toArray();
             return [
                 'order' => $answer['order'],
                 'left' => $this->transformHtmlChars($answer['left']),
-                'right' => $this->transformHtmlChars($answer['right']),
+                'right' => $this->transformHtmlChars(implode(PHP_EOL,$rights)),
             ];
         })->toArray());
+
         unset($this->instance->question['answer']);
     }
 
@@ -206,8 +209,9 @@ class CmsClassify extends CmsBase
             $corresponding = (object)[
                 'id' => '',
                 'answer' => '',
-                'type' => ''
+                'order' => ''
             ];
+            dd($q->matchingQuestionAnswers);
 //            $this->instance->cmsPropertyBag['answerStruct'] = $q->matchingQuestionAnswers->map(function ($answer, $key) use (&$corresponding) {
 //                if($answer->type === 'LEFT'){
 //                    $corresponding = (object) [

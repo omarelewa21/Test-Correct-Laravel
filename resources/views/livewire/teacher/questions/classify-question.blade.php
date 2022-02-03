@@ -14,60 +14,62 @@
     </div>
     <div class="grid grid-cols-2 gap-2">
         @foreach($cmsPropertyBag['answerStruct'] as $key => $subStruct)
-            @php
-            $subStruct = (object) $subStruct;
-            $disabledMainClass = "icon disabled cursor-not-allowed";
-            if($this->__call('canDelete',$key)) {
-                $disabledMainClass = "";
-            }
-            @endphp
-            <div>
-                <div class="flex items-center space-x-2.5">
-                    <x-input.text class="w-full mr-1 " wire:key="left-{{$key}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.left"/>
-                    <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledMainClass }}" wire:key="remove-{{$key}}" id="remove_{{ $key }}" wire:click="__call('delete','{{ $key }}')"></x-icon.remove>
-                </div>
-                <div class="w-full mt-4"
-                     wire:sortable="__call('updateRankingOrder')">
-                    @php
-                        $disabledClass = "icon disabled cursor-not-allowed";
-                        if($this->__call('canDeleteSubItem',$key)) {
-                            $disabledClass = "";
-                        }
-                    @endphp
-                    @foreach($subStruct->rights as $answer)
+
+                @php
+                $subStruct = (object) $subStruct;
+                $disabledMainClass = "icon disabled cursor-not-allowed";
+                if($this->__call('canDelete',$key)) {
+                    $disabledMainClass = "";
+                }
+                @endphp
+                <div>
+                    <div class="flex items-center space-x-2.5">
+                        <x-input.text class="w-full mr-1 " wire:key="left-{{$key}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.left"/>
+                        <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledMainClass }}" wire:key="remove-{{$key}}" id="remove_{{ $key }}" wire:click="__call('delete','{{ $key }}')"></x-icon.remove>
+                    </div>
+                    <div class="w-full mt-4"
+                         wire:sortable="__call('updateRankingOrder')">
                         @php
-                            $answer = (object) $answer;
-                            $errorAnswerClass = '';
+                            $disabledClass = "icon disabled cursor-not-allowed";
+                            if($this->__call('canDeleteSubItem',$key)) {
+                                $disabledClass = "";
+                            }
                         @endphp
-                        @error('question.answers.'.$loop->index.'.answer')
-                        @php
-                            $errorAnswerClass = 'border-allred'
-                        @endphp
-                        @enderror
-                        <x-drag-item id="mc-{{ $key }}-{{$answer->id}}" sortId="{{ $key }}={{ $answer->id }}"
-                                     wireKey="option-{{ $key }}-{{ $answer->id }}" selid="drag-box"
-                                     class="flex mb-2 px-0 py-0 border-0 bg-system-white relative"
-                                     slotClasses="w-full mr-0 "
-                                     dragClasses="absolute right-14 hover:text-primary transition"
-                                     dragIconClasses=" cursor-move"
-                                     :useHandle="true"
-                                     :keepWidth="true"
-                                     sortIcon="reorder"
-                        >
-                            <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:key="input-{{$key}}-{{$answer->id}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.rights.{{ $loop->index }}.answer"/>
-                            <x-slot name="after">
-                                <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" wire:key="remove-{{$key}}-{{$answer->id}}" id="remove_{{ $answer->order }}" wire:click="__call('deleteSubItem','{{ $key }}={{$answer->id}}')"></x-icon.remove>
-                            </x-slot>
-                        </x-drag-item>
-                    @endforeach
+                        @foreach($subStruct->rights as $answer)
+                            @php
+                                $answer = (object) $answer;
+                                $errorAnswerClass = '';
+                            @endphp
+                            @error('question.answers.'.$loop->index.'.answer')
+                            @php
+                                $errorAnswerClass = 'border-allred'
+                            @endphp
+                            @enderror
+                            <x-drag-item id="mc-{{ $key }}-{{$answer->id}}" sortId="{{ $key }}={{ $answer->id }}"
+                                         wireKey="option-{{ $key }}-{{ $answer->id }}" selid="drag-box"
+                                         class="flex mb-2 px-0 py-0 border-0 bg-system-white relative"
+                                         slotClasses="w-full mr-0 "
+                                         dragClasses="absolute right-14 hover:text-primary transition"
+                                         dragIconClasses=" cursor-move"
+                                         :useHandle="true"
+                                         :keepWidth="true"
+                                         sortIcon="reorder"
+                            >
+                                <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:key="input-{{$key}}-{{$answer->id}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.rights.{{ $loop->index }}.answer"/>
+                                <x-slot name="after">
+                                    <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" wire:key="remove-{{$key}}-{{$answer->id}}" id="remove_{{ $answer->order }}" wire:click="__call('deleteSubItem','{{ $key }}={{$answer->id}}')"></x-icon.remove>
+                                </x-slot>
+                            </x-drag-item>
+                        @endforeach
+                    </div>
+                    <x-button.primary class="mt-3 justify-center w-full" wire:click="__call('addAnswerSubItem','{{$key}}')">
+                        <x-icon.plus/>
+                        <span >
+                                        {{ __('cms.Item toevoegen') }}
+                                        </span>
+                    </x-button.primary>
                 </div>
-                <x-button.primary class="mt-3 justify-center w-full" wire:click="__call('addAnswerSubItem','{{$key}}')">
-                    <x-icon.plus/>
-                    <span >
-                                    {{ __('cms.Item toevoegen') }}
-                                    </span>
-                </x-button.primary>
-            </div>
+
         @endforeach
     </div>
     <div class="flex flex-col space-y-2 w-full">
