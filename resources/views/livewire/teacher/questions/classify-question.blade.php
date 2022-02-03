@@ -12,7 +12,7 @@
     <div class="flex w-full mt-4">
         {{ __('cms.Matching Question Uitleg Text') }}
     </div>
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid mt-2 grid-cols-2 gap-y-4 gap-x-3.5">
         @foreach($cmsPropertyBag['answerStruct'] as $key => $subStruct)
 
                 @php
@@ -24,7 +24,7 @@
                 @endphp
                 <div>
                     <div class="flex items-center space-x-2.5">
-                        <x-input.text class="w-full mr-1 " wire:key="left-{{$key}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.left"/>
+                        <x-input.text class="w-full mr-1 text-center relative z-10 " wire:key="left-{{$key}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.left"/>
                         <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledMainClass }}" wire:key="remove-{{$key}}" id="remove_{{ $key }}" wire:click="__call('delete','{{ $key }}')"></x-icon.remove>
                     </div>
                     <div class="w-full mt-4"
@@ -47,7 +47,7 @@
                             @enderror
                             <x-drag-item id="mc-{{ $key }}-{{$answer->id}}" sortId="{{ $key }}={{ $answer->id }}"
                                          wireKey="option-{{ $key }}-{{ $answer->id }}" selid="drag-box"
-                                         class="flex mb-2 px-0 py-0 border-0 bg-system-white relative"
+                                         class="flex ml-3 pr-2.5  mb-2 px-0 py-0 border-0 bg-system-white relative relative sub-item-with-connecting-line"
                                          slotClasses="w-full mr-0 "
                                          dragClasses="absolute right-14 hover:text-primary transition"
                                          dragIconClasses=" cursor-move"
@@ -55,14 +55,14 @@
                                          :keepWidth="true"
                                          sortIcon="reorder"
                             >
-                                <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:key="input-{{$key}}-{{$answer->id}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.rights.{{ $loop->index }}.answer"/>
+                                <x-input.text class="w-full mr-0.5 {{ $errorAnswerClass }} " wire:key="input-{{$key}}-{{$answer->id}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.rights.{{ $loop->index }}.answer"/>
                                 <x-slot name="after">
                                     <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" wire:key="remove-{{$key}}-{{$answer->id}}" id="remove_{{ $answer->order }}" wire:click="__call('deleteSubItem','{{ $key }}={{$answer->id}}')"></x-icon.remove>
                                 </x-slot>
                             </x-drag-item>
                         @endforeach
                     </div>
-                    <x-button.primary class="mt-3 justify-center w-full" wire:click="__call('addAnswerSubItem','{{$key}}')">
+                    <x-button.primary class="mt-1 justify-center w-full" wire:click="__call('addAnswerSubItem','{{$key}}')">
                         <x-icon.plus/>
                         <span >
                                         {{ __('cms.Item toevoegen') }}
@@ -76,7 +76,7 @@
         <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')">
             <x-icon.plus/>
             <span >
-                                    {{ __('cms.Itemset toevoegen') }}
+                                    {{ __('cms.Insleepvak toevoegen') }}
                                     </span>
         </x-button.primary>
     </div>

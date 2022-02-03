@@ -52,7 +52,7 @@ return [
     'Matching Question Uitleg Text'      => 'The matching question has at least 2 items and 2 answers in order to match them. Draag the items in teh correct order for the answer model',
     'Stel je naar te slepen items op' => 'Add the items to drag to',
     'Stel je te slepen items op'    => 'Add the draggable items',
-    'Itemset toevoegen'                    => 'Add matchingset',
+    'Insleepvak toevoegen'                    => 'Add matchingset',
 
     'Is bovenstaande vraag/stelling juist of onjuist?' => 'Is the above question/statement true or false',
     'MultipleChoice Question Uitleg Text' => 'The multiple choice question can have more than one correct answer by giving points to it.',

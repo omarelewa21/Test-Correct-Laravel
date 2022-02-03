@@ -51,7 +51,7 @@ return [
     'Matching Question Uitleg Text'      => 'De combineervraag heeft min. 2 items en 2 antwoordopties nodig om het antwoord te kunnen combineren. Sleep deze voor het antwoordmodel in de juiste volgorde',
     'Stel je naar te slepen items op' => 'Stel je naar te slepen items op',
     'Stel je te slepen items op'    => 'Stel je te slepen items op',
-    'Itemset toevoegen'                    => 'Itemset toevoegen',
+    'Insleepvak toevoegen'                    => 'Insleepvak toevoegen',
 
     'MultipleChoice Question Uitleg Text' => 'De meerkeuzevraag kan ook meerdere antwoorden als correct accepteren door er punten aan toe te kennen.',
     'infoscreen-question' => 'Informatiescherm',
