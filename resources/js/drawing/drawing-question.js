@@ -1,4 +1,4 @@
-import {canvasParams, panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
+import {panParams, shapePropertiesAvailableToUser, zoomParams} from "./constants.js";
 import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
@@ -50,14 +50,13 @@ window.initDrawingQuestion = function () {
 
             const drawingApp = this
             const pollingFunction = setInterval(function () {
-                if (UI.svgCanvas.getBoundingClientRect().width !== 0 ) {
+                if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
                     setCorrectPopupHeight();
                     calculateCanvasBounds();
                     updateClosedSidebarWidth();
 
                     // updateMidPoint();
                     if (drawingApp.firstInit) {
-                        console.log('firstinit');
                         makeGrid();
                     }
 
@@ -755,6 +754,7 @@ window.initDrawingQuestion = function () {
                 true,
                 !(!drawingApp.isTeacher() && layerName === "question")
             );
+            debugger;
             Canvas.layers[layerName].shapes[shapeID] = newShape;
             newShape.svg.addHighlightEvents();
         }
@@ -1597,7 +1597,7 @@ window.initDrawingQuestion = function () {
 
 }
 
-window.makePreviewGrid = function(gridSvg) {
+window.makePreviewGrid = function (gridSvg) {
     const props = {
         group: {
             style: "",
@@ -1611,5 +1611,21 @@ window.makePreviewGrid = function(gridSvg) {
     }
     let parent = document.getElementById('grid-preview-svg')
     return new svgShape.Grid(0, props, parent);
+}
+window.calculatePreviewBounds = function () {
+    let parent = document.getElementById('preview-svg')
+    const matrix = new DOMMatrix();
+    const height = parent.clientHeight,
+        width = parent.clientWidth;
+    return {
+        top: -(matrix.f),
+        bottom: height - matrix.f,
+        height: height,
+        left: -(matrix.e),
+        right: width - matrix.e,
+        width: width,
+        cx: -matrix.e + (width / 2),
+        cy: -matrix.f + (height / 2),
+    };
 }
 

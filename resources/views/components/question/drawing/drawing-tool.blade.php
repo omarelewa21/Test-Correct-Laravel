@@ -1,6 +1,10 @@
 <div id="drawing-tool"
      wire:ignore
-     x-init="$watch('show', show => {
+     x-init="
+            if(gridSvg !== '') {
+               makePreviewGrid(gridSvg);
+            }
+        $watch('show', show => {
             if (show) {
                 Canvas.data.answer = answerSvg;
                 Canvas.data.question = questionSvg;
@@ -282,8 +286,8 @@
                     </marker>
                 </defs>
                 <g id="svg-pan-zoom-group" transform="matrix(1 0 0 1 0 0)">
-                    <g id="svg-question-group"></g>
                     <g id="svg-grid-group" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
+                    <g id="svg-question-group"></g>
                     <g id="svg-answer-group"></g>
                 </g>
             </svg>

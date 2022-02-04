@@ -452,8 +452,11 @@ export class Grid extends Path {
         );
     }
     calculateDAttributeForGrid(size) {
-        const bounds = Canvas.params.bounds,
-            interval = size * pixelsPerCentimeter,
+        let bounds = Canvas.params.bounds;
+        if(Object.keys(bounds).length === 0) {
+            bounds = calculatePreviewBounds();
+        }
+        const interval = size * pixelsPerCentimeter,
             lineAmount = this.calculateAmountOfGridLines(interval, bounds);
         let strOfPoints = ``;
         for (var i = -lineAmount.left; i <= lineAmount.right; i++) {
