@@ -33,6 +33,8 @@ use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TeacherRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\LoginLog;
+use tcCore\Mail\PasswordChanged;
+use tcCore\Mail\PasswordChangedSelf;
 use tcCore\OnboardingWizardUserStep;
 use tcCore\QtiModels\ResourceImport;
 use tcCore\Scopes\RemoveUuidScope;
@@ -403,6 +405,11 @@ class UsersController extends Controller
 //		    logger('try updating passwrd '. $request->get('password'));
             Log::stack(['loki'])->info("update@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
+            if(Auth::user()==$user){
+                Mail::to($user->username)->send(new PasswordChangedSelf($user));
+            }else{
+                Mail::to($user->username)->send(new PasswordChanged($user));
+            }
         }
 
         if ($user->save()) {

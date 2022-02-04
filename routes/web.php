@@ -1,6 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use tcCore\Mail\PasswordChanged;
 
 
 /*
@@ -13,7 +15,14 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Route::get('/preview_password_changed_mail', function () {
+    $user = tcCore\User::find(1483);
+    return new tcCore\Mail\PasswordChanged($user);
+});
+Route::get('/preview_password_changed_self_mail', function () {
+    $user = tcCore\User::find(1483);
+    return new tcCore\Mail\PasswordChangedSelf($user);
+});
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/user/confirm_email/{EmailConfirmation}', [tcCore\Http\Controllers\UsersController::class, 'confirmEmail']);
 Route::get('/inv/{shortcode}', [tcCore\Http\Controllers\Api\ShortcodeController::class, 'registerClickAndRedirect']);

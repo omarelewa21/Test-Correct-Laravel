@@ -4,10 +4,15 @@ use Bugsnag\BugsnagLaravel\Facades\Bugsnag;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Auth\Passwords\TokenRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Password;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Mail\PasswordChanged;
+use tcCore\Mail\PasswordChangedSelf;
 
 class PasswordController extends Controller {
 
@@ -78,6 +83,7 @@ class PasswordController extends Controller {
 
 		switch ($response) {
 			case Password::PASSWORD_RESET:
+                $this->notifyUser($credentials['username']);
 				return Response::make("Ok", 200);
 			default:
 				return Response::make("Fail", 400);
@@ -97,5 +103,19 @@ class PasswordController extends Controller {
 
 		$user->save();
 	}
+
+    protected function notifyUser($userName)
+    {
+        try {
+            $user = User::where('username', $userName)->firstOrFail();
+            if (Auth::user() == $user) {
+                Mail::to($user->username)->send(new PasswordChangedSelf($user));
+            } else {
+                Mail::to($user->username)->send(new PasswordChanged($user));
+            }
+        }catch (\Exception $e){
+            Log::stack(['loki'])->info("passwordReset@PasswordController.php password reset problem: unknown username".$userName);
+        }
+    }
 
 }
