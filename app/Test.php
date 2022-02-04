@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Traits\ExamSchoolTrait;
 use tcCore\Traits\UuidTrait;
 
 
@@ -25,6 +27,7 @@ class Test extends BaseModel
 
     use SoftDeletes;
     use UuidTrait;
+    use ExamSchoolTrait;
 
 
     protected $casts = [
@@ -76,8 +79,8 @@ class Test extends BaseModel
             if ((count($dirty) > 1 && array_key_exists('system_test_id', $dirty)) || (count($dirty) > 0 && !array_key_exists('system_test_id', $dirty)) && !$test->getAttribute('is_system_test')) {
                 $test->setAttribute('system_test_id', null);
             }
-            if(Auth::user()->isInExamSchool()){
-                $test->setAttribute('scope', 'exam');
+            if($test->allowExamPublished()){
+                $test->setExamTestParams();
             }
         });
 
@@ -1041,4 +1044,6 @@ class Test extends BaseModel
         })->join(',');
 
     }
+
+
 }

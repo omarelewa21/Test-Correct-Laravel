@@ -14,12 +14,14 @@ use Dyrynda\Database\Casts\EfficientUuid;
 use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Services\QuestionHtmlConverter;
+use tcCore\Traits\ExamSchoolTrait;
 use tcCore\Traits\UuidTrait;
 use \Exception;
 
 class Question extends MtiBaseModel {
     use SoftDeletes;
     use UuidTrait;
+    use ExamSchoolTrait;
 
     protected $casts = [
         'uuid' => EfficientUuid::class,
@@ -197,7 +199,7 @@ class Question extends MtiBaseModel {
         });
         static::saving(function(Question $question)
         {
-            if(Auth::user()->isInExamSchool()){
+            if($question->allowExamPublished()){
                 $question->setAttribute('scope', 'exam');
             }
         });
