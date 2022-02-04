@@ -28,12 +28,12 @@ window.initDrawingQuestion = function () {
      * Global Object containing all DOM Elements on the page that have an id attribute.
      * The key is the id value converted to camelCase, the value being the DOM Element itself.
      */
-    window.UI = new UIElements();
+    let UI = new UIElements();
 
     /**
      * Global Object containing some parameters that don't belong in Canvas.
      */
-    window.drawingApp = {
+    let drawingApp = {
         params: {
             currentTool: "drag",
             boldText: false,
@@ -138,7 +138,7 @@ window.initDrawingQuestion = function () {
     /**
      * Global Object containing all parameters, Shapes and corresponding sidebarEntries.
      */
-    window.Canvas = {
+    let Canvas = {
         params: {
             cursorPosition: {x: 0, y: 0},
             currentLayer: "question",
@@ -174,12 +174,12 @@ window.initDrawingQuestion = function () {
                 name: "Vraag",
                 id: "question-group",
                 enabled: true,
-            }),
+            }, drawingApp),
             "answer": new sidebar.Layer({
                 name: "Antwoord",
                 id: "answer-group",
                 enabled: false,
-            }),
+            }, drawingApp),
             "grid": {
                 svg: UI.svgGridGroup,
                 params: {
@@ -754,7 +754,6 @@ window.initDrawingQuestion = function () {
                 true,
                 !(!drawingApp.isTeacher() && layerName === "question")
             );
-            debugger;
             Canvas.layers[layerName].shapes[shapeID] = newShape;
             newShape.svg.addHighlightEvents();
         }
@@ -1014,7 +1013,7 @@ window.initDrawingQuestion = function () {
 
     function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
         let svgShape = makeNewSvgShape(type, props, Canvas.layers[parent].svg, withHelperElements, withHighlightEvents);
-        let newSidebarEntry = new sidebar.Entry(svgShape);
+        let newSidebarEntry = new sidebar.Entry(svgShape, drawingApp);
         Canvas.layers[parent].addEntry(newSidebarEntry);
         svgShape.setSidebarEntry(newSidebarEntry);
         return {
@@ -1034,19 +1033,19 @@ window.initDrawingQuestion = function () {
         let shapeID = ++Canvas.params.draw.shapeCountForEachType[type];
         switch (type) {
             case "rect":
-                return new svgShape.Rectangle(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Rectangle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "circle":
-                return new svgShape.Circle(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Circle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "line":
-                return new svgShape.Line(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Line(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "text":
-                return new svgShape.Text(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Text(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "image":
-                return new svgShape.Image(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Image(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "path":
-                return new svgShape.Path(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Path(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "freehand":
-                return new svgShape.Freehand(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Freehand(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             default:
                 console.error(
                     `makeShapeOfRightType(): type  (${type}) is not valid. No shape was created.`
@@ -1420,7 +1419,7 @@ window.initDrawingQuestion = function () {
             },
             size: (drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize),
         }
-        Canvas.layers.grid.shape = new svgShape.Grid(0, props, UI.svgGridGroup);
+        Canvas.layers.grid.shape = new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
     }
 
     function updateGridVisibility() {
@@ -1595,6 +1594,8 @@ window.initDrawingQuestion = function () {
         selectedBtn.classList.add("active");
     }
 
+    return { UI, Canvas, drawingApp }
+
 }
 
 window.makePreviewGrid = function (gridSvg) {
@@ -1610,8 +1611,9 @@ window.makePreviewGrid = function (gridSvg) {
         size: gridSvg,
     }
     let parent = document.getElementById('grid-preview-svg')
-    return new svgShape.Grid(0, props, parent);
+    return new svgShape.Grid(0, props, parent, null, null);
 }
+
 window.calculatePreviewBounds = function () {
     let parent = document.getElementById('preview-svg')
     const matrix = new DOMMatrix();

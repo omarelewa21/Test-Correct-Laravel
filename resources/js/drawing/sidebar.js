@@ -1,9 +1,9 @@
 import {nameInSidebarEntryForShape} from "./constants.js";
 
 class sidebarComponent {
-    constructor() {
+    constructor(drawingApp) {
+        this.drawingApp = drawingApp;
     }
-
     showFirstIcon(element) {
         element.querySelectorAll("svg")[0].style.display = "block";
         element.querySelectorAll("svg")[1].style.display = "none";
@@ -17,8 +17,8 @@ class sidebarComponent {
 }
 
 export class Entry extends sidebarComponent {
-    constructor(shape) {
-        super();
+    constructor(shape, drawingApp) {
+        super(drawingApp);
         this.svgShape = shape;
         let entryTemplate = document.getElementById("shape-group-template");
         const templateCopy = entryTemplate.content.cloneNode(true);
@@ -40,7 +40,7 @@ export class Entry extends sidebarComponent {
             nameInSidebarEntryForShape[this.svgShape.type]
         } ${this.svgShape.shapeId}`;
 
-        drawingApp.bindEventListeners(this.eventListenerSettings, this);
+        this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
         this.updateLockState();
         this.updateHideState();
     }
@@ -182,8 +182,8 @@ export class Layer extends sidebarComponent {
      * @param {string} props.id
      * @param {boolean} props.enabled
      */
-    constructor(props = {}) {
-        super();
+    constructor(props = {}, drawingApp) {
+        super(drawingApp);
         this.params = {
             hidden: false,
             locked: false,
@@ -357,7 +357,7 @@ export class Layer extends sidebarComponent {
                 }
             },
         ];
-        drawingApp.bindEventListeners(settings, this);
+        this.drawingApp.bindEventListeners(settings, this);
     }
 
     hide() {

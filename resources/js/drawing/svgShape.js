@@ -17,13 +17,15 @@ class svgShape {
      * when omitted the properties of the shape are loaded.
      * @param {?SVGElement} parent The parent the shape should be appended to.
      */
-    constructor(shapeId, type, props, parent, withHelperElements = true, withHighlightEvents = true) {
+    constructor(shapeId, type, props, parent, drawingApp, Canvas , withHelperElements = true, withHighlightEvents = true) {
         this.shapeId = shapeId;
         this.type = type;
         this.props = props ?? {
             main: { class: "main" },
             group: { class: "shape draggable", id: `${type}-${shapeId}` },
         };
+        this.Canvas = Canvas;
+        this.drawingApp = drawingApp;
         if (!this.props.main) this.props.main = {};
         if (!this.props.group) this.props.group = {};
         this.offset = parseInt(this.props.main["stroke-width"]) / 2 + 3 || 5;
@@ -246,13 +248,13 @@ class svgShape {
                     "click": {
                         callback: () => {
                             this.highlight();
-                            Canvas.setFocusedShape(this);
+                            this.Canvas.setFocusedShape(this);
                         }
                     }
                 }
             }
         ];
-        drawingApp.bindEventListeners(settings, this);
+        this.drawingApp.bindEventListeners(settings, this);
     }
     highlight() {
         this.showBorderElement();
@@ -270,8 +272,8 @@ export class Rectangle extends svgShape {
      * when omitted the properties of the shape are loaded.
      * @param {?SVGElement} parent The parent the shape should be appended to.
      */
-    constructor(shapeId, props, parent = null, withHelperElements, withHighlightEvents) {
-        super(shapeId, "rect", props, parent, withHelperElements, withHighlightEvents);
+    constructor(shapeId, props, parent, drawingApp, Canvas , withHelperElements, withHighlightEvents) {
+        super(shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
 }
 
@@ -282,9 +284,12 @@ export class Circle extends svgShape {
      * All properties (attributes) to be assigned to the shape,
      * when omitted the properties of the shape are loaded.
      * @param {?SVGElement} parent The parent the shape should be appended to.
+     * @param drawingApp
+     * @param withHelperElements
+     * @param withHighlightEvents
      */
-    constructor(shapeId, props, parent = null, withHelperElements, withHighlightEvents) {
-        super(shapeId, "circle", props, parent, withHelperElements, withHighlightEvents);
+    constructor(shapeId, props, parent, drawingApp, Canvas , withHelperElements, withHighlightEvents) {
+        super(shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
 }
 
@@ -296,8 +301,8 @@ export class Line extends svgShape {
      * when omitted the properties of the shape are loaded.
      * @param {?SVGElement} parent The parent the shape should be appended to.
      */
-    constructor(shapeId, props, parent = null, withHelperElements, withHighlightEvents) {
-        super(shapeId, "line", props, parent, withHelperElements, withHighlightEvents);
+    constructor(shapeId, props, parent, drawingApp, Canvas , withHelperElements, withHighlightEvents) {
+        super(shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
         this.makeOwnMarkerForThisShape();
     }
@@ -348,8 +353,8 @@ export class Text extends svgShape {
      * when omitted the properties of the shape are loaded.
      * @param {?SVGElement} parent The parent the shape should be appended to.
      */
-    constructor(shapeId, props, parent = null, withHelperElements, withHighlightEvents) {
-        super(shapeId, "text", props, parent, withHelperElements, withHighlightEvents);
+    constructor(shapeId, props, parent, drawingApp, Canvas , withHelperElements, withHighlightEvents) {
+        super(shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
         this.mainElement.setTextContent(this.props.main["data-textcontent"]);
     }
     onDrawEndShapeSpecific(evt, cursor) {
@@ -397,8 +402,8 @@ export class Image extends svgShape {
      * when omitted the properties of the shape are loaded.
      * @param {?SVGElement} parent The parent the shape should be appended to.
      */
-    constructor(shapeId, props, parent = null, withHelperElements, withHighlightEvents) {
-        super(shapeId, "image", props, parent, withHelperElements, withHighlightEvents);
+    constructor(shapeId, props, parent, drawingApp, Canvas , withHelperElements, withHighlightEvents) {
+        super(shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
 }
 
@@ -410,8 +415,8 @@ export class Path extends svgShape {
      * when omitted the properties of the shape are loaded.
      * @param {?SVGElement} parent The parent the shape should be appended to.
      */
-    constructor(shapeId, props, parent = null, withHelperElements, withHighlightEvents) {
-        super(shapeId, "path", props, parent, withHelperElements, withHighlightEvents);
+    constructor(shapeId, props, parent, drawingApp, Canvas , withHelperElements, withHighlightEvents) {
+        super(shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
     }
 }
 
@@ -423,8 +428,8 @@ export class Grid extends Path {
      * when omitted the properties of the shape are loaded.
      * @param {HTMLElement} parent The parent the shape should be appended to.
      */
-    constructor(shapeId, props, parent) {
-        super(shapeId, props, parent, false);
+    constructor(shapeId, props, parent, drawingApp, Canvas) {
+        super(shapeId, props, parent, drawingApp, Canvas, false);
         this.origin = new svgElement.Path(this.props.origin);
         this.setDAttributes(
             this.calculateDAttributeForGrid(this.props.size),
@@ -452,7 +457,10 @@ export class Grid extends Path {
         );
     }
     calculateDAttributeForGrid(size) {
-        let bounds = Canvas.params.bounds;
+        let bounds = {};
+        if (this.Canvas !== null) {
+            bounds = this.Canvas.params.bounds;
+        }
         if(Object.keys(bounds).length === 0) {
             bounds = calculatePreviewBounds();
         }
@@ -490,8 +498,8 @@ export class Freehand extends Path {
      * when omitted the properties of the shape are loaded.
      * @param {?SVGElement} parent The parent the shape should be appended to.
      */
-    constructor(shapeId, props, parent, withHelperElements, withHighlightEvents) {
-        super(shapeId, props, parent, withHelperElements, withHighlightEvents);
+    constructor(shapeId, props, parent, drawingApp, Canvas , withHelperElements, withHighlightEvents) {
+        super(shapeId, props, parent, drawingApp, Canvas , withHelperElements, withHighlightEvents);
         this.shapeGroup.setAttribute("id", `freehand-${shapeId}`);
     }
     onDrawShapeSpecific(evt, cursor) {

@@ -6368,12 +6368,12 @@ window.initDrawingQuestion = function () {
    * Global Object containing all DOM Elements on the page that have an id attribute.
    * The key is the id value converted to camelCase, the value being the DOM Element itself.
    */
-  window.UI = new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.UIElements();
+  var UI = new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.UIElements();
   /**
    * Global Object containing some parameters that don't belong in Canvas.
    */
 
-  window.drawingApp = {
+  var drawingApp = {
     params: {
       currentTool: "drag",
       boldText: false,
@@ -6479,7 +6479,7 @@ window.initDrawingQuestion = function () {
    * Global Object containing all parameters, Shapes and corresponding sidebarEntries.
    */
 
-  window.Canvas = {
+  var Canvas = {
     params: {
       cursorPosition: {
         x: 0,
@@ -6521,12 +6521,12 @@ window.initDrawingQuestion = function () {
         name: "Vraag",
         id: "question-group",
         enabled: true
-      }),
+      }, drawingApp),
       "answer": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
         name: "Antwoord",
         id: "answer-group",
         enabled: false
-      }),
+      }, drawingApp),
       "grid": {
         svg: UI.svgGridGroup,
         params: {
@@ -7102,7 +7102,6 @@ window.initDrawingQuestion = function () {
         var shapeID = groupElement.id,
             shapeType = shapeID.substring(0, shapeID.indexOf("-"));
         var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
-        debugger;
         Canvas.layers[layerName].shapes[shapeID] = newShape;
         newShape.svg.addHighlightEvents();
       }
@@ -7371,7 +7370,7 @@ window.initDrawingQuestion = function () {
 
   function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
     var svgShape = makeNewSvgShape(type, props, Canvas.layers[parent].svg, withHelperElements, withHighlightEvents);
-    var newSidebarEntry = new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Entry(svgShape);
+    var newSidebarEntry = new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Entry(svgShape, drawingApp);
     Canvas.layers[parent].addEntry(newSidebarEntry);
     svgShape.setSidebarEntry(newSidebarEntry);
     return {
@@ -7396,25 +7395,25 @@ window.initDrawingQuestion = function () {
 
     switch (type) {
       case "rect":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "circle":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Circle(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Circle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "line":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Line(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Line(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "text":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Text(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Text(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "image":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Image(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Image(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "path":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Path(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Path(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "freehand":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Freehand(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Freehand(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       default:
         console.error("makeShapeOfRightType(): type  (".concat(type, ") is not valid. No shape was created."));
@@ -7813,7 +7812,7 @@ window.initDrawingQuestion = function () {
       },
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
     };
-    Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, UI.svgGridGroup);
+    Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
   function updateGridVisibility() {
@@ -7999,6 +7998,12 @@ window.initDrawingQuestion = function () {
 
     selectedBtn.classList.add("active");
   }
+
+  return {
+    UI: UI,
+    Canvas: Canvas,
+    drawingApp: drawingApp
+  };
 };
 
 window.makePreviewGrid = function (gridSvg) {
@@ -8014,7 +8019,7 @@ window.makePreviewGrid = function (gridSvg) {
     size: gridSvg
   };
   var parent = document.getElementById('grid-preview-svg');
-  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent);
+  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, null, null);
 };
 
 window.calculatePreviewBounds = function () {
@@ -8189,8 +8194,10 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 var sidebarComponent = /*#__PURE__*/function () {
-  function sidebarComponent() {
+  function sidebarComponent(drawingApp) {
     _classCallCheck(this, sidebarComponent);
+
+    this.drawingApp = drawingApp;
   }
 
   _createClass(sidebarComponent, [{
@@ -8215,12 +8222,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
   var _super = _createSuper(Entry);
 
-  function Entry(shape) {
+  function Entry(shape, drawingApp) {
     var _this;
 
     _classCallCheck(this, Entry);
 
-    _this = _super.call(this);
+    _this = _super.call(this, drawingApp);
     _this.svgShape = shape;
     var entryTemplate = document.getElementById("shape-group-template");
     var templateCopy = entryTemplate.content.cloneNode(true);
@@ -8236,7 +8243,8 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
     _this.id = "".concat(_this.type, "-").concat(_this.svgShape.shapeId);
     _this.entryContainer.id = "shape-".concat(_this.id);
     _this.entryTitle.innerText = "".concat(_constants_js__WEBPACK_IMPORTED_MODULE_0__.nameInSidebarEntryForShape[_this.svgShape.type], " ").concat(_this.svgShape.shapeId);
-    drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
+
+    _this.drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
 
     _this.updateLockState();
 
@@ -8406,10 +8414,11 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
     var _this3;
 
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var drawingApp = arguments.length > 1 ? arguments[1] : undefined;
 
     _classCallCheck(this, Layer);
 
-    _this3 = _super2.call(this);
+    _this3 = _super2.call(this, drawingApp);
     _this3.params = {
       hidden: false,
       locked: false
@@ -8592,7 +8601,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
           }
         }
       }];
-      drawingApp.bindEventListeners(settings, this);
+      this.drawingApp.bindEventListeners(settings, this);
     }
   }, {
     key: "hide",
@@ -9598,11 +9607,11 @@ var svgShape = /*#__PURE__*/function () {
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
    */
-  function svgShape(shapeId, type, props, parent) {
+  function svgShape(shapeId, type, props, parent, drawingApp, Canvas) {
     var _this = this;
 
-    var withHelperElements = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-    var withHighlightEvents = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
+    var withHelperElements = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
+    var withHighlightEvents = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : true;
 
     _classCallCheck(this, svgShape);
 
@@ -9617,6 +9626,8 @@ var svgShape = /*#__PURE__*/function () {
         id: "".concat(type, "-").concat(shapeId)
       }
     };
+    this.Canvas = Canvas;
+    this.drawingApp = drawingApp;
     if (!this.props.main) this.props.main = {};
     if (!this.props.group) this.props.group = {};
     this.offset = parseInt(this.props.main["stroke-width"]) / 2 + 3 || 5;
@@ -9889,12 +9900,12 @@ var svgShape = /*#__PURE__*/function () {
             callback: function callback() {
               _this2.highlight();
 
-              Canvas.setFocusedShape(_this2);
+              _this2.Canvas.setFocusedShape(_this2);
             }
           }
         }
       }];
-      drawingApp.bindEventListeners(settings, this);
+      this.drawingApp.bindEventListeners(settings, this);
     }
   }, {
     key: "highlight",
@@ -9923,14 +9934,10 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
    */
-  function Rectangle(shapeId, props) {
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
-
+  function Rectangle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Rectangle);
 
-    return _super.call(this, shapeId, "rect", props, parent, withHelperElements, withHighlightEvents);
+    return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
   return _createClass(Rectangle);
@@ -9946,15 +9953,14 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
-  function Circle(shapeId, props) {
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
-
+  function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Circle);
 
-    return _super2.call(this, shapeId, "circle", props, parent, withHelperElements, withHighlightEvents);
+    return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
   return _createClass(Circle);
@@ -9971,16 +9977,12 @@ var Line = /*#__PURE__*/function (_svgShape3) {
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
    */
-  function Line(shapeId, props) {
+  function Line(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this3;
-
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
 
     _classCallCheck(this, Line);
 
-    _this3 = _super3.call(this, shapeId, "line", props, parent, withHelperElements, withHighlightEvents);
+    _this3 = _super3.call(this, shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
     _this3.makeOwnMarkerForThisShape();
 
@@ -10042,16 +10044,12 @@ var Text = /*#__PURE__*/function (_svgShape4) {
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
    */
-  function Text(shapeId, props) {
+  function Text(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this4;
-
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
 
     _classCallCheck(this, Text);
 
-    _this4 = _super4.call(this, shapeId, "text", props, parent, withHelperElements, withHighlightEvents);
+    _this4 = _super4.call(this, shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
     _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
 
@@ -10108,14 +10106,10 @@ var Image = /*#__PURE__*/function (_svgShape5) {
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
    */
-  function Image(shapeId, props) {
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
-
+  function Image(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Image);
 
-    return _super5.call(this, shapeId, "image", props, parent, withHelperElements, withHighlightEvents);
+    return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
   return _createClass(Image);
@@ -10132,14 +10126,10 @@ var Path = /*#__PURE__*/function (_svgShape6) {
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
    */
-  function Path(shapeId, props) {
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
-
+  function Path(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Path);
 
-    return _super6.call(this, shapeId, "path", props, parent, withHelperElements, withHighlightEvents);
+    return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
   return _createClass(Path);
@@ -10156,12 +10146,12 @@ var Grid = /*#__PURE__*/function (_Path) {
    * when omitted the properties of the shape are loaded.
    * @param {HTMLElement} parent The parent the shape should be appended to.
    */
-  function Grid(shapeId, props, parent) {
+  function Grid(shapeId, props, parent, drawingApp, Canvas) {
     var _this6;
 
     _classCallCheck(this, Grid);
 
-    _this6 = _super7.call(this, shapeId, props, parent, false);
+    _this6 = _super7.call(this, shapeId, props, parent, drawingApp, Canvas, false);
     _this6.origin = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(_this6.props.origin);
 
     _this6.setDAttributes(_this6.calculateDAttributeForGrid(_this6.props.size), _this6.calculateDAttributeForOrigin(_this6.props.size));
@@ -10200,7 +10190,11 @@ var Grid = /*#__PURE__*/function (_Path) {
   }, {
     key: "calculateDAttributeForGrid",
     value: function calculateDAttributeForGrid(size) {
-      var bounds = Canvas.params.bounds;
+      var bounds = {};
+
+      if (this.Canvas !== null) {
+        bounds = this.Canvas.params.bounds;
+      }
 
       if (Object.keys(bounds).length === 0) {
         bounds = calculatePreviewBounds();
@@ -10252,12 +10246,12 @@ var Freehand = /*#__PURE__*/function (_Path2) {
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
    */
-  function Freehand(shapeId, props, parent, withHelperElements, withHighlightEvents) {
+  function Freehand(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this7;
 
     _classCallCheck(this, Freehand);
 
-    _this7 = _super8.call(this, shapeId, props, parent, withHelperElements, withHighlightEvents);
+    _this7 = _super8.call(this, shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
     _this7.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
 

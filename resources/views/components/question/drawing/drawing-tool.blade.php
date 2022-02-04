@@ -6,21 +6,21 @@
             }
         $watch('show', show => {
             if (show) {
-                Canvas.data.answer = answerSvg;
-                Canvas.data.question = questionSvg;
+                tool.Canvas.data.answer = answerSvg;
+                tool.Canvas.data.question = questionSvg;
 
                 if (gridSvg !== '0.00') {
                     let parsedGrid = parseFloat(gridSvg);
-                    if (drawingApp.isTeacher()) {
-                        UI.gridSize.value = parsedGrid;
-                        UI.gridToggle.checked = true;
+                    if (tool.drawingApp.isTeacher()) {
+                        tool.UI.gridSize.value = parsedGrid;
+                        tool.UI.gridToggle.checked = true;
                     } else {
-                        drawingApp.params.gridSize = parsedGrid;
-                        Canvas.layers.grid.params.hidden = false;
+                        tool.drawingApp.params.gridSize = parsedGrid;
+                        tool.Canvas.layers.grid.params.hidden = false;
                     }
                 }
 
-                drawingApp.init();
+                tool.drawingApp.init();
              }
         })"
 >
@@ -639,19 +639,15 @@
 
 @push('scripts')
     <script>
-        initDrawingQuestion();
+        window.tool = initDrawingQuestion();
 
         // drawingApp.init();
 
         @if(Auth::user()->isA('teacher'))
-        Canvas.layers.answer.enable();
-        Canvas.setCurrentLayer("answer");
+        tool.Canvas.layers.answer.enable();
+        tool.Canvas.setCurrentLayer("answer");
         @endif
 
-        window.drawingSaveUrl = '/questions/save_drawing';
-        window.drawingCallback = function () {
-{{--            window.parent.Answer.drawingPadClose('{{ $question_id  ?? ''}}');--}}
-            window.parent.Answer.drawingPadClose('1');
-        };
+
     </script>
 @endpush
