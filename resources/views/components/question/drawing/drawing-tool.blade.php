@@ -1,28 +1,5 @@
 <div id="drawing-tool"
      wire:ignore
-     x-init="
-            if(gridSvg !== '') {
-               makePreviewGrid(gridSvg);
-            }
-        $watch('show', show => {
-            if (show) {
-                tool.Canvas.data.answer = answerSvg;
-                tool.Canvas.data.question = questionSvg;
-
-                if (gridSvg !== '0.00') {
-                    let parsedGrid = parseFloat(gridSvg);
-                    if (tool.drawingApp.isTeacher()) {
-                        tool.UI.gridSize.value = parsedGrid;
-                        tool.UI.gridToggle.checked = true;
-                    } else {
-                        tool.drawingApp.params.gridSize = parsedGrid;
-                        tool.Canvas.layers.grid.params.hidden = false;
-                    }
-                }
-
-                tool.drawingApp.init();
-             }
-        })"
 >
     <div class="section-container">
         <section>
@@ -636,18 +613,3 @@
     </div>
 </template>
 <template id="svg-layer-to-render"></template>
-
-@push('scripts')
-    <script>
-        window.tool = initDrawingQuestion();
-
-        // drawingApp.init();
-
-        @if(Auth::user()->isA('teacher'))
-        tool.Canvas.layers.answer.enable();
-        tool.Canvas.setCurrentLayer("answer");
-        @endif
-
-
-    </script>
-@endpush

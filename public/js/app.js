@@ -5682,6 +5682,58 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('drawingTool', function (questionId, entanglements, isTeacher) {
+    return {
+      show: false,
+      questionId: questionId,
+      answerSvg: entanglements.answerSvg,
+      questionSvg: entanglements.questionSvg,
+      gridSvg: entanglements.gridSvg,
+      isTeacher: isTeacher,
+      init: function init() {
+        var _this5 = this;
+
+        window['drawingTool_' + questionId] = initDrawingQuestion();
+        var toolName = window['drawingTool_' + questionId];
+
+        if (this.gridSvg !== '') {
+          makePreviewGrid(this.gridSvg);
+        }
+
+        this.$watch('show', function (show) {
+          if (show) {
+            toolName.Canvas.data.answer = _this5.answerSvg;
+            toolName.Canvas.data.question = _this5.questionSvg;
+
+            _this5.handleGrid(toolName);
+
+            toolName.drawingApp.init();
+          } else {
+            Livewire.emit('refresh');
+          }
+        });
+
+        if (this.isTeacher) {
+          toolName.Canvas.layers.answer.enable();
+          toolName.Canvas.setCurrentLayer("answer");
+        }
+      },
+      handleGrid: function handleGrid(toolName) {
+        if (this.gridSvg !== '0.00') {
+          var parsedGrid = parseFloat(this.gridSvg);
+          console.log(parsedGrid);
+
+          if (toolName.drawingApp.isTeacher()) {
+            toolName.UI.gridSize.value = parsedGrid;
+            toolName.UI.gridToggle.checked = true;
+          } else {
+            toolName.drawingApp.params.gridSize = parsedGrid;
+            toolName.Canvas.layers.grid.params.hidden = false;
+          }
+        }
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].directive('global', function (el, _ref) {
     var expression = _ref.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
@@ -6345,6 +6397,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 window.initDrawingQuestion = function () {
+  var _this2 = this;
+
   /**
    * @typedef Cursor
    * @type {Object}
@@ -6400,6 +6454,7 @@ window.initDrawingQuestion = function () {
           }
 
           processGridToggleChange();
+          clearLayers();
           retrieveSavedDrawingData();
           Canvas.setCurrentLayer(Canvas.params.currentLayer);
           drawingApp.firstInit = false;
@@ -6479,100 +6534,114 @@ window.initDrawingQuestion = function () {
    * Global Object containing all parameters, Shapes and corresponding sidebarEntries.
    */
 
-  var Canvas = {
-    params: {
-      cursorPosition: {
-        x: 0,
-        y: 0
-      },
-      currentLayer: "question",
-      focusedShape: null,
-      bounds: {},
-      draw: {
-        newShape: null,
-        shapeCountForEachType: {
-          rect: 0,
-          circle: 0,
-          line: 0,
-          text: 0,
-          image: 0,
-          path: 0,
-          freehand: 0
-        }
-      },
-      drag: {
-        enabled: false,
-        translateOfSvgShape: null,
-        offsetCursorToMidPoint: null
-      },
-      pan: {
-        enabled: false,
-        startCoordinates: {
+  var Canvas = function () {
+    var Obj = {
+      params: {
+        cursorPosition: {
           x: 0,
           y: 0
-        }
+        },
+        currentLayer: "question",
+        focusedShape: null,
+        bounds: {},
+        draw: {
+          newShape: null,
+          shapeCountForEachType: {
+            rect: 0,
+            circle: 0,
+            line: 0,
+            text: 0,
+            image: 0,
+            path: 0,
+            freehand: 0
+          }
+        },
+        drag: {
+          enabled: false,
+          translateOfSvgShape: null,
+          offsetCursorToMidPoint: null
+        },
+        pan: {
+          enabled: false,
+          startCoordinates: {
+            x: 0,
+            y: 0
+          }
+        },
+        domMatrix: new DOMMatrix(),
+        zoomFactor: 1
       },
-      domMatrix: new DOMMatrix(),
-      zoomFactor: 1
-    },
-    element: UI.svgCanvas,
-    layers: {
-      "question": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
-        name: "Vraag",
-        id: "question-group",
-        enabled: true
-      }, drawingApp),
-      "answer": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
-        name: "Antwoord",
-        id: "answer-group",
-        enabled: false
-      }, drawingApp),
-      "grid": {
-        svg: UI.svgGridGroup,
-        params: {
-          locked: true,
-          hidden: true
-        }
+      element: UI.svgCanvas,
+      layers: {},
+      dragging: function dragging() {
+        return this.params.drag.enabled;
+      },
+      panning: function panning() {
+        return this.params.pan.enabled;
+      },
+      drawing: function drawing() {
+        return this.params.draw.newShape;
+      },
+      setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
+        var oldCurrentLayer = document.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
+        oldCurrentLayer.classList.remove("highlight");
+        var newCurrentLayer = document.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
+        newCurrentLayer.classList.add("highlight");
+        Canvas.params.currentLayer = newCurrentLayerID;
+      },
+      getEnabledLayers: function getEnabledLayers() {
+        return Object.values(this.layers).filter(function (layer) {
+          return layer.params.enabled;
+        });
+      },
+      layerID2Key: function layerID2Key(id) {
+        return id.startsWith("svg-") ? id.substring(4, id.lastIndexOf("-")) : id.substring(0, id.lastIndexOf("-"));
+      },
+      layerKey2ID: function layerKey2ID(key) {
+        return "".concat(key, "-group");
+      },
+      setFocusedShape: function setFocusedShape(shape) {
+        this.params.focusedShape = shape;
+      },
+      data: {
+        question: "",
+        answer: ""
+      },
+      makeLayers: function makeLayers() {
+        this.layers = {
+          "question": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
+            name: "Vraag",
+            id: "question-group",
+            enabled: true
+          }, drawingApp, this),
+          "answer": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
+            name: "Antwoord",
+            id: "answer-group",
+            enabled: false
+          }, drawingApp, this),
+          "grid": {
+            svg: UI.svgGridGroup,
+            params: {
+              locked: true,
+              hidden: true
+            }
+          }
+        };
       }
-    },
-    dragging: function dragging() {
-      return this.params.drag.enabled;
-    },
-    panning: function panning() {
-      return this.params.pan.enabled;
-    },
-    drawing: function drawing() {
-      return this.params.draw.newShape;
-    },
-    setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
-      var oldCurrentLayer = document.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
-      oldCurrentLayer.classList.remove("highlight");
-      var newCurrentLayer = document.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
-      newCurrentLayer.classList.add("highlight");
-      Canvas.params.currentLayer = newCurrentLayerID;
-    },
-    getEnabledLayers: function getEnabledLayers() {
-      return Object.values(this.layers).filter(function (layer) {
-        return layer.params.enabled;
-      });
-    },
-    layerID2Key: function layerID2Key(id) {
-      return id.startsWith("svg-") ? id.substring(4, id.lastIndexOf("-")) : id.substring(0, id.lastIndexOf("-"));
-    },
-    layerKey2ID: function layerKey2ID(key) {
-      return "".concat(key, "-group");
-    },
-    setFocusedShape: function setFocusedShape(shape) {
-      this.params.focusedShape = shape;
-    },
-    data: {
-      question: "",
-      answer: ""
-    }
-  };
+    };
+    Obj.makeLayers();
+    return Obj;
+  }();
+
+  function clearLayers() {
+    Canvas.layers.question.clearSidebar(false);
+    Canvas.layers.answer.clearSidebar(false);
+    updateGrid();
+  }
   /******************************
    * EVENT LISTENERS DEFINITION *
    ******************************/
+
 
   var eventListenerSettings = [{
     element: window,
@@ -6917,7 +6986,9 @@ window.initDrawingQuestion = function () {
         callback: function callback(evt) {
           var targetHeader = evt.target;
           var newCurrentLayerID = targetHeader.closest(".layer-group").id;
-          Canvas.setCurrentLayer(Canvas.layerID2Key(newCurrentLayerID));
+          debugger;
+
+          _this2.Canvas.setCurrentLayer(_this2.Canvas.layerID2Key(newCurrentLayerID));
         }
       }
     }
@@ -8194,10 +8265,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 var sidebarComponent = /*#__PURE__*/function () {
-  function sidebarComponent(drawingApp) {
+  function sidebarComponent(drawingApp, Canvas) {
     _classCallCheck(this, sidebarComponent);
 
     this.drawingApp = drawingApp;
+    this.Canvas = Canvas;
   }
 
   _createClass(sidebarComponent, [{
@@ -8222,12 +8294,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
   var _super = _createSuper(Entry);
 
-  function Entry(shape, drawingApp) {
+  function Entry(shape, drawingApp, Canvas) {
     var _this;
 
     _classCallCheck(this, Entry);
 
-    _this = _super.call(this, drawingApp);
+    _this = _super.call(this, drawingApp, Canvas);
     _this.svgShape = shape;
     var entryTemplate = document.getElementById("shape-group-template");
     var templateCopy = entryTemplate.content.cloneNode(true);
@@ -8406,6 +8478,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   /**
    *
    * @param {Object.<string, boolean|number|string|{}>} props
+   * @param drawingApp
+   * @param Canvas
    * @param {string} props.name
    * @param {string} props.id
    * @param {boolean} props.enabled
@@ -8415,10 +8489,11 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
 
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     var drawingApp = arguments.length > 1 ? arguments[1] : undefined;
+    var Canvas = arguments.length > 2 ? arguments[2] : undefined;
 
     _classCallCheck(this, Layer);
 
-    _this3 = _super2.call(this, drawingApp);
+    _this3 = _super2.call(this, drawingApp, Canvas);
     _this3.params = {
       hidden: false,
       locked: false
@@ -8503,11 +8578,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
         events: {
           "click": {
             callback: function callback() {
-              if (_this4.isEmpty()) return;
-              if (!confirm("Alle vormen op deze laag (".concat(_this4.props.name, ") verwijderen?"))) return;
-              Object.values(_this4.shapes).forEach(function (shape) {
-                shape.sidebar.remove();
-              });
+              _this4.clearSidebar();
             }
           }
         }
@@ -8525,13 +8596,16 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
               }
 
               var oldLayer = draggedEntry.closest(".layer-group");
-              var oldGroupKey = Canvas.layerID2Key(oldLayer.id);
+
+              var oldGroupKey = _this4.Canvas.layerID2Key(oldLayer.id);
+
               var newLayer = _this4.sidebar;
-              var newGroupKey = Canvas.layerID2Key(newLayer.id);
+
+              var newGroupKey = _this4.Canvas.layerID2Key(newLayer.id);
 
               if (newGroupKey !== oldGroupKey) {
                 var shapeID = draggedEntry.id.substring(6);
-                Canvas.layers[newGroupKey].shapes[shapeID] = Canvas.layers[oldGroupKey].shapes[shapeID]; // delete Canvas.layers[oldGroupKey].shapes[shapeID];
+                _this4.Canvas.layers[newGroupKey].shapes[shapeID] = _this4.Canvas.layers[oldGroupKey].shapes[shapeID]; // delete Canvas.layers[oldGroupKey].shapes[shapeID];
               }
 
               var entryToInsertBefore = _this4.getEntryToInsertBefore(_this4.sidebar, evt.clientY).entry;
@@ -8589,6 +8663,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "addEventListenerOnHeader",
     value: function addEventListenerOnHeader() {
+      var _this5 = this;
+
       var settings = [{
         element: this.header,
         events: {
@@ -8596,7 +8672,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
             callback: function callback(evt) {
               var targetHeader = evt.target;
               var newCurrentLayerID = targetHeader.closest(".layer-group").id;
-              Canvas.setCurrentLayer(Canvas.layerID2Key(newCurrentLayerID));
+
+              _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
             }
           }
         }
@@ -8690,6 +8767,20 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       if (this.isHidden()) {
         this.unhide();
       }
+    }
+  }, {
+    key: "clearSidebar",
+    value: function clearSidebar() {
+      var withWarning = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      if (this.isEmpty()) return;
+
+      if (withWarning) {
+        if (!confirm("Alle vormen op deze laag (".concat(this.props.name, ") verwijderen?"))) return;
+      }
+
+      Object.values(this.shapes).forEach(function (shape) {
+        shape.sidebar.remove();
+      });
     }
   }]);
 
@@ -9606,6 +9697,10 @@ var svgShape = /*#__PURE__*/function () {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
   function svgShape(shapeId, type, props, parent, drawingApp, Canvas) {
     var _this = this;
@@ -9816,7 +9911,7 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "isHidden",
     value: function isHidden() {
-      return this.shapeGroup.element.style.display == "none";
+      return this.shapeGroup.element.style.display === "none";
     }
   }, {
     key: "remove",
@@ -9933,6 +10028,10 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
   function Rectangle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Rectangle);
@@ -9954,6 +10053,7 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
    * @param drawingApp
+   * @param Canvas
    * @param withHelperElements
    * @param withHighlightEvents
    */
@@ -9976,6 +10076,10 @@ var Line = /*#__PURE__*/function (_svgShape3) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
   function Line(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this3;
@@ -10043,6 +10147,10 @@ var Text = /*#__PURE__*/function (_svgShape4) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
   function Text(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this4;
@@ -10061,7 +10169,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     value: function onDrawEndShapeSpecific(evt, cursor) {
       var _this5 = this;
 
-      var windowCursor = drawingApp.convertCanvas2DomCoordinates(cursor);
+      var windowCursor = this.drawingApp.convertCanvas2DomCoordinates(cursor);
       var canvasContainer = document.getElementById("svg-canvas").parentElement;
       var fontSize = parseFloat(this.mainElement.element.style.fontSize);
       var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {
@@ -10105,6 +10213,10 @@ var Image = /*#__PURE__*/function (_svgShape5) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
   function Image(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Image);
@@ -10125,6 +10237,10 @@ var Path = /*#__PURE__*/function (_svgShape6) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
   function Path(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Path);
@@ -10145,6 +10261,8 @@ var Grid = /*#__PURE__*/function (_Path) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {HTMLElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
    */
   function Grid(shapeId, props, parent, drawingApp, Canvas) {
     var _this6;
@@ -10184,7 +10302,7 @@ var Grid = /*#__PURE__*/function (_Path) {
   }, {
     key: "update",
     value: function update() {
-      var size = drawingApp.params.gridSize;
+      var size = this.drawingApp.params.gridSize;
       this.setDAttributes(this.calculateDAttributeForGrid(size), this.calculateDAttributeForOrigin(size));
     }
   }, {
@@ -10245,6 +10363,10 @@ var Freehand = /*#__PURE__*/function (_Path2) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
   function Freehand(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this7;

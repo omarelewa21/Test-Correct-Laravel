@@ -178,6 +178,7 @@ class OpenShort extends Component
             'updated-attainment'    => 'handleAttainment',
             'new-video-attachment'  => 'handleNewVideoAttachment',
             'drawing_data_updated'  => 'handleUpdateDrawingData',
+            'refresh' => 'render',
         ];
     }
     public function handleUpdateDrawingData($data){

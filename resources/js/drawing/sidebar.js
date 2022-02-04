@@ -1,8 +1,9 @@
 import {nameInSidebarEntryForShape} from "./constants.js";
 
 class sidebarComponent {
-    constructor(drawingApp) {
+    constructor(drawingApp, Canvas) {
         this.drawingApp = drawingApp;
+        this.Canvas = Canvas;
     }
     showFirstIcon(element) {
         element.querySelectorAll("svg")[0].style.display = "block";
@@ -17,8 +18,8 @@ class sidebarComponent {
 }
 
 export class Entry extends sidebarComponent {
-    constructor(shape, drawingApp) {
-        super(drawingApp);
+    constructor(shape, drawingApp, Canvas) {
+        super(drawingApp, Canvas);
         this.svgShape = shape;
         let entryTemplate = document.getElementById("shape-group-template");
         const templateCopy = entryTemplate.content.cloneNode(true);
@@ -178,12 +179,14 @@ export class Layer extends sidebarComponent {
     /**
      *
      * @param {Object.<string, boolean|number|string|{}>} props
+     * @param drawingApp
+     * @param Canvas
      * @param {string} props.name
      * @param {string} props.id
      * @param {boolean} props.enabled
      */
-    constructor(props = {}, drawingApp) {
-        super(drawingApp);
+    constructor(props = {}, drawingApp, Canvas) {
+        super(drawingApp, Canvas);
         this.params = {
             hidden: false,
             locked: false,
@@ -265,11 +268,7 @@ export class Layer extends sidebarComponent {
                 events: {
                     "click": {
                         callback: () => {
-                            if (this.isEmpty()) return;
-                            if (!confirm(`Alle vormen op deze laag (${this.props.name}) verwijderen?`)) return;
-                            Object.values(this.shapes).forEach((shape) => {
-                                shape.sidebar.remove();
-                            });
+                            this.clearSidebar();
                         },
                     },
                 }
@@ -286,13 +285,13 @@ export class Layer extends sidebarComponent {
                                 return;
                             }
                             const oldLayer = draggedEntry.closest(".layer-group");
-                            const oldGroupKey = Canvas.layerID2Key(oldLayer.id);
+                            const oldGroupKey = this.Canvas.layerID2Key(oldLayer.id);
                             const newLayer = this.sidebar;
-                            const newGroupKey = Canvas.layerID2Key(newLayer.id);
+                            const newGroupKey = this.Canvas.layerID2Key(newLayer.id);
                             if (newGroupKey !== oldGroupKey) {
                                 const shapeID = draggedEntry.id.substring(6);
-                                Canvas.layers[newGroupKey].shapes[shapeID] =
-                                    Canvas.layers[oldGroupKey].shapes[shapeID];
+                                this.Canvas.layers[newGroupKey].shapes[shapeID] =
+                                    this.Canvas.layers[oldGroupKey].shapes[shapeID];
                                 // delete Canvas.layers[oldGroupKey].shapes[shapeID];
                             }
 
@@ -350,8 +349,7 @@ export class Layer extends sidebarComponent {
                         callback: (evt) => {
                             const targetHeader = evt.target;
                             const newCurrentLayerID = targetHeader.closest(".layer-group").id;
-
-                            Canvas.setCurrentLayer(Canvas.layerID2Key(newCurrentLayerID));
+                            this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                         }
                     },
                 }
@@ -429,5 +427,15 @@ export class Layer extends sidebarComponent {
         if(this.isHidden()) {
             this.unhide();
         }
+    }
+
+    clearSidebar(withWarning = true) {
+        if (this.isEmpty()) return;
+        if (withWarning) {
+            if (!confirm(`Alle vormen op deze laag (${this.props.name}) verwijderen?`)) return;
+        }
+        Object.values(this.shapes).forEach((shape) => {
+            shape.sidebar.remove();
+        });
     }
 }

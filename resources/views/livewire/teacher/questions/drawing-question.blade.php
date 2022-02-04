@@ -8,12 +8,15 @@
 @endsection
 
 @section('question-cms-answer')
-    <div x-data="{
-                show: false,
-                answerSvg: @entangle('question.answer_svg'),
-                questionSvg: @entangle('question.question_svg'),
-                gridSvg: @entangle('question.grid_svg')
-            }"
+    <div x-data="drawingTool(
+                1,
+                 {
+                     answerSvg: @entangle('question.answer_svg'),
+                     questionSvg: @entangle('question.question_svg'),
+                     gridSvg: @entangle('question.grid_svg')
+                 },
+                 true
+             )"
     >
         <div class="flex mb-4 space-x-4">
             <x-input.toggle-row-with-title wire:model="question.all_or_nothing"

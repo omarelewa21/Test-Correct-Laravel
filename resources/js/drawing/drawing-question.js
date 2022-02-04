@@ -61,6 +61,7 @@ window.initDrawingQuestion = function () {
                     }
 
                     processGridToggleChange();
+                    clearLayers();
                     retrieveSavedDrawingData();
 
                     Canvas.setCurrentLayer(Canvas.params.currentLayer);
@@ -138,92 +139,107 @@ window.initDrawingQuestion = function () {
     /**
      * Global Object containing all parameters, Shapes and corresponding sidebarEntries.
      */
-    let Canvas = {
-        params: {
-            cursorPosition: {x: 0, y: 0},
-            currentLayer: "question",
-            focusedShape: null,
-            bounds: {},
-            draw: {
-                newShape: null,
-                shapeCountForEachType: {
-                    rect: 0,
-                    circle: 0,
-                    line: 0,
-                    text: 0,
-                    image: 0,
-                    path: 0,
-                    freehand: 0,
+    let Canvas = (function() {
+        let Obj = {
+            params: {
+                cursorPosition: {x: 0, y: 0},
+                currentLayer: "question",
+                focusedShape: null,
+                bounds: {},
+                draw: {
+                    newShape: null,
+                    shapeCountForEachType: {
+                        rect: 0,
+                        circle: 0,
+                        line: 0,
+                        text: 0,
+                        image: 0,
+                        path: 0,
+                        freehand: 0,
+                    },
                 },
-            },
-            drag: {
-                enabled: false,
-                translateOfSvgShape: null,
-                offsetCursorToMidPoint: null,
-            },
-            pan: {
-                enabled: false,
-                startCoordinates: {x: 0, y: 0},
-            },
-            domMatrix: new DOMMatrix(),
-            zoomFactor: 1,
-        },
-        element: UI.svgCanvas,
-        layers: {
-            "question": new sidebar.Layer({
-                name: "Vraag",
-                id: "question-group",
-                enabled: true,
-            }, drawingApp),
-            "answer": new sidebar.Layer({
-                name: "Antwoord",
-                id: "answer-group",
-                enabled: false,
-            }, drawingApp),
-            "grid": {
-                svg: UI.svgGridGroup,
-                params: {
-                    locked: true,
-                    hidden: true,
+                drag: {
+                    enabled: false,
+                    translateOfSvgShape: null,
+                    offsetCursorToMidPoint: null,
                 },
+                pan: {
+                    enabled: false,
+                    startCoordinates: {x: 0, y: 0},
+                },
+                domMatrix: new DOMMatrix(),
+                zoomFactor: 1,
             },
-        },
-        dragging() {
-            return this.params.drag.enabled
-        },
-        panning() {
-            return this.params.pan.enabled
-        },
-        drawing() {
-            return this.params.draw.newShape
-        },
-        setCurrentLayer(newCurrentLayerID) {
-            const oldCurrentLayer = document.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
-            oldCurrentLayer.classList.remove("highlight");
+            element: UI.svgCanvas,
+            layers: {},
+            dragging() {
+                return this.params.drag.enabled
+            },
+            panning() {
+                return this.params.pan.enabled
+            },
+            drawing() {
+                return this.params.draw.newShape
+            },
+            setCurrentLayer(newCurrentLayerID) {
+                const oldCurrentLayer = document.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
+                oldCurrentLayer.classList.remove("highlight");
 
-            const newCurrentLayer = document.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
-            newCurrentLayer.classList.add("highlight");
-            Canvas.params.currentLayer = newCurrentLayerID;
-        },
-        getEnabledLayers() {
-            return Object.values(this.layers).filter((layer) => {
-                return layer.params.enabled
-            });
-        },
-        layerID2Key(id) {
-            return (id.startsWith("svg-") ? id.substring(4, id.lastIndexOf("-")) : id.substring(0, id.lastIndexOf("-")));
-        },
-        layerKey2ID(key) {
-            return `${key}-group`;
-        },
-        setFocusedShape(shape) {
-            this.params.focusedShape = shape;
-        },
-        data: {
-            question: "",
-            answer: "",
-        },
-    };
+                const newCurrentLayer = document.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
+                newCurrentLayer.classList.add("highlight");
+                Canvas.params.currentLayer = newCurrentLayerID;
+            },
+            getEnabledLayers() {
+                return Object.values(this.layers).filter((layer) => {
+                    return layer.params.enabled
+                });
+            },
+            layerID2Key(id) {
+                return (id.startsWith("svg-") ? id.substring(4, id.lastIndexOf("-")) : id.substring(0, id.lastIndexOf("-")));
+            },
+            layerKey2ID(key) {
+                return `${key}-group`;
+            },
+            setFocusedShape(shape) {
+                this.params.focusedShape = shape;
+            },
+            data: {
+                question: "",
+                answer: "",
+            },
+            makeLayers() {
+                this.layers = {
+                    "question": new sidebar.Layer({
+                        name: "Vraag",
+                        id: "question-group",
+                        enabled: true,
+                    }, drawingApp, this),
+                    "answer": new sidebar.Layer({
+                        name: "Antwoord",
+                        id: "answer-group",
+                        enabled: false,
+                    }, drawingApp, this),
+                    "grid": {
+                        svg: UI.svgGridGroup,
+                        params: {
+                            locked: true,
+                            hidden: true,
+                        },
+                    },
+                }
+            }
+        }
+
+        Obj.makeLayers();
+        return Obj;
+    })();
+
+
+    function clearLayers() {
+        Canvas.layers.question.clearSidebar(false);
+        Canvas.layers.answer.clearSidebar(false);
+        updateGrid();
+    }
 
     /******************************
      * EVENT LISTENERS DEFINITION *
@@ -562,8 +578,7 @@ window.initDrawingQuestion = function () {
                     callback: (evt) => {
                         const targetHeader = evt.target;
                         const newCurrentLayerID = targetHeader.closest(".layer-group").id;
-
-                        Canvas.setCurrentLayer(Canvas.layerID2Key(newCurrentLayerID));
+                        this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                     }
                 },
             }
@@ -580,8 +595,7 @@ window.initDrawingQuestion = function () {
             element: UI.exitBtn,
             events: {
                 "click": {
-                    callback: () => {
-                    }
+                    callback: () => {},
                 }
             }
         }
