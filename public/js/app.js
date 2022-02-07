@@ -6247,42 +6247,43 @@ function isMakingTest() {
 }
 
 function catchscreenshotchromeOS() {
-  //  if(Core.isChromebook()) {
-  var safeKeys = ['c', 'x', 'z', 'y', 'v', '0'];
-  var storeKeys = [];
-  window.addEventListener("keydown", function (event) {
-    if (event.ctrlKey && !event.repeat) {
-      storeKeys.push(event.key);
-    }
-  });
-  window.addEventListener("keyup", function (event) {
-    if (event.key == "Control") {
-      var _iterator = _createForOfIteratorHelper(storeKeys),
-          _step;
+  if (Core.isChromebook()) {
+    var safeKeys = ['c', 'x', 'z', 'y', 'v', '0'];
+    var storeKeys = [];
+    window.addEventListener("keydown", function (event) {
+      if (event.ctrlKey && !event.repeat) {
+        storeKeys.push(event.key);
+      }
+    });
+    window.addEventListener("keyup", function (event) {
+      if (event.key == "Control") {
+        var _iterator = _createForOfIteratorHelper(storeKeys),
+            _step;
 
-      try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          key = _step.value;
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            key = _step.value;
 
-          if (!safeKeys.includes(key.toLowerCase()) && key != "Control") {
-            Core.lostFocus('printscreen'); //massage to teacher needs to added
+            if (!safeKeys.includes(key.toLowerCase()) && key != "Control") {
+              Core.lostFocus('printscreen'); //massage to teacher needs to added
 
-            break;
+              break;
+            }
           }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
         }
-      } catch (err) {
-        _iterator.e(err);
-      } finally {
-        _iterator.f();
-      }
 
-      if (storeKeys.length == 1 & storeKeys[0] == "Control") {
-        Core.lostFocus('printscreen'); //massage to teacher needs to added
-      }
+        if (storeKeys.length == 1 & storeKeys[0] == "Control") {
+          Core.lostFocus('printscreen'); //massage to teacher needs to added
+        }
 
-      storeKeys = [];
-    }
-  }); // }    
+        storeKeys = [];
+      }
+    });
+  }
 }
 
 /***/ }),
