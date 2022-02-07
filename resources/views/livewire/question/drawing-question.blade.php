@@ -32,7 +32,17 @@
                 @include('components.question.drawing-modal', ['drawing' => $question->answer])
             </div>
         </div>
-        <div x-data="{ show: false, answerSvg: @entangle('question.answer_svg') , questionSvg: @entangle('question.question_svg'), gridSvg: @entangle('question.grid_svg')}">
+        <div x-data="
+        drawingTool(
+                1,
+                 {
+                     answerSvg: @entangle('answer_svg'),
+                     questionSvg: @entangle('question_svg'),
+                     gridSvg: @entangle('grid_svg')
+                },
+                false
+            )
+        ">
             <x-button.primary @click="show = !show" >
                 Antwoordmodel tekenen (nieuwe speler)
             </x-button.primary>

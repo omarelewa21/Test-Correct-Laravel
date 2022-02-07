@@ -5695,7 +5695,11 @@ document.addEventListener('alpine:init', function () {
 
         window['drawingTool_' + questionId] = initDrawingQuestion();
         var toolName = window['drawingTool_' + questionId];
-        this.makeGridIfNecessary();
+
+        if (this.isTeacher) {
+          this.makeGridIfNecessary();
+        }
+
         this.$watch('show', function (show) {
           if (show) {
             toolName.Canvas.data.answer = _this5.answerSvg;
@@ -5708,11 +5712,8 @@ document.addEventListener('alpine:init', function () {
             Livewire.emit('refresh');
           }
         });
-
-        if (this.isTeacher) {
-          toolName.Canvas.layers.answer.enable();
-          toolName.Canvas.setCurrentLayer("answer");
-        }
+        toolName.Canvas.layers.answer.enable();
+        toolName.Canvas.setCurrentLayer("answer");
       },
       handleGrid: function handleGrid(toolName) {
         if (this.gridSvg !== '0.00') {

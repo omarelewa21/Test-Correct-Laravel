@@ -218,7 +218,9 @@ document.addEventListener('alpine:init', () => {
             window['drawingTool_' + questionId] = initDrawingQuestion();
             const toolName = window['drawingTool_' + questionId];
 
-            this.makeGridIfNecessary();
+            if(this.isTeacher) {
+                this.makeGridIfNecessary();
+            }
 
             this.$watch('show', show => {
                 if (show) {
@@ -233,10 +235,8 @@ document.addEventListener('alpine:init', () => {
                 }
             })
 
-            if (this.isTeacher) {
-                toolName.Canvas.layers.answer.enable();
-                toolName.Canvas.setCurrentLayer("answer");
-            }
+            toolName.Canvas.layers.answer.enable();
+            toolName.Canvas.setCurrentLayer("answer");
         },
         handleGrid(toolName) {
             if (this.gridSvg !== '0.00') {

@@ -32,6 +32,10 @@ class DrawingQuestion extends Component
 
     public $backgroundImage = null;
 
+    public $answer_svg = null;
+    public $question_svg = null;
+    public $grid_svg = '0.00';
+
     protected function getListeners()
     {
         return [
@@ -51,6 +55,7 @@ class DrawingQuestion extends Component
             $this->additionalText = json_decode($answer->json)->additional_text;
         }
 
+        $this->question_svg = $this->question->question_svg;
         $this->backgroundImage = $this->question->getBackgroundImage();
     }
 
