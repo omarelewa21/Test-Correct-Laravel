@@ -8405,14 +8405,14 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
   }, {
     key: "updateDraggedElementPosition",
     value: function updateDraggedElementPosition(evt) {
-      var _evt$currentTarget$ne;
+      var _evt$currentTarget$pr;
 
       var entry = evt.currentTarget;
       entry.classList.remove("dragging");
       var newLayerId = entry.closest(".layer-group").id;
       var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
       var shape = document.getElementById(entry.id.substring(6));
-      var shapeToInsertBefore = document.getElementById((_evt$currentTarget$ne = evt.currentTarget.nextElementSibling) === null || _evt$currentTarget$ne === void 0 ? void 0 : _evt$currentTarget$ne.id.substring(6));
+      var shapeToInsertBefore = document.getElementById((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6));
 
       if (shapeToInsertBefore) {
         newSvgLayer.insertBefore(shape, shapeToInsertBefore);

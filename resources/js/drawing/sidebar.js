@@ -119,7 +119,7 @@ export class Entry extends sidebarComponent {
         let newSvgLayer = document.getElementById(`svg-${newLayerId}`);
         let shape = document.getElementById(entry.id.substring(6));
         let shapeToInsertBefore = document.getElementById(
-            evt.currentTarget.nextElementSibling?.id.substring(6)
+            evt.currentTarget.previousElementSibling?.id.substring(6)
         );
         if (shapeToInsertBefore) {
             newSvgLayer.insertBefore(shape, shapeToInsertBefore);
