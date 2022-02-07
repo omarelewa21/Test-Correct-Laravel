@@ -1430,7 +1430,7 @@ window.initDrawingQuestion = function () {
             },
             main: {},
             origin: {
-                stroke: "var(--teacher-Primary)",
+                stroke: "var(--all-BlueGrey)",
                 id: "grid-origin",
             },
             size: (drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize),
