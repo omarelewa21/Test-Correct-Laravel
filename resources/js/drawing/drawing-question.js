@@ -839,12 +839,14 @@ window.initDrawingQuestion = function () {
     function submitDrawingData() {
         // parent.skip = true;
         const b64Strings = encodeSvgLayersAsBase64Strings();
-
+        const grid = (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString();
         Livewire.emit("drawing_data_updated", {
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
-            svg_grid: (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString()
+            svg_grid: grid
         });
+
+        makePreviewGrid(grid);
     }
 
     /**
@@ -1612,7 +1614,16 @@ window.initDrawingQuestion = function () {
 
 }
 
+function clearPreviewGrid() {
+    const gridContainer = document.getElementById('grid-preview-svg')
+    if(gridContainer.firstChild !== null) {
+        gridContainer.firstChild.remove();
+    }
+}
+
 window.makePreviewGrid = function (gridSvg) {
+    clearPreviewGrid();
+
     const props = {
         group: {
             style: "",

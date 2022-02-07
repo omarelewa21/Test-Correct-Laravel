@@ -5695,11 +5695,7 @@ document.addEventListener('alpine:init', function () {
 
         window['drawingTool_' + questionId] = initDrawingQuestion();
         var toolName = window['drawingTool_' + questionId];
-
-        if (this.gridSvg !== '') {
-          makePreviewGrid(this.gridSvg);
-        }
-
+        this.makeGridIfNecessary();
         this.$watch('show', function (show) {
           if (show) {
             toolName.Canvas.data.answer = _this5.answerSvg;
@@ -5721,7 +5717,6 @@ document.addEventListener('alpine:init', function () {
       handleGrid: function handleGrid(toolName) {
         if (this.gridSvg !== '0.00') {
           var parsedGrid = parseFloat(this.gridSvg);
-          console.log(parsedGrid);
 
           if (toolName.drawingApp.isTeacher()) {
             toolName.UI.gridSize.value = parsedGrid;
@@ -5730,6 +5725,11 @@ document.addEventListener('alpine:init', function () {
             toolName.drawingApp.params.gridSize = parsedGrid;
             toolName.Canvas.layers.grid.params.hidden = false;
           }
+        }
+      },
+      makeGridIfNecessary: function makeGridIfNecessary() {
+        if (this.gridSvg !== '') {
+          makePreviewGrid(this.gridSvg);
         }
       }
     };
@@ -6986,7 +6986,6 @@ window.initDrawingQuestion = function () {
         callback: function callback(evt) {
           var targetHeader = evt.target;
           var newCurrentLayerID = targetHeader.closest(".layer-group").id;
-          debugger;
 
           _this2.Canvas.setCurrentLayer(_this2.Canvas.layerID2Key(newCurrentLayerID));
         }
@@ -7256,11 +7255,13 @@ window.initDrawingQuestion = function () {
   function submitDrawingData() {
     // parent.skip = true;
     var b64Strings = encodeSvgLayersAsBase64Strings();
+    var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
     Livewire.emit("drawing_data_updated", {
       svg_answer: b64Strings.answer,
       svg_question: b64Strings.question,
-      svg_grid: Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString()
+      svg_grid: grid
     });
+    makePreviewGrid(grid);
   }
   /**
    * Event handler for down events of the cursor.
@@ -8077,7 +8078,16 @@ window.initDrawingQuestion = function () {
   };
 };
 
+function clearPreviewGrid() {
+  var gridContainer = document.getElementById('grid-preview-svg');
+
+  if (gridContainer.firstChild !== null) {
+    gridContainer.firstChild.remove();
+  }
+}
+
 window.makePreviewGrid = function (gridSvg) {
+  clearPreviewGrid();
   var props = {
     group: {
       style: ""
@@ -8340,21 +8350,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           },
           "dragend": {
             callback: function callback(evt) {
-              var _evt$currentTarget$ne;
-
-              var entry = evt.currentTarget;
-              entry.classList.remove("dragging");
-              var newLayerId = entry.closest(".layer-group").id;
-              var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
-              var shape = document.getElementById(entry.id.substring(6));
-              var shapeToInsertBefore = document.getElementById((_evt$currentTarget$ne = evt.currentTarget.nextElementSibling) === null || _evt$currentTarget$ne === void 0 ? void 0 : _evt$currentTarget$ne.id.substring(6));
-
-              if (shapeToInsertBefore) {
-                newSvgLayer.insertBefore(shape, shapeToInsertBefore);
-                return;
-              }
-
-              newSvgLayer.appendChild(shape);
+              _this2.updateDraggedElementPosition(evt);
             }
           },
           "mouseenter touchstart": {
@@ -8405,6 +8401,25 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           }
         }
       }];
+    }
+  }, {
+    key: "updateDraggedElementPosition",
+    value: function updateDraggedElementPosition(evt) {
+      var _evt$currentTarget$ne;
+
+      var entry = evt.currentTarget;
+      entry.classList.remove("dragging");
+      var newLayerId = entry.closest(".layer-group").id;
+      var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
+      var shape = document.getElementById(entry.id.substring(6));
+      var shapeToInsertBefore = document.getElementById((_evt$currentTarget$ne = evt.currentTarget.nextElementSibling) === null || _evt$currentTarget$ne === void 0 ? void 0 : _evt$currentTarget$ne.id.substring(6));
+
+      if (shapeToInsertBefore) {
+        newSvgLayer.insertBefore(shape, shapeToInsertBefore);
+        return;
+      }
+
+      newSvgLayer.appendChild(shape);
     }
   }, {
     key: "highlight",

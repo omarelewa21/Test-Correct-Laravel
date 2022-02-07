@@ -58,20 +58,7 @@ export class Entry extends sidebarComponent {
                     },
                     "dragend": {
                         callback: (evt) => {
-                            let entry = evt.currentTarget;
-                            entry.classList.remove("dragging");
-
-                            let newLayerId = entry.closest(".layer-group").id;
-                            let newSvgLayer = document.getElementById(`svg-${newLayerId}`);
-                            let shape = document.getElementById(entry.id.substring(6));
-                            let shapeToInsertBefore = document.getElementById(
-                                evt.currentTarget.nextElementSibling?.id.substring(6)
-                            );
-                            if (shapeToInsertBefore) {
-                                newSvgLayer.insertBefore(shape, shapeToInsertBefore);
-                                return;
-                            }
-                            newSvgLayer.appendChild(shape);
+                            this.updateDraggedElementPosition(evt);
                         },
                     },
                     "mouseenter touchstart": {
@@ -122,6 +109,23 @@ export class Entry extends sidebarComponent {
                 },
             },
         ];
+    }
+
+    updateDraggedElementPosition(evt) {
+        let entry = evt.currentTarget;
+        entry.classList.remove("dragging");
+
+        let newLayerId = entry.closest(".layer-group").id;
+        let newSvgLayer = document.getElementById(`svg-${newLayerId}`);
+        let shape = document.getElementById(entry.id.substring(6));
+        let shapeToInsertBefore = document.getElementById(
+            evt.currentTarget.nextElementSibling?.id.substring(6)
+        );
+        if (shapeToInsertBefore) {
+            newSvgLayer.insertBefore(shape, shapeToInsertBefore);
+            return;
+        }
+        newSvgLayer.appendChild(shape);
     }
 
     highlight() {

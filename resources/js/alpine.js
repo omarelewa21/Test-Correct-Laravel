@@ -218,9 +218,7 @@ document.addEventListener('alpine:init', () => {
             window['drawingTool_' + questionId] = initDrawingQuestion();
             const toolName = window['drawingTool_' + questionId];
 
-            if (this.gridSvg !== '') {
-                makePreviewGrid(this.gridSvg);
-            }
+            this.makeGridIfNecessary();
 
             this.$watch('show', show => {
                 if (show) {
@@ -243,7 +241,6 @@ document.addEventListener('alpine:init', () => {
         handleGrid(toolName) {
             if (this.gridSvg !== '0.00') {
                 let parsedGrid = parseFloat(this.gridSvg);
-                console.log(parsedGrid);
                 if (toolName.drawingApp.isTeacher()) {
                     toolName.UI.gridSize.value = parsedGrid;
                     toolName.UI.gridToggle.checked = true;
@@ -251,6 +248,11 @@ document.addEventListener('alpine:init', () => {
                     toolName.drawingApp.params.gridSize = parsedGrid;
                     toolName.Canvas.layers.grid.params.hidden = false;
                 }
+            }
+        },
+        makeGridIfNecessary() {
+            if (this.gridSvg !== '') {
+                makePreviewGrid(this.gridSvg);
             }
         }
     }));
