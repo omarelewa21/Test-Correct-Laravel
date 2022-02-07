@@ -421,7 +421,9 @@ export class Text extends svgShape {
                 left: ${windowCursor.x - 2}px;\
                 font-size: ${fontSize}px;\
                 color: ${this.mainElement.getAttribute("fill")};\
-                font-weight: ${this.mainElement.element.style.fontWeight || "normal"};`,
+                font-weight: ${this.mainElement.element.style.fontWeight || "normal"};\
+                transform-origin: bottom left;\
+                transform: scale(${this.Canvas.params.zoomFactor})`,
             autocomplete: "off",
             spellcheck: "false",
         });
