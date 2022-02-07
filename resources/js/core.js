@@ -133,24 +133,29 @@ Core = {
         Core.closeApplication('close');
     },
     closeChromebookApp(portalUrl) {
+        try {
+            chrome.runtime.sendMessage(
+                document.getElementById("chromeos-extension-id").name,
+                { close: true }
+            );
+        } catch (error) {}
         window.location = portalUrl+'logout';
     },
     closeApplication(cmd) {
+        try {
+            chrome.runtime.sendMessage(
+                document.getElementById("chromeos-extension-id").name,
+                { close: true }
+            );
+        } catch (error) {}
         if (cmd == 'quit') {
             open('/login', '_self').close();
         } else if (cmd == 'close') {
             try {
-				chrome.runtime.sendMessage(
-					document.getElementById("chromeos-extension-id").name,
-					{ close: true }
-				);
-			} catch {
-				try {
-					electron.closeApp();
-				} catch (error) {
-					window.close();
-				}
-			}
+                electron.closeApp();
+            } catch (error) {
+                window.close();
+            }
         }
         return false;
     },

@@ -6126,9 +6126,21 @@ Core = {
     Core.closeApplication('close');
   },
   closeChromebookApp: function closeChromebookApp(portalUrl) {
+    try {
+        chrome.runtime.sendMessage(
+            document.getElementById("chromeos-extension-id").name,
+            { close: true }
+        );
+    } catch (error) {}
     window.location = portalUrl + 'logout';
   },
   closeApplication: function closeApplication(cmd) {
+    try {
+      chrome.runtime.sendMessage(
+        document.getElementById("chromeos-extension-id").name,
+        { close: true }
+      );
+    } catch (error) {}
     if (cmd == 'quit') {
       open('/login', '_self').close();
     } else if (cmd == 'close') {
