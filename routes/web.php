@@ -15,14 +15,7 @@ use tcCore\Mail\PasswordChanged;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/preview_password_changed_mail', function () {
-    $user = tcCore\User::find(1483);
-    return new tcCore\Mail\PasswordChanged($user);
-});
-Route::get('/preview_password_changed_self_mail', function () {
-    $user = tcCore\User::find(1483);
-    return new tcCore\Mail\PasswordChangedSelf($user);
-});
+
 Route::get('/onboarding', tcCore\Http\Livewire\Onboarding::class)->name('onboarding.welcome');
 Route::get('/user/confirm_email/{EmailConfirmation}', [tcCore\Http\Controllers\UsersController::class, 'confirmEmail']);
 Route::get('/inv/{shortcode}', [tcCore\Http\Controllers\Api\ShortcodeController::class, 'registerClickAndRedirect']);
@@ -82,6 +75,14 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['dll', 'teacher'])->prefix('cms')->name('cms.')->group(function () {
         Route::post('/ckeditor_upload/{type}', [tcCore\Http\Controllers\CkeditorImageController::class, 'store'])->name('upload');
         Route::get('/ckeditor_upload/{filename}', [tcCore\Http\Controllers\CkeditorImageController::class, 'show'])->name('upload.get');
+    });
+    Route::get('/preview_password_changed_mail', function () {
+        $user = Auth::user();
+        return new tcCore\Mail\PasswordChanged($user);
+    });
+    Route::get('/preview_password_changed_self_mail', function () {
+        $user = Auth::user();
+        return new tcCore\Mail\PasswordChangedSelf($user);
     });
 });
 Route::middleware(['guest', 'auth.temp'])->group(function () {

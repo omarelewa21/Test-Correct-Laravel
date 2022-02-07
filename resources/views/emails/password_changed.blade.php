@@ -82,3 +82,12 @@
 </td>
 </tr>
 @stop
+
+@section('support')
+    @include('emails.partials.support1')
+@stop
+
+@section('footer')
+    @include('emails.partials.footer1')
+@stop
+
