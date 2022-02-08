@@ -46,15 +46,13 @@ return [
     'Punten'                            => 'Punten',
     'Is bovenstaande vraag/stelling juist of onjuist?' => 'Is bovenstaande vraag/stelling juist of onjuist?',
     'Ranking Question Uitleg Text'      => 'De rangschikvraag heeft min. 2 items nodig om het antwoord te kunnen rangschikken. Sleep deze voor het antwoordmodel in de juiste volgorde.',
-    'Stel je te rankgschikken items op' => 'Stel je te rankgschikken items op',
-
+    'Stel je te rangschikken items op' => 'Stel je te rangschikken items op',
     'Matching Question Uitleg Text'      => 'De combineervraag heeft min. 2 items en 2 antwoordopties nodig om het antwoord te kunnen combineren. Sleep deze voor het antwoordmodel in de juiste volgorde',
     'Stel je naar te slepen items op' => 'Stel je naar te slepen items op',
     'Stel je te slepen items op'    => 'Stel je te slepen items op',
+    'Itemset toevoegen'                    => 'Itemset toevoegen',
     'Insleepvak toevoegen'                    => 'Insleepvak toevoegen',
-
     'Classify Question Uitleg Text'      => 'De rubriceervraag heeft min. 2 insleepvakken nodig en werkt het beste met max. 4.',
-
     'MultipleChoice Question Uitleg Text' => 'De meerkeuzevraag kan ook meerdere antwoorden als correct accepteren door er punten aan toe te kennen.',
     'infoscreen-question' => 'Informatiescherm',
     'selection-question' => 'Selectie vraag',
