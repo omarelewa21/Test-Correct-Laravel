@@ -15,7 +15,7 @@
     <div class="flex flex-col space-y-2 w-full mt-4"
          wire:sortable="__call('updateRankingOrder')">
         <div class="flex px-0 py-0 border-0 bg-system-white">
-            <div class="w-full mr-2">{{ __('cms.Stel je te rankgschikken items op') }}</div>
+            <div class="w-full mr-2">{{ __('cms.Stel je te rangschikken items op') }}</div>
             <div class="w-20"></div>
         </div>
         @php
