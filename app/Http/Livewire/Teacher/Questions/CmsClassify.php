@@ -179,7 +179,9 @@ class CmsClassify extends CmsBase
     {
         $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function ($answer) {
             $rights = collect($answer['rights'])->map(function($ar){
-               return $ar['answer'];
+               return trim($ar['answer']);
+            })->filter(function($answer){
+                return $answer === '';
             })->toArray();
             return [
                 'order' => $answer['order'],

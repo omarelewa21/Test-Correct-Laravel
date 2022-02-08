@@ -10,7 +10,7 @@
 @section('question-cms-answer')
 
     <div class="flex w-full mt-4">
-        {{ __('cms.Matching Question Uitleg Text') }}
+        {{ __('cms.Classify Question Uitleg Text') }}
     </div>
     <div class="grid mt-2 grid-cols-2 gap-y-4 gap-x-3.5">
         @foreach($cmsPropertyBag['answerStruct'] as $key => $subStruct)
@@ -21,10 +21,16 @@
                 if($this->__call('canDelete',$key)) {
                     $disabledMainClass = "";
                 }
+                $errorMainClass = '';
                 @endphp
+            @error('question.answers.'.$loop->index.'.left')
+            @php
+                $errorMainClass = 'border-allred'
+            @endphp
+            @enderror
                 <div>
                     <div class="flex items-center space-x-2.5">
-                        <x-input.text class="w-full mr-1 text-center relative z-10 " wire:key="left-{{$key}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.left"/>
+                        <x-input.text class="w-full mr-1 text-center relative z-10 {{ $errorMainClass }}" wire:key="left-{{$key}}" wire:model.lazy="cmsPropertyBag.answerStruct.{{$key}}.left"/>
                         <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledMainClass }}" wire:key="remove-{{$key}}" id="remove_{{ $key }}" wire:click="__call('delete','{{ $key }}')"></x-icon.remove>
                     </div>
                     <div class="w-full mt-4"
@@ -40,9 +46,11 @@
                                 $answer = (object) $answer;
                                 $errorAnswerClass = '';
                             @endphp
-                            @error('question.answers.'.$loop->index.'.answer')
+                            @error('question.answers.'.$loop->index.'.right')
                             @php
-                                $errorAnswerClass = 'border-allred'
+                                if($subStruct->rights[$loop->index]['answer'] == ''){
+                                    $errorAnswerClass = 'border-allred';
+                                }
                             @endphp
                             @enderror
                             <x-drag-item id="mc-{{ $key }}-{{$answer->id}}" sortId="{{ $key }}={{ $answer->id }}"
