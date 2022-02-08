@@ -28,11 +28,17 @@
         @foreach($cmsPropertyBag['answerStruct'] as $answer)
             @php
                 $answer = (object) $answer;
-                $errorAnswerClass = '';
+                $errorAnswerClassLeft = '';
+                $errorAnswerClassRight = '';
             @endphp
-            @error('question.answers.'.$loop->index.'.answer')
+            @error('question.answers.'.$loop->index.'.left')
             @php
-                $errorAnswerClass = 'border-allred'
+                $errorAnswerClassLeft = 'border-allred'
+            @endphp
+            @enderror
+            @error('question.answers.'.$loop->index.'.right')
+            @php
+                $errorAnswerClassRight = 'border-allred'
             @endphp
             @enderror
             <x-drag-item id="mc-{{$answer->id}}" sortId="{{ $answer->order }}"
@@ -45,8 +51,8 @@
                          :keepWidth="true"
                          sortIcon="reorder"
             >
-                <x-input.text class="w-full mr-2 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.left"/>
-                <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.right"/>
+                <x-input.text class="w-full mr-2 {{ $errorAnswerClassLeft }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.left"/>
+                <x-input.text class="w-full mr-1 {{ $errorAnswerClassRight }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.right"/>
                 <x-slot name="after">
                     <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="__call('delete','{{$answer->id}}')"></x-icon.remove>
                 </x-slot>
