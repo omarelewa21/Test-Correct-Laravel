@@ -181,7 +181,7 @@ class CmsClassify extends CmsBase
             $rights = collect($answer['rights'])->map(function($ar){
                return trim($ar['answer']);
             })->filter(function($answer){
-                return $answer === '';
+                return $answer !== '';
             })->toArray();
             return [
                 'order' => $answer['order'],

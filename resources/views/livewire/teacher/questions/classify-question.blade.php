@@ -25,7 +25,9 @@
                 @endphp
             @error('question.answers.'.$loop->index.'.left')
             @php
-                $errorMainClass = 'border-allred'
+                if($subStruct->left == ''){
+                    $errorMainClass = 'border-allred';
+                }
             @endphp
             @enderror
                 <div>
