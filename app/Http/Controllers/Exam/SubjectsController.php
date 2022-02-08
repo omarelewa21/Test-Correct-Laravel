@@ -20,7 +20,7 @@ class SubjectsController extends Controller {
 	 */
 	public function index(Request $request)
 	{
-		$subjects = Subject::citoFiltered($request->get('filter', []), $request->get('order', ['name'=>'asc']))->with('baseSubject');
+		$subjects = Subject::examFiltered($request->get('filter', []), $request->get('order', ['name'=>'asc']))->with('baseSubject');
 
 		switch(strtolower($request->get('mode', 'paginate'))) {
 			case 'all':

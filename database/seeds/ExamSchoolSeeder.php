@@ -85,7 +85,7 @@ class ExamSchoolSeeder extends Seeder
         // add a schoolYear for the current year;
         $schoolYear = (new SchoolYear);
         $schoolYear->fill([
-            'year'             => \Carbon\Carbon::now()->format(Y),
+            'year'             => \Carbon\Carbon::now()->format('Y'),
             'school_locations' => [$locationA->getKey()],
         ]);
         $schoolYear->save();

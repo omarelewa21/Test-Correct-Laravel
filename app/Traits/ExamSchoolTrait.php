@@ -16,9 +16,8 @@ trait ExamSchoolTrait {
 
     private function handleExamPublishingTest()
     {
-
-        if(get_class($this)!='Test'){
-            //throw new \Exception('illegal method for class');
+        if(get_class($this)!='tcCore\Test'){
+            return;
         }
         if($this->allowExamPublished()){
             $this->setExamTestParams();
@@ -35,10 +34,10 @@ trait ExamSchoolTrait {
         if($this->hasNonPublishableExamSubject()){
             return false;
         }
-        if(get_class($this)!='Test'){
+        if(get_class($this)=='tcCore\Question'){
             return true;
         }
-        if($this->abbreviation != 'CE'){
+        if($this->abbreviation != 'CE' && $this->abbreviation != 'EXAM'){
             return false;
         }
         return true;
@@ -93,8 +92,8 @@ trait ExamSchoolTrait {
 
     public function setExamParamsOnQuestionsOfTest()
     {
-        if(get_class($this)!='Test'){
-            //throw new \Exception('illegal method for class');
+        if(get_class($this)!='tcCore\Test'){
+            return;
         }
         $questions = $this->testQuestions->map(function($testQuestion){
             return $testQuestion->question->getQuestionInstance();
@@ -111,8 +110,8 @@ trait ExamSchoolTrait {
 
     public function setUnpublishQuestionsOfTest()
     {
-        if(get_class($this)!='Test'){
-            //throw new \Exception('illegal method for class');
+        if(get_class($this)!='tcCore\Test'){
+            return;
         }
         $questions = $this->testQuestions->map(function($testQuestion){
             return $testQuestion->question->getQuestionInstance();
