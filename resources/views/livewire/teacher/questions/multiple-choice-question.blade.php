@@ -48,7 +48,7 @@
                          wireKey="option-{{ $answer->id }}" selid="drag-box"
                          :useHandle="true"
                          :keepWidth="true"
-                         class="flex px-0 py-0 border-0 bg-system-white"
+                         class="flex px-0 py-0 border-0 bg-system-white regular"
                          slotClasses="w-full space-x-2.5"
                          sortIcon="reorder"
                          dragIconClasses="cursor-move"
