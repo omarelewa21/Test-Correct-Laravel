@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 class UpdateExamTestsAndQuestions extends Migration
 {
@@ -28,7 +29,8 @@ class UpdateExamTestsAndQuestions extends Migration
                 $test->setExamParamsOnQuestionsOfTest();
             }
         }catch (Exception $e){
-            $this->command->error($e->getMessage());
+            $output = new ConsoleOutput();
+            $output->writeln('<info>'.$e->getMessage().'</info>') ;
         }
 
     }

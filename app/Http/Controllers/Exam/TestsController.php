@@ -26,7 +26,7 @@ class TestsController extends Controller {
         try { // added for compatibility with mariadb
             \DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=off';"));
         } catch (\Exception $e){}
-		$tests = Test::citoFiltered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
+		$tests = Test::examFiltered($request->get('filter', []), $request->get('order', []))->with('educationLevel', 'testKind', 'subject', 'author', 'author.school', 'author.schoolLocation')->paginate(15);
 //		\DB::select(\DB::raw("set session optimizer_switch='condition_fanout_filter=on';"));
 		return Response::make($tests, 200);
 	}

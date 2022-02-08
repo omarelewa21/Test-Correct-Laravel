@@ -14,15 +14,45 @@ use tcCore\QuestionAuthor;
 
 trait ExamSchoolTrait {
 
+    private function handleExamPublishingTest()
+    {
+
+        if(get_class($this)!='Test'){
+            //throw new \Exception('illegal method for class');
+        }
+        if($this->allowExamPublished()){
+            $this->setExamTestParams();
+        }elseif($this->shouldUnpublishExamTest()){
+            $this->unpublishExam();
+        }
+    }
+
     private function allowExamPublished()
     {
-        if(!Auth::user()->isInExamSchool()){
+        if(!optional(Auth::user())->isInExamSchool()){
             return false;
         }
         if($this->hasNonPublishableExamSubject()){
             return false;
         }
+        if(get_class($this)!='Test'){
+            return true;
+        }
+        if($this->abbreviation != 'CE'){
+            return false;
+        }
         return true;
+    }
+
+    private function shouldUnpublishExamTest()
+    {
+        if(!optional(Auth::user())->isInExamSchool()){
+            return false;
+        }
+        if($this->abbreviation != 'EXAM'){
+            return true;
+        }
+        return false;
     }
 
     public function hasNonPublishableExamSubject()
@@ -52,12 +82,19 @@ trait ExamSchoolTrait {
         if($authorUser){
             $this->setAttribute('author_id', $authorUser->getKey());
         }
+        $this->setExamParamsOnQuestionsOfTest();
+    }
+
+    private function unpublishExam()
+    {
+        $this->setAttribute('scope', 'not_exam');
+        $this->setAttribute('abbreviation', 'NOT_EXAM');
     }
 
     public function setExamParamsOnQuestionsOfTest()
     {
         if(get_class($this)!='Test'){
-            throw new \Exception('illegal method for class');
+            //throw new \Exception('illegal method for class');
         }
         $questions = $this->testQuestions->map(function($testQuestion){
             return $testQuestion->question->getQuestionInstance();
@@ -69,6 +106,20 @@ trait ExamSchoolTrait {
             if($authorUser) {
                 QuestionAuthor::addAuthorToQuestion($question, $authorUser->getKey());
             }
+        });
+    }
+
+    public function setUnpublishQuestionsOfTest()
+    {
+        if(get_class($this)!='Test'){
+            //throw new \Exception('illegal method for class');
+        }
+        $questions = $this->testQuestions->map(function($testQuestion){
+            return $testQuestion->question->getQuestionInstance();
+        });
+        $questions->each(function($question){
+            $question->setAttribute('scope', 'not_exam');
+            $question->save();
         });
     }
 }
