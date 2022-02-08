@@ -22,12 +22,11 @@
                     $disabledMainClass = "";
                 }
                 $errorMainClass = '';
+                $refIndex = $loop->index;
                 @endphp
             @error('question.answers.'.$loop->index.'.left')
             @php
-                if($subStruct->left == ''){
-                    $errorMainClass = 'border-allred';
-                }
+                $errorMainClass = 'border-allred';
             @endphp
             @enderror
                 <div>
@@ -48,11 +47,9 @@
                                 $answer = (object) $answer;
                                 $errorAnswerClass = '';
                             @endphp
-                            @error('question.answers.'.$loop->index.'.right')
+                            @error('question.answers.'.$refIndex.'.right')
                             @php
-                                if($subStruct->rights[$loop->index]['answer'] == ''){
-                                    $errorAnswerClass = 'border-allred';
-                                }
+                                $errorAnswerClass = 'border-allred';
                             @endphp
                             @enderror
                             <x-drag-item id="mc-{{ $key }}-{{$answer->id}}" sortId="{{ $key }}={{ $answer->id }}"
