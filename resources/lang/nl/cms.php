@@ -53,6 +53,8 @@ return [
     'Stel je te slepen items op'    => 'Stel je te slepen items op',
     'Insleepvak toevoegen'                    => 'Insleepvak toevoegen',
 
+    'Classify Question Uitleg Text'      => 'De rubriceervraag heeft min. 2 insleepvakken nodig en werkt het beste met max. 4.',
+
     'MultipleChoice Question Uitleg Text' => 'De meerkeuzevraag kan ook meerdere antwoorden als correct accepteren door er punten aan toe te kennen.',
     'infoscreen-question' => 'Informatiescherm',
     'selection-question' => 'Selectie vraag',

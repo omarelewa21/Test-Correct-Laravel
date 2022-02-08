@@ -54,6 +54,8 @@ return [
     'Stel je te slepen items op'    => 'Add the draggable items',
     'Insleepvak toevoegen'                    => 'Add matchingset',
 
+    'Classify Question Uitleg Text'      => 'The classify question has at least 2 matchingsets and works best with max. 4',
+
     'Is bovenstaande vraag/stelling juist of onjuist?' => 'Is the above question/statement true or false',
     'MultipleChoice Question Uitleg Text' => 'The multiple choice question can have more than one correct answer by giving points to it.',
     'infoscreen-question' => 'Info Screen',
