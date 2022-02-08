@@ -1725,9 +1725,6 @@ video {
 .-left-4{
 	left: -1rem;
 }
-.-top-10{
-	top: -2.5rem;
-}
 .left-0\.5{
 	left: 0.125rem;
 }
@@ -1736,6 +1733,9 @@ video {
 }
 .-top-px{
 	top: -1px;
+}
+.-top-10{
+	top: -2.5rem;
 }
 .bottom-3{
 	bottom: 0.75rem;
