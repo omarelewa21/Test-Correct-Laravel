@@ -12,17 +12,23 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\QuestionAuthor;
 
-trait ExamSchoolTrait {
+trait ExamSchoolTestTrait {
 
     private function handleExamPublishingTest()
     {
-        if(get_class($this)!='tcCore\Test'){
-            return;
-        }
         if($this->allowExamPublished()){
             $this->setExamTestParams();
         }elseif($this->shouldUnpublishExamTest()){
             $this->unpublishExam();
+        }
+    }
+
+    private function handleExamPublishingQuestionsOfTest()
+    {
+        if($this->allowExamQuestionsPublished()){
+            $this->setExamParamsOnQuestionsOfTest();
+        }elseif($this->shouldUnpublishExamQuestionsOfTest()){
+            $this->unpublishQuestionsOfTest();
         }
     }
 
@@ -34,13 +40,21 @@ trait ExamSchoolTrait {
         if($this->hasNonPublishableExamSubject()){
             return false;
         }
-        if(get_class($this)=='tcCore\Question'){
-            return true;
-        }
         if($this->abbreviation != 'CE' && $this->abbreviation != 'EXAM'){
             return false;
         }
         return true;
+    }
+
+    private function allowExamQuestionsPublished()
+    {
+        if(!optional(Auth::user())->isInExamSchool()){
+            return false;
+        }
+        if($this->scope=='exam'){
+            return true;
+        }
+        return false;
     }
 
     private function shouldUnpublishExamTest()
@@ -49,6 +63,17 @@ trait ExamSchoolTrait {
             return false;
         }
         if($this->abbreviation != 'EXAM'){
+            return true;
+        }
+        return false;
+    }
+
+    private function shouldUnpublishExamQuestionsOfTest()
+    {
+        if(!optional(Auth::user())->isInExamSchool()){
+            return false;
+        }
+        if($this->scope != 'exam'){
             return true;
         }
         return false;
@@ -81,7 +106,6 @@ trait ExamSchoolTrait {
         if($authorUser){
             $this->setAttribute('author_id', $authorUser->getKey());
         }
-        $this->setExamParamsOnQuestionsOfTest();
     }
 
     private function unpublishExam()
@@ -92,9 +116,6 @@ trait ExamSchoolTrait {
 
     public function setExamParamsOnQuestionsOfTest()
     {
-        if(get_class($this)!='tcCore\Test'){
-            return;
-        }
         $questions = $this->testQuestions->map(function($testQuestion){
             return $testQuestion->question->getQuestionInstance();
         });
@@ -108,11 +129,8 @@ trait ExamSchoolTrait {
         });
     }
 
-    public function setUnpublishQuestionsOfTest()
+    public function unpublishQuestionsOfTest()
     {
-        if(get_class($this)!='tcCore\Test'){
-            return;
-        }
         $questions = $this->testQuestions->map(function($testQuestion){
             return $testQuestion->question->getQuestionInstance();
         });

@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
-use tcCore\Traits\ExamSchoolTrait;
+use tcCore\Traits\ExamSchoolTestTrait;
 use tcCore\Traits\UuidTrait;
 
 
@@ -27,7 +27,7 @@ class Test extends BaseModel
 
     use SoftDeletes;
     use UuidTrait;
-    use ExamSchoolTrait;
+    use ExamSchoolTestTrait;
 
 
     protected $casts = [
@@ -116,6 +116,7 @@ class Test extends BaseModel
                     }
                 }
             }
+            $test->handleExamPublishingQuestionsOfTest();
         });
 
         static::deleted(function (Test $test) {
