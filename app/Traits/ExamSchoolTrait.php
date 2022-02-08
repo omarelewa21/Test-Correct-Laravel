@@ -101,7 +101,7 @@ trait ExamSchoolTrait {
         $questions->each(function($question){
             $question->setAttribute('scope', 'exam');
             $question->save();
-            $authorUser = AuthorsController::getCentraalExamenAuthor()->getKey();
+            $authorUser = AuthorsController::getCentraalExamenAuthor();
             if($authorUser) {
                 QuestionAuthor::addAuthorToQuestion($question, $authorUser->getKey());
             }
