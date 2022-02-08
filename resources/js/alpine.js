@@ -126,9 +126,11 @@ document.addEventListener('alpine:init', () => {
             elements: [],
 
         },
+        maxOptions: 10,
+        minOptions: 2,
 
         init() {
-            for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < this.minOptions; i++) {
                 this.addRow();
             }
         },
@@ -228,7 +230,10 @@ document.addEventListener('alpine:init', () => {
 
             this.closePopup();
         },
-        emptyOptions() {
+        disabled() {
+            if (this.data.elements.length >= this.maxOptions) {
+                return true
+            }
             return !!this.data.elements.find(element => element.value === '');
         },
         closePopup() {
