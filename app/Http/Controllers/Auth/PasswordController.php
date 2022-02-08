@@ -11,12 +11,13 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Password;
 use tcCore\Http\Controllers\Controller;
+use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\Mail\PasswordChanged;
 use tcCore\Mail\PasswordChangedSelf;
 use tcCore\User;
 
 class PasswordController extends Controller {
-
+    use UserNotificationForController;
 	/**
 	 * Send a reset link to the given user.
 	 *
@@ -109,11 +110,7 @@ class PasswordController extends Controller {
     {
         try {
             $user = User::where('username', $userName)->firstOrFail();
-            $mailable = new PasswordChanged($user);
-            if (Auth::user() == $user) {
-                $mailable = new PasswordChangedSelf($user);
-            }
-            Mail::to($user->username)->send($mailable);
+            $this->sendPasswordChangedMail($user);
         } catch (\Exception $e) {
             //silent fail
         }
