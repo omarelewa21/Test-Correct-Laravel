@@ -76,14 +76,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/ckeditor_upload/{type}', [tcCore\Http\Controllers\CkeditorImageController::class, 'store'])->name('upload');
         Route::get('/ckeditor_upload/{filename}', [tcCore\Http\Controllers\CkeditorImageController::class, 'show'])->name('upload.get');
     });
-    Route::get('/preview_password_changed_mail', function () {
-        $user = Auth::user();
-        return new tcCore\Mail\PasswordChanged($user);
-    });
-    Route::get('/preview_password_changed_self_mail', function () {
-        $user = Auth::user();
-        return new tcCore\Mail\PasswordChangedSelf($user);
-    });
+    if(\tcCore\Http\Helpers\BaseHelper::notProduction()) {
+        Route::get('/preview_password_changed_mail', function () {
+            $user = Auth::user();
+            return new tcCore\Mail\PasswordChanged($user);
+        });
+        Route::get('/preview_password_changed_self_mail', function () {
+            $user = Auth::user();
+            return new tcCore\Mail\PasswordChangedSelf($user);
+        });
+    }
 });
 Route::middleware(['guest', 'auth.temp'])->group(function () {
     Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview'])->name('auth.teacher.show-test-with-short-code');

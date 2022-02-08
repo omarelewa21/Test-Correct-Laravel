@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Password;
 use tcCore\Http\Controllers\Controller;
 use tcCore\Mail\PasswordChanged;
 use tcCore\Mail\PasswordChangedSelf;
+use tcCore\User;
 
 class PasswordController extends Controller {
 
@@ -108,13 +109,13 @@ class PasswordController extends Controller {
     {
         try {
             $user = User::where('username', $userName)->firstOrFail();
+            $mailable = new PasswordChanged($user);
             if (Auth::user() == $user) {
-                Mail::to($user->username)->send(new PasswordChangedSelf($user));
-            } else {
-                Mail::to($user->username)->send(new PasswordChanged($user));
+                $mailable = new PasswordChangedSelf($user);
             }
-        }catch (\Exception $e){
-            Log::stack(['loki'])->info("passwordReset@PasswordController.php password reset problem: unknown username".$userName);
+            Mail::to($user->username)->send($mailable);
+        } catch (\Exception $e) {
+            //silent fail
         }
     }
 
