@@ -5573,8 +5573,10 @@ document.addEventListener('alpine:init', function () {
       data: {
         elements: []
       },
+      maxOptions: 10,
+      minOptions: 2,
       init: function init() {
-        for (var i = 0; i < 2; i++) {
+        for (var i = 0; i < this.minOptions; i++) {
           this.addRow();
         }
       },
@@ -5690,7 +5692,11 @@ document.addEventListener('alpine:init', function () {
         this.insertDataInEditor();
         this.closePopup();
       },
-      emptyOptions: function emptyOptions() {
+      disabled: function disabled() {
+        if (this.data.elements.length >= this.maxOptions) {
+          return true;
+        }
+
         return !!this.data.elements.find(function (element) {
           return element.value === '';
         });
