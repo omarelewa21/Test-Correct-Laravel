@@ -58,6 +58,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
     Route::post('info',[tcCore\Http\Controllers\InfoController::class,'store']);
     Route::put('info/{info}',[tcCore\Http\Controllers\InfoController::class,'update']);
     Route::delete('info/{info}',[tcCore\Http\Controllers\InfoController::class,'delete']);
+    Route::post('info/removeDashboardInfo/{info}', [tcCore\Http\Controllers\InfoController::class,'removeDashboardInfo']);
 
     Route::get('role',[\tcCore\Http\Controllers\RolesController::class,'index']);
 
