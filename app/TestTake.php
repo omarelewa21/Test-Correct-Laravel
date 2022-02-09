@@ -232,15 +232,10 @@ class TestTake extends BaseModel
                                     'testParticipants.schoolClass.schoolLocation'
                                 ]);
                 foreach ($testTake->testParticipants as $testParticipant) {
-//                    $activated = $testParticipant->schoolClass->schoolLocation->getAttribute('activated');
-//                    if ($activated != true) {
-                        if (!in_array($testParticipant->getAttribute('test_take_status_id'), $testTakeDiscussionNotAllowedStatusses)) {
-                            //&& $testParticipant->getAttribute('heartbeat_at') !== null && $testParticipant->getAttribute('heartbeat_at') >= $heartbeatDate) {
-                            $testParticipant->setAttribute('test_take_status_id', $testParticipantDiscussingStatus);
-                            $testParticipant->save();
-                        }
-//                    }
-
+                    if (!in_array($testParticipant->getAttribute('test_take_status_id'), $testTakeDiscussionNotAllowedStatusses)) {
+                        $testParticipant->setAttribute('test_take_status_id', $testParticipantDiscussingStatus);
+                        $testParticipant->save();
+                    }
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
                     TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
