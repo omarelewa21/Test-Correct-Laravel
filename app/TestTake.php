@@ -195,20 +195,11 @@ class TestTake extends BaseModel
                 } else {
                     $testTakenStatusId = false;
                 }
-                logger([
-                    'testtakeId' => $testTake->getKey(),
-                    '$testTakenStatusId !== false' => $testTakenStatusId !== false,
-                ]);
+
                 if ($testTakenStatusId !== false) {
                     foreach ($testTake->testParticipants as $testParticipant) {
-                        logger([
-                            'inarray' => in_array($testParticipant->getAttribute('test_take_status_id'), $testTakeUnfinishedStatuses),
-                            'statuses' => $testTakeUnfinishedStatuses,
-                            '$testTakenStatusId'=> $testTakenStatusId
-                        ]);
                         if (in_array($testParticipant->getAttribute('test_take_status_id'), $testTakeUnfinishedStatuses)) {
                             $testParticipant->setAttribute('test_take_status_id', $testTakenStatusId);
-                            logger('before save');
                             $testParticipant->save();
                         }
                     }
