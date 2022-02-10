@@ -89,10 +89,8 @@ class AppVersionDetector
                 "3.1.0",
             ],
             "needsUpdate" => [
-                "2.4.0",
             ],
             "needsUpdateDeadline" => [
-                "2.4.0" => "10 februari 2022",
             ],
         ],
         "ChromeOS" => [
