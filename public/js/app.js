@@ -6247,7 +6247,7 @@ function isMakingTest() {
 }
 
 function catchscreenshotchromeOS() {
-  if (Core.isChromebook()) {
+  if (Core.isChromebook) {
     var safeKeys = ['c', 'x', 'z', 'y', 'v', '0'];
     var storeKeys = [];
     window.addEventListener("keydown", function (event) {

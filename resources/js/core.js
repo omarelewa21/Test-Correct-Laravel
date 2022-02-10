@@ -243,7 +243,7 @@ function isMakingTest() {
 }
 
 function catchscreenshotchromeOS(){
-   if(Core.isChromebook()) {
+   if(Core.isChromebook) {
         let safeKeys = ['c', 'x', 'z', 'y', 'v','0']
         let storeKeys = [];
     
