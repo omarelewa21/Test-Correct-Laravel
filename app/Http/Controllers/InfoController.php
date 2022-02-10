@@ -67,7 +67,7 @@ class InfoController extends Controller
     }
 
     public function removeDashboardInfo(Info $info){
-        if(auth()->user()->roles[0]->name != "Student"){
+        if(!auth()->user()->isA('student')){
             UserInfosDontShow::create([
                 'user_id'       => auth()->id(),
                 'info_id'       => $info->id
