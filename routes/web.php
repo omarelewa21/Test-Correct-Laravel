@@ -77,14 +77,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/ckeditor_upload/{filename}', [tcCore\Http\Controllers\CkeditorImageController::class, 'show'])->name('upload.get');
     });
     if(\tcCore\Http\Helpers\BaseHelper::notProduction()) {
-        Route::get('/preview_password_changed_mail', function () {
-            $user = Auth::user();
-            return new tcCore\Mail\PasswordChanged($user);
-        });
-        Route::get('/preview_password_changed_self_mail', function () {
-            $user = Auth::user();
-            return new tcCore\Mail\PasswordChangedSelf($user);
-        });
+        Route::get('/preview_password_changed_mail', [tcCore\Http\Controllers\PreviewMailController::class, 'passwordChanged'])->name('PasswordChangedMail');
+        Route::get('/preview_password_changed_self_mail', [tcCore\Http\Controllers\PreviewMailController::class, 'passwordChangedSelf'])->name('PasswordChangedSelf');
     }
 });
 Route::middleware(['guest', 'auth.temp'])->group(function () {
