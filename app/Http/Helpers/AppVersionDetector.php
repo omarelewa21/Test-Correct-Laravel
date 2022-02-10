@@ -184,7 +184,6 @@ class AppVersionDetector
                 "3.3.0-beta.5",
             ],
             "needsUpdate" => [
-                "3.1.1",
                 "3.1.3",
                 "3.1.3-beta.1",
                 "3.1.3-beta.2",
