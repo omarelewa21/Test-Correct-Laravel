@@ -31,6 +31,7 @@ Route::get('/uwlr/fetcher', tcCore\Http\Livewire\UwlrFetcher::class)->name('uwlr
 Route::get('/uwlr', tcCore\Http\Livewire\UwlrGrid::class)->name('uwlr.grid');
 
 Route::get('/ckeditor/plugins/ckeditor_wiris/integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
+Route::post('integration/configurationjs', [\tcCore\Http\Controllers\WirisIntegrationController::class, 'configurationjs']);
 
 
 Route::middleware(['auth.temp'])->group(function () {

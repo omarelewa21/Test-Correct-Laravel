@@ -6,6 +6,8 @@ require('./notify');
 require('./alpine');
 require('./rich-text-editor');
 
+window.ClassicEditors = [];
+
 addIdsToQuestionHtml = function () {
     let id = 1;
     let questionContainers = document.querySelectorAll('[questionHtml]');

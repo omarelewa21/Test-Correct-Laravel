@@ -11,27 +11,7 @@
         @push('scripts')
         <script>
             (function() {
-                var editor = CKEDITOR.instances['{{ $editorId }}']
-                if (editor) {
-                    editor.destroy(true)
-                }
-                CKEDITOR.replace( '{{ $editorId }}', {
-                    removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                    extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
-                    toolbar: [
-                        { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
-                        { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },
-                        { name: 'insert', items: [ 'Table' ] },
-                        { name: 'styles', items: ['Font', 'FontSize' ] },
-                        { name: 'wirisplugins', items: ['ckeditor_wiris_formulaEditor', 'ckeditor_wiris_formulaEditorChemistry']}
-                    ]
-                })
-                CKEDITOR.instances['{{ $editorId }}']
-                    .on('change',function(e){
-                        var textarea = document.getElementById('{{ $editorId }}')
-                        textarea.value =  e.editor.getData()
-                        textarea.dispatchEvent(new Event('input'))
-                    })
+
             })()
         </script>
         @endpush
