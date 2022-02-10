@@ -243,7 +243,7 @@ function isMakingTest() {
 }
 
 function catchscreenshotchromeOS(){
-   if(Core.isChromebook) {
+   if(Core.appType == 'chromebook') {
         let safeKeys = ['c', 'x', 'z', 'y', 'v','0']
         let storeKeys = [];
     
@@ -267,6 +267,5 @@ function catchscreenshotchromeOS(){
                 storeKeys = [];
             }
         });
-
-   }    
+     }    
 }
