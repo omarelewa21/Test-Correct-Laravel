@@ -10,7 +10,6 @@
             <div class="flex-col relative mt-4">
                 <x-input.group for="me" label="{!! __('test_take.instruction_open_question') !!}"
                                class="w-full">
-                    <div id="hidden_span_{{ $question->id }}"  class="hidden">{!! $this->answer !!}</div>
                     <x-input.textarea
                             id="textarea_{{ $question->id }}"
                             wire:key="textarea_{{ $question->id }}"
