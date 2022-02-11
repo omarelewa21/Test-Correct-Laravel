@@ -40,7 +40,7 @@ class ExamTestsQuery extends Command
     public function handle()
     {
         try {
-            $examSchoolLocation = \tcCore\SchoolLocation::where('customer_code', 'OPENSOURCE1')->firstOrFail();
+            $examSchoolLocation = \tcCore\SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->firstOrFail();
             if(is_null($examSchoolLocation)){
                 throw new Exception('examschool not found');
             }

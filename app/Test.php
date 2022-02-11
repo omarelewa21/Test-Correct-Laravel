@@ -386,7 +386,7 @@ class Test extends BaseModel
     {
         $user = Auth::user();
         $query->select();
-        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser('OPENSOURCE1',$user);
+        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(config('custom.examschool_customercode'),$user);
         if(count($subjectIds)==0){
             $query->where('tests.id', -1);
             return $query;

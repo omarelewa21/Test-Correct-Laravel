@@ -103,7 +103,7 @@ trait ExamSchoolTestTrait {
         $this->setAttribute('scope', 'exam');
         $this->setAttribute('abbreviation', 'EXAM');
         $authorUser = AuthorsController::getCentraalExamenAuthor();
-        if($authorUser){
+        if(!is_null($authorUser)){
             $this->setAttribute('author_id', $authorUser->getKey());
         }
     }
@@ -123,7 +123,7 @@ trait ExamSchoolTestTrait {
             $question->setAttribute('scope', 'exam');
             $question->save();
             $authorUser = AuthorsController::getCentraalExamenAuthor();
-            if($authorUser) {
+            if(!is_null($authorUser)) {
                 QuestionAuthor::addAuthorToQuestion($question, $authorUser->getKey());
             }
         });

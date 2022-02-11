@@ -217,7 +217,7 @@ class Subject extends BaseModel implements AccessCheckable
     {
         $user = Auth::user();
 
-        $examSchool = SchoolLocation::where('customer_code', 'OPENSOURCE1')->first();
+        $examSchool = SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first();
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
         if ($examSchool) {
             $classIds = $examSchool->schoolClasses()->pluck('id');
@@ -258,10 +258,11 @@ class Subject extends BaseModel implements AccessCheckable
         $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
 
         if ($school) {
-            $classIds = $school->schoolClasses()->pluck('id');
-            $tempSubjectIds = Teacher::whereIn('class_id', $classIds)->pluck('subject_id')->unique();
-            $baseSubjects = Subject::whereIn('id', $tempSubjectIds)->get();
-            return $baseSubjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
+            $subjects = collect([]);
+            foreach ($school->schoolLocationSections as $schoolLocationSection){
+                $subjects = $subjects->merge($schoolLocationSection->subjects);
+            }
+            return $subjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
         }
         return [];
     }

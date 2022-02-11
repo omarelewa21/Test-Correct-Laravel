@@ -28,11 +28,7 @@ class AuthorsController extends Controller
 
     public static function getCentraalExamenAuthor()
     {
-        try {
-            return User::where('username', 'info+CEdocent@test-correct.nl')->firstOrFail();
-        }catch (\Exception $e){
-            return false;
-        }
+         return User::where('username', config('custom.examschool_author'))->first();
     }
 
     private function getBuilderForOwnSubjects($user)
