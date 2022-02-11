@@ -45,11 +45,8 @@ class CompletionQuestion extends Component
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
             $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"','comp_answer_' . $tag_id);
-            if(Auth::user()->text2speech){
-                $events = sprintf('@mouseup="handleMouseupForReadspeaker(event,this)" @focus="handleFocusForReadspeaker()" @blur="$refs.%s.scrollLeft = 0;handleBlurForReadspeaker()" @input="$event.target.setAttribute(\'title\', $event.target.value);"','comp_answer_' . $tag_id);
-            }
             return sprintf(
-                '<input spellcheck="false"    wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" %s wire:key="%s"/>',
+                '<input spellcheck="false" wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" %s wire:key="%s"/>',
                 $tag_id,
                 'answer_' . $tag_id . '_' . $this->question->getKey(),
                 'comp_answer_' . $tag_id,
@@ -95,7 +92,7 @@ class CompletionQuestion extends Component
 
                 $answers = $random;
 
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden rs_clicklistenexclude"  @change="$event.target.setAttribute(\'title\', $event.target.value);" selid="testtake-select">%s</select>',
+                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden "  @change="$event.target.setAttribute(\'title\', $event.target.value);" selid="testtake-select">%s</select>',
                     $matches[1],
                     $this->getOptions($answers));
 

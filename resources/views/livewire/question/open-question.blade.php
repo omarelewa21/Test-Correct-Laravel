@@ -36,11 +36,6 @@
             <div class="mt-1 primary text-sm bold">
                 <span x-html="count"></span> / <span x-html="closed ? '' : $refs.countme.maxLength"></span>
                 <span>{!! __('test_take.characters') !!}</span>
-                @if(Auth::user()->text2speech)
-                    <a class="float-right" role="button" x-on:click="readTextArea('{{ $question->id }}')">
-                        <x-icon.audio/>
-                    </a>
-                @endif
             </div>
         </div>
         @push('scripts')
