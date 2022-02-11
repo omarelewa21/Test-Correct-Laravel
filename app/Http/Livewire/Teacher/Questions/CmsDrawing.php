@@ -47,6 +47,6 @@ class CmsDrawing
     public function preparePropertyBag() {
         $this->instance->question['answer_svg'] = '';
         $this->instance->question['question_svg'] = '';
-        $this->instance->question['grid_svg'] = '';
+        $this->instance->question['grid_svg'] = '0.00';
     }
 }

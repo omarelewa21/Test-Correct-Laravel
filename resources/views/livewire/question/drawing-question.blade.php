@@ -32,9 +32,9 @@
                 @include('components.question.drawing-modal', ['drawing' => $question->answer])
             </div>
         </div>
-        <div x-data="
+        <div id="drawingTool{{ $this->number }}" x-data="
         drawingTool(
-                1,
+                {{ $this->number }},
                  {
                      answerSvg: @entangle('answer_svg'),
                      questionSvg: @entangle('question_svg'),

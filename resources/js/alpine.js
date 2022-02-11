@@ -215,7 +215,7 @@ document.addEventListener('alpine:init', () => {
         gridSvg: entanglements.gridSvg,
         isTeacher: isTeacher,
         init() {
-            window['drawingTool_' + questionId] = initDrawingQuestion();
+            window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
             const toolName = window['drawingTool_' + questionId];
 
             if(this.isTeacher) {

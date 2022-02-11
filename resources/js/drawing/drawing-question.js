@@ -3,7 +3,7 @@ import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
 
-window.initDrawingQuestion = function () {
+window.initDrawingQuestion = function (rootElement) {
 
     /**
      * @typedef Cursor
@@ -28,7 +28,7 @@ window.initDrawingQuestion = function () {
      * Global Object containing all DOM Elements on the page that have an id attribute.
      * The key is the id value converted to camelCase, the value being the DOM Element itself.
      */
-    let UI = new UIElements();
+    let UI = new UIElements(rootElement);
 
     /**
      * Global Object containing some parameters that don't belong in Canvas.
@@ -84,7 +84,8 @@ window.initDrawingQuestion = function () {
             this.warnings = {
                 whenAnyToolButDragSelected: new warningBox(
                     "Stel de opmaak in voordat je het object tekent",
-                    2000
+                    2000,
+                    rootElement
                 ),
             };
         },
@@ -182,10 +183,13 @@ window.initDrawingQuestion = function () {
                 return this.params.draw.newShape
             },
             setCurrentLayer(newCurrentLayerID) {
-                const oldCurrentLayer = document.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
+                const oldCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
+                if (oldCurrentLayer === null) {
+                    debugger;
+                }
                 oldCurrentLayer.classList.remove("highlight");
 
-                const newCurrentLayer = document.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
+                const newCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
                 newCurrentLayer.classList.add("highlight");
                 Canvas.params.currentLayer = newCurrentLayerID;
             },
@@ -364,13 +368,13 @@ window.initDrawingQuestion = function () {
             }
         },
         {
-            elements: [...document.querySelectorAll("[data-button-group=tool]")],
+            elements: [...rootElement.querySelectorAll("[data-button-group=tool]")],
             events: {
                 "click": {callback: processToolChange},
             }
         },
         {
-            elements: [...document.querySelectorAll("[data-button-group=endmarker-type]")],
+            elements: [...rootElement.querySelectorAll("[data-button-group=endmarker-type]")],
             events: {
                 "click": {
                     callback: processEndmarkerTypeChange,
@@ -840,10 +844,14 @@ window.initDrawingQuestion = function () {
         // parent.skip = true;
         const b64Strings = encodeSvgLayersAsBase64Strings();
         const grid = (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString();
+
+        const panGroupSize = getPanGroupSize();
+
         Livewire.emit("drawing_data_updated", {
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
-            svg_grid: grid
+            svg_grid: grid,
+            svg_zoom_group: panGroupSize
         });
 
         makePreviewGrid(grid);
@@ -1597,17 +1605,47 @@ window.initDrawingQuestion = function () {
             child.style.display = "none";
         }
         shapePropertiesAvailableToUser[drawingApp.params.currentTool].forEach((prop) => {
-            document.getElementById(prop).style.display = "flex";
+            rootElement.querySelector(`#${prop}`).style.display = "flex";
         });
     }
 
     function makeSelectedBtnActive(selectedBtn) {
         const btnGroupName = selectedBtn.getAttribute("data-button-group");
-        const activeBtnsOfBtnGroup = document.querySelectorAll(
+        const activeBtnsOfBtnGroup = rootElement.querySelectorAll(
             `[data-button-group=${btnGroupName}].active`
         );
         for (const btn of [...activeBtnsOfBtnGroup]) btn.classList.remove("active");
         selectedBtn.classList.add("active");
+    }
+
+    function getPanGroupSize() {
+        Canvas.layers.grid.shape.hide();
+
+        const questionLayerHidden = Canvas.layers.question.isHidden();
+        const answerLayerHidden = Canvas.layers.answer.isHidden();
+
+        if (questionLayerHidden) {
+            Canvas.layers.question.unhide()
+        }
+        if (answerLayerHidden) {
+            Canvas.layers.answer.unhide()
+        }
+
+        const panGroupSize = UI.svgPanZoomGroup.getBBox();
+
+        if (questionLayerHidden) {
+            Canvas.layers.question.hide()
+        }
+        if (answerLayerHidden) {
+            Canvas.layers.answer.hide()
+        }
+
+        return {
+            x: panGroupSize.x,
+            y: panGroupSize.y,
+            width: panGroupSize.width,
+            height: panGroupSize.height
+        }
     }
 
     return { UI, Canvas, drawingApp }
@@ -1615,7 +1653,7 @@ window.initDrawingQuestion = function () {
 }
 
 function clearPreviewGrid() {
-    const gridContainer = document.getElementById('grid-preview-svg')
+    const gridContainer = rootElement.querySelector('#grid-preview-svg')
     if(gridContainer.firstChild !== null) {
         gridContainer.firstChild.remove();
     }
@@ -1635,12 +1673,12 @@ window.makePreviewGrid = function (gridSvg) {
         },
         size: gridSvg,
     }
-    let parent = document.getElementById('grid-preview-svg')
+    let parent = rootElement.querySelector('#grid-preview-svg')
     return new svgShape.Grid(0, props, parent, null, null);
 }
 
 window.calculatePreviewBounds = function () {
-    let parent = document.getElementById('preview-svg')
+    let parent = rootElement.querySelector('#preview-svg')
     const matrix = new DOMMatrix();
     const height = parent.clientHeight,
         width = parent.clientWidth;

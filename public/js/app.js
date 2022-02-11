@@ -5693,7 +5693,7 @@ document.addEventListener('alpine:init', function () {
       init: function init() {
         var _this5 = this;
 
-        window['drawingTool_' + questionId] = initDrawingQuestion();
+        window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
         var toolName = window['drawingTool_' + questionId];
 
         if (this.isTeacher) {
@@ -6397,7 +6397,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function () {
+window.initDrawingQuestion = function (rootElement) {
   var _this2 = this;
 
   /**
@@ -6423,7 +6423,7 @@ window.initDrawingQuestion = function () {
    * Global Object containing all DOM Elements on the page that have an id attribute.
    * The key is the id value converted to camelCase, the value being the DOM Element itself.
    */
-  var UI = new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.UIElements();
+  var UI = new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.UIElements(rootElement);
   /**
    * Global Object containing some parameters that don't belong in Canvas.
    */
@@ -6474,7 +6474,7 @@ window.initDrawingQuestion = function () {
       }
 
       this.warnings = {
-        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 2000)
+        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 2000, rootElement)
       };
     },
     convertCanvas2DomCoordinates: function convertCanvas2DomCoordinates(coordinates) {
@@ -6584,9 +6584,14 @@ window.initDrawingQuestion = function () {
         return this.params.draw.newShape;
       },
       setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
-        var oldCurrentLayer = document.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
+        var oldCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
+
+        if (oldCurrentLayer === null) {
+          debugger;
+        }
+
         oldCurrentLayer.classList.remove("highlight");
-        var newCurrentLayer = document.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
+        var newCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
         newCurrentLayer.classList.add("highlight");
         Canvas.params.currentLayer = newCurrentLayerID;
       },
@@ -6783,14 +6788,14 @@ window.initDrawingQuestion = function () {
       }
     }
   }, {
-    elements: _toConsumableArray(document.querySelectorAll("[data-button-group=tool]")),
+    elements: _toConsumableArray(rootElement.querySelectorAll("[data-button-group=tool]")),
     events: {
       "click": {
         callback: processToolChange
       }
     }
   }, {
-    elements: _toConsumableArray(document.querySelectorAll("[data-button-group=endmarker-type]")),
+    elements: _toConsumableArray(rootElement.querySelectorAll("[data-button-group=endmarker-type]")),
     events: {
       "click": {
         callback: processEndmarkerTypeChange
@@ -7257,10 +7262,12 @@ window.initDrawingQuestion = function () {
     // parent.skip = true;
     var b64Strings = encodeSvgLayersAsBase64Strings();
     var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
+    var panGroupSize = getPanGroupSize();
     Livewire.emit("drawing_data_updated", {
       svg_answer: b64Strings.answer,
       svg_question: b64Strings.question,
-      svg_grid: grid
+      svg_grid: grid,
+      svg_zoom_group: panGroupSize
     });
     makePreviewGrid(grid);
   }
@@ -8056,13 +8063,13 @@ window.initDrawingQuestion = function () {
     }
 
     _constants_js__WEBPACK_IMPORTED_MODULE_0__.shapePropertiesAvailableToUser[drawingApp.params.currentTool].forEach(function (prop) {
-      document.getElementById(prop).style.display = "flex";
+      rootElement.querySelector("#".concat(prop)).style.display = "flex";
     });
   }
 
   function makeSelectedBtnActive(selectedBtn) {
     var btnGroupName = selectedBtn.getAttribute("data-button-group");
-    var activeBtnsOfBtnGroup = document.querySelectorAll("[data-button-group=".concat(btnGroupName, "].active"));
+    var activeBtnsOfBtnGroup = rootElement.querySelectorAll("[data-button-group=".concat(btnGroupName, "].active"));
 
     for (var _i3 = 0, _arr2 = _toConsumableArray(activeBtnsOfBtnGroup); _i3 < _arr2.length; _i3++) {
       var btn = _arr2[_i3];
@@ -8070,6 +8077,37 @@ window.initDrawingQuestion = function () {
     }
 
     selectedBtn.classList.add("active");
+  }
+
+  function getPanGroupSize() {
+    Canvas.layers.grid.shape.hide();
+    var questionLayerHidden = Canvas.layers.question.isHidden();
+    var answerLayerHidden = Canvas.layers.answer.isHidden();
+
+    if (questionLayerHidden) {
+      Canvas.layers.question.unhide();
+    }
+
+    if (answerLayerHidden) {
+      Canvas.layers.answer.unhide();
+    }
+
+    var panGroupSize = UI.svgPanZoomGroup.getBBox();
+
+    if (questionLayerHidden) {
+      Canvas.layers.question.hide();
+    }
+
+    if (answerLayerHidden) {
+      Canvas.layers.answer.hide();
+    }
+
+    return {
+      x: panGroupSize.x,
+      y: panGroupSize.y,
+      width: panGroupSize.width,
+      height: panGroupSize.height
+    };
   }
 
   return {
@@ -8080,7 +8118,7 @@ window.initDrawingQuestion = function () {
 };
 
 function clearPreviewGrid() {
-  var gridContainer = document.getElementById('grid-preview-svg');
+  var gridContainer = rootElement.querySelector('#grid-preview-svg');
 
   if (gridContainer.firstChild !== null) {
     gridContainer.firstChild.remove();
@@ -8100,12 +8138,12 @@ window.makePreviewGrid = function (gridSvg) {
     },
     size: gridSvg
   };
-  var parent = document.getElementById('grid-preview-svg');
+  var parent = rootElement.querySelector('#grid-preview-svg');
   return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, null, null);
 };
 
 window.calculatePreviewBounds = function () {
-  var parent = document.getElementById('preview-svg');
+  var parent = rootElement.querySelector('#preview-svg');
   var matrix = new DOMMatrix();
   var height = parent.clientHeight,
       width = parent.clientWidth;
@@ -10434,10 +10472,10 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 var UIElements = /*#__PURE__*/function () {
-  function UIElements() {
+  function UIElements(rootElement) {
     _classCallCheck(this, UIElements);
 
-    var _iterator = _createForOfIteratorHelper(document.getElementById("drawing-tool").parentElement.querySelectorAll('[id]:not([id=""])')),
+    var _iterator = _createForOfIteratorHelper(rootElement.querySelector("#drawing-tool").parentElement.querySelectorAll('[id]:not([id=""])')),
         _step;
 
     try {
@@ -10480,11 +10518,12 @@ var warningBox = /*#__PURE__*/function () {
   function warningBox() {
     var content = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
     var timeDisplayed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1000;
+    var rootElement = arguments.length > 2 ? arguments[2] : undefined;
 
     _classCallCheck(this, warningBox);
 
-    var parent = document.querySelector("div#canvas-sidebar-container");
-    var template = document.querySelector("template#warningbox-template");
+    var parent = rootElement.querySelector("div#canvas-sidebar-container");
+    var template = rootElement.querySelector("template#warningbox-template");
     var templateCopy = template.content.cloneNode(true);
     this.box = templateCopy.querySelector("div.warning");
     var textWrapper = this.box.querySelector("div.warning-text");
