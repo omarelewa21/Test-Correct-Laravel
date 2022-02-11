@@ -20,6 +20,12 @@ class UpdateUserRequest extends Request {
 	 */
 	private $user;
     protected $schoolLocation;
+
+    protected function getAttributeNames() {
+        return [
+            'password' => __('auth.password')
+        ];
+    }
 	/**
 	 *
 	 * @param Route $route
@@ -81,7 +87,7 @@ class UpdateUserRequest extends Request {
             'name' => '',
             'email' => '',
             'old_password' => 'sometimes|required|old_password:'.$this->user->getAttribute('password'),
-            'password' => '',
+            'password' => 'sometimes|min:8',
             'session_hash' => '',
             'api_key' => '',
             'external_id' => '',
@@ -113,6 +119,7 @@ class UpdateUserRequest extends Request {
 			return ((isset($input->school_id) && !empty($input->school_id)) || (!isset($input->school_id) && !empty($schoolId)));
 		});
 
+        $validator->setAttributeNames($this->getAttributeNames());
 
 		return $validator;
 	}
@@ -140,7 +147,7 @@ class UpdateUserRequest extends Request {
 			{
 				return Hash::check($value, $parameters[0]);
 			},
-			'Record does not match stored value'
+            __('auth.passwords_dont_match')
 		);
 
 		return $factory->make(
