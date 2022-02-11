@@ -51,8 +51,12 @@ class DrawingQuestion extends Component
             ->where('question_id', $this->question->id)
             ->first();
         if ($answer->json) {
-            $this->answer = json_decode($answer->json)->answer;
-            $this->additionalText = json_decode($answer->json)->additional_text;
+            $answerJson = json_decode($answer->json);
+            $this->answer = $answerJson->answer;
+            $this->additionalText = $answerJson->additional_text;
+            if (property_exists($answerJson, 'answer_svg') && $answerJson->answer_svg) {
+                $this->answer_svg = $answerJson->answer_svg;
+            }
         }
 
         $this->question_svg = $this->question->question_svg;
@@ -72,6 +76,7 @@ class DrawingQuestion extends Component
         $json = json_encode([
             'answer'          => $this->answer,
             'additional_text' => $this->additionalText,
+            'answer_svg'      => $this->answer_svg,
         ]);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
@@ -103,18 +108,26 @@ class DrawingQuestion extends Component
 
     public function handleUpdateDrawingData($data)
     {
-        $svg = sprintf('<svg class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
-                    <g class="answer-svg">%s</g>
+        $svg = sprintf('<svg viewBox="%s %s %s %s" class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
                     <g class="question-svg">%s</g>
+                    <g class="answer-svg">%s</g>
                     <g id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
                 </svg>',
+                    $data['svg_zoom_group']['x'],
+                    $data['svg_zoom_group']['y'],
+                    $data['svg_zoom_group']['width'],
+                    $data['svg_zoom_group']['height'],
+                    base64_decode($data['svg_question']),
                     base64_decode($data['svg_answer']),
-                    base64_decode($data['svg_question'])
                 );
 
          $base64 = base64_encode($svg );
 
-        $str = sprintf('data:image/svg+xml;base64,%s',$base64 );
+
+
+        $this->answer_svg = $data['svg_answer'];
+
+
 
         $this->updatedAnswer($svg);
     }
