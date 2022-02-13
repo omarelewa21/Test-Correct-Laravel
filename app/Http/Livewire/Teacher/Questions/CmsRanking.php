@@ -112,7 +112,7 @@ class CmsRanking extends CmsBase
         $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function($answer){
             return [
                 'order' => $answer['order'],
-                'answer' => $this->transformHtmlChars($answer['answer']),
+                'answer' => CmsBase::transformHtmlChars($answer['answer']),
             ];
         })->toArray());
         unset($this->instance->question['answer']);
@@ -138,7 +138,7 @@ class CmsRanking extends CmsBase
                 return [
                     'id'     => Uuid::uuid4(),
                     'order'  => $key + 1,
-                    'answer' => $this->transformHtmlCharsReverse($answer->answer),
+                    'answer' => CmsBase::transformHtmlCharsReverse($answer->answer),
                 ];
             })->toArray();
         }

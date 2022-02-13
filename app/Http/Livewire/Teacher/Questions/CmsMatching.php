@@ -114,8 +114,8 @@ class CmsMatching extends CmsBase
         $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function($answer){
             return [
                 'order' => $answer['order'],
-                'left' => $this->transformHtmlChars($answer['left']),
-                'right' => $this->transformHtmlChars($answer['right']),
+                'left' => CmsBase::transformHtmlChars($answer['left']),
+                'right' => CmsBase::transformHtmlChars($answer['right']),
             ];
         })->toArray());
         unset($this->instance->question['answer']);
@@ -154,8 +154,8 @@ class CmsMatching extends CmsBase
                     return [
                         'id'     => Uuid::uuid4(),
                         'order'  => $key + 1,
-                        'left' => $this->transformHtmlCharsReverse($corresponding->answer),
-                        'right' => $this->transformHtmlCharsReverse($answer->answer),
+                        'left' => CmsBase::transformHtmlCharsReverse($corresponding->answer),
+                        'right' => CmsBase::transformHtmlCharsReverse($answer->answer),
                     ];
                 }
 

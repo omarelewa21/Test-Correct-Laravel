@@ -185,8 +185,8 @@ class CmsClassify extends CmsBase
             })->toArray();
             return [
                 'order' => $answer['order'],
-                'left' => $this->transformHtmlChars($answer['left']),
-                'right' => $this->transformHtmlChars(implode(PHP_EOL,$rights)),
+                'left' => CmsBase::transformHtmlChars($answer['left']),
+                'right' => CmsBase::transformHtmlChars(implode(PHP_EOL,$rights)),
             ];
         })->toArray());
 

@@ -65,7 +65,7 @@ class CmsMultipleChoice extends CmsBase
                     $answer = (array) $answer;
                     return [
                         'order'  => $answer['order'],
-                        'answer' => $this->transformHtmlChars($answer['answer']),
+                        'answer' => CmsBase::transformHtmlChars($answer['answer']),
                         'score'  => (int)$answer['score'],
                     ];
                 })
@@ -179,7 +179,7 @@ class CmsMultipleChoice extends CmsBase
                     'id'     => Uuid::uuid4(),
                     'order'  => $key + 1,
                     'score'  => $answer->score,
-                    'answer' => $this->transformHtmlCharsReverse($answer->answer),
+                    'answer' => CmsBase::transformHtmlCharsReverse($answer->answer),
                 ];
             })->toArray();
         }

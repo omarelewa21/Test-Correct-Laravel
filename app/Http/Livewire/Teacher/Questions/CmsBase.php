@@ -4,14 +4,14 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 class CmsBase
 {
-    protected function transformHtmlChars($answer)
+    public static function transformHtmlChars($answer)
     {
         $answer = str_replace('<','&lt;',$answer);
         $answer = str_replace('>','&gt;',$answer);
         return $answer;
     }
 
-    protected function transformHtmlCharsReverse($answer)
+    public static function transformHtmlCharsReverse($answer)
     {
         $answer = str_replace('&lt;','<',$answer);
         $answer = str_replace('&gt;','>',$answer);
