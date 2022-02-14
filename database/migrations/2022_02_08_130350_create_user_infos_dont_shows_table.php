@@ -14,8 +14,8 @@ class CreateUserInfosDontShowsTable extends Migration
     public function up()
     {
         Schema::create('user_infos_dont_shows', function (Blueprint $table) {
-            $table->integer('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreignId('info_id')->onDelete('cascade');
+            $table->biginteger('user_id');
+            $table->biginteger('info_id');
             $table->timestamps();
         });
     }
