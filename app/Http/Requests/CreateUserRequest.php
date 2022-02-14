@@ -58,7 +58,7 @@ class CreateUserRequest extends Request {
 			'name_suffix' => '',
 			'name' => '',
 			'email' => '',
-			'password' => '',
+			'password' => 'sometimes|'.User::getPasswordLengthRule(),
 			'session_hash' => '',
 			'api_key' => '',
 			'external_id' => '',
@@ -89,6 +89,8 @@ class CreateUserRequest extends Request {
 				return ((isset($input->school_id) && !empty($input->school_id)) || (!isset($input->school_id) && empty($schoolId)));
 			});
 		}
+
+        $validator->setAttributeNames(['password' => __('auth.password')]);
 
 		return $validator;
 	}
