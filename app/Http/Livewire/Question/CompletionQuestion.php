@@ -5,6 +5,9 @@ namespace tcCore\Http\Livewire\Question;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\Teacher\Questions\CmsBase;
+use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
@@ -19,17 +22,27 @@ class CompletionQuestion extends Component
     public $answer;
     public $answers;
     public $number;
+    public $preventAnswerTransformation = true;
 
     public function mount()
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+        foreach($this->answer as $key => $val){
+            $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val);
+        }
     }
 
     public function updatedAnswer($value, $field)
     {
         $this->answer[$field] = $value;
 
-        $json = json_encode((object)$this->answer);
+        $data = $this->answer;
+
+        if($this->isOfType('completion')){
+            $value = BaseHelper::transformHtmlChars($value);
+            $data[$field] = $value;
+        }
+        $json = json_encode((object)$data);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
@@ -111,11 +124,16 @@ class CompletionQuestion extends Component
         })->join('');
     }
 
+    public function isOfType($type)
+    {
+        return $this->question->subtype == $type;
+    }
+
     public function render()
     {
-        if ($this->question->subtype == 'completion') {
+        if ($this->isOfType('completion')) {
             $html = $this->completionHelper($this->question);
-        } elseif ($this->question->subtype == 'multi') {
+        } elseif ($this->isOfType('multi')) {
             $html = $this->multiHelper($this->question);
         } else {
             throw new \Exception ('unknown type');
