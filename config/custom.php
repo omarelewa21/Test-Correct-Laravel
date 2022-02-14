@@ -16,5 +16,7 @@ return [
     'encrypt' => [
         'eckid_passphrase' => env('ECK_ID_PASSPHRASE','joepie'),
         'eckid_iv' => env('ECK_ID_IV',''),
-    ]
+    ],
+    'examschool_customercode' => env('EXAMSCHOOL_CUSTOMERCODE','OPENSOURCE1'),
+    'examschool_author' => env('EXAMSCHOOL_AUTOR','info+CEdocent@test-correct.nl'),
 ];

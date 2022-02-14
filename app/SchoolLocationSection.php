@@ -46,8 +46,8 @@ class SchoolLocationSection extends CompositePrimaryKeyModel {
         return $this->belongsTo('tcCore\SchoolLocation');
     }
 
-    public function subject() { // who thinks of such a name and call it subject instead of section 20200508 Erik???
-        return $this->belongsTo('tcCore\Section');
+    public function subjects() {
+        return $this->hasMany(Subject::class, 'section_id','section_id');
     }
 
     public function section() {

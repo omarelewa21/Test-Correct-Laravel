@@ -86,6 +86,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	Route::resource('test', 'TestsController', ['except' => ['create', 'edit']]);
 	Route::get('test_max_score/{test}','TestsController@maxScoreResponse')->name('test.max_score');
     Route::resource('cito_test','Cito\TestsController')->only(['index','show']);
+    Route::resource('exam_test','Exam\TestsController')->only(['index','show']);
 
     Route::get('shared_sections','SharedSectionsController@index');
 
@@ -218,6 +219,7 @@ Route::group(['middleware' => ['api', 'dl', 'authorize', 'authorizeBinds', 'bind
 	// Subjects
 	Route::resource('subject', 'SubjectsController', ['except' => ['create', 'edit']]);
 	Route::resource('cito_subject','Cito\SubjectsController')->only(['index']);
+    Route::resource('exam_subject','Exam\SubjectsController')->only(['index']);
 
 	// Test kinds
 	Route::get('test_kind/list', ['as' => 'test_kind.list', 'uses' => 'TestKindsController@lists']);
