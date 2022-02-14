@@ -87,7 +87,7 @@ class UpdateUserRequest extends Request {
             'name' => '',
             'email' => '',
             'old_password' => 'sometimes|required|old_password:'.$this->user->getAttribute('password'),
-            'password' => 'sometimes|min:8',
+            'password' => 'sometimes|'. User::getPasswordLengthRule(),
             'session_hash' => '',
             'api_key' => '',
             'external_id' => '',

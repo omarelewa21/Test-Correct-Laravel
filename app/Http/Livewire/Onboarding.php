@@ -95,7 +95,7 @@ class Onboarding extends Component
                 'registration.name_first'       => 'required|string',
                 'registration.name'             => 'required|string',
                 'registration.name_suffix'      => 'sometimes',
-                'password'                      => 'required|min:8|same:password_confirmation',
+                'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
             ]);
         }
 

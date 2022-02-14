@@ -42,7 +42,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="password items-start">
+                                    <div class="password ">
                                         <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
                                             <input id="password" wire:model="password" type="password"
                                                    autocomplete="new-password"
@@ -59,25 +59,12 @@
                                         </div>
 
                                         <div
-                                            class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto requirement-font-size">
+                                            class="flex items-end mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto requirement-font-size">
                                             <div
                                                 class="text-{{$this->minCharRule}}">@if($this->minCharRule)
                                                     <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
                                                     <x-icon.close-small></x-icon.close-small> @else
                                                     <x-icon.dot></x-icon.dot> @endif {{__("password-reset.Min. 8 tekens")}}
-                                            </div>
-                                            <div
-                                                class="text-{{$this->minDigitRule}}">@if($this->minDigitRule)
-                                                    <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
-                                                    <x-icon.close-small></x-icon.close-small> @else
-                                                    <x-icon.dot></x-icon.dot> @endif {{__("password-reset.Min. 1 cijfer")}}
-                                            </div>
-                                            <div
-                                                class="text-{{$this->specialCharRule}}">@if($this->specialCharRule)
-                                                    <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
-                                                    <x-icon.close-small></x-icon.close-small> @else
-                                                    <x-icon.dot></x-icon.dot> @endif {{__("password-reset.Min. 1 speciaal")}}
-                                                {{__("password-reset.teken (bijv. $ of @)")}}
                                             </div>
                                         </div>
                                     </div>

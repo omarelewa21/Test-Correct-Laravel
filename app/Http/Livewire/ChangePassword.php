@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
+use tcCore\User;
 
 class ChangePassword extends Component
 {
@@ -18,7 +19,7 @@ class ChangePassword extends Component
         return [
             'currentPassword'   => 'required',
             'newPasswordRepeat' => 'required|same:newPassword',
-            'newPassword'       => 'required|min:8',
+            'newPassword'       => 'required|'. User::getPasswordLengthRule(),
         ];
     }
 

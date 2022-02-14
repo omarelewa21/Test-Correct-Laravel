@@ -35,14 +35,12 @@ class PasswordReset extends Component
             return[
                 'password.required' => 'Wachtwoord is verplicht',
                 'password.min'      => 'Wachtwoord moet langer zijn dan 8 karakters',
-                'password.regex'    => 'Wachtwoord voldoet niet aan de eisen',
                 'password.same'     => 'Wachtwoord komt niet overeen',
             ];
         }
         return[
             'password.required' => 'Password is required',
             'password.min'      => 'Password must be longer than 8 characters',
-            'password.regex'    => 'Password does not meet the requirements',
             'password.same'     => 'Password does not match',
         ];
     }
@@ -57,29 +55,11 @@ class PasswordReset extends Component
         }
     }
 
-    public function getMinDigitRuleProperty()
-    {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return preg_match('/\d/', $this->password) ? true : false;
-        }
-    }
-
-    public function getSpecialCharRuleProperty()
-    {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return preg_match('/[^a-zA-Z\d]/', $this->password) ? true : false;
-        }
-    }
-
     public function rules()
     {
         return [
             'username' => 'required|email',
-            'password' => 'required|min:8|regex:/\d/|regex:/[^a-zA-Z\d]/|same:password_confirmation',
+            'password' => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
             'token'    => 'required',
         ];
     }
@@ -113,7 +93,6 @@ class PasswordReset extends Component
             else{
                 $this->addError('password', 'The email address provided is incorrect');
             }
-            
         };
 
         if ($response === PasswordBroker::INVALID_TOKEN) {
