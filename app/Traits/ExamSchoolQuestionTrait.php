@@ -15,7 +15,7 @@ use tcCore\QuestionAuthor;
 trait ExamSchoolQuestionTrait {
 
 
-    private function handleExamPublishingQuestion()
+    private function handleExamPublishingQuestion():void
     {
         if($this->allowExamQuestionPublished()){
             $this->getQuestionInstance()->setAttribute('scope', 'exam');
@@ -24,7 +24,7 @@ trait ExamSchoolQuestionTrait {
         }
     }
 
-    private function allowExamQuestionPublished()
+    private function allowExamQuestionPublished():bool
     {
         if(!optional(Auth::user())->isInExamSchool()){
             return false;
@@ -38,7 +38,7 @@ trait ExamSchoolQuestionTrait {
         return true;
     }
 
-    private function shouldUnpublishExamQuestion()
+    private function shouldUnpublishExamQuestion():bool
     {
         if(!optional(Auth::user())->isInExamSchool()){
             return false;
@@ -52,7 +52,7 @@ trait ExamSchoolQuestionTrait {
         return true;
     }
 
-    public function hasNonPublishableExamSubject()
+    public function hasNonPublishableExamSubject():bool
     {
         if($this->getQuestionInstance()->subject->name=='TLC Toetsenbakken'){
             return true;
@@ -63,7 +63,7 @@ trait ExamSchoolQuestionTrait {
         return false;
     }
 
-    public function hasNonPublishableExamSubjectDemo()
+    public function hasNonPublishableExamSubjectDemo():bool
     {
         if($this->getQuestionInstance()->subject->name=='Demovak'){
             return true;
@@ -71,18 +71,32 @@ trait ExamSchoolQuestionTrait {
         return false;
     }
 
-    private function unpublishExamQuestion()
+    private function unpublishExamQuestion():void
     {
         $this->getQuestionInstance()->setAttribute('scope', 'not_exam');
     }
 
-    private function examTestOfQuestionIsPublished()
+    private function examTestOfQuestionIsPublished():bool
     {
-        foreach($this->testQuestions as $testQuestion){
+        if($this->toggleTestQuestionsForScopeExamOnTest($this)){
+            return true;
+        }
+        foreach($this->groupQuestionQuestions as $groupQuestionQuestion){
+            if($this->toggleTestQuestionsForScopeExamOnTest($groupQuestionQuestion->groupQuestion->getQuestionInstance())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function toggleTestQuestionsForScopeExamOnTest($question):bool
+    {
+        foreach($question->testQuestions as $testQuestion){
             if($testQuestion->test->scope == 'exam'){
                 return true;
             }
         }
         return false;
     }
+
 }

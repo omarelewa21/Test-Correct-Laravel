@@ -9,12 +9,13 @@
 namespace tcCore\Traits;
 
 use Illuminate\Support\Facades\Auth;
+use tcCore\GroupQuestion;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\QuestionAuthor;
 
 trait ExamSchoolTestTrait {
 
-    private function handleExamPublishingTest()
+    private function handleExamPublishingTest():void
     {
         if($this->allowExamPublished()){
             $this->setExamTestParams();
@@ -23,7 +24,7 @@ trait ExamSchoolTestTrait {
         }
     }
 
-    private function handleExamPublishingQuestionsOfTest()
+    private function handleExamPublishingQuestionsOfTest():void
     {
         if($this->allowExamQuestionsPublished()){
             $this->setExamParamsOnQuestionsOfTest();
@@ -32,7 +33,7 @@ trait ExamSchoolTestTrait {
         }
     }
 
-    private function allowExamPublished()
+    private function allowExamPublished():bool
     {
         if(!optional(Auth::user())->isInExamSchool()){
             return false;
@@ -40,13 +41,13 @@ trait ExamSchoolTestTrait {
         if($this->hasNonPublishableExamSubject()){
             return false;
         }
-        if($this->abbreviation != 'CE' && $this->abbreviation != 'EXAM'){
+        if($this->abbreviation != 'EXAM'){
             return false;
         }
         return true;
     }
 
-    private function allowExamQuestionsPublished()
+    private function allowExamQuestionsPublished():bool
     {
         if(!optional(Auth::user())->isInExamSchool()){
             return false;
@@ -57,7 +58,7 @@ trait ExamSchoolTestTrait {
         return false;
     }
 
-    private function shouldUnpublishExamTest()
+    private function shouldUnpublishExamTest():bool
     {
         if(!optional(Auth::user())->isInExamSchool()){
             return false;
@@ -68,7 +69,7 @@ trait ExamSchoolTestTrait {
         return false;
     }
 
-    private function shouldUnpublishExamQuestionsOfTest()
+    private function shouldUnpublishExamQuestionsOfTest():bool
     {
         if(!optional(Auth::user())->isInExamSchool()){
             return false;
@@ -79,7 +80,7 @@ trait ExamSchoolTestTrait {
         return false;
     }
 
-    public function hasNonPublishableExamSubject()
+    public function hasNonPublishableExamSubject():bool
     {
         if($this->subject->name=='TLC Toetsenbakken'){
             return true;
@@ -90,7 +91,7 @@ trait ExamSchoolTestTrait {
         return false;
     }
 
-    public function hasNonPublishableExamSubjectDemo()
+    public function hasNonPublishableExamSubjectDemo():bool
     {
         if($this->subject->name=='Demovak'){
             return true;
@@ -98,7 +99,7 @@ trait ExamSchoolTestTrait {
         return false;
     }
 
-    public function setExamTestParams()
+    public function setExamTestParams():void
     {
         $this->setAttribute('scope', 'exam');
         $this->setAttribute('abbreviation', 'EXAM');
@@ -108,17 +109,22 @@ trait ExamSchoolTestTrait {
         }
     }
 
-    private function unpublishExam()
+    private function unpublishExam():void
     {
         $this->setAttribute('scope', 'not_exam');
-        $this->setAttribute('abbreviation', 'NOT_EXAM');
+        $this->setAttribute('abbreviation', 'NOTCE');
     }
 
-    public function setExamParamsOnQuestionsOfTest()
+    public function setExamParamsOnQuestionsOfTest():void
     {
         $questions = $this->testQuestions->map(function($testQuestion){
             return $testQuestion->question->getQuestionInstance();
         });
+        $this->setExamParamsOnQuestions($questions);
+    }
+
+    private function setExamParamsOnQuestions($questions):void
+    {
         $questions->each(function($question){
             $question->setAttribute('scope', 'exam');
             $question->save();
@@ -126,17 +132,37 @@ trait ExamSchoolTestTrait {
             if(!is_null($authorUser)) {
                 QuestionAuthor::addAuthorToQuestion($question, $authorUser->getKey());
             }
+            if($question->type == 'GroupQuestion'){
+                $this->groupQuestionRecursive($question,'setExamParamsOnQuestions');
+            }
         });
     }
 
-    public function unpublishQuestionsOfTest()
+    public function unpublishQuestionsOfTest():void
     {
         $questions = $this->testQuestions->map(function($testQuestion){
             return $testQuestion->question->getQuestionInstance();
         });
+        $this->unpublishQuestions($questions);
+    }
+
+    private function unpublishQuestions($questions):void
+    {
         $questions->each(function($question){
             $question->setAttribute('scope', 'not_exam');
             $question->save();
+            if($question->type == 'GroupQuestion'){
+                $this->groupQuestionRecursive($question,'unpublishQuestions');
+            }
         });
+    }
+
+    private function groupQuestionRecursive($question,$functionCall):void
+    {
+        $groupQuestion = GroupQuestion::find($question->getKey());
+        $subQuestions = $groupQuestion->groupQuestionQuestions->map(function($groupQuestionQuestion){
+            return $groupQuestionQuestion->question->getQuestionInstance();
+        });
+        $this->$functionCall($subQuestions);
     }
 }
