@@ -5,56 +5,82 @@
 @section('header_message')
     Wachtwoord gewijzigd
 @stop
-@section('applied_styles')
-    .aanhef{
-        font-family: Nunito;
-        font-size: 20px;
-        font-weight: bold;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 1.6;
-        letter-spacing: normal;
-        color: var(--all-base);
-    }
-    .padding-top-40{
-        padding-top: 40px;
-    }
-    .padding-bottom-40{
-        padding-bottom: 40px;
-    }
-    .support-title,.support-mail {
-        font-family: Nunito;
-        font-size: 16px;
-        font-weight; normal;
-        font-stretch: normal;
-        font-style: normal;
-        line-height: 1.38;
-        letter-spacing: normal;
-    }
-    .support-title{
-        font-weight: bold;
-        margin-bottom: 0px;
-    }
-    .support-line td{
-        padding-left: 0px;
-    }
-@stop
 
 @section('content')
 <tr>
-<td colspan="999" class="padding-top-40 padding-bottom-40 content-td" >
-    <p class="aanhef">{{ __("password.Beste") }} {{$user->getNameFullAttribute()}},</p>
-    <p>Iemand heeft zojuist het wachtwoord van je Test-Correct account gewijzigd.</p>
+<td colspan="999" style="padding-bottom: 40px;
+                                            padding-top: 40px;
+                                            padding-left: 40px;
+                                            padding-right: 40px;
+                                            border-left: solid 1px #c3d0ed;
+                                            border-right: solid 1px #c3d0ed;" >
+    <p style="  margin-bottom: 15px;
+                font-family: Nunito, sans-serif;
+                font-size: 20px;
+                font-weight: bold;
+                font-stretch: normal;
+                font-style: normal;
+                line-height: 1.6;
+                letter-spacing: normal;
+                color: #041f74;
+                margin-top: 0px;
+                margin-right: 0px;
+                margin-left: 0px;
+                padding: 0px;
+                ">{{ __("password.Beste") }} {{$user->getNameFullAttribute()}},</p>
+    <p style="   font-size: 15px;
+                 line-height: 22px;
+                 margin-bottom: 15px;
+                 margin-top: 0px;
+                 margin-right: 0px;
+                 margin-left: 0px;
+                 padding: 0px;
+                 font-family: Nunito, sans-serif;
+                 font-weight: 300;
+                 color: #041f74;">Iemand heeft zojuist het wachtwoord van je Test-Correct account gewijzigd.</p>
 
-    <p>Als je niet op de hoogte was van deze wijziging, dan is het verstandig om je wachtwoord te wijzigen voor de veiligheid van je account.</p>
-    <table class="support-line">
+    <p style="   font-size: 15px;
+                 line-height: 22px;
+                 margin-bottom: 15px;
+                 margin-top: 0px;
+                 margin-right: 0px;
+                 margin-left: 0px;
+                 padding: 0px;
+                 font-family: Nunito, sans-serif;
+                 font-weight: 300;
+                 color: #041f74;">Als je niet op de hoogte was van deze wijziging, dan is het verstandig om je wachtwoord te wijzigen voor de veiligheid van je account.</p>
+    <table >
         <tr>
-            <td>
+            <td style="padding-left: 0px;padding-right: 40px;">
                 <img src="{{config('app.base_url')}}img/mail/sticker-neem-contact-op.png">
             </td>
-            <td>
-                <p class="support-title">Afdeling support</p>
-                <p class="support-mail">support@test-correct.nl</p>
+            <td style="padding-left: 0px;padding-right: 40px;">
+                <p  style="     font-family: Nunito, sans-serif;
+                                font-size: 16px;
+                                font-stretch: normal;
+                                font-style: normal;
+                                line-height: 1.38;
+                                letter-spacing: normal;
+                                font-weight: bold;
+                                margin-bottom: 0px;
+                                margin-top: 0px;
+                                margin-right: 0px;
+                                margin-left: 0px;
+                                padding: 0px;
+                                color: #041f74;">Afdeling support</p>
+                <p  style="     margin-bottom: 15px;
+                                font-family: Nunito;
+                                font-size: 16px;
+                                font-weight; normal;
+                                font-stretch: normal;
+                                font-style: normal;
+                                line-height: 1.38;
+                                letter-spacing: normal;
+                                margin-top: 0px;
+                                margin-right: 0px;
+                                margin-left: 0px;
+                                padding: 0px;
+                                color: #041f74;">support@test-correct.nl</p>
             </td>
         </tr>
     </table>
