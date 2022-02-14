@@ -54,7 +54,7 @@ class ExamTestsDebug extends Command
                 if($test->hasNonPublishableExamSubject()){
                     continue;
                 }
-                $test->setExamTestParams();
+//                $test->setExamTestParams();
 //                $test->save();
 //                $test->setExamParamsOnQuestionsOfTest();
             }
