@@ -69,7 +69,7 @@
                             </x-drag-item>
                         @endforeach
                     </div>
-                    <x-button.primary class="mt-1 justify-center w-full" wire:click="__call('addAnswerSubItem','{{$key}}')">
+                    <x-button.primary class="mt-1 justify-center w-full" wire:click="__call('addAnswerSubItem','{{$key}}')" selid="add-answer-option-btn">
                         <x-icon.plus/>
                         <span >
                                         {{ __('cms.Item toevoegen') }}

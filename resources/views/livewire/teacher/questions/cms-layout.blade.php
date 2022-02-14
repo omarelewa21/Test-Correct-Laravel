@@ -125,9 +125,10 @@
              x-data="{openTab: 1}"
              x-init="$watch('openTab', value => { value === 1 ? $dispatch('tabchange') : '';})"
              @opentab.window="openTab = $event.detail"
+             selid="tabcontainer"
         >
-            <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]">
-                <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}">
+            <div class="flex w-full space-x-6 mb-5 border-b border-secondary max-h-[50px]" selid="tabs">
+                <div :class="{'border-b-2 border-primary -mb-px primary' : openTab === 1}" selid="tab-question">
                     <x-button.text-button
                             style="color:inherit"
                             @click="openTab = 1"
@@ -135,7 +136,7 @@
                         {{ __('Opstellen') }}
                     </x-button.text-button>
                 </div>
-                <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}">
+                <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 2}" selid="tab-settings">
                     <x-button.text-button
                             style="color:inherit"
                             @click="openTab = 2;"
@@ -144,7 +145,7 @@
                     </x-button.text-button>
                 </div>
                 @if($this->testQuestionId && $this->showStatistics())
-                    <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}">
+                    <div class="" :class="{'border-b-2 border-primary -mb-px primary' : openTab === 3}" selid="tab-statistics">
                         <x-button.text-button
                                 style="color:inherit"
                                 @click="openTab = 3;"
@@ -228,6 +229,7 @@
                                                            :toolTip="__('cms.make_public_tooltip_text')"
                                                            class="{{ $this->isSettingsGeneralPropertyDisabled('addToDatabase') ? 'text-disabled' : '' }}"
                                                            :disabled="$this->isSettingsGeneralPropertyDisabled('addToDatabase')"
+                                                           selid="open-source-switch"
                             >
                                 <x-icon.preview class="flex "></x-icon.preview>
                                 <span class="bold"> {{ __('Openbaar maken') }}</span>
@@ -421,7 +423,7 @@
                                 @endforeach
 
                             @endif
-                        </div>
+                        </div>Openbaar maken
                     </x-content-section>
                 </div>
             @endif
@@ -435,6 +437,7 @@
                         type="button"
                         wire:click="returnToTestOverview();"
                         class="button text-button button-md pr-4"
+                        selid="cancel-btn"
                 >
                     <span> {{ __("Annuleer") }}</span>
                 </button>
@@ -445,6 +448,7 @@
                         type="button"
                         wire:click="save"
                         class="button cta-button button-sm"
+                        selid="save-btn"
                 >
                     <span>{{ __("Vraag opslaan") }}</span>
                 </button>

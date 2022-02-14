@@ -52,7 +52,7 @@
         @endforeach
     </div>
     <div class="flex flex-col space-y-2 w-full">
-        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')">
+        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')" selid="add-answer-option-btn">
             <x-icon.plus/>
             <span >
                                     {{ __('cms.Item toevoegen') }}
