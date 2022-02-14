@@ -165,7 +165,7 @@ class Test extends BaseModel
      */
     public function testQuestions()
     {
-        return $this->hasMany('tcCore\TestQuestion', 'test_id')->orderBy('order');
+        return $this->hasMany('tcCore\TestQuestion', 'test_id');
     }
 
     public function testAuthors()

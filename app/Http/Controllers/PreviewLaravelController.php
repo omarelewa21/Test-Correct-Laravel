@@ -48,7 +48,7 @@ class PreviewLaravelController extends Controller
 //        });
 //        return cache()->remember('data_test_preview' . $test->getKey(), now()->addMinutes(60), function () use ($test) {
             $test->load('testQuestions', 'testQuestions.question', 'testQuestions.question.attachments');
-            return $test->testQuestions->flatMap(function ($testQuestion) {
+            return $test->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
                 $testQuestion->question->loadRelated();
                 if ($testQuestion->question->type === 'GroupQuestion') {
                     $groupQuestion = $testQuestion->question;
