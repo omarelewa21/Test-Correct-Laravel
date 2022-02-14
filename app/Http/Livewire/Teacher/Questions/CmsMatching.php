@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TestQuestion;
 
 class CmsMatching extends CmsBase
@@ -114,8 +115,8 @@ class CmsMatching extends CmsBase
         $this->instance->question['answers'] = array_values(collect($this->instance->cmsPropertyBag['answerStruct'])->map(function($answer){
             return [
                 'order' => $answer['order'],
-                'left' => CmsBase::transformHtmlChars($answer['left']),
-                'right' => CmsBase::transformHtmlChars($answer['right']),
+                'left' => BaseHelper::transformHtmlChars($answer['left']),
+                'right' => BaseHelper::transformHtmlChars($answer['right']),
             ];
         })->toArray());
         unset($this->instance->question['answer']);
@@ -154,8 +155,8 @@ class CmsMatching extends CmsBase
                     return [
                         'id'     => Uuid::uuid4(),
                         'order'  => $key + 1,
-                        'left' => CmsBase::transformHtmlCharsReverse($corresponding->answer),
-                        'right' => CmsBase::transformHtmlCharsReverse($answer->answer),
+                        'left' => BaseHelper::transformHtmlCharsReverse($corresponding->answer),
+                        'right' => BaseHelper::transformHtmlCharsReverse($answer->answer),
                     ];
                 }
 

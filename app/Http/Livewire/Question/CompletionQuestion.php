@@ -5,6 +5,7 @@ namespace tcCore\Http\Livewire\Question;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Livewire\Teacher\Questions\CmsBase;
 use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithAttachments;
@@ -26,16 +27,22 @@ class CompletionQuestion extends Component
     public function mount()
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+        foreach($this->answer as $key => $val){
+            $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val);
+        }
     }
 
     public function updatedAnswer($value, $field)
     {
-        if($this->isOfType('completion')){
-            $value = CmsBase::transformHtmlChars($value);
-        }
         $this->answer[$field] = $value;
 
-        $json = json_encode((object)$this->answer);
+        $data = $this->answer;
+
+        if($this->isOfType('completion')){
+            $value = BaseHelper::transformHtmlChars($value);
+            $data[$field] = $value;
+        }
+        $json = json_encode((object)$data);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 

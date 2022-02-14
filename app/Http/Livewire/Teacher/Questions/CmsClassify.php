@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TestQuestion;
 
 class CmsClassify extends CmsBase
@@ -185,8 +186,8 @@ class CmsClassify extends CmsBase
             })->toArray();
             return [
                 'order' => $answer['order'],
-                'left' => CmsBase::transformHtmlChars($answer['left']),
-                'right' => CmsBase::transformHtmlChars(implode(PHP_EOL,$rights)),
+                'left' => BaseHelper::transformHtmlChars($answer['left']),
+                'right' => BaseHelper::transformHtmlChars(implode(PHP_EOL,$rights)),
             ];
         })->toArray());
 

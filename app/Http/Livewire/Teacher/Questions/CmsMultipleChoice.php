@@ -4,6 +4,7 @@ namespace tcCore\Http\Livewire\Teacher\Questions;
 
 use Ramsey\Uuid\Uuid;
 use tcCore\GroupQuestionQuestion;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\TestQuestion;
 
 class CmsMultipleChoice extends CmsBase
@@ -65,7 +66,7 @@ class CmsMultipleChoice extends CmsBase
                     $answer = (array) $answer;
                     return [
                         'order'  => $answer['order'],
-                        'answer' => CmsBase::transformHtmlChars($answer['answer']),
+                        'answer' => BaseHelper::transformHtmlChars($answer['answer']),
                         'score'  => (int)$answer['score'],
                     ];
                 })
@@ -179,7 +180,7 @@ class CmsMultipleChoice extends CmsBase
                     'id'     => Uuid::uuid4(),
                     'order'  => $key + 1,
                     'score'  => $answer->score,
-                    'answer' => CmsBase::transformHtmlCharsReverse($answer->answer),
+                    'answer' => BaseHelper::transformHtmlCharsReverse($answer->answer),
                 ];
             })->toArray();
         }
