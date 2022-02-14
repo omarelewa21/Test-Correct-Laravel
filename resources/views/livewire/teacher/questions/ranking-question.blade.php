@@ -44,7 +44,7 @@
                          :keepWidth="true"
                          sortIcon="reorder"
             >
-                <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"/>
+                <x-input.text class="w-full mr-1 {{ $errorAnswerClass }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer" selid="answer-field"/>
                 <x-slot name="after">
                     <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="__call('delete','{{$answer->id}}')"></x-icon.remove>
                 </x-slot>

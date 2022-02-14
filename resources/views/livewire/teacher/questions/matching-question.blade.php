@@ -51,8 +51,8 @@
                          :keepWidth="true"
                          sortIcon="reorder"
             >
-                <x-input.text class="w-full mr-2 {{ $errorAnswerClassLeft }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.left"/>
-                <x-input.text class="w-full mr-1 {{ $errorAnswerClassRight }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.right"/>
+                <x-input.text class="w-full mr-2 {{ $errorAnswerClassLeft }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.left" selid="left-answer"/>
+                <x-input.text class="w-full mr-1 {{ $errorAnswerClassRight }} " wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.right" selid="right-answer"/>
                 <x-slot name="after">
                     <x-icon.remove class="mx-2 w-4 cursor-pointer  {{ $disabledClass }}" id="remove_{{ $answer->order }}" wire:click="__call('delete','{{$answer->id}}')"></x-icon.remove>
                 </x-slot>
@@ -60,7 +60,7 @@
         @endforeach
     </div>
     <div class="flex flex-col space-y-2 w-full">
-        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')">
+        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')" selid="add-answer-option-btn">
             <x-icon.plus/>
             <span >
                                     {{ __('cms.Itemset toevoegen') }}
