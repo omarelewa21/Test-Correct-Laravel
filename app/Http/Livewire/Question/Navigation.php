@@ -103,7 +103,7 @@ class Navigation extends Component
         } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
             $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
         } else {
-            return redirect()->to(route('student.test-take-overview', $this->testTakeUuid));
+            $this->dispatchBrowserEvent('show-loader', ['route' => route('student.test-take-overview', $this->testTakeUuid)]);
         }
         return true;
     }
@@ -215,4 +215,8 @@ class Navigation extends Component
         $this->startTime = time();
     }
 
+    public function redirectTo($route)
+    {
+        return redirect()->to($route);
+    }
 }
