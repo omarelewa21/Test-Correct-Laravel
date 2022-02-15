@@ -69,4 +69,6 @@ return [
     'truefalse no answer' => 'Het is verplicht een antwoord optie te kiezen.',
     'File too large, max file size' => 'De bestandsgrootte van je upload is te groot. De maximale toegestande grootte is 25MB',
     'coordinaten' => 'Coördinaten',
+    'Teken in de tekentool het antwoordmodel voor de vraag.' => 'Teken in de tekentool het antwoordmodel voor de vraag.',
+    'waarschuwing_aanpassen_oude_tekenvraag' => 'Je kan met de nieuwe tekentool de tekening later aanpassen. Tekeningen die gemaakt zijn met de oude tekentool kunnen helaas alleen als plaatje ingeladen worden, maar kunnen niet aangepast worden.',
 ];

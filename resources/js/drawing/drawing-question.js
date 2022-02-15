@@ -3,8 +3,7 @@ import * as svgShape from "./svgShape.js";
 import {UIElements, warningBox} from "./uiElements.js";
 import * as sidebar from "./sidebar.js";
 
-
-window.initDrawingQuestion = function () {
+window.initDrawingQuestion = function (rootElement) {
 
     /**
      * @typedef Cursor
@@ -29,12 +28,12 @@ window.initDrawingQuestion = function () {
      * Global Object containing all DOM Elements on the page that have an id attribute.
      * The key is the id value converted to camelCase, the value being the DOM Element itself.
      */
-    window.UI = new UIElements();
+    let UI = new UIElements(rootElement);
 
     /**
      * Global Object containing some parameters that don't belong in Canvas.
      */
-    window.drawingApp = {
+    let drawingApp = {
         params: {
             currentTool: "drag",
             boldText: false,
@@ -42,22 +41,32 @@ window.initDrawingQuestion = function () {
             gridSize: 1,
             spacebarPressed: false,
         },
+        firstInit: true,
         warnings: {},
         init() {
-            this.bindEventListeners(eventListenerSettings);
+            if (this.firstInit) {
+                this.bindEventListeners(eventListenerSettings);
+            }
+
+            const drawingApp = this
             const pollingFunction = setInterval(function () {
-                if (UI.svgCanvas.getBoundingClientRect().width !== 0 ) {
+                if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
                     setCorrectPopupHeight();
                     calculateCanvasBounds();
                     updateClosedSidebarWidth();
-                    makeGrid();
-                    processGridToggleChange();
-                    updateMidPoint();
 
+                    // updateMidPoint();
+                    if (drawingApp.firstInit) {
+                        makeGrid();
+                    }
+
+                    processGridToggleChange();
+                    clearLayers();
                     retrieveSavedDrawingData();
 
                     Canvas.setCurrentLayer(Canvas.params.currentLayer);
 
+                    drawingApp.firstInit = false;
                     clearInterval(pollingFunction);
                 }
                 console.log("loop");
@@ -75,7 +84,8 @@ window.initDrawingQuestion = function () {
             this.warnings = {
                 whenAnyToolButDragSelected: new warningBox(
                     "Stel de opmaak in voordat je het object tekent",
-                    2000
+                    2000,
+                    rootElement
                 ),
             };
         },
@@ -130,92 +140,110 @@ window.initDrawingQuestion = function () {
     /**
      * Global Object containing all parameters, Shapes and corresponding sidebarEntries.
      */
-    window.Canvas = {
-        params: {
-            cursorPosition: {x: 0, y: 0},
-            currentLayer: "question",
-            focusedShape: null,
-            bounds: {},
-            draw: {
-                newShape: null,
-                shapeCountForEachType: {
-                    rect: 0,
-                    circle: 0,
-                    line: 0,
-                    text: 0,
-                    image: 0,
-                    path: 0,
-                    freehand: 0,
+    let Canvas = (function() {
+        let Obj = {
+            params: {
+                cursorPosition: {x: 0, y: 0},
+                currentLayer: "question",
+                focusedShape: null,
+                bounds: {},
+                draw: {
+                    newShape: null,
+                    shapeCountForEachType: {
+                        rect: 0,
+                        circle: 0,
+                        line: 0,
+                        text: 0,
+                        image: 0,
+                        path: 0,
+                        freehand: 0,
+                    },
                 },
-            },
-            drag: {
-                enabled: false,
-                translateOfSvgShape: null,
-                offsetCursorToMidPoint: null,
-            },
-            pan: {
-                enabled: false,
-                startCoordinates: {x: 0, y: 0},
-            },
-            domMatrix: new DOMMatrix(),
-            zoomFactor: 1,
-        },
-        element: UI.svgCanvas,
-        layers: {
-            "question": new sidebar.Layer({
-                name: "Vraag",
-                id: "question-group",
-                enabled: true,
-            }),
-            "answer": new sidebar.Layer({
-                name: "Antwoord",
-                id: "answer-group",
-                enabled: false,
-            }),
-            "grid": {
-                svg: UI.svgGridGroup,
-                params: {
-                    locked: true,
-                    hidden: true,
+                drag: {
+                    enabled: false,
+                    translateOfSvgShape: null,
+                    offsetCursorToMidPoint: null,
                 },
+                pan: {
+                    enabled: false,
+                    startCoordinates: {x: 0, y: 0},
+                },
+                domMatrix: new DOMMatrix(),
+                zoomFactor: 1,
             },
-        },
-        dragging() {
-            return this.params.drag.enabled
-        },
-        panning() {
-            return this.params.pan.enabled
-        },
-        drawing() {
-            return this.params.draw.newShape
-        },
-        setCurrentLayer(newCurrentLayerID) {
-            const oldCurrentLayer = document.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
-            oldCurrentLayer.classList.remove("highlight");
+            element: UI.svgCanvas,
+            layers: {},
+            dragging() {
+                return this.params.drag.enabled
+            },
+            panning() {
+                return this.params.pan.enabled
+            },
+            drawing() {
+                return this.params.draw.newShape
+            },
+            setCurrentLayer(newCurrentLayerID) {
+                const oldCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
+                if (oldCurrentLayer === null) {
+                    debugger;
+                }
+                oldCurrentLayer.classList.remove("highlight");
 
-            const newCurrentLayer = document.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
-            newCurrentLayer.classList.add("highlight");
-            Canvas.params.currentLayer = newCurrentLayerID;
-        },
-        getEnabledLayers() {
-            return Object.values(this.layers).filter((layer) => {
-                return layer.params.enabled
-            });
-        },
-        layerID2Key(id) {
-            return (id.startsWith("svg-") ? id.substring(4, id.lastIndexOf("-")) : id.substring(0, id.lastIndexOf("-")));
-        },
-        layerKey2ID(key) {
-            return `${key}-group`;
-        },
-        setFocusedShape(shape) {
-            this.params.focusedShape = shape;
-        },
-        data: {
-            question: "",
-            answer: "",
-        },
-    };
+                const newCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
+                newCurrentLayer.classList.add("highlight");
+                Canvas.params.currentLayer = newCurrentLayerID;
+            },
+            getEnabledLayers() {
+                return Object.values(this.layers).filter((layer) => {
+                    return layer.params.enabled
+                });
+            },
+            layerID2Key(id) {
+                return (id.startsWith("svg-") ? id.substring(4, id.lastIndexOf("-")) : id.substring(0, id.lastIndexOf("-")));
+            },
+            layerKey2ID(key) {
+                return `${key}-group`;
+            },
+            setFocusedShape(shape) {
+                this.params.focusedShape = shape;
+            },
+            data: {
+                question: "",
+                answer: "",
+            },
+            makeLayers() {
+                this.layers = {
+                    "question": new sidebar.Layer({
+                        name: "Vraag",
+                        id: "question-group",
+                        enabled: true,
+                    }, drawingApp, this),
+                    "answer": new sidebar.Layer({
+                        name: "Antwoord",
+                        id: "answer-group",
+                        enabled: false,
+                    }, drawingApp, this),
+                    "grid": {
+                        svg: UI.svgGridGroup,
+                        params: {
+                            locked: true,
+                            hidden: true,
+                        },
+                    },
+                }
+            }
+        }
+
+        Obj.makeLayers();
+        return Obj;
+    })();
+
+
+    function clearLayers() {
+        Canvas.layers.question.clearSidebar(false);
+        Canvas.layers.answer.clearSidebar(false);
+        updateGrid();
+    }
 
     /******************************
      * EVENT LISTENERS DEFINITION *
@@ -340,13 +368,13 @@ window.initDrawingQuestion = function () {
             }
         },
         {
-            elements: [...document.querySelectorAll("[data-button-group=tool]")],
+            elements: [...rootElement.querySelectorAll("[data-button-group=tool]")],
             events: {
                 "click": {callback: processToolChange},
             }
         },
         {
-            elements: [...document.querySelectorAll("[data-button-group=endmarker-type]")],
+            elements: [...rootElement.querySelectorAll("[data-button-group=endmarker-type]")],
             events: {
                 "click": {
                     callback: processEndmarkerTypeChange,
@@ -554,8 +582,7 @@ window.initDrawingQuestion = function () {
                     callback: (evt) => {
                         const targetHeader = evt.target;
                         const newCurrentLayerID = targetHeader.closest(".layer-group").id;
-
-                        Canvas.setCurrentLayer(Canvas.layerID2Key(newCurrentLayerID));
+                        this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                     }
                 },
             }
@@ -572,9 +599,7 @@ window.initDrawingQuestion = function () {
             element: UI.exitBtn,
             events: {
                 "click": {
-                    callback: () => {
-                        // window.Popup.closeLast();
-                    }
+                    callback: () => {},
                 }
             }
         }
@@ -674,7 +699,8 @@ window.initDrawingQuestion = function () {
             Canvas.layers.answer.enable();
         }
         if (data.question || data.answer) {
-            fitDrawingToScreen();
+            //Disabled as it causes unnecessary zooming
+            // fitDrawingToScreen();
         }
     }
 
@@ -815,24 +841,20 @@ window.initDrawingQuestion = function () {
     }
 
     function submitDrawingData() {
-        parent.skip = true;
+        // parent.skip = true;
         const b64Strings = encodeSvgLayersAsBase64Strings();
-        Loading.show();
-        $.post(drawingSaveUrl,
-            {
-                svg_answer: b64Strings.answer,
-                svg_question: b64Strings.question,
-                svg_grid: (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString()
-            },
-            function (response) {
-                if (response == 1) {
-                    Loading.hide();
-                    drawingCallback();
-                } else {
-                    alert('Er ging iets mis');
-                }
-            }
-        );
+        const grid = (Canvas.layers.grid.params.hidden) ? "0.00" : drawingApp.params.gridSize.toString();
+
+        const panGroupSize = getPanGroupSize();
+
+        Livewire.emit("drawing_data_updated", {
+            svg_answer: b64Strings.answer,
+            svg_question: b64Strings.question,
+            svg_grid: grid,
+            svg_zoom_group: panGroupSize
+        });
+
+        makePreviewGrid(grid);
     }
 
     /**
@@ -941,6 +963,7 @@ window.initDrawingQuestion = function () {
         const shapeObjectID = `${currentTool}-${shapeID}`;
         const layerObject = Canvas.layers[Canvas.params.currentLayer];
         layerObject.shapes[shapeObjectID] = newShape;
+        layerObject.unhideIfHidden();
         Canvas.params.draw.newShape = newShape;
     }
 
@@ -1014,7 +1037,7 @@ window.initDrawingQuestion = function () {
 
     function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
         let svgShape = makeNewSvgShape(type, props, Canvas.layers[parent].svg, withHelperElements, withHighlightEvents);
-        let newSidebarEntry = new sidebar.Entry(svgShape);
+        let newSidebarEntry = new sidebar.Entry(svgShape, drawingApp);
         Canvas.layers[parent].addEntry(newSidebarEntry);
         svgShape.setSidebarEntry(newSidebarEntry);
         return {
@@ -1034,19 +1057,19 @@ window.initDrawingQuestion = function () {
         let shapeID = ++Canvas.params.draw.shapeCountForEachType[type];
         switch (type) {
             case "rect":
-                return new svgShape.Rectangle(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Rectangle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "circle":
-                return new svgShape.Circle(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Circle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "line":
-                return new svgShape.Line(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Line(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "text":
-                return new svgShape.Text(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Text(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "image":
-                return new svgShape.Image(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Image(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "path":
-                return new svgShape.Path(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Path(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             case "freehand":
-                return new svgShape.Freehand(shapeID, props, parent, withHelperElements, withHighlightEvents);
+                return new svgShape.Freehand(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
             default:
                 console.error(
                     `makeShapeOfRightType(): type  (${type}) is not valid. No shape was created.`
@@ -1087,6 +1110,7 @@ window.initDrawingQuestion = function () {
     function getCursorPosition(evt) {
         let CTM = UI.svgPanZoomGroup.getScreenCTM();
         evt = evt.touches?.[0] || evt;
+
         return {
             x: (evt.clientX - CTM.e) / CTM.a,
             y: (evt.clientY - CTM.f) / CTM.d,
@@ -1414,19 +1438,18 @@ window.initDrawingQuestion = function () {
             },
             main: {},
             origin: {
-                stroke: "var(--teacher-Primary)",
+                stroke: "var(--all-BlueGrey)",
                 id: "grid-origin",
             },
             size: (drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize),
         }
-        Canvas.layers.grid.shape = new svgShape.Grid(0, props, UI.svgGridGroup);
+        Canvas.layers.grid.shape = new svgShape.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
     }
 
     function updateGridVisibility() {
         const grid = Canvas.layers.grid,
             shape = grid.shape;
-        if (!grid.params.hidden &&
-            (drawingApp.isTeacher() ? valueWithinBounds(UI.gridSize) : true)) {
+        if (!grid.params.hidden && (drawingApp.isTeacher() ? valueWithinBounds(UI.gridSize) : true)) {
             shape.show();
             return;
         }
@@ -1582,17 +1605,92 @@ window.initDrawingQuestion = function () {
             child.style.display = "none";
         }
         shapePropertiesAvailableToUser[drawingApp.params.currentTool].forEach((prop) => {
-            document.getElementById(prop).style.display = "flex";
+            rootElement.querySelector(`#${prop}`).style.display = "flex";
         });
     }
 
     function makeSelectedBtnActive(selectedBtn) {
         const btnGroupName = selectedBtn.getAttribute("data-button-group");
-        const activeBtnsOfBtnGroup = document.querySelectorAll(
+        const activeBtnsOfBtnGroup = rootElement.querySelectorAll(
             `[data-button-group=${btnGroupName}].active`
         );
         for (const btn of [...activeBtnsOfBtnGroup]) btn.classList.remove("active");
         selectedBtn.classList.add("active");
     }
 
+    function getPanGroupSize() {
+        Canvas.layers.grid.shape.hide();
+
+        const questionLayerHidden = Canvas.layers.question.isHidden();
+        const answerLayerHidden = Canvas.layers.answer.isHidden();
+
+        if (questionLayerHidden) {
+            Canvas.layers.question.unhide()
+        }
+        if (answerLayerHidden) {
+            Canvas.layers.answer.unhide()
+        }
+
+        const panGroupSize = UI.svgPanZoomGroup.getBBox();
+
+        if (questionLayerHidden) {
+            Canvas.layers.question.hide()
+        }
+        if (answerLayerHidden) {
+            Canvas.layers.answer.hide()
+        }
+
+        return {
+            x: panGroupSize.x,
+            y: panGroupSize.y,
+            width: panGroupSize.width,
+            height: panGroupSize.height
+        }
+    }
+
+    return { UI, Canvas, drawingApp }
+
 }
+
+function clearPreviewGrid() {
+    const gridContainer = rootElement.querySelector('#grid-preview-svg')
+    if(gridContainer.firstChild !== null) {
+        gridContainer.firstChild.remove();
+    }
+}
+
+window.makePreviewGrid = function (gridSvg) {
+    clearPreviewGrid();
+
+    const props = {
+        group: {
+            style: "",
+        },
+        main: {},
+        origin: {
+            stroke: "var(--teacher-Primary)",
+            id: "grid-origin",
+        },
+        size: gridSvg,
+    }
+    let parent = rootElement.querySelector('#grid-preview-svg')
+    return new svgShape.Grid(0, props, parent, null, null);
+}
+
+window.calculatePreviewBounds = function () {
+    let parent = rootElement.querySelector('#preview-svg')
+    const matrix = new DOMMatrix();
+    const height = parent.clientHeight,
+        width = parent.clientWidth;
+    return {
+        top: -(matrix.f),
+        bottom: height - matrix.f,
+        height: height,
+        left: -(matrix.e),
+        right: width - matrix.e,
+        width: width,
+        cx: -matrix.e + (width / 2),
+        cy: -matrix.f + (height / 2),
+    };
+}
+
