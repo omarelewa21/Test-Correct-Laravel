@@ -120,7 +120,7 @@ class DrawingQuestion extends Component
                     $data['svg_zoom_group']['width'],
                     $data['svg_zoom_group']['height'],
                     base64_decode($data['svg_question']),
-                    base64_decode($data['svg_answer']),
+                    base64_decode($data['svg_answer'])
                 );
 
          $base64 = base64_encode($svg );
