@@ -5,10 +5,13 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Illuminate\Support\Facades\Password;
 use Livewire\Component;
+use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\User;
 
 class PasswordReset extends Component
 {
+    use UserNotificationForController;
+
     public $password;
     public $password_confirmation;
     public $username;
@@ -82,6 +85,8 @@ class PasswordReset extends Component
             $user->save();
         });
 
+        $this->notifyUser($this->username);
+
         if ($response === PasswordBroker::PASSWORD_RESET){
             $this->showSuccessModal = true;
         }
@@ -114,5 +119,15 @@ class PasswordReset extends Component
     public function render()
     {
         return view('livewire.password-reset')->layout('layouts.onboarding');
+    }
+
+    protected function notifyUser($userName)
+    {
+        try {
+            $user = User::where('username', $userName)->firstOrFail();
+            $this->sendPasswordChangedMail($user);
+        } catch (\Exception $e) {
+            //silent fail
+        }
     }
 }

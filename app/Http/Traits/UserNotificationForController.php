@@ -17,7 +17,7 @@ trait UserNotificationForController
         if (Auth::user()->getKey() == $user->getKey()) {
             $mailable = new PasswordChangedSelf($user);
         }
-        Mail::to($user->username)->send($mailable)->subject(__('Wachtwoord gewijzigd'));
+        Mail::to($user->username)->send($mailable);
     }
 
 }
