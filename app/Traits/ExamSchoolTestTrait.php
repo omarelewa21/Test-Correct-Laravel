@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use tcCore\GroupQuestion;
 use tcCore\Http\Controllers\AuthorsController;
 use tcCore\QuestionAuthor;
+use tcCore\TestAuthor;
 
 trait ExamSchoolTestTrait {
 
@@ -106,6 +107,15 @@ trait ExamSchoolTestTrait {
         if(!is_null($authorUser)){
             $this->setAttribute('author_id', $authorUser->getKey());
         }
+    }
+
+    public function setExamTestAuthor():void
+    {
+        $authorUser = AuthorsController::getCentraalExamenAuthor();
+        if(!is_null($authorUser)){
+            TestAuthor::addAuthorToTest($this, $authorUser->getKey());
+        }
+
     }
 
     private function unpublishExam():void

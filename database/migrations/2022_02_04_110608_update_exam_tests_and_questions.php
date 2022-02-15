@@ -2,8 +2,10 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Test;
 
 class UpdateExamTestsAndQuestions extends Migration
@@ -20,6 +22,11 @@ class UpdateExamTestsAndQuestions extends Migration
             if(is_null($examSchoolLocation)){
                 throw new Exception('examschool not found');
             }
+            $examSchoolUser = AuthorsController::getCentraalExamenAuthor();
+            if(is_null($examSchoolUser)){
+                throw new Exception('examschool user not found');
+            }
+            Auth::login($examSchoolUser);
             $tests = Test::where('owner_id',$examSchoolLocation->getKey())->where(function ($q) {
                 $q->where('scope','!=','exam')->orWhereNull('scope');
             })->get();

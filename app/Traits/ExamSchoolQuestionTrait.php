@@ -81,7 +81,7 @@ trait ExamSchoolQuestionTrait {
         if($this->toggleTestQuestionsForScopeExamOnTest($this)){
             return true;
         }
-        foreach($this->groupQuestionQuestions as $groupQuestionQuestion){
+        foreach($this->getQuestionInstance()->groupQuestionQuestions as $groupQuestionQuestion){
             if($this->toggleTestQuestionsForScopeExamOnTest($groupQuestionQuestion->groupQuestion->getQuestionInstance())){
                 return true;
             }

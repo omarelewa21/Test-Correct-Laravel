@@ -117,6 +117,7 @@ class Test extends BaseModel
                 }
             }
             $test->handleExamPublishingQuestionsOfTest();
+            TestAuthor::addExamAuthorToTest($test);
         });
 
         static::deleted(function (Test $test) {
