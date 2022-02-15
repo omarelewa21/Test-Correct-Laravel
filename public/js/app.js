@@ -5999,6 +5999,10 @@ countPresentStudents = function countPresentStudents(members) {
   return activeStudents;
 };
 
+getClosestLivewireComponentByAttribute = function getClosestLivewireComponentByAttribute(element, attributeName) {
+  return livewire.find(element.closest("[".concat(attributeName, "]")).getAttribute('wire:id'));
+};
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":
@@ -6586,11 +6590,6 @@ window.initDrawingQuestion = function (rootElement) {
       },
       setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
         var oldCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
-
-        if (oldCurrentLayer === null) {
-          debugger;
-        }
-
         oldCurrentLayer.classList.remove("highlight");
         var newCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
         newCurrentLayer.classList.add("highlight");
@@ -7264,13 +7263,17 @@ window.initDrawingQuestion = function (rootElement) {
     var b64Strings = encodeSvgLayersAsBase64Strings();
     var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
     var panGroupSize = getPanGroupSize();
-    Livewire.emit("drawing_data_updated", {
+    var livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
+    livewireComponent.handleUpdateDrawingData({
       svg_answer: b64Strings.answer,
       svg_question: b64Strings.question,
       svg_grid: grid,
       svg_zoom_group: panGroupSize
     });
-    makePreviewGrid(drawingApp, grid);
+
+    if (drawingApp.isTeacher()) {
+      makePreviewGrid(drawingApp, grid);
+    }
   }
   /**
    * Event handler for down events of the cursor.
@@ -8121,7 +8124,7 @@ window.initDrawingQuestion = function (rootElement) {
 function clearPreviewGrid(rootElement) {
   var gridContainer = rootElement.querySelector('#grid-preview-svg');
 
-  if (gridContainer.firstChild !== null) {
+  if (gridContainer !== null && gridContainer.firstChild !== null) {
     gridContainer.firstChild.remove();
   }
 }
@@ -8320,6 +8323,7 @@ var sidebarComponent = /*#__PURE__*/function () {
 
     this.drawingApp = drawingApp;
     this.Canvas = Canvas;
+    this.root = drawingApp.params.root;
   }
 
   _createClass(sidebarComponent, [{
@@ -8351,7 +8355,9 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
     _this = _super.call(this, drawingApp, Canvas);
     _this.svgShape = shape;
-    var entryTemplate = document.getElementById("shape-group-template");
+
+    var entryTemplate = _this.root.querySelector("#shape-group-template");
+
     var templateCopy = entryTemplate.content.cloneNode(true);
     _this.entryContainer = templateCopy.querySelector(".shape-container");
     _this.entryTitle = templateCopy.querySelector(".shape-title");
@@ -8450,9 +8456,9 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       var entry = evt.currentTarget;
       entry.classList.remove("dragging");
       var newLayerId = entry.closest(".layer-group").id;
-      var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
-      var shape = document.getElementById(entry.id.substring(6));
-      var shapeToInsertBefore = document.getElementById((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6));
+      var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
+      var shape = this.root.querySelector("#".concat(entry.id.substring(6)));
+      var shapeToInsertBefore = this.root.querySelector("#".concat((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6)));
 
       if (shapeToInsertBefore) {
         newSvgLayer.insertBefore(shape, shapeToInsertBefore);
@@ -8554,7 +8560,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       locked: false
     };
     _this3.props = props;
-    _this3.svg = document.getElementById("svg-".concat(props.id));
+    _this3.svg = _this3.root.querySelector("#svg-".concat(props.id));
     _this3.sidebar = _this3.makeLayerElement();
     drawingApp.bindEventListeners(_this3.eventListenerSettings, _assertThisInitialized(_this3));
 
@@ -8569,8 +8575,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   _createClass(Layer, [{
     key: "makeLayerElement",
     value: function makeLayerElement() {
-      var layerTemplate = document.getElementById("layer-group-template"),
-          layersContainer = document.getElementById("layers-container");
+      var layerTemplate = this.root.querySelector("#layer-group-template"),
+          layersContainer = this.root.querySelector("#layers-container");
       var templateCopy = layerTemplate.content.cloneNode(true);
       var layerGroup = templateCopy.querySelector(".layer-group");
       layerGroup.id = this.props.id;
@@ -8644,7 +8650,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
             callback: function callback(evt) {
               evt.preventDefault();
               if (!_this4.props.enabled) return;
-              var draggedEntry = document.querySelector(".dragging");
+
+              var draggedEntry = _this4.root.querySelector(".dragging");
 
               if (draggedEntry == null) {
                 return;

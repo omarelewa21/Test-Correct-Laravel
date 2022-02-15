@@ -185,9 +185,6 @@ window.initDrawingQuestion = function (rootElement) {
             },
             setCurrentLayer(newCurrentLayerID) {
                 const oldCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
-                if (oldCurrentLayer === null) {
-                    debugger;
-                }
                 oldCurrentLayer.classList.remove("highlight");
 
                 const newCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
@@ -848,14 +845,17 @@ window.initDrawingQuestion = function (rootElement) {
 
         const panGroupSize = getPanGroupSize();
 
-        Livewire.emit("drawing_data_updated", {
+        const livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
+        livewireComponent.handleUpdateDrawingData({
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
             svg_grid: grid,
             svg_zoom_group: panGroupSize
         });
 
-        makePreviewGrid(drawingApp, grid);
+        if (drawingApp.isTeacher()) {
+            makePreviewGrid(drawingApp, grid);
+        }
     }
 
     /**
@@ -1655,7 +1655,8 @@ window.initDrawingQuestion = function (rootElement) {
 
 function clearPreviewGrid(rootElement) {
     const gridContainer = rootElement.querySelector('#grid-preview-svg')
-    if(gridContainer.firstChild !== null) {
+
+    if(gridContainer !== null && gridContainer.firstChild !== null) {
         gridContainer.firstChild.remove();
     }
 }

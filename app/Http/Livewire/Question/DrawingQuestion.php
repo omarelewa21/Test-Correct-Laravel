@@ -36,7 +36,7 @@ class DrawingQuestion extends Component
     public $question_svg = null;
     public $grid_svg = '0.00';
 
-    public $usesNewDrawingTool = false;
+    public $usesNewDrawingTool = true;
 
     protected function getListeners()
     {
@@ -120,7 +120,7 @@ class DrawingQuestion extends Component
                     $data['svg_zoom_group']['width'],
                     $data['svg_zoom_group']['height'],
                     base64_decode($data['svg_question']),
-                    base64_decode($data['svg_answer']),
+                    base64_decode($data['svg_answer'])
                 );
 
          $base64 = base64_encode($svg );

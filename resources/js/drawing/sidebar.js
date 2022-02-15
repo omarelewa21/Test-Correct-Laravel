@@ -4,6 +4,7 @@ class sidebarComponent {
     constructor(drawingApp, Canvas) {
         this.drawingApp = drawingApp;
         this.Canvas = Canvas;
+        this.root = drawingApp.params.root;
     }
     showFirstIcon(element) {
         element.querySelectorAll("svg")[0].style.display = "block";
@@ -21,7 +22,7 @@ export class Entry extends sidebarComponent {
     constructor(shape, drawingApp, Canvas) {
         super(drawingApp, Canvas);
         this.svgShape = shape;
-        let entryTemplate = document.getElementById("shape-group-template");
+        let entryTemplate = this.root.querySelector("#shape-group-template");
         const templateCopy = entryTemplate.content.cloneNode(true);
 
         this.entryContainer = templateCopy.querySelector(".shape-container");
@@ -116,10 +117,10 @@ export class Entry extends sidebarComponent {
         entry.classList.remove("dragging");
 
         let newLayerId = entry.closest(".layer-group").id;
-        let newSvgLayer = document.getElementById(`svg-${newLayerId}`);
-        let shape = document.getElementById(entry.id.substring(6));
-        let shapeToInsertBefore = document.getElementById(
-            evt.currentTarget.previousElementSibling?.id.substring(6)
+        let newSvgLayer = this.root.querySelector(`#svg-${newLayerId}`);
+        let shape = this.root.querySelector(`#${entry.id.substring(6)}`);
+        let shapeToInsertBefore = this.root.querySelector(
+            `#${evt.currentTarget.previousElementSibling?.id.substring(6)}`
         );
         if (shapeToInsertBefore) {
             newSvgLayer.insertBefore(shape, shapeToInsertBefore);
@@ -196,7 +197,7 @@ export class Layer extends sidebarComponent {
             locked: false,
         }
         this.props = props;
-        this.svg = document.getElementById(`svg-${props.id}`);
+        this.svg = this.root.querySelector(`#svg-${props.id}`);
         this.sidebar = this.makeLayerElement();
         drawingApp.bindEventListeners(this.eventListenerSettings, this);
         if (this.props.enabled) {
@@ -206,8 +207,8 @@ export class Layer extends sidebarComponent {
     }
 
     makeLayerElement() {
-        const layerTemplate = document.getElementById("layer-group-template"),
-            layersContainer = document.getElementById("layers-container");
+        const layerTemplate = this.root.querySelector("#layer-group-template"),
+            layersContainer = this.root.querySelector("#layers-container");
         const templateCopy = layerTemplate.content.cloneNode(true);
         const layerGroup = templateCopy.querySelector(".layer-group");
         layerGroup.id = this.props.id;
@@ -284,7 +285,7 @@ export class Layer extends sidebarComponent {
                         callback: (evt) => {
                             evt.preventDefault();
                             if (!this.props.enabled) return;
-                            const draggedEntry = document.querySelector(".dragging");
+                            const draggedEntry = this.root.querySelector(".dragging");
                             if (draggedEntry == null) {
                                 return;
                             }

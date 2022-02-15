@@ -223,3 +223,7 @@ countPresentStudents = function (members)
 
     return activeStudents;
 }
+
+getClosestLivewireComponentByAttribute = function (element, attributeName) {
+    return livewire.find(element.closest(`[${attributeName}]`).getAttribute('wire:id'));
+}
