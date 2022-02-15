@@ -16,6 +16,7 @@ use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\TestQuestions\AttachmentsController;
 use tcCore\Http\Controllers\TestQuestionsController;
 use tcCore\Http\Helpers\QuestionHelper;
+use tcCore\Http\Livewire\Preview\DrawingQuestion;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
@@ -60,7 +61,7 @@ class OpenShort extends Component
     protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'];
 
     protected $settingsGeneralPropertiesVisibility = [
-        'autoCheckAnswer' => false,
+        'autoCheckAnswer'              => false,
         'autoCheckAnswerCaseSensitive' => false
     ];
 
@@ -128,7 +129,7 @@ class OpenShort extends Component
     protected function rules()
     {
         $rules = ['question.question' => 'required'];
-        if ($this->obj && method_exists( $this->obj, 'mergeRules')) {
+        if ($this->obj && method_exists($this->obj, 'mergeRules')) {
             $this->obj->mergeRules($rules);
             return $rules;
         }
@@ -176,8 +177,18 @@ class OpenShort extends Component
         return [
             'new-tags-for-question' => 'handleTags',
             'updated-attainment'    => 'handleAttainment',
-            'new-video-attachment'  => 'handleNewVideoAttachment'
+            'new-video-attachment'  => 'handleNewVideoAttachment',
+            'drawing_data_updated'  => 'handleUpdateDrawingData',
+            'refresh'               => 'render',
         ];
+    }
+
+    public function handleUpdateDrawingData($data)
+    {
+        $this->question['answer_svg'] = $data['svg_answer'];
+        $this->question['question_svg'] = $data['svg_question'];
+        $this->question['grid_svg'] = $data['svg_grid'];
+        $this->question['zoom_group'] = $data['svg_zoom_group'];
     }
 
     public function getQuestionTypeProperty()
@@ -224,16 +235,16 @@ class OpenShort extends Component
             return $this->obj->arrayCallback($method);
         }
 
-        if ($this->obj && method_exists($this->obj, $method) ) {
+        if ($this->obj && method_exists($this->obj, $method)) {
             if ($arguments) {
                 return $this->obj->$method($arguments);
             }
             return $this->obj->$method();
         }
 
-        $newName = '_'.$method;
-        if (method_exists($this, $newName) ) {
-            return  $this->$newName($arguments);
+        $newName = '_' . $method;
+        if (method_exists($this, $newName)) {
+            return $this->$newName($arguments);
         }
 
         return parent::__call($method, $arguments);
@@ -250,7 +261,7 @@ class OpenShort extends Component
         if ($this->action == 'edit' && !$this->isCloneRequest) {
             $response = $this->updateQuestion();
         } else {
-            if($this->isCloneRequest){
+            if ($this->isCloneRequest) {
                 $this->prepareForClone();
             }
             $response = $this->saveNewQuestion();
@@ -266,7 +277,7 @@ class OpenShort extends Component
     protected function prepareForClone()
     {
         $this->question['order'] = 0;
-        if(count($this->attachments)){
+        if (count($this->attachments)) {
             $this->question['clone_attachments'] = $this->attachments->map(function ($attachment) {
                 return $attachment->uuid;
             })->toArray();
@@ -275,23 +286,23 @@ class OpenShort extends Component
 
     public function updated($name, $value)
     {
-        $method = 'updated'.ucfirst($name);
+        $method = 'updated' . ucfirst($name);
         if ($this->obj && method_exists($this->obj, $method)) {
             $this->obj->$method($value);
         }
-        if($this->obj && method_exists($this->obj, 'updated')){
+        if ($this->obj && method_exists($this->obj, 'updated')) {
             $this->obj->updated($name, $value);
         }
     }
 
     public function showStatistics()
     {
-        if($this->isCloneRequest){
+        if ($this->isCloneRequest) {
             return false;
         }
 
         $method = 'showStatistics';
-        if(method_exists($this->obj, $method)) {
+        if (method_exists($this->obj, $method)) {
             return $this->obj->$method();
         }
         return true;
@@ -356,7 +367,7 @@ class OpenShort extends Component
     public function render()
     {
         if ($this->obj && method_exists($this->obj, 'getTemplate')) {
-            return view('livewire.teacher.questions.'.$this->obj->getTemplate())->layout('layouts.base');
+            return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.base');
         }
         throw new \Exception('No template found for this question type.');
     }
@@ -379,7 +390,7 @@ class OpenShort extends Component
 
         if (is_array($value)) {
             $lastIndex = array_key_last($value);
-            if(array_key_exists($lastIndex, $value)) {
+            if (array_key_exists($lastIndex, $value)) {
                 $tmpFileUpload = $value[array_key_last($value)];
                 $this->sortOrderAttachments[] = $tmpFileUpload->getFileName();
             }
@@ -405,7 +416,7 @@ class OpenShort extends Component
     {
         try {
             $this->validate();
-            if($this->obj && method_exists($this->obj, 'customValidation')){
+            if ($this->obj && method_exists($this->obj, 'customValidation')) {
                 $this->obj->customValidation();
             }
             $this->checkTaxonomyValues();
@@ -444,12 +455,12 @@ class OpenShort extends Component
 
     public function isSettingsGeneralPropertyVisible($property)
     {
-        if($this->obj && property_exists($this->obj,'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
+        if ($this->obj && property_exists($this->obj, 'settingsGeneralPropertiesVisibility') && is_array($this->obj->settingsGeneralPropertiesVisibility)) {
             $this->settingsGeneralPropertiesVisibility = array_merge($this->settingsGeneralPropertiesVisibility, $this->obj->settingsGeneralPropertiesVisibility);
         }
 
-        if(array_key_exists($property,$this->settingsGeneralPropertiesVisibility)){
-            return (bool) $this->settingsGeneralPropertiesVisibility[$property];
+        if (array_key_exists($property, $this->settingsGeneralPropertiesVisibility)) {
+            return (bool)$this->settingsGeneralPropertiesVisibility[$property];
         }
 
         return true;
@@ -457,17 +468,17 @@ class OpenShort extends Component
 
     public function isSettingsGeneralPropertyDisabled($property, $asText = false)
     {
-        if($this->obj && method_exists($this->obj,'isSettingsGeneralPropertyDisabled')){
+        if ($this->obj && method_exists($this->obj, 'isSettingsGeneralPropertyDisabled')) {
             return $this->obj->isSettingsGeneralPropertyDisabled($property, $asText);
         }
 
-        if($this->obj && property_exists($this->obj,'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property,$this->obj->settingsGeneralDisabledProperties)){
-            if($asText){
+        if ($this->obj && property_exists($this->obj, 'settingsGeneralDisabledProperties') && is_array($this->obj->settingsGeneralDisabledProperties) && in_array($property, $this->obj->settingsGeneralDisabledProperties)) {
+            if ($asText) {
                 return 'true';
             }
             return true;
         }
-        if($asText){
+        if ($asText) {
             return 'false';
         }
         return false;
@@ -502,7 +513,7 @@ class OpenShort extends Component
     {
         $attachment = Attachment::whereUuid($attachmentUuid)->first();
 
-        if(!$this->isCloneRequest) {
+        if (!$this->isCloneRequest) {
             if ($this->isPartOfGroupQuestion()) {
                 $response = (new GroupAttachmentsController)
                     ->destroy(
@@ -518,7 +529,7 @@ class OpenShort extends Component
             }
         }
 
-        if ($this->isCloneRequest || $response->getStatusCode() ) {
+        if ($this->isCloneRequest || $response->getStatusCode()) {
             $this->attachments = $this->attachments->reject(function ($attachment) use ($attachmentUuid) {
                 return $attachment->uuid == $attachmentUuid;
             });
@@ -539,7 +550,7 @@ class OpenShort extends Component
         $this->videos = collect($this->videos)->reject(function ($item) use ($videoId) {
             return $item['id'] == $videoId;
         })->toArray();
-        $this->sortOrderAttachments = collect($this->sortOrderAttachments)->reject(function($item) use ($videoId){
+        $this->sortOrderAttachments = collect($this->sortOrderAttachments)->reject(function ($item) use ($videoId) {
             return $item == $videoId;
         })->toArray();
 
@@ -548,8 +559,8 @@ class OpenShort extends Component
 
     public function handleNewVideoAttachment($link)
     {
-        if($this->validateVideoLink($link)) {
-            $video =  ['id' => Uuid::uuid4()->toString(), 'link' =>$link];
+        if ($this->validateVideoLink($link)) {
+            $video = ['id' => Uuid::uuid4()->toString(), 'link' => $link];
             $this->videos[] = $video;
             $this->sortOrderAttachments[] = $video['id'];
             return $this->attachmentsCount++;
@@ -606,8 +617,8 @@ class OpenShort extends Component
 
     public function removeItem($item, $id)
     {
-        $method = 'remove'. Str::ucfirst($item);
-        if(method_exists($this, $method)) {
+        $method = 'remove' . Str::ucfirst($item);
+        if (method_exists($this, $method)) {
             $this->$method($id);
         }
         $this->dispatchBrowserEvent('attachments-updated');
@@ -741,7 +752,7 @@ class OpenShort extends Component
             $this->bloomToggle = filled($this->question['bloom']);
             $this->millerToggle = filled($this->question['miller']);
             $this->initWithTags = $q->tags;
-            $this->initWithTags->each(function($tag) {
+            $this->initWithTags->each(function ($tag) {
                 $this->question['tags'][] = $tag->name;
             });
 
@@ -759,7 +770,7 @@ class OpenShort extends Component
 
     private function validateVideoLink($link)
     {
-        return !! $this->getVideoHost($link);
+        return !!$this->getVideoHost($link);
     }
 
     private function getVideoHost($link)
@@ -768,13 +779,13 @@ class OpenShort extends Component
         $vimeo = collect(['vimeo.com']);
         $host = null;
 
-        $youtube->each(function($opt) use ($link, &$host) {
+        $youtube->each(function ($opt) use ($link, &$host) {
             if (Str::contains($link, $opt)) {
                 $host = 'youtube';
             }
         });
 
-        $vimeo->each(function($opt) use ($link, &$host) {
+        $vimeo->each(function ($opt) use ($link, &$host) {
             if (Str::contains($link, $opt)) {
                 $host = 'vimeo';
             }
@@ -786,9 +797,9 @@ class OpenShort extends Component
     private function checkTaxonomyValues()
     {
         $rulesToValidate = null;
-        collect(['rtti', 'bloom', 'miller'])->each(function($taxonomy) use (&$rulesToValidate) {
-            $toggle = $taxonomy.'Toggle';
-            $warningShow = $taxonomy.'WarningShown';
+        collect(['rtti', 'bloom', 'miller'])->each(function ($taxonomy) use (&$rulesToValidate) {
+            $toggle = $taxonomy . 'Toggle';
+            $warningShow = $taxonomy . 'WarningShown';
             if ($this->$toggle && blank($this->question[$taxonomy]) && !$this->$warningShow) {
                 $this->$warningShow = true;
                 $rulesToValidate["question.$taxonomy"] = 'required';
@@ -798,7 +809,7 @@ class OpenShort extends Component
             }
         });
 
-        if($rulesToValidate) {
+        if ($rulesToValidate) {
             $this->validate($rulesToValidate);
         }
     }
@@ -807,12 +818,12 @@ class OpenShort extends Component
     {
         $video = $upload = null;
 
-        $upload = collect($this->uploads)->first(function($upload) use ($sortHash){
+        $upload = collect($this->uploads)->first(function ($upload) use ($sortHash) {
             return $upload->getFileName() === $sortHash;
 //            return $upload->id == $sortHash;
         });
 
-        $video = collect($this->videos)->first(function($video) use ($sortHash) {
+        $video = collect($this->videos)->first(function ($video) use ($sortHash) {
             return $video['id'] == $sortHash;
 //            return $video == $sortHash;
         });
@@ -822,11 +833,11 @@ class OpenShort extends Component
 
     public function setVideoTitle($videoUrl, $title)
     {
-        $this->videos = collect($this->videos)->map(function($video) use ($title, $videoUrl) {
-           if ($video['link'] == $videoUrl) {
+        $this->videos = collect($this->videos)->map(function ($video) use ($title, $videoUrl) {
+            if ($video['link'] == $videoUrl) {
                 $video['title'] = $title;
-           }
-           return $video;
+            }
+            return $video;
         })->toArray();
     }
 

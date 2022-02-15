@@ -1,9 +1,10 @@
 import {nameInSidebarEntryForShape} from "./constants.js";
 
 class sidebarComponent {
-    constructor() {
+    constructor(drawingApp, Canvas) {
+        this.drawingApp = drawingApp;
+        this.Canvas = Canvas;
     }
-
     showFirstIcon(element) {
         element.querySelectorAll("svg")[0].style.display = "block";
         element.querySelectorAll("svg")[1].style.display = "none";
@@ -17,8 +18,8 @@ class sidebarComponent {
 }
 
 export class Entry extends sidebarComponent {
-    constructor(shape) {
-        super();
+    constructor(shape, drawingApp, Canvas) {
+        super(drawingApp, Canvas);
         this.svgShape = shape;
         let entryTemplate = document.getElementById("shape-group-template");
         const templateCopy = entryTemplate.content.cloneNode(true);
@@ -33,14 +34,14 @@ export class Entry extends sidebarComponent {
             drag: templateCopy.querySelector(".drag-btn")
         };
 
-        this.type = this.svgShape.type == "path" ? "freehand" : this.svgShape.type;
+        this.type = this.svgShape.type === "path" ? "freehand" : this.svgShape.type;
         this.id = `${this.type}-${this.svgShape.shapeId}`;
         this.entryContainer.id = `shape-${this.id}`;
         this.entryTitle.innerText = `${
             nameInSidebarEntryForShape[this.svgShape.type]
         } ${this.svgShape.shapeId}`;
 
-        drawingApp.bindEventListeners(this.eventListenerSettings, this);
+        this.drawingApp.bindEventListeners(this.eventListenerSettings, this);
         this.updateLockState();
         this.updateHideState();
     }
@@ -57,20 +58,7 @@ export class Entry extends sidebarComponent {
                     },
                     "dragend": {
                         callback: (evt) => {
-                            let entry = evt.currentTarget;
-                            entry.classList.remove("dragging");
-
-                            let newLayerId = entry.closest(".layer-group").id;
-                            let newSvgLayer = document.getElementById(`svg-${newLayerId}`);
-                            let shape = document.getElementById(entry.id.substring(6));
-                            let shapeToInsertBefore = document.getElementById(
-                                evt.currentTarget.nextElementSibling?.id.substring(6)
-                            );
-                            if (shapeToInsertBefore) {
-                                newSvgLayer.insertBefore(shape, shapeToInsertBefore);
-                                return;
-                            }
-                            newSvgLayer.appendChild(shape);
+                            this.updateDraggedElementPosition(evt);
                         },
                     },
                     "mouseenter touchstart": {
@@ -121,6 +109,23 @@ export class Entry extends sidebarComponent {
                 },
             },
         ];
+    }
+
+    updateDraggedElementPosition(evt) {
+        let entry = evt.currentTarget;
+        entry.classList.remove("dragging");
+
+        let newLayerId = entry.closest(".layer-group").id;
+        let newSvgLayer = document.getElementById(`svg-${newLayerId}`);
+        let shape = document.getElementById(entry.id.substring(6));
+        let shapeToInsertBefore = document.getElementById(
+            evt.currentTarget.previousElementSibling?.id.substring(6)
+        );
+        if (shapeToInsertBefore) {
+            newSvgLayer.insertBefore(shape, shapeToInsertBefore);
+            return;
+        }
+        newSvgLayer.appendChild(shape);
     }
 
     highlight() {
@@ -178,12 +183,14 @@ export class Layer extends sidebarComponent {
     /**
      *
      * @param {Object.<string, boolean|number|string|{}>} props
+     * @param drawingApp
+     * @param Canvas
      * @param {string} props.name
      * @param {string} props.id
      * @param {boolean} props.enabled
      */
-    constructor(props = {}) {
-        super();
+    constructor(props = {}, drawingApp, Canvas) {
+        super(drawingApp, Canvas);
         this.params = {
             hidden: false,
             locked: false,
@@ -265,11 +272,7 @@ export class Layer extends sidebarComponent {
                 events: {
                     "click": {
                         callback: () => {
-                            if (this.isEmpty()) return;
-                            if (!confirm(`Alle vormen op deze laag (${this.props.name}) verwijderen?`)) return;
-                            Object.values(this.shapes).forEach((shape) => {
-                                shape.sidebar.remove();
-                            });
+                            this.clearSidebar();
                         },
                     },
                 }
@@ -286,13 +289,13 @@ export class Layer extends sidebarComponent {
                                 return;
                             }
                             const oldLayer = draggedEntry.closest(".layer-group");
-                            const oldGroupKey = Canvas.layerID2Key(oldLayer.id);
+                            const oldGroupKey = this.Canvas.layerID2Key(oldLayer.id);
                             const newLayer = this.sidebar;
-                            const newGroupKey = Canvas.layerID2Key(newLayer.id);
+                            const newGroupKey = this.Canvas.layerID2Key(newLayer.id);
                             if (newGroupKey !== oldGroupKey) {
                                 const shapeID = draggedEntry.id.substring(6);
-                                Canvas.layers[newGroupKey].shapes[shapeID] =
-                                    Canvas.layers[oldGroupKey].shapes[shapeID];
+                                this.Canvas.layers[newGroupKey].shapes[shapeID] =
+                                    this.Canvas.layers[oldGroupKey].shapes[shapeID];
                                 // delete Canvas.layers[oldGroupKey].shapes[shapeID];
                             }
 
@@ -350,14 +353,13 @@ export class Layer extends sidebarComponent {
                         callback: (evt) => {
                             const targetHeader = evt.target;
                             const newCurrentLayerID = targetHeader.closest(".layer-group").id;
-
-                            Canvas.setCurrentLayer(Canvas.layerID2Key(newCurrentLayerID));
+                            this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                         }
                     },
                 }
             },
         ];
-        drawingApp.bindEventListeners(settings, this);
+        this.drawingApp.bindEventListeners(settings, this);
     }
 
     hide() {
@@ -423,5 +425,21 @@ export class Layer extends sidebarComponent {
             },
             {offset: Number.NEGATIVE_INFINITY}
         );
+    }
+
+    unhideIfHidden() {
+        if(this.isHidden()) {
+            this.unhide();
+        }
+    }
+
+    clearSidebar(withWarning = true) {
+        if (this.isEmpty()) return;
+        if (withWarning) {
+            if (!confirm(`Alle vormen op deze laag (${this.props.name}) verwijderen?`)) return;
+        }
+        Object.values(this.shapes).forEach((shape) => {
+            shape.sidebar.remove();
+        });
     }
 }

@@ -57,6 +57,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         CanResetPassword;
     use UuidTrait;
 
+    const MIN_PASSWORD_LENGTH = 8;
+
     protected $casts = [
         'uuid'    => EfficientUuid::class,
         'intense' => 'boolean',
@@ -164,6 +166,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $user = (new Factory(new self))->generate($data);
         $user->save();
         return $user;
+    }
+
+    public static function getPasswordLengthRule()
+    {
+        return 'min:' . User::MIN_PASSWORD_LENGTH;
     }
 
     public function fill(array $attributes)
