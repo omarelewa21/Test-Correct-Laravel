@@ -20,12 +20,15 @@ class UpdateExamTestsAndQuestions extends Migration
             if(is_null($examSchoolLocation)){
                 throw new Exception('examschool not found');
             }
-            $tests = Test::where('owner_id',$examSchoolLocation->getKey())->where('scope','!=','exam')->get();
+            $tests = Test::where('owner_id',$examSchoolLocation->getKey())->where(function ($q) {
+                $q->where('scope','!=','exam')->orWhereNull('scope');
+            })->get();
             foreach ($tests as $test){
                 if($test->hasNonPublishableExamSubject()){
                     continue;
                 }
                 $test->setExamTestParams();
+                $test->abbreviation = 'EXAM';
                 $test->save();
                 $test->setExamParamsOnQuestionsOfTest();
             }
