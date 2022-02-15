@@ -1,9 +1,9 @@
 @extends('emails.layoutv2')
 @section('header_intro')
-    Jouw Test-Correct account
+    <span>Jouw Test-Correct account</span>
 @stop
 @section('header_message')
-    Wachtwoord gewijzigd
+    <span>Wachtwoord gewijzigd</span>
 @stop
 
 @section('content')

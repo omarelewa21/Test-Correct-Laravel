@@ -66,10 +66,11 @@
                                         margin: 0px;">
                 <table  style=" border-collapse: separate;
                         width: 100%;
+                        max-width: 100%;
                         margin-top: 20px;
                         margin-bottom: 30px;">
                     <tr >
-                        <td     style="padding-top: 10px;
+                        <td style="padding-top: 10px;
                                 font-size: 18px;
                                 color: #ffffff;
                                 padding-left: 0px;
@@ -78,7 +79,7 @@
                                 padding-bottom: 0px;
                                 font-family: Nunito, sans-serif;
                                 font-weight: 300;">
-                            <img src="{{config('app.base_url')}}img/mail/icons-arrow-white.png">
+                            <span style="padding-right: 10px;"><img src="{{config('app.base_url')}}img/mail/icons-arrow-white.png"></span>
                             @yield('header_intro')
                         </td>
                     </tr>
@@ -97,9 +98,12 @@
                                                             ">@yield('header_message')</td>
                     </tr>
                     <tr >
-                        <td style="padding-left: 0px;
-                                   padding-right: 0px;"><hr class="header_line" style="height: 3px;
+                        <td style=" padding-left: 0px;
+                                    padding-right: 0px;
+                                    width: 100%;
+                                    max-width: 100%; "><hr class="header_line" style="height: 3px;
                                                             width: 100%;
+                                                            max-width: 100%;
                                                             color: #ffffff;
                                                             background-color: #ffffff;
                                                             border-radius: 10px;
@@ -113,7 +117,7 @@
         @yield('support')
         @yield('footer')
         <tr >
-            <td style="padding-left: 100px;padding-right: 40px;padding-top: 30px;">
+            <td colspan="999" style="padding-left: 100px;padding-right: 40px;padding-top: 30px;">
                 <p style="font-size: 14px;
                         line-height: 24px;
                         font-family: Nunito, sans-serif;

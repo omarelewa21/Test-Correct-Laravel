@@ -41,6 +41,6 @@
                     padding: 0px;
                     font-family: Nunito, sans-serif;
                     font-weight: 300;
-                    color: #041f74;">Test-Correct hoort graag wat je als docent mist of wat er beter kan! Laat het ons via deze weg weten: <a style="color: #041f74;" href="https://test-correct.nl">vul het feedback formulier in</a></p>
+                    color: #041f74;">Test-Correct hoort graag wat je als docent mist of wat er beter kan! Laat het ons via deze weg weten: <a style="color: #041f74;" href="https://support.test-correct.nl/knowledge/feedback">vul het feedback formulier in</a></p>
     </td>
 </tr>
