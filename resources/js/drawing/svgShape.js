@@ -526,7 +526,7 @@ export class Grid extends Path {
             bounds = this.Canvas.params.bounds;
         }
         if (Object.keys(bounds).length === 0) {
-            bounds = calculatePreviewBounds();
+            bounds = calculatePreviewBounds(this.parent.parentElement);
         }
         const interval = size * pixelsPerCentimeter,
             lineAmount = this.calculateAmountOfGridLines(interval, bounds);

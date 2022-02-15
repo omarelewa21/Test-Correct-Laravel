@@ -40,6 +40,7 @@ window.initDrawingQuestion = function (rootElement) {
             endmarkerType: "no-endmarker",
             gridSize: 1,
             spacebarPressed: false,
+            root: rootElement,
         },
         firstInit: true,
         warnings: {},
@@ -854,7 +855,7 @@ window.initDrawingQuestion = function (rootElement) {
             svg_zoom_group: panGroupSize
         });
 
-        makePreviewGrid(grid);
+        makePreviewGrid(drawingApp, grid);
     }
 
     /**
@@ -1652,15 +1653,18 @@ window.initDrawingQuestion = function (rootElement) {
 
 }
 
-function clearPreviewGrid() {
+function clearPreviewGrid(rootElement) {
     const gridContainer = rootElement.querySelector('#grid-preview-svg')
     if(gridContainer.firstChild !== null) {
         gridContainer.firstChild.remove();
     }
 }
 
-window.makePreviewGrid = function (gridSvg) {
-    clearPreviewGrid();
+window.makePreviewGrid = function (drawingApp, gridSvg) {
+
+    const rootElement = drawingApp.params.root
+
+    clearPreviewGrid(rootElement);
 
     const props = {
         group: {
@@ -1677,8 +1681,7 @@ window.makePreviewGrid = function (gridSvg) {
     return new svgShape.Grid(0, props, parent, null, null);
 }
 
-window.calculatePreviewBounds = function () {
-    let parent = rootElement.querySelector('#preview-svg')
+window.calculatePreviewBounds = function (parent) {
     const matrix = new DOMMatrix();
     const height = parent.clientHeight,
         width = parent.clientWidth;

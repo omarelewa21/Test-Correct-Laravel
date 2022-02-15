@@ -5697,7 +5697,7 @@ document.addEventListener('alpine:init', function () {
         var toolName = window['drawingTool_' + questionId];
 
         if (this.isTeacher) {
-          this.makeGridIfNecessary();
+          this.makeGridIfNecessary(toolName);
         }
 
         this.$watch('show', function (show) {
@@ -5728,9 +5728,9 @@ document.addEventListener('alpine:init', function () {
           }
         }
       },
-      makeGridIfNecessary: function makeGridIfNecessary() {
+      makeGridIfNecessary: function makeGridIfNecessary(toolName) {
         if (this.gridSvg !== '') {
-          makePreviewGrid(this.gridSvg);
+          makePreviewGrid(toolName.drawingApp, this.gridSvg);
         }
       }
     };
@@ -6434,7 +6434,8 @@ window.initDrawingQuestion = function (rootElement) {
       boldText: false,
       endmarkerType: "no-endmarker",
       gridSize: 1,
-      spacebarPressed: false
+      spacebarPressed: false,
+      root: rootElement
     },
     firstInit: true,
     warnings: {},
@@ -7269,7 +7270,7 @@ window.initDrawingQuestion = function (rootElement) {
       svg_grid: grid,
       svg_zoom_group: panGroupSize
     });
-    makePreviewGrid(grid);
+    makePreviewGrid(drawingApp, grid);
   }
   /**
    * Event handler for down events of the cursor.
@@ -8117,7 +8118,7 @@ window.initDrawingQuestion = function (rootElement) {
   };
 };
 
-function clearPreviewGrid() {
+function clearPreviewGrid(rootElement) {
   var gridContainer = rootElement.querySelector('#grid-preview-svg');
 
   if (gridContainer.firstChild !== null) {
@@ -8125,8 +8126,9 @@ function clearPreviewGrid() {
   }
 }
 
-window.makePreviewGrid = function (gridSvg) {
-  clearPreviewGrid();
+window.makePreviewGrid = function (drawingApp, gridSvg) {
+  var rootElement = drawingApp.params.root;
+  clearPreviewGrid(rootElement);
   var props = {
     group: {
       style: ""
@@ -8142,8 +8144,7 @@ window.makePreviewGrid = function (gridSvg) {
   return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, null, null);
 };
 
-window.calculatePreviewBounds = function () {
-  var parent = rootElement.querySelector('#preview-svg');
+window.calculatePreviewBounds = function (parent) {
   var matrix = new DOMMatrix();
   var height = parent.clientHeight,
       width = parent.clientWidth;
@@ -10369,7 +10370,7 @@ var Grid = /*#__PURE__*/function (_Path) {
       }
 
       if (Object.keys(bounds).length === 0) {
-        bounds = calculatePreviewBounds();
+        bounds = calculatePreviewBounds(this.parent.parentElement);
       }
 
       var interval = size * _constants_js__WEBPACK_IMPORTED_MODULE_0__.pixelsPerCentimeter,

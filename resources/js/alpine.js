@@ -219,7 +219,7 @@ document.addEventListener('alpine:init', () => {
             const toolName = window['drawingTool_' + questionId];
 
             if(this.isTeacher) {
-                this.makeGridIfNecessary();
+                this.makeGridIfNecessary(toolName);
             }
 
             this.$watch('show', show => {
@@ -250,9 +250,9 @@ document.addEventListener('alpine:init', () => {
                 }
             }
         },
-        makeGridIfNecessary() {
+        makeGridIfNecessary(toolName) {
             if (this.gridSvg !== '') {
-                makePreviewGrid(this.gridSvg);
+                makePreviewGrid(toolName.drawingApp, this.gridSvg);
             }
         }
     }));
