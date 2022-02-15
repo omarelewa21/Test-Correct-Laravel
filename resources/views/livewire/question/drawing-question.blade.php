@@ -32,6 +32,7 @@
                 @include('components.question.drawing-modal', ['drawing' => $question->answer])
             </div>
         </div>
+        @if ($usesNewDrawingTool)
         <div id="drawingTool{{ $this->number }}" x-data="
         drawingTool(
                 {{ $this->number }},
@@ -47,7 +48,9 @@
                 Antwoordmodel tekenen (nieuwe speler)
             </x-button.primary>
             <x-modal.question-editor-drawing-modal/>
+
         </div>
+        @endif
     </div>
     <x-attachment.attachment-modal :attachment="$attachment" :answerId="$answerId"/>
     <x-question.notepad :showNotepad="$showNotepad"/>
