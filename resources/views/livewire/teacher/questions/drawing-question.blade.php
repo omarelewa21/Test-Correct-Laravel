@@ -60,7 +60,7 @@
 
         @else
             <div class="absolute top-0 left-0 w-full h-full">
-                <svg class="w-full h-full" id="preview-svg" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
+                <svg viewBox="{{ $this->cmsPropertyBag['viewBox'] ?? '0 0 0 0' }}" class="w-full h-full" id="preview-svg" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
                     <g wire:ignore id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
                     <g class="question-svg">{!!  base64_decode($this->question['question_svg']) !!}</g>
                     <g class="answer-svg">{!!  base64_decode($this->question['answer_svg']) !!}</g>

@@ -184,10 +184,7 @@ class OpenShort extends Component
 
     public function handleUpdateDrawingData($data)
     {
-        $this->question['answer_svg'] = $data['svg_answer'];
-        $this->question['question_svg'] = $data['svg_question'];
-        $this->question['grid_svg'] = $data['svg_grid'];
-        $this->question['zoom_group'] = $data['svg_zoom_group'];
+        $this->obj->handleUpdateDrawingData($data);
     }
 
     public function getQuestionTypeProperty()
