@@ -3,6 +3,7 @@
 use Illuminate\Validation\Validator;
 use Illuminate\Support\Str;
 use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
@@ -206,7 +207,9 @@ class CompletionQuestion extends Question implements QuestionInterface
                 }
             }
             $tagAnswers = array_map('trim', $tagAnswers);
-            if (in_array(trim($answers[$refTag]), $tagAnswers)) {
+            if (in_array(trim($answers[$refTag]), $tagAnswers)
+                || in_array(trim(BaseHelper::transformHtmlCharsReverse($answers[$refTag])), $tagAnswers)
+            ) {
                 $correct++;
             }
         }
