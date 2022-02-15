@@ -99,9 +99,9 @@ class Navigation extends Component
         $isThisQuestion = $this->nav[$this->q - 1];
 
         if ($isThisQuestion['group']['closeable'] && !$isThisQuestion['group']['closed']) {
-            $this->dispatchBrowserEvent('close-this-group', $currentQuestion);
+            $this->dispatchBrowserEvent('close-this-group', 'toOverview');
         } elseif ($isThisQuestion['closeable'] && !$isThisQuestion['closed']) {
-            $this->dispatchBrowserEvent('close-this-question', $currentQuestion);
+            $this->dispatchBrowserEvent('close-this-question', 'toOverview');
         } else {
             $this->dispatchBrowserEvent('show-loader', ['route' => route('student.test-take-overview', $this->testTakeUuid)]);
         }
@@ -131,6 +131,10 @@ class Navigation extends Component
 
     public function goToQuestion($nextQuestion)
     {
+        if($nextQuestion == 'toOverview'){
+            return $this->dispatchBrowserEvent('show-loader', ['route' => route('student.test-take-overview', $this->testTakeUuid)]);
+        }
+
         if (!$this->nav->has($nextQuestion - 1)) {
             return;
         }
