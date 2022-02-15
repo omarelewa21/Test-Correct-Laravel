@@ -8,11 +8,42 @@
                 <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.2000ms="answer"></textarea>
             </x-input.group>
         </div>
+        <div id="word-count" wire:ignore></div>
         @push('scripts')
         <script>
-            (function() {
-
-            })()
+            document.addEventListener("DOMContentLoaded", () => {
+                var editor = ClassicEditors['{{ $editorId }}'];
+                if (editor) {
+                    editor.destroy(true);
+                }
+                ClassicEditor
+                    .create( document.querySelector( '#{{ $editorId }}' ),{
+                        toolbar: [ 'bold', 'italic', 'bulletedList', 'numberedList', 'blockQuote' ],
+                        autosave: {
+                            waitingTime: 300,
+                            save( editor ) {
+                                editor.updateSourceElement();
+                                editor.sourceElement.dispatchEvent(new Event('input'));
+                            }
+                        },
+                        mathTypeParameters : {
+                            serviceProviderProperties : {
+                                URI : 'integration',
+                                server : 'java'
+                            }
+                        }
+                    } )
+                    .then( editor => {
+                        ClassicEditors['{{ $editorId }}'] = editor;
+                        const wordCountPlugin = editor.plugins.get( 'WordCount' );
+                        const wordCountWrapper = document.getElementById( 'word-count' );
+                        wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
+                        console.log( editor );
+                    } )
+                    .catch( error => {
+                        console.error( error );
+                    } );
+            });
         </script>
         @endpush
     </div>
