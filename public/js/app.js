@@ -5774,6 +5774,59 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('drawingTool', function (questionId, entanglements, isTeacher) {
+    return {
+      show: false,
+      questionId: questionId,
+      answerSvg: entanglements.answerSvg,
+      questionSvg: entanglements.questionSvg,
+      gridSvg: entanglements.gridSvg,
+      isTeacher: isTeacher,
+      init: function init() {
+        var _this5 = this;
+
+        window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
+        var toolName = window['drawingTool_' + questionId];
+
+        if (this.isTeacher) {
+          this.makeGridIfNecessary();
+        }
+
+        this.$watch('show', function (show) {
+          if (show) {
+            toolName.Canvas.data.answer = _this5.answerSvg;
+            toolName.Canvas.data.question = _this5.questionSvg;
+
+            _this5.handleGrid(toolName);
+
+            toolName.drawingApp.init();
+          } else {
+            Livewire.emit('refresh');
+          }
+        });
+        toolName.Canvas.layers.answer.enable();
+        toolName.Canvas.setCurrentLayer("answer");
+      },
+      handleGrid: function handleGrid(toolName) {
+        if (this.gridSvg !== '0.00') {
+          var parsedGrid = parseFloat(this.gridSvg);
+
+          if (toolName.drawingApp.isTeacher()) {
+            toolName.UI.gridSize.value = parsedGrid;
+            toolName.UI.gridToggle.checked = true;
+          } else {
+            toolName.drawingApp.params.gridSize = parsedGrid;
+            toolName.Canvas.layers.grid.params.hidden = false;
+          }
+        }
+      },
+      makeGridIfNecessary: function makeGridIfNecessary() {
+        if (this.gridSvg !== '') {
+          makePreviewGrid(this.gridSvg);
+        }
+      }
+    };
+  });
   alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].directive('global', function (el, _ref) {
     var expression = _ref.expression;
     var f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
@@ -6500,7 +6553,9 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 
 
-window.initDrawingQuestion = function () {
+window.initDrawingQuestion = function (rootElement) {
+  var _this2 = this;
+
   /**
    * @typedef Cursor
    * @type {Object}
@@ -6524,12 +6579,12 @@ window.initDrawingQuestion = function () {
    * Global Object containing all DOM Elements on the page that have an id attribute.
    * The key is the id value converted to camelCase, the value being the DOM Element itself.
    */
-  window.UI = new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.UIElements();
+  var UI = new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.UIElements(rootElement);
   /**
    * Global Object containing some parameters that don't belong in Canvas.
    */
 
-  window.drawingApp = {
+  var drawingApp = {
     params: {
       currentTool: "drag",
       boldText: false,
@@ -6537,19 +6592,29 @@ window.initDrawingQuestion = function () {
       gridSize: 1,
       spacebarPressed: false
     },
+    firstInit: true,
     warnings: {},
     init: function init() {
-      this.bindEventListeners(eventListenerSettings);
+      if (this.firstInit) {
+        this.bindEventListeners(eventListenerSettings);
+      }
+
+      var drawingApp = this;
       var pollingFunction = setInterval(function () {
         if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
           setCorrectPopupHeight();
           calculateCanvasBounds();
-          updateClosedSidebarWidth();
-          makeGrid();
+          updateClosedSidebarWidth(); // updateMidPoint();
+
+          if (drawingApp.firstInit) {
+            makeGrid();
+          }
+
           processGridToggleChange();
-          updateMidPoint();
+          clearLayers();
           retrieveSavedDrawingData();
           Canvas.setCurrentLayer(Canvas.params.currentLayer);
+          drawingApp.firstInit = false;
           clearInterval(pollingFunction);
         }
 
@@ -6565,7 +6630,7 @@ window.initDrawingQuestion = function () {
       }
 
       this.warnings = {
-        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 2000)
+        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 2000, rootElement)
       };
     },
     convertCanvas2DomCoordinates: function convertCanvas2DomCoordinates(coordinates) {
@@ -6626,100 +6691,119 @@ window.initDrawingQuestion = function () {
    * Global Object containing all parameters, Shapes and corresponding sidebarEntries.
    */
 
-  window.Canvas = {
-    params: {
-      cursorPosition: {
-        x: 0,
-        y: 0
-      },
-      currentLayer: "question",
-      focusedShape: null,
-      bounds: {},
-      draw: {
-        newShape: null,
-        shapeCountForEachType: {
-          rect: 0,
-          circle: 0,
-          line: 0,
-          text: 0,
-          image: 0,
-          path: 0,
-          freehand: 0
-        }
-      },
-      drag: {
-        enabled: false,
-        translateOfSvgShape: null,
-        offsetCursorToMidPoint: null
-      },
-      pan: {
-        enabled: false,
-        startCoordinates: {
+  var Canvas = function () {
+    var Obj = {
+      params: {
+        cursorPosition: {
           x: 0,
           y: 0
-        }
+        },
+        currentLayer: "question",
+        focusedShape: null,
+        bounds: {},
+        draw: {
+          newShape: null,
+          shapeCountForEachType: {
+            rect: 0,
+            circle: 0,
+            line: 0,
+            text: 0,
+            image: 0,
+            path: 0,
+            freehand: 0
+          }
+        },
+        drag: {
+          enabled: false,
+          translateOfSvgShape: null,
+          offsetCursorToMidPoint: null
+        },
+        pan: {
+          enabled: false,
+          startCoordinates: {
+            x: 0,
+            y: 0
+          }
+        },
+        domMatrix: new DOMMatrix(),
+        zoomFactor: 1
       },
-      domMatrix: new DOMMatrix(),
-      zoomFactor: 1
-    },
-    element: UI.svgCanvas,
-    layers: {
-      "question": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
-        name: "Vraag",
-        id: "question-group",
-        enabled: true
-      }),
-      "answer": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
-        name: "Antwoord",
-        id: "answer-group",
-        enabled: false
-      }),
-      "grid": {
-        svg: UI.svgGridGroup,
-        params: {
-          locked: true,
-          hidden: true
+      element: UI.svgCanvas,
+      layers: {},
+      dragging: function dragging() {
+        return this.params.drag.enabled;
+      },
+      panning: function panning() {
+        return this.params.pan.enabled;
+      },
+      drawing: function drawing() {
+        return this.params.draw.newShape;
+      },
+      setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
+        var oldCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
+
+        if (oldCurrentLayer === null) {
+          debugger;
         }
+
+        oldCurrentLayer.classList.remove("highlight");
+        var newCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
+        newCurrentLayer.classList.add("highlight");
+        Canvas.params.currentLayer = newCurrentLayerID;
+      },
+      getEnabledLayers: function getEnabledLayers() {
+        return Object.values(this.layers).filter(function (layer) {
+          return layer.params.enabled;
+        });
+      },
+      layerID2Key: function layerID2Key(id) {
+        return id.startsWith("svg-") ? id.substring(4, id.lastIndexOf("-")) : id.substring(0, id.lastIndexOf("-"));
+      },
+      layerKey2ID: function layerKey2ID(key) {
+        return "".concat(key, "-group");
+      },
+      setFocusedShape: function setFocusedShape(shape) {
+        this.params.focusedShape = shape;
+      },
+      data: {
+        question: "",
+        answer: ""
+      },
+      makeLayers: function makeLayers() {
+        this.layers = {
+          "question": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
+            name: "Vraag",
+            id: "question-group",
+            enabled: true
+          }, drawingApp, this),
+          "answer": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
+            name: "Antwoord",
+            id: "answer-group",
+            enabled: false
+          }, drawingApp, this),
+          "grid": {
+            svg: UI.svgGridGroup,
+            params: {
+              locked: true,
+              hidden: true
+            }
+          }
+        };
       }
-    },
-    dragging: function dragging() {
-      return this.params.drag.enabled;
-    },
-    panning: function panning() {
-      return this.params.pan.enabled;
-    },
-    drawing: function drawing() {
-      return this.params.draw.newShape;
-    },
-    setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
-      var oldCurrentLayer = document.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
-      oldCurrentLayer.classList.remove("highlight");
-      var newCurrentLayer = document.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
-      newCurrentLayer.classList.add("highlight");
-      Canvas.params.currentLayer = newCurrentLayerID;
-    },
-    getEnabledLayers: function getEnabledLayers() {
-      return Object.values(this.layers).filter(function (layer) {
-        return layer.params.enabled;
-      });
-    },
-    layerID2Key: function layerID2Key(id) {
-      return id.startsWith("svg-") ? id.substring(4, id.lastIndexOf("-")) : id.substring(0, id.lastIndexOf("-"));
-    },
-    layerKey2ID: function layerKey2ID(key) {
-      return "".concat(key, "-group");
-    },
-    setFocusedShape: function setFocusedShape(shape) {
-      this.params.focusedShape = shape;
-    },
-    data: {
-      question: "",
-      answer: ""
-    }
-  };
+    };
+    Obj.makeLayers();
+    return Obj;
+  }();
+
+  function clearLayers() {
+    Canvas.layers.question.clearSidebar(false);
+    Canvas.layers.answer.clearSidebar(false);
+    updateGrid();
+  }
   /******************************
    * EVENT LISTENERS DEFINITION *
    ******************************/
+
 
   var eventListenerSettings = [{
     element: window,
@@ -6860,14 +6944,14 @@ window.initDrawingQuestion = function () {
       }
     }
   }, {
-    elements: _toConsumableArray(document.querySelectorAll("[data-button-group=tool]")),
+    elements: _toConsumableArray(rootElement.querySelectorAll("[data-button-group=tool]")),
     events: {
       "click": {
         callback: processToolChange
       }
     }
   }, {
-    elements: _toConsumableArray(document.querySelectorAll("[data-button-group=endmarker-type]")),
+    elements: _toConsumableArray(rootElement.querySelectorAll("[data-button-group=endmarker-type]")),
     events: {
       "click": {
         callback: processEndmarkerTypeChange
@@ -7064,7 +7148,8 @@ window.initDrawingQuestion = function () {
         callback: function callback(evt) {
           var targetHeader = evt.target;
           var newCurrentLayerID = targetHeader.closest(".layer-group").id;
-          Canvas.setCurrentLayer(Canvas.layerID2Key(newCurrentLayerID));
+
+          _this2.Canvas.setCurrentLayer(_this2.Canvas.layerID2Key(newCurrentLayerID));
         }
       }
     }
@@ -7079,8 +7164,7 @@ window.initDrawingQuestion = function () {
     element: UI.exitBtn,
     events: {
       "click": {
-        callback: function callback() {// window.Popup.closeLast();
-        }
+        callback: function callback() {}
       }
     }
   }];
@@ -7175,8 +7259,8 @@ window.initDrawingQuestion = function () {
       Canvas.layers.answer.enable();
     }
 
-    if (data.question || data.answer) {
-      fitDrawingToScreen();
+    if (data.question || data.answer) {//Disabled as it causes unnecessary zooming
+      // fitDrawingToScreen();
     }
   }
 
@@ -7331,21 +7415,17 @@ window.initDrawingQuestion = function () {
   }
 
   function submitDrawingData() {
-    parent.skip = true;
+    // parent.skip = true;
     var b64Strings = encodeSvgLayersAsBase64Strings();
-    Loading.show();
-    $.post(drawingSaveUrl, {
+    var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
+    var panGroupSize = getPanGroupSize();
+    Livewire.emit("drawing_data_updated", {
       svg_answer: b64Strings.answer,
       svg_question: b64Strings.question,
-      svg_grid: Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString()
-    }, function (response) {
-      if (response == 1) {
-        Loading.hide();
-        drawingCallback();
-      } else {
-        alert('Er ging iets mis');
-      }
+      svg_grid: grid,
+      svg_zoom_group: panGroupSize
     });
+    makePreviewGrid(grid);
   }
   /**
    * Event handler for down events of the cursor.
@@ -7450,6 +7530,7 @@ window.initDrawingQuestion = function () {
     var shapeObjectID = "".concat(currentTool, "-").concat(shapeID);
     var layerObject = Canvas.layers[Canvas.params.currentLayer];
     layerObject.shapes[shapeObjectID] = newShape;
+    layerObject.unhideIfHidden();
     Canvas.params.draw.newShape = newShape;
   }
 
@@ -7525,7 +7606,7 @@ window.initDrawingQuestion = function () {
 
   function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
     var svgShape = makeNewSvgShape(type, props, Canvas.layers[parent].svg, withHelperElements, withHighlightEvents);
-    var newSidebarEntry = new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Entry(svgShape);
+    var newSidebarEntry = new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Entry(svgShape, drawingApp);
     Canvas.layers[parent].addEntry(newSidebarEntry);
     svgShape.setSidebarEntry(newSidebarEntry);
     return {
@@ -7550,25 +7631,25 @@ window.initDrawingQuestion = function () {
 
     switch (type) {
       case "rect":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "circle":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Circle(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Circle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "line":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Line(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Line(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "text":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Text(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Text(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "image":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Image(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Image(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "path":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Path(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Path(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       case "freehand":
-        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Freehand(shapeID, props, parent, withHelperElements, withHighlightEvents);
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Freehand(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
       default:
         console.error("makeShapeOfRightType(): type  (".concat(type, ") is not valid. No shape was created."));
@@ -7962,12 +8043,12 @@ window.initDrawingQuestion = function () {
       },
       main: {},
       origin: {
-        stroke: "var(--teacher-Primary)",
+        stroke: "var(--all-BlueGrey)",
         id: "grid-origin"
       },
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
     };
-    Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, UI.svgGridGroup);
+    Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
   }
 
   function updateGridVisibility() {
@@ -8138,13 +8219,13 @@ window.initDrawingQuestion = function () {
     }
 
     _constants_js__WEBPACK_IMPORTED_MODULE_0__.shapePropertiesAvailableToUser[drawingApp.params.currentTool].forEach(function (prop) {
-      document.getElementById(prop).style.display = "flex";
+      rootElement.querySelector("#".concat(prop)).style.display = "flex";
     });
   }
 
   function makeSelectedBtnActive(selectedBtn) {
     var btnGroupName = selectedBtn.getAttribute("data-button-group");
-    var activeBtnsOfBtnGroup = document.querySelectorAll("[data-button-group=".concat(btnGroupName, "].active"));
+    var activeBtnsOfBtnGroup = rootElement.querySelectorAll("[data-button-group=".concat(btnGroupName, "].active"));
 
     for (var _i3 = 0, _arr2 = _toConsumableArray(activeBtnsOfBtnGroup); _i3 < _arr2.length; _i3++) {
       var btn = _arr2[_i3];
@@ -8153,6 +8234,85 @@ window.initDrawingQuestion = function () {
 
     selectedBtn.classList.add("active");
   }
+
+  function getPanGroupSize() {
+    Canvas.layers.grid.shape.hide();
+    var questionLayerHidden = Canvas.layers.question.isHidden();
+    var answerLayerHidden = Canvas.layers.answer.isHidden();
+
+    if (questionLayerHidden) {
+      Canvas.layers.question.unhide();
+    }
+
+    if (answerLayerHidden) {
+      Canvas.layers.answer.unhide();
+    }
+
+    var panGroupSize = UI.svgPanZoomGroup.getBBox();
+
+    if (questionLayerHidden) {
+      Canvas.layers.question.hide();
+    }
+
+    if (answerLayerHidden) {
+      Canvas.layers.answer.hide();
+    }
+
+    return {
+      x: panGroupSize.x,
+      y: panGroupSize.y,
+      width: panGroupSize.width,
+      height: panGroupSize.height
+    };
+  }
+
+  return {
+    UI: UI,
+    Canvas: Canvas,
+    drawingApp: drawingApp
+  };
+};
+
+function clearPreviewGrid() {
+  var gridContainer = rootElement.querySelector('#grid-preview-svg');
+
+  if (gridContainer.firstChild !== null) {
+    gridContainer.firstChild.remove();
+  }
+}
+
+window.makePreviewGrid = function (gridSvg) {
+  clearPreviewGrid();
+  var props = {
+    group: {
+      style: ""
+    },
+    main: {},
+    origin: {
+      stroke: "var(--teacher-Primary)",
+      id: "grid-origin"
+    },
+    size: gridSvg
+  };
+  var parent = rootElement.querySelector('#grid-preview-svg');
+  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, null, null);
+};
+
+window.calculatePreviewBounds = function () {
+  var parent = rootElement.querySelector('#preview-svg');
+  var matrix = new DOMMatrix();
+  var height = parent.clientHeight,
+      width = parent.clientWidth;
+  return {
+    top: -matrix.f,
+    bottom: height - matrix.f,
+    height: height,
+    left: -matrix.e,
+    right: width - matrix.e,
+    width: width,
+    cx: -matrix.e + width / 2,
+    cy: -matrix.f + height / 2
+  };
 };
 
 /***/ }),
@@ -8310,8 +8470,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 
 var sidebarComponent = /*#__PURE__*/function () {
-  function sidebarComponent() {
+  function sidebarComponent(drawingApp, Canvas) {
     _classCallCheck(this, sidebarComponent);
+
+    this.drawingApp = drawingApp;
+    this.Canvas = Canvas;
   }
 
   _createClass(sidebarComponent, [{
@@ -8336,12 +8499,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
   var _super = _createSuper(Entry);
 
-  function Entry(shape) {
+  function Entry(shape, drawingApp, Canvas) {
     var _this;
 
     _classCallCheck(this, Entry);
 
-    _this = _super.call(this);
+    _this = _super.call(this, drawingApp, Canvas);
     _this.svgShape = shape;
     var entryTemplate = document.getElementById("shape-group-template");
     var templateCopy = entryTemplate.content.cloneNode(true);
@@ -8353,11 +8516,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       hide: templateCopy.querySelector(".hide-btn"),
       drag: templateCopy.querySelector(".drag-btn")
     };
-    _this.type = _this.svgShape.type == "path" ? "freehand" : _this.svgShape.type;
+    _this.type = _this.svgShape.type === "path" ? "freehand" : _this.svgShape.type;
     _this.id = "".concat(_this.type, "-").concat(_this.svgShape.shapeId);
     _this.entryContainer.id = "shape-".concat(_this.id);
     _this.entryTitle.innerText = "".concat(_constants_js__WEBPACK_IMPORTED_MODULE_0__.nameInSidebarEntryForShape[_this.svgShape.type], " ").concat(_this.svgShape.shapeId);
-    drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
+
+    _this.drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
 
     _this.updateLockState();
 
@@ -8381,21 +8545,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           },
           "dragend": {
             callback: function callback(evt) {
-              var _evt$currentTarget$ne;
-
-              var entry = evt.currentTarget;
-              entry.classList.remove("dragging");
-              var newLayerId = entry.closest(".layer-group").id;
-              var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
-              var shape = document.getElementById(entry.id.substring(6));
-              var shapeToInsertBefore = document.getElementById((_evt$currentTarget$ne = evt.currentTarget.nextElementSibling) === null || _evt$currentTarget$ne === void 0 ? void 0 : _evt$currentTarget$ne.id.substring(6));
-
-              if (shapeToInsertBefore) {
-                newSvgLayer.insertBefore(shape, shapeToInsertBefore);
-                return;
-              }
-
-              newSvgLayer.appendChild(shape);
+              _this2.updateDraggedElementPosition(evt);
             }
           },
           "mouseenter touchstart": {
@@ -8446,6 +8596,25 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
           }
         }
       }];
+    }
+  }, {
+    key: "updateDraggedElementPosition",
+    value: function updateDraggedElementPosition(evt) {
+      var _evt$currentTarget$pr;
+
+      var entry = evt.currentTarget;
+      entry.classList.remove("dragging");
+      var newLayerId = entry.closest(".layer-group").id;
+      var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
+      var shape = document.getElementById(entry.id.substring(6));
+      var shapeToInsertBefore = document.getElementById((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6));
+
+      if (shapeToInsertBefore) {
+        newSvgLayer.insertBefore(shape, shapeToInsertBefore);
+        return;
+      }
+
+      newSvgLayer.appendChild(shape);
     }
   }, {
     key: "highlight",
@@ -8519,6 +8688,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   /**
    *
    * @param {Object.<string, boolean|number|string|{}>} props
+   * @param drawingApp
+   * @param Canvas
    * @param {string} props.name
    * @param {string} props.id
    * @param {boolean} props.enabled
@@ -8527,10 +8698,12 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
     var _this3;
 
     var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var drawingApp = arguments.length > 1 ? arguments[1] : undefined;
+    var Canvas = arguments.length > 2 ? arguments[2] : undefined;
 
     _classCallCheck(this, Layer);
 
-    _this3 = _super2.call(this);
+    _this3 = _super2.call(this, drawingApp, Canvas);
     _this3.params = {
       hidden: false,
       locked: false
@@ -8615,11 +8788,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
         events: {
           "click": {
             callback: function callback() {
-              if (_this4.isEmpty()) return;
-              if (!confirm("Alle vormen op deze laag (".concat(_this4.props.name, ") verwijderen?"))) return;
-              Object.values(_this4.shapes).forEach(function (shape) {
-                shape.sidebar.remove();
-              });
+              _this4.clearSidebar();
             }
           }
         }
@@ -8637,13 +8806,16 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
               }
 
               var oldLayer = draggedEntry.closest(".layer-group");
-              var oldGroupKey = Canvas.layerID2Key(oldLayer.id);
+
+              var oldGroupKey = _this4.Canvas.layerID2Key(oldLayer.id);
+
               var newLayer = _this4.sidebar;
-              var newGroupKey = Canvas.layerID2Key(newLayer.id);
+
+              var newGroupKey = _this4.Canvas.layerID2Key(newLayer.id);
 
               if (newGroupKey !== oldGroupKey) {
                 var shapeID = draggedEntry.id.substring(6);
-                Canvas.layers[newGroupKey].shapes[shapeID] = Canvas.layers[oldGroupKey].shapes[shapeID]; // delete Canvas.layers[oldGroupKey].shapes[shapeID];
+                _this4.Canvas.layers[newGroupKey].shapes[shapeID] = _this4.Canvas.layers[oldGroupKey].shapes[shapeID]; // delete Canvas.layers[oldGroupKey].shapes[shapeID];
               }
 
               var entryToInsertBefore = _this4.getEntryToInsertBefore(_this4.sidebar, evt.clientY).entry;
@@ -8701,6 +8873,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "addEventListenerOnHeader",
     value: function addEventListenerOnHeader() {
+      var _this5 = this;
+
       var settings = [{
         element: this.header,
         events: {
@@ -8708,12 +8882,13 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
             callback: function callback(evt) {
               var targetHeader = evt.target;
               var newCurrentLayerID = targetHeader.closest(".layer-group").id;
-              Canvas.setCurrentLayer(Canvas.layerID2Key(newCurrentLayerID));
+
+              _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
             }
           }
         }
       }];
-      drawingApp.bindEventListeners(settings, this);
+      this.drawingApp.bindEventListeners(settings, this);
     }
   }, {
     key: "hide",
@@ -8794,6 +8969,27 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
         return closestEntry;
       }, {
         offset: Number.NEGATIVE_INFINITY
+      });
+    }
+  }, {
+    key: "unhideIfHidden",
+    value: function unhideIfHidden() {
+      if (this.isHidden()) {
+        this.unhide();
+      }
+    }
+  }, {
+    key: "clearSidebar",
+    value: function clearSidebar() {
+      var withWarning = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      if (this.isEmpty()) return;
+
+      if (withWarning) {
+        if (!confirm("Alle vormen op deze laag (".concat(this.props.name, ") verwijderen?"))) return;
+      }
+
+      Object.values(this.shapes).forEach(function (shape) {
+        shape.sidebar.remove();
       });
     }
   }]);
@@ -9711,12 +9907,16 @@ var svgShape = /*#__PURE__*/function () {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
-  function svgShape(shapeId, type, props, parent) {
+  function svgShape(shapeId, type, props, parent, drawingApp, Canvas) {
     var _this = this;
 
-    var withHelperElements = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-    var withHighlightEvents = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
+    var withHelperElements = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
+    var withHighlightEvents = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : true;
 
     _classCallCheck(this, svgShape);
 
@@ -9731,6 +9931,8 @@ var svgShape = /*#__PURE__*/function () {
         id: "".concat(type, "-").concat(shapeId)
       }
     };
+    this.Canvas = Canvas;
+    this.drawingApp = drawingApp;
     if (!this.props.main) this.props.main = {};
     if (!this.props.group) this.props.group = {};
     this.offset = parseInt(this.props.main["stroke-width"]) / 2 + 3 || 5;
@@ -9919,7 +10121,7 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "isHidden",
     value: function isHidden() {
-      return this.shapeGroup.element.style.display == "none";
+      return this.shapeGroup.element.style.display === "none";
     }
   }, {
     key: "remove",
@@ -10003,12 +10205,12 @@ var svgShape = /*#__PURE__*/function () {
             callback: function callback() {
               _this2.highlight();
 
-              Canvas.setFocusedShape(_this2);
+              _this2.Canvas.setFocusedShape(_this2);
             }
           }
         }
       }];
-      drawingApp.bindEventListeners(settings, this);
+      this.drawingApp.bindEventListeners(settings, this);
     }
   }, {
     key: "highlight",
@@ -10036,15 +10238,15 @@ var Rectangle = /*#__PURE__*/function (_svgShape) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
-  function Rectangle(shapeId, props) {
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
-
+  function Rectangle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Rectangle);
 
-    return _super.call(this, shapeId, "rect", props, parent, withHelperElements, withHighlightEvents);
+    return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
   return _createClass(Rectangle);
@@ -10060,15 +10262,15 @@ var Circle = /*#__PURE__*/function (_svgShape2) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
-  function Circle(shapeId, props) {
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
-
+  function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Circle);
 
-    return _super2.call(this, shapeId, "circle", props, parent, withHelperElements, withHighlightEvents);
+    return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
   return _createClass(Circle);
@@ -10084,17 +10286,17 @@ var Line = /*#__PURE__*/function (_svgShape3) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
-  function Line(shapeId, props) {
+  function Line(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this3;
-
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
 
     _classCallCheck(this, Line);
 
-    _this3 = _super3.call(this, shapeId, "line", props, parent, withHelperElements, withHighlightEvents);
+    _this3 = _super3.call(this, shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
     _this3.makeOwnMarkerForThisShape();
 
@@ -10155,17 +10357,17 @@ var Text = /*#__PURE__*/function (_svgShape4) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
-  function Text(shapeId, props) {
+  function Text(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this4;
-
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
 
     _classCallCheck(this, Text);
 
-    _this4 = _super4.call(this, shapeId, "text", props, parent, withHelperElements, withHighlightEvents);
+    _this4 = _super4.call(this, shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
     _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
 
@@ -10177,14 +10379,14 @@ var Text = /*#__PURE__*/function (_svgShape4) {
     value: function onDrawEndShapeSpecific(evt, cursor) {
       var _this5 = this;
 
-      var windowCursor = drawingApp.convertCanvas2DomCoordinates(cursor);
+      var windowCursor = this.drawingApp.convertCanvas2DomCoordinates(cursor);
       var canvasContainer = document.getElementById("svg-canvas").parentElement;
       var fontSize = parseFloat(this.mainElement.element.style.fontSize);
       var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {
         id: "add-text-input",
         type: "text",
         placeholder: "Type here...",
-        style: "position: absolute;                top: ".concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "px;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                display: inline-flex;"),
+        style: "width: ".concat(canvasContainer.getBoundingClientRect().right - windowCursor.x, "px;                position: absolute;                top: ").concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "px;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                transform-origin: bottom left;                transform: scale(").concat(this.Canvas.params.zoomFactor, ")"),
         autocomplete: "off",
         spellcheck: "false"
       });
@@ -10205,7 +10407,6 @@ var Text = /*#__PURE__*/function (_svgShape4) {
 
         _this5.updateCornerElements();
       });
-      debugger;
     }
   }]);
 
@@ -10222,15 +10423,15 @@ var Image = /*#__PURE__*/function (_svgShape5) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
-  function Image(shapeId, props) {
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
-
+  function Image(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Image);
 
-    return _super5.call(this, shapeId, "image", props, parent, withHelperElements, withHighlightEvents);
+    return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
   return _createClass(Image);
@@ -10246,15 +10447,15 @@ var Path = /*#__PURE__*/function (_svgShape6) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
-  function Path(shapeId, props) {
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
-    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
-
+  function Path(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     _classCallCheck(this, Path);
 
-    return _super6.call(this, shapeId, "path", props, parent, withHelperElements, withHighlightEvents);
+    return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
   }
 
   return _createClass(Path);
@@ -10269,14 +10470,16 @@ var Grid = /*#__PURE__*/function (_Path) {
    * @param {?propObj} props
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
-   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param {HTMLElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
    */
-  function Grid(shapeId, props, parent) {
+  function Grid(shapeId, props, parent, drawingApp, Canvas) {
     var _this6;
 
     _classCallCheck(this, Grid);
 
-    _this6 = _super7.call(this, shapeId, props, parent, false);
+    _this6 = _super7.call(this, shapeId, props, parent, drawingApp, Canvas, false);
     _this6.origin = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(_this6.props.origin);
 
     _this6.setDAttributes(_this6.calculateDAttributeForGrid(_this6.props.size), _this6.calculateDAttributeForOrigin(_this6.props.size));
@@ -10309,14 +10512,23 @@ var Grid = /*#__PURE__*/function (_Path) {
   }, {
     key: "update",
     value: function update() {
-      var size = drawingApp.params.gridSize;
+      var size = this.drawingApp.params.gridSize;
       this.setDAttributes(this.calculateDAttributeForGrid(size), this.calculateDAttributeForOrigin(size));
     }
   }, {
     key: "calculateDAttributeForGrid",
     value: function calculateDAttributeForGrid(size) {
-      var bounds = Canvas.params.bounds,
-          interval = size * _constants_js__WEBPACK_IMPORTED_MODULE_0__.pixelsPerCentimeter,
+      var bounds = {};
+
+      if (this.Canvas !== null) {
+        bounds = this.Canvas.params.bounds;
+      }
+
+      if (Object.keys(bounds).length === 0) {
+        bounds = calculatePreviewBounds();
+      }
+
+      var interval = size * _constants_js__WEBPACK_IMPORTED_MODULE_0__.pixelsPerCentimeter,
           lineAmount = this.calculateAmountOfGridLines(interval, bounds);
       var strOfPoints = "";
 
@@ -10361,13 +10573,17 @@ var Freehand = /*#__PURE__*/function (_Path2) {
    * All properties (attributes) to be assigned to the shape,
    * when omitted the properties of the shape are loaded.
    * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
    */
-  function Freehand(shapeId, props, parent, withHelperElements, withHighlightEvents) {
+  function Freehand(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
     var _this7;
 
     _classCallCheck(this, Freehand);
 
-    _this7 = _super8.call(this, shapeId, props, parent, withHelperElements, withHighlightEvents);
+    _this7 = _super8.call(this, shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
 
     _this7.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
 
@@ -10412,10 +10628,10 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
 var UIElements = /*#__PURE__*/function () {
-  function UIElements() {
+  function UIElements(rootElement) {
     _classCallCheck(this, UIElements);
 
-    var _iterator = _createForOfIteratorHelper(document.getElementById("drawing-tool").parentElement.querySelectorAll('[id]:not([id=""])')),
+    var _iterator = _createForOfIteratorHelper(rootElement.querySelector("#drawing-tool").parentElement.querySelectorAll('[id]:not([id=""])')),
         _step;
 
     try {
@@ -10458,11 +10674,12 @@ var warningBox = /*#__PURE__*/function () {
   function warningBox() {
     var content = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
     var timeDisplayed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1000;
+    var rootElement = arguments.length > 2 ? arguments[2] : undefined;
 
     _classCallCheck(this, warningBox);
 
-    var parent = document.querySelector("div#canvas-sidebar-container");
-    var template = document.querySelector("template#warningbox-template");
+    var parent = rootElement.querySelector("div#canvas-sidebar-container");
+    var template = rootElement.querySelector("template#warningbox-template");
     var templateCopy = template.content.cloneNode(true);
     this.box = templateCopy.querySelector("div.warning");
     var textWrapper = this.box.querySelector("div.warning-text");

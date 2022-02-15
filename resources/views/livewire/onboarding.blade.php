@@ -198,7 +198,7 @@
                                                        class="transition ease-in-out duration-150">{{ __("onboarding.Achternaam") }}</label>
                                             </div>
                                         </div>
-                                        <div class="password items-start mb-4">
+                                        <div class="password mb-4 ">
 
                                             <div class="input-group w-1/2 md:w-auto order-1 pr-2 mb-4 md:mb-0">
                                                 <input id="password" wire:model="password" type="password"
@@ -216,28 +216,12 @@
                                                        {{ __("onboarding.Herhaal wachtwoord") }}</label>
                                             </div>
 
-                                            <div class="mid-grey w-1/2 md:w-auto order-2 md:order-3 pl-2 h-16 overflow-visible md:h-auto md:overflow-auto requirement-font-size">
-                                                <div
-                                                        class="text-{{$this->minCharRule}}">@if($this->minCharRule)
-                                                        <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
-                                                        <x-icon.close-small></x-icon.close-small> @else
-                                                        <x-icon.dot></x-icon.dot> @endif Min. 8
-                                                        {{ __("onboarding.tekens") }}
-                                                </div>
-                                                <div
-                                                        class="text-{{$this->minDigitRule}}">@if($this->minDigitRule)
-                                                        <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
-                                                        <x-icon.close-small></x-icon.close-small> @else
-                                                        <x-icon.dot></x-icon.dot> @endif Min. 1
-                                                        {{ __("onboarding.cijfer") }}
-                                                </div>
-                                                <div
-                                                        class="text-{{$this->specialCharRule}}">@if($this->specialCharRule)
-                                                        <x-icon.checkmark-small></x-icon.checkmark-small> @elseif($this->minCharRule === 'red')
-                                                        <x-icon.close-small></x-icon.close-small> @else
-                                                        <x-icon.dot></x-icon.dot> @endif Min. 1
-                                                        {{ __("onboarding.speciaal") }}
-                                                        {{ __("onboarding.teken (bijv. $ of @)") }}
+                                            <div class="flex items-end mid-grey w-1/2 md:w-auto h-16 md:h-auto order-2 md:order-3 pl-2 overflow-visible md:overflow-auto requirement-font-size">
+                                                <div class="inline-flex space-x-2 items-center text-{{$this->minCharRule}}">
+                                                    @if($this->minCharRule)<x-icon.checkmark-small></x-icon.checkmark-small>
+                                                    @elseif($this->minCharRule === 'red')<x-icon.close-small></x-icon.close-small>
+                                                    @else <x-icon.dot></x-icon.dot> @endif
+                                                    <span>Min. 8 {{ __("onboarding.tekens") }}</span>
                                                 </div>
                                             </div>
                                         </div>

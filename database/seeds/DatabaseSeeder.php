@@ -16,5 +16,6 @@ class DatabaseSeeder extends Seeder {
 		$this->call('SearchFilterTableSeeder');
         $this->call(SwitchSchoolAccountTableSeeder::class);
         $this->call(CitoAccountSeeder::class);
+        $this->call(ExamSchoolSeeder::class);
 	}
 }

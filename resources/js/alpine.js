@@ -279,6 +279,56 @@ document.addEventListener('alpine:init', () => {
         }
     }));
 
+    Alpine.data('drawingTool', (questionId, entanglements, isTeacher) => ({
+        show: false,
+        questionId: questionId,
+        answerSvg: entanglements.answerSvg,
+        questionSvg: entanglements.questionSvg,
+        gridSvg: entanglements.gridSvg,
+        isTeacher: isTeacher,
+        init() {
+            window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
+            const toolName = window['drawingTool_' + questionId];
+
+            if(this.isTeacher) {
+                this.makeGridIfNecessary();
+            }
+
+            this.$watch('show', show => {
+                if (show) {
+                    toolName.Canvas.data.answer = this.answerSvg;
+                    toolName.Canvas.data.question = this.questionSvg;
+
+                    this.handleGrid(toolName);
+
+                    toolName.drawingApp.init();
+                } else {
+                    Livewire.emit('refresh');
+                }
+            })
+
+            toolName.Canvas.layers.answer.enable();
+            toolName.Canvas.setCurrentLayer("answer");
+        },
+        handleGrid(toolName) {
+            if (this.gridSvg !== '0.00') {
+                let parsedGrid = parseFloat(this.gridSvg);
+                if (toolName.drawingApp.isTeacher()) {
+                    toolName.UI.gridSize.value = parsedGrid;
+                    toolName.UI.gridToggle.checked = true;
+                } else {
+                    toolName.drawingApp.params.gridSize = parsedGrid;
+                    toolName.Canvas.layers.grid.params.hidden = false;
+                }
+            }
+        },
+        makeGridIfNecessary() {
+            if (this.gridSvg !== '') {
+                makePreviewGrid(this.gridSvg);
+            }
+        }
+    }));
+
     Alpine.directive('global', function (el, {expression}) {
         let f = new Function('_', '$data', '_.' + expression + ' = $data;return;');
         f(window, el._x_dataStack[0]);

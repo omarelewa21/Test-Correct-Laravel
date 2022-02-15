@@ -1,6 +1,6 @@
 export class UIElements {
-    constructor() {
-        for (var node of document.getElementById("drawing-tool").parentElement.querySelectorAll('[id]:not([id=""])')) {
+    constructor(rootElement) {
+        for (var node of rootElement.querySelector("#drawing-tool").parentElement.querySelectorAll('[id]:not([id=""])')) {
             this[this.convertIdToCamelCase(node.id)] = node;
         }
     }
@@ -27,9 +27,9 @@ export class warningBox {
      * @param {string} content Text to be shown in the warning to inform the user.
      * @param {number} timeDisplayed How long the warning should be displayed (in milliseconds).
      */
-    constructor(content = "", timeDisplayed = 1000 ) {
-        const parent = document.querySelector("div#canvas-sidebar-container");
-        const template = document.querySelector("template#warningbox-template");
+    constructor(content = "", timeDisplayed = 1000 , rootElement) {
+        const parent = rootElement.querySelector("div#canvas-sidebar-container");
+        const template = rootElement.querySelector("template#warningbox-template");
         const templateCopy = template.content.cloneNode(true);
         this.box = templateCopy.querySelector("div.warning");
         const textWrapper = this.box.querySelector("div.warning-text");
