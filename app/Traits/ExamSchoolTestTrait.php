@@ -102,7 +102,6 @@ trait ExamSchoolTestTrait {
     public function setExamTestParams():void
     {
         $this->setAttribute('scope', 'exam');
-        $this->setAttribute('abbreviation', 'EXAM');
         $authorUser = AuthorsController::getCentraalExamenAuthor();
         if(!is_null($authorUser)){
             $this->setAttribute('author_id', $authorUser->getKey());
@@ -112,7 +111,6 @@ trait ExamSchoolTestTrait {
     private function unpublishExam():void
     {
         $this->setAttribute('scope', 'not_exam');
-        $this->setAttribute('abbreviation', 'NOTCE');
     }
 
     public function setExamParamsOnQuestionsOfTest():void
