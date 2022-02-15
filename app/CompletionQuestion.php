@@ -209,7 +209,7 @@ class CompletionQuestion extends Question implements QuestionInterface
             $tagAnswers = array_map('trim', $tagAnswers);
             if (in_array(trim($answers[$refTag]), $tagAnswers)
                 || in_array(trim(BaseHelper::transformHtmlCharsReverse($answers[$refTag])), $tagAnswers)
-                || in_array(trim(html_entity_encode($answers[$refTag])), $tagAnswers)
+                || in_array(trim(htmlentities($answers[$refTag])), $tagAnswers)
             ) {
                 $correct++;
             }
