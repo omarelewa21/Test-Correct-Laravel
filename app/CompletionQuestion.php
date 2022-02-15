@@ -209,6 +209,7 @@ class CompletionQuestion extends Question implements QuestionInterface
             $tagAnswers = array_map('trim', $tagAnswers);
             if (in_array(trim($answers[$refTag]), $tagAnswers)
                 || in_array(trim(BaseHelper::transformHtmlCharsReverse($answers[$refTag])), $tagAnswers)
+                || in_array(trim(html_entity_encode($answers[$refTag])), $tagAnswers)
             ) {
                 $correct++;
             }
@@ -342,7 +343,7 @@ class CompletionQuestion extends Question implements QuestionInterface
         foreach ($answers as $answerDetails) {
             $completionQuestionAnswer = new CompletionQuestionAnswer();
 
-            $answerDetails['answer'] = clean(html_entity_decode($answerDetails['answer']));//str_replace(['&eacute;','&euro;','&euml;','&nbsp;','&oacute;'],['é','€','ë',' ','ó'],$answerDetails['answer']);
+            $answerDetails['answer'] = clean($answerDetails['answer']);//str_replace(['&eacute;','&euro;','&euml;','&nbsp;','&oacute;'],['é','€','ë',' ','ó'],$answerDetails['answer']);
 
             $completionQuestionAnswer->fill($answerDetails);
             if (!$completionQuestionAnswer->save()) {
