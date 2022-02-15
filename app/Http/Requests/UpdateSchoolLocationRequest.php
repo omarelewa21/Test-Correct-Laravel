@@ -42,7 +42,7 @@ class UpdateSchoolLocationRequest extends Request {
 		$this->filterInput();
 
 		return [
-			'name' => 'max:100'
+			'name' => 'string|max:100'
 		];
 	}
 
