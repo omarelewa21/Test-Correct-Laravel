@@ -2,9 +2,6 @@
 <html>
 <head>
     <meta content="text/html;charset=UTF-8" http-equiv="content-type" />
-
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,300' rel='stylesheet' type='text/css'>
-    <link href='http://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Nunito' rel='stylesheet'>
 
 </head>
@@ -50,7 +47,7 @@
                                         color: #ffffff;
                                         padding-top: 20px;
                                         padding-bottom: 20px;
-                                        font-family: Nunito, sans-serif;
+                                        font-family: Nunito, sans-serif,Trebuchet MS;
                                         font-weight: bold;">
             <td colspan="999"  style="font-weight: 400;
                                         padding-top: 10px;
@@ -77,7 +74,7 @@
                                 padding-right: 0px;
                                 margin: 0px;
                                 padding-bottom: 0px;
-                                font-family: Nunito, sans-serif;
+                                font-family: Nunito, sans-serif,Trebuchet MS;
                                 font-weight: 300;">
                             <span style="padding-right: 10px;"><img src="{{config('app.base_url')}}img/mail/icons-arrow-white.png"></span>
                             @yield('header_intro')
@@ -93,7 +90,7 @@
                                                             padding-right: 0px;
                                                             margin: 0px;
                                                             padding-bottom: 0px;
-                                                            font-family: Nunito, sans-serif;
+                                                            font-family: Nunito, sans-serif,Trebuchet MS;
                                                             font-weight: 300;
                                                             ">@yield('header_message')</td>
                     </tr>
@@ -120,13 +117,13 @@
             <td colspan="999" style="padding-left: 100px;padding-right: 40px;padding-top: 30px;">
                 <p style="font-size: 14px;
                         line-height: 24px;
-                        font-family: Nunito, sans-serif;
+                        font-family: Nunito, sans-serif,Trebuchet MS;
                         color: #6b7789;
                         font-size: 15px;
                         margin-bottom: 15px;">www.test-correct.nl, Dotterbloemstraat 25, 3053 JV, Rotterdam, Nederland</p>
                 <p style="font-size: 14px;
                         line-height: 24px;
-                        font-family: Nunito, sans-serif;
+                        font-family: Nunito, sans-serif,Trebuchet MS;
                         color: #6b7789;
                         margin-bottom: 15px;">Je kunt je niet afmelden voor belangrijke e-mails over je account, zoals deze.</p>
             </td>
