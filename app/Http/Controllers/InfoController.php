@@ -68,9 +68,10 @@ class InfoController extends Controller
 
     public function removeDashboardInfo(Info $info){
         if(!auth()->user()->isA('student')){
+            logger($info);
             UserInfosDontShow::create([
                 'user_id'       => auth()->id(),
-                'info_id'       => $info->id
+                'info_id'       => $info->getKey()
             ]);
             return Response::make(true,200);
         }
