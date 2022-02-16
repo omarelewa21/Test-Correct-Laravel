@@ -15,7 +15,7 @@
                                             border-left: solid 1px #c3d0ed;
                                             border-right: solid 1px #c3d0ed;">
     <p style="  margin-bottom: 15px;
-                font-family: Nunito, sans-serif, Trebuchet MS;
+                font-family: Nunito, sans-serif,Trebuchet MS,Arial;
                 font-size: 20px;
                 font-weight: bold;
                 font-stretch: normal;
@@ -35,9 +35,9 @@
                  margin-right: 0px;
                  margin-left: 0px;
                  padding: 0px;
-                 font-family: Nunito, sans-serif, Trebuchet MS;
+                 font-family: Nunito, sans-serif,Trebuchet MS,Arial;
                  font-weight: 300;
-                 color: #041f74;"">Je hebt zojuist het wachtwoord van je Test-Correct account gewijzigd.</p>
+                 color: #041f74;">Je hebt zojuist het wachtwoord van je Test-Correct account gewijzigd.</p>
 
     <p style="   font-size: 15px;
                  line-height: 22px;
@@ -46,7 +46,7 @@
                  margin-right: 0px;
                  margin-left: 0px;
                  padding: 0px;
-                 font-family: Nunito, sans-serif, Trebuchet MS;
+                 font-family: Nunito, sans-serif,Trebuchet MS,Arial;
                  font-weight: 300;
                  color: #041f74;">Als je deze wijziging niet zelf hebt gemaakt, dan is het verstandig om je wachtwoord te wijzigen voor de veiligheid van je account.</p>
     <table >
@@ -55,7 +55,7 @@
                 <img src="{{config('app.base_url')}}img/mail/sticker-neem-contact-op.png">
             </td>
             <td style="padding-left: 0px;padding-right: 40px;">
-                <p  style="     font-family: Nunito, sans-serif, Trebuchet MS;
+                <p  style="     font-family: Nunito, sans-serif,Trebuchet MS,Arial;
                                 font-size: 16px;
                                 font-stretch: normal;
                                 font-style: normal;
@@ -69,9 +69,9 @@
                                 padding: 0px;
                                 color: #041f74;">Afdeling support</p>
                 <p  style="     margin-bottom: 15px;
-                                font-family: Nunito;
+                                font-family: Nunito, sans-serif,Trebuchet MS,Arial;
                                 font-size: 16px;
-                                font-weight; normal;
+                                font-weight: normal;
                                 font-stretch: normal;
                                 font-style: normal;
                                 line-height: 1.38;
@@ -89,7 +89,11 @@
 @stop
 
 @section('support')
-    @include('emails.partials.support1')
+    @if($user->hasRole('Student')||$user->hasRole('Parent'))
+        @include('emails.partials.support_student1')
+    @else
+        @include('emails.partials.support1')
+    @endif
 @stop
 
 @section('footer')
