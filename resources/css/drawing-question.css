@@ -804,3 +804,7 @@ button) {
     box-shadow: 0 3px 18px 0 rgba(77, 87, 143, 0.2);
     background-color: var(--all-White);
 }
+
+.drawing-tool-preview {
+    box-shadow: inset 0 1px 6px 4px rgba(4, 31, 116, 0.06);
+}

@@ -56,9 +56,9 @@ window.initDrawingQuestion = function (rootElement) {
                     calculateCanvasBounds();
                     updateClosedSidebarWidth();
 
-                    // updateMidPoint();
                     if (drawingApp.firstInit) {
                         makeGrid();
+                        updateMidPoint();
                     }
 
                     processGridToggleChange();
@@ -1439,7 +1439,7 @@ window.initDrawingQuestion = function (rootElement) {
             },
             main: {},
             origin: {
-                stroke: "var(--all-BlueGrey)",
+                stroke: "var(--teacher-Primary)",
                 id: "grid-origin",
             },
             size: (drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize),
@@ -1673,13 +1673,13 @@ window.makePreviewGrid = function (drawingApp, gridSvg) {
         },
         main: {},
         origin: {
-            stroke: "var(--teacher-Primary)",
+            stroke: "var(--teacher-blueGrey)",
             id: "grid-origin",
         },
         size: gridSvg,
     }
     let parent = rootElement.querySelector('#grid-preview-svg')
-    return new svgShape.Grid(0, props, parent, null, null);
+    return new svgShape.Grid(0, props, parent, drawingApp, null);
 }
 
 window.calculatePreviewBounds = function (parent) {
@@ -1687,10 +1687,10 @@ window.calculatePreviewBounds = function (parent) {
     const height = parent.clientHeight,
         width = parent.clientWidth;
     return {
-        top: -(matrix.f),
+        top: matrix.f - (height/2),
         bottom: height - matrix.f,
         height: height,
-        left: -(matrix.e),
+        left: matrix.e - (width/2),
         right: width - matrix.e,
         width: width,
         cx: -matrix.e + (width / 2),

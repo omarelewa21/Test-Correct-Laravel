@@ -18,29 +18,11 @@
                  true
              )"
     >
-        <div class="flex mb-4 space-x-4">
-            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-            >
-                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-            </x-input.toggle-row-with-title>
-            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-            >
-                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-            </x-input.toggle-row-with-title>
-            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-            >
-                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-            </x-input.toggle-row-with-title>
-        </div>
-
         <div>
             <span>{{ __('cms.Teken in de tekentool het antwoordmodel voor de vraag.') }}</span>
         </div>
 
-    <div class="flex flex-1 min-h-[500px] w-full border border-allred rounded-10 mt-4 items-center justify-center relative overflow-auto">
+    <div class="flex flex-1 min-h-[500px] w-full border border-bluegrey rounded-10 mt-4 items-center justify-center relative overflow-auto drawing-tool-preview">
 
         @if($this->isOldDrawingQuestion())
 
@@ -52,7 +34,8 @@
                     <div class="absolute bg-white opacity-80 w-full h-full"></div>
                     <div class="z-0 flex flex-col items-center justify-center">
                         <x-button.primary @click="show = !show" >
-                            Antwoordmodel tekenen
+                            <x-icon.edit/>
+                            <span>Antwoordmodel tekenen</span>
                         </x-button.primary>
                         <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p>
                     </div>
@@ -73,7 +56,8 @@
                 <div class="absolute bg-white opacity-80 w-full h-full"></div>
                 <div class="z-0 flex flex-col items-center justify-center">
                     <x-button.primary @click="show = !show" >
-                        Antwoordmodel tekenen
+                        <x-icon.edit/>
+                        <span>Antwoordmodel tekenen</span>
                     </x-button.primary>
                 </div>
             </div>

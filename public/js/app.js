@@ -6453,10 +6453,11 @@ window.initDrawingQuestion = function (rootElement) {
         if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
           setCorrectPopupHeight();
           calculateCanvasBounds();
-          updateClosedSidebarWidth(); // updateMidPoint();
+          updateClosedSidebarWidth();
 
           if (drawingApp.firstInit) {
             makeGrid();
+            updateMidPoint();
           }
 
           processGridToggleChange();
@@ -7891,7 +7892,7 @@ window.initDrawingQuestion = function (rootElement) {
       },
       main: {},
       origin: {
-        stroke: "var(--all-BlueGrey)",
+        stroke: "var(--teacher-Primary)",
         id: "grid-origin"
       },
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
@@ -8138,13 +8139,13 @@ window.makePreviewGrid = function (drawingApp, gridSvg) {
     },
     main: {},
     origin: {
-      stroke: "var(--teacher-Primary)",
+      stroke: "var(--teacher-blueGrey)",
       id: "grid-origin"
     },
     size: gridSvg
   };
   var parent = rootElement.querySelector('#grid-preview-svg');
-  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, null, null);
+  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, drawingApp, null);
 };
 
 window.calculatePreviewBounds = function (parent) {
@@ -8152,10 +8153,10 @@ window.calculatePreviewBounds = function (parent) {
   var height = parent.clientHeight,
       width = parent.clientWidth;
   return {
-    top: -matrix.f,
+    top: matrix.f - height / 2,
     bottom: height - matrix.f,
     height: height,
-    left: -matrix.e,
+    left: matrix.e - width / 2,
     right: width - matrix.e,
     width: width,
     cx: -matrix.e + width / 2,
@@ -10382,11 +10383,12 @@ var Grid = /*#__PURE__*/function (_Path) {
 
       var interval = size * _constants_js__WEBPACK_IMPORTED_MODULE_0__.pixelsPerCentimeter,
           lineAmount = this.calculateAmountOfGridLines(interval, bounds);
-      var strOfPoints = "";
+      var strOfPoints = ""; //Verticaal
 
       for (var i = -lineAmount.left; i <= lineAmount.right; i++) {
         strOfPoints += "M".concat(interval * i, ",").concat(bounds.top, "v").concat(bounds.height, " ");
-      }
+      } //Horizontaal
+
 
       for (var j = -lineAmount.top; j <= lineAmount.bottom; j++) {
         strOfPoints += "M".concat(bounds.left, ",").concat(interval * j, "h").concat(bounds.width, " ");

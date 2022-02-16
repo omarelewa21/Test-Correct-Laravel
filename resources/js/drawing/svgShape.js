@@ -531,12 +531,15 @@ export class Grid extends Path {
         const interval = size * pixelsPerCentimeter,
             lineAmount = this.calculateAmountOfGridLines(interval, bounds);
         let strOfPoints = ``;
+        //Verticaal
         for (var i = -lineAmount.left; i <= lineAmount.right; i++) {
             strOfPoints += `M${interval * i},${bounds.top}v${bounds.height} `;
         }
+        //Horizontaal
         for (var j = -lineAmount.top; j <= lineAmount.bottom; j++) {
             strOfPoints += `M${bounds.left},${interval * j}h${bounds.width} `;
         }
+
         return strOfPoints;
     }
 
