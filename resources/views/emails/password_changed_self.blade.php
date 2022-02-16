@@ -91,7 +91,7 @@
 @section('support')
     @if($user->hasRole('Student')||$user->hasRole('Parent'))
         @include('emails.partials.support_student1')
-    @else
+    @elseif($user->hasRole('Teacher'))
         @include('emails.partials.support1')
     @endif
 @stop
