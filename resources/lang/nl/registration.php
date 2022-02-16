@@ -4,7 +4,7 @@ return [
     'name_last_required'       => 'Achternaam is verplicht',
     'gender_required'          => 'Geef uw geslacht op',
     'password_required'        => 'Wachtwoord is verplicht',
-    'password_min'             => 'Wachtwoord moet langer zijn dan 8 karakters',
+    'password_min'             => 'Wachtwoord moet minimaal 8 karakters bevatten',
     'password_regex'           => 'Wachtwoord voldoet niet aan de eisen',
     'password_same'            => 'Wachtwoord komt niet overeen',
     'school_location_required' => 'Schoolnaam is verplicht',
