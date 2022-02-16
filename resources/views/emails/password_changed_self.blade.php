@@ -1,9 +1,9 @@
 @extends('emails.layoutv2')
 @section('header_intro')
-    Jouw Test-Correct account
+    <span>Jouw Test-Correct account</span>
 @stop
 @section('header_message')
-    Wachtwoord gewijzigd
+    <span>Wachtwoord gewijzigd</span>
 @stop
 
 @section('content')
@@ -15,7 +15,7 @@
                                             border-left: solid 1px #c3d0ed;
                                             border-right: solid 1px #c3d0ed;">
     <p style="  margin-bottom: 15px;
-                font-family: Nunito, sans-serif;
+                font-family: Nunito, sans-serif, Trebuchet MS;
                 font-size: 20px;
                 font-weight: bold;
                 font-stretch: normal;
@@ -35,7 +35,7 @@
                  margin-right: 0px;
                  margin-left: 0px;
                  padding: 0px;
-                 font-family: Nunito, sans-serif;
+                 font-family: Nunito, sans-serif, Trebuchet MS;
                  font-weight: 300;
                  color: #041f74;"">Je hebt zojuist het wachtwoord van je Test-Correct account gewijzigd.</p>
 
@@ -46,7 +46,7 @@
                  margin-right: 0px;
                  margin-left: 0px;
                  padding: 0px;
-                 font-family: Nunito, sans-serif;
+                 font-family: Nunito, sans-serif, Trebuchet MS;
                  font-weight: 300;
                  color: #041f74;">Als je deze wijziging niet zelf hebt gemaakt, dan is het verstandig om je wachtwoord te wijzigen voor de veiligheid van je account.</p>
     <table >
@@ -55,7 +55,7 @@
                 <img src="{{config('app.base_url')}}img/mail/sticker-neem-contact-op.png">
             </td>
             <td style="padding-left: 0px;padding-right: 40px;">
-                <p  style="     font-family: Nunito, sans-serif;
+                <p  style="     font-family: Nunito, sans-serif, Trebuchet MS;
                                 font-size: 16px;
                                 font-stretch: normal;
                                 font-style: normal;

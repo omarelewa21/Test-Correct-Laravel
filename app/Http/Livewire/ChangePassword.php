@@ -5,10 +5,12 @@ namespace tcCore\Http\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
+use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\User;
 
 class ChangePassword extends Component
 {
+    use UserNotificationForController;
 
     public $currentPassword;
     public $newPassword;
@@ -59,7 +61,7 @@ class ChangePassword extends Component
 
         $user->password = Hash::make($this->newPassword);
         $user->save();
-
+        $this->sendPasswordChangedMail($user);
         return $this->dispatchBrowserEvent('password-changed-success', __('auth.password_changed_success'));
     }
 

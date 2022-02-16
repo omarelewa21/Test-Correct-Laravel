@@ -32,6 +32,6 @@ class PasswordChangedSelf extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.password_changed_self');
+        return $this->subject(__('Wachtwoord gewijzigd'))->view('emails.password_changed_self');
     }
 }
