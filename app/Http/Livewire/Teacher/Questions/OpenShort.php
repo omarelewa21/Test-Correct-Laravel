@@ -437,7 +437,7 @@ class OpenShort extends Component
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
             $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId); //'577fa17d-68b7-4695-ace5-e14afd913757');
 
-            $response = (new GroupQuestionQuestionsController)->updateFromWithin(
+            $response = (new GroupQuestionQuestionsController)->updateGeneric(
                 $groupQuestionQuestionManager,
                 $groupQuestionQuestion,
                 $request
