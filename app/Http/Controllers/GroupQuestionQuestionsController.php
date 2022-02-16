@@ -345,21 +345,7 @@ class GroupQuestionQuestionsController extends Controller
 
     public function updateFromWithin(GroupQuestionQuestionManager $groupQuestionQuestionManager, GroupQuestionQuestion $groupQuestionPivot, Request $request)
     {
-        if (!$groupQuestionQuestionManager->isChild($groupQuestionPivot)) {
-            return Response::make('Group question question not found', 404);
-        }
-        $question = $groupQuestionPivot->question;
-        DB::beginTransaction();
-        try {
-            $groupQuestionPivot->fill($request->all());
-            $this->handleGroupQuestionQuestionUpdate($question, $request, $groupQuestionPivot, $groupQuestionQuestionManager);
-        } catch (QuestionException $e) {
-            DB::rollback();
-            $e->sendExceptionMail();
-            return Response::make($e->getMessage(), 422);
-        }
-        DB::commit();
-        return Response::make($groupQuestionPivot, 200);
+        return $this->updateGeneric($groupQuestionQuestionManager, $groupQuestionPivot, $request);
     }
 
 
