@@ -64,6 +64,7 @@ class CmsDrawing
         $this->instance->question['question_svg'] = $data['svg_question'];
         $this->instance->question['grid_svg'] = $data['svg_grid'];
         $this->instance->question['zoom_group'] = $data['svg_zoom_group'];
+
         $this->setViewbox($data['svg_zoom_group']);
     }
 

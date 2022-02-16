@@ -5690,11 +5690,12 @@ document.addEventListener('alpine:init', function () {
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
       isTeacher: isTeacher,
+      toolName: null,
       init: function init() {
         var _this5 = this;
 
-        window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
-        var toolName = window['drawingTool_' + questionId];
+        this.toolName = "drawingTool_".concat(questionId);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root);
 
         if (this.isTeacher) {
           this.makeGridIfNecessary(toolName);
@@ -7104,8 +7105,9 @@ window.initDrawingQuestion = function (rootElement) {
       Canvas.layers.answer.enable();
     }
 
-    if (data.question || data.answer) {//Disabled as it causes unnecessary zooming
-      // fitDrawingToScreen();
+    if (data.question || data.answer) {
+      //Disabled as it causes unnecessary zooming
+      fitDrawingToScreen();
     }
   }
 
@@ -7271,10 +7273,6 @@ window.initDrawingQuestion = function (rootElement) {
       svg_grid: grid,
       svg_zoom_group: panGroupSize
     });
-
-    if (drawingApp.isTeacher()) {
-      makePreviewGrid(drawingApp, grid);
-    }
   }
   /**
    * Event handler for down events of the cursor.
@@ -8152,13 +8150,14 @@ window.calculatePreviewBounds = function (parent) {
   var matrix = new DOMMatrix();
   var height = parent.clientHeight,
       width = parent.clientWidth;
+  var scale = height / parent.viewBox.baseVal.width;
   return {
-    top: matrix.f - height / 2,
-    bottom: height - matrix.f,
-    height: height,
-    left: matrix.e - width / 2,
-    right: width - matrix.e,
-    width: width,
+    top: -(matrix.f + height) / scale,
+    bottom: (height - matrix.f) / scale,
+    height: height * 2 / scale,
+    left: -(matrix.e + width) / scale,
+    right: (width - matrix.e) / scale,
+    width: width * 2 / scale,
     cx: -matrix.e + width / 2,
     cy: -matrix.f + height / 2
   };

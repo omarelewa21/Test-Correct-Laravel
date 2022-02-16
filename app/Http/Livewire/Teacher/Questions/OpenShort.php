@@ -185,6 +185,7 @@ class OpenShort extends Component
     public function handleUpdateDrawingData($data)
     {
         $this->obj->handleUpdateDrawingData($data);
+        $this->dispatchBrowserEvent('viewbox-changed');
     }
 
     public function getQuestionTypeProperty()

@@ -698,7 +698,7 @@ window.initDrawingQuestion = function (rootElement) {
         }
         if (data.question || data.answer) {
             //Disabled as it causes unnecessary zooming
-            // fitDrawingToScreen();
+            fitDrawingToScreen();
         }
     }
 
@@ -852,10 +852,6 @@ window.initDrawingQuestion = function (rootElement) {
             svg_grid: grid,
             svg_zoom_group: panGroupSize
         });
-
-        if (drawingApp.isTeacher()) {
-            makePreviewGrid(drawingApp, grid);
-        }
     }
 
     /**
@@ -1686,13 +1682,14 @@ window.calculatePreviewBounds = function (parent) {
     const matrix = new DOMMatrix();
     const height = parent.clientHeight,
         width = parent.clientWidth;
+    const scale = height / parent.viewBox.baseVal.width;
     return {
-        top: matrix.f - (height/2),
-        bottom: height - matrix.f,
-        height: height,
-        left: matrix.e - (width/2),
-        right: width - matrix.e,
-        width: width,
+        top: -(matrix.f + (height)) / scale,
+        bottom: (height - matrix.f) / scale,
+        height: (height * 2) / scale,
+        left: -(matrix.e + (width)) / scale,
+        right: (width - matrix.e) / scale,
+        width: (width * 2) / scale,
         cx: -matrix.e + (width / 2),
         cy: -matrix.f + (height / 2),
     };
