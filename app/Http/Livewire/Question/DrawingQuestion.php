@@ -62,6 +62,7 @@ class DrawingQuestion extends Component
         }
 
         $this->question_svg = $this->question->question_svg;
+        $this->grid_svg = $this->question->grid_svg;
         $this->backgroundImage = $this->question->getBackgroundImage();
     }
 
