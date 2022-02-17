@@ -8,7 +8,7 @@
                 <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.2000ms="answer"></textarea>
             </x-input.group>
         </div>
-        <div id="word-count" wire:ignore></div>
+        <div id="word-count-{{ $editorId }}" wire:ignore></div>
         @push('scripts')
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -18,7 +18,6 @@
                 }
                 ClassicEditor
                     .create( document.querySelector( '#{{ $editorId }}' ),{
-                        toolbar: [ 'bold', 'italic', 'bulletedList', 'numberedList', 'blockQuote' ],
                         autosave: {
                             waitingTime: 300,
                             save( editor ) {
@@ -36,7 +35,7 @@
                     .then( editor => {
                         ClassicEditors['{{ $editorId }}'] = editor;
                         const wordCountPlugin = editor.plugins.get( 'WordCount' );
-                        const wordCountWrapper = document.getElementById( 'word-count' );
+                        const wordCountWrapper = document.getElementById( 'word-count-{{ $editorId }}' );
                         wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
                         console.log( editor );
                     } )
