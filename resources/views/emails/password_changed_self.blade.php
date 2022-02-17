@@ -89,9 +89,9 @@
 @stop
 
 @section('support')
-    @if($user->hasRole('Student')||$user->hasRole('Parent'))
+    @if($user->isA('Student')||$user->isA('Parent'))
         @include('emails.partials.support_student1')
-    @else
+    @elseif($user->isA('Teacher'))
         @include('emails.partials.support1')
     @endif
 @stop
