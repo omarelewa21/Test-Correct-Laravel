@@ -59,25 +59,26 @@ class MatchingQuestion extends Component
             if ($value['value'] == 'startGroep') {
                 $value['value'] = '';
             }
+
             foreach ($value['items'] as $items) {
-                if(in_array($value['value'], $dbstring)){
+                if(in_array($value['value'], $dbstring) && !is_null($databaseStruct)){
                     // value stored before in dbstring =>
-                    $prevSoredKeyInDbstring  = array_search($value['value'], $dbstring);        // Get previous key from dbstring
-                    $prevStoredKeyInDatabase = array_search($value['value'], $databaseStruct);  // Get previous key from database 
-                    
+                    $prevStoredKeyInDbstring = array_search($value['value'], $dbstring);        // Get previous key from dbstring
+                    $prevStoredKeyInDatabase = array_search($value['value'], $databaseStruct);  // Get previous key from database
+
                     if($prevStoredKeyInDatabase == -1){
-                        // value doesn't exist in database => 
-                        $dbstring[$prevSoredKeyInDbstring] = '';        // set previous key in dbstring to empty string
-                        $dbstring[$items['value']] = $value['value'];   // set new key to value
+                        // value doesn't exist in database =>
+                        $dbstring[$prevStoredKeyInDbstring] = '';        // set previous key in dbstring to empty string
+                        $dbstring[$items['value']] = $value['value'];    // set new key to value
                     }else{
                         // value exists in database
-                        if($prevStoredKeyInDatabase == $prevSoredKeyInDbstring){
+                        if($prevStoredKeyInDatabase == $prevStoredKeyInDbstring){
                             // stored key in dbstring == stored key in database =>
-                            $dbstring[$prevSoredKeyInDbstring] == '';             // set previous key in dbstring to empty string
-                            $dbstring[$items['value']] = $value['value'];         // set new key to value
+                            $dbstring[$prevStoredKeyInDbstring] = '';                 // set previous key in dbstring to empty string
+                            $dbstring[$items['value']] = $value['value'];             // set new key to value 
                         }else{
-                            $dbstring[$prevSoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value 
-                            $dbstring[$items['value']] = '';                      // set new key to empty string
+                            $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value 
+                            $dbstring[$items['value']] = '';                       // set new key to empty string
                         }
                     }
                 }else{
