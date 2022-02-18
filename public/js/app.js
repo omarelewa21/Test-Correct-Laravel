@@ -6592,9 +6592,13 @@ window.initDrawingQuestion = function (rootElement) {
       },
       setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
         var oldCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
+        var oldCurrentLayerHeader = rootElement.querySelector("[data-layer=\"".concat(this.layerKey2ID(this.params.currentLayer), "\"]")).closest('.header');
         oldCurrentLayer.classList.remove("highlight");
+        oldCurrentLayerHeader.classList.remove("highlight");
         var newCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
+        var newCurrentLayerHeader = rootElement.querySelector("[data-layer=\"".concat(this.layerKey2ID(newCurrentLayerID), "\"]")).closest('.header');
         newCurrentLayer.classList.add("highlight");
+        newCurrentLayerHeader.classList.add("highlight");
         Canvas.params.currentLayer = newCurrentLayerID;
       },
       getEnabledLayers: function getEnabledLayers() {
@@ -6993,7 +6997,7 @@ window.initDrawingQuestion = function (rootElement) {
       "mousedown touchstart": {
         callback: function callback(evt) {
           var targetHeader = evt.target;
-          var newCurrentLayerID = targetHeader.closest(".layer-group").id;
+          var newCurrentLayerID = targetHeader.querySelector('.header-title').dataset.layer;
 
           _this2.Canvas.setCurrentLayer(_this2.Canvas.layerID2Key(newCurrentLayerID));
         }
@@ -8575,13 +8579,20 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   _createClass(Layer, [{
     key: "makeLayerElement",
     value: function makeLayerElement() {
-      var layerTemplate = this.root.querySelector("#layer-group-template"),
-          layersContainer = this.root.querySelector("#layers-container");
-      var templateCopy = layerTemplate.content.cloneNode(true);
+      //Pak de template voor een layer
+      var layerTemplate = this.root.querySelector("#layer-group-template"); //Pak de div waar de layer moet komen
+
+      var layersContainer = this.root.querySelector("#layers-container");
+      var layersHeaderContainer = this.root.querySelector("#layers-heading"); //Kopieer de template met children
+
+      var templateCopy = layerTemplate.content.cloneNode(true); //Pak de daadwerkelijke div in de template tag
+
       var layerGroup = templateCopy.querySelector(".layer-group");
-      layerGroup.id = this.props.id;
+      layerGroup.id = this.props.id; //Maak dit een functie die ergens anders de titel set?
+
       var headerTitle = templateCopy.querySelector(".header-title");
       headerTitle.innerText = this.props.name;
+      headerTitle.setAttribute('data-layer', this.props.id);
       this.header = templateCopy.querySelector(".header");
       this.shapesGroup = templateCopy.querySelector(".shapes-group");
       this.btns = {
@@ -8590,6 +8601,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
         hide: templateCopy.querySelector(".hide-btn"),
         addLayer: templateCopy.querySelector(".add-layer-btn")
       };
+      layersHeaderContainer.append(this.header);
       layersContainer.append(templateCopy);
       return layerGroup;
     }
@@ -8733,7 +8745,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
           "mousedown touchstart": {
             callback: function callback(evt) {
               var targetHeader = evt.target;
-              var newCurrentLayerID = targetHeader.closest(".layer-group").id;
+
+              var newCurrentLayerID = _this5.getLayerDataFromTarget(targetHeader);
 
               _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
             }
@@ -8843,6 +8856,11 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       Object.values(this.shapes).forEach(function (shape) {
         shape.sidebar.remove();
       });
+    }
+  }, {
+    key: "getLayerDataFromTarget",
+    value: function getLayerDataFromTarget(element) {
+      return element.dataset.layer || element.querySelector('[data-layer]').dataset.layer;
     }
   }]);
 

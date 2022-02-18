@@ -666,19 +666,19 @@ button) {
 #drawing-tool #sidebar #layers-container .layer-group {
     display: flex;
     flex-flow: column nowrap;
-    flex-basis: 50%;
+    flex-basis: 100%;
 }
 
-#drawing-tool #sidebar .layer-group.highlight .header {
+#drawing-tool #sidebar .header.highlight {
     background: var(--all-OffWhite);
 }
 
-#drawing-tool #sidebar .layer-group.highlight .header-title {
+#drawing-tool #sidebar .header.highlight .header-title {
     color: var(--teacher-Primary);
     font-weight: bold;
 }
 
-#drawing-tool #sidebar .layer-group:first-of-type .header {
+#drawing-tool #sidebar .header:first-of-type {
     border-top: none;
 }
 

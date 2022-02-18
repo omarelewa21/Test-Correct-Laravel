@@ -192,7 +192,9 @@
                 <label id="sidebar-btn" for="sidebar-toggle">
                     <x-icon.chevron/>
                 </label>
-                <div id="layers-container"></div>
+                <div id="layers-container">
+                    <div id="layers-heading"></div>
+                </div>
                 <div id="submit">
                     <button class="CTA" id="submit-btn" @click="show = false">
                         Opslaan
@@ -231,10 +233,10 @@
             <div class="header-container">
                 <span class="header-title"></span>
                 <div class="btn-group">
-                    <button class="layer-btn remove-btn" style="display: none;" title="Verwijderen">
+                    <button class="layer-btn remove-btn hidden" style="display: none;" title="Verwijderen">
                         <x-icon.trash/>
                     </button>
-                    <button class="layer-btn lock-btn" style="display: none;" data-title-locked="Ontgrendelen"
+                    <button class="layer-btn lock-btn hidden" style="display: none;" data-title-locked="Ontgrendelen"
                             data-title-unlocked="Vergrendelen" title="Vergrendelen">
                         <x-icon.unlocked/>
                         <x-icon.locked style="display: none"/>
@@ -244,7 +246,7 @@
                         <x-icon.preview/>
                         <x-icon.preview-off class="text-midgrey" style="display: none"/>
                     </button>
-                    <button class="layer-btn add-layer-btn" title="Laag toevoegen">
+                    <button class="layer-btn add-layer-btn hidden" title="Laag toevoegen">
                         <x-icon.plus-2/>
                     </button>
                 </div>

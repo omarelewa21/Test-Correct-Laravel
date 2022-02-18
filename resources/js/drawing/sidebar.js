@@ -207,13 +207,23 @@ export class Layer extends sidebarComponent {
     }
 
     makeLayerElement() {
-        const layerTemplate = this.root.querySelector("#layer-group-template"),
-            layersContainer = this.root.querySelector("#layers-container");
+        //Pak de template voor een layer
+        const layerTemplate = this.root.querySelector("#layer-group-template");
+        //Pak de div waar de layer moet komen
+        const layersContainer = this.root.querySelector("#layers-container");
+        const layersHeaderContainer = this.root.querySelector("#layers-heading");
+
+        //Kopieer de template met children
         const templateCopy = layerTemplate.content.cloneNode(true);
+        //Pak de daadwerkelijke div in de template tag
         const layerGroup = templateCopy.querySelector(".layer-group");
+
         layerGroup.id = this.props.id;
+
+        //Maak dit een functie die ergens anders de titel set?
         const headerTitle = templateCopy.querySelector(".header-title");
         headerTitle.innerText = this.props.name;
+        headerTitle.setAttribute('data-layer', this.props.id);
 
         this.header = templateCopy.querySelector(".header");
         this.shapesGroup = templateCopy.querySelector(".shapes-group");
@@ -224,8 +234,9 @@ export class Layer extends sidebarComponent {
             hide: templateCopy.querySelector(".hide-btn"),
             addLayer: templateCopy.querySelector(".add-layer-btn")
         };
-
+        layersHeaderContainer.append(this.header);
         layersContainer.append(templateCopy);
+
         return layerGroup;
     }
 
@@ -353,7 +364,7 @@ export class Layer extends sidebarComponent {
                     "mousedown touchstart": {
                         callback: (evt) => {
                             const targetHeader = evt.target;
-                            const newCurrentLayerID = targetHeader.closest(".layer-group").id;
+                            const newCurrentLayerID = this.getLayerDataFromTarget(targetHeader);
                             this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                         }
                     },
@@ -442,5 +453,8 @@ export class Layer extends sidebarComponent {
         Object.values(this.shapes).forEach((shape) => {
             shape.sidebar.remove();
         });
+    }
+    getLayerDataFromTarget(element) {
+        return element.dataset.layer || element.querySelector('[data-layer]').dataset.layer;
     }
 }

@@ -185,10 +185,15 @@ window.initDrawingQuestion = function (rootElement) {
             },
             setCurrentLayer(newCurrentLayerID) {
                 const oldCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
+                const oldCurrentLayerHeader = rootElement.querySelector(`[data-layer="${this.layerKey2ID(this.params.currentLayer)}"]`).closest('.header');
                 oldCurrentLayer.classList.remove("highlight");
+                oldCurrentLayerHeader.classList.remove("highlight");
 
                 const newCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
+                const newCurrentLayerHeader = rootElement.querySelector(`[data-layer="${this.layerKey2ID(newCurrentLayerID)}"]`).closest('.header');
                 newCurrentLayer.classList.add("highlight");
+                newCurrentLayerHeader.classList.add("highlight");
+
                 Canvas.params.currentLayer = newCurrentLayerID;
             },
             getEnabledLayers() {
@@ -579,7 +584,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "mousedown touchstart": {
                     callback: (evt) => {
                         const targetHeader = evt.target;
-                        const newCurrentLayerID = targetHeader.closest(".layer-group").id;
+                        const newCurrentLayerID = targetHeader.querySelector('.header-title').dataset.layer;
                         this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                     }
                 },
