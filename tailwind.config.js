@@ -22,6 +22,7 @@ module.exports = {
                 student: '#ECDB00',
                 lightgreen: '#95cd3e',
                 orange: '#eca000',
+                note: '#6b7789',
             },
         },
     },

@@ -10,7 +10,7 @@
                             }
                             CKEDITOR.replace( '{{ $editorId }}', {
                                 removePlugins : 'pastefromword,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-                                extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+                                extraPlugins : 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification,readspeaker',
                                 toolbar: [
                                     { name: 'basicstyles', items: [ 'Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript' ] },
                                     { name: 'paragraph', items: [ 'NumberedList', 'BulletedList' ] },

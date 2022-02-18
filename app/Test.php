@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Str;
+use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Http\Controllers\GroupQuestionQuestionsController;
 use tcCore\Http\Controllers\RequestController;
 use tcCore\Http\Controllers\TestQuestionsController;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use tcCore\Lib\Question\QuestionGatherer;
 use Dyrynda\Database\Casts\EfficientUuid;
 use Ramsey\Uuid\Uuid;
+use tcCore\Traits\ExamSchoolTestTrait;
 use tcCore\Traits\UuidTrait;
 
 
@@ -25,6 +27,7 @@ class Test extends BaseModel
 
     use SoftDeletes;
     use UuidTrait;
+    use ExamSchoolTestTrait;
 
 
     protected $casts = [
@@ -76,6 +79,7 @@ class Test extends BaseModel
             if ((count($dirty) > 1 && array_key_exists('system_test_id', $dirty)) || (count($dirty) > 0 && !array_key_exists('system_test_id', $dirty)) && !$test->getAttribute('is_system_test')) {
                 $test->setAttribute('system_test_id', null);
             }
+            $test->handleExamPublishingTest();
         });
 
         static::saved(function (Test $test){
@@ -112,6 +116,8 @@ class Test extends BaseModel
                     }
                 }
             }
+            $test->handleExamPublishingQuestionsOfTest();
+            TestAuthor::addExamAuthorToTest($test);
         });
 
         static::deleted(function (Test $test) {
@@ -360,42 +366,6 @@ class Test extends BaseModel
             }
         }
 
-//        foreach ($sorting as $key => $value) {
-//            switch (strtolower($value)) {
-//                case 'id':
-//                case 'name':
-//                case 'abbreviation':
-//                case 'subject_id':
-//                case 'education_level_id':
-//                case 'education_level_year':
-//                case 'period_id':
-//                case 'test_kind_id':
-//                case 'status':
-//                case 'author_id':
-//                    $key = $value;
-//                    $value = 'asc';
-//                    break;
-//                case 'asc':
-//                case 'desc':
-//                    break;
-//                default:
-//                    $value = 'asc';
-//            }
-//            switch (strtolower($key)) {
-//                case 'id':
-//                case 'name':
-//                case 'abbreviation':
-//                case 'subject_id':
-//                case 'education_level_id':
-//                case 'education_level_year':
-//                case 'period_id':
-//                case 'test_kind_id':
-//                case 'status':
-//                case 'author_id':
-//                    $query->orderBy($key, $value);
-//                    break;
-//            }
-//        }
 
         $this->handleFilteredSorting($query, $sorting);
 
@@ -409,6 +379,27 @@ class Test extends BaseModel
                     ->orWhere('demo', 0);
             });
         }
+
+        return $query;
+    }
+
+    public function scopeExamFiltered($query, $filters = [], $sorting = [])
+    {
+        $user = Auth::user();
+        $query->select();
+        $subjectIds = Subject::getSubjectsOfCustomSchoolForUser(config('custom.examschool_customercode'),$user);
+        if(count($subjectIds)==0){
+            $query->where('tests.id', -1);
+            return $query;
+        }
+        $query->whereIn('subject_id', $subjectIds);
+        $query->where('scope', 'exam');
+        $query->where('published', true);
+        if (!array_key_exists('is_system_test', $filters)) {
+            $query->where('is_system_test', '=', 0);
+        }
+        $this->handleFilterParams($query,$filters);
+        $this->handleFilteredSorting($query, $sorting);
 
         return $query;
     }
@@ -437,109 +428,7 @@ class Test extends BaseModel
             $query->where('is_system_test', '=', 0);
         }
 
-        foreach ($filters as $key => $value) {
-            switch ($key) {
-                case 'nameOrAbbreviation':
-                    $query->where(function ($query) use ($value) {
-                        $query->where('name', 'LIKE', '%' . $value . '%')->orWhere('abbreviation', 'LIKE', '%' . $value . '%');
-                    });
-                    break;
-                case 'name':
-                    $query->where('name', 'LIKE', '%' . $value . '%');
-                    break;
-                case 'abbreviation':
-                    $query->where('abbreviation', 'LIKE', '%' . $value . '%');
-                    break;
-                case 'subject_id':
-                    if (is_array($value)) {
-                        $query->whereIn('subject_id', $value);
-                    } else {
-                        $query->where('subject_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_id':
-                    if (is_array($value)) {
-                        $query->whereIn('education_level_id', $value);
-                    } else {
-                        $query->where('education_level_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_year':
-                    $query->where('education_level_year', '=', $value);
-                    break;
-                case 'period_id':
-                    if (is_array($value)) {
-                        $query->whereIn('period_id', $value);
-                    } else {
-                        $query->where('period_id', '=', $value);
-                    }
-                    break;
-                case 'test_kind_id':
-                    if (is_array($value)) {
-                        $query->whereIn('test_kind_id', $value);
-                    } else {
-                        $query->where('test_kind_id', '=', $value);
-                    }
-                    break;
-                case 'status':
-                    $query->where('status', $value);
-                    break;
-                case 'created_at_start':
-                    $query->where('created_at', '>=', $value);
-                    break;
-                case 'created_at_end':
-                    $query->where('created_at', '<=', $value);
-                    break;
-                case 'is_system_test':
-                    $query->where('is_system_test', '=', $value);
-                    break;
-                case 'author_id':
-                    if (is_array($value)) {
-                        $query->whereIn('author_id', $value);
-                    } else {
-                        $query->where('author_id', '=', $value);
-                    }
-                    break;
-            }
-        }
-
-//        foreach ($sorting as $key => $value) {
-//            switch (strtolower($value)) {
-//                case 'id':
-//                case 'name':
-//                case 'abbreviation':
-//                case 'subject_id':
-//                case 'education_level_id':
-//                case 'education_level_year':
-//                case 'period_id':
-//                case 'test_kind_id':
-//                case 'status':
-//                case 'author_id':
-//                    $key = $value;
-//                    $value = 'asc';
-//                    break;
-//                case 'asc':
-//                case 'desc':
-//                    break;
-//                default:
-//                    $value = 'asc';
-//            }
-//            switch (strtolower($key)) {
-//                case 'id':
-//                case 'name':
-//                case 'abbreviation':
-//                case 'subject_id':
-//                case 'education_level_id':
-//                case 'education_level_year':
-//                case 'period_id':
-//                case 'test_kind_id':
-//                case 'status':
-//                case 'author_id':
-//                    $query->orderBy($key, $value);
-//                    break;
-//            }
-//        }
-
+        $this->handleFilterParams($query,$filters);
         $this->handleFilteredSorting($query, $sorting);
 
         // don't show demo tests from other location
@@ -625,79 +514,7 @@ class Test extends BaseModel
             $query->where('is_system_test', '=', 0);
         }
 
-        foreach ($filters as $key => $value) {
-            switch ($key) {
-                case 'nameOrAbbreviation':
-                    $query->where(function ($query) use ($value) {
-                        $query->where('tests.name', 'LIKE', '%' . $value . '%')->orWhere('abbreviation', 'LIKE', '%' . $value . '%');
-                    });
-                    break;
-                case 'name':
-                    $query->where('tests.name', 'LIKE', '%' . $value . '%');
-                    break;
-                case 'abbreviation':
-                    $query->where('abbreviation', 'LIKE', '%' . $value . '%');
-                    break;
-                case 'subject_id':
-                    if (is_array($value)) {
-                        $query->whereIn('tests.subject_id', $value);
-                    } else {
-                        $query->where('tests.subject_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_id':
-                    if (is_array($value)) {
-                        $query->whereIn('education_level_id', $value);
-                    } else {
-                        $query->where('education_level_id', '=', $value);
-                    }
-                    break;
-                case 'education_level_year':
-                    if (is_array($value)) {
-                        $query->whereIn('education_level_year', $value);
-                    } else {
-                        $query->where('education_level_year', '=', $value);
-                    }
-                    break;
-                case 'period_id':
-                    if (is_array($value)) {
-                        $query->whereIn('period_id', $value);
-                    } else {
-                        $query->where('period_id', '=', $value);
-                    }
-                    break;
-                case 'test_kind_id':
-                    if (is_array($value)) {
-                        $query->whereIn('test_kind_id', $value);
-                    } else {
-                        $query->where('test_kind_id', '=', $value);
-                    }
-                    break;
-                case 'status':
-                    $query->where('status', $value);
-                    break;
-                case 'created_at_start':
-                    $query->where('created_at', '>=', $value);
-                    break;
-                case 'created_at_end':
-                    $query->where('created_at', '<=', $value);
-                    break;
-                case 'is_system_test':
-                    $query->where('is_system_test', '=', $value);
-                    break;
-                case 'author_id':
-                    if (is_array($value)) {
-                        $query->whereIn('author_id', $value);
-                    } else {
-                        $query->where('author_id', '=', $value);
-                    }
-                    break;
-            }
-
-        }
-
-
-
+        $this->handleFilterParams($query,$filters);
         $this->handleFilteredSorting($query, $sorting);
 
         if ($user->isA('teacher')) {
@@ -721,14 +538,14 @@ class Test extends BaseModel
         }
         return $this->getSubQueryForScopeFilteredMultipleSchoolLocations($user);
 
-        if ($user->hasSingleSchoolLocationNoSharedSections()) {
-            return $this->getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user);
-        } elseif ($user->hasMultipleSchoolLocationsNoSharedSections()) {
-            return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user);
-        }elseif (   $user->hasSingleSchoolLocationSharedSections()){
-            return $this->getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user);
-        }
-        return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user);
+//        if ($user->hasSingleSchoolLocationNoSharedSections()) {
+//            return $this->getSubQueryForScopeFilteredSingleSchoolLocationNoSharedSections($user);
+//        } elseif ($user->hasMultipleSchoolLocationsNoSharedSections()) {
+//            return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsNoSharedSections($user);
+//        }elseif (   $user->hasSingleSchoolLocationSharedSections()){
+//            return $this->getSubQueryForScopeFilteredSingleSchoolLocationSharedSections($user);
+//        }
+//        return $this->getSubQueryForScopeFilteredMultipleSchoolLocationsSharedSections($user);
     }
 
 
@@ -940,6 +757,79 @@ class Test extends BaseModel
         });
 
         return $query;
+    }
+
+    private function handleFilterParams(&$query,$filters):void
+    {
+        foreach ($filters as $key => $value) {
+            switch ($key) {
+                case 'nameOrAbbreviation':
+                    $query->where(function ($query) use ($value) {
+                        $query->where('tests.name', 'LIKE', '%' . $value . '%')->orWhere('abbreviation', 'LIKE', '%' . $value . '%');
+                    });
+                    break;
+                case 'name':
+                    $query->where('tests.name', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'abbreviation':
+                    $query->where('abbreviation', 'LIKE', '%' . $value . '%');
+                    break;
+                case 'subject_id':
+                    if (is_array($value)) {
+                        $query->whereIn('tests.subject_id', $value);
+                    } else {
+                        $query->where('tests.subject_id', '=', $value);
+                    }
+                    break;
+                case 'education_level_id':
+                    if (is_array($value)) {
+                        $query->whereIn('education_level_id', $value);
+                    } else {
+                        $query->where('education_level_id', '=', $value);
+                    }
+                    break;
+                case 'education_level_year':
+                    if (is_array($value)) {
+                        $query->whereIn('education_level_year', $value);
+                    } else {
+                        $query->where('education_level_year', '=', $value);
+                    }
+                    break;
+                case 'period_id':
+                    if (is_array($value)) {
+                        $query->whereIn('period_id', $value);
+                    } else {
+                        $query->where('period_id', '=', $value);
+                    }
+                    break;
+                case 'test_kind_id':
+                    if (is_array($value)) {
+                        $query->whereIn('test_kind_id', $value);
+                    } else {
+                        $query->where('test_kind_id', '=', $value);
+                    }
+                    break;
+                case 'status':
+                    $query->where('status', $value);
+                    break;
+                case 'created_at_start':
+                    $query->where('created_at', '>=', $value);
+                    break;
+                case 'created_at_end':
+                    $query->where('created_at', '<=', $value);
+                    break;
+                case 'is_system_test':
+                    $query->where('is_system_test', '=', $value);
+                    break;
+                case 'author_id':
+                    if (is_array($value)) {
+                        $query->whereIn('author_id', $value);
+                    } else {
+                        $query->where('author_id', '=', $value);
+                    }
+                    break;
+            }
+        }
     }
 
     private function getSubQueryForScopeFilteredSingleSchoolLocation($user)
@@ -1154,4 +1044,6 @@ class Test extends BaseModel
         })->join(',');
 
     }
+
+
 }

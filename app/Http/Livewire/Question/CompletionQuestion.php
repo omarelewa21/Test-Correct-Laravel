@@ -2,8 +2,12 @@
 
 namespace tcCore\Http\Livewire\Question;
 
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use tcCore\Answer;
+use tcCore\Http\Helpers\BaseHelper;
+use tcCore\Http\Livewire\Teacher\Questions\CmsBase;
+use tcCore\Http\Requests\Request;
 use tcCore\Http\Traits\WithAttachments;
 use tcCore\Http\Traits\WithCloseable;
 use tcCore\Http\Traits\WithGroups;
@@ -18,17 +22,27 @@ class CompletionQuestion extends Component
     public $answer;
     public $answers;
     public $number;
+    public $preventAnswerTransformation = true;
 
     public function mount()
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+        foreach($this->answer as $key => $val){
+            $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val);
+        }
     }
 
     public function updatedAnswer($value, $field)
     {
         $this->answer[$field] = $value;
 
-        $json = json_encode((object)$this->answer);
+        $data = $this->answer;
+
+        if($this->isOfType('completion')){
+            $value = BaseHelper::transformHtmlChars($value);
+            $data[$field] = $value;
+        }
+        $json = json_encode((object)$data);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
@@ -43,13 +57,13 @@ class CompletionQuestion extends Component
         $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
-
+            $events = sprintf('@blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);"','comp_answer_' . $tag_id);
             return sprintf(
-                '<input spellcheck="false"    wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" @blur="$refs.%s.scrollLeft = 0" @input="$event.target.setAttribute(\'title\', $event.target.value);" wire:key="%s"/>',
+                '<input spellcheck="false" wire:model.lazy="answer.%d" class="form-input mb-2 truncate text-center overflow-ellipsis" type="text" id="%s" style="width: 120px" x-ref="%s" %s wire:key="%s"/>',
                 $tag_id,
                 'answer_' . $tag_id . '_' . $this->question->getKey(),
                 'comp_answer_' . $tag_id,
-                'comp_answer_' . $tag_id,
+                $events,
                 'comp_answer_' . $tag_id
             );
         };
@@ -91,7 +105,7 @@ class CompletionQuestion extends Component
 
                 $answers = $random;
 
-                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden" @change="$event.target.setAttribute(\'title\', $event.target.value);" selid="testtake-select">%s</select>',
+                return sprintf('<select wire:model="answer.%s" class="form-input text-base max-w-full overflow-ellipsis overflow-hidden "  @change="$event.target.setAttribute(\'title\', $event.target.value);" selid="testtake-select">%s</select>',
                     $matches[1],
                     $this->getOptions($answers));
 
@@ -110,11 +124,16 @@ class CompletionQuestion extends Component
         })->join('');
     }
 
+    public function isOfType($type)
+    {
+        return $this->question->subtype == $type;
+    }
+
     public function render()
     {
-        if ($this->question->subtype == 'completion') {
+        if ($this->isOfType('completion')) {
             $html = $this->completionHelper($this->question);
-        } elseif ($this->question->subtype == 'multi') {
+        } elseif ($this->isOfType('multi')) {
             $html = $this->multiHelper($this->question);
         } else {
             throw new \Exception ('unknown type');

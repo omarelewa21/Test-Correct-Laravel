@@ -205,10 +205,12 @@ class FileManagementController extends Controller
     {
         $data = [
             'id'                 => $form_id,
-            'origname'           => '',
-            'name'               => '',
+            'origname'           => $request->get('name'),
+            'subject'            => $request->get('subject'),
+            'name'               => $request->get('name'),
             'user_id'            => Auth::user()->getKey(),
             'school_location_id' => $schoolLocation->getKey(),
+            'test_name'          => $request->get('name'),
             'type'               => 'testupload',
             'typedetails'        => [// request data?
                 'test_kind_id'         => $request->get('test_kind_id'),

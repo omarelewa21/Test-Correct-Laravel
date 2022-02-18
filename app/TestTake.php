@@ -188,7 +188,7 @@ class TestTake extends BaseModel
             }
 
             if ($testTake->testTakeStatus->name === 'Taken' && $testTake->getAttribute('test_take_status_id') != $testTake->getOriginal('test_take_status_id')) {
-                $testTakeUnfinishedStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Taking test', 'Taken'])->pluck('id', 'name')->all();
+                $testTakeUnfinishedStatuses = TestTakeStatus::whereIn('name', ['Planned', 'Taking test', 'Handed in', 'Taken'])->pluck('id', 'name')->all();
                 if (array_key_exists('Taken', $testTakeUnfinishedStatuses)) {
                     $testTakenStatusId = $testTakeUnfinishedStatuses['Taken'];
                     unset($testTakeUnfinishedStatuses[$testTakenStatusId]);
@@ -232,14 +232,10 @@ class TestTake extends BaseModel
                                     'testParticipants.schoolClass.schoolLocation'
                                 ]);
                 foreach ($testTake->testParticipants as $testParticipant) {
-                    $activated = $testParticipant->schoolClass->schoolLocation->getAttribute('activated');
-                    if ($activated != true) {
-                        if (!in_array($testParticipant->getAttribute('test_take_status_id'), $testTakeDiscussionNotAllowedStatusses) && $testParticipant->getAttribute('heartbeat_at') !== null && $testParticipant->getAttribute('heartbeat_at') >= $heartbeatDate) {
-                            $testParticipant->setAttribute('test_take_status_id', $testParticipantDiscussingStatus);
-                            $testParticipant->save();
-                        }
+                    if (!in_array($testParticipant->getAttribute('test_take_status_id'), $testTakeDiscussionNotAllowedStatusses)) {
+                        $testParticipant->setAttribute('test_take_status_id', $testParticipantDiscussingStatus);
+                        $testParticipant->save();
                     }
-
                     AnswerChecker::checkAnswerOfParticipant($testParticipant);
                     TestTakeOpenForInteraction::dispatch($testParticipant->uuid);
                 }
