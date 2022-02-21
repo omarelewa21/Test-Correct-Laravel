@@ -27,7 +27,7 @@ class CreateSchoolLocationRequest extends Request {
 		$this->filterInput();
 
 		return [
-			'name' => ''
+			'name' => 'string|max:100'
 		];
 	}
 

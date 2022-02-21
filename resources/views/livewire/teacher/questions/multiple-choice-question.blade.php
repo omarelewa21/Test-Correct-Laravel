@@ -48,13 +48,14 @@
                          wireKey="option-{{ $answer->id }}" selid="drag-box"
                          :useHandle="true"
                          :keepWidth="true"
-                         class="flex px-0 py-0 border-0 bg-system-white"
+                         class="flex px-0 py-0 border-0 bg-system-white regular"
                          slotClasses="w-full space-x-2.5"
                          sortIcon="reorder"
                          dragIconClasses="cursor-move"
             >
                 <x-input.text class="w-full  {{ $errorAnswerClass }} "
                               wire:model.lazy="cmsPropertyBag.answerStruct.{{ $loop->index }}.answer"
+                              selid="answer-field"
                 />
                 <div class=" text-center justify-center">
                     <x-input.text class="w-12 text-center {{ $errorScoreClass }}"
@@ -62,6 +63,7 @@
                                   title="{{ $answer->score }}"
                                   type="number"
                                   :onlyInteger="true"
+                                  selid="score-field"
                     />
                 </div>
                 <x-slot name="after">
@@ -73,7 +75,7 @@
         @endforeach
     </div>
     <div class="flex flex-col space-y-2 w-full">
-        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')">
+        <x-button.primary class="mt-3 justify-center" wire:click="__call('addAnswerItem')" selid="add-answer-option-btn">
             <x-icon.plus/>
             <span >
                                     {{ __('cms.Item toevoegen') }}

@@ -32,7 +32,7 @@ class DuplicateLoginLivewire {
                 session()->put('new_debounce_time', Carbon::now());
 
                 if (Livewire::isLivewireRequest()) {
-                    return response()->make('Duplicate login', 440);
+                    return abort(440,'Duplicate login');
                 }
 
                 return redirect()->to(config('app.url_login'));

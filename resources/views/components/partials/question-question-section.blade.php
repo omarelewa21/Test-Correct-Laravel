@@ -42,7 +42,7 @@
     </x-slot>
 
     <x-slot name="title">
-        @if($this->isInfoscreenQuestion())
+        @if($this->obj instanceof \tcCore\Http\Livewire\Teacher\Questions\CmsInfoScreen)
             {{ __('cms.Informatietekst') }}
         @else
             {{ __('cms.Vraagstelling') }}

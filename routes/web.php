@@ -1,6 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+use tcCore\Mail\PasswordChanged;
 
 
 /*
@@ -75,6 +77,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/ckeditor_upload/{type}', [tcCore\Http\Controllers\CkeditorImageController::class, 'store'])->name('upload');
         Route::get('/ckeditor_upload/{filename}', [tcCore\Http\Controllers\CkeditorImageController::class, 'show'])->name('upload.get');
     });
+    if(\tcCore\Http\Helpers\BaseHelper::notProduction()) {
+        Route::get('/preview_password_changed_mail', [tcCore\Http\Controllers\PreviewMailController::class, 'passwordChanged'])->name('PasswordChangedMail');
+        Route::get('/preview_password_changed_self_mail', [tcCore\Http\Controllers\PreviewMailController::class, 'passwordChangedSelf'])->name('PasswordChangedSelf');
+    }
 });
 Route::middleware(['guest', 'auth.temp'])->group(function () {
     Route::get('/show-test-with-temporary-login/{test}/{temporary_login}', [tcCore\Http\Controllers\TemporaryLoginController::class, 'teacherPreview'])->name('auth.teacher.show-test-with-short-code');

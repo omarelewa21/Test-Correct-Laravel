@@ -16,13 +16,9 @@ class CompletionQuestion extends Component
     public $question;
     public $testId;
     public $answer;
-    public $answers;
+    public array $answers;
     public $number;
 
-    public function mount()
-    {
-        $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
-    }
 
     public function updatedAnswer($value, $field)
     {

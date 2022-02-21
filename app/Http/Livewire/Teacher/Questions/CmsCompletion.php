@@ -39,6 +39,8 @@ class CmsCompletion
         foreach($this->questionOptions as $key => $val){
             $this->instance->question[$key] = $q[$key];
         }
+
+        $this->instance->question['question'] = $this->instance->decodeCompletionTags($q);
     }
 
     public function isSettingsGeneralPropertyDisabled($property, $asText = false)

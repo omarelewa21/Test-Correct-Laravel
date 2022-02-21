@@ -32,6 +32,19 @@ class DrawingQuestion extends Component
 
     public $backgroundImage = null;
 
+    public $answer_svg = null;
+    public $question_svg = null;
+    public $grid_svg = '0.00';
+
+    public $usesNewDrawingTool = false;
+
+    protected function getListeners()
+    {
+        return [
+            'drawing_data_updated' => 'handleUpdateDrawingData',
+        ];
+    }
+
     public function mount()
     {
         $this->initPlayerInstance();
@@ -40,10 +53,15 @@ class DrawingQuestion extends Component
             ->where('question_id', $this->question->id)
             ->first();
         if ($answer->json) {
-            $this->answer = json_decode($answer->json)->answer;
-            $this->additionalText = json_decode($answer->json)->additional_text;
+            $answerJson = json_decode($answer->json);
+            $this->answer = $answerJson->answer;
+            $this->additionalText = $answerJson->additional_text;
+            if (property_exists($answerJson, 'answer_svg') && $answerJson->answer_svg) {
+                $this->answer_svg = $answerJson->answer_svg;
+            }
         }
 
+        $this->question_svg = $this->question->question_svg;
         $this->backgroundImage = $this->question->getBackgroundImage();
     }
 
@@ -60,12 +78,13 @@ class DrawingQuestion extends Component
         $json = json_encode([
             'answer'          => $this->answer,
             'additional_text' => $this->additionalText,
+            'answer_svg'      => $this->answer_svg,
         ]);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->drawingModalOpened = false;
-        $this->emitTo('question.navigation','current-question-answered', $this->number);
+        $this->emitTo('question.navigation', 'current-question-answered', $this->number);
     }
 
     public function render()
@@ -86,6 +105,32 @@ class DrawingQuestion extends Component
 
     private function initPlayerInstance()
     {
-        $this->playerInstance = 'eppi_' . rand(1000, 9999999);
+        $this->playerInstance = 'eppi_'.rand(1000, 9999999);
+    }
+
+    public function handleUpdateDrawingData($data)
+    {
+        $svg = sprintf('<svg viewBox="%s %s %s %s" class="w-full h-full" id="" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
+                    <g class="question-svg">%s</g>
+                    <g class="answer-svg">%s</g>
+                    <g id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
+                </svg>',
+                    $data['svg_zoom_group']['x'],
+                    $data['svg_zoom_group']['y'],
+                    $data['svg_zoom_group']['width'],
+                    $data['svg_zoom_group']['height'],
+                    base64_decode($data['svg_question']),
+                    base64_decode($data['svg_answer'])
+                );
+
+         $base64 = base64_encode($svg );
+
+
+
+        $this->answer_svg = $data['svg_answer'];
+
+
+
+        $this->updatedAnswer($svg);
     }
 }

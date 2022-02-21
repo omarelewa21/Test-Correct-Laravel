@@ -79,6 +79,7 @@
                 </div>
             @endforeach
         </div>
+
         <x-slot name="footerbuttons">
             <div x-cloak x-data="{display :footerButtonData({{ $current }}, {{$nav->count()}})}" @update-footer-navigation.window="display= $event.detail.data" class="space-x-3">
                 <x-button.text-button x-show="display.prev"

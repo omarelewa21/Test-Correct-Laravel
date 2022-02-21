@@ -20,6 +20,11 @@ class CmsInfoScreen
         $this->instance = $instance;
     }
 
+    public function showQuestionScore()
+    {
+        return false;
+    }
+
     public function preparePropertyBag()
     {
         $questionOptions = [

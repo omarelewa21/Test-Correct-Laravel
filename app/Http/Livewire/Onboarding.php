@@ -52,7 +52,6 @@ class Onboarding extends Component
             'registration.gender.required'          => __('registration.gender_required'),
             'password.required'                     => __('registration.password_required'),
             'password.min'                          => __('registration.password_min'),
-            'password.regex'                        => __('registration.password_regex'),
             'password.same'                         => __('registration.password_same'),
             'registration.school_location.required' => __('registration.school_location_required'),
             'registration.website_url.required'     => __('registration.website_url_required'),
@@ -96,7 +95,7 @@ class Onboarding extends Component
                 'registration.name_first'       => 'required|string',
                 'registration.name'             => 'required|string',
                 'registration.name_suffix'      => 'sometimes',
-                'password'                      => 'required|min:8|regex:/\d/|regex:/[^a-zA-Z\d]/|same:password_confirmation',
+                'password'                      => 'required|same:password_confirmation|'. User::getPasswordLengthRule(),
             ]);
         }
 
@@ -167,24 +166,6 @@ class Onboarding extends Component
             return 0;
         } else {
             return mb_strlen($this->password) < 8 ? false : true;
-        }
-    }
-
-    public function getMinDigitRuleProperty()
-    {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return preg_match('/\d/', $this->password) ? true : false;
-        }
-    }
-
-    public function getSpecialCharRuleProperty()
-    {
-        if (empty($this->password)) {
-            return 0;
-        } else {
-            return preg_match('/[^a-zA-Z\d]/', $this->password) ? true : false;
         }
     }
 
