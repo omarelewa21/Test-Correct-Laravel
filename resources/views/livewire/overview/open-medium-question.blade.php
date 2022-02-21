@@ -3,7 +3,38 @@
     <div class="w-full"
          x-data="{ }"
          x-init="
-
+                    (function() {
+                            var editor = ClassicEditors['{{ $editorId }}'];
+                            if (editor) {
+                                editor.destroy(true);
+                            }
+                            ClassicEditor
+                                .create( document.querySelector( '#{{ $editorId }}' ),{
+                                    autosave: {
+                                        waitingTime: 300,
+                                        save( editor ) {
+                                            editor.updateSourceElement();
+                                            editor.sourceElement.dispatchEvent(new Event('input'));
+                                        }
+                                    },
+                                    mathTypeParameters : {
+                                        serviceProviderProperties : {
+                                            URI : 'integration',
+                                            server : 'php'
+                                        }
+                                    }
+                                } )
+                                .then( editor => {
+                                    ClassicEditors['{{ $editorId }}'] = editor;
+                                    editor.isReadOnly = true;
+                                    const wordCountPlugin = editor.plugins.get( 'WordCount' );
+                                    const wordCountWrapper = document.getElementById( 'word-count-{{ $editorId }}' );
+                                    wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
+                                } )
+                                .catch( error => {
+                                    console.error( error );
+                                } );
+                      })()
                       ">
 
         <div class="flex-col space-y-3">
@@ -17,6 +48,7 @@
                 </x-input.textarea>
             </x-input.group>
         </div>
+        <div id="word-count-{{ $editorId }}" wire:ignore></div>
     </div>
 </x-partials.overview-question-container>
 

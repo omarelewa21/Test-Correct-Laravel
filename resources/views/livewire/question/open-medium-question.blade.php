@@ -8,7 +8,7 @@
                 <textarea id="{{ $editorId }}" name="{{ $editorId }}" wire:model.debounce.1000ms="answer">{!! $this->answer !!}</textarea>
             </x-input.group>
         </div>
-        <div id="word-count" wire:ignore></div>
+        <div id="word-count-{{ $editorId }}" wire:ignore></div>
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -28,16 +28,15 @@
                         mathTypeParameters : {
                             serviceProviderProperties : {
                                 URI : 'integration',
-                                server : 'java'
+                                server : 'php'
                             }
                         }
                     } )
                     .then( editor => {
                         ClassicEditors['{{ $editorId }}'] = editor;
                         const wordCountPlugin = editor.plugins.get( 'WordCount' );
-                        const wordCountWrapper = document.getElementById( 'word-count' );
+                        const wordCountWrapper = document.getElementById( 'word-count-{{ $editorId }}' );
                         wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
-                        console.log( editor );
                     } )
                     .catch( error => {
                         console.error( error );

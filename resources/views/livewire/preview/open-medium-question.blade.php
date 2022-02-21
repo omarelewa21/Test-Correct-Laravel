@@ -28,7 +28,7 @@
                         mathTypeParameters : {
                             serviceProviderProperties : {
                                 URI : 'integration',
-                                server : 'java'
+                                server : 'php'
                             }
                         }
                     } )
@@ -37,7 +37,6 @@
                         const wordCountPlugin = editor.plugins.get( 'WordCount' );
                         const wordCountWrapper = document.getElementById( 'word-count-{{ $editorId }}' );
                         wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
-                        console.log( editor );
                     } )
                     .catch( error => {
                         console.error( error );
