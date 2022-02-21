@@ -23,13 +23,6 @@ class InfoScreenQuestion extends Component
 
     public $answer = '';
 
-    public function mount()
-    {
-        if($this->answers[$this->question->uuid]['answered']) {
-            $this->answer = 'seen';
-        }
-    }
-
     public function render()
     {
         return view('livewire.preview.info-screen-question');

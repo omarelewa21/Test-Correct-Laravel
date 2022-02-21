@@ -24,7 +24,7 @@ trait WithCloseable
 
     public function mountWithCloseable()
     {
-        if ($this->answers[$this->question->uuid]['closed'] || $this->answers[$this->question->uuid]['closed_group']) {
+        if (!empty($this->answers) && ($this->answers[$this->question->uuid]['closed'] || $this->answers[$this->question->uuid]['closed_group'])) {
             $this->closed = true;
         }
     }
