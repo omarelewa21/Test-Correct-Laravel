@@ -20,5 +20,6 @@ sudo mv promtail-linux-amd64 promtail
 sudo chmod a+x promtail
 sudo rm promtail.zip
 sudo systemctl daemon-reload
+sudo chmod 664 /data/www/tc-*/current/storage/logs/loki.log
 sudo service promtail start
 sudo service promtail status
