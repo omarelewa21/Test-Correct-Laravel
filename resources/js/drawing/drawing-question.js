@@ -921,7 +921,7 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function shapeMayBeDragged(shapeGroup, layerObject) {
-        return shapeGroup.classList.contains("draggable") && !layerObject.params.locked;
+        return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
     }
 
     function elementHasTransforms(transforms) {
@@ -1326,6 +1326,21 @@ window.initDrawingQuestion = function (rootElement) {
             drawingApp.warnings.whenAnyToolButDragSelected.show();
         }
     }
+    function manualToolChange(tool) {
+        let currentTool = drawingApp.params.currentTool;
+        const newTool = tool;
+        if (currentTool === newTool) return;
+
+        drawingApp.params.currentTool = newTool;
+
+        const btnElement = rootElement.querySelector(`[id*="${newTool}-btn"]`)
+        makeSelectedBtnActive(btnElement);
+        enableSpecificPropSelectInputs();
+        setCursorTypeAccordingToCurrentType();
+        if (!drawingApp.currentToolIs("drag")) {
+            drawingApp.warnings.whenAnyToolButDragSelected.show();
+        }
+    }
 
     function determineNewTool(evt) {
         const id = evt.currentTarget.id;
@@ -1370,6 +1385,7 @@ window.initDrawingQuestion = function (rootElement) {
                 }
             ]);
         }
+        manualToolChange('drag');
         UI.imgUpload.value = null;
     }
 

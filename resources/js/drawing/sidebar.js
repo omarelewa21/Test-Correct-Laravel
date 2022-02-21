@@ -164,7 +164,6 @@ export class Entry extends sidebarComponent {
     remove() {
         this.svgShape.remove();
         this.entryContainer.remove();
-
     }
 
     disable() {
@@ -209,20 +208,15 @@ export class Layer extends sidebarComponent {
     }
 
     makeLayerElement() {
-        //Pak de template voor een layer
         const layerTemplate = this.root.querySelector("#layer-group-template");
-        //Pak de div waar de layer moet komen
         const layersContainer = this.root.querySelector("#layers-container");
         const layersHeaderContainer = this.root.querySelector("#layers-heading");
 
-        //Kopieer de template met children
         const templateCopy = layerTemplate.content.cloneNode(true);
-        //Pak de daadwerkelijke div in de template tag
         const layerGroup = templateCopy.querySelector(".layer-group");
 
         layerGroup.id = this.props.id;
 
-        //Maak dit een functie die ergens anders de titel set?
         const headerTitle = templateCopy.querySelector(".header-title");
         headerTitle.innerText = this.props.name;
         headerTitle.setAttribute('data-layer', this.props.id);
@@ -237,6 +231,10 @@ export class Layer extends sidebarComponent {
             hide: templateCopy.querySelector(".hide-btn"),
             addLayer: templateCopy.querySelector(".add-layer-btn")
         };
+
+        this.explainer = templateCopy.querySelector(".explainer")
+        this.setCorrectExplainerText();
+
         layersHeaderContainer.append(this.header);
         layersContainer.append(templateCopy);
 
@@ -328,6 +326,7 @@ export class Layer extends sidebarComponent {
     }
 
     addEntry(entry) {
+        this.hideExplainer();
         this.shapesGroup.insertBefore(entry.entryContainer, this.getTopShape());
     }
 
@@ -463,5 +462,16 @@ export class Layer extends sidebarComponent {
         if (element.dataset.layer) return element.dataset.layer;
         if(element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer
         return false;
+    }
+
+    hideExplainer() {
+        this.explainer.remove();
+    }
+
+    setCorrectExplainerText() {
+        let group = this.props.id.replace('-group', '');
+        group = group.charAt(0).toUpperCase() + group.slice(1);
+
+        this.explainer.innerText = this.explainer.dataset[`text${group}`];
     }
 }

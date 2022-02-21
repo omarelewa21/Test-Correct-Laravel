@@ -5,38 +5,38 @@
         <section>
             <div id="tools">
                 <div id="elements" class="tools-group">
-                    <button id="drag-btn" class="active" title="Verplaatsen" data-button-group="tool">
+                    <button id="drag-btn" class="active" title="{{ __('drawing-modal.Verplaatsen') }}" data-button-group="tool">
                         <div>
                             <x-icon.drag/>
                         </div>
                     </button>
-                    <button id="add-rect-btn" title="Rechthoek" data-button-group="tool">
+                    <button id="add-rect-btn" title="{{ __('drawing-modal.Rechthoek') }}" data-button-group="tool">
                         <div>
                             <x-icon.square/>
                         </div>
                     </button>
-                    <button id="add-circle-btn" title="Cirkel" data-button-group="tool">
+                    <button id="add-circle-btn" title="{{ __('drawing-modal.Cirkel') }}" data-button-group="tool">
                         <div>
                             <x-icon.circle/>
                         </div>
                     </button>
-                    <button id="add-line-btn" title="Rechte lijn" data-button-group="tool">
+                    <button id="add-line-btn" title="{{ __('drawing-modal.Rechte lijn') }}" data-button-group="tool">
                         <div>
                             <x-icon.line/>
                         </div>
                     </button>
-                    <button id="add-freehand-btn" title="Penlijn" data-button-group="tool">
+                    <button id="add-freehand-btn" title="{{ __('drawing-modal.Penlijn') }}" data-button-group="tool">
                         <div>
                             <x-icon.freehand/>
                         </div>
                     </button>
-                    <button id="add-text-btn" title="Tekst" data-button-group="tool">
+                    <button id="add-text-btn" title="{{ __('drawing-modal.Tekst') }}" data-button-group="tool">
                         <div>
                             <x-icon.text/>
                         </div>
                     </button>
                     @if(Auth::user()->isA('teacher'))
-                        <button title="Afbeelding">
+                        <button title="{{ __('drawing-modal.Afbeelding') }}">
                             <label for="img-upload" id="img-upload-label">
                                 <x-icon.image-upload/>
                             </label>
@@ -48,19 +48,19 @@
                 @if(Auth::user()->isA('teacher'))
                     <div id="grid-background" class="tools-group">
                         <input type="checkbox" id="grid-toggle" style="display: none;" autocomplete="off">
-                        <button title="Zet grid aan/uit">
+                        <button title="{{ __('drawing-modal.Zet grid aan/uit') }}">
                             <label id="grid-toggle-btn" for="grid-toggle">
                                 <x-icon.grid/>
                             </label>
                         </button>
-                        <input type="number" id="grid-size" min="0.5" max="5" value="1" step="0.5" title="Afmeting grid"
+                        <input type="number" id="grid-size" min="0.5" max="5" value="1" step="0.5" title="{{ __('drawing-modal.Afmeting grid') }}"
                                disabled>
-                        <button id="decr-grid-size" class="Secondary" title="Verklein grid" disabled>
+                        <button id="decr-grid-size" class="Secondary" title="{{ __('drawing-modal.Verklein grid') }}" disabled>
                             <div>
                                 <x-icon.min-2/>
                             </div>
                         </button>
-                        <button id="incr-grid-size" class="Secondary" title="Vergroot grid" disabled>
+                        <button id="incr-grid-size" class="Secondary" title="{{ __('drawing-modal.Vergroot grid') }}" disabled>
                             <div>
                                 <x-icon.plus-2/>
                             </div>
@@ -70,28 +70,28 @@
             </div>
             <div id="properties">
                 <div class="property-group" id="text-style">
-                    <input type="color" name="text-color" id="text-color" autocomplete="off" title="Tekstkleur">
+                    <input type="color" name="text-color" id="text-color" autocomplete="off" title="{{ __('drawing-modal.Tekstkleur') }}">
                     <input type="number" name="text-size" id="text-size" min="10" max="50" value="15" step="1"
-                           autocomplete="off" title="Tekstgrootte">
-                    <button id="decr-text-size" class="Secondary" title="Vergroot tekst">
+                           autocomplete="off" title="{{ __('drawing-modal.Tekstgrootte') }}">
+                    <button id="decr-text-size" class="Secondary" title="{{ __('drawing-modal.Vergroot tekst') }}">
                         <div>
                             <x-icon.min-2/>
                         </div>
                     </button>
-                    <button id="incr-text-size" class="Secondary" title="Veklein tekst">
+                    <button id="incr-text-size" class="Secondary" title="{{ __('drawing-modal.Verklein tekst') }}">
                         <div>
                             <x-icon.plus-2/>
                         </div>
                     </button>
                     <input type="checkbox" id="bold-toggle" style="display: none;" autocomplete="off">
-                    <button title="Zet dikgedrukt aan/uit">
+                    <button title="{{ __('drawing-modal.Zet dikgedrukt aan/uit') }}">
                         <label for="bold-toggle" id="bold-text">
                             <x-icon.bold/>
                         </label>
                     </button>
                 </div>
 
-                <div class="property-group" id="opacity" title="Ondoorzichtigheid">
+                <div class="property-group" id="opacity" title="{{ __('drawing-modal.Doorzichtigheid') }}">
                     <input type="number" name="opacity" id="elem-opacity-number" min="0" max="100" value="100" step="1"
                            autocomplete="off">
                     <input class="drawing-toolbar-slider" type="range" name="opacity" id="elem-opacity-range" min="0"
@@ -99,15 +99,15 @@
                 </div>
 
                 <div class="property-group" id="edge">
-                    <input type="color" name="stroke-color" id="stroke-color" autocomplete="off" title="Randkleur">
+                    <input type="color" name="stroke-color" id="stroke-color" autocomplete="off" title="{{ __('drawing-modal.Randkleur') }}">
                     <input type="number" name="stroke-width" id="stroke-width" min="0" max="100" value="1"
                            autocomplete="off" title="Randdikte">
-                    <button id="decr-stroke" class="Secondary" title="Vergroot randdikte">
+                    <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
                         <div>
                             <x-icon.min-2/>
                         </div>
                     </button>
-                    <button id="incr-stroke" class="Secondary" title="Verklein randdikte">
+                    <button id="incr-stroke" class="Secondary" title="{{ __('drawing-modal.Verklein randdikte') }}">
                         <div>
                             <x-icon.plus-2/>
                         </div>
@@ -115,15 +115,15 @@
                 </div>
 
                 <div class="property-group" id="fill">
-                    <input type="color" name="fill-color" id="fill-color" value="#aaaaaa" autocomplete="off"
-                           title="Opvulkleur">
-                    <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="0"
-                           step="1" autocomplete="off" title="Ondoorzichtigheid opvulkleur">
+                    <input type="color" name="fill-color" id="fill-color" value="#ffffff" autocomplete="off"
+                           title="{{ __('drawing-modal.Opvulkleur') }}">
+                    <input type="number" name="fill-opacity" id="fill-opacity-number" min="0" max="100" value="100"
+                           step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                     <input class="drawing-toolbar-slider" type="range" name="fill-opacity" id="fill-opacity-range"
-                           min="0" max="100" value="0" step="1" autocomplete="off" title="Ondoorzichtigheid opvulkleur">
+                           min="0" max="100" value="100" step="1" autocomplete="off" title="{{ __('drawing-modal.Doorzichtigheid opvulkleur') }}">
                 </div>
 
-                <div class="property-group" id="endmarker-type" title="Type lijneinde">
+                <div class="property-group" id="endmarker-type" title="{{ __('drawing-modal.Type lijneinde') }}">
                     <div id="endmarker-type-wrapper">
                         <button class="endmarker-type active" id="no-endmarker" data-button-group="endmarker-type">
                             <x-icon.no-endmarker/>
@@ -141,7 +141,7 @@
                 </div>
             </div>
         </section>
-        <button id="exit-btn" title="Sluiten" @click="show = false">
+        <button id="exit-btn" title="{{ __('drawing-modal.Sluiten') }}" @click="show = false">
             <x-icon.close/>
         </button>
     </div>
@@ -169,11 +169,11 @@
                 </g>
             </svg>
             <div id="zoom-component" class="percentfield-container">
-                <button id="decr-zoom" class="Secondary min-btn" title="Zoom out">
-                    <x-icon.min-2/> 
+                <button id="decr-zoom" class="Secondary min-btn" title="{{ __('drawing-modal.Zoom uit') }}">
+                    <x-icon.min-2/>
                 </button>
                 <input type="text" id="zoom-level" class="percentfield" value="100%" disabled>
-                <button id="incr-zoom" class="Secondary plus-btn" title="Zoom in">
+                <button id="incr-zoom" class="Secondary plus-btn" title="{{ __('drawing-modal.Zoom in') }}">
                     <x-icon.plus-2/>
                 </button>
             </div>
@@ -196,8 +196,8 @@
                     <div id="layers-heading"></div>
                 </div>
                 <div id="submit">
-                    <button class="CTA" id="submit-btn" @click="show = false">
-                        Opslaan
+                    <button class="CTA" id="submit-btn">
+                        {{ __('drawing-modal.Opslaan') }}
                     </button>
                 </div>
             </div>
@@ -209,20 +209,20 @@
         <div class="flex items-center w-full justify-between">
             <span class="shape-title">If you read this, report a bug</span>
             <div class="btn-group">
-                <button class="shape-btn remove-btn" title="Verwijderen">
+                <button class="shape-btn remove-btn" title="{{ __('drawing-modal.Verwijderen') }}">
                     <x-icon.trash/>
                 </button>
-                <button class="shape-btn lock-btn" data-title-locked="Ontgrendelen" data-title-unlocked="Vergrendelen"
-                        title="Vergrendelen">
+                <button class="shape-btn lock-btn" data-title-locked="{{ __('drawing-modal.Ontgrendelen') }}" data-title-unlocked="{{ __('drawing-modal.Vergrendelen') }}"
+                        title="{{ __('drawing-modal.Vergrendelen') }}">
                     <x-icon.unlocked/>
                     <x-icon.locked/>
                 </button>
-                <button class="shape-btn hide-btn" data-title-hidden="Tonen" data-title-unhidden="Verbergen"
-                        title="Verbergen">
+                <button class="shape-btn hide-btn" data-title-hidden="{{ __('drawing-modal.Tonen') }}" data-title-unhidden="{{ __('drawing-modal.Verbergen') }}"
+                        title="{{ __('drawing-modal.Verbergen') }}">
                     <x-icon.preview/>
                     <x-icon.preview-off/>
                 </button>
-                <button class="shape-btn drag-btn" title="Verslepen">
+                <button class="shape-btn drag-btn" title="{{ __('drawing-modal.Versleep volgorde') }}">
                     <x-icon.grab/>
                 </button>
             </div>
@@ -238,26 +238,28 @@
                     <span class="indicator"></span>
                 </div>
                 <div class="btn-group">
-                    <button class="layer-btn remove-btn hidden" style="display: none;" title="Verwijderen">
+                    <button class="layer-btn remove-btn hidden" style="display: none;" title="{{ __('drawing-modal.Verwijderen') }}">
                         <x-icon.trash/>
                     </button>
-                    <button class="layer-btn lock-btn hidden" style="display: none;" data-title-locked="Ontgrendelen"
-                            data-title-unlocked="Vergrendelen" title="Vergrendelen">
+                    <button class="layer-btn lock-btn hidden" style="display: none;" data-title-locked="{{ __('drawing-modal.Ontgrendelen') }}"
+                            data-title-unlocked="{{ __('drawing-modal.Vergrendelen') }}" title="{{ __('drawing-modal.Vergrendelen') }}">
                         <x-icon.unlocked/>
                         <x-icon.locked style="display: none"/>
                     </button>
-                    <button class="layer-btn hide-btn" style="display: none;" data-title-hidden="Tonen"
-                            data-title-unhidden="Verbergen" title="Verbergen">
+                    <button class="layer-btn hide-btn" style="display: none;" data-title-hidden="{{ __('drawing-modal.Tonen') }}"
+                            data-title-unhidden="{{ __('drawing-modal.Verbergen') }}" title="{{ __('drawing-modal.Verbergen') }}">
                         <x-icon.preview/>
                         <x-icon.preview-off class="text-midgrey" style="display: none"/>
                     </button>
-                    <button class="layer-btn add-layer-btn hidden" title="Laag toevoegen">
+                    <button class="layer-btn add-layer-btn hidden" title="{{ __('drawing-modal.Laag toevoegen') }}">
                         <x-icon.plus-2/>
                     </button>
                 </div>
             </div>
         </div>
-        <div class="shapes-group"></div>
+        <div class="shapes-group">
+            <span class="explainer note text-sm text-center" data-text-answer="{{ __('drawing-modal.Explainer answer') }}" data-text-question="{{ __('drawing-modal.Explainer question') }}" style="padding: 1.5rem"></span>
+        </div>
     </div>
 </template>
 <template id="warningbox-template">

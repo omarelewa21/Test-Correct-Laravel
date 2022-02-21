@@ -1812,6 +1812,7 @@ button) {
 #drawing-tool #layers-heading {
     min-height: 60px;
     place-content: center;
+    box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
 }
 #drawing-tool #layers-heading .header {
     height: auto;

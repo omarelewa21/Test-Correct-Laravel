@@ -7349,7 +7349,7 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function shapeMayBeDragged(shapeGroup, layerObject) {
-    return shapeGroup.classList.contains("draggable") && !layerObject.params.locked;
+    return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
   }
 
   function elementHasTransforms(transforms) {
@@ -7784,6 +7784,21 @@ window.initDrawingQuestion = function (rootElement) {
     }
   }
 
+  function manualToolChange(tool) {
+    var currentTool = drawingApp.params.currentTool;
+    var newTool = tool;
+    if (currentTool === newTool) return;
+    drawingApp.params.currentTool = newTool;
+    var btnElement = rootElement.querySelector("[id*=\"".concat(newTool, "-btn\"]"));
+    makeSelectedBtnActive(btnElement);
+    enableSpecificPropSelectInputs();
+    setCursorTypeAccordingToCurrentType();
+
+    if (!drawingApp.currentToolIs("drag")) {
+      drawingApp.warnings.whenAnyToolButDragSelected.show();
+    }
+  }
+
   function determineNewTool(evt) {
     var id = evt.currentTarget.id;
     var startOfSlice = id.indexOf("-") + 1,
@@ -7835,6 +7850,7 @@ window.initDrawingQuestion = function (rootElement) {
       _iterator3.f();
     }
 
+    manualToolChange('drag');
     UI.imgUpload.value = null;
   }
 
@@ -8599,17 +8615,12 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   _createClass(Layer, [{
     key: "makeLayerElement",
     value: function makeLayerElement() {
-      //Pak de template voor een layer
-      var layerTemplate = this.root.querySelector("#layer-group-template"); //Pak de div waar de layer moet komen
-
+      var layerTemplate = this.root.querySelector("#layer-group-template");
       var layersContainer = this.root.querySelector("#layers-container");
-      var layersHeaderContainer = this.root.querySelector("#layers-heading"); //Kopieer de template met children
-
-      var templateCopy = layerTemplate.content.cloneNode(true); //Pak de daadwerkelijke div in de template tag
-
+      var layersHeaderContainer = this.root.querySelector("#layers-heading");
+      var templateCopy = layerTemplate.content.cloneNode(true);
       var layerGroup = templateCopy.querySelector(".layer-group");
-      layerGroup.id = this.props.id; //Maak dit een functie die ergens anders de titel set?
-
+      layerGroup.id = this.props.id;
       var headerTitle = templateCopy.querySelector(".header-title");
       headerTitle.innerText = this.props.name;
       headerTitle.setAttribute('data-layer', this.props.id);
@@ -8622,6 +8633,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
         hide: templateCopy.querySelector(".hide-btn"),
         addLayer: templateCopy.querySelector(".add-layer-btn")
       };
+      this.explainer = templateCopy.querySelector(".explainer");
+      this.setCorrectExplainerText();
       layersHeaderContainer.append(this.header);
       layersContainer.append(templateCopy);
       return layerGroup;
@@ -8720,6 +8733,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "addEntry",
     value: function addEntry(entry) {
+      this.hideExplainer();
       this.shapesGroup.insertBefore(entry.entryContainer, this.getTopShape());
     }
   }, {
@@ -8886,6 +8900,18 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       if (element.dataset.layer) return element.dataset.layer;
       if (element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer;
       return false;
+    }
+  }, {
+    key: "hideExplainer",
+    value: function hideExplainer() {
+      this.explainer.remove();
+    }
+  }, {
+    key: "setCorrectExplainerText",
+    value: function setCorrectExplainerText() {
+      var group = this.props.id.replace('-group', '');
+      group = group.charAt(0).toUpperCase() + group.slice(1);
+      this.explainer.innerText = this.explainer.dataset["text".concat(group)];
     }
   }]);
 
@@ -9922,18 +9948,24 @@ var svgShape = /*#__PURE__*/function () {
     key: "makeBorderElement",
     value: function makeBorderElement() {
       var bbox = this.mainElement.getBoundingBox();
+      var borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
       return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
         "class": "border",
         "x": bbox.x - this.offset,
         "y": bbox.y - this.offset,
         "width": bbox.width + this.offset * 2,
         "height": bbox.height + this.offset * 2,
-        "stroke": "var(--teacher-Primary)",
+        "stroke": "var(".concat(borderColor, ")"),
         "stroke-width": "3",
         "stroke-dasharray": "10",
         "fill": "red",
         "fill-opacity": "0"
       });
+    }
+  }, {
+    key: "isAnswerLayer",
+    value: function isAnswerLayer() {
+      return this.Canvas.layerID2Key(this.parent.id) === 'answer';
     }
   }, {
     key: "updateCornerElements",
@@ -9966,7 +9998,9 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showBorderElement",
     value: function showBorderElement() {
-      this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+      if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
+        this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+      }
     }
   }, {
     key: "showCornerElements",
