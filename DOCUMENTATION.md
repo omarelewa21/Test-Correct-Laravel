@@ -186,3 +186,14 @@ and restart FPM:
 ```
 sudo systemctl restart php7.4-fpm.service
 ```
+
+### Configure sudo permissions
+
+In `/etc/sudoers` change the file WITH `sudoedit /etc/sudoers` (so not directly using `vim`!!!) from
+```
+webdev  ALL=(root) NOPASSWD: /etc/init.d/nginx, /etc/init.d/php7.2-fpm
+```
+to
+```
+webdev  ALL=(root) NOPASSWD: /etc/init.d/nginx, /etc/init.d/php7.2-fpm, /etc/init.d/php7.4-fpm
+```
