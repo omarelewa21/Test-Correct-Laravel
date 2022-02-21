@@ -17,6 +17,7 @@ use tcCore\Http\Requests\ShowInfoRequest;
 use tcCore\Http\Requests\UpdateDeploymentRequest;
 use tcCore\Http\Requests\UpdateInfoRequest;
 use tcCore\Info;
+use tcCore\UserInfosDontShow;
 
 class InfoController extends Controller
 {
@@ -29,6 +30,8 @@ class InfoController extends Controller
                 $data = Info::orderBy('show_from','desc')->with('roles')->get();
                 break;
             case 'dashboard':
+                $data = Info::getInfoForUser(Auth::user(), true);
+                break;
             default:
                 $data = Info::getInfoForUser(Auth::user());
         }
@@ -62,4 +65,19 @@ class InfoController extends Controller
         $info->delete();
         return Response::make(true,200);
     }
+
+    public function removeDashboardInfo(Info $info){
+        if(!auth()->user()->isA('student')){
+            logger($info);
+            UserInfosDontShow::create([
+                'user_id'       => auth()->id(),
+                'info_id'       => $info->getKey()
+            ]);
+            return Response::make(true,200);
+        }
+
+        return Response::make(false, 500);
+
+    }
+
 }

@@ -5,6 +5,7 @@ require('./core');
 require('./notify');
 require('./alpine');
 require('./rich-text-editor');
+require('./drawing/drawing-question');
 
 window.ClassicEditors = [];
 
@@ -213,8 +214,7 @@ dragElement = function (element) {
     }
 }
 
-countPresentStudents = function (members)
-{
+countPresentStudents = function (members) {
     var activeStudents = 0;
     members.each((member) => {
         if (member.info.student) {
@@ -223,4 +223,10 @@ countPresentStudents = function (members)
     })
 
     return activeStudents;
+}
+
+String.prototype.contains = function (text)
+{
+    if (text === '') return false;
+    return this.includes(text);
 }

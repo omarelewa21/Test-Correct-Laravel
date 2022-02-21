@@ -4,6 +4,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use tcCore\Http\Controllers\AuthorsController;
 use tcCore\Jobs\CountTeacherQuestions;
 use tcCore\Lib\Models\BaseModel;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -64,9 +65,27 @@ class TestAuthor extends CompositePrimaryKeyModel {
     }
 
     public static function addAuthorToTest(Test $test, $userId) {
+        return self::addOrRestoreAuthor($test,$userId);
+    }
 
+    public static function addExamAuthorToTest(Test $test) {
+
+        if(!optional(Auth::user())->isInExamSchool()){
+            return false;
+        }
+        if($test->scope!='exam'){
+            return false;
+        }
+        $test->testAuthors->each(function ($testAuthor){
+            $testAuthor->delete();
+        });
+        $examAuthorUser = AuthorsController::getCentraalExamenAuthor();
+        return self::addOrRestoreAuthor($test,$examAuthorUser->getKey());
+    }
+
+    private static function addOrRestoreAuthor($test,$userId)
+    {
         $testAuthor = static::withTrashed()->where('user_id', $userId)->where('test_id', $test->getKey())->first();
-
         if ($testAuthor === null) {
             $testAuthor = new TestAuthor(['user_id' => $userId, 'test_id' => $test->getKey()]);
             if (!$testAuthor->save()) {
@@ -77,7 +96,6 @@ class TestAuthor extends CompositePrimaryKeyModel {
                 return false;
             }
         }
-
         return true;
     }
 }

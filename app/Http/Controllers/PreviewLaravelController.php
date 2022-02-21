@@ -20,11 +20,10 @@ class PreviewLaravelController extends Controller
         $current = $request->get('q') ?: '1';
         $uuid = $test->uuid;
         $testId = $test->getKey();
-        $answers = $data;
         $nav = $this->getNavigationData($data);
         $styling = $this->getCustomStylingFromQuestions($data);
 
-        return view('test-preview', compact(['data', 'nav', 'uuid', 'answers', 'current', 'testId', 'styling']));
+        return view('test-preview', compact(['data', 'nav', 'uuid', 'current', 'testId', 'styling']));
     }
 
     public static function getData(Test $test)
@@ -48,7 +47,7 @@ class PreviewLaravelController extends Controller
 //        });
 //        return cache()->remember('data_test_preview' . $test->getKey(), now()->addMinutes(60), function () use ($test) {
             $test->load('testQuestions', 'testQuestions.question', 'testQuestions.question.attachments');
-            return $test->testQuestions->flatMap(function ($testQuestion) {
+            return $test->testQuestions->sortBy('order')->flatMap(function ($testQuestion) {
                 $testQuestion->question->loadRelated();
                 if ($testQuestion->question->type === 'GroupQuestion') {
                     $groupQuestion = $testQuestion->question;

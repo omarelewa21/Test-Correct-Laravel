@@ -17,7 +17,7 @@ class AppVersionDetector
         "windows" => "windowsOS",
         "macbook" => "macOS",
         "ipad" => "iOS",
-        "iPhone" => "iOS",
+        "iphone" => "iOS",
         "chromebook" => "ChromeOS",
         "win32" => "windowsElectron",
         "darwin" => "macosElectron"
@@ -89,10 +89,8 @@ class AppVersionDetector
                 "3.1.0",
             ],
             "needsUpdate" => [
-                "2.4.0",
             ],
             "needsUpdateDeadline" => [
-                "2.4.0" => "10 februari 2022",
             ],
         ],
         "ChromeOS" => [
@@ -148,12 +146,6 @@ class AppVersionDetector
         ],
         "windowsElectron" => [
             "ok" => [
-                "3.2.0",
-                "3.2.0-beta.1",
-                "3.2.0-beta.2",
-                "3.2.0-beta.3",
-                "3.2.0-beta.4",
-                "3.2.0-beta.5",
                 "3.2.1",
                 "3.2.1-beta.1",
                 "3.2.1-beta.2",
@@ -198,19 +190,20 @@ class AppVersionDetector
                 "3.1.3-beta.3",
                 "3.1.3-beta.4",
                 "3.1.3-beta.5",
-            ],
-            "needsUpdateDeadline" => [
-                "3.1.3" => "6 maart 2022",
-            ],
-        ],
-        "macosElectron" => [
-            "ok" => [
                 "3.2.0",
                 "3.2.0-beta.1",
                 "3.2.0-beta.2",
                 "3.2.0-beta.3",
                 "3.2.0-beta.4",
                 "3.2.0-beta.5",
+            ],
+            "needsUpdateDeadline" => [
+                "3.1.3" => "6 maart 2022",
+                "3.2.0" => "3 april 2022",
+            ],
+        ],
+        "macosElectron" => [
+            "ok" => [
                 "3.2.1",
                 "3.2.1-beta.1",
                 "3.2.1-beta.2",
@@ -255,9 +248,16 @@ class AppVersionDetector
                 "3.1.1-beta.3",
                 "3.1.1-beta.4",
                 "3.1.1-beta.5",
+                "3.2.0",
+                "3.2.0-beta.1",
+                "3.2.0-beta.2",
+                "3.2.0-beta.3",
+                "3.2.0-beta.4",
+                "3.2.0-beta.5",
             ],
             "needsUpdateDeadline" => [
-                "3.1.1" => "6 maart 2022"
+                "3.1.1" => "6 maart 2022",
+                "3.2.0" => "3 april 2022",
             ],
         ]
     ];
