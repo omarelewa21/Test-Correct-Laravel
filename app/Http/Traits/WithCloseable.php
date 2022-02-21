@@ -17,8 +17,8 @@ trait WithCloseable
     {
         return [
             'close-question' => 'closeQuestion',
-            'close-group' => 'closeGroup',
-            'refresh' => 'render'
+            'close-group'    => 'closeGroup',
+            'refresh'        => 'render'
         ];
     }
 
@@ -31,6 +31,10 @@ trait WithCloseable
 
     public function closeQuestion($nextQuestion = null)
     {
+        if (empty($this->answers)) {
+            return;
+        }
+
         $this->closed = Answer::whereId($this->answers[$this->question->uuid]['id'])->update(['closed' => 1]);
 
         if ($nextQuestion) {
@@ -46,6 +50,10 @@ trait WithCloseable
 
     public function closeGroup($nextQuestion = null)
     {
+        if (empty($this->answers)) {
+            return;
+        }
+
         $groupId = $this->group->id;
 
         $listOfQToRefresh = [];
