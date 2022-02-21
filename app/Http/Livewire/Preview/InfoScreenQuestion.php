@@ -30,8 +30,6 @@ class InfoScreenQuestion extends Component
 
     public function markAsSeen($questionUuid)
     {
-        $json = json_encode('seen');
-        Answer::updateJson($this->answers[$questionUuid]['id'], $json);
-    }
 
+    }
 }
