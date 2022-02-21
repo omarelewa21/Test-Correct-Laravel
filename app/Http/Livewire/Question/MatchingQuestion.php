@@ -51,19 +51,47 @@ class MatchingQuestion extends Component
     public function updateOrder($value)
     {
         $dbstring = [];
+        $databaseStruct = json_decode(
+                                Answer::find($this->answers[$this->question->uuid]['id'])->json,
+                                true);
+
         foreach ($value as $key => $value) {
             if ($value['value'] == 'startGroep') {
                 $value['value'] = '';
             }
+
             foreach ($value['items'] as $items) {
-                $dbstring[$items['value']] = $value['value'];
+                if(in_array($value['value'], $dbstring) && !is_null($databaseStruct)){
+                    // value stored before in dbstring =>
+                    $prevStoredKeyInDbstring = array_search($value['value'], $dbstring);        // Get previous key from dbstring
+                    $prevStoredKeyInDatabase = array_search($value['value'], $databaseStruct);  // Get previous key from database
+
+                    if($prevStoredKeyInDatabase == -1){
+                        // value doesn't exist in database =>
+                        $dbstring[$prevStoredKeyInDbstring] = '';        // set previous key in dbstring to empty string
+                        $dbstring[$items['value']] = $value['value'];    // set new key to value
+                    }else{
+                        // value exists in database
+                        if($prevStoredKeyInDatabase == $prevStoredKeyInDbstring){
+                            // stored key in dbstring == stored key in database =>
+                            $dbstring[$prevStoredKeyInDbstring] = '';                 // set previous key in dbstring to empty string
+                            $dbstring[$items['value']] = $value['value'];             // set new key to value 
+                        }else{
+                            $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value 
+                            $dbstring[$items['value']] = '';                       // set new key to empty string
+                        }
+                    }
+                }else{
+                    // value is not previously stored in dbstring
+                    $dbstring[$items['value']] = $value['value'];
+                }
             }
         }
 
         $json = json_encode($dbstring);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
-
+        
         $this->answerStruct = $dbstring;
 
         $this->emitTo('question.navigation','current-question-answered', $this->number);
