@@ -17,6 +17,7 @@
 :root {
     --cta-primary: #3ab753;
     --cta-primary-mid-dark: #27973D;
+    --cta-primary-mid-dark-rgb: 39, 151, 61;
     --cta-primary-dark: #006314;
     --cta-secondary: #004DF5;
     --primary: #004df5;

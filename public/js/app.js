@@ -6590,15 +6590,33 @@ window.initDrawingQuestion = function (rootElement) {
       drawing: function drawing() {
         return this.params.draw.newShape;
       },
+      getLayerDomElementsByLayerId: function getLayerDomElementsByLayerId(layerId) {
+        var layer = rootElement.querySelector("#".concat(layerId));
+        var layerHeader = rootElement.querySelector("[data-layer=\"".concat(layerId, "\"]")).closest('.header');
+        return {
+          layer: layer,
+          layerHeader: layerHeader
+        };
+      },
+      removeHighlightFromLayer: function removeHighlightFromLayer(layerId) {
+        var _this$getLayerDomElem = this.getLayerDomElementsByLayerId(layerId),
+            layer = _this$getLayerDomElem.layer,
+            layerHeader = _this$getLayerDomElem.layerHeader;
+
+        layer.classList.remove("highlight");
+        layerHeader.classList.remove("highlight");
+      },
+      addHighlightToLayer: function addHighlightToLayer(layerId) {
+        var _this$getLayerDomElem2 = this.getLayerDomElementsByLayerId(layerId),
+            layer = _this$getLayerDomElem2.layer,
+            layerHeader = _this$getLayerDomElem2.layerHeader;
+
+        layer.classList.add("highlight");
+        layerHeader.classList.add("highlight");
+      },
       setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
-        var oldCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
-        var oldCurrentLayerHeader = rootElement.querySelector("[data-layer=\"".concat(this.layerKey2ID(this.params.currentLayer), "\"]")).closest('.header');
-        oldCurrentLayer.classList.remove("highlight");
-        oldCurrentLayerHeader.classList.remove("highlight");
-        var newCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
-        var newCurrentLayerHeader = rootElement.querySelector("[data-layer=\"".concat(this.layerKey2ID(newCurrentLayerID), "\"]")).closest('.header');
-        newCurrentLayer.classList.add("highlight");
-        newCurrentLayerHeader.classList.add("highlight");
+        this.removeHighlightFromLayer(this.layerKey2ID(this.params.currentLayer));
+        this.addHighlightToLayer(this.layerKey2ID(newCurrentLayerID));
         Canvas.params.currentLayer = newCurrentLayerID;
       },
       getEnabledLayers: function getEnabledLayers() {
@@ -8499,10 +8517,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         this.showSecondIcon(this.btns.hide);
         this.btns.hide.style.color = "#929DAF";
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-hidden");
+        this.entryContainer.classList.add('hide');
       } else {
         this.showFirstIcon(this.btns.hide);
         this.btns.hide.style.color = "";
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
+        this.entryContainer.classList.remove('hide');
       }
     }
   }, {
@@ -8593,6 +8613,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       var headerTitle = templateCopy.querySelector(".header-title");
       headerTitle.innerText = this.props.name;
       headerTitle.setAttribute('data-layer', this.props.id);
+      headerTitle.closest('.header-container').setAttribute('data-layer', this.props.id);
       this.header = templateCopy.querySelector(".header");
       this.shapesGroup = templateCopy.querySelector(".shapes-group");
       this.btns = {
@@ -8748,7 +8769,9 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
 
               var newCurrentLayerID = _this5.getLayerDataFromTarget(targetHeader);
 
-              _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
+              if (newCurrentLayerID) {
+                _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
+              }
             }
           }
         }
@@ -8860,7 +8883,9 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "getLayerDataFromTarget",
     value: function getLayerDataFromTarget(element) {
-      return element.dataset.layer || element.querySelector('[data-layer]').dataset.layer;
+      if (element.dataset.layer) return element.dataset.layer;
+      if (element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer;
+      return false;
     }
   }]);
 

@@ -152,10 +152,12 @@ export class Entry extends sidebarComponent {
             this.showSecondIcon(this.btns.hide);
             this.btns.hide.style.color = "#929DAF";
             this.btns.hide.title = this.btns.hide.getAttribute("data-title-hidden");
+            this.entryContainer.classList.add('hide');
         } else {
             this.showFirstIcon(this.btns.hide);
             this.btns.hide.style.color = "";
             this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
+            this.entryContainer.classList.remove('hide');
         }
     }
 
@@ -224,6 +226,7 @@ export class Layer extends sidebarComponent {
         const headerTitle = templateCopy.querySelector(".header-title");
         headerTitle.innerText = this.props.name;
         headerTitle.setAttribute('data-layer', this.props.id);
+        headerTitle.closest('.header-container').setAttribute('data-layer', this.props.id);
 
         this.header = templateCopy.querySelector(".header");
         this.shapesGroup = templateCopy.querySelector(".shapes-group");
@@ -365,7 +368,9 @@ export class Layer extends sidebarComponent {
                         callback: (evt) => {
                             const targetHeader = evt.target;
                             const newCurrentLayerID = this.getLayerDataFromTarget(targetHeader);
-                            this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
+                            if (newCurrentLayerID) {
+                                this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
+                            }
                         }
                     },
                 }
@@ -455,6 +460,8 @@ export class Layer extends sidebarComponent {
         });
     }
     getLayerDataFromTarget(element) {
-        return element.dataset.layer || element.querySelector('[data-layer]').dataset.layer;
+        if (element.dataset.layer) return element.dataset.layer;
+        if(element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer
+        return false;
     }
 }

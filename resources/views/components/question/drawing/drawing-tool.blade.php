@@ -206,24 +206,26 @@
 </div>
 <template id="shape-group-template">
     <div class="shape-container" id="shape-n" draggable="true">
-        <span class="shape-title">If you read this, report a bug</span>
-        <div class="btn-group">
-            <button class="shape-btn remove-btn" title="Verwijderen">
-                <x-icon.trash/>
-            </button>
-            <button class="shape-btn lock-btn" data-title-locked="Ontgrendelen" data-title-unlocked="Vergrendelen"
-                    title="Vergrendelen">
-                <x-icon.unlocked/>
-                <x-icon.locked/>
-            </button>
-            <button class="shape-btn hide-btn" data-title-hidden="Tonen" data-title-unhidden="Verbergen"
-                    title="Verbergen">
-                <x-icon.preview/>
-                <x-icon.preview-off/>
-            </button>
-            <button class="shape-btn drag-btn" title="Verslepen">
-                <x-icon.grab/>
-            </button>
+        <div class="flex items-center w-full justify-between">
+            <span class="shape-title">If you read this, report a bug</span>
+            <div class="btn-group">
+                <button class="shape-btn remove-btn" title="Verwijderen">
+                    <x-icon.trash/>
+                </button>
+                <button class="shape-btn lock-btn" data-title-locked="Ontgrendelen" data-title-unlocked="Vergrendelen"
+                        title="Vergrendelen">
+                    <x-icon.unlocked/>
+                    <x-icon.locked/>
+                </button>
+                <button class="shape-btn hide-btn" data-title-hidden="Tonen" data-title-unhidden="Verbergen"
+                        title="Verbergen">
+                    <x-icon.preview/>
+                    <x-icon.preview-off/>
+                </button>
+                <button class="shape-btn drag-btn" title="Verslepen">
+                    <x-icon.grab/>
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -231,7 +233,10 @@
     <div class="layer-group">
         <div class="header">
             <div class="header-container">
-                <span class="header-title"></span>
+                <div class="header-title-container flex items-center">
+                    <span class="header-title"></span>
+                    <span class="indicator"></span>
+                </div>
                 <div class="btn-group">
                     <button class="layer-btn remove-btn hidden" style="display: none;" title="Verwijderen">
                         <x-icon.trash/>

@@ -183,16 +183,26 @@ window.initDrawingQuestion = function (rootElement) {
             drawing() {
                 return this.params.draw.newShape
             },
-            setCurrentLayer(newCurrentLayerID) {
-                const oldCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
-                const oldCurrentLayerHeader = rootElement.querySelector(`[data-layer="${this.layerKey2ID(this.params.currentLayer)}"]`).closest('.header');
-                oldCurrentLayer.classList.remove("highlight");
-                oldCurrentLayerHeader.classList.remove("highlight");
+            getLayerDomElementsByLayerId: function(layerId) {
+                const layer = rootElement.querySelector(`#${layerId}`);
+                const layerHeader = rootElement.querySelector(`[data-layer="${layerId}"]`).closest('.header');
+                return {layer, layerHeader}
+            },
+            removeHighlightFromLayer: function (layerId) {
+                const {layer, layerHeader} = this.getLayerDomElementsByLayerId(layerId);
 
-                const newCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
-                const newCurrentLayerHeader = rootElement.querySelector(`[data-layer="${this.layerKey2ID(newCurrentLayerID)}"]`).closest('.header');
-                newCurrentLayer.classList.add("highlight");
-                newCurrentLayerHeader.classList.add("highlight");
+                layer.classList.remove("highlight");
+                layerHeader.classList.remove("highlight");
+            },
+            addHighlightToLayer: function (layerId) {
+                const {layer, layerHeader} = this.getLayerDomElementsByLayerId(layerId);
+
+                layer.classList.add("highlight");
+                layerHeader.classList.add("highlight");
+            },
+            setCurrentLayer(newCurrentLayerID) {
+                this.removeHighlightFromLayer(this.layerKey2ID(this.params.currentLayer));
+                this.addHighlightToLayer(this.layerKey2ID(newCurrentLayerID));
 
                 Canvas.params.currentLayer = newCurrentLayerID;
             },
