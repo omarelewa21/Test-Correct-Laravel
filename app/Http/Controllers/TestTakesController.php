@@ -71,7 +71,7 @@ class TestTakesController extends Controller {
             ]);
         
         if(array_key_exists("takeUuid", $request->filter)){
-            $take_id = TestTake::all()->where('uuid', $request->filter['takeUuid'])->first()->id;
+            $take_id = TestTake::whereUuid($request->filter['takeUuid'])->value('id');
             $testTakes = $testTakes->where('test_takes.id', $take_id);
         }
 
