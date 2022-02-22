@@ -18,29 +18,11 @@
                  true
              )"
     >
-        <div class="flex mb-4 space-x-4">
-            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-            >
-                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-            </x-input.toggle-row-with-title>
-            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-            >
-                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-            </x-input.toggle-row-with-title>
-            <x-input.toggle-row-with-title wire:model="question.all_or_nothing"
-                                           :toolTip="__('cms.all_or_nothing_tooltip_text')"
-            >
-                <span class="bold"> {{ __('cms.Alles of niets correct') }}</span>
-            </x-input.toggle-row-with-title>
-        </div>
-
         <div>
             <span>{{ __('cms.Teken in de tekentool het antwoordmodel voor de vraag.') }}</span>
         </div>
 
-    <div class="flex flex-1 min-h-[500px] w-full border border-allred rounded-10 mt-4 items-center justify-center relative overflow-auto">
+    <div class="flex flex-1 min-h-[500px] w-full border border-bluegrey rounded-10 mt-4 items-center justify-center relative overflow-auto drawing-tool-preview">
 
         @if($this->isOldDrawingQuestion())
 
@@ -52,7 +34,8 @@
                     <div class="absolute bg-white opacity-80 w-full h-full"></div>
                     <div class="z-0 flex flex-col items-center justify-center">
                         <x-button.primary @click="show = !show" >
-                            Antwoordmodel tekenen
+                            <x-icon.edit/>
+                            <span>Antwoordmodel tekenen</span>
                         </x-button.primary>
                         <p class="text-note text-sm text-center mt-4">{{ __('cms.waarschuwing_aanpassen_oude_tekenvraag') }} </p>
                     </div>
@@ -60,7 +43,11 @@
 
         @else
             <div class="absolute top-0 left-0 w-full h-full">
-                <svg class="w-full h-full" id="preview-svg" xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
+                <svg viewBox="{{ $this->cmsPropertyBag['viewBox'] ?? '0 0 0 0' }}"
+                     @viewbox-changed.window="makeGridIfNecessary(window[toolName])"
+                     id="preview-svg"
+                     class="w-full h-full"
+                     xmlns="http://www.w3.org/2000/svg" style="--cursor-type-locked:var(--cursor-crosshair); --cursor-type-draggable:var(--cursor-crosshair);">
                     <g wire:ignore id="grid-preview-svg" stroke="var(--all-BlueGrey)" stroke-width="1"></g>
                     <g class="question-svg">{!!  base64_decode($this->question['question_svg']) !!}</g>
                     <g class="answer-svg">{!!  base64_decode($this->question['answer_svg']) !!}</g>
@@ -73,7 +60,8 @@
                 <div class="absolute bg-white opacity-80 w-full h-full"></div>
                 <div class="z-0 flex flex-col items-center justify-center">
                     <x-button.primary @click="show = !show" >
-                        Antwoordmodel tekenen
+                        <x-icon.edit/>
+                        <span>Antwoordmodel tekenen</span>
                     </x-button.primary>
                 </div>
             </div>

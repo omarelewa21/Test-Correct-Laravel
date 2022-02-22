@@ -286,12 +286,13 @@ document.addEventListener('alpine:init', () => {
         questionSvg: entanglements.questionSvg,
         gridSvg: entanglements.gridSvg,
         isTeacher: isTeacher,
+        toolName: null,
         init() {
-            window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
-            const toolName = window['drawingTool_' + questionId];
+            this.toolName = `drawingTool_${questionId}`;
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root);
 
             if(this.isTeacher) {
-                this.makeGridIfNecessary();
+                this.makeGridIfNecessary(toolName);
             }
 
             this.$watch('show', show => {
@@ -322,9 +323,9 @@ document.addEventListener('alpine:init', () => {
                 }
             }
         },
-        makeGridIfNecessary() {
+        makeGridIfNecessary(toolName) {
             if (this.gridSvg !== '') {
-                makePreviewGrid(this.gridSvg);
+                makePreviewGrid(toolName.drawingApp, this.gridSvg);
             }
         }
     }));

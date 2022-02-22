@@ -1,4 +1,4 @@
-<div id="cms">
+<div id="cms" questionComponent>
     <div class="question-editor-header z-50">
         <div class="question-title">
             <div class="icon-arrow">
@@ -19,7 +19,6 @@
                         <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">--}}
             <div class="flex w-full mt-2.5 px-4 sm:px-6 lg:px-8">
                 <div class="flex w-full border-b border-secondary items-center justify-between py-2.5">
-                    {{--                    --}}
                     <div class="flex items-center">
                         <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
                             <span>{{ $this->question['order'] == 0 ? '1' : $this->question['order']}}</span>

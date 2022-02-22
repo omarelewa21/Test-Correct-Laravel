@@ -40,6 +40,7 @@ window.initDrawingQuestion = function (rootElement) {
             endmarkerType: "no-endmarker",
             gridSize: 1,
             spacebarPressed: false,
+            root: rootElement,
         },
         firstInit: true,
         warnings: {},
@@ -55,9 +56,9 @@ window.initDrawingQuestion = function (rootElement) {
                     calculateCanvasBounds();
                     updateClosedSidebarWidth();
 
-                    // updateMidPoint();
                     if (drawingApp.firstInit) {
                         makeGrid();
+                        updateMidPoint();
                     }
 
                     processGridToggleChange();
@@ -182,15 +183,27 @@ window.initDrawingQuestion = function (rootElement) {
             drawing() {
                 return this.params.draw.newShape
             },
-            setCurrentLayer(newCurrentLayerID) {
-                const oldCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(this.params.currentLayer)}`);
-                if (oldCurrentLayer === null) {
-                    debugger;
-                }
-                oldCurrentLayer.classList.remove("highlight");
+            getLayerDomElementsByLayerId: function(layerId) {
+                const layer = rootElement.querySelector(`#${layerId}`);
+                const layerHeader = rootElement.querySelector(`[data-layer="${layerId}"]`).closest('.header');
+                return {layer, layerHeader}
+            },
+            removeHighlightFromLayer: function (layerId) {
+                const {layer, layerHeader} = this.getLayerDomElementsByLayerId(layerId);
 
-                const newCurrentLayer = rootElement.querySelector(`#${this.layerKey2ID(newCurrentLayerID)}`);
-                newCurrentLayer.classList.add("highlight");
+                layer.classList.remove("highlight");
+                layerHeader.classList.remove("highlight");
+            },
+            addHighlightToLayer: function (layerId) {
+                const {layer, layerHeader} = this.getLayerDomElementsByLayerId(layerId);
+
+                layer.classList.add("highlight");
+                layerHeader.classList.add("highlight");
+            },
+            setCurrentLayer(newCurrentLayerID) {
+                this.removeHighlightFromLayer(this.layerKey2ID(this.params.currentLayer));
+                this.addHighlightToLayer(this.layerKey2ID(newCurrentLayerID));
+
                 Canvas.params.currentLayer = newCurrentLayerID;
             },
             getEnabledLayers() {
@@ -581,7 +594,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "mousedown touchstart": {
                     callback: (evt) => {
                         const targetHeader = evt.target;
-                        const newCurrentLayerID = targetHeader.closest(".layer-group").id;
+                        const newCurrentLayerID = targetHeader.querySelector('.header-title').dataset.layer;
                         this.Canvas.setCurrentLayer(this.Canvas.layerID2Key(newCurrentLayerID));
                     }
                 },
@@ -700,7 +713,7 @@ window.initDrawingQuestion = function (rootElement) {
         }
         if (data.question || data.answer) {
             //Disabled as it causes unnecessary zooming
-            // fitDrawingToScreen();
+            fitDrawingToScreen();
         }
     }
 
@@ -847,14 +860,13 @@ window.initDrawingQuestion = function (rootElement) {
 
         const panGroupSize = getPanGroupSize();
 
-        Livewire.emit("drawing_data_updated", {
+        const livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
+        livewireComponent.handleUpdateDrawingData({
             svg_answer: b64Strings.answer,
             svg_question: b64Strings.question,
             svg_grid: grid,
             svg_zoom_group: panGroupSize
         });
-
-        makePreviewGrid(grid);
     }
 
     /**
@@ -909,7 +921,7 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function shapeMayBeDragged(shapeGroup, layerObject) {
-        return shapeGroup.classList.contains("draggable") && !layerObject.params.locked;
+        return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
     }
 
     function elementHasTransforms(transforms) {
@@ -1314,6 +1326,21 @@ window.initDrawingQuestion = function (rootElement) {
             drawingApp.warnings.whenAnyToolButDragSelected.show();
         }
     }
+    function manualToolChange(tool) {
+        let currentTool = drawingApp.params.currentTool;
+        const newTool = tool;
+        if (currentTool === newTool) return;
+
+        drawingApp.params.currentTool = newTool;
+
+        const btnElement = rootElement.querySelector(`[id*="${newTool}-btn"]`)
+        makeSelectedBtnActive(btnElement);
+        enableSpecificPropSelectInputs();
+        setCursorTypeAccordingToCurrentType();
+        if (!drawingApp.currentToolIs("drag")) {
+            drawingApp.warnings.whenAnyToolButDragSelected.show();
+        }
+    }
 
     function determineNewTool(evt) {
         const id = evt.currentTarget.id;
@@ -1358,6 +1385,7 @@ window.initDrawingQuestion = function (rootElement) {
                 }
             ]);
         }
+        manualToolChange('drag');
         UI.imgUpload.value = null;
     }
 
@@ -1438,7 +1466,7 @@ window.initDrawingQuestion = function (rootElement) {
             },
             main: {},
             origin: {
-                stroke: "var(--all-BlueGrey)",
+                stroke: "var(--teacher-Primary)",
                 id: "grid-origin",
             },
             size: (drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize),
@@ -1652,15 +1680,19 @@ window.initDrawingQuestion = function (rootElement) {
 
 }
 
-function clearPreviewGrid() {
+function clearPreviewGrid(rootElement) {
     const gridContainer = rootElement.querySelector('#grid-preview-svg')
-    if(gridContainer.firstChild !== null) {
+
+    if(gridContainer !== null && gridContainer.firstChild !== null) {
         gridContainer.firstChild.remove();
     }
 }
 
-window.makePreviewGrid = function (gridSvg) {
-    clearPreviewGrid();
+window.makePreviewGrid = function (drawingApp, gridSvg) {
+
+    const rootElement = drawingApp.params.root
+
+    clearPreviewGrid(rootElement);
 
     const props = {
         group: {
@@ -1668,27 +1700,27 @@ window.makePreviewGrid = function (gridSvg) {
         },
         main: {},
         origin: {
-            stroke: "var(--teacher-Primary)",
+            stroke: "var(--teacher-blueGrey)",
             id: "grid-origin",
         },
         size: gridSvg,
     }
     let parent = rootElement.querySelector('#grid-preview-svg')
-    return new svgShape.Grid(0, props, parent, null, null);
+    return new svgShape.Grid(0, props, parent, drawingApp, null);
 }
 
-window.calculatePreviewBounds = function () {
-    let parent = rootElement.querySelector('#preview-svg')
+window.calculatePreviewBounds = function (parent) {
     const matrix = new DOMMatrix();
     const height = parent.clientHeight,
         width = parent.clientWidth;
+    const scale = height / parent.viewBox.baseVal.width;
     return {
-        top: -(matrix.f),
-        bottom: height - matrix.f,
-        height: height,
-        left: -(matrix.e),
-        right: width - matrix.e,
-        width: width,
+        top: -(matrix.f + (height)) / scale,
+        bottom: (height - matrix.f) / scale,
+        height: (height * 2) / scale,
+        left: -(matrix.e + (width)) / scale,
+        right: (width - matrix.e) / scale,
+        width: (width * 2) / scale,
         cx: -matrix.e + (width / 2),
         cy: -matrix.f + (height / 2),
     };

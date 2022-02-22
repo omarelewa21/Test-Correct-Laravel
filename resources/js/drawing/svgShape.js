@@ -118,18 +118,23 @@ class svgShape {
 
     makeBorderElement() {
         let bbox = this.mainElement.getBoundingBox();
+        const borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
         return new svgElement.Rectangle({
             "class": "border",
             "x": bbox.x - this.offset,
             "y": bbox.y - this.offset,
             "width": bbox.width + this.offset * 2,
             "height": bbox.height + this.offset * 2,
-            "stroke": "var(--teacher-Primary)",
+            "stroke": `var(${borderColor})`,
             "stroke-width": "3",
             "stroke-dasharray": "10",
             "fill": "red",
             "fill-opacity": "0",
         });
+    }
+
+    isAnswerLayer() {
+        return this.Canvas.layerID2Key(this.parent.id) === 'answer';
     }
 
     updateCornerElements() {
@@ -166,7 +171,9 @@ class svgShape {
     }
 
     showBorderElement() {
-        this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+        if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
+            this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+        }
     }
 
     showCornerElements() {
@@ -526,17 +533,20 @@ export class Grid extends Path {
             bounds = this.Canvas.params.bounds;
         }
         if (Object.keys(bounds).length === 0) {
-            bounds = calculatePreviewBounds();
+            bounds = calculatePreviewBounds(this.parent.parentElement);
         }
         const interval = size * pixelsPerCentimeter,
             lineAmount = this.calculateAmountOfGridLines(interval, bounds);
         let strOfPoints = ``;
+        //Verticaal
         for (var i = -lineAmount.left; i <= lineAmount.right; i++) {
             strOfPoints += `M${interval * i},${bounds.top}v${bounds.height} `;
         }
+        //Horizontaal
         for (var j = -lineAmount.top; j <= lineAmount.bottom; j++) {
             strOfPoints += `M${bounds.left},${interval * j}h${bounds.width} `;
         }
+
         return strOfPoints;
     }
 

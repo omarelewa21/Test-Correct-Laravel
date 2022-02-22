@@ -212,7 +212,8 @@ dragElement = function (element) {
     }
 }
 
-countPresentStudents = function (members) {
+countPresentStudents = function (members)
+{
     var activeStudents = 0;
     members.each((member) => {
         if (member.info.student) {
@@ -223,6 +224,9 @@ countPresentStudents = function (members) {
     return activeStudents;
 }
 
+getClosestLivewireComponentByAttribute = function (element, attributeName) {
+    return livewire.find(element.closest(`[${attributeName}]`).getAttribute('wire:id'));
+}
 String.prototype.contains = function (text)
 {
     if (text === '') return false;

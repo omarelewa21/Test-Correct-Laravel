@@ -36,7 +36,7 @@ class DrawingQuestion extends Component
     public $question_svg = null;
     public $grid_svg = '0.00';
 
-    public $usesNewDrawingTool = false;
+    public $usesNewDrawingTool = true;
 
     protected function getListeners()
     {
@@ -62,6 +62,7 @@ class DrawingQuestion extends Component
         }
 
         $this->question_svg = $this->question->question_svg;
+        $this->grid_svg = $this->question->grid_svg;
         $this->backgroundImage = $this->question->getBackgroundImage();
     }
 
