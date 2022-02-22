@@ -10,7 +10,9 @@
             <div class="flex-col relative mt-4">
                 <x-input.group for="me" label="{!! __('test_take.instruction_open_question') !!}"
                                class="w-full">
+                    <div id="hidden_span_{{ $question->id }}"  class="hidden">{!! $this->answer !!}</div>
                     <x-input.textarea
+                            id="textarea_{{ $question->id }}"
                             wire:key="textarea_{{ $question->id }}"
                             wire:model.lazy="answer"
                             x-ref="countme"
@@ -36,6 +38,11 @@
             <div class="mt-1 primary text-sm bold">
                 <span x-html="count"></span> / <span x-html="closed ? '' : $refs.countme.maxLength"></span>
                 <span>{!! __('test_take.characters') !!}</span>
+                @if(Auth::user()->text2speech)
+                    <a class="float-right" role="button" x-on:click="readTextArea('{{ $question->id }}')">
+                        <x-icon.audio/>
+                    </a>
+                @endif
             </div>
         </div>
         @push('scripts')

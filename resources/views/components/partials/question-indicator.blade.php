@@ -122,14 +122,7 @@
         @endpush
 
         <div class="flex space-x-6 ml-auto min-w-max justify-end items-center">
-            @if(Auth::user()->text2speech)
-                <div id="readspeaker_button1" wire:ignore class="rs_skip rsbtn rs_preserve ">
-                    <a rel="nofollow" class="rsbtn_play" accesskey="L" title="{{ __('test_take.speak') }}" href="//app-eu.readspeaker.com/cgi-bin/rsent?customerid=12749&amp;lang=nl_nl&amp;readclass=rs_readable">
-                        <span class="rsbtn_left rsimg rspart"><x-icon.audio/><span class="rsbtn_text"><span class="rsbtn_label">{{ __('test_take.speak') }}</span></span></span>
-                        <span class="rsbtn_right rsimg rsplay rspart"></span>
-                    </a>
-                </div>
-            @endif
+
             @if(!$isOverview)
                 <x-button.text-button wire:click="toOverview({{ $this->q }})" @click="$dispatch('show-loader')">
                     <x-icon.preview/>
@@ -155,7 +148,9 @@
                             rspkr.ui.getActivePlayer().close();
                     }
                 });
-                rspkr.ui.Tools.ClickListen.activate();
+                if (typeof rspkr != 'undefined' && typeof rspkr.ui != 'undefined') {
+                    rspkr.ui.Tools.ClickListen.activate();
+                }
             </script>
         @endpush
     @endif
