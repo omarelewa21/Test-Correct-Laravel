@@ -1710,33 +1710,41 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function handleDisabledGridSizeButtonStates() {
-        disableButtonsWhenNecessary(UI.gridSize);
+        disableButtonsWhenNecessary(gridSize);
     }
 
-    function getBoundsForInput(input) {
-        const currentValue = parseFloat(input.value);
-        const min = parseFloat(input.min);
-        const max = parseFloat(input.max);
+    function getBoundsForElement(element) {
+        const currentValue = parseFloat(element.value);
+        const min = parseFloat(element.min);
+        const max = parseFloat(element.max);
 
         return { currentValue, min, max };
     }
 
-    function disableButtonsWhenNecessary(entity) {
-        const { currentValue, min, max } = getBoundsForInput(entity);
+    function getButtonsForElement(element) {
+        const decrButton = `decr${element.capitalize()}`;
+        const incrButton = `incr${element.capitalize()}`;
 
-        UI.decrGridSize.disabled = false;
-        UI.incrGridSize.disabled = false;
+        return { decrButton, incrButton };
+    }
+
+    function disableButtonsWhenNecessary(UIElement) {
+        const { decrButton, incrButton } = getButtonsForElement(UIElement);
+        const { currentValue, min, max } = getBoundsForElement(`UI.${UIElement}`);
+
+        UI[decrButton].disabled = false;
+        UI[incrButton].disabled = false;
 
         if (currentValue === min){
-            UI.decrGridSize.disabled = true;
+            UI[decrButton].disabled = true;
         }
         if (currentValue === max) {
-            UI.incrGridSize.disabled = true;
+            UI[incrButton].disabled = true;
         }
     }
 
     function handleDisabledTextSizeButtonStates() {
-        const { currentValue, min, max } = getBoundsForInput(UI.textSize);
+        const { currentValue, min, max } = getBoundsForElement(UI.textSize);
         UI.decrTextSize.disabled = false;
         UI.incrTextSize.disabled = false;
 

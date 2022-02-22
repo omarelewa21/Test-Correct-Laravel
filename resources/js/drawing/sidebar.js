@@ -470,8 +470,7 @@ export class Layer extends sidebarComponent {
 
     setCorrectExplainerText() {
         let group = this.props.id.replace('-group', '');
-        group = group.charAt(0).toUpperCase() + group.slice(1);
 
-        this.explainer.innerText = this.explainer.dataset[`text${group}`];
+        this.explainer.innerText = this.explainer.dataset[`text${group.capitalize()}`];
     }
 }

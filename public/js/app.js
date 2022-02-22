@@ -5782,22 +5782,23 @@ document.addEventListener('alpine:init', function () {
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
       isTeacher: isTeacher,
+      toolName: null,
       init: function init() {
-        var _this5 = this;
+        var _this7 = this;
 
-        window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
-        var toolName = window['drawingTool_' + questionId];
+        this.toolName = "drawingTool_".concat(questionId);
+        var toolName = window[this.toolName] = initDrawingQuestion(this.$root);
 
         if (this.isTeacher) {
-          this.makeGridIfNecessary();
+          this.makeGridIfNecessary(toolName);
         }
 
         this.$watch('show', function (show) {
           if (show) {
-            toolName.Canvas.data.answer = _this5.answerSvg;
-            toolName.Canvas.data.question = _this5.questionSvg;
+            toolName.Canvas.data.answer = _this7.answerSvg;
+            toolName.Canvas.data.question = _this7.questionSvg;
 
-            _this5.handleGrid(toolName);
+            _this7.handleGrid(toolName);
 
             toolName.drawingApp.init();
           } else {
@@ -5820,9 +5821,9 @@ document.addEventListener('alpine:init', function () {
           }
         }
       },
-      makeGridIfNecessary: function makeGridIfNecessary() {
+      makeGridIfNecessary: function makeGridIfNecessary(toolName) {
         if (this.gridSvg !== '') {
-          makePreviewGrid(this.gridSvg);
+          makePreviewGrid(toolName.drawingApp, this.gridSvg);
         }
       }
     };
@@ -6096,6 +6097,14 @@ String.prototype.contains = function (text) {
   return this.includes(text);
 };
 
+String.prototype.capitalize = function () {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+getClosestLivewireComponentByAttribute = function getClosestLivewireComponentByAttribute(element, attributeName) {
+  return livewire.find(element.closest("[".concat(attributeName, "]")).getAttribute('wire:id'));
+};
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":
@@ -6128,7 +6137,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "51d7221bf733999d7138",
+  key: "fc18ed69b446aeb8c8a5",
   cluster: "eu",
   forceTLS: true
 });
@@ -6590,7 +6599,8 @@ window.initDrawingQuestion = function (rootElement) {
       boldText: false,
       endmarkerType: "no-endmarker",
       gridSize: 1,
-      spacebarPressed: false
+      spacebarPressed: false,
+      root: rootElement
     },
     firstInit: true,
     warnings: {},
@@ -6604,10 +6614,11 @@ window.initDrawingQuestion = function (rootElement) {
         if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
           setCorrectPopupHeight();
           calculateCanvasBounds();
-          updateClosedSidebarWidth(); // updateMidPoint();
+          updateClosedSidebarWidth();
 
           if (drawingApp.firstInit) {
             makeGrid();
+            updateMidPoint();
           }
 
           processGridToggleChange();
@@ -6739,16 +6750,33 @@ window.initDrawingQuestion = function (rootElement) {
       drawing: function drawing() {
         return this.params.draw.newShape;
       },
+      getLayerDomElementsByLayerId: function getLayerDomElementsByLayerId(layerId) {
+        var layer = rootElement.querySelector("#".concat(layerId));
+        var layerHeader = rootElement.querySelector("[data-layer=\"".concat(layerId, "\"]")).closest('.header');
+        return {
+          layer: layer,
+          layerHeader: layerHeader
+        };
+      },
+      removeHighlightFromLayer: function removeHighlightFromLayer(layerId) {
+        var _this$getLayerDomElem = this.getLayerDomElementsByLayerId(layerId),
+            layer = _this$getLayerDomElem.layer,
+            layerHeader = _this$getLayerDomElem.layerHeader;
+
+        layer.classList.remove("highlight");
+        layerHeader.classList.remove("highlight");
+      },
+      addHighlightToLayer: function addHighlightToLayer(layerId) {
+        var _this$getLayerDomElem2 = this.getLayerDomElementsByLayerId(layerId),
+            layer = _this$getLayerDomElem2.layer,
+            layerHeader = _this$getLayerDomElem2.layerHeader;
+
+        layer.classList.add("highlight");
+        layerHeader.classList.add("highlight");
+      },
       setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
-        var oldCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
-
-        if (oldCurrentLayer === null) {
-          debugger;
-        }
-
-        oldCurrentLayer.classList.remove("highlight");
-        var newCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
-        newCurrentLayer.classList.add("highlight");
+        this.removeHighlightFromLayer(this.layerKey2ID(this.params.currentLayer));
+        this.addHighlightToLayer(this.layerKey2ID(newCurrentLayerID));
         Canvas.params.currentLayer = newCurrentLayerID;
       },
       getEnabledLayers: function getEnabledLayers() {
@@ -7044,6 +7072,11 @@ window.initDrawingQuestion = function (rootElement) {
         callback: function callback() {
           valueWithinBounds(UI.textSize);
         }
+      },
+      "blur": {
+        callback: function callback() {
+          handleDisabledTextSizeButtonStates();
+        }
       }
     }
   }, {
@@ -7052,6 +7085,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepDown();
+          handleDisabledTextSizeButtonStates();
         }
       },
       "focus": {
@@ -7071,6 +7105,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepUp();
+          handleDisabledTextSizeButtonStates();
         }
       },
       "focus": {
@@ -7147,7 +7182,7 @@ window.initDrawingQuestion = function (rootElement) {
       "mousedown touchstart": {
         callback: function callback(evt) {
           var targetHeader = evt.target;
-          var newCurrentLayerID = targetHeader.closest(".layer-group").id;
+          var newCurrentLayerID = targetHeader.querySelector('.header-title').dataset.layer;
 
           _this2.Canvas.setCurrentLayer(_this2.Canvas.layerID2Key(newCurrentLayerID));
         }
@@ -7189,6 +7224,11 @@ window.initDrawingQuestion = function (rootElement) {
       events: {
         "input": {
           callback: updateGrid
+        },
+        "blur": {
+          callback: function callback() {
+            handleDisabledGridSizeButtonStates();
+          }
         }
       }
     }, {
@@ -7197,6 +7237,7 @@ window.initDrawingQuestion = function (rootElement) {
         "click": {
           callback: function callback() {
             UI.gridSize.stepDown();
+            handleDisabledGridSizeButtonStates();
             updateGrid();
           }
         },
@@ -7217,6 +7258,7 @@ window.initDrawingQuestion = function (rootElement) {
         "click": {
           callback: function callback() {
             UI.gridSize.stepUp();
+            handleDisabledGridSizeButtonStates();
             updateGrid();
           }
         },
@@ -7259,8 +7301,9 @@ window.initDrawingQuestion = function (rootElement) {
       Canvas.layers.answer.enable();
     }
 
-    if (data.question || data.answer) {//Disabled as it causes unnecessary zooming
-      // fitDrawingToScreen();
+    if (data.question || data.answer) {
+      //Disabled as it causes unnecessary zooming
+      fitDrawingToScreen();
     }
   }
 
@@ -7419,13 +7462,13 @@ window.initDrawingQuestion = function (rootElement) {
     var b64Strings = encodeSvgLayersAsBase64Strings();
     var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
     var panGroupSize = getPanGroupSize();
-    Livewire.emit("drawing_data_updated", {
+    var livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
+    livewireComponent.handleUpdateDrawingData({
       svg_answer: b64Strings.answer,
       svg_question: b64Strings.question,
       svg_grid: grid,
       svg_zoom_group: panGroupSize
     });
-    makePreviewGrid(grid);
   }
   /**
    * Event handler for down events of the cursor.
@@ -7480,7 +7523,7 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function shapeMayBeDragged(shapeGroup, layerObject) {
-    return shapeGroup.classList.contains("draggable") && !layerObject.params.locked;
+    return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
   }
 
   function elementHasTransforms(transforms) {
@@ -7861,6 +7904,7 @@ window.initDrawingQuestion = function (rootElement) {
 
   function updateZoomInputValue() {
     var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    handleDisabledZoomButtonStates(value);
     UI.zoomLevel.value = value * 100 + "%";
   }
 
@@ -7907,6 +7951,21 @@ window.initDrawingQuestion = function (rootElement) {
     if (currentTool == newTool) return;
     drawingApp.params.currentTool = newTool;
     makeSelectedBtnActive(evt.currentTarget);
+    enableSpecificPropSelectInputs();
+    setCursorTypeAccordingToCurrentType();
+
+    if (!drawingApp.currentToolIs("drag")) {
+      drawingApp.warnings.whenAnyToolButDragSelected.show();
+    }
+  }
+
+  function manualToolChange(tool) {
+    var currentTool = drawingApp.params.currentTool;
+    var newTool = tool;
+    if (currentTool === newTool) return;
+    drawingApp.params.currentTool = newTool;
+    var btnElement = rootElement.querySelector("[id*=\"".concat(newTool, "-btn\"]"));
+    makeSelectedBtnActive(btnElement);
     enableSpecificPropSelectInputs();
     setCursorTypeAccordingToCurrentType();
 
@@ -7966,6 +8025,7 @@ window.initDrawingQuestion = function (rootElement) {
       _iterator3.f();
     }
 
+    manualToolChange('drag');
     UI.imgUpload.value = null;
   }
 
@@ -8024,13 +8084,17 @@ window.initDrawingQuestion = function (rootElement) {
     return scaleFactor * 0.99;
   }
 
+  function updateGridButtonStates(disabled) {
+    UI.gridSize.disabled = disabled;
+    UI.decrGridSize.disabled = UI.gridSize.value <= UI.gridSize.min ? true : disabled;
+    UI.incrGridSize.disabled = UI.gridSize.value >= UI.gridSize.max ? true : disabled;
+    Canvas.layers.grid.params.hidden = disabled;
+  }
+
   function processGridToggleChange() {
     if (drawingApp.isTeacher()) {
       var gridState = !UI.gridToggle.checked;
-      UI.gridSize.disabled = gridState;
-      UI.decrGridSize.disabled = gridState;
-      UI.incrGridSize.disabled = gridState;
-      Canvas.layers.grid.params.hidden = gridState;
+      updateGridButtonStates(gridState);
     }
 
     updateGridVisibility();
@@ -8043,7 +8107,7 @@ window.initDrawingQuestion = function (rootElement) {
       },
       main: {},
       origin: {
-        stroke: "var(--all-BlueGrey)",
+        stroke: "var(--teacher-Primary)",
         id: "grid-origin"
       },
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
@@ -8266,6 +8330,85 @@ window.initDrawingQuestion = function (rootElement) {
     };
   }
 
+  function handleDisabledZoomButtonStates(newFactor) {
+    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MAX) {
+      UI.incrZoom.disabled = true;
+      return;
+    }
+
+    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MIN) {
+      UI.decrZoom.disabled = true;
+      return;
+    }
+
+    UI.incrZoom.disabled = false;
+    UI.decrZoom.disabled = false;
+  }
+
+  function handleDisabledGridSizeButtonStates() {
+    disableButtonsWhenNecessary(gridSize);
+  }
+
+  function getBoundsForElement(element) {
+    var currentValue = parseFloat(element.value);
+    var min = parseFloat(element.min);
+    var max = parseFloat(element.max);
+    return {
+      currentValue: currentValue,
+      min: min,
+      max: max
+    };
+  }
+
+  function getButtonsForElement(element) {
+    var decrButton = "decr".concat(element.capitalize());
+    var incrButton = "incr".concat(element.capitalize());
+    return {
+      decrButton: decrButton,
+      incrButton: incrButton
+    };
+  }
+
+  function disableButtonsWhenNecessary(UIElement) {
+    var _getButtonsForElement = getButtonsForElement(UIElement),
+        decrButton = _getButtonsForElement.decrButton,
+        incrButton = _getButtonsForElement.incrButton;
+
+    var _getBoundsForElement = getBoundsForElement("UI.".concat(UIElement)),
+        currentValue = _getBoundsForElement.currentValue,
+        min = _getBoundsForElement.min,
+        max = _getBoundsForElement.max;
+
+    UI[decrButton].disabled = false;
+    UI[incrButton].disabled = false;
+
+    if (currentValue === min) {
+      UI[decrButton].disabled = true;
+    }
+
+    if (currentValue === max) {
+      UI[incrButton].disabled = true;
+    }
+  }
+
+  function handleDisabledTextSizeButtonStates() {
+    var _getBoundsForElement2 = getBoundsForElement(UI.textSize),
+        currentValue = _getBoundsForElement2.currentValue,
+        min = _getBoundsForElement2.min,
+        max = _getBoundsForElement2.max;
+
+    UI.decrTextSize.disabled = false;
+    UI.incrTextSize.disabled = false;
+
+    if (currentValue === min) {
+      UI.decrTextSize.disabled = true;
+    }
+
+    if (currentValue === max) {
+      UI.incrTextSize.disabled = true;
+    }
+  }
+
   return {
     UI: UI,
     Canvas: Canvas,
@@ -8273,43 +8416,44 @@ window.initDrawingQuestion = function (rootElement) {
   };
 };
 
-function clearPreviewGrid() {
+function clearPreviewGrid(rootElement) {
   var gridContainer = rootElement.querySelector('#grid-preview-svg');
 
-  if (gridContainer.firstChild !== null) {
+  if (gridContainer !== null && gridContainer.firstChild !== null) {
     gridContainer.firstChild.remove();
   }
 }
 
-window.makePreviewGrid = function (gridSvg) {
-  clearPreviewGrid();
+window.makePreviewGrid = function (drawingApp, gridSvg) {
+  var rootElement = drawingApp.params.root;
+  clearPreviewGrid(rootElement);
   var props = {
     group: {
       style: ""
     },
     main: {},
     origin: {
-      stroke: "var(--teacher-Primary)",
+      stroke: "var(--teacher-blueGrey)",
       id: "grid-origin"
     },
     size: gridSvg
   };
   var parent = rootElement.querySelector('#grid-preview-svg');
-  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, null, null);
+  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, drawingApp, null);
 };
 
-window.calculatePreviewBounds = function () {
-  var parent = rootElement.querySelector('#preview-svg');
+window.calculatePreviewBounds = function (parent) {
   var matrix = new DOMMatrix();
   var height = parent.clientHeight,
       width = parent.clientWidth;
+  var scale = height / parent.viewBox.baseVal.width;
   return {
-    top: -matrix.f,
-    bottom: height - matrix.f,
-    height: height,
-    left: -matrix.e,
-    right: width - matrix.e,
-    width: width,
+    top: -(matrix.f + height) / scale,
+    bottom: (height - matrix.f) / scale,
+    height: height * 2 / scale,
+    left: -(matrix.e + width) / scale,
+    right: (width - matrix.e) / scale,
+    width: width * 2 / scale,
     cx: -matrix.e + width / 2,
     cy: -matrix.f + height / 2
   };
@@ -8475,6 +8619,7 @@ var sidebarComponent = /*#__PURE__*/function () {
 
     this.drawingApp = drawingApp;
     this.Canvas = Canvas;
+    this.root = drawingApp.params.root;
   }
 
   _createClass(sidebarComponent, [{
@@ -8506,7 +8651,9 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
     _this = _super.call(this, drawingApp, Canvas);
     _this.svgShape = shape;
-    var entryTemplate = document.getElementById("shape-group-template");
+
+    var entryTemplate = _this.root.querySelector("#shape-group-template");
+
     var templateCopy = entryTemplate.content.cloneNode(true);
     _this.entryContainer = templateCopy.querySelector(".shape-container");
     _this.entryTitle = templateCopy.querySelector(".shape-title");
@@ -8605,9 +8752,9 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       var entry = evt.currentTarget;
       entry.classList.remove("dragging");
       var newLayerId = entry.closest(".layer-group").id;
-      var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
-      var shape = document.getElementById(entry.id.substring(6));
-      var shapeToInsertBefore = document.getElementById((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6));
+      var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
+      var shape = this.root.querySelector("#".concat(entry.id.substring(6)));
+      var shapeToInsertBefore = this.root.querySelector("#".concat((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6)));
 
       if (shapeToInsertBefore) {
         newSvgLayer.insertBefore(shape, shapeToInsertBefore);
@@ -8644,10 +8791,12 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         this.showSecondIcon(this.btns.hide);
         this.btns.hide.style.color = "#929DAF";
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-hidden");
+        this.entryContainer.classList.add('hide');
       } else {
         this.showFirstIcon(this.btns.hide);
         this.btns.hide.style.color = "";
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
+        this.entryContainer.classList.remove('hide');
       }
     }
   }, {
@@ -8709,7 +8858,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       locked: false
     };
     _this3.props = props;
-    _this3.svg = document.getElementById("svg-".concat(props.id));
+    _this3.svg = _this3.root.querySelector("#svg-".concat(props.id));
     _this3.sidebar = _this3.makeLayerElement();
     drawingApp.bindEventListeners(_this3.eventListenerSettings, _assertThisInitialized(_this3));
 
@@ -8724,13 +8873,16 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   _createClass(Layer, [{
     key: "makeLayerElement",
     value: function makeLayerElement() {
-      var layerTemplate = document.getElementById("layer-group-template"),
-          layersContainer = document.getElementById("layers-container");
+      var layerTemplate = this.root.querySelector("#layer-group-template");
+      var layersContainer = this.root.querySelector("#layers-container");
+      var layersHeaderContainer = this.root.querySelector("#layers-heading");
       var templateCopy = layerTemplate.content.cloneNode(true);
       var layerGroup = templateCopy.querySelector(".layer-group");
       layerGroup.id = this.props.id;
       var headerTitle = templateCopy.querySelector(".header-title");
       headerTitle.innerText = this.props.name;
+      headerTitle.setAttribute('data-layer', this.props.id);
+      headerTitle.closest('.header-container').setAttribute('data-layer', this.props.id);
       this.header = templateCopy.querySelector(".header");
       this.shapesGroup = templateCopy.querySelector(".shapes-group");
       this.btns = {
@@ -8739,6 +8891,9 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
         hide: templateCopy.querySelector(".hide-btn"),
         addLayer: templateCopy.querySelector(".add-layer-btn")
       };
+      this.explainer = templateCopy.querySelector(".explainer");
+      this.setCorrectExplainerText();
+      layersHeaderContainer.append(this.header);
       layersContainer.append(templateCopy);
       return layerGroup;
     }
@@ -8799,7 +8954,8 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
             callback: function callback(evt) {
               evt.preventDefault();
               if (!_this4.props.enabled) return;
-              var draggedEntry = document.querySelector(".dragging");
+
+              var draggedEntry = _this4.root.querySelector(".dragging");
 
               if (draggedEntry == null) {
                 return;
@@ -8835,6 +8991,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "addEntry",
     value: function addEntry(entry) {
+      this.hideExplainer();
       this.shapesGroup.insertBefore(entry.entryContainer, this.getTopShape());
     }
   }, {
@@ -8881,9 +9038,12 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
           "mousedown touchstart": {
             callback: function callback(evt) {
               var targetHeader = evt.target;
-              var newCurrentLayerID = targetHeader.closest(".layer-group").id;
 
-              _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
+              var newCurrentLayerID = _this5.getLayerDataFromTarget(targetHeader);
+
+              if (newCurrentLayerID) {
+                _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
+              }
             }
           }
         }
@@ -8991,6 +9151,24 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       Object.values(this.shapes).forEach(function (shape) {
         shape.sidebar.remove();
       });
+    }
+  }, {
+    key: "getLayerDataFromTarget",
+    value: function getLayerDataFromTarget(element) {
+      if (element.dataset.layer) return element.dataset.layer;
+      if (element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer;
+      return false;
+    }
+  }, {
+    key: "hideExplainer",
+    value: function hideExplainer() {
+      this.explainer.remove();
+    }
+  }, {
+    key: "setCorrectExplainerText",
+    value: function setCorrectExplainerText() {
+      var group = this.props.id.replace('-group', '');
+      this.explainer.innerText = this.explainer.dataset["text".concat(group.capitalize())];
     }
   }]);
 
@@ -10027,18 +10205,24 @@ var svgShape = /*#__PURE__*/function () {
     key: "makeBorderElement",
     value: function makeBorderElement() {
       var bbox = this.mainElement.getBoundingBox();
+      var borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
       return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
         "class": "border",
         "x": bbox.x - this.offset,
         "y": bbox.y - this.offset,
         "width": bbox.width + this.offset * 2,
         "height": bbox.height + this.offset * 2,
-        "stroke": "var(--teacher-Primary)",
+        "stroke": "var(".concat(borderColor, ")"),
         "stroke-width": "3",
         "stroke-dasharray": "10",
         "fill": "red",
         "fill-opacity": "0"
       });
+    }
+  }, {
+    key: "isAnswerLayer",
+    value: function isAnswerLayer() {
+      return this.Canvas.layerID2Key(this.parent.id) === 'answer';
     }
   }, {
     key: "updateCornerElements",
@@ -10071,7 +10255,9 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showBorderElement",
     value: function showBorderElement() {
-      this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+      if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
+        this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+      }
     }
   }, {
     key: "showCornerElements",
@@ -10525,16 +10711,17 @@ var Grid = /*#__PURE__*/function (_Path) {
       }
 
       if (Object.keys(bounds).length === 0) {
-        bounds = calculatePreviewBounds();
+        bounds = calculatePreviewBounds(this.parent.parentElement);
       }
 
       var interval = size * _constants_js__WEBPACK_IMPORTED_MODULE_0__.pixelsPerCentimeter,
           lineAmount = this.calculateAmountOfGridLines(interval, bounds);
-      var strOfPoints = "";
+      var strOfPoints = ""; //Verticaal
 
       for (var i = -lineAmount.left; i <= lineAmount.right; i++) {
         strOfPoints += "M".concat(interval * i, ",").concat(bounds.top, "v").concat(bounds.height, " ");
-      }
+      } //Horizontaal
+
 
       for (var j = -lineAmount.top; j <= lineAmount.bottom; j++) {
         strOfPoints += "M".concat(bounds.left, ",").concat(interval * j, "h").concat(bounds.width, " ");
@@ -10747,7 +10934,7 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {
       removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification,readspeaker',
+      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',
         items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']

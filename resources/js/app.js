@@ -230,6 +230,11 @@ String.prototype.contains = function (text)
     return this.includes(text);
 }
 
+String.prototype.capitalize = function ()
+{
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 getClosestLivewireComponentByAttribute = function (element, attributeName) {
     return livewire.find(element.closest(`[${attributeName}]`).getAttribute('wire:id'));
 }
