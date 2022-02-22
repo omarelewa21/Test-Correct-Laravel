@@ -485,7 +485,12 @@ window.initDrawingQuestion = function (rootElement) {
                     callback: () => {
                         valueWithinBounds(UI.textSize);
                     }
-                }
+                },
+                "blur": {
+                    callback: () => {
+                        handleDisabledTextSizeButtonStates()
+                    },
+                },
             }
         },
         {
@@ -494,6 +499,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.textSize.stepDown();
+                        handleDisabledTextSizeButtonStates()
                     },
                 },
                 "focus": {
@@ -514,6 +520,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.textSize.stepUp();
+                        handleDisabledTextSizeButtonStates()
                     },
                 },
                 "focus": {
@@ -641,6 +648,11 @@ window.initDrawingQuestion = function (rootElement) {
                 events: {
                     "input": {
                         callback: updateGrid,
+                    },
+                    "blur": {
+                        callback: () => {
+                            handleDisabledGridSizeButtonStates();
+                        }
                     }
                 }
             },
@@ -650,6 +662,7 @@ window.initDrawingQuestion = function (rootElement) {
                     "click": {
                         callback: () => {
                             UI.gridSize.stepDown();
+                            handleDisabledGridSizeButtonStates();
                             updateGrid();
                         },
                     },
@@ -671,6 +684,7 @@ window.initDrawingQuestion = function (rootElement) {
                     "click": {
                         callback: () => {
                             UI.gridSize.stepUp();
+                            handleDisabledGridSizeButtonStates();
                             updateGrid();
                         },
                     },
@@ -1274,6 +1288,7 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function updateZoomInputValue(value = 1) {
+        handleDisabledZoomButtonStates(value);
         UI.zoomLevel.value = (value * 100) + "%";
     }
 
@@ -1448,13 +1463,17 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
 
+    function updateGridButtonStates(disabled) {
+        UI.gridSize.disabled = disabled;
+        UI.decrGridSize.disabled = UI.gridSize.value <= UI.gridSize.min ? true : disabled;
+        UI.incrGridSize.disabled = UI.gridSize.value >= UI.gridSize.max ? true : disabled;
+        Canvas.layers.grid.params.hidden = disabled;
+    }
+
     function processGridToggleChange() {
         if (drawingApp.isTeacher()) {
             const gridState = !UI.gridToggle.checked;
-            UI.gridSize.disabled = gridState;
-            UI.decrGridSize.disabled = gridState;
-            UI.incrGridSize.disabled = gridState;
-            Canvas.layers.grid.params.hidden = gridState;
+            updateGridButtonStates(gridState);
         }
         updateGridVisibility();
     }
@@ -1676,7 +1695,61 @@ window.initDrawingQuestion = function (rootElement) {
         }
     }
 
+    function handleDisabledZoomButtonStates(newFactor) {
+        if (newFactor === zoomParams.MAX) {
+            UI.incrZoom.disabled = true;
+            return;
+        }
+        if (newFactor === zoomParams.MIN) {
+            UI.decrZoom.disabled = true;
+            return;
+        }
+
+        UI.incrZoom.disabled = false;
+        UI.decrZoom.disabled = false;
+    }
+
+    function handleDisabledGridSizeButtonStates() {
+        disableButtonsWhenNecessary(UI.gridSize);
+    }
+
+    function getBoundsForInput(input) {
+        const currentValue = parseFloat(input.value);
+        const min = parseFloat(input.min);
+        const max = parseFloat(input.max);
+
+        return { currentValue, min, max };
+    }
+
+    function disableButtonsWhenNecessary(entity) {
+        const { currentValue, min, max } = getBoundsForInput(entity);
+
+        UI.decrGridSize.disabled = false;
+        UI.incrGridSize.disabled = false;
+
+        if (currentValue === min){
+            UI.decrGridSize.disabled = true;
+        }
+        if (currentValue === max) {
+            UI.incrGridSize.disabled = true;
+        }
+    }
+
+    function handleDisabledTextSizeButtonStates() {
+        const { currentValue, min, max } = getBoundsForInput(UI.textSize);
+        UI.decrTextSize.disabled = false;
+        UI.incrTextSize.disabled = false;
+
+        if (currentValue === min){
+            UI.decrTextSize.disabled = true;
+        }
+        if (currentValue === max) {
+            UI.incrTextSize.disabled = true;
+        }
+    }
+
     return { UI, Canvas, drawingApp }
+
 
 }
 

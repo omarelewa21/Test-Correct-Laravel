@@ -6912,6 +6912,11 @@ window.initDrawingQuestion = function (rootElement) {
         callback: function callback() {
           valueWithinBounds(UI.textSize);
         }
+      },
+      "blur": {
+        callback: function callback() {
+          handleDisabledTextSizeButtonStates();
+        }
       }
     }
   }, {
@@ -6920,6 +6925,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepDown();
+          handleDisabledTextSizeButtonStates();
         }
       },
       "focus": {
@@ -6939,6 +6945,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepUp();
+          handleDisabledTextSizeButtonStates();
         }
       },
       "focus": {
@@ -7057,6 +7064,11 @@ window.initDrawingQuestion = function (rootElement) {
       events: {
         "input": {
           callback: updateGrid
+        },
+        "blur": {
+          callback: function callback() {
+            handleDisabledGridSizeButtonStates();
+          }
         }
       }
     }, {
@@ -7065,6 +7077,7 @@ window.initDrawingQuestion = function (rootElement) {
         "click": {
           callback: function callback() {
             UI.gridSize.stepDown();
+            handleDisabledGridSizeButtonStates();
             updateGrid();
           }
         },
@@ -7085,6 +7098,7 @@ window.initDrawingQuestion = function (rootElement) {
         "click": {
           callback: function callback() {
             UI.gridSize.stepUp();
+            handleDisabledGridSizeButtonStates();
             updateGrid();
           }
         },
@@ -7730,6 +7744,7 @@ window.initDrawingQuestion = function (rootElement) {
 
   function updateZoomInputValue() {
     var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    handleDisabledZoomButtonStates(value);
     UI.zoomLevel.value = value * 100 + "%";
   }
 
@@ -7909,13 +7924,17 @@ window.initDrawingQuestion = function (rootElement) {
     return scaleFactor * 0.99;
   }
 
+  function updateGridButtonStates(disabled) {
+    UI.gridSize.disabled = disabled;
+    UI.decrGridSize.disabled = UI.gridSize.value <= UI.gridSize.min ? true : disabled;
+    UI.incrGridSize.disabled = UI.gridSize.value >= UI.gridSize.max ? true : disabled;
+    Canvas.layers.grid.params.hidden = disabled;
+  }
+
   function processGridToggleChange() {
     if (drawingApp.isTeacher()) {
       var gridState = !UI.gridToggle.checked;
-      UI.gridSize.disabled = gridState;
-      UI.decrGridSize.disabled = gridState;
-      UI.incrGridSize.disabled = gridState;
-      Canvas.layers.grid.params.hidden = gridState;
+      updateGridButtonStates(gridState);
     }
 
     updateGridVisibility();
@@ -8149,6 +8168,72 @@ window.initDrawingQuestion = function (rootElement) {
       width: panGroupSize.width,
       height: panGroupSize.height
     };
+  }
+
+  function handleDisabledZoomButtonStates(newFactor) {
+    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MAX) {
+      UI.incrZoom.disabled = true;
+      return;
+    }
+
+    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MIN) {
+      UI.decrZoom.disabled = true;
+      return;
+    }
+
+    UI.incrZoom.disabled = false;
+    UI.decrZoom.disabled = false;
+  }
+
+  function handleDisabledGridSizeButtonStates() {
+    disableButtonsWhenNecessary(UI.gridSize);
+  }
+
+  function getBoundsForInput(input) {
+    var currentValue = parseFloat(input.value);
+    var min = parseFloat(input.min);
+    var max = parseFloat(input.max);
+    return {
+      currentValue: currentValue,
+      min: min,
+      max: max
+    };
+  }
+
+  function disableButtonsWhenNecessary(entity) {
+    var _getBoundsForInput = getBoundsForInput(entity),
+        currentValue = _getBoundsForInput.currentValue,
+        min = _getBoundsForInput.min,
+        max = _getBoundsForInput.max;
+
+    UI.decrGridSize.disabled = false;
+    UI.incrGridSize.disabled = false;
+
+    if (currentValue === min) {
+      UI.decrGridSize.disabled = true;
+    }
+
+    if (currentValue === max) {
+      UI.incrGridSize.disabled = true;
+    }
+  }
+
+  function handleDisabledTextSizeButtonStates() {
+    var _getBoundsForInput2 = getBoundsForInput(UI.textSize),
+        currentValue = _getBoundsForInput2.currentValue,
+        min = _getBoundsForInput2.min,
+        max = _getBoundsForInput2.max;
+
+    UI.decrTextSize.disabled = false;
+    UI.incrTextSize.disabled = false;
+
+    if (currentValue === min) {
+      UI.decrTextSize.disabled = true;
+    }
+
+    if (currentValue === max) {
+      UI.incrTextSize.disabled = true;
+    }
   }
 
   return {

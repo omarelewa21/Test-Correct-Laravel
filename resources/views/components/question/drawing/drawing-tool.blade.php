@@ -48,41 +48,45 @@
                 @if(Auth::user()->isA('teacher'))
                     <div id="grid-background" class="tools-group">
                         <input type="checkbox" id="grid-toggle" style="display: none;" autocomplete="off">
-                        <button title="{{ __('drawing-modal.Zet grid aan/uit') }}">
+                        <button title="{{ __('drawing-modal.Zet grid aan/uit') }}" @click="$refs.gridsizegroup.classList.toggle('disabled')">
                             <label id="grid-toggle-btn" for="grid-toggle">
                                 <x-icon.grid/>
                             </label>
                         </button>
-                        <input type="number" id="grid-size" min="0.5" max="5" value="1" step="0.5" title="{{ __('drawing-modal.Afmeting grid') }}"
-                               disabled>
-                        <button id="decr-grid-size" class="Secondary" title="{{ __('drawing-modal.Verklein grid') }}" disabled>
-                            <div>
-                                <x-icon.min-2/>
-                            </div>
-                        </button>
-                        <button id="incr-grid-size" class="Secondary" title="{{ __('drawing-modal.Vergroot grid') }}" disabled>
-                            <div>
-                                <x-icon.plus-2/>
-                            </div>
-                        </button>
+                        <div class="input-with-button-group disabled" x-ref="gridsizegroup">
+                            <button x-ref="groupbtn" id="decr-grid-size" class="Secondary decrement" title="{{ __('drawing-modal.Verklein grid') }}" disabled>
+                                <div>
+                                    <x-icon.min-2/>
+                                </div>
+                            </button>
+                            <input type="number" id="grid-size" class="group-value" min="0.5" max="5" value="1" step="0.5" title="{{ __('drawing-modal.Afmeting grid') }}"
+                                   disabled>
+                            <button id="incr-grid-size" class="Secondary increment" title="{{ __('drawing-modal.Vergroot grid') }}" disabled>
+                                <div>
+                                    <x-icon.plus-2/>
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 @endif
             </div>
             <div id="properties">
                 <div class="property-group" id="text-style">
                     <input type="color" name="text-color" id="text-color" autocomplete="off" title="{{ __('drawing-modal.Tekstkleur') }}">
-                    <input type="number" name="text-size" id="text-size" min="10" max="50" value="15" step="1"
-                           autocomplete="off" title="{{ __('drawing-modal.Tekstgrootte') }}">
-                    <button id="decr-text-size" class="Secondary" title="{{ __('drawing-modal.Vergroot tekst') }}">
-                        <div>
-                            <x-icon.min-2/>
-                        </div>
-                    </button>
-                    <button id="incr-text-size" class="Secondary" title="{{ __('drawing-modal.Verklein tekst') }}">
-                        <div>
-                            <x-icon.plus-2/>
-                        </div>
-                    </button>
+                    <div class="input-with-button-group" style="margin-right: .5rem">
+                        <button id="decr-text-size" class="Secondary" title="{{ __('drawing-modal.Vergroot tekst') }}">
+                            <div>
+                                <x-icon.min-2/>
+                            </div>
+                        </button>
+                        <input type="number" name="text-size" id="text-size" min="10" max="50" value="15" step="1"
+                               autocomplete="off" title="{{ __('drawing-modal.Tekstgrootte') }}">
+                        <button id="incr-text-size" class="Secondary" title="{{ __('drawing-modal.Verklein tekst') }}">
+                            <div>
+                                <x-icon.plus-2/>
+                            </div>
+                        </button>
+                    </div>
                     <input type="checkbox" id="bold-toggle" style="display: none;" autocomplete="off">
                     <button title="{{ __('drawing-modal.Zet dikgedrukt aan/uit') }}">
                         <label for="bold-toggle" id="bold-text">
@@ -100,18 +104,20 @@
 
                 <div class="property-group" id="edge">
                     <input type="color" name="stroke-color" id="stroke-color" autocomplete="off" title="{{ __('drawing-modal.Randkleur') }}">
-                    <input type="number" name="stroke-width" id="stroke-width" min="0" max="100" value="1"
-                           autocomplete="off" title="Randdikte">
-                    <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
-                        <div>
-                            <x-icon.min-2/>
-                        </div>
-                    </button>
-                    <button id="incr-stroke" class="Secondary" title="{{ __('drawing-modal.Verklein randdikte') }}">
-                        <div>
-                            <x-icon.plus-2/>
-                        </div>
-                    </button>
+                    <div class="input-with-button-group">
+                        <button id="decr-stroke" class="Secondary" title="{{ __('drawing-modal.Vergroot randdikte') }}">
+                            <div>
+                                <x-icon.min-2/>
+                            </div>
+                        </button>
+                        <input type="number" name="stroke-width" id="stroke-width" min="0" max="100" value="1"
+                               autocomplete="off" title="Randdikte">
+                        <button id="incr-stroke" class="Secondary" title="{{ __('drawing-modal.Verklein randdikte') }}">
+                            <div>
+                                <x-icon.plus-2/>
+                            </div>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="property-group" id="fill">

@@ -889,3 +889,17 @@ button) {
 #drawing-tool #layers-heading .header.highlight .header-title[data-layer="answer-group"] + .indicator {
     background: var(--cta-primary-mid-dark);
 }
+
+#drawing-tool .input-with-button-group {
+    position: relative;
+    display:flex;
+    background-color: var(--system-secondary);
+    border-radius: 10px;
+}
+#drawing-tool .input-with-button-group.disabled {
+    background-color: var(--off-white);
+}
+
+#drawing-tool .input-with-button-group :is(button, input) {
+    margin-right: 0!important;
+}
