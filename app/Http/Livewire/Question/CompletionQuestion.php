@@ -52,7 +52,7 @@ class CompletionQuestion extends Component
     {
         $question->getQuestionHtml();
 
-        $question_text = $question->getQuestionHTML();
+        $question_text = $question->onverted_question_html;
 
         $searchPattern = "/\[([0-9]+)\]/i";
         $replacementFunction = function ($matches) use ($question) {
@@ -77,7 +77,7 @@ class CompletionQuestion extends Component
             $answerJson = [];
         }
 
-        $question_text = $question->getQuestionHtml();
+        $question_text = $question->onverted_question_html;
 
 
         $tags = [];
