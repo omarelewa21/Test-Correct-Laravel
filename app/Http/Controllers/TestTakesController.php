@@ -69,6 +69,11 @@ class TestTakesController extends Controller {
                 'invigilatorUsers',
                 'testTakeCode'
             ]);
+        
+        if(array_key_exists("takeUuid", $request->filter)){
+            $take_id = TestTake::all()->where('uuid', $request->filter['takeUuid'])->first()->id;
+            $testTakes = $testTakes->where('test_takes.id', $take_id);
+        }
 
         $testTakes->filterByArchived(request('filter'));
 

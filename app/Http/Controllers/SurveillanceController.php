@@ -20,6 +20,7 @@ use tcCore\TestTakeEvent;
 use tcCore\TestTakeEventType;
 use tcCore\User;
 
+
 class SurveillanceController extends Controller
 {
     private $response;
@@ -29,7 +30,7 @@ class SurveillanceController extends Controller
     private $eventIdsThatRequireConfirming = null;
 
 
-    public function index()
+    public function index(Request $request)
     {
         if (!Auth::user()->isA(['teacher', 'invigilator'])) {
             abort(403);
@@ -43,7 +44,13 @@ class SurveillanceController extends Controller
             'alerts'       => 0,
             'ipAlerts'     => 0,
         ];
-        $dataset = $this->getTakesForSurveillance(Auth::user());
+
+        if($request->takeUuid){
+            $test_take_id = TestTake::all()->where('uuid', $request->takeUuid)->first()->id;
+            $dataset = $this->getTakesForSurveillance(Auth::user(), $test_take_id);
+        }else{
+            $dataset = $this->getTakesForSurveillance(Auth::user());
+        }
 
         $dataset->each(function ($testTake) {
             $this->transformParticipants($testTake);
@@ -69,7 +76,7 @@ class SurveillanceController extends Controller
         $this->response['ipAlerts']++;
     }
 
-    private function getTakesForSurveillance(User $owner)
+    private function getTakesForSurveillance(User $owner, $test_take_id=null)
     {
         $participantHasEvents = TestTakeEvent::select('test_participant_id',
             DB::Raw('max(test_take_events.id) as event'))
@@ -78,10 +85,12 @@ class SurveillanceController extends Controller
             ->where('confirmed', '0')
             ->groupBy('test_participant_id');
 
+        $test_ids = is_null($test_take_id) ? $this->getCachedTestTakeIds($owner) : [$test_take_id];
+
         return TestTake::select('test_takes.id as id', 'test_takes.uuid as uuid', 'tests.name as test_name')
         ->withoutGlobalScope(ArchivedScope::class)
         ->join('tests', 'test_takes.test_id', 'tests.id')
-        ->whereIn('test_takes.id', $this->getCachedTestTakeIds($owner))
+        ->whereIn('test_takes.id', $test_ids)
         ->where('test_take_status_id', '=', '3')
         ->with([
             'testParticipants' => function ($query) use ($participantHasEvents) {
