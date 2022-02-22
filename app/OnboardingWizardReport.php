@@ -21,6 +21,10 @@ class OnboardingWizardReport extends Model
 
     public static function updateForUser(User $user)
     {
+        if(!$user->schoolLocation || $user->schoolLocation->keep_out_of_school_location_report){
+            return;
+        }
+
         $helper = new ReportHelper($user);
 
         $wizardData = self::getStepsCollection($user);
