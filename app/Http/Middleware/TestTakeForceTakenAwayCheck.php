@@ -5,6 +5,7 @@ namespace tcCore\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Livewire\Livewire;
 use Ramsey\Uuid\Uuid;
 use tcCore\TestParticipant;
 use tcCore\TestTake;
@@ -38,6 +39,9 @@ class TestTakeForceTakenAwayCheck
                 $testParticipantStatus = TestParticipant::whereUserId(Auth::id())->whereTestTakeId($testTake->id)->value('test_take_status_id');
 
                 if ($testParticipantStatus == TestTakeStatus::STATUS_TAKEN || $testTake->test_take_status_id == TestTakeStatus::STATUS_TAKEN) {
+                    if (Livewire::isLivewireRequest()) {
+                        return abort(406,'Test taken away');
+                    }
                     return response()->make('Test taken away', 406);
                 }
             }

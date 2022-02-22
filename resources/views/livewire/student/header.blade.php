@@ -1,4 +1,4 @@
-<header id="header" class="header fixed w-full content-center z-10 main-shadow"
+<header id="header" class="header fixed w-full content-center z-10 main-shadow @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->hasActiveMaintenance()) maintenance-header-bg @endif @if(\tcCore\Http\Helpers\GlobalStateHelper::getInstance()->isOnDeploymentTesting()) deployment-testing-marker @endif"
         x-data="{activeIcon: null, showKnowledgebankModal: @entangle('showKnowledgebankModal'), showChangePasswordModal: @entangle('showChangePasswordModal')}"
         @password-changed-success.window="showChangePasswordModal = false;"
 >
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        <div class="user flex flex-wrap items-center space-x-2">
+        <div class="user flex flex-wrap items-center space-x-2" selid="header-dropdown">
             <x-dropdown label="{{ $user_name }}" labelstyle="pr-0.5">
                 @if(!Auth::user()->guest)
                     <div class="lg:hidden">
@@ -97,7 +97,7 @@
                         </x-dropdown.item>
                     </div>
                 @endif
-                <x-dropdown.item type="link" href="{{ route('student.dashboard.logout') }}">
+                <x-dropdown.item type="link" href="{{ route('student.dashboard.logout') }}" selid="logout-btn">
                     {{ __('auth.logout') }}
                 </x-dropdown.item>
                 @if(!Auth::user()->guest)

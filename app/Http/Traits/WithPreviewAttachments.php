@@ -14,6 +14,8 @@ trait WithPreviewAttachments
     public $timeout;
     public $questionId;
     public $attachmentType = '';
+    public $blockAttachments = false;
+    public $currentTimes = [];
 
     public function showAttachment($attachmentUuid)
     {
@@ -59,9 +61,17 @@ trait WithPreviewAttachments
 
     }
 
-    public function audioStoreCurrentTime(Attachment $attachment, $currentTime)
+    public function audioStoreCurrentTime($currentTime)
     {
+        $this->currentTimes[$this->attachment->uuid] = $currentTime;
+    }
 
+    public function getCurrentTime()
+    {
+        if(array_key_exists($this->attachment->uuid,$this->currentTimes)){
+            return $this->currentTimes[$this->attachment->uuid];
+        }
+        return 0;
     }
 
     public function updating(&$value)

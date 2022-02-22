@@ -3,6 +3,7 @@
 namespace tcCore\Http\Livewire\Overview;
 
 use Livewire\Component;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Traits\WithCloseable;
 
 class CompletionQuestion extends Component
@@ -23,6 +24,9 @@ class CompletionQuestion extends Component
     public function mount()
     {
         $this->answer = (array)json_decode($this->answers[$this->question->uuid]['answer']);
+        foreach($this->answer as $key => $val){
+            $this->answer[$key] = BaseHelper::transformHtmlCharsReverse($val);
+        }
         $this->answered = $this->answers[$this->question->uuid]['answered'];
     }
 

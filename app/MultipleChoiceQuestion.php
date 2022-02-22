@@ -191,6 +191,7 @@ class MultipleChoiceQuestion extends Question implements QuestionInterface {
 
     public function addAnswers($mainQuestion, $answers)
     {
+
         $question = $this;
         foreach($answers as $answerDetails) {
             if(!$this->isValidAnswerDetails($answerDetails)){

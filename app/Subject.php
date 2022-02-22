@@ -213,6 +213,25 @@ class Subject extends BaseModel implements AccessCheckable
         return $query;
     }
 
+    public function scopeExamFiltered($query, $filters = [], $sorting = [])
+    {
+        $user = Auth::user();
+
+        $examSchool = SchoolLocation::where('customer_code', config('custom.examschool_customercode'))->first();
+        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
+        if ($examSchool) {
+            $classIds = $examSchool->schoolClasses()->pluck('id');
+            $tempSubjectIds = Teacher::whereIn('class_id', $classIds)->pluck('subject_id')->unique();
+            $baseSubjects = Subject::whereIn('id', $tempSubjectIds)->get();
+            $subjectIds = $baseSubjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
+        } else { // slower but as a fallback in case there's no cito school
+            $query->where('subjects.id', -1);
+            return $query;
+        }
+        $query->whereIn('id', $subjectIds);
+        return $query;
+    }
+
     public function canAccess()
     {
         $roles = Roles::getUserRoles();
@@ -231,6 +250,21 @@ class Subject extends BaseModel implements AccessCheckable
     public function getAccessDeniedResponse($request, Closure $next)
     {
         throw new AccessDeniedHttpException('Access to subject denied');
+    }
+
+    public static function getSubjectsOfCustomSchoolForUser($customerCode,$user): array
+    {
+        $school = SchoolLocation::where('customer_code', $customerCode)->first();
+        $baseSubjectIds = $user->subjects()->pluck('base_subject_id')->unique();
+
+        if ($school) {
+            $subjects = collect([]);
+            foreach ($school->schoolLocationSections as $schoolLocationSection){
+                $subjects = $subjects->merge($schoolLocationSection->subjects);
+            }
+            return $subjects->whereIn('base_subject_id', $baseSubjectIds)->pluck('id')->unique()->toArray();
+        }
+        return [];
     }
 
     public static function boot()

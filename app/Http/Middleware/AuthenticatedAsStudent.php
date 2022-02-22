@@ -4,6 +4,7 @@ namespace tcCore\Http\Middleware;
 
 use Closure;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Livewire;
 
 class AuthenticatedAsStudent
 {
@@ -20,6 +21,9 @@ class AuthenticatedAsStudent
             return $next($request);
         }
         /** @TODO should redirect to a dashboard page, but this is currently not available. */
+        if (Livewire::isLivewireRequest()) {
+            return abort(401,'Unauthorized');
+        }
         return redirect(config('app.url_login'));
     }
 }

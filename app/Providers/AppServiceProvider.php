@@ -4,6 +4,11 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
+use tcCore\Http\Middleware\AuthenticatedAsStudent;
+use tcCore\Http\Middleware\AuthenticatedAsTeacher;
+use tcCore\Http\Middleware\DuplicateLogin;
+use tcCore\Http\Middleware\DuplicateLoginLivewire;
+use tcCore\Http\Middleware\TestTakeForceTakenAwayCheck;
 
 class AppServiceProvider extends ServiceProvider {
 
@@ -16,6 +21,7 @@ class AppServiceProvider extends ServiceProvider {
 	{
         if (Str::of(config('app.base_url'))->contains('https')) {
             URL::forceScheme('https');
+            request()->server->set('HTTPS', 'on');
         }
 	}
 
@@ -44,6 +50,11 @@ class AppServiceProvider extends ServiceProvider {
         Livewire::addPersistentMiddleware([
             \tcCore\Http\Middleware\Authenticate::class,
             \tcCore\Http\Middleware\RedirectIfAuthenticated::class,
+            AuthenticatedAsStudent::class,
+            AuthenticatedAsTeacher::class,
+            DuplicateLogin::class,
+            DuplicateLoginLivewire::class,
+            TestTakeForceTakenAwayCheck::class,
         ]);
 	}
 

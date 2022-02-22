@@ -17,9 +17,7 @@ class TagManager extends Component
     public function mount()
     {
         $this->resetValues();
-//        dd($this);
         collect($this->initWithTags)->each(function($tag) {
-//            dd($tag);
             $this->selectedTags[$tag['uuid']] = $tag['name'];
         });
     }
@@ -32,7 +30,6 @@ class TagManager extends Component
     public function resetValues()
     {
         $this->query = '';
-//        $this->tags = [];
         $this->highlightIndex = 0;
     }
 

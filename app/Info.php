@@ -93,13 +93,17 @@ class Info extends Model
         return $this;
     }
 
-    public static function getInfoForUser(User $user)
+    public static function getInfoForUser(User $user, $discardInfosRemovedByUser=false)
     {
         $roleIds = $user->roles->map(function(Role $role){
            return $role->getKey();
         })->toArray();
         $infoIdsFromRoles = DB::table('info_role')->whereIn('role_id',$roleIds)->pluck('info_id')->toArray();
-        return Info::where('status',self::ACTIVE)
+        $infos = new Info;
+        if($discardInfosRemovedByUser){
+            $infos = Info::doesntHave('infoRemovedByUser');
+        }
+        return $infos->where('status',self::ACTIVE)
                     ->where('show_from','<=', Carbon::now())
                     ->where('show_until','>=',Carbon::now())
                     ->where(function($query) use ($infoIdsFromRoles){
@@ -113,6 +117,10 @@ class Info extends Model
     public function isVisibleForUser(User $user)
     {
         return self::getInfoForUser($user)->contains($this);
+    }
+
+    public function infoRemovedByUser(){
+        return $this->hasMany(UserInfosDontShow::class)->where('user_id', auth()->id());
     }
 
 }

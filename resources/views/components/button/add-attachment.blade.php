@@ -13,13 +13,13 @@
         }"
      class="flex rounded-10 items-center transition ease-out duration-500"
      :class="open || url ? 'border-bluegrey border' : '' "
-     style="max-width: 600px;max-height: 40px;"
+     style="max-width: 600px;max-height: 42px;"
      @click.outside="base = true; open = false; url = false;"
 >
     <div>
         <div x-show="base"
              x-cloak
-             class="flex max-h-10 transition duration-500 items-center">
+             class="flex py-px transition duration-500 items-center">
             <x-button.secondary @click="base = false; open = true" class="max-h-10 min-w-max">
                 {{ $text }}
             </x-button.secondary>
@@ -67,7 +67,7 @@
             <span class="bold">{{ __('cms.Video URL') }}</span>
         </button>
         <div class="flex relative" wire:ignore>
-            <x-input.text x-ref="videolink" class="w-60 pr-12 text-base" placeholder="link"/>
+            <x-input.text x-ref="videolink" class="w-60 pr-12 text-base" placeholder="link" @keyup.enter="addLink()"/>
             <x-button.cta class="px-3 absolute -right-px" @click="addLink()">
                 <x-icon.checkmark/>
             </x-button.cta>

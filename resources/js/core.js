@@ -27,6 +27,7 @@ Core = {
         Core.checkForElectron();
 
         runCheckFocus();
+        catchscreenshotchromeOS();
         startStudentActivityCheck();
 
         Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
@@ -133,9 +134,21 @@ Core = {
         Core.closeApplication('close');
     },
     closeChromebookApp(portalUrl) {
+        try {
+            chrome.runtime.sendMessage(
+                document.getElementById("chromeos-extension-id").name,
+                { close: true }
+            );
+        } catch (error) {}
         window.location = portalUrl+'logout';
     },
     closeApplication(cmd) {
+        try {
+            chrome.runtime.sendMessage(
+                document.getElementById("chromeos-extension-id").name,
+                { close: true }
+            );
+        } catch (error) {}
         if (cmd == 'quit') {
             open('/login', '_self').close();
         } else if (cmd == 'close') {
@@ -148,7 +161,10 @@ Core = {
         return false;
     },
     setAppTestConfigIfNecessary(participantId) {
-        try {electron.setTestConfig(participantId);} catch (error) {}
+        try {
+            electron.setTestConfig(participantId);
+            fetch('test_takes/take/');
+        } catch (error) {}
         try {webview.setTestConfig(participantId);} catch (error) {}
     },
     changeAppTypeToIos()
@@ -236,4 +252,32 @@ function startStudentActivityCheck() {
 }
 function isMakingTest() {
     return document.querySelector('[testtakemanager]') != null;
+}
+
+function catchscreenshotchromeOS(){
+   if(Core.appType == 'chromebook') {
+        let safeKeys = ['c', 'x', 'z', 'y', 'v','0']
+        let storeKeys = [];
+    
+        window.addEventListener("keydown", (event)=> {
+            if(event.ctrlKey && !event.repeat){
+                storeKeys.push(event.key);
+            }
+        });
+    
+        window.addEventListener("keyup", (event)=> {
+            if(event.key == "Control"){
+                for(key of storeKeys){
+                    if(!safeKeys.includes(key.toLowerCase()) && key != "Control"){
+                        Core.lostFocus('printscreen');  //massage to teacher needs to added
+                        break;
+                    }
+                }
+                if(storeKeys.length == 1 & storeKeys[0] == "Control"){
+                    Core.lostFocus('printscreen'); //massage to teacher needs to added
+                }
+                storeKeys = [];
+            }
+        });
+     }    
 }
