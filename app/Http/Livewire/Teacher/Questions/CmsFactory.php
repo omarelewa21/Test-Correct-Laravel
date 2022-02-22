@@ -49,6 +49,10 @@ class CmsFactory
                 'multi'      => CmsSelection::class,
                 'completion' => CmsCompletion::class,
             ],
+            'MatchingQuestion'      => [
+                'matching'  => CmsMatching::class,
+                'classify'  => CmsClassify::class,
+            ]
         ];
     }
 }

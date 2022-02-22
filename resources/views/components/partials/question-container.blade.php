@@ -87,7 +87,7 @@
         <div class="flex flex-1 flex-col">
             @if(!$this->closed)
                 @if($this->group)
-                    <div class="mb-5" questionHtml wire:ignore>{!! $this->group->question->getQuestionHtml() !!}</div>
+                    <div class="mb-5" questionHtml wire:ignore>{!! $this->group->question->converted_question_html !!}</div>
                 @endif
                 {{ $slot }}
             @else

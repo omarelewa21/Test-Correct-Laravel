@@ -17,6 +17,7 @@
             @foreach( ['true', 'false'] as $optionValue)
 
                 <label id="truefalse-{{$optionValue}}" wire:key="truefalse-{{$optionValue}}"
+                       selid="{{$optionValue}}-answer"
                        for="link{{ $optionValue }}"
                        class="bg-off-white border border-off-white rounded-lg trueFalse bold transition duration-150
                                           @if($loop->iteration == 1) true border-r-0 @else false border-l-0 @endif

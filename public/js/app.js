@@ -5562,24 +5562,59 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('selectionOptions', function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('selectionOptions', function (entangle) {
     return {
+      showPopup: entangle.value,
+      editorId: entangle.editorId,
+      hasError: {
+        empty: [],
+        "false": []
+      },
       data: {
         elements: []
       },
+      maxOptions: 10,
+      minOptions: 2,
       init: function init() {
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < this.minOptions; i++) {
           this.addRow();
         }
       },
       initWithSelection: function initWithSelection() {
-        var text = window.editor.getSelection();
+        var _this3 = this;
+
+        var text = window.editor.getSelectedHtml().$.textContent.trim().replace('[', '').replace(']', '');
+        var content = text;
+
+        if (text.contains('|')) {
+          content = text.split("|");
+        }
+
+        var currentDataRows = this.data.elements.length;
+        this.data.elements[0].checked = 'true';
+
+        if (!Array.isArray(content)) {
+          this.data.elements[0].value = content;
+          return;
+        }
+
+        content.forEach(function (word, key) {
+          if (key === currentDataRows) {
+            _this3.addRow();
+
+            currentDataRows++;
+          }
+
+          _this3.data.elements[key].value = word.trim();
+        });
       },
       addRow: function addRow() {
+        var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+        var checked = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'false';
         var component = {
           id: this.data.elements.length,
-          checked: 'false',
-          value: ''
+          checked: checked,
+          value: value
         };
         this.data.elements.push(component);
       },
@@ -5588,20 +5623,25 @@ document.addEventListener('alpine:init', function () {
         this.data.elements = this.data.elements.filter(function (el) {
           return el.id != element.id;
         });
+        this.data.elements.forEach(function (el, key) {
+          return el.id = key;
+        });
       },
       toggleChecked: function toggleChecked(event, element) {
-        var _this3 = this;
+        var _this4 = this;
 
         this.$nextTick(function () {
           if (element.checked == 'true') {
-            _this3.data.elements = _this3.data.elements.map(function (item) {
+            _this4.data.elements = _this4.data.elements.map(function (item) {
               item.checked = item.id == element.id ? 'true' : 'false';
               return item;
             });
           }
         });
       },
-      save: function save() {
+      insertDataInEditor: function insertDataInEditor() {
+        var _this5 = this;
+
         var correct = this.data.elements.find(function (el) {
           return el.value != '' && el.checked == 'true';
         });
@@ -5610,16 +5650,68 @@ document.addEventListener('alpine:init', function () {
         }).map(function (el) {
           return el.value;
         });
+        result.unshift(correct.value);
+        result = '[' + result.join('|') + ']';
+        var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
+        lw.set('showSelectionOptionsModal', true);
+        window.editor.insertText(result);
+        setTimeout(function () {
+          _this5.$wire.setQuestionProperty('question', window.editor.getData());
+        }, 300);
+      },
+      validateInput: function validateInput() {
+        var emptyFields = this.data.elements.filter(function (element) {
+          return element.value === '';
+        });
+        var falseValues = this.data.elements.filter(function (element) {
+          return element.checked === 'false';
+        });
 
-        if (correct) {
-          result.unshift(correct.value);
-          result = '[' + result.join('|') + ']';
-          var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
-          lw.set('showSelectionOptionsModal', true);
-          window.editor.insertText(result);
-        } else {
-          alert('none correct');
+        if (emptyFields.length !== 0 || this.data.elements.length === falseValues.length) {
+          this.hasError.empty = emptyFields.map(function (item) {
+            return item.id;
+          });
+
+          if (this.data.elements.length === falseValues.length) {
+            this.hasError["false"] = falseValues.map(function (item) {
+              return item.id;
+            });
+          }
+
+          Notify.notify('Niet alle velden zijn (correct) ingevuld', 'error');
+          return false;
         }
+
+        return true;
+      },
+      save: function save() {
+        if (!this.validateInput()) {
+          return;
+        }
+
+        this.insertDataInEditor();
+        this.closePopup();
+      },
+      disabled: function disabled() {
+        if (this.data.elements.length >= this.maxOptions) {
+          return true;
+        }
+
+        return !!this.data.elements.find(function (element) {
+          return element.value === '';
+        });
+      },
+      closePopup: function closePopup() {
+        this.showPopup = false;
+        this.data.elements = [];
+        this.init();
+      },
+      canDelete: function canDelete() {
+        return this.data.elements.length <= 2;
+      },
+      resetHasError: function resetHasError() {
+        this.hasError.empty = [];
+        this.hasError["false"] = [];
       }
     };
   });
@@ -5631,7 +5723,7 @@ document.addEventListener('alpine:init', function () {
       resolvingTitle: true,
       index: 1,
       init: function init() {
-        var _this4 = this;
+        var _this6 = this;
 
         return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
           var fetchedTitle;
@@ -5639,16 +5731,16 @@ document.addEventListener('alpine:init', function () {
             while (1) {
               switch (_context.prev = _context.next) {
                 case 0:
-                  _this4.setIndex();
+                  _this6.setIndex();
 
-                  _this4.$watch('options', function (value) {
+                  _this6.$watch('options', function (value) {
                     if (value) {
-                      var pWidth = _this4.$refs.optionscontainer.parentElement.offsetWidth;
+                      var pWidth = _this6.$refs.optionscontainer.parentElement.offsetWidth;
 
-                      var pPos = _this4.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+                      var pPos = _this6.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
 
                       if (pWidth + pPos < 288) {
-                        _this4.$refs.optionscontainer.classList.remove('right-0');
+                        _this6.$refs.optionscontainer.classList.remove('right-0');
                       }
                     }
                   });
@@ -5663,10 +5755,10 @@ document.addEventListener('alpine:init', function () {
 
                 case 5:
                   fetchedTitle = _context.sent;
-                  _this4.videoTitle = fetchedTitle || videoUrl;
-                  _this4.resolvingTitle = false;
+                  _this6.videoTitle = fetchedTitle || videoUrl;
+                  _this6.resolvingTitle = false;
 
-                  _this4.$wire.setVideoTitle(videoUrl, _this4.videoTitle);
+                  _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
 
                 case 9:
                 case "end":
@@ -5690,15 +5782,14 @@ document.addEventListener('alpine:init', function () {
       questionSvg: entanglements.questionSvg,
       gridSvg: entanglements.gridSvg,
       isTeacher: isTeacher,
-      toolName: null,
       init: function init() {
         var _this5 = this;
 
-        this.toolName = "drawingTool_".concat(questionId);
-        var toolName = window[this.toolName] = initDrawingQuestion(this.$root);
+        window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
+        var toolName = window['drawingTool_' + questionId];
 
         if (this.isTeacher) {
-          this.makeGridIfNecessary(toolName);
+          this.makeGridIfNecessary();
         }
 
         this.$watch('show', function (show) {
@@ -5729,9 +5820,9 @@ document.addEventListener('alpine:init', function () {
           }
         }
       },
-      makeGridIfNecessary: function makeGridIfNecessary(toolName) {
+      makeGridIfNecessary: function makeGridIfNecessary() {
         if (this.gridSvg !== '') {
-          makePreviewGrid(toolName.drawingApp, this.gridSvg);
+          makePreviewGrid(this.gridSvg);
         }
       }
     };
@@ -6000,8 +6091,9 @@ countPresentStudents = function countPresentStudents(members) {
   return activeStudents;
 };
 
-getClosestLivewireComponentByAttribute = function getClosestLivewireComponentByAttribute(element, attributeName) {
-  return livewire.find(element.closest("[".concat(attributeName, "]")).getAttribute('wire:id'));
+String.prototype.contains = function (text) {
+  if (text === '') return false;
+  return this.includes(text);
 };
 
 /***/ }),
@@ -6036,7 +6128,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/dist/web/pusher.js");
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
-  key: "fc18ed69b446aeb8c8a5",
+  key: "51d7221bf733999d7138",
   cluster: "eu",
   forceTLS: true
 });
@@ -6052,6 +6144,12 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
   !*** ./resources/js/core.js ***!
   \******************************/
 /***/ (() => {
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
@@ -6085,6 +6183,7 @@ Core = {
 
     Core.checkForElectron();
     runCheckFocus();
+    catchscreenshotchromeOS();
     startStudentActivityCheck();
     Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
   },
@@ -6186,9 +6285,21 @@ Core = {
     Core.closeApplication('close');
   },
   closeChromebookApp: function closeChromebookApp(portalUrl) {
+    try {
+      chrome.runtime.sendMessage(document.getElementById("chromeos-extension-id").name, {
+        close: true
+      });
+    } catch (error) {}
+
     window.location = portalUrl + 'logout';
   },
   closeApplication: function closeApplication(cmd) {
+    try {
+      chrome.runtime.sendMessage(document.getElementById("chromeos-extension-id").name, {
+        close: true
+      });
+    } catch (error) {}
+
     if (cmd == 'quit') {
       open('/login', '_self').close();
     } else if (cmd == 'close') {
@@ -6297,6 +6408,46 @@ function startStudentActivityCheck() {
 
 function isMakingTest() {
   return document.querySelector('[testtakemanager]') != null;
+}
+
+function catchscreenshotchromeOS() {
+  if (Core.appType == 'chromebook') {
+    var safeKeys = ['c', 'x', 'z', 'y', 'v', '0'];
+    var storeKeys = [];
+    window.addEventListener("keydown", function (event) {
+      if (event.ctrlKey && !event.repeat) {
+        storeKeys.push(event.key);
+      }
+    });
+    window.addEventListener("keyup", function (event) {
+      if (event.key == "Control") {
+        var _iterator = _createForOfIteratorHelper(storeKeys),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            key = _step.value;
+
+            if (!safeKeys.includes(key.toLowerCase()) && key != "Control") {
+              Core.lostFocus('printscreen'); //massage to teacher needs to added
+
+              break;
+            }
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+
+        if (storeKeys.length == 1 & storeKeys[0] == "Control") {
+          Core.lostFocus('printscreen'); //massage to teacher needs to added
+        }
+
+        storeKeys = [];
+      }
+    });
+  }
 }
 
 /***/ }),
@@ -6439,8 +6590,7 @@ window.initDrawingQuestion = function (rootElement) {
       boldText: false,
       endmarkerType: "no-endmarker",
       gridSize: 1,
-      spacebarPressed: false,
-      root: rootElement
+      spacebarPressed: false
     },
     firstInit: true,
     warnings: {},
@@ -6454,11 +6604,10 @@ window.initDrawingQuestion = function (rootElement) {
         if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
           setCorrectPopupHeight();
           calculateCanvasBounds();
-          updateClosedSidebarWidth();
+          updateClosedSidebarWidth(); // updateMidPoint();
 
           if (drawingApp.firstInit) {
             makeGrid();
-            updateMidPoint();
           }
 
           processGridToggleChange();
@@ -6590,33 +6739,16 @@ window.initDrawingQuestion = function (rootElement) {
       drawing: function drawing() {
         return this.params.draw.newShape;
       },
-      getLayerDomElementsByLayerId: function getLayerDomElementsByLayerId(layerId) {
-        var layer = rootElement.querySelector("#".concat(layerId));
-        var layerHeader = rootElement.querySelector("[data-layer=\"".concat(layerId, "\"]")).closest('.header');
-        return {
-          layer: layer,
-          layerHeader: layerHeader
-        };
-      },
-      removeHighlightFromLayer: function removeHighlightFromLayer(layerId) {
-        var _this$getLayerDomElem = this.getLayerDomElementsByLayerId(layerId),
-            layer = _this$getLayerDomElem.layer,
-            layerHeader = _this$getLayerDomElem.layerHeader;
-
-        layer.classList.remove("highlight");
-        layerHeader.classList.remove("highlight");
-      },
-      addHighlightToLayer: function addHighlightToLayer(layerId) {
-        var _this$getLayerDomElem2 = this.getLayerDomElementsByLayerId(layerId),
-            layer = _this$getLayerDomElem2.layer,
-            layerHeader = _this$getLayerDomElem2.layerHeader;
-
-        layer.classList.add("highlight");
-        layerHeader.classList.add("highlight");
-      },
       setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
-        this.removeHighlightFromLayer(this.layerKey2ID(this.params.currentLayer));
-        this.addHighlightToLayer(this.layerKey2ID(newCurrentLayerID));
+        var oldCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
+
+        if (oldCurrentLayer === null) {
+          debugger;
+        }
+
+        oldCurrentLayer.classList.remove("highlight");
+        var newCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
+        newCurrentLayer.classList.add("highlight");
         Canvas.params.currentLayer = newCurrentLayerID;
       },
       getEnabledLayers: function getEnabledLayers() {
@@ -6912,11 +7044,6 @@ window.initDrawingQuestion = function (rootElement) {
         callback: function callback() {
           valueWithinBounds(UI.textSize);
         }
-      },
-      "blur": {
-        callback: function callback() {
-          handleDisabledTextSizeButtonStates();
-        }
       }
     }
   }, {
@@ -6925,7 +7052,6 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepDown();
-          handleDisabledTextSizeButtonStates();
         }
       },
       "focus": {
@@ -6945,7 +7071,6 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepUp();
-          handleDisabledTextSizeButtonStates();
         }
       },
       "focus": {
@@ -7022,7 +7147,7 @@ window.initDrawingQuestion = function (rootElement) {
       "mousedown touchstart": {
         callback: function callback(evt) {
           var targetHeader = evt.target;
-          var newCurrentLayerID = targetHeader.querySelector('.header-title').dataset.layer;
+          var newCurrentLayerID = targetHeader.closest(".layer-group").id;
 
           _this2.Canvas.setCurrentLayer(_this2.Canvas.layerID2Key(newCurrentLayerID));
         }
@@ -7064,11 +7189,6 @@ window.initDrawingQuestion = function (rootElement) {
       events: {
         "input": {
           callback: updateGrid
-        },
-        "blur": {
-          callback: function callback() {
-            handleDisabledGridSizeButtonStates();
-          }
         }
       }
     }, {
@@ -7077,7 +7197,6 @@ window.initDrawingQuestion = function (rootElement) {
         "click": {
           callback: function callback() {
             UI.gridSize.stepDown();
-            handleDisabledGridSizeButtonStates();
             updateGrid();
           }
         },
@@ -7098,7 +7217,6 @@ window.initDrawingQuestion = function (rootElement) {
         "click": {
           callback: function callback() {
             UI.gridSize.stepUp();
-            handleDisabledGridSizeButtonStates();
             updateGrid();
           }
         },
@@ -7141,9 +7259,8 @@ window.initDrawingQuestion = function (rootElement) {
       Canvas.layers.answer.enable();
     }
 
-    if (data.question || data.answer) {
-      //Disabled as it causes unnecessary zooming
-      fitDrawingToScreen();
+    if (data.question || data.answer) {//Disabled as it causes unnecessary zooming
+      // fitDrawingToScreen();
     }
   }
 
@@ -7302,13 +7419,13 @@ window.initDrawingQuestion = function (rootElement) {
     var b64Strings = encodeSvgLayersAsBase64Strings();
     var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
     var panGroupSize = getPanGroupSize();
-    var livewireComponent = getClosestLivewireComponentByAttribute(rootElement, 'questionComponent');
-    livewireComponent.handleUpdateDrawingData({
+    Livewire.emit("drawing_data_updated", {
       svg_answer: b64Strings.answer,
       svg_question: b64Strings.question,
       svg_grid: grid,
       svg_zoom_group: panGroupSize
     });
+    makePreviewGrid(grid);
   }
   /**
    * Event handler for down events of the cursor.
@@ -7363,7 +7480,7 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function shapeMayBeDragged(shapeGroup, layerObject) {
-    return shapeGroup.classList.contains("draggable") && !layerObject.params.locked && layerObject.props.id.includes(layerObject.Canvas.params.currentLayer);
+    return shapeGroup.classList.contains("draggable") && !layerObject.params.locked;
   }
 
   function elementHasTransforms(transforms) {
@@ -7744,7 +7861,6 @@ window.initDrawingQuestion = function (rootElement) {
 
   function updateZoomInputValue() {
     var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-    handleDisabledZoomButtonStates(value);
     UI.zoomLevel.value = value * 100 + "%";
   }
 
@@ -7791,21 +7907,6 @@ window.initDrawingQuestion = function (rootElement) {
     if (currentTool == newTool) return;
     drawingApp.params.currentTool = newTool;
     makeSelectedBtnActive(evt.currentTarget);
-    enableSpecificPropSelectInputs();
-    setCursorTypeAccordingToCurrentType();
-
-    if (!drawingApp.currentToolIs("drag")) {
-      drawingApp.warnings.whenAnyToolButDragSelected.show();
-    }
-  }
-
-  function manualToolChange(tool) {
-    var currentTool = drawingApp.params.currentTool;
-    var newTool = tool;
-    if (currentTool === newTool) return;
-    drawingApp.params.currentTool = newTool;
-    var btnElement = rootElement.querySelector("[id*=\"".concat(newTool, "-btn\"]"));
-    makeSelectedBtnActive(btnElement);
     enableSpecificPropSelectInputs();
     setCursorTypeAccordingToCurrentType();
 
@@ -7865,7 +7966,6 @@ window.initDrawingQuestion = function (rootElement) {
       _iterator3.f();
     }
 
-    manualToolChange('drag');
     UI.imgUpload.value = null;
   }
 
@@ -7924,17 +8024,13 @@ window.initDrawingQuestion = function (rootElement) {
     return scaleFactor * 0.99;
   }
 
-  function updateGridButtonStates(disabled) {
-    UI.gridSize.disabled = disabled;
-    UI.decrGridSize.disabled = UI.gridSize.value <= UI.gridSize.min ? true : disabled;
-    UI.incrGridSize.disabled = UI.gridSize.value >= UI.gridSize.max ? true : disabled;
-    Canvas.layers.grid.params.hidden = disabled;
-  }
-
   function processGridToggleChange() {
     if (drawingApp.isTeacher()) {
       var gridState = !UI.gridToggle.checked;
-      updateGridButtonStates(gridState);
+      UI.gridSize.disabled = gridState;
+      UI.decrGridSize.disabled = gridState;
+      UI.incrGridSize.disabled = gridState;
+      Canvas.layers.grid.params.hidden = gridState;
     }
 
     updateGridVisibility();
@@ -7947,7 +8043,7 @@ window.initDrawingQuestion = function (rootElement) {
       },
       main: {},
       origin: {
-        stroke: "var(--teacher-Primary)",
+        stroke: "var(--all-BlueGrey)",
         id: "grid-origin"
       },
       size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
@@ -8170,72 +8266,6 @@ window.initDrawingQuestion = function (rootElement) {
     };
   }
 
-  function handleDisabledZoomButtonStates(newFactor) {
-    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MAX) {
-      UI.incrZoom.disabled = true;
-      return;
-    }
-
-    if (newFactor === _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MIN) {
-      UI.decrZoom.disabled = true;
-      return;
-    }
-
-    UI.incrZoom.disabled = false;
-    UI.decrZoom.disabled = false;
-  }
-
-  function handleDisabledGridSizeButtonStates() {
-    disableButtonsWhenNecessary(UI.gridSize);
-  }
-
-  function getBoundsForInput(input) {
-    var currentValue = parseFloat(input.value);
-    var min = parseFloat(input.min);
-    var max = parseFloat(input.max);
-    return {
-      currentValue: currentValue,
-      min: min,
-      max: max
-    };
-  }
-
-  function disableButtonsWhenNecessary(entity) {
-    var _getBoundsForInput = getBoundsForInput(entity),
-        currentValue = _getBoundsForInput.currentValue,
-        min = _getBoundsForInput.min,
-        max = _getBoundsForInput.max;
-
-    UI.decrGridSize.disabled = false;
-    UI.incrGridSize.disabled = false;
-
-    if (currentValue === min) {
-      UI.decrGridSize.disabled = true;
-    }
-
-    if (currentValue === max) {
-      UI.incrGridSize.disabled = true;
-    }
-  }
-
-  function handleDisabledTextSizeButtonStates() {
-    var _getBoundsForInput2 = getBoundsForInput(UI.textSize),
-        currentValue = _getBoundsForInput2.currentValue,
-        min = _getBoundsForInput2.min,
-        max = _getBoundsForInput2.max;
-
-    UI.decrTextSize.disabled = false;
-    UI.incrTextSize.disabled = false;
-
-    if (currentValue === min) {
-      UI.decrTextSize.disabled = true;
-    }
-
-    if (currentValue === max) {
-      UI.incrTextSize.disabled = true;
-    }
-  }
-
   return {
     UI: UI,
     Canvas: Canvas,
@@ -8243,44 +8273,43 @@ window.initDrawingQuestion = function (rootElement) {
   };
 };
 
-function clearPreviewGrid(rootElement) {
+function clearPreviewGrid() {
   var gridContainer = rootElement.querySelector('#grid-preview-svg');
 
-  if (gridContainer !== null && gridContainer.firstChild !== null) {
+  if (gridContainer.firstChild !== null) {
     gridContainer.firstChild.remove();
   }
 }
 
-window.makePreviewGrid = function (drawingApp, gridSvg) {
-  var rootElement = drawingApp.params.root;
-  clearPreviewGrid(rootElement);
+window.makePreviewGrid = function (gridSvg) {
+  clearPreviewGrid();
   var props = {
     group: {
       style: ""
     },
     main: {},
     origin: {
-      stroke: "var(--teacher-blueGrey)",
+      stroke: "var(--teacher-Primary)",
       id: "grid-origin"
     },
     size: gridSvg
   };
   var parent = rootElement.querySelector('#grid-preview-svg');
-  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, drawingApp, null);
+  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, null, null);
 };
 
-window.calculatePreviewBounds = function (parent) {
+window.calculatePreviewBounds = function () {
+  var parent = rootElement.querySelector('#preview-svg');
   var matrix = new DOMMatrix();
   var height = parent.clientHeight,
       width = parent.clientWidth;
-  var scale = height / parent.viewBox.baseVal.width;
   return {
-    top: -(matrix.f + height) / scale,
-    bottom: (height - matrix.f) / scale,
-    height: height * 2 / scale,
-    left: -(matrix.e + width) / scale,
-    right: (width - matrix.e) / scale,
-    width: width * 2 / scale,
+    top: -matrix.f,
+    bottom: height - matrix.f,
+    height: height,
+    left: -matrix.e,
+    right: width - matrix.e,
+    width: width,
     cx: -matrix.e + width / 2,
     cy: -matrix.f + height / 2
   };
@@ -8446,7 +8475,6 @@ var sidebarComponent = /*#__PURE__*/function () {
 
     this.drawingApp = drawingApp;
     this.Canvas = Canvas;
-    this.root = drawingApp.params.root;
   }
 
   _createClass(sidebarComponent, [{
@@ -8478,9 +8506,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
 
     _this = _super.call(this, drawingApp, Canvas);
     _this.svgShape = shape;
-
-    var entryTemplate = _this.root.querySelector("#shape-group-template");
-
+    var entryTemplate = document.getElementById("shape-group-template");
     var templateCopy = entryTemplate.content.cloneNode(true);
     _this.entryContainer = templateCopy.querySelector(".shape-container");
     _this.entryTitle = templateCopy.querySelector(".shape-title");
@@ -8579,9 +8605,9 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       var entry = evt.currentTarget;
       entry.classList.remove("dragging");
       var newLayerId = entry.closest(".layer-group").id;
-      var newSvgLayer = this.root.querySelector("#svg-".concat(newLayerId));
-      var shape = this.root.querySelector("#".concat(entry.id.substring(6)));
-      var shapeToInsertBefore = this.root.querySelector("#".concat((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6)));
+      var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
+      var shape = document.getElementById(entry.id.substring(6));
+      var shapeToInsertBefore = document.getElementById((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6));
 
       if (shapeToInsertBefore) {
         newSvgLayer.insertBefore(shape, shapeToInsertBefore);
@@ -8618,12 +8644,10 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         this.showSecondIcon(this.btns.hide);
         this.btns.hide.style.color = "#929DAF";
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-hidden");
-        this.entryContainer.classList.add('hide');
       } else {
         this.showFirstIcon(this.btns.hide);
         this.btns.hide.style.color = "";
         this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
-        this.entryContainer.classList.remove('hide');
       }
     }
   }, {
@@ -8685,7 +8709,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       locked: false
     };
     _this3.props = props;
-    _this3.svg = _this3.root.querySelector("#svg-".concat(props.id));
+    _this3.svg = document.getElementById("svg-".concat(props.id));
     _this3.sidebar = _this3.makeLayerElement();
     drawingApp.bindEventListeners(_this3.eventListenerSettings, _assertThisInitialized(_this3));
 
@@ -8700,16 +8724,13 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   _createClass(Layer, [{
     key: "makeLayerElement",
     value: function makeLayerElement() {
-      var layerTemplate = this.root.querySelector("#layer-group-template");
-      var layersContainer = this.root.querySelector("#layers-container");
-      var layersHeaderContainer = this.root.querySelector("#layers-heading");
+      var layerTemplate = document.getElementById("layer-group-template"),
+          layersContainer = document.getElementById("layers-container");
       var templateCopy = layerTemplate.content.cloneNode(true);
       var layerGroup = templateCopy.querySelector(".layer-group");
       layerGroup.id = this.props.id;
       var headerTitle = templateCopy.querySelector(".header-title");
       headerTitle.innerText = this.props.name;
-      headerTitle.setAttribute('data-layer', this.props.id);
-      headerTitle.closest('.header-container').setAttribute('data-layer', this.props.id);
       this.header = templateCopy.querySelector(".header");
       this.shapesGroup = templateCopy.querySelector(".shapes-group");
       this.btns = {
@@ -8718,9 +8739,6 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
         hide: templateCopy.querySelector(".hide-btn"),
         addLayer: templateCopy.querySelector(".add-layer-btn")
       };
-      this.explainer = templateCopy.querySelector(".explainer");
-      this.setCorrectExplainerText();
-      layersHeaderContainer.append(this.header);
       layersContainer.append(templateCopy);
       return layerGroup;
     }
@@ -8781,8 +8799,7 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
             callback: function callback(evt) {
               evt.preventDefault();
               if (!_this4.props.enabled) return;
-
-              var draggedEntry = _this4.root.querySelector(".dragging");
+              var draggedEntry = document.querySelector(".dragging");
 
               if (draggedEntry == null) {
                 return;
@@ -8818,7 +8835,6 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
   }, {
     key: "addEntry",
     value: function addEntry(entry) {
-      this.hideExplainer();
       this.shapesGroup.insertBefore(entry.entryContainer, this.getTopShape());
     }
   }, {
@@ -8865,12 +8881,9 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
           "mousedown touchstart": {
             callback: function callback(evt) {
               var targetHeader = evt.target;
+              var newCurrentLayerID = targetHeader.closest(".layer-group").id;
 
-              var newCurrentLayerID = _this5.getLayerDataFromTarget(targetHeader);
-
-              if (newCurrentLayerID) {
-                _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
-              }
+              _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
             }
           }
         }
@@ -8978,25 +8991,6 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       Object.values(this.shapes).forEach(function (shape) {
         shape.sidebar.remove();
       });
-    }
-  }, {
-    key: "getLayerDataFromTarget",
-    value: function getLayerDataFromTarget(element) {
-      if (element.dataset.layer) return element.dataset.layer;
-      if (element.querySelector('[data-layer]')) return element.querySelector('[data-layer]').dataset.layer;
-      return false;
-    }
-  }, {
-    key: "hideExplainer",
-    value: function hideExplainer() {
-      this.explainer.remove();
-    }
-  }, {
-    key: "setCorrectExplainerText",
-    value: function setCorrectExplainerText() {
-      var group = this.props.id.replace('-group', '');
-      group = group.charAt(0).toUpperCase() + group.slice(1);
-      this.explainer.innerText = this.explainer.dataset["text".concat(group)];
     }
   }]);
 
@@ -10033,24 +10027,18 @@ var svgShape = /*#__PURE__*/function () {
     key: "makeBorderElement",
     value: function makeBorderElement() {
       var bbox = this.mainElement.getBoundingBox();
-      var borderColor = this.isAnswerLayer() ? '--cta-primary-mid-dark' : '--primary';
       return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
         "class": "border",
         "x": bbox.x - this.offset,
         "y": bbox.y - this.offset,
         "width": bbox.width + this.offset * 2,
         "height": bbox.height + this.offset * 2,
-        "stroke": "var(".concat(borderColor, ")"),
+        "stroke": "var(--teacher-Primary)",
         "stroke-width": "3",
         "stroke-dasharray": "10",
         "fill": "red",
         "fill-opacity": "0"
       });
-    }
-  }, {
-    key: "isAnswerLayer",
-    value: function isAnswerLayer() {
-      return this.Canvas.layerID2Key(this.parent.id) === 'answer';
     }
   }, {
     key: "updateCornerElements",
@@ -10083,9 +10071,7 @@ var svgShape = /*#__PURE__*/function () {
   }, {
     key: "showBorderElement",
     value: function showBorderElement() {
-      if (this.parent.id.includes(this.Canvas.params.currentLayer) && this.drawingApp.currentToolIs('drag')) {
-        this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
-      }
+      this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
     }
   }, {
     key: "showCornerElements",
@@ -10539,17 +10525,16 @@ var Grid = /*#__PURE__*/function (_Path) {
       }
 
       if (Object.keys(bounds).length === 0) {
-        bounds = calculatePreviewBounds(this.parent.parentElement);
+        bounds = calculatePreviewBounds();
       }
 
       var interval = size * _constants_js__WEBPACK_IMPORTED_MODULE_0__.pixelsPerCentimeter,
           lineAmount = this.calculateAmountOfGridLines(interval, bounds);
-      var strOfPoints = ""; //Verticaal
+      var strOfPoints = "";
 
       for (var i = -lineAmount.left; i <= lineAmount.right; i++) {
         strOfPoints += "M".concat(interval * i, ",").concat(bounds.top, "v").concat(bounds.height, " ");
-      } //Horizontaal
-
+      }
 
       for (var j = -lineAmount.top; j <= lineAmount.bottom; j++) {
         strOfPoints += "M".concat(bounds.left, ",").concat(interval * j, "h").concat(bounds.width, " ");
@@ -10762,7 +10747,7 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {
       removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification,readspeaker',
       toolbar: [{
         name: 'basicstyles',
         items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
@@ -10813,7 +10798,6 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
       extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',

@@ -14,7 +14,7 @@ sudo chown -R promtail:promtail /var/log/promtail
 sudo cp ./promtail-config.yaml /usr/local/bin/promtail-config.yaml
 sudo cp ./promtail.service /etc/systemd/system/promtail.service
 cd /usr/local/bin
-sudo curl -fSL -o promtail.zip "https://github.com/grafana/loki/releases/download/v2.4.1/promtail-linux-amd64.zip"
+sudo curl -fSL -o promtail.zip "https://github.com/grafana/loki/releases/download/v2.4.2/promtail-linux-amd64.zip"
 sudo unzip promtail.zip
 sudo mv promtail-linux-amd64 promtail
 sudo chmod a+x promtail

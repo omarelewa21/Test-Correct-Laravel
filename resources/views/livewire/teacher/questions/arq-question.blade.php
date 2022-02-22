@@ -35,6 +35,7 @@
                                       title="{{ $this->cmsPropertyBag['answerStruct'][0]['score'] }}"
                                       type="number"
                                       :onlyInteger="true"
+                                      selid="score-field"
                         />
                     </td>
                 </tr>
@@ -50,6 +51,7 @@
                                       title="{{ $this->cmsPropertyBag['answerStruct'][1]['score'] }}"
                                       type="number"
                                       :onlyInteger="true"
+                                      selid="score-field"
                         />
                     </td>
                 </tr>
@@ -65,6 +67,7 @@
                                       title="{{ $this->cmsPropertyBag['answerStruct'][2]['score'] }}"
                                       type="number"
                                       :onlyInteger="true"
+                                      selid="score-field"
                         />
                     </td>
                 </tr>
@@ -80,6 +83,7 @@
                                       title="{{ $this->cmsPropertyBag['answerStruct'][3]['score'] }}"
                                       type="number"
                                       :onlyInteger="true"
+                                      selid="score-field"
                         />
                     </td>
                 </tr>
@@ -95,6 +99,7 @@
                                       title="{{ $this->cmsPropertyBag['answerStruct'][4]['score'] }}"
                                       type="number"
                                       :onlyInteger="true"
+                                      selid="score-field"
                         />
                     </td>
                 </tr>

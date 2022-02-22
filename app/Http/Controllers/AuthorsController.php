@@ -26,6 +26,11 @@ class AuthorsController extends Controller
         return response()->json($builder->toBase()->get());
     }
 
+    public static function getCentraalExamenAuthor()
+    {
+         return User::where('username', config('custom.examschool_author'))->first();
+    }
+
     private function getBuilderForOwnSubjects($user)
     {
         return User::withTrashed()->whereIn('id', // find all users part of this selection

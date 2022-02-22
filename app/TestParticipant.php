@@ -412,7 +412,9 @@ class TestParticipant extends BaseModel
     public function handInTestTake()
     {
         //Remaining handInTestTake actions handled in TestParticipant boot method
-        $this->setAttribute('test_take_status_id', TestTakeStatus::STATUS_HANDED_IN)->save();
+        if($this->hasStatus(TestTakeStatus::STATUS_TAKING_TEST)) {
+            $this->setAttribute('test_take_status_id', TestTakeStatus::STATUS_HANDED_IN)->save();
+        }
         return true;
     }
 

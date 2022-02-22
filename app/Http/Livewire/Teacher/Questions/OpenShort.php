@@ -20,6 +20,7 @@ use tcCore\Http\Livewire\Preview\DrawingQuestion;
 use tcCore\Http\Requests\CreateAttachmentRequest;
 use tcCore\Http\Requests\CreateGroupQuestionQuestionRequest;
 use tcCore\Http\Requests\CreateTestQuestionRequest;
+use tcCore\Http\Requests\Request;
 use tcCore\Lib\GroupQuestionQuestion\GroupQuestionQuestionManager;
 use tcCore\TemporaryLogin;
 use tcCore\Test;
@@ -146,7 +147,7 @@ class OpenShort extends Component
             'question.question' => __('cms.Vraagstelling'),
             'question.answer'   => __('cms.Antwoordmodel')
         ];
-        if ($this->isInfoscreenQuestion()) {
+        if($this->obj instanceof CmsInfoScreen){
             $return['question.question'] = __('cms.Informatietekst');
         }
 
@@ -320,89 +321,26 @@ class OpenShort extends Component
         return true;
     }
 
-    public function isInfoscreenQuestion()
-    {
-        return !!(Str::lower($this->question['type']) == 'infoscreenquestion');
-    }
 
-    public function isRankingQuestion()
-    {
-        return !!($this->question['type'] == 'RankingQuestion');
-    }
-
-    public function isShortOpenQuestion()
-    {
-        if ($this->question['type'] !== 'OpenQuestion') {
-            return false;
-        }
-        return ($this->question['subtype'] === 'short');
-    }
-
-    public function isMediumOpenQuestion()
-    {
-        if ($this->question['type'] !== 'OpenQuestion') {
-            return false;
-        }
-        return ($this->question['subtype'] === 'medium');
-    }
-
-    public function isCompletionQuestion()
-    {
-        if ($this->question['type'] !== 'CompletionQuestion') {
-            return false;
-        }
-
-        return $this->question['subtype'] == 'completion';
-    }
-
-    public function isSelectionQuestion()
-    {
-        if ($this->question['type'] !== 'CompletionQuestion') {
-            return false;
-        }
-
-        return $this->question['subtype'] == 'multi';
-    }
-
-    public function isTrueFalseQuestion()
-    {
-        if ($this->question['type'] !== 'MultipleChoiceQuestion') {
-            return false;
-        }
-
-        return Str::lower($this->question['subtype']) == 'truefalse';
-    }
-
-    public function isArqQuestion()
-    {
-        if ($this->question['type'] !== 'MultipleChoiceQuestion') {
-            return false;
-        }
-
-        return Str::lower($this->question['subtype']) == 'arq';
-    }
-
-    public function isMultipleChoiceQuestion()
-    {
-        if ($this->question['type'] !== 'MultipleChoiceQuestion') {
-            return false;
-        }
-
-        return Str::lower($this->question['subtype']) == 'multiplechoice';
-    }
 
     public function hasAllOrNothing()
     {
-        return $this->isMultipleChoiceQuestion();
+        return $this->obj instanceof CmsMultipleChoice;
     }
 
     public function showQuestionScore()
     {
-        return !($this->isMultipleChoiceQuestion() || $this->isInfoscreenQuestion() || $this->isArqQuestion());
+        $method = 'showQuestionScore';
+        if(method_exists($this->obj,$method)){
+            return $this->obj->$method();
+        }
+        return true;
     }
 
     private function saveNewQuestion()
     {
+        Request::filter($this->question);
+
         if ($this->isPartOfGroupQuestion()) {
             $gqqm = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId);
             $cgqqr = new CreateGroupQuestionQuestionRequest($this->question);
@@ -497,7 +435,7 @@ class OpenShort extends Component
             $groupQuestionQuestion = GroupQuestionQuestion::whereUuid($this->groupQuestionQuestionId)->first();
             $groupQuestionQuestionManager = GroupQuestionQuestionManager::getInstanceWithUuid($this->testQuestionId); //'577fa17d-68b7-4695-ace5-e14afd913757');
 
-            $response = (new GroupQuestionQuestionsController)->updateFromWithin(
+            $response = (new GroupQuestionQuestionsController)->updateGeneric(
                 $groupQuestionQuestionManager,
                 $groupQuestionQuestion,
                 $request
@@ -704,7 +642,7 @@ class OpenShort extends Component
         $this->attachmentsCount++;
     }
 
-    private function decodeCompletionTags($question)
+    public function decodeCompletionTags($question)
     {
         if (!$question->completionQuestionAnswers) {
             return $question->getQuestionHtml();
@@ -786,13 +724,8 @@ class OpenShort extends Component
                 $q = $tq->question;
                 $this->attachments = $q->attachments;
             }
-//            if ($q instanceof \tcCore\DrawingQuestion) {
-//                $q = (new QuestionHelper())->getTotalQuestion($q);
-//            } else {
+
             $q = (new QuestionHelper())->getTotalQuestion($q->question);
-//            }
-
-
             $this->pValues = $q->getQuestionInstance()->getRelation('pValue');
 
             $this->questionId = $q->question->getKey();
@@ -822,10 +755,6 @@ class OpenShort extends Component
             });
 
             $this->attachmentsCount = count($this->attachments);
-
-            if ($this->isCompletionQuestion()) {
-                $this->question['question'] = $this->decodeCompletionTags($q);
-            }
 
             if ($this->obj && method_exists($this->obj, 'initializePropertyBag')) {
                 $this->obj->initializePropertyBag($q);
@@ -908,5 +837,10 @@ class OpenShort extends Component
             }
             return $video;
         })->toArray();
+    }
+
+    public function setQuestionProperty($property, $value)
+    {
+        $this->question[$property] = $value;
     }
 }

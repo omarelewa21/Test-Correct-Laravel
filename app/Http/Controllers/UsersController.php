@@ -25,6 +25,7 @@ use tcCore\Http\Requests\DestroyUserRequest;
 use tcCore\Http\Requests\UpdatePasswordForUserRequest;
 use tcCore\Http\Requests\UserImportRequest;
 use tcCore\Http\Requests\UserMoveSchoolLocationRequest;
+use tcCore\Http\Traits\UserNotificationForController;
 use tcCore\Jobs\SendOnboardingWelcomeMail;
 use tcCore\Jobs\SendWelcomeMail;
 use tcCore\Jobs\SetSchoolYearForDemoClassToCurrent;
@@ -33,6 +34,8 @@ use tcCore\Lib\Repositories\PValueRepository;
 use tcCore\Lib\Repositories\TeacherRepository;
 use tcCore\Lib\User\Factory;
 use tcCore\LoginLog;
+use tcCore\Mail\PasswordChanged;
+use tcCore\Mail\PasswordChangedSelf;
 use tcCore\OnboardingWizardUserStep;
 use tcCore\QtiModels\ResourceImport;
 use tcCore\Scopes\RemoveUuidScope;
@@ -49,6 +52,7 @@ use tcCore\UserRole;
 
 class UsersController extends Controller
 {
+    use UserNotificationForController;
 
     /**
      * Display a listing of the users.
@@ -350,6 +354,7 @@ class UsersController extends Controller
         if ($request->has('password')) {
             Log::stack(['loki'])->info("updateStudent@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
+            $this->sendPasswordChangedMail($user);
         }
 
         if ($user->save()) {
@@ -374,6 +379,7 @@ class UsersController extends Controller
         if ($request->filled('password')) {
             Log::stack(['loki'])->info("updatePasswordForUser@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
+            $this->sendPasswordChangedMail($user);
         }
 
         if ($user->save()) {
@@ -400,9 +406,9 @@ class UsersController extends Controller
         $user->fill($request->all());
 
         if ($request->filled('password')) {
-//		    logger('try updating passwrd '. $request->get('password'));
             Log::stack(['loki'])->info("update@UsersController.php password reset");
             $user->setAttribute('password', \Hash::make($request->get('password')));
+            $this->sendPasswordChangedMail($user);
         }
 
         if ($user->save()) {
