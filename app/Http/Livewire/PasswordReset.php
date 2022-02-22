@@ -85,9 +85,8 @@ class PasswordReset extends Component
             $user->save();
         });
 
-        $this->notifyUser($this->username);
-
         if ($response === PasswordBroker::PASSWORD_RESET){
+            $this->notifyUser($this->username);
             $this->showSuccessModal = true;
         }
 
