@@ -14,7 +14,10 @@ trait UserNotificationForController
     public function sendPasswordChangedMail($user)
     {
         $mailable = new PasswordChanged($user);
-        if (Auth::user()->getKey() == $user->getKey()) {
+        if (optional(Auth::user())->getKey() == $user->getKey()) {
+            $mailable = new PasswordChangedSelf($user);
+        }
+        if(is_null(Auth::user())){
             $mailable = new PasswordChangedSelf($user);
         }
         Mail::to($user->username)->send($mailable);
