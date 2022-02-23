@@ -15,39 +15,44 @@ class CmsFactory
             return static::$self;
         }
 
-        if ($instance->question['type'] == 'CompletionQuestion') {
-            if (Str::lower($instance->question['subtype']) == 'multi') {
-               static::$self = new CmsSelection($instance);
+        $type = $instance->question['type'];
+        $subType = Str::lower($instance->question['subtype']);
+
+        $lookup = self::getLookup();
+
+        if (array_key_exists($type, $lookup)) {
+            if (is_array($lookup[$type]) && array_key_exists($subType, $lookup[$type])) {
+                return static::$self = new $lookup[$type][$subType]($instance);
             }
-            if (Str::lower($instance->question['subtype']) == 'completion') {
-                static::$self = new CmsCompletion($instance);
-            }
+            return static::$self = new $lookup[$type]($instance);
         }
 
-        if ($instance->question['type'] == 'MultipleChoiceQuestion' && Str::lower($instance->question['subtype']) == 'truefalse') {
-            static::$self =  new CmsTrueFalse($instance);
-        }
+        throw new \Exception('CMS Factory could not resolve (sub) question type.');
+    }
 
-        if ($instance->question['type'] == 'MultipleChoiceQuestion' && Str::lower($instance->question['subtype']) == 'multiplechoice') {
-            static::$self =new CmsMultipleChoice($instance);
-        }
-
-        if ($instance->question['type'] == 'MultipleChoiceQuestion' && Str::lower($instance->question['subtype']) == 'arq') {
-            static::$self =new CmsArq($instance);
-        }
-
-        if ($instance->question['type'] == 'InfoscreenQuestion') {
-            static::$self = new CmsInfoScreen($instance);
-        }
-
-        if ($instance->question['type'] == 'RankingQuestion') {
-            static::$self =  new CmsRanking($instance);
-        }
-
-        if ($instance->question['type'] == 'OpenQuestion') {
-            static::$self =  new CmsOpen($instance);
-        }
-
-        return static::$self ;
+    /**
+     * @return array
+     */
+    private static function getLookup(): array
+    {
+        return [
+            'InfoscreenQuestion'     => CmsInfoScreen::class,
+            'RankingQuestion'        => CmsRanking::class,
+            'OpenQuestion'           => CmsOpen::class,
+            'DrawingQuestion'        => CmsDrawing::class,
+            'MultipleChoiceQuestion' => [
+                'truefalse'      => CmsTrueFalse::class,
+                'multiplechoice' => CmsMultipleChoice::class,
+                'arq'            => CmsArq::class,
+            ],
+            'CompletionQuestion'     => [
+                'multi'      => CmsSelection::class,
+                'completion' => CmsCompletion::class,
+            ],
+            'MatchingQuestion'      => [
+                'matching'  => CmsMatching::class,
+                'classify'  => CmsClassify::class,
+            ]
+        ];
     }
 }

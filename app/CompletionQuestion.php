@@ -3,6 +3,7 @@
 use Illuminate\Validation\Validator;
 use Illuminate\Support\Str;
 use tcCore\Exceptions\QuestionException;
+use tcCore\Http\Helpers\BaseHelper;
 use tcCore\Http\Helpers\QuestionHelper;
 use tcCore\Http\Requests\UpdateTestQuestionRequest;
 use tcCore\Lib\Question\QuestionInterface;
@@ -11,7 +12,8 @@ use Dyrynda\Database\Support\GeneratesUuid;
 use Ramsey\Uuid\Uuid;
 use tcCore\Traits\UuidTrait;
 
-class CompletionQuestion extends Question implements QuestionInterface {
+class CompletionQuestion extends Question implements QuestionInterface
+{
 
     use UuidTrait;
 
@@ -40,7 +42,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
      *
      * @var array
      */
-    protected $fillable = ['rating_method', 'subtype','auto_check_answer','auto_check_answer_case_sensitive'];
+    protected $fillable = ['rating_method', 'subtype', 'auto_check_answer', 'auto_check_answer_case_sensitive'];
 
     /**
      * The attributes excluded from the model's JSON form.
@@ -51,15 +53,18 @@ class CompletionQuestion extends Question implements QuestionInterface {
 
     protected $questionData = false;
 
-    public function question() {
+    public function question()
+    {
         return $this->belongsTo('tcCore\Question', $this->getKeyName());
     }
 
-    public function completionQuestionAnswerLinks() {
+    public function completionQuestionAnswerLinks()
+    {
         return $this->hasMany('tcCore\CompletionQuestionAnswerLink', 'completion_question_id');
     }
 
-    public function completionQuestionAnswers() {
+    public function completionQuestionAnswers()
+    {
         return $this->belongsToMany(
             'tcCore\CompletionQuestionAnswer',
             'completion_question_answer_links',
@@ -84,13 +89,14 @@ class CompletionQuestion extends Question implements QuestionInterface {
         parent::boot();
 
         static::saving(function (CompletionQuestion $question) {
-            $question->auto_check_answer = !! $question->auto_check_answer;
-            $question->auto_check_answer_case_sensitive = !! $question->auto_check_answer_case_sensitive;
+            $question->auto_check_answer = !!$question->auto_check_answer;
+            $question->auto_check_answer_case_sensitive = !!$question->auto_check_answer_case_sensitive;
             return $question;
         });
     }
 
-    public function duplicate(array $attributes, $ignore = null) {
+    public function duplicate(array $attributes, $ignore = null)
+    {
         $question = $this->replicate();
 
         $question->parentInstance = $this->parentInstance->duplicate($attributes, $ignore);
@@ -106,7 +112,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
             return false;
         }
 
-        foreach($this->completionQuestionAnswerLinks as $completionQuestionAnswerLink) {
+        foreach ($this->completionQuestionAnswerLinks as $completionQuestionAnswerLink) {
             if ($ignore instanceof CompletionQuestionAnswer && $ignore->getKey() == $completionQuestionAnswerLink->getAttribute('completion_question_answer_id')) {
                 continue;
             }
@@ -117,7 +123,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
                 continue;
             }
 
-            if($completionQuestionAnswerLink->duplicate($question, []) === false) {
+            if ($completionQuestionAnswerLink->duplicate($question, []) === false) {
                 return false;
             }
         }
@@ -125,10 +131,11 @@ class CompletionQuestion extends Question implements QuestionInterface {
         return $question;
     }
 
-    public function canCheckAnswer() {
-        if($this->isClosedQuestion()){ // cito based
+    public function canCheckAnswer()
+    {
+        if ($this->isClosedQuestion()) { // cito based
             return true;
-        } else if($this->subtype == 'completion') { // don't auto check gatentekst
+        } else if ($this->subtype == 'completion') { // don't auto check gatentekst
             return false;
         }
 
@@ -139,7 +146,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
             return false;
         }
 
-        foreach($completionQuestionAnswers as $tag => $choices) {
+        foreach ($completionQuestionAnswers as $tag => $choices) {
             if (count($choices) < 1) {
                 return false;
             }
@@ -168,7 +175,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
     public function checkAnswerCompletion($answer)
     {
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
-        foreach($completionQuestionAnswers as $tag => $choices) {
+        foreach ($completionQuestionAnswers as $tag => $choices) {
             $answers = [];
             foreach ($choices as $choice) {
                 if ($choice->getAttribute('correct') == 1) {
@@ -179,34 +186,37 @@ class CompletionQuestion extends Question implements QuestionInterface {
         }
 
         $answers = json_decode($answer->getAttribute('json'), true);
-        if(!$answers) {
+        if (!$answers) {
             return 0;
         }
 
         $correct = 0;
-        foreach($completionQuestionAnswers as $tag => $tagAnswers) {
+        foreach ($completionQuestionAnswers as $tag => $tagAnswers) {
             // as completion questions have a saved tag 0 based we need to lower them
-            $refTag = $tag-1;
+            $refTag = $tag - 1;
             if (!array_key_exists($refTag, $answers)) {
                 continue;
             }
 
-            if($this->auto_check_answer && !$this->auto_check_answer_case_sensitive){
+            if ($this->auto_check_answer && !$this->auto_check_answer_case_sensitive) {
                 $answers[$refTag] = Str::lower($answers[$refTag]);
                 $tagAnswersAr = $tagAnswers;
                 $tagAnswers = [];
-                foreach($tagAnswersAr as $key => $val){
+                foreach ($tagAnswersAr as $key => $val) {
                     $tagAnswers[$key] = Str::lower($val);
                 }
             }
-            $tagAnswers = array_map('trim',$tagAnswers);
-            if (in_array(trim($answers[$refTag]), $tagAnswers)) {
+            $tagAnswers = array_map('trim', $tagAnswers);
+            if (in_array(trim($answers[$refTag]), $tagAnswers)
+                || in_array(trim(BaseHelper::transformHtmlCharsReverse($answers[$refTag])), $tagAnswers)
+                || in_array(trim(htmlentities($answers[$refTag])), $tagAnswers)
+            ) {
                 $correct++;
             }
         }
 
-        if($this->allOrNothingQuestion()){
-            if($correct == count($completionQuestionAnswers)){
+        if ($this->allOrNothingQuestion()) {
+            if ($correct == count($completionQuestionAnswers)) {
                 return $this->score;
             } else {
                 return 0;
@@ -228,7 +238,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
     public function checkAnswerMulti($answer)
     {
         $completionQuestionAnswers = $this->completionQuestionAnswers->groupBy('tag');
-        foreach($completionQuestionAnswers as $tag => $choices) {
+        foreach ($completionQuestionAnswers as $tag => $choices) {
             $answers = [];
             foreach ($choices as $choice) {
                 if ($choice->getAttribute('correct') == 1) {
@@ -239,12 +249,12 @@ class CompletionQuestion extends Question implements QuestionInterface {
         }
 
         $answers = json_decode($answer->getAttribute('json'), true);
-        if(!$answers) {
+        if (!$answers) {
             return 0;
         }
 
         $correct = 0;
-        foreach($completionQuestionAnswers as $tag => $tagAnswers) {
+        foreach ($completionQuestionAnswers as $tag => $tagAnswers) {
             if (!array_key_exists($tag, $answers)) {
                 continue;
             }
@@ -254,8 +264,8 @@ class CompletionQuestion extends Question implements QuestionInterface {
             }
         }
 
-        if($this->allOrNothingQuestion()){
-            if($correct == count($completionQuestionAnswers)){
+        if ($this->allOrNothingQuestion()) {
+            if ($correct == count($completionQuestionAnswers)) {
                 return $this->score;
             } else {
                 return 0;
@@ -273,15 +283,17 @@ class CompletionQuestion extends Question implements QuestionInterface {
         return $score;
     }
 
-    public function checkAnswer($answer) {
-        if($this->subtype == 'multi'){
+    public function checkAnswer($answer)
+    {
+        if ($this->subtype == 'multi') {
             return $this->checkAnswerMulti($answer);
         }
         return $this->checkAnswerCompletion($answer);
     }
 
-    public function deleteAnswers(){
-        $this->completionQuestionAnswerLinks->each(function($cQAL){
+    public function deleteAnswers()
+    {
+        $this->completionQuestionAnswerLinks->each(function ($cQAL) {
             if (!$cQAL->delete()) {
                 throw new QuestionException('Failed to delete completion question answer link', 422);
             }
@@ -304,7 +316,8 @@ class CompletionQuestion extends Question implements QuestionInterface {
      * @return boolean
      * @throws \Exception
      */
-    public function addAnswers($mainQuestion,$answers){
+    public function addAnswers($mainQuestion, $answers)
+    {
         $question = $this;
 ////        if ($question->isDirty() || $mainQuestion->isDirty() || $mainQuestion->isDirtyAttainments() || $mainQuestion->isDirtyTags() || ($question instanceof DrawingQuestion && $question->isDirtyFile())) {
 ////
@@ -322,28 +335,28 @@ class CompletionQuestion extends Question implements QuestionInterface {
 ////        }
 
         if (!QuestionAuthor::addAuthorToQuestion($question)) {
-            throw new QuestionException('Failed to attach author to question',422);
+            throw new QuestionException('Failed to attach author to question', 422);
         }
 
         $returnAnswers = [];
         $loop = 1;
-        foreach($answers as $answerDetails) {
+        foreach ($answers as $answerDetails) {
             $completionQuestionAnswer = new CompletionQuestionAnswer();
 
-            $answerDetails['answer'] = html_entity_decode($answerDetails['answer']);//str_replace(['&eacute;','&euro;','&euml;','&nbsp;','&oacute;'],['é','€','ë',' ','ó'],$answerDetails['answer']);
+            $answerDetails['answer'] = clean($answerDetails['answer']);//str_replace(['&eacute;','&euro;','&euml;','&nbsp;','&oacute;'],['é','€','ë',' ','ó'],$answerDetails['answer']);
 
             $completionQuestionAnswer->fill($answerDetails);
             if (!$completionQuestionAnswer->save()) {
-                throw new QuestionException('Failed to create completion question answer',422);
+                throw new QuestionException('Failed to create completion question answer', 422);
             }
 
             $completionQuestionAnswerLink = new CompletionQuestionAnswerLink();
             $completionQuestionAnswerLink->setAttribute('completion_question_id', $question->getKey());
             $completionQuestionAnswerLink->setAttribute('completion_question_answer_id', $completionQuestionAnswer->getKey());
-            $completionQuestionAnswerLink->setAttribute('order',  $loop++);
+            $completionQuestionAnswerLink->setAttribute('order', $loop++);
 
             if (!$completionQuestionAnswerLink->save()) {
-                throw new QuestionException('Failed to create completion question answer link',422);
+                throw new QuestionException('Failed to create completion question answer link', 422);
             }
         }
         return true;
@@ -382,27 +395,31 @@ class CompletionQuestion extends Question implements QuestionInterface {
     public function getTotalDataForTestQuestionUpdate($request)
     {
         $questionData = $this->getQuestionData($request);
-        return array_merge($request->all(),$questionData);
+        return array_merge($request->all(), $questionData);
     }
 
     public function getCompletionAnswerDirty($request)
     {
         $questionData = $this->getQuestionData($request);
-        if(!array_key_exists('answers',$questionData)){
+        if (!array_key_exists('answers', $questionData)) {
             return false;
         }
-        $currentAnswers = $this->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function($item){ return $item->answer; })->toArray();
-        $futureAnswers = collect($questionData['answers'])->values()->map(function($item){ return $item['answer'];})->toArray();
-        return ( ($currentAnswers !== $futureAnswers));
+        $currentAnswers = $this->completionQuestionAnswers()->OrderBy('id', 'asc')->get()->map(function ($item) {
+            return $item->answer;
+        })->toArray();
+        $futureAnswers = collect($questionData['answers'])->values()->map(function ($item) {
+            return $item['answer'];
+        })->toArray();
+        return (($currentAnswers !== $futureAnswers));
     }
 
     public function getQuestionData($request)
     {
         $qHelper = new QuestionHelper();
-        if(!$this->questionData){
+        if (!$this->questionData) {
             $questionHtml = $request->input('question');
             $this->questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionHtml);
-            if(empty($this->questionData['question'])){
+            if (empty($this->questionData['question'])) {
                 $this->questionData = false;
                 return [];
             }
@@ -412,7 +429,7 @@ class CompletionQuestion extends Question implements QuestionInterface {
 
     public function needsToBeUpdated($request)
     {
-        if($this->getCompletionAnswerDirty($request)){
+        if ($this->getCompletionAnswerDirty($request)) {
             return true;
         }
         return parent::needsToBeUpdated($request);
@@ -420,44 +437,62 @@ class CompletionQuestion extends Question implements QuestionInterface {
 
     public static function validateWithValidator(Validator $validator, $questionString, $subType, $fieldPreFix = '')
     {
-        if(!strstr($questionString, '[') && !strstr($questionString, ']')) {
-            if(request()->input('subtype') === 'completion'){
-                $validator->errors()->add($fieldPreFix.'question', 'U dient één woord tussen vierkante haakjes te plaatsen.');
+        if (!strstr($questionString, '[') && !strstr($questionString, ']')) {
+            if (request()->input('subtype') === 'completion') {
+                $validator->errors()->add($fieldPreFix . 'question', 'U dient één woord tussen vierkante haakjes te plaatsen.');
             } else {
-                $validator->errors()->add($fieldPreFix.'question', 'U dient minimaal één woord tussen vierkante haakjes te plaatsen.');
+                $validator->errors()->add($fieldPreFix . 'question', 'U dient minimaal één woord tussen vierkante haakjes te plaatsen.');
             }
         }
 
-        if($subType == 'completion' && strstr($questionString,'|')){
-            $validator->errors()->add($fieldPreFix.'question','U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
+        if ($subType == 'completion' && strstr($questionString, '|')) {
+            $validator->errors()->add($fieldPreFix . 'question', 'U kunt geen |-teken gebruiken in de tekst of antwoord mogelijkheden');
         }
 
-        $check         = false;
-        $errorMessage  = "U heeft het verkeerde formaat van de vraag ingevoerd, zorg ervoor dat elk haakje '[' gesloten is en er geen overlap tussen haakjes is.";
-        for ($charIndex = 0; $charIndex < strlen($questionString); $charIndex++){
-            if($questionString[$charIndex] == '[' && !$check){        // set check to true if [ char found
+        $check = false;
+        $errorMessage = "U heeft het verkeerde formaat van de vraag ingevoerd, zorg ervoor dat elk haakje '[' gesloten is en er geen overlap tussen haakjes is.";
+        for ($charIndex = 0; $charIndex < strlen($questionString); $charIndex++) {
+            if ($questionString[$charIndex] == '[' && !$check) {        // set check to true if [ char found
                 $check = true;
-            }elseif($questionString[$charIndex] == ']' && $check){     // if ] char found return check to false
+            } elseif ($questionString[$charIndex] == ']' && $check) {     // if ] char found return check to false
                 $check = false;
-            }elseif($questionString[$charIndex] == ']' && !$check){    // if ] char found and there was no [ before resutls in an error
+            } elseif ($questionString[$charIndex] == ']' && !$check) {    // if ] char found and there was no [ before resutls in an error
                 $check = false;
-                $validator->errors()->add($fieldPreFix.'question', $errorMessage);
+                $validator->errors()->add($fieldPreFix . 'question', $errorMessage);
                 break;
-            }elseif($check && $questionString[$charIndex] == '['){     // if [ char found with check set to true results in an error
+            } elseif ($check && $questionString[$charIndex] == '[') {     // if [ char found with check set to true results in an error
                 $check = false;
-                $validator->errors()->add($fieldPreFix.'question', $errorMessage);
+                $validator->errors()->add($fieldPreFix . 'question', $errorMessage);
                 break;
             }
         }
-        if($check){                                             // if check is true results in an error
-            $validator->errors()->add($fieldPreFix.'question', $errorMessage);
+        if ($check) {                                             // if check is true results in an error
+            $validator->errors()->add($fieldPreFix . 'question', $errorMessage);
         }
 
-        if($subType == 'multi'){
-            $qHelper = new QuestionHelper();
-            $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionString, true);
-            if($questionData["error"]){
-                $validator->errors()->add($fieldPreFix.'question', $questionData["error"]);
+        $qHelper = new QuestionHelper();
+        $questionData = $qHelper->getQuestionStringAndAnswerDetailsForSavingCompletionQuestion($questionString, true);
+
+        foreach($questionData['answers'] as $answer){
+            logger($answer);
+            if(trim($answer['answer']) == ''){
+                if (request()->input('subtype') === 'completion') {
+                    $validator->errors()->add($fieldPreFix . 'question', 'U dient één woord tussen vierkante haakjes te plaatsen.');
+                } else {
+                    $validator->errors()->add($fieldPreFix . 'question', 'U dient minimaal één woord tussen vierkante haakjes te plaatsen.');
+                }
+                break;
+            }
+
+            if(trim(clean(html_entity_decode($answer['answer']))) == ''){
+                $validator->errors()->add($fieldPreFix . 'question', 'U heeft tekens gebruikt die hier niet mogelijk zijn');
+                break;
+            }
+        }
+
+        if ($subType == 'multi') {
+            if ($questionData["error"]) {
+                $validator->errors()->add($fieldPreFix . 'question', $questionData["error"]);
             }
         }
     }

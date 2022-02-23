@@ -57,6 +57,8 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         CanResetPassword;
     use UuidTrait;
 
+    const MIN_PASSWORD_LENGTH = 8;
+
     protected $casts = [
         'uuid'    => EfficientUuid::class,
         'intense' => 'boolean',
@@ -164,6 +166,11 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
         $user = (new Factory(new self))->generate($data);
         $user->save();
         return $user;
+    }
+
+    public static function getPasswordLengthRule()
+    {
+        return 'min:' . User::MIN_PASSWORD_LENGTH;
     }
 
     public function fill(array $attributes)
@@ -1295,6 +1302,14 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
     public function hasCitoToetsen()
     {
         return (bool) $this->subjects()->where('name', 'like', 'cito%')->count() > 0;
+    }
+
+    public function isInExamSchool(): bool
+    {
+        if(optional($this->schoolLocation)->customer_code==config('custom.examschool_customercode')){
+            return true;
+        }
+        return false;
     }
 
     public function getNameFullAttribute()

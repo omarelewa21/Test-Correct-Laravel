@@ -12,7 +12,9 @@ trait WithUpdatingHandling
 
     public function updating(&$name, &$value)
     {
-        Request::filter($value);
+        if(!isset($this->preventAnswerTransformation) || !$this->preventAnswerTransformation) {
+            Request::filter($value);
+        }
     }
 
     public function updateAnswerIdForTestParticipant()

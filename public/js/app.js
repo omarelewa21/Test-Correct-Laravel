@@ -5562,24 +5562,59 @@ document.addEventListener('alpine:init', function () {
       }
     };
   });
-  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('selectionOptions', function () {
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('selectionOptions', function (entangle) {
     return {
+      showPopup: entangle.value,
+      editorId: entangle.editorId,
+      hasError: {
+        empty: [],
+        "false": []
+      },
       data: {
         elements: []
       },
+      maxOptions: 10,
+      minOptions: 2,
       init: function init() {
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < this.minOptions; i++) {
           this.addRow();
         }
       },
       initWithSelection: function initWithSelection() {
-        var text = window.editor.getSelection();
+        var _this3 = this;
+
+        var text = window.editor.getSelectedHtml().$.textContent.trim().replace('[', '').replace(']', '');
+        var content = text;
+
+        if (text.contains('|')) {
+          content = text.split("|");
+        }
+
+        var currentDataRows = this.data.elements.length;
+        this.data.elements[0].checked = 'true';
+
+        if (!Array.isArray(content)) {
+          this.data.elements[0].value = content;
+          return;
+        }
+
+        content.forEach(function (word, key) {
+          if (key === currentDataRows) {
+            _this3.addRow();
+
+            currentDataRows++;
+          }
+
+          _this3.data.elements[key].value = word.trim();
+        });
       },
       addRow: function addRow() {
+        var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+        var checked = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'false';
         var component = {
           id: this.data.elements.length,
-          checked: 'false',
-          value: ''
+          checked: checked,
+          value: value
         };
         this.data.elements.push(component);
       },
@@ -5588,20 +5623,25 @@ document.addEventListener('alpine:init', function () {
         this.data.elements = this.data.elements.filter(function (el) {
           return el.id != element.id;
         });
+        this.data.elements.forEach(function (el, key) {
+          return el.id = key;
+        });
       },
       toggleChecked: function toggleChecked(event, element) {
-        var _this3 = this;
+        var _this4 = this;
 
         this.$nextTick(function () {
           if (element.checked == 'true') {
-            _this3.data.elements = _this3.data.elements.map(function (item) {
+            _this4.data.elements = _this4.data.elements.map(function (item) {
               item.checked = item.id == element.id ? 'true' : 'false';
               return item;
             });
           }
         });
       },
-      save: function save() {
+      insertDataInEditor: function insertDataInEditor() {
+        var _this5 = this;
+
         var correct = this.data.elements.find(function (el) {
           return el.value != '' && el.checked == 'true';
         });
@@ -5610,16 +5650,68 @@ document.addEventListener('alpine:init', function () {
         }).map(function (el) {
           return el.value;
         });
+        result.unshift(correct.value);
+        result = '[' + result.join('|') + ']';
+        var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
+        lw.set('showSelectionOptionsModal', true);
+        window.editor.insertText(result);
+        setTimeout(function () {
+          _this5.$wire.setQuestionProperty('question', window.editor.getData());
+        }, 300);
+      },
+      validateInput: function validateInput() {
+        var emptyFields = this.data.elements.filter(function (element) {
+          return element.value === '';
+        });
+        var falseValues = this.data.elements.filter(function (element) {
+          return element.checked === 'false';
+        });
 
-        if (correct) {
-          result.unshift(correct.value);
-          result = '[' + result.join('|') + ']';
-          var lw = livewire.find(document.getElementById('cms').getAttribute('wire:id'));
-          lw.set('showSelectionOptionsModal', true);
-          window.editor.insertText(result);
-        } else {
-          alert('none correct');
+        if (emptyFields.length !== 0 || this.data.elements.length === falseValues.length) {
+          this.hasError.empty = emptyFields.map(function (item) {
+            return item.id;
+          });
+
+          if (this.data.elements.length === falseValues.length) {
+            this.hasError["false"] = falseValues.map(function (item) {
+              return item.id;
+            });
+          }
+
+          Notify.notify('Niet alle velden zijn (correct) ingevuld', 'error');
+          return false;
         }
+
+        return true;
+      },
+      save: function save() {
+        if (!this.validateInput()) {
+          return;
+        }
+
+        this.insertDataInEditor();
+        this.closePopup();
+      },
+      disabled: function disabled() {
+        if (this.data.elements.length >= this.maxOptions) {
+          return true;
+        }
+
+        return !!this.data.elements.find(function (element) {
+          return element.value === '';
+        });
+      },
+      closePopup: function closePopup() {
+        this.showPopup = false;
+        this.data.elements = [];
+        this.init();
+      },
+      canDelete: function canDelete() {
+        return this.data.elements.length <= 2;
+      },
+      resetHasError: function resetHasError() {
+        this.hasError.empty = [];
+        this.hasError["false"] = [];
       }
     };
   });
@@ -5631,7 +5723,7 @@ document.addEventListener('alpine:init', function () {
       resolvingTitle: true,
       index: 1,
       init: function init() {
-        var _this4 = this;
+        var _this6 = this;
 
         return _asyncToGenerator( /*#__PURE__*/_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default().mark(function _callee() {
           var fetchedTitle;
@@ -5639,16 +5731,16 @@ document.addEventListener('alpine:init', function () {
             while (1) {
               switch (_context.prev = _context.next) {
                 case 0:
-                  _this4.setIndex();
+                  _this6.setIndex();
 
-                  _this4.$watch('options', function (value) {
+                  _this6.$watch('options', function (value) {
                     if (value) {
-                      var pWidth = _this4.$refs.optionscontainer.parentElement.offsetWidth;
+                      var pWidth = _this6.$refs.optionscontainer.parentElement.offsetWidth;
 
-                      var pPos = _this4.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
+                      var pPos = _this6.$refs.optionscontainer.parentElement.getBoundingClientRect().left;
 
                       if (pWidth + pPos < 288) {
-                        _this4.$refs.optionscontainer.classList.remove('right-0');
+                        _this6.$refs.optionscontainer.classList.remove('right-0');
                       }
                     }
                   });
@@ -5663,10 +5755,10 @@ document.addEventListener('alpine:init', function () {
 
                 case 5:
                   fetchedTitle = _context.sent;
-                  _this4.videoTitle = fetchedTitle || videoUrl;
-                  _this4.resolvingTitle = false;
+                  _this6.videoTitle = fetchedTitle || videoUrl;
+                  _this6.resolvingTitle = false;
 
-                  _this4.$wire.setVideoTitle(videoUrl, _this4.videoTitle);
+                  _this6.$wire.setVideoTitle(videoUrl, _this6.videoTitle);
 
                 case 9:
                 case "end":
@@ -5679,6 +5771,59 @@ document.addEventListener('alpine:init', function () {
       setIndex: function setIndex() {
         var parent = document.getElementById('attachment-badges');
         this.index = Array.prototype.indexOf.call(parent.children, this.$el) + 1;
+      }
+    };
+  });
+  alpinejs__WEBPACK_IMPORTED_MODULE_1__["default"].data('drawingTool', function (questionId, entanglements, isTeacher) {
+    return {
+      show: false,
+      questionId: questionId,
+      answerSvg: entanglements.answerSvg,
+      questionSvg: entanglements.questionSvg,
+      gridSvg: entanglements.gridSvg,
+      isTeacher: isTeacher,
+      init: function init() {
+        var _this5 = this;
+
+        window['drawingTool_' + questionId] = initDrawingQuestion(this.$root);
+        var toolName = window['drawingTool_' + questionId];
+
+        if (this.isTeacher) {
+          this.makeGridIfNecessary();
+        }
+
+        this.$watch('show', function (show) {
+          if (show) {
+            toolName.Canvas.data.answer = _this5.answerSvg;
+            toolName.Canvas.data.question = _this5.questionSvg;
+
+            _this5.handleGrid(toolName);
+
+            toolName.drawingApp.init();
+          } else {
+            Livewire.emit('refresh');
+          }
+        });
+        toolName.Canvas.layers.answer.enable();
+        toolName.Canvas.setCurrentLayer("answer");
+      },
+      handleGrid: function handleGrid(toolName) {
+        if (this.gridSvg !== '0.00') {
+          var parsedGrid = parseFloat(this.gridSvg);
+
+          if (toolName.drawingApp.isTeacher()) {
+            toolName.UI.gridSize.value = parsedGrid;
+            toolName.UI.gridToggle.checked = true;
+          } else {
+            toolName.drawingApp.params.gridSize = parsedGrid;
+            toolName.Canvas.layers.grid.params.hidden = false;
+          }
+        }
+      },
+      makeGridIfNecessary: function makeGridIfNecessary() {
+        if (this.gridSvg !== '') {
+          makePreviewGrid(this.gridSvg);
+        }
       }
     };
   });
@@ -5722,6 +5867,8 @@ __webpack_require__(/*! ./notify */ "./resources/js/notify.js");
 __webpack_require__(/*! ./alpine */ "./resources/js/alpine.js");
 
 __webpack_require__(/*! ./rich-text-editor */ "./resources/js/rich-text-editor.js");
+
+__webpack_require__(/*! ./drawing/drawing-question */ "./resources/js/drawing/drawing-question.js");
 
 addIdsToQuestionHtml = function addIdsToQuestionHtml() {
   var id = 1;
@@ -5944,6 +6091,11 @@ countPresentStudents = function countPresentStudents(members) {
   return activeStudents;
 };
 
+String.prototype.contains = function (text) {
+  if (text === '') return false;
+  return this.includes(text);
+};
+
 /***/ }),
 
 /***/ "./resources/js/bootstrap.js":
@@ -5993,6 +6145,12 @@ FilePond.registerPlugin((filepond_plugin_file_validate_size__WEBPACK_IMPORTED_MO
   \******************************/
 /***/ (() => {
 
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 parent.skip = false;
@@ -6025,6 +6183,7 @@ Core = {
 
     Core.checkForElectron();
     runCheckFocus();
+    catchscreenshotchromeOS();
     startStudentActivityCheck();
     Core.appType === '' ? Core.enableBrowserFeatures() : Core.enableAppFeatures(Core.appType);
   },
@@ -6126,9 +6285,21 @@ Core = {
     Core.closeApplication('close');
   },
   closeChromebookApp: function closeChromebookApp(portalUrl) {
+    try {
+      chrome.runtime.sendMessage(document.getElementById("chromeos-extension-id").name, {
+        close: true
+      });
+    } catch (error) {}
+
     window.location = portalUrl + 'logout';
   },
   closeApplication: function closeApplication(cmd) {
+    try {
+      chrome.runtime.sendMessage(document.getElementById("chromeos-extension-id").name, {
+        close: true
+      });
+    } catch (error) {}
+
     if (cmd == 'quit') {
       open('/login', '_self').close();
     } else if (cmd == 'close') {
@@ -6239,6 +6410,4305 @@ function isMakingTest() {
   return document.querySelector('[testtakemanager]') != null;
 }
 
+function catchscreenshotchromeOS() {
+  if (Core.appType == 'chromebook') {
+    var safeKeys = ['c', 'x', 'z', 'y', 'v', '0'];
+    var storeKeys = [];
+    window.addEventListener("keydown", function (event) {
+      if (event.ctrlKey && !event.repeat) {
+        storeKeys.push(event.key);
+      }
+    });
+    window.addEventListener("keyup", function (event) {
+      if (event.key == "Control") {
+        var _iterator = _createForOfIteratorHelper(storeKeys),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            key = _step.value;
+
+            if (!safeKeys.includes(key.toLowerCase()) && key != "Control") {
+              Core.lostFocus('printscreen'); //massage to teacher needs to added
+
+              break;
+            }
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
+
+        if (storeKeys.length == 1 & storeKeys[0] == "Control") {
+          Core.lostFocus('printscreen'); //massage to teacher needs to added
+        }
+
+        storeKeys = [];
+      }
+    });
+  }
+}
+
+/***/ }),
+
+/***/ "./resources/js/drawing/constants.js":
+/*!*******************************************!*\
+  !*** ./resources/js/drawing/constants.js ***!
+  \*******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "svgNS": () => (/* binding */ svgNS),
+/* harmony export */   "validSvgElementKeys": () => (/* binding */ validSvgElementKeys),
+/* harmony export */   "shapePropertiesAvailableToUser": () => (/* binding */ shapePropertiesAvailableToUser),
+/* harmony export */   "validHtmlElementKeys": () => (/* binding */ validHtmlElementKeys),
+/* harmony export */   "nameInSidebarEntryForShape": () => (/* binding */ nameInSidebarEntryForShape),
+/* harmony export */   "pixelsPerCentimeter": () => (/* binding */ pixelsPerCentimeter),
+/* harmony export */   "zoomParams": () => (/* binding */ zoomParams),
+/* harmony export */   "panParams": () => (/* binding */ panParams)
+/* harmony export */ });
+var svgNS = "http://www.w3.org/2000/svg";
+var validSvgElementKeys = {
+  global: ["style", "class", "id", "stroke", "stroke-width", "stroke-dasharray", "fill", "fill-opacity", "opacity", "marker-start", "marker-mid", "marker-end"],
+  rect: ["x", "y", "width", "height", "rx", "ry", "pathLength"],
+  circle: ["cx", "cy", "r", "pathLength"],
+  line: ["x1", "y1", "x2", "y2", "pathLength"],
+  path: ["d"],
+  image: ["x", "y", "width", "height", "href", "preserveAspectRatio"],
+  text: ["x", "y", "dx", "dy", "rotate", "lengthAdjust", "data-textcontent"],
+  g: ["transform"]
+};
+var shapePropertiesAvailableToUser = {
+  drag: [],
+  freehand: ["edge", "opacity"],
+  rect: ["edge", "opacity", "fill"],
+  circle: ["edge", "opacity", "fill"],
+  line: ["edge", "opacity", "endmarker-type"],
+  text: ["opacity", "text-style"]
+};
+var validHtmlElementKeys = {
+  global: ["style", "class", "id", "title"],
+  input: ["placeholder", "type", "value", "autocomplete", "spellcheck"],
+  button: ["type"]
+};
+var nameInSidebarEntryForShape = {
+  rect: "Rechthoek",
+  circle: "Cirkel",
+  line: "Lijn",
+  text: "Tekst",
+  image: "Afbeelding",
+  path: "Penlijn"
+};
+var pixelsPerCentimeter = 35.43307;
+var zoomParams = {
+  STEP: 0.25,
+  MAX: 5,
+  MIN: 0.25
+};
+var panParams = {
+  STEP: 20
+};
+
+/***/ }),
+
+/***/ "./resources/js/drawing/drawing-question.js":
+/*!**************************************************!*\
+  !*** ./resources/js/drawing/drawing-question.js ***!
+  \**************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants.js */ "./resources/js/drawing/constants.js");
+/* harmony import */ var _svgShape_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./svgShape.js */ "./resources/js/drawing/svgShape.js");
+/* harmony import */ var _uiElements_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./uiElements.js */ "./resources/js/drawing/uiElements.js");
+/* harmony import */ var _sidebar_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./sidebar.js */ "./resources/js/drawing/sidebar.js");
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+
+
+
+
+
+window.initDrawingQuestion = function (rootElement) {
+  var _this2 = this;
+
+  /**
+   * @typedef Cursor
+   * @type {Object}
+   * @property {number} x
+   * @property {number} y
+   *
+   * @typedef propObj
+   * @type {Object.<string, string|number>}
+   *
+   * @typedef ELOptions
+   * @type {Object.<string, boolean|AbortSignal>|boolean}
+   * @typedef ELEvent
+   * @type {Object.<string, Function|ELOptions>}
+   * @typedef ELEvents
+   * @type {Object.<string, ELEvent>}
+   * @typedef EventListenerSettings
+   * @type {Object.<string, HTMLElement|ELEvents>}
+   */
+
+  /**
+   * Global Object containing all DOM Elements on the page that have an id attribute.
+   * The key is the id value converted to camelCase, the value being the DOM Element itself.
+   */
+  var UI = new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.UIElements(rootElement);
+  /**
+   * Global Object containing some parameters that don't belong in Canvas.
+   */
+
+  var drawingApp = {
+    params: {
+      currentTool: "drag",
+      boldText: false,
+      endmarkerType: "no-endmarker",
+      gridSize: 1,
+      spacebarPressed: false
+    },
+    firstInit: true,
+    warnings: {},
+    init: function init() {
+      if (this.firstInit) {
+        this.bindEventListeners(eventListenerSettings);
+      }
+
+      var drawingApp = this;
+      var pollingFunction = setInterval(function () {
+        if (UI.svgCanvas.getBoundingClientRect().width !== 0) {
+          setCorrectPopupHeight();
+          calculateCanvasBounds();
+          updateClosedSidebarWidth(); // updateMidPoint();
+
+          if (drawingApp.firstInit) {
+            makeGrid();
+          }
+
+          processGridToggleChange();
+          clearLayers();
+          retrieveSavedDrawingData();
+          Canvas.setCurrentLayer(Canvas.params.currentLayer);
+          drawingApp.firstInit = false;
+          clearInterval(pollingFunction);
+        }
+
+        console.log("loop");
+      });
+      setCorrectZIndex();
+      setCursorTypeAccordingToCurrentType();
+      updateOpacitySliderColor();
+
+      if (!this.isTeacher()) {
+        Canvas.layers.question.lock();
+        Canvas.layers.question.sidebar.style.display = "none";
+      }
+
+      this.warnings = {
+        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 2000, rootElement)
+      };
+    },
+    convertCanvas2DomCoordinates: function convertCanvas2DomCoordinates(coordinates) {
+      var matrix = Canvas.params.domMatrix;
+      return {
+        x: coordinates.x * matrix.a + matrix.e,
+        y: coordinates.y * matrix.d + matrix.f
+      };
+    },
+
+    /**
+     * Adds event listeners with the parameters specified in the settings.
+     * @param {EventListenerSettings[]} settings
+     * @param {} thisArg Specific this context when needed.
+     */
+    bindEventListeners: function bindEventListeners(settings) {
+      var _this = this;
+
+      var thisArg = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      settings.forEach(function (eventListener) {
+        var _loop = function _loop() {
+          var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
+              type = _Object$entries$_i[0],
+              params = _Object$entries$_i[1];
+
+          var types = type.split(" ");
+          types.forEach(function (type) {
+            var callbackFunction = thisArg ? params.callback.bind(thisArg) : params.callback;
+
+            if (eventListener.elements && Array.isArray(eventListener.elements)) {
+              eventListener.elements.forEach(function (elem) {
+                _this.bindToElement(elem, type, callbackFunction, params.options);
+              });
+            } else {
+              _this.bindToElement(eventListener.element, type, callbackFunction, params.options);
+            }
+          });
+        };
+
+        for (var _i = 0, _Object$entries = Object.entries(eventListener.events); _i < _Object$entries.length; _i++) {
+          _loop();
+        }
+      });
+    },
+    bindToElement: function bindToElement(elem, type, func, options) {
+      elem.addEventListener(type, function (evt) {
+        func(evt);
+      }, options);
+    },
+    currentToolIs: function currentToolIs(toolname) {
+      return this.params.currentTool === toolname;
+    },
+    isTeacher: function isTeacher() {
+      return !(UI.gridSize === undefined);
+    }
+  };
+  /**
+   * Global Object containing all parameters, Shapes and corresponding sidebarEntries.
+   */
+
+  var Canvas = function () {
+    var Obj = {
+      params: {
+        cursorPosition: {
+          x: 0,
+          y: 0
+        },
+        currentLayer: "question",
+        focusedShape: null,
+        bounds: {},
+        draw: {
+          newShape: null,
+          shapeCountForEachType: {
+            rect: 0,
+            circle: 0,
+            line: 0,
+            text: 0,
+            image: 0,
+            path: 0,
+            freehand: 0
+          }
+        },
+        drag: {
+          enabled: false,
+          translateOfSvgShape: null,
+          offsetCursorToMidPoint: null
+        },
+        pan: {
+          enabled: false,
+          startCoordinates: {
+            x: 0,
+            y: 0
+          }
+        },
+        domMatrix: new DOMMatrix(),
+        zoomFactor: 1
+      },
+      element: UI.svgCanvas,
+      layers: {},
+      dragging: function dragging() {
+        return this.params.drag.enabled;
+      },
+      panning: function panning() {
+        return this.params.pan.enabled;
+      },
+      drawing: function drawing() {
+        return this.params.draw.newShape;
+      },
+      setCurrentLayer: function setCurrentLayer(newCurrentLayerID) {
+        var oldCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(this.params.currentLayer)));
+
+        if (oldCurrentLayer === null) {
+          debugger;
+        }
+
+        oldCurrentLayer.classList.remove("highlight");
+        var newCurrentLayer = rootElement.querySelector("#".concat(this.layerKey2ID(newCurrentLayerID)));
+        newCurrentLayer.classList.add("highlight");
+        Canvas.params.currentLayer = newCurrentLayerID;
+      },
+      getEnabledLayers: function getEnabledLayers() {
+        return Object.values(this.layers).filter(function (layer) {
+          return layer.params.enabled;
+        });
+      },
+      layerID2Key: function layerID2Key(id) {
+        return id.startsWith("svg-") ? id.substring(4, id.lastIndexOf("-")) : id.substring(0, id.lastIndexOf("-"));
+      },
+      layerKey2ID: function layerKey2ID(key) {
+        return "".concat(key, "-group");
+      },
+      setFocusedShape: function setFocusedShape(shape) {
+        this.params.focusedShape = shape;
+      },
+      data: {
+        question: "",
+        answer: ""
+      },
+      makeLayers: function makeLayers() {
+        this.layers = {
+          "question": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
+            name: "Vraag",
+            id: "question-group",
+            enabled: true
+          }, drawingApp, this),
+          "answer": new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Layer({
+            name: "Antwoord",
+            id: "answer-group",
+            enabled: false
+          }, drawingApp, this),
+          "grid": {
+            svg: UI.svgGridGroup,
+            params: {
+              locked: true,
+              hidden: true
+            }
+          }
+        };
+      }
+    };
+    Obj.makeLayers();
+    return Obj;
+  }();
+
+  function clearLayers() {
+    Canvas.layers.question.clearSidebar(false);
+    Canvas.layers.answer.clearSidebar(false);
+    updateGrid();
+  }
+  /******************************
+   * EVENT LISTENERS DEFINITION *
+   ******************************/
+
+
+  var eventListenerSettings = [{
+    element: window,
+    events: {
+      "resize": {
+        callback: function callback() {
+          updateClosedSidebarWidth();
+          updateGrid();
+          setCorrectPopupHeight();
+        }
+      },
+      "keydown": {
+        callback: function callback(evt) {
+          switch (evt.code) {
+            case "Space":
+              if (!drawingApp.params.spacebarPressed) {
+                drawingApp.params.spacebarPressed = true;
+                startPan();
+              }
+
+              break;
+
+            /* Zoom in on Ctrl+'+' */
+
+            case "Equal":
+              if (evt.ctrlKey) {
+                evt.preventDefault();
+                zoomInOneStep();
+              }
+
+              break;
+
+            /* Zoom out on Ctrl+'-' */
+
+            case "Minus":
+              if (evt.ctrlKey) {
+                evt.preventDefault();
+                zoomOutOneStep();
+              }
+
+              break;
+
+            /* Restore zoom to 100% on Ctrl+'0' */
+
+            case "Digit0":
+              if (evt.ctrlKey) {
+                evt.preventDefault();
+                zoom();
+                updateZoomInputValue();
+              }
+
+              break;
+
+            case "Delete":
+              if (Canvas.params.focusedShape) {
+                if (drawingApp.currentToolIs("drag")) {
+                  Canvas.params.focusedShape.getSidebarEntry().remove();
+                }
+              }
+
+              break;
+
+            default:
+          }
+        }
+      },
+      "keyup": {
+        callback: function callback(evt) {
+          if (evt.code === "Space" && drawingApp.params.spacebarPressed) {
+            drawingApp.params.spacebarPressed = false;
+            stopPan();
+          }
+        }
+      }
+    }
+  }, {
+    element: UI.drawingTool,
+    events: {
+      "mouseup touchend mouseleave touchcancel": {
+        callback: cursorStop,
+        options: {
+          passive: false
+        }
+      },
+      "wheel": {
+        callback: function callback(evt) {
+          if (evt.ctrlKey) {
+            evt.preventDefault();
+          }
+        },
+        options: {
+          passive: false
+        }
+      },
+      "mousedown touchstart": {
+        callback: function callback() {
+          if (Canvas.params.highlightedShape) {
+            Canvas.params.highlightedShape.svg.unhighlight();
+            Canvas.params.highlightedShape = null;
+          }
+        }
+      }
+    }
+  }, {
+    element: UI.svgCanvas,
+    events: {
+      "mousedown touchstart": {
+        callback: cursorStart,
+        options: {
+          passive: false
+        }
+      },
+      "mousemove touchmove": {
+        callback: cursorMove,
+        options: {
+          passive: false
+        }
+      },
+      "wheel": {
+        callback: function callback(evt) {
+          evt.preventDefault();
+          var direction = -Math.sign(evt.deltaY);
+
+          if (evt.ctrlKey) {
+            /* Zoom on Ctrl+Scroll */
+            zoomOneStepToCursor(-direction);
+          } else if (evt.shiftKey) {
+            /* Pan horizontal on Shift+Scroll */
+            panHorizontalOneStep(direction);
+          } else {
+            /* Pan vertical on Scroll */
+            panVerticalOneStep(direction);
+          }
+        },
+        options: {
+          passive: false
+        }
+      }
+    }
+  }, {
+    elements: _toConsumableArray(rootElement.querySelectorAll("[data-button-group=tool]")),
+    events: {
+      "click": {
+        callback: processToolChange
+      }
+    }
+  }, {
+    elements: _toConsumableArray(rootElement.querySelectorAll("[data-button-group=endmarker-type]")),
+    events: {
+      "click": {
+        callback: processEndmarkerTypeChange
+      }
+    }
+  }, {
+    element: UI.boldToggle,
+    events: {
+      "change": {
+        callback: function callback(evt) {
+          drawingApp.params.boldText = evt.target.checked;
+        }
+      }
+    }
+  }, {
+    element: UI.elemOpacityNumber,
+    events: {
+      "input": {
+        callback: updateElemOpacityRangeInput
+      }
+    }
+  }, {
+    element: UI.elemOpacityRange,
+    events: {
+      "input": {
+        callback: updateElemOpacityNumberInput
+      },
+      "focus": {
+        callback: function callback() {
+          UI.elemOpacityNumber.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.elemOpacityNumber.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.strokeWidth,
+    events: {
+      "input": {
+        callback: function callback() {
+          valueWithinBounds(UI.strokeWidth);
+        }
+      }
+    }
+  }, {
+    element: UI.decrStroke,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.strokeWidth.stepDown();
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.strokeWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.strokeWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.incrStroke,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.strokeWidth.stepUp();
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.strokeWidth.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.strokeWidth.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.textSize,
+    events: {
+      "input": {
+        callback: function callback() {
+          valueWithinBounds(UI.textSize);
+        }
+      }
+    }
+  }, {
+    element: UI.decrTextSize,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.textSize.stepDown();
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.textSize.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.textSize.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.incrTextSize,
+    events: {
+      "click": {
+        callback: function callback() {
+          UI.textSize.stepUp();
+        }
+      },
+      "focus": {
+        callback: function callback() {
+          UI.textSize.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.textSize.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.fillColor,
+    events: {
+      "input": {
+        callback: updateOpacitySliderColor
+      }
+    }
+  }, {
+    element: UI.fillOpacityNumber,
+    events: {
+      "input": {
+        callback: updateFillOpacityRangeInput
+      }
+    }
+  }, {
+    element: UI.fillOpacityRange,
+    events: {
+      "input": {
+        callback: updateFillOpacityNumberInput
+      },
+      "focus": {
+        callback: function callback() {
+          UI.fillOpacityNumber.classList.add("active");
+        }
+      },
+      "blur": {
+        callback: function callback() {
+          UI.fillOpacityNumber.classList.remove("active");
+        }
+      }
+    }
+  }, {
+    element: UI.decrZoom,
+    events: {
+      "click": {
+        callback: function callback() {
+          var currentFactor = Canvas.params.zoomFactor,
+              newFactor = checkZoomFactorBounds(currentFactor - _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.STEP);
+          updateZoomInputValue(newFactor);
+          zoom(newFactor);
+        }
+      }
+    }
+  }, {
+    element: UI.incrZoom,
+    events: {
+      "click": {
+        callback: function callback() {
+          var currentFactor = Canvas.params.zoomFactor,
+              newFactor = checkZoomFactorBounds(currentFactor + _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.STEP);
+          updateZoomInputValue(newFactor);
+          zoom(newFactor);
+        }
+      }
+    }
+  }, {
+    elements: Canvas.getEnabledLayers().map(function (layer) {
+      layer.header;
+    }),
+    events: {
+      "mousedown touchstart": {
+        callback: function callback(evt) {
+          var targetHeader = evt.target;
+          var newCurrentLayerID = targetHeader.closest(".layer-group").id;
+
+          _this2.Canvas.setCurrentLayer(_this2.Canvas.layerID2Key(newCurrentLayerID));
+        }
+      }
+    }
+  }, {
+    element: UI.submitBtn,
+    events: {
+      "click": {
+        callback: submitDrawingData
+      }
+    }
+  }, {
+    element: UI.exitBtn,
+    events: {
+      "click": {
+        callback: function callback() {}
+      }
+    }
+  }];
+
+  if (drawingApp.isTeacher()) {
+    eventListenerSettings.push({
+      element: UI.imgUpload,
+      events: {
+        "change": {
+          callback: processUploadedImages
+        }
+      }
+    }, {
+      element: UI.gridToggle,
+      events: {
+        "change": {
+          callback: processGridToggleChange
+        }
+      }
+    }, {
+      element: UI.gridSize,
+      events: {
+        "input": {
+          callback: updateGrid
+        }
+      }
+    }, {
+      element: UI.decrGridSize,
+      events: {
+        "click": {
+          callback: function callback() {
+            UI.gridSize.stepDown();
+            updateGrid();
+          }
+        },
+        "focus": {
+          callback: function callback() {
+            UI.gridSize.classList.add("active");
+          }
+        },
+        "blur": {
+          callback: function callback() {
+            UI.gridSize.classList.remove("active");
+          }
+        }
+      }
+    }, {
+      element: UI.incrGridSize,
+      events: {
+        "click": {
+          callback: function callback() {
+            UI.gridSize.stepUp();
+            updateGrid();
+          }
+        },
+        "focus": {
+          callback: function callback() {
+            UI.gridSize.classList.add("active");
+          }
+        },
+        "blur": {
+          callback: function callback() {
+            UI.gridSize.classList.remove("active");
+          }
+        }
+      }
+    });
+  }
+
+  function encodeSvgLayersAsBase64Strings() {
+    return {
+      question: btoa(Canvas.layers.question.svg.innerHTML),
+      answer: btoa(Canvas.layers.answer.svg.innerHTML)
+    };
+  }
+
+  function retrieveSavedDrawingData() {
+    var data = Canvas.data;
+
+    if (data.question) {
+      decodeSvgLayerFromBase64String({
+        name: "question",
+        data: data.question
+      });
+    }
+
+    if (data.answer) {
+      decodeSvgLayerFromBase64String({
+        name: "answer",
+        data: data.answer
+      });
+      Canvas.layers.answer.enable();
+    }
+
+    if (data.question || data.answer) {//Disabled as it causes unnecessary zooming
+      // fitDrawingToScreen();
+    }
+  }
+
+  function decodeSvgLayerFromBase64String(layerData) {
+    if (layerData.data.startsWith("data:image/png;base64")) {
+      // made with old tool, load as image
+      var parentID = "question";
+      var shapeID = "image-1";
+      var newShape = makeNewSvgShapeWithSidebarEntry("image", {
+        group: {},
+        main: {
+          href: layerData.data
+        }
+      }, parentID);
+      Canvas.layers[parentID].shapes[shapeID] = newShape;
+      newShape.svg.addHighlightEvents();
+      newShape.svg.updateBorderElement();
+      newShape.svg.updateCornerElements();
+    } else {
+      var decodedString = atob(layerData.data);
+      UI.svgLayerToRender.innerHTML = decodedString;
+      renderShapesFromSvgLayerString(layerData.name);
+    }
+  }
+
+  function fitDrawingToScreen() {
+    panDrawingCenterToScreenCenter();
+
+    while (!drawingFitsScreen()) {
+      zoomOutOneStep();
+    }
+  }
+
+  function panDrawingCenterToScreenCenter() {
+    var bbox = UI.svgPanZoomGroup.getBBox({
+      fill: true,
+      stroke: true,
+      markers: true
+    });
+    var centerDrawingToOrigin = {
+      dx: -(bbox.x + bbox.width / 2),
+      dy: -(bbox.y + bbox.height / 2)
+    };
+    pan(centerDrawingToOrigin);
+  }
+
+  function drawingFitsScreen() {
+    var bbox = UI.svgPanZoomGroup.getBBox({
+      fill: true,
+      stroke: true,
+      markers: true
+    });
+    var screenBounds = Canvas.params.bounds;
+    if (bbox.x < screenBounds.left || bbox.y < screenBounds.top) return false;else return true;
+  }
+
+  function renderShapesFromSvgLayerString(layerName) {
+    var content = UI.svgLayerToRender.content;
+
+    var _iterator = _createForOfIteratorHelper(content.children),
+        _step;
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var groupElement = _step.value;
+        var mainElement = groupElement.querySelector(".main");
+        var props = {
+          group: copyAllAttributesFromElementToObject(groupElement),
+          main: copyAllAttributesFromElementToObject(mainElement)
+        };
+        var shapeID = groupElement.id,
+            shapeType = shapeID.substring(0, shapeID.indexOf("-"));
+        var newShape = makeNewSvgShapeWithSidebarEntry(shapeType, props, layerName, true, !(!drawingApp.isTeacher() && layerName === "question"));
+        Canvas.layers[layerName].shapes[shapeID] = newShape;
+        newShape.svg.addHighlightEvents();
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+
+    UI.svgLayerToRender.innerHTML = "";
+  }
+
+  function copyAllAttributesFromElementToObject(element) {
+    var attributes = {};
+
+    var _iterator2 = _createForOfIteratorHelper(element.attributes),
+        _step2;
+
+    try {
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        var attr = _step2.value;
+        attributes[attr.name] = attr.value;
+      }
+    } catch (err) {
+      _iterator2.e(err);
+    } finally {
+      _iterator2.f();
+    }
+
+    if (element.nodeName === "TEXT" && !attributes["data-textcontent"]) attributes["data-textcontent"] = element.textContent;
+    return attributes;
+  }
+
+  function calculateCanvasBounds() {
+    var matrix = Canvas.params.domMatrix;
+    var height = UI.svgCanvas.clientHeight,
+        width = UI.svgCanvas.clientWidth;
+    var bounds = {
+      top: -matrix.f,
+      bottom: height - matrix.f,
+      height: height,
+      left: -matrix.e,
+      right: width - matrix.e,
+      width: width,
+      cx: -matrix.e + width / 2,
+      cy: -matrix.f + height / 2
+    };
+
+    for (var _i2 = 0, _Object$entries2 = Object.entries(bounds); _i2 < _Object$entries2.length; _i2++) {
+      var _Object$entries2$_i = _slicedToArray(_Object$entries2[_i2], 2),
+          key = _Object$entries2$_i[0],
+          value = _Object$entries2$_i[1];
+
+      Canvas.params.bounds[key] = value / Canvas.params.zoomFactor;
+    }
+  }
+
+  function updateMidPoint() {
+    var midPoint = {
+      dx: UI.svgCanvas.clientWidth / 2,
+      dy: UI.svgCanvas.clientHeight / 2
+    };
+    pan(midPoint);
+  }
+
+  function updateClosedSidebarWidth() {
+    var currentOpenSidebarWidth = UI.sidebar.clientWidth;
+    var closedSidebarWidthString = getRootCSSProperty("--closed-sidebar-width");
+    var closedSidebarWidth = closedSidebarWidthString.substr(0, closedSidebarWidthString.length - 2);
+    setRootCSSProperty("--closed-sidebar-right-value", "".concat(closedSidebarWidth - currentOpenSidebarWidth, "px"));
+  }
+
+  function setCorrectZIndex() {
+    var popUpParentZIndex = UI.drawingTool.parentElement.style.zIndex;
+    setRootCSSProperty("--pop-up-z-index", popUpParentZIndex);
+  }
+
+  function setCorrectPopupHeight() {// UI.drawingTool.style.height = Math.round(window.innerHeight * 0.95) + "px";
+  }
+
+  function submitDrawingData() {
+    // parent.skip = true;
+    var b64Strings = encodeSvgLayersAsBase64Strings();
+    var grid = Canvas.layers.grid.params.hidden ? "0.00" : drawingApp.params.gridSize.toString();
+    var panGroupSize = getPanGroupSize();
+    Livewire.emit("drawing_data_updated", {
+      svg_answer: b64Strings.answer,
+      svg_question: b64Strings.question,
+      svg_grid: grid,
+      svg_zoom_group: panGroupSize
+    });
+    makePreviewGrid(grid);
+  }
+  /**
+   * Event handler for down events of the cursor.
+   * Calls either startDrag() or startDraw() based on currentType.
+   * @param {Event} evt
+   */
+
+
+  function cursorStart(evt) {
+    var _evt$touches;
+
+    evt.preventDefault();
+    updateCursorPosition(evt);
+    if (Canvas.params.focusedShape) Canvas.params.focusedShape = null;
+
+    if (Canvas.params.highlightedShape) {
+      Canvas.params.highlightedShape.svg.unhighlight();
+      Canvas.params.highlightedShape = null;
+    }
+
+    if (((_evt$touches = evt.touches) === null || _evt$touches === void 0 ? void 0 : _evt$touches.length) == 2) {
+      startPan(evt);
+    } else if (drawingApp.params.currentTool == "drag") {
+      startDrag(evt);
+    } else {
+      startDraw(evt);
+    }
+  }
+
+  function startDrag(evt) {
+    var shapeGroup = evt.target.closest(".shape");
+    if (!shapeGroup) return;
+    var layerID = shapeGroup.parentElement.id;
+    var layerObject = Canvas.layers[Canvas.layerID2Key(layerID)];
+    if (!shapeMayBeDragged(shapeGroup, layerObject)) return;
+    var selectedSvgShape = evt.target.closest("g.shape");
+    var existingTransforms = selectedSvgShape.transform.baseVal;
+
+    if (!elementHasTransforms(existingTransforms)) {
+      createNewTranslateTransform(selectedSvgShape);
+    } else if (!firstTransformIsOfTypeTranslate(existingTransforms)) {
+      createNewTranslateTransform(selectedSvgShape);
+    }
+
+    var translateOfSvgShape = getFirstTransform(existingTransforms);
+    Canvas.params.drag = {
+      enabled: true,
+      offsetCursorToMidPoint: calculateCursorToMidPointOffset(translateOfSvgShape),
+      translateOfSvgShape: translateOfSvgShape
+    };
+    selectedSvgShape.classList.add("dragging");
+  }
+
+  function shapeMayBeDragged(shapeGroup, layerObject) {
+    return shapeGroup.classList.contains("draggable") && !layerObject.params.locked;
+  }
+
+  function elementHasTransforms(transforms) {
+    return transforms.length !== 0;
+  }
+
+  function createNewTranslateTransform(shape) {
+    var translate = UI.svgCanvas.createSVGTransform();
+    translate.setTranslate(0, 0);
+    shape.transform.baseVal.insertItemBefore(translate, 0);
+  }
+
+  function firstTransformIsOfTypeTranslate(transforms) {
+    return getFirstTransform(transforms).type === SVGTransform.SVG_TRANSFORM_TRANSLATE;
+  }
+
+  function getFirstTransform(transforms) {
+    return transforms.getItem(0);
+  }
+
+  function calculateCursorToMidPointOffset(translate) {
+    var cursorPosition = Canvas.params.cursorPosition;
+    return {
+      x: cursorPosition.x - translate.matrix.e,
+      y: cursorPosition.y - translate.matrix.f
+    };
+  }
+
+  function startPan() {
+    Canvas.params.pan = {
+      enabled: true,
+      startCoordinates: Canvas.params.cursorPosition
+    };
+  }
+
+  function startDraw(evt) {
+    var _newShape$svg$onDrawS, _newShape$svg;
+
+    var cursorPosition = Canvas.params.cursorPosition;
+    Canvas.params.cursorPosition = cursorPosition;
+    var currentTool = drawingApp.params.currentTool,
+        properties = determinePropertiesForShape(currentTool),
+        parent = Canvas.params.currentLayer;
+    var newShape = makeNewSvgShapeWithSidebarEntry(currentTool, properties, parent);
+    (_newShape$svg$onDrawS = (_newShape$svg = newShape.svg).onDrawStart) === null || _newShape$svg$onDrawS === void 0 ? void 0 : _newShape$svg$onDrawS.call(_newShape$svg, evt, cursorPosition);
+    var shapeID = Canvas.params.draw.shapeCountForEachType[currentTool];
+    var shapeObjectID = "".concat(currentTool, "-").concat(shapeID);
+    var layerObject = Canvas.layers[Canvas.params.currentLayer];
+    layerObject.shapes[shapeObjectID] = newShape;
+    layerObject.unhideIfHidden();
+    Canvas.params.draw.newShape = newShape;
+  }
+
+  function determinePropertiesForShape(type) {
+    return {
+      main: determineMainElementAttributes(type)
+    };
+  }
+
+  function determineMainElementAttributes(type) {
+    var cursorPosition = Canvas.params.cursorPosition;
+
+    switch (type) {
+      case "rect":
+        return {
+          "x": cursorPosition.x,
+          "y": cursorPosition.y,
+          "width": 0,
+          "height": 0,
+          "fill": UI.fillOpacityNumber.value == 0 ? "none" : UI.fillColor.value,
+          "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
+          "stroke": UI.strokeColor.value,
+          "stroke-width": UI.strokeWidth.value,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
+        };
+
+      case "circle":
+        return {
+          "cx": cursorPosition.x,
+          "cy": cursorPosition.y,
+          "r": 0,
+          "fill": UI.fillOpacityNumber.value == 0 ? "none" : UI.fillColor.value,
+          "fill-opacity": parseFloat(UI.fillOpacityNumber.value / 100),
+          "stroke": UI.strokeColor.value,
+          "stroke-width": UI.strokeWidth.value,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
+        };
+
+      case "line":
+        return {
+          "x1": cursorPosition.x,
+          "y1": cursorPosition.y,
+          "x2": cursorPosition.x,
+          "y2": cursorPosition.y,
+          "marker-end": "url(#svg-".concat(drawingApp.params.endmarkerType, "-line)"),
+          "stroke": UI.strokeColor.value,
+          "stroke-width": UI.strokeWidth.value,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
+        };
+
+      case "freehand":
+        return {
+          "d": "M ".concat(cursorPosition.x, ",").concat(cursorPosition.y),
+          "fill": "none",
+          "stroke": UI.strokeColor.value,
+          "stroke-width": UI.strokeWidth.value,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100)
+        };
+
+      case "text":
+        return {
+          "x": cursorPosition.x,
+          "y": cursorPosition.y,
+          "fill": UI.textColor.value,
+          "stroke-width": 0,
+          "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
+          "style": "".concat(drawingApp.params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(parseInt(UI.textSize.value), "px")
+        };
+
+      default:
+    }
+  }
+
+  function makeNewSvgShapeWithSidebarEntry(type, props, parent, withHelperElements, withHighlightEvents) {
+    var svgShape = makeNewSvgShape(type, props, Canvas.layers[parent].svg, withHelperElements, withHighlightEvents);
+    var newSidebarEntry = new _sidebar_js__WEBPACK_IMPORTED_MODULE_3__.Entry(svgShape, drawingApp);
+    Canvas.layers[parent].addEntry(newSidebarEntry);
+    svgShape.setSidebarEntry(newSidebarEntry);
+    return {
+      svg: svgShape,
+      sidebar: newSidebarEntry
+    };
+  }
+  /**
+   * Determines based on type which shape constructor to call and returns the created object.
+   * @param {string} type Type of svgShape to be created.
+   * @param {propObj} props Properties which will be appended to the main svgElement.
+   * @param {?SVGElement} parent The parent to which the created svgShape will be added. Defaults to an empty SVGElement().
+   * @returns A shape object of the right type
+   */
+
+
+  function makeNewSvgShape(type, props) {
+    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : new SVGElement();
+    var withHelperElements = arguments.length > 3 ? arguments[3] : undefined;
+    var withHighlightEvents = arguments.length > 4 ? arguments[4] : undefined;
+    var shapeID = ++Canvas.params.draw.shapeCountForEachType[type];
+
+    switch (type) {
+      case "rect":
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+      case "circle":
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Circle(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+      case "line":
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Line(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+      case "text":
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Text(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+      case "image":
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Image(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+      case "path":
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Path(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+      case "freehand":
+        return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Freehand(shapeID, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+      default:
+        console.error("makeShapeOfRightType(): type  (".concat(type, ") is not valid. No shape was created."));
+        return null;
+    }
+  }
+  /**
+   * Event handler for moving of the cursor.
+   * @param {Event} evt
+   */
+
+
+  function cursorMove(evt) {
+    updateCursorPosition(evt);
+    var cursorPosition = Canvas.params.cursorPosition;
+    showCursorPosition(cursorPosition);
+
+    if (Canvas.panning()) {
+      processUserPan();
+    } else if (Canvas.dragging()) {
+      drag(evt);
+    } else if (Canvas.drawing()) {
+      var _Canvas$params$draw$n, _Canvas$params$draw$n2;
+
+      (_Canvas$params$draw$n = (_Canvas$params$draw$n2 = Canvas.params.draw.newShape.svg).onDraw) === null || _Canvas$params$draw$n === void 0 ? void 0 : _Canvas$params$draw$n.call(_Canvas$params$draw$n2, evt, cursorPosition);
+    }
+
+    Canvas.params.cursorPosition = cursorPosition;
+  }
+
+  function updateCursorPosition(evt) {
+    Canvas.params.cursorPosition = getCursorPosition(evt);
+  }
+  /**
+   * Calculates the position of the cursor in CTM of the SVG canvas.
+   * @param {Event} evt
+   * @returns {Cursor} The X and Y coordinates of the cursor
+   */
+
+
+  function getCursorPosition(evt) {
+    var _evt$touches2;
+
+    var CTM = UI.svgPanZoomGroup.getScreenCTM();
+    evt = ((_evt$touches2 = evt.touches) === null || _evt$touches2 === void 0 ? void 0 : _evt$touches2[0]) || evt;
+    return {
+      x: (evt.clientX - CTM.e) / CTM.a,
+      y: (evt.clientY - CTM.f) / CTM.d
+    };
+  }
+  /**
+   * Shows provided cursor coordinates on screen.
+   * @param {Cursor} position Cursor coordinates.
+   */
+
+
+  function showCursorPosition(position) {
+    var cursorXTrunc = Math.trunc(position.x),
+        cursorYTrunc = Math.trunc(position.y);
+    UI.cursorPos.innerText = "X ".concat(cursorXTrunc, ", Y ").concat(cursorYTrunc * -1);
+  }
+
+  function drag(evt) {
+    evt.preventDefault();
+    var difference = calculateDistanceCursor(Canvas.params.drag.offsetCursorToMidPoint, Canvas.params.cursorPosition);
+    Canvas.params.drag.translateOfSvgShape.setTranslate(difference.dx, difference.dy);
+  }
+
+  function processUserPan() {
+    var difference = calculateDistanceCursor(Canvas.params.pan.startCoordinates, Canvas.params.cursorPosition);
+    pan(difference);
+  }
+  /**
+   * Moves the canvas the specified distance. If no distance is specified it doesn't move.
+   * @param {Object.<string, number>} distance
+   * @param {number} distance.dx
+   * @param {number} distance.dy
+   */
+
+
+  function pan() {
+    var distance = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+      dx: 0,
+      dy: 0
+    };
+    var matrix = Canvas.params.domMatrix;
+    var ratio = Canvas.params.zoomFactor;
+    matrix.translateSelf(distance.dx * ratio, distance.dy * ratio);
+    setPanZoomMatrix(matrix);
+    calculateCanvasBounds();
+    updateGrid();
+  }
+  /**
+   * Moves the canvas in horizontal direction, LEFT when direction 1, RIGHT when direction -1.
+   * @param {number} direction defaults to 0.
+   */
+
+
+  function panHorizontalOneStep() {
+    var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    pan({
+      dx: _constants_js__WEBPACK_IMPORTED_MODULE_0__.panParams.STEP * direction / Canvas.params.zoomFactor,
+      dy: 0
+    });
+  }
+  /**
+   * Moves the canvas in vertical direction, UP when direction 1, DOWN when direction -1.
+   * @param {number} direction defaults to 0.
+   */
+
+
+  function panVerticalOneStep() {
+    var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    pan({
+      dx: 0,
+      dy: _constants_js__WEBPACK_IMPORTED_MODULE_0__.panParams.STEP * direction / Canvas.params.zoomFactor
+    });
+  }
+  /**
+   * Zooms the canvas to the specified level. If no level is specified, it zooms to 100%;
+   * If no origin is specified, it zooms with respect to the midpoint of the viewport.
+   * @param {number} level
+   * @param {Object.<string, number>} origin
+   * @param {number} origin.x
+   * @param {number} origin.y
+   */
+
+
+  function zoom() {
+    var level = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    var origin = arguments.length > 1 ? arguments[1] : undefined;
+    var currentFactor = Canvas.params.zoomFactor,
+        factorToBeZoomed = level / currentFactor;
+
+    if (!origin) {
+      var bounds = Canvas.params.bounds;
+      origin = {
+        x: bounds.cx,
+        y: bounds.cy
+      };
+    }
+
+    var matrix = Canvas.params.domMatrix;
+    matrix.scaleSelf(factorToBeZoomed, factorToBeZoomed, 1, origin.x, origin.y);
+    Canvas.params.zoomFactor *= factorToBeZoomed;
+    setPanZoomMatrix(matrix);
+    calculateCanvasBounds();
+    updateGrid();
+  }
+  /**
+   * Zooms the canvas in by one step with respect to the midpoint of the viewport.
+   */
+
+
+  function zoomInOneStep() {
+    zoomOneStep(-1);
+  }
+  /**
+   * Zooms the canvas out by one step with respect to the midpoint of the viewport.
+   */
+
+
+  function zoomOutOneStep() {
+    zoomOneStep(1);
+  }
+  /**
+   * Zooms the canvas by one step, OUT when direction is 1, IN when direction is -1.
+   * @param {number} direction defaults to 0.
+   * @param {Object.<string, number>} origin
+   * @param {number} origin.x
+   * @param {number} origin.y
+   */
+
+
+  function zoomOneStep() {
+    var direction = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    var origin = arguments.length > 1 ? arguments[1] : undefined;
+    var factor = Canvas.params.zoomFactor - _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.STEP * direction;
+    factor = checkZoomFactorBounds(factor);
+    zoom(factor, origin);
+    updateZoomInputValue(factor);
+  }
+  /**
+   * Zooms the canvas by one step with the cursorPosition as origin.
+   * @param {number} direction
+   */
+
+
+  function zoomOneStepToCursor(direction) {
+    var cursorPosition = Canvas.params.cursorPosition;
+    zoomOneStep(direction, cursorPosition);
+  }
+  /**
+   * Sets the transform matrix on the svgPanZoomGroup.
+   * @param {DOMMatrix} matrix
+   */
+
+
+  function setPanZoomMatrix(matrix) {
+    UI.svgPanZoomGroup.setAttributeNS(null, "transform", matrix.toString());
+  }
+
+  function calculateDistanceCursor(oldCoords, currentCoords) {
+    return {
+      dx: currentCoords.x - oldCoords.x,
+      dy: currentCoords.y - oldCoords.y
+    };
+  }
+
+  function updateZoomInputValue() {
+    var value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+    UI.zoomLevel.value = value * 100 + "%";
+  }
+
+  function checkZoomFactorBounds(value) {
+    if (value > _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MAX) value = _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MAX;
+    if (value < _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MIN) value = _constants_js__WEBPACK_IMPORTED_MODULE_0__.zoomParams.MIN;
+    return value;
+  }
+
+  function cursorStop(evt) {
+    updateCursorPosition(evt);
+
+    if (Canvas.drawing()) {
+      stopDraw(evt);
+    } else if (Canvas.dragging()) {
+      stopDrag();
+    } else if (Canvas.panning()) {
+      stopPan();
+    }
+  }
+
+  function stopDraw(evt) {
+    var _newShape$svg$onDrawE, _newShape$svg2;
+
+    var newShape = Canvas.params.draw.newShape;
+    (_newShape$svg$onDrawE = (_newShape$svg2 = newShape.svg).onDrawEnd) === null || _newShape$svg$onDrawE === void 0 ? void 0 : _newShape$svg$onDrawE.call(_newShape$svg2, evt, Canvas.params.cursorPosition);
+    newShape.svg.addHighlightEvents();
+    Canvas.params.highlightedShape = newShape;
+    Canvas.params.draw.newShape = null;
+  }
+
+  function stopDrag() {
+    UI.svgCanvas.querySelector("g.dragging").classList.remove("dragging");
+    Canvas.params.drag.enabled = false;
+  }
+
+  function stopPan() {
+    Canvas.params.pan.enabled = false;
+  }
+
+  function processToolChange(evt) {
+    var currentTool = drawingApp.params.currentTool,
+        newTool = determineNewTool(evt);
+    if (currentTool == newTool) return;
+    drawingApp.params.currentTool = newTool;
+    makeSelectedBtnActive(evt.currentTarget);
+    enableSpecificPropSelectInputs();
+    setCursorTypeAccordingToCurrentType();
+
+    if (!drawingApp.currentToolIs("drag")) {
+      drawingApp.warnings.whenAnyToolButDragSelected.show();
+    }
+  }
+
+  function determineNewTool(evt) {
+    var id = evt.currentTarget.id;
+    var startOfSlice = id.indexOf("-") + 1,
+        endOfSlice = id.lastIndexOf("-");
+
+    if (endOfSlice == startOfSlice - 1 || endOfSlice == -1) {
+      endOfSlice = startOfSlice - 1;
+      startOfSlice = 0;
+    }
+
+    return id.slice(startOfSlice, endOfSlice);
+  }
+
+  function processEndmarkerTypeChange(evt) {
+    drawingApp.params.endmarkerType = determineNewEndmarkerType(evt);
+    makeSelectedBtnActive(evt.currentTarget);
+  }
+
+  function determineNewEndmarkerType(evt) {
+    return evt.currentTarget.id;
+  }
+
+  function processUploadedImages(evt) {
+    var _iterator3 = _createForOfIteratorHelper(evt.target.files),
+        _step3;
+
+    try {
+      for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+        var fileURL = _step3.value;
+        var reader = new FileReader();
+        reader.readAsDataURL(fileURL);
+        drawingApp.bindEventListeners([{
+          element: reader,
+          events: {
+            loadend: {
+              callback: fileLoadedIntoReader
+            },
+            error: {
+              callback: function callback() {
+                console.error("Something went wrong while loading this image.");
+              }
+            }
+          }
+        }]);
+      }
+    } catch (err) {
+      _iterator3.e(err);
+    } finally {
+      _iterator3.f();
+    }
+
+    UI.imgUpload.value = null;
+  }
+
+  function fileLoadedIntoReader(evt) {
+    var imageURL = evt.target.result;
+    var dummyImage = new Image();
+    dummyImage.src = imageURL;
+    drawingApp.bindEventListeners([{
+      element: dummyImage,
+      events: {
+        load: {
+          callback: dummyImageLoaded
+        },
+        error: {
+          callback: function callback() {
+            console.error("Something went wrong while processing this image.");
+          }
+        }
+      }
+    }]);
+  }
+
+  function dummyImageLoaded(evt) {
+    var dummyImage = evt.target,
+        scaleFactor = correctImageSize(dummyImage),
+        imageURL = dummyImage.src;
+    var shape = makeNewSvgShapeWithSidebarEntry("image", {
+      main: {
+        href: imageURL,
+        width: dummyImage.width * scaleFactor,
+        height: dummyImage.height * scaleFactor
+      }
+    }, Canvas.params.currentLayer);
+    shape.svg.addHighlightEvents();
+  }
+
+  function correctImageSize(image) {
+    var canvasWidth = UI.svgCanvas.clientWidth,
+        canvasHeight = UI.svgCanvas.clientHeight;
+    var scaleFactor = 1;
+
+    if (image.width > canvasWidth) {
+      scaleFactor = canvasWidth / image.width;
+
+      if (image.height * scaleFactor > canvasHeight) {
+        scaleFactor = canvasHeight / image.height;
+      }
+    } else if (image.height > canvasHeight) {
+      scaleFactor = canvasHeight / image.height;
+
+      if (image.width * scaleFactor > canvasWidth) {
+        scaleFactor = canvasWidth / image.width;
+      }
+    }
+
+    return scaleFactor * 0.99;
+  }
+
+  function processGridToggleChange() {
+    if (drawingApp.isTeacher()) {
+      var gridState = !UI.gridToggle.checked;
+      UI.gridSize.disabled = gridState;
+      UI.decrGridSize.disabled = gridState;
+      UI.incrGridSize.disabled = gridState;
+      Canvas.layers.grid.params.hidden = gridState;
+    }
+
+    updateGridVisibility();
+  }
+
+  function makeGrid() {
+    var props = {
+      group: {
+        style: "display: none;"
+      },
+      main: {},
+      origin: {
+        stroke: "var(--all-BlueGrey)",
+        id: "grid-origin"
+      },
+      size: drawingApp.isTeacher() ? UI.gridSize.value : drawingApp.params.gridSize
+    };
+    Canvas.layers.grid.shape = new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, UI.svgGridGroup, drawingApp, Canvas);
+  }
+
+  function updateGridVisibility() {
+    var grid = Canvas.layers.grid,
+        shape = grid.shape;
+
+    if (!grid.params.hidden && (drawingApp.isTeacher() ? valueWithinBounds(UI.gridSize) : true)) {
+      shape.show();
+      return;
+    }
+
+    shape.hide();
+  }
+
+  function updateGrid() {
+    if (drawingApp.isTeacher()) {
+      if (valueWithinBounds(UI.gridSize)) {
+        drawingApp.params.gridSize = UI.gridSize.value;
+        Canvas.layers.grid.shape.update();
+      }
+    } else {
+      Canvas.layers.grid.shape.update();
+    }
+  }
+
+  function updateElemOpacityNumberInput() {
+    valueWithinBounds(UI.elemOpacityRange);
+    UI.elemOpacityNumber.value = UI.elemOpacityRange.value;
+    updateOpacitySliderColor();
+  }
+
+  function updateElemOpacityRangeInput() {
+    if (!valueWithinBounds(UI.elemOpacityNumber)) return;
+    UI.elemOpacityRange.value = UI.elemOpacityNumber.value;
+    updateOpacitySliderColor();
+  }
+
+  function updateOpacitySliderColor() {
+    setSliderColor(UI.fillOpacityRange, UI.fillColor.value);
+    setSliderColor(UI.elemOpacityRange);
+  }
+  /**
+   * Sets the '--slider-color' property on the _slider_ to a linear-gradient
+   * where the color left of the knob is determined by _leftColorHexValue_.
+   * @param {HTMLElement} slider The slider to update.
+   * @param {?string} leftColorHexValue The hexadecimal value for the color left of the knob.
+   */
+
+
+  function setSliderColor(slider) {
+    var leftColorHexValue = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : getRootCSSProperty("--all-Base");
+    var ratio = calculateRatioOfValueToMax(slider);
+    var leftColorRgbaValue = convertHexToRgbaColor(leftColorHexValue, slider.value);
+    slider.style.setProperty("--slider-color", "linear-gradient(to right, ".concat(leftColorRgbaValue, " 0%, ").concat(leftColorRgbaValue, " ").concat(ratio, "%, var(--all-White) ").concat(ratio, "%, var(--all-White) 100%)"));
+  }
+  /**
+   * Gets the value of the property from the CSS :root selector element
+   * @param {string} property
+   * @returns {string} The value of the property
+   */
+
+
+  function getRootCSSProperty(property) {
+    return window.getComputedStyle(document.documentElement).getPropertyValue(property);
+  }
+
+  function setRootCSSProperty(property, value) {
+    document.documentElement.style.setProperty(property, value);
+  }
+  /**
+   * Calculates the ratio between the current value and the max value of the slider.
+   * @param {HTMLElement} input The input of which to calculate the ratio.
+   * @returns {Number} The ratio, clipped on two decimals.
+   */
+
+
+  function calculateRatioOfValueToMax(input) {
+    return ((input.value - input.min) / (input.max - input.min) * 100).toFixed(2);
+  }
+  /**
+   * Converts a color defined in hexadecimal and an opacity [0,100] to a color defined with rgba()
+   * @param {string} color Hexadecimal string (#xxxxxx)
+   * @param {number} A Number [0,100] representing the Alpha (opacity)
+   * @returns 'rgba(red, blue, green, alpha)' as a string.
+   */
+
+
+  function convertHexToRgbaColor(color, A) {
+    color = color.trim();
+    var R = parseInt(color.substring(1, 3), 16),
+        G = parseInt(color.substring(3, 5), 16),
+        B = parseInt(color.substring(5, 7), 16);
+    return "rgba(".concat(R, ", ").concat(G, ", ").concat(B, ", ").concat(parseFloat(A) / 100, ")");
+  }
+
+  function updateFillOpacityNumberInput() {
+    valueWithinBounds(UI.fillOpacityRange);
+    UI.fillOpacityNumber.value = UI.fillOpacityRange.value;
+    updateOpacitySliderColor();
+  }
+
+  function updateFillOpacityRangeInput() {
+    if (!valueWithinBounds(UI.fillOpacityNumber)) return;
+    UI.fillOpacityRange.value = UI.fillOpacityNumber.value;
+    updateOpacitySliderColor();
+  }
+
+  function valueWithinBounds(inputElem) {
+    var value = parseFloat(inputElem.value),
+        max = parseFloat(inputElem.max),
+        min = parseFloat(inputElem.min);
+
+    if (Number.isNaN(value) || value == 0) {
+      return false;
+    }
+
+    if (value > max) {
+      inputElem.value = inputElem.max;
+    } else if (value < min) {
+      inputElem.value = inputElem.min;
+    }
+
+    return true;
+  }
+
+  function setCursorTypeAccordingToCurrentType() {
+    var _cursors$drawingApp$p;
+
+    var cursors = {
+      drag: {
+        locked: "var(--cursor-default)",
+        draggable: "var(--cursor-move-shape)",
+        canvas: "var(--cursor-default)"
+      },
+      freehand: {
+        locked: "var(--cursor-freehand)",
+        draggable: "var(--cursor-freehand)",
+        canvas: "var(--cursor-freehand)"
+      },
+      "default": {
+        locked: "var(--cursor-crosshair)",
+        draggable: "var(--cursor-crosshair)",
+        canvas: ""
+      }
+    };
+    setCursors((_cursors$drawingApp$p = cursors[drawingApp.params.currentTool]) !== null && _cursors$drawingApp$p !== void 0 ? _cursors$drawingApp$p : cursors["default"]);
+  }
+
+  function setCursors(cursor) {
+    UI.svgCanvas.style.setProperty("--cursor-type-locked", cursor.locked);
+    UI.svgCanvas.style.setProperty("--cursor-type-draggable", cursor.draggable);
+    UI.svgCanvas.style.setProperty("cursor", cursor.canvas);
+  }
+
+  function enableSpecificPropSelectInputs() {
+    var _iterator4 = _createForOfIteratorHelper(UI.properties.children),
+        _step4;
+
+    try {
+      for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
+        var child = _step4.value;
+        child.style.display = "none";
+      }
+    } catch (err) {
+      _iterator4.e(err);
+    } finally {
+      _iterator4.f();
+    }
+
+    _constants_js__WEBPACK_IMPORTED_MODULE_0__.shapePropertiesAvailableToUser[drawingApp.params.currentTool].forEach(function (prop) {
+      rootElement.querySelector("#".concat(prop)).style.display = "flex";
+    });
+  }
+
+  function makeSelectedBtnActive(selectedBtn) {
+    var btnGroupName = selectedBtn.getAttribute("data-button-group");
+    var activeBtnsOfBtnGroup = rootElement.querySelectorAll("[data-button-group=".concat(btnGroupName, "].active"));
+
+    for (var _i3 = 0, _arr2 = _toConsumableArray(activeBtnsOfBtnGroup); _i3 < _arr2.length; _i3++) {
+      var btn = _arr2[_i3];
+      btn.classList.remove("active");
+    }
+
+    selectedBtn.classList.add("active");
+  }
+
+  function getPanGroupSize() {
+    Canvas.layers.grid.shape.hide();
+    var questionLayerHidden = Canvas.layers.question.isHidden();
+    var answerLayerHidden = Canvas.layers.answer.isHidden();
+
+    if (questionLayerHidden) {
+      Canvas.layers.question.unhide();
+    }
+
+    if (answerLayerHidden) {
+      Canvas.layers.answer.unhide();
+    }
+
+    var panGroupSize = UI.svgPanZoomGroup.getBBox();
+
+    if (questionLayerHidden) {
+      Canvas.layers.question.hide();
+    }
+
+    if (answerLayerHidden) {
+      Canvas.layers.answer.hide();
+    }
+
+    return {
+      x: panGroupSize.x,
+      y: panGroupSize.y,
+      width: panGroupSize.width,
+      height: panGroupSize.height
+    };
+  }
+
+  return {
+    UI: UI,
+    Canvas: Canvas,
+    drawingApp: drawingApp
+  };
+};
+
+function clearPreviewGrid() {
+  var gridContainer = rootElement.querySelector('#grid-preview-svg');
+
+  if (gridContainer.firstChild !== null) {
+    gridContainer.firstChild.remove();
+  }
+}
+
+window.makePreviewGrid = function (gridSvg) {
+  clearPreviewGrid();
+  var props = {
+    group: {
+      style: ""
+    },
+    main: {},
+    origin: {
+      stroke: "var(--teacher-Primary)",
+      id: "grid-origin"
+    },
+    size: gridSvg
+  };
+  var parent = rootElement.querySelector('#grid-preview-svg');
+  return new _svgShape_js__WEBPACK_IMPORTED_MODULE_1__.Grid(0, props, parent, null, null);
+};
+
+window.calculatePreviewBounds = function () {
+  var parent = rootElement.querySelector('#preview-svg');
+  var matrix = new DOMMatrix();
+  var height = parent.clientHeight,
+      width = parent.clientWidth;
+  return {
+    top: -matrix.f,
+    bottom: height - matrix.f,
+    height: height,
+    left: -matrix.e,
+    right: width - matrix.e,
+    width: width,
+    cx: -matrix.e + width / 2,
+    cy: -matrix.f + height / 2
+  };
+};
+
+/***/ }),
+
+/***/ "./resources/js/drawing/htmlElement.js":
+/*!*********************************************!*\
+  !*** ./resources/js/drawing/htmlElement.js ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "htmlElement": () => (/* binding */ htmlElement)
+/* harmony export */ });
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants.js */ "./resources/js/drawing/constants.js");
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+
+var htmlElement = /*#__PURE__*/function () {
+  /**
+   *
+   * @param {string} type
+   * @param {DOMElement} parent
+   * @param {propObj} attr
+   */
+  function htmlElement(type, parent, attr) {
+    _classCallCheck(this, htmlElement);
+
+    this.type = type;
+    this.element = this.createElement(this.type);
+    this.parent = parent;
+    this.parent.appendChild(this.element);
+    this.setAttributesOnElement(attr);
+  }
+
+  _createClass(htmlElement, [{
+    key: "setAttributesOnElement",
+    value: function setAttributesOnElement(attr) {
+      for (var _i = 0, _Object$entries = Object.entries(attr); _i < _Object$entries.length; _i++) {
+        var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
+            key = _Object$entries$_i[0],
+            value = _Object$entries$_i[1];
+
+        this.setAttributeOnElementWithValidation(key, value);
+      }
+    }
+  }, {
+    key: "setAttributeOnElementWithValidation",
+    value: function setAttributeOnElementWithValidation(key, value) {
+      if (this.attributeIsValid(key)) {
+        this.element.setAttribute(key, value);
+      } else {
+        console.info("Attribute %c".concat(key, "%c is invalid for this element (type: ").concat(this.type, ") and has been ignored."), "font-style: italic", null);
+      }
+    }
+  }, {
+    key: "attributeIsValid",
+    value: function attributeIsValid(key) {
+      var attrKeysToLoopOver = _constants_js__WEBPACK_IMPORTED_MODULE_0__.validHtmlElementKeys.global.concat(_constants_js__WEBPACK_IMPORTED_MODULE_0__.validHtmlElementKeys[this.type]);
+      return attrKeysToLoopOver.some(function (attr) {
+        return attr === key;
+      });
+    }
+  }, {
+    key: "addEventListener",
+    value: function addEventListener(type, cbFunction) {
+      this.element.addEventListener(type, cbFunction);
+    }
+  }, {
+    key: "focus",
+    value: function focus() {
+      this.element.focus();
+    }
+  }, {
+    key: "deleteElement",
+    value: function deleteElement() {
+      this.element.remove();
+    }
+  }, {
+    key: "createElement",
+    value: function createElement(type) {
+      return document.createElement(type);
+    }
+  }]);
+
+  return htmlElement;
+}();
+
+/***/ }),
+
+/***/ "./resources/js/drawing/sidebar.js":
+/*!*****************************************!*\
+  !*** ./resources/js/drawing/sidebar.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Entry": () => (/* binding */ Entry),
+/* harmony export */   "Layer": () => (/* binding */ Layer)
+/* harmony export */ });
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants.js */ "./resources/js/drawing/constants.js");
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } Object.defineProperty(subClass, "prototype", { value: Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }), writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+
+
+var sidebarComponent = /*#__PURE__*/function () {
+  function sidebarComponent(drawingApp, Canvas) {
+    _classCallCheck(this, sidebarComponent);
+
+    this.drawingApp = drawingApp;
+    this.Canvas = Canvas;
+  }
+
+  _createClass(sidebarComponent, [{
+    key: "showFirstIcon",
+    value: function showFirstIcon(element) {
+      element.querySelectorAll("svg")[0].style.display = "block";
+      element.querySelectorAll("svg")[1].style.display = "none";
+    }
+  }, {
+    key: "showSecondIcon",
+    value: function showSecondIcon(element) {
+      element.querySelectorAll("svg")[0].style.display = "none";
+      element.querySelectorAll("svg")[1].style.display = "block";
+    }
+  }]);
+
+  return sidebarComponent;
+}();
+
+var Entry = /*#__PURE__*/function (_sidebarComponent) {
+  _inherits(Entry, _sidebarComponent);
+
+  var _super = _createSuper(Entry);
+
+  function Entry(shape, drawingApp, Canvas) {
+    var _this;
+
+    _classCallCheck(this, Entry);
+
+    _this = _super.call(this, drawingApp, Canvas);
+    _this.svgShape = shape;
+    var entryTemplate = document.getElementById("shape-group-template");
+    var templateCopy = entryTemplate.content.cloneNode(true);
+    _this.entryContainer = templateCopy.querySelector(".shape-container");
+    _this.entryTitle = templateCopy.querySelector(".shape-title");
+    _this.btns = {
+      "delete": templateCopy.querySelector(".remove-btn"),
+      lock: templateCopy.querySelector(".lock-btn"),
+      hide: templateCopy.querySelector(".hide-btn"),
+      drag: templateCopy.querySelector(".drag-btn")
+    };
+    _this.type = _this.svgShape.type === "path" ? "freehand" : _this.svgShape.type;
+    _this.id = "".concat(_this.type, "-").concat(_this.svgShape.shapeId);
+    _this.entryContainer.id = "shape-".concat(_this.id);
+    _this.entryTitle.innerText = "".concat(_constants_js__WEBPACK_IMPORTED_MODULE_0__.nameInSidebarEntryForShape[_this.svgShape.type], " ").concat(_this.svgShape.shapeId);
+
+    _this.drawingApp.bindEventListeners(_this.eventListenerSettings, _assertThisInitialized(_this));
+
+    _this.updateLockState();
+
+    _this.updateHideState();
+
+    return _this;
+  }
+
+  _createClass(Entry, [{
+    key: "eventListenerSettings",
+    get: function get() {
+      var _this2 = this;
+
+      return [{
+        element: this.entryContainer,
+        events: {
+          "dragstart": {
+            callback: function callback(evt) {
+              evt.currentTarget.classList.add("dragging");
+            }
+          },
+          "dragend": {
+            callback: function callback(evt) {
+              _this2.updateDraggedElementPosition(evt);
+            }
+          },
+          "mouseenter touchstart": {
+            callback: function callback() {
+              _this2.svgShape.highlight();
+
+              _this2.highlight();
+            }
+          },
+          "mouseleave touchend touchcancel": {
+            callback: function callback() {
+              _this2.svgShape.unhighlight();
+
+              _this2.unhighlight();
+            }
+          }
+        }
+      }, {
+        element: this.btns["delete"],
+        events: {
+          "click": {
+            callback: function callback() {
+              _this2.remove(); // delete this;
+
+            }
+          }
+        }
+      }, {
+        element: this.btns.lock,
+        events: {
+          "click": {
+            callback: function callback() {
+              _this2.svgShape.toggleLock();
+
+              _this2.updateLockState();
+            }
+          }
+        }
+      }, {
+        element: this.btns.hide,
+        events: {
+          "click": {
+            callback: function callback() {
+              _this2.svgShape.toggleHide();
+
+              _this2.updateHideState();
+            }
+          }
+        }
+      }];
+    }
+  }, {
+    key: "updateDraggedElementPosition",
+    value: function updateDraggedElementPosition(evt) {
+      var _evt$currentTarget$pr;
+
+      var entry = evt.currentTarget;
+      entry.classList.remove("dragging");
+      var newLayerId = entry.closest(".layer-group").id;
+      var newSvgLayer = document.getElementById("svg-".concat(newLayerId));
+      var shape = document.getElementById(entry.id.substring(6));
+      var shapeToInsertBefore = document.getElementById((_evt$currentTarget$pr = evt.currentTarget.previousElementSibling) === null || _evt$currentTarget$pr === void 0 ? void 0 : _evt$currentTarget$pr.id.substring(6));
+
+      if (shapeToInsertBefore) {
+        newSvgLayer.insertBefore(shape, shapeToInsertBefore);
+        return;
+      }
+
+      newSvgLayer.appendChild(shape);
+    }
+  }, {
+    key: "highlight",
+    value: function highlight() {
+      this.entryTitle.classList.add("highlight");
+    }
+  }, {
+    key: "unhighlight",
+    value: function unhighlight() {
+      this.entryTitle.classList.remove("highlight");
+    }
+  }, {
+    key: "updateLockState",
+    value: function updateLockState() {
+      if (this.svgShape.isLocked()) {
+        this.showSecondIcon(this.btns.lock);
+        this.btns.lock.title = this.btns.lock.getAttribute("data-title-locked");
+      } else {
+        this.showFirstIcon(this.btns.lock);
+        this.btns.lock.title = this.btns.lock.getAttribute("data-title-unlocked");
+      }
+    }
+  }, {
+    key: "updateHideState",
+    value: function updateHideState() {
+      if (this.svgShape.isHidden()) {
+        this.showSecondIcon(this.btns.hide);
+        this.btns.hide.style.color = "#929DAF";
+        this.btns.hide.title = this.btns.hide.getAttribute("data-title-hidden");
+      } else {
+        this.showFirstIcon(this.btns.hide);
+        this.btns.hide.style.color = "";
+        this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
+      }
+    }
+  }, {
+    key: "remove",
+    value: function remove() {
+      this.svgShape.remove();
+      this.entryContainer.remove();
+    }
+  }, {
+    key: "disable",
+    value: function disable() {
+      for (var _i = 0, _Object$values = Object.values(this.btns); _i < _Object$values.length; _i++) {
+        var btn = _Object$values[_i];
+        btn.disabled = true;
+      }
+
+      this.entryContainer.draggable = false;
+    }
+  }, {
+    key: "enable",
+    value: function enable() {
+      for (var _i2 = 0, _Object$values2 = Object.values(this.btns); _i2 < _Object$values2.length; _i2++) {
+        var btn = _Object$values2[_i2];
+        btn.disabled = false;
+      }
+
+      this.entryContainer.draggable = true;
+    }
+  }]);
+
+  return Entry;
+}(sidebarComponent);
+var Layer = /*#__PURE__*/function (_sidebarComponent2) {
+  _inherits(Layer, _sidebarComponent2);
+
+  var _super2 = _createSuper(Layer);
+
+  /**
+   *
+   * @param {Object.<string, boolean|number|string|{}>} props
+   * @param drawingApp
+   * @param Canvas
+   * @param {string} props.name
+   * @param {string} props.id
+   * @param {boolean} props.enabled
+   */
+  function Layer() {
+    var _this3;
+
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var drawingApp = arguments.length > 1 ? arguments[1] : undefined;
+    var Canvas = arguments.length > 2 ? arguments[2] : undefined;
+
+    _classCallCheck(this, Layer);
+
+    _this3 = _super2.call(this, drawingApp, Canvas);
+    _this3.params = {
+      hidden: false,
+      locked: false
+    };
+    _this3.props = props;
+    _this3.svg = document.getElementById("svg-".concat(props.id));
+    _this3.sidebar = _this3.makeLayerElement();
+    drawingApp.bindEventListeners(_this3.eventListenerSettings, _assertThisInitialized(_this3));
+
+    if (_this3.props.enabled) {
+      _this3.enable();
+    }
+
+    _this3.shapes = {};
+    return _this3;
+  }
+
+  _createClass(Layer, [{
+    key: "makeLayerElement",
+    value: function makeLayerElement() {
+      var layerTemplate = document.getElementById("layer-group-template"),
+          layersContainer = document.getElementById("layers-container");
+      var templateCopy = layerTemplate.content.cloneNode(true);
+      var layerGroup = templateCopy.querySelector(".layer-group");
+      layerGroup.id = this.props.id;
+      var headerTitle = templateCopy.querySelector(".header-title");
+      headerTitle.innerText = this.props.name;
+      this.header = templateCopy.querySelector(".header");
+      this.shapesGroup = templateCopy.querySelector(".shapes-group");
+      this.btns = {
+        "delete": templateCopy.querySelector(".remove-btn"),
+        lock: templateCopy.querySelector(".lock-btn"),
+        hide: templateCopy.querySelector(".hide-btn"),
+        addLayer: templateCopy.querySelector(".add-layer-btn")
+      };
+      layersContainer.append(templateCopy);
+      return layerGroup;
+    }
+  }, {
+    key: "eventListenerSettings",
+    get: function get() {
+      var _this4 = this;
+
+      return [{
+        element: this.btns.addLayer,
+        events: {
+          "click": {
+            callback: this.enable,
+            options: {
+              once: true
+            }
+          }
+        }
+      }, {
+        element: this.btns.hide,
+        events: {
+          "click": {
+            callback: function callback() {
+              if (_this4.isHidden()) {
+                _this4.unhide();
+              } else {
+                _this4.hide();
+              }
+            }
+          }
+        }
+      }, {
+        element: this.btns.lock,
+        events: {
+          "click": {
+            callback: function callback() {
+              if (_this4.isLocked()) {
+                _this4.unlock();
+              } else {
+                _this4.lock();
+              }
+            }
+          }
+        }
+      }, {
+        element: this.btns["delete"],
+        events: {
+          "click": {
+            callback: function callback() {
+              _this4.clearSidebar();
+            }
+          }
+        }
+      }, {
+        element: this.sidebar,
+        events: {
+          "dragover": {
+            callback: function callback(evt) {
+              evt.preventDefault();
+              if (!_this4.props.enabled) return;
+              var draggedEntry = document.querySelector(".dragging");
+
+              if (draggedEntry == null) {
+                return;
+              }
+
+              var oldLayer = draggedEntry.closest(".layer-group");
+
+              var oldGroupKey = _this4.Canvas.layerID2Key(oldLayer.id);
+
+              var newLayer = _this4.sidebar;
+
+              var newGroupKey = _this4.Canvas.layerID2Key(newLayer.id);
+
+              if (newGroupKey !== oldGroupKey) {
+                var shapeID = draggedEntry.id.substring(6);
+                _this4.Canvas.layers[newGroupKey].shapes[shapeID] = _this4.Canvas.layers[oldGroupKey].shapes[shapeID]; // delete Canvas.layers[oldGroupKey].shapes[shapeID];
+              }
+
+              var entryToInsertBefore = _this4.getEntryToInsertBefore(_this4.sidebar, evt.clientY).entry;
+
+              if (entryToInsertBefore == null) {
+                _this4.shapesGroup.appendChild(draggedEntry);
+
+                return;
+              }
+
+              _this4.shapesGroup.insertBefore(draggedEntry, entryToInsertBefore);
+            }
+          }
+        }
+      }];
+    }
+  }, {
+    key: "addEntry",
+    value: function addEntry(entry) {
+      this.shapesGroup.insertBefore(entry.entryContainer, this.getTopShape());
+    }
+  }, {
+    key: "getTopShape",
+    value: function getTopShape() {
+      return this.shapesGroup.children[0];
+    }
+  }, {
+    key: "isEmpty",
+    value: function isEmpty() {
+      return Object.keys(this.shapes).length === 0;
+    }
+  }, {
+    key: "enable",
+    value: function enable() {
+      this.convertAddLayerBtnToDummyBtn();
+      this.showRegularBtns();
+      this.addEventListenerOnHeader();
+      this.props.enabled = true;
+    }
+  }, {
+    key: "convertAddLayerBtnToDummyBtn",
+    value: function convertAddLayerBtnToDummyBtn() {
+      this.btns.addLayer.innerHTML = "";
+      this.btns.addLayer.disabled = true;
+      this.btns.addLayer.classList.add("btn-placeholder");
+      this.btns.addLayer.classList.remove("add-layer-btn");
+    }
+  }, {
+    key: "showRegularBtns",
+    value: function showRegularBtns() {
+      this.btns["delete"].style.display = "";
+      this.btns.lock.style.display = "";
+      this.btns.hide.style.display = "";
+    }
+  }, {
+    key: "addEventListenerOnHeader",
+    value: function addEventListenerOnHeader() {
+      var _this5 = this;
+
+      var settings = [{
+        element: this.header,
+        events: {
+          "mousedown touchstart": {
+            callback: function callback(evt) {
+              var targetHeader = evt.target;
+              var newCurrentLayerID = targetHeader.closest(".layer-group").id;
+
+              _this5.Canvas.setCurrentLayer(_this5.Canvas.layerID2Key(newCurrentLayerID));
+            }
+          }
+        }
+      }];
+      this.drawingApp.bindEventListeners(settings, this);
+    }
+  }, {
+    key: "hide",
+    value: function hide() {
+      this.svg.style.display = "none";
+      this.sidebar.classList.add("hidden");
+      this.showSecondIcon(this.btns.hide);
+      this.btns.hide.title = this.btns.hide.getAttribute("data-title-hidden");
+      this.params.hidden = true;
+    }
+  }, {
+    key: "unhide",
+    value: function unhide() {
+      this.svg.style.display = "";
+      this.sidebar.classList.remove("hidden");
+      this.showFirstIcon(this.btns.hide);
+      this.btns.hide.title = this.btns.hide.getAttribute("data-title-unhidden");
+      this.params.hidden = false;
+    }
+  }, {
+    key: "isHidden",
+    value: function isHidden() {
+      return this.params.hidden;
+    }
+  }, {
+    key: "lock",
+    value: function lock() {
+      this.svg.style.setProperty("--cursor-type-locked", "default");
+      this.svg.style.setProperty("--cursor-type-draggable", "default");
+      this.sidebar.classList.add("locked");
+
+      for (var _i3 = 0, _Object$values3 = Object.values(this.shapes); _i3 < _Object$values3.length; _i3++) {
+        var shape = _Object$values3[_i3];
+        shape.sidebar.disable();
+      }
+
+      this.showSecondIcon(this.btns.lock);
+      this.btns.lock.title = this.btns.lock.getAttribute("data-title-locked");
+      this.params.locked = true;
+    }
+  }, {
+    key: "unlock",
+    value: function unlock() {
+      this.svg.style.removeProperty("--cursor-type-locked");
+      this.svg.style.removeProperty("--cursor-type-draggable");
+      this.sidebar.classList.remove("locked");
+
+      for (var _i4 = 0, _Object$values4 = Object.values(this.shapes); _i4 < _Object$values4.length; _i4++) {
+        var shape = _Object$values4[_i4];
+        shape.sidebar.enable();
+      }
+
+      this.showFirstIcon(this.btns.lock);
+      this.btns.lock.title = this.btns.lock.getAttribute("data-title-unlocked");
+      this.params.locked = false;
+    }
+  }, {
+    key: "isLocked",
+    value: function isLocked() {
+      return this.params.locked;
+    }
+  }, {
+    key: "getEntryToInsertBefore",
+    value: function getEntryToInsertBefore(container, y) {
+      var draggableEntriesWithoutDraggedEntry = _toConsumableArray(container.querySelectorAll("[draggable]:not(.dragging)"));
+
+      return draggableEntriesWithoutDraggedEntry.reduce(function (closestEntry, currentEntry) {
+        var box = currentEntry.getBoundingClientRect();
+        var offset = y - box.top - box.height / 2;
+
+        if (offset < 0 && offset > closestEntry.offset) {
+          return {
+            offset: offset,
+            entry: currentEntry
+          };
+        }
+
+        return closestEntry;
+      }, {
+        offset: Number.NEGATIVE_INFINITY
+      });
+    }
+  }, {
+    key: "unhideIfHidden",
+    value: function unhideIfHidden() {
+      if (this.isHidden()) {
+        this.unhide();
+      }
+    }
+  }, {
+    key: "clearSidebar",
+    value: function clearSidebar() {
+      var withWarning = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+      if (this.isEmpty()) return;
+
+      if (withWarning) {
+        if (!confirm("Alle vormen op deze laag (".concat(this.props.name, ") verwijderen?"))) return;
+      }
+
+      Object.values(this.shapes).forEach(function (shape) {
+        shape.sidebar.remove();
+      });
+    }
+  }]);
+
+  return Layer;
+}(sidebarComponent);
+
+/***/ }),
+
+/***/ "./resources/js/drawing/svgElement.js":
+/*!********************************************!*\
+  !*** ./resources/js/drawing/svgElement.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Rectangle": () => (/* binding */ Rectangle),
+/* harmony export */   "Circle": () => (/* binding */ Circle),
+/* harmony export */   "Line": () => (/* binding */ Line),
+/* harmony export */   "Image": () => (/* binding */ Image),
+/* harmony export */   "Path": () => (/* binding */ Path),
+/* harmony export */   "Text": () => (/* binding */ Text),
+/* harmony export */   "Textbox": () => (/* binding */ Textbox),
+/* harmony export */   "Group": () => (/* binding */ Group)
+/* harmony export */ });
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants.js */ "./resources/js/drawing/constants.js");
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } Object.defineProperty(subClass, "prototype", { value: Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }), writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+
+
+var svgElement = /*#__PURE__*/function () {
+  function svgElement(type, props) {
+    _classCallCheck(this, svgElement);
+
+    this.type = type;
+    this.element = this.createSvgElementOfType(type);
+    this.props = props !== null && props !== void 0 ? props : new Object();
+    this.setAllAttributesOnElement();
+  }
+  /**
+   * Creates a SVG Element of given type.
+   * @param {string} type
+   * @returns The SVG Element.
+   */
+
+
+  _createClass(svgElement, [{
+    key: "createSvgElementOfType",
+    value: function createSvgElementOfType(type) {
+      return document.createElementNS(_constants_js__WEBPACK_IMPORTED_MODULE_0__.svgNS, type);
+    }
+    /**
+     * Sets attribute specified by key to given value, without validation, using .setAttributeNS()
+     * @param {string} key
+     * @param {string|number|boolean} value
+     */
+
+  }, {
+    key: "setAttribute",
+    value: function setAttribute(key, value) {
+      this.element.setAttributeNS(null, key, value);
+    }
+    /**
+     * Calls getAttributeNS() on this.element to get the value of an attribute.
+     * @param {string} key Key of the attribute to get.
+     * @returns The return value of getAttributeNS()
+     */
+
+  }, {
+    key: "getAttribute",
+    value: function getAttribute(key) {
+      return this.element.getAttributeNS(null, key);
+    }
+    /**
+     * Checks if a given key-value pair may be set on the element and does so if allowed. Shows an info in the console if not allowed.
+     * @param {string} key
+     * @param {string} value
+     */
+
+  }, {
+    key: "setAttributeOnElementWithValidation",
+    value: function setAttributeOnElementWithValidation(key, value) {
+      if (this.keyIsValid(key) && this.valueIsValid(key, value)) {
+        this.setAttribute(key, value);
+      } else {
+        console.info("Attribute %c".concat(key, "%c is invalid for this element (type: ").concat(this.type, ") and has been ignored."), "font-style: italic", null);
+      }
+    }
+    /**
+     * Checks if a given key may be set on the element.
+     * @param {string} key An attribute key to check.
+     * @returns Boolean value indicating if the given key may be set on the element.
+     */
+
+  }, {
+    key: "keyIsValid",
+    value: function keyIsValid(key) {
+      var attrKeysToLoopOver = _constants_js__WEBPACK_IMPORTED_MODULE_0__.validSvgElementKeys.global.concat(_constants_js__WEBPACK_IMPORTED_MODULE_0__.validSvgElementKeys[this.type]);
+      return attrKeysToLoopOver.some(function (attr) {
+        return attr === key;
+      });
+    }
+    /**
+     * Checks if a given value is a string, number or boolean.
+     * @param {*} value
+     * @returns Boolean value indicating if the value is a string,
+     * number or boolean (all true) or something else (false).
+     */
+
+  }, {
+    key: "valueIsValid",
+    value: function valueIsValid(value) {
+      return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+    }
+    /**
+     * Loops over all attributes given and calls setAttributeOnElementWithValidation() on each.
+     */
+
+  }, {
+    key: "setAllAttributesOnElement",
+    value: function setAllAttributesOnElement() {
+      for (var _i = 0, _Object$entries = Object.entries(this.props); _i < _Object$entries.length; _i++) {
+        var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
+            key = _Object$entries$_i[0],
+            value = _Object$entries$_i[1];
+
+        this.setAttributeOnElementWithValidation(key, value);
+      }
+    }
+    /**
+     * Hide the element.
+     */
+
+  }, {
+    key: "hide",
+    value: function hide() {
+      this.element.style.display = "none";
+    }
+  }, {
+    key: "show",
+    value: function show() {
+      this.element.style.display = "";
+    }
+    /**
+     * Calls getBBox() on this.element.
+     * @returns The return value of getBBox().
+     */
+
+  }, {
+    key: "getBoundingBox",
+    value: function getBoundingBox() {
+      return this.element.getBBox();
+    }
+    /**
+     * Calls addEventListener() on this.element with the given arguments.
+     * @param {string} type
+     * @param {Function} func
+     */
+
+  }, {
+    key: "addEventListener",
+    value: function addEventListener(type, func) {
+      this.element.addEventListener(type, func);
+    }
+    /**
+     * Calls appendChild() on this.element with the given argument.
+     * @param {HTMLElement} element
+     */
+
+  }, {
+    key: "appendChild",
+    value: function appendChild(element) {
+      this.element.appendChild(element);
+    }
+    /**
+     * Calls remove() on this.element and deletes this object.
+     */
+
+  }, {
+    key: "remove",
+    value: function remove() {
+      this.element.remove();
+      delete this;
+    }
+  }]);
+
+  return svgElement;
+}();
+
+var Rectangle = /*#__PURE__*/function (_svgElement) {
+  _inherits(Rectangle, _svgElement);
+
+  var _super = _createSuper(Rectangle);
+
+  function Rectangle() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+    _classCallCheck(this, Rectangle);
+
+    return _super.call(this, "rect", props);
+  }
+  /**
+   * Function to be called when the cursor was moved.
+   * @param {Event} evt The event that triggered the function.
+   * @param {{x: number, y: number}} cursor The currect cursor position.
+   */
+
+
+  _createClass(Rectangle, [{
+    key: "onDraw",
+    value: function onDraw(evt, cursor) {
+      var coords = this.calculateCoords(cursor);
+      this.setWidthAttribute(coords.width);
+      this.setHeightAttribute(coords.height);
+      this.setXAttribute(coords.x);
+      this.setYAttribute(coords.y);
+    }
+    /**
+     * Adjusts the x, y, width and height of a rectangle because SVG can't handle negative width and height values.
+     * @param {{x: number, y: number}} cursor The current cursor position.
+     * @returns An Object containing a valid value for x, y, width and height.
+     */
+
+  }, {
+    key: "calculateCoords",
+    value: function calculateCoords(cursor) {
+      var x = this.props.x,
+          y = this.props.y,
+          width = cursor.x - x,
+          height = cursor.y - y;
+
+      if (width < 0) {
+        x = cursor.x;
+        width *= -1;
+      }
+
+      if (height < 0) {
+        y = cursor.y;
+        height *= -1;
+      }
+
+      return {
+        x: x,
+        y: y,
+        width: width,
+        height: height
+      };
+    }
+    /**
+     * Sets the X attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setXAttribute",
+    value: function setXAttribute(value) {
+      this.setAttributeOnElementWithValidation("x", value);
+    }
+    /**
+     * Sets the X attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setXProperty",
+    value: function setXProperty(value) {
+      this.props.x = value;
+    }
+    /**
+     * Sets the Y attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setYAttribute",
+    value: function setYAttribute(value) {
+      this.setAttributeOnElementWithValidation("y", value);
+    }
+    /**
+     * Sets the Y attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setYProperty",
+    value: function setYProperty(value) {
+      this.props.y = value;
+    }
+    /**
+     * Sets the Width attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     * @fires
+     */
+
+  }, {
+    key: "setWidthAttribute",
+    value: function setWidthAttribute(value) {
+      this.setAttributeOnElementWithValidation("width", value);
+    }
+    /**
+     * Sets the Width attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setWidthProperty",
+    value: function setWidthProperty(value) {
+      this.props.width = value;
+    }
+    /**
+     * Sets the Height attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setHeightAttribute",
+    value: function setHeightAttribute(value) {
+      this.setAttributeOnElementWithValidation("height", value);
+    }
+    /**
+     * Sets the Height attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setHeightProperty",
+    value: function setHeightProperty(value) {
+      this.props.height = value;
+    }
+  }]);
+
+  return Rectangle;
+}(svgElement);
+var Circle = /*#__PURE__*/function (_svgElement2) {
+  _inherits(Circle, _svgElement2);
+
+  var _super2 = _createSuper(Circle);
+
+  function Circle() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+    _classCallCheck(this, Circle);
+
+    return _super2.call(this, "circle", props);
+  }
+  /**
+   * Function to be called when the cursor was moved.
+   * @param {Event} evt The event that triggered the function.
+   * @param {{x: number, y: number}} cursor The currect cursor position.
+   */
+
+
+  _createClass(Circle, [{
+    key: "onDraw",
+    value: function onDraw(evt, cursor) {
+      this.setRAttribute(this.calculateRadius(cursor));
+    }
+    /**
+     * Calculates the radius of a circle.
+     * @param {{x: string, y: string}} cursor (x,y) position of the cursor on the screen.
+     * @returns Radius of the circle.
+     */
+
+  }, {
+    key: "calculateRadius",
+    value: function calculateRadius(cursor) {
+      var dx = cursor.x - this.props.cx;
+      var dy = cursor.y - this.props.cy;
+      return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+    }
+    /**
+     * Sets the R attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setRAttribute",
+    value: function setRAttribute(value) {
+      this.setAttributeOnElementWithValidation("r", value);
+    }
+    /**
+     * Sets the R attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setRProperty",
+    value: function setRProperty(value) {
+      this.props.r = value;
+    }
+    /**
+     * Sets the CX attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setCXAttribute",
+    value: function setCXAttribute(value) {
+      this.setAttributeOnElementWithValidation("cx", value);
+    }
+    /**
+     * Sets the CX attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setCXProperty",
+    value: function setCXProperty(value) {
+      this.props.cx = value;
+    }
+    /**
+     * Sets the CY attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setCYAttribute",
+    value: function setCYAttribute(value) {
+      this.setAttributeOnElementWithValidation("cy", value);
+    }
+    /**
+     * Sets the CY attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setCYProperty",
+    value: function setCYProperty(value) {
+      this.props.cy = value;
+    }
+  }]);
+
+  return Circle;
+}(svgElement);
+var Line = /*#__PURE__*/function (_svgElement3) {
+  _inherits(Line, _svgElement3);
+
+  var _super3 = _createSuper(Line);
+
+  function Line() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+    _classCallCheck(this, Line);
+
+    return _super3.call(this, "line", props);
+  }
+  /**
+   * Function to be called when the cursor was moved.
+   * @param {Event} evt The event that triggered the function.
+   * @param {{x: number, y: number}} cursor The currect cursor position.
+   */
+
+
+  _createClass(Line, [{
+    key: "onDraw",
+    value: function onDraw(evt, cursor) {
+      this.setX2Attribute(cursor.x);
+      this.setY2Attribute(cursor.y);
+    }
+    /**
+     * Sets the X1 attribute on the shape.
+     * @param {string} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setX1Attribute",
+    value: function setX1Attribute(value) {
+      this.setAttributeOnElementWithValidation("x1", value);
+    }
+    /**
+     * Sets the X1 attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setX1Property",
+    value: function setX1Property(value) {
+      this.props.x1 = value;
+    }
+    /**
+     * Sets the X2 attribute on the shape.
+     * @param {string} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setX2Attribute",
+    value: function setX2Attribute(value) {
+      this.setAttributeOnElementWithValidation("x2", value);
+    }
+    /**
+     * Sets the X2 attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setX2Property",
+    value: function setX2Property(value) {
+      this.props.x2 = value;
+    }
+    /**
+     * Sets the Y1 attribute on the shape.
+     * @param {string} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setY1Attribute",
+    value: function setY1Attribute(value) {
+      this.setAttributeOnElementWithValidation("y1", value);
+    }
+    /**
+     * Sets the Y1 attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setY1Property",
+    value: function setY1Property(value) {
+      this.props.y1 = value;
+    }
+    /**
+     * Sets the Y2 attribute on the shape.
+     * @param {string} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setY2Attribute",
+    value: function setY2Attribute(value) {
+      this.setAttributeOnElementWithValidation("y2", value);
+    }
+    /**
+     * Sets the Y2 attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setY2Property",
+    value: function setY2Property(value) {
+      this.props.y2 = value;
+    }
+  }]);
+
+  return Line;
+}(svgElement);
+var Image = /*#__PURE__*/function (_svgElement4) {
+  _inherits(Image, _svgElement4);
+
+  var _super4 = _createSuper(Image);
+
+  function Image() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+    _classCallCheck(this, Image);
+
+    return _super4.call(this, "image", props);
+  }
+  /**
+   * Sets the X attribute on the shape.
+   * @param {number} value The value to be given to the attribute.
+   */
+
+
+  _createClass(Image, [{
+    key: "setXAttribute",
+    value: function setXAttribute(value) {
+      this.setAttributeOnElementWithValidation("x", value);
+    }
+    /**
+     * Sets the X attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setXProperty",
+    value: function setXProperty(value) {
+      this.props.x = value;
+    }
+    /**
+     * Sets the Y attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setYAttribute",
+    value: function setYAttribute(value) {
+      this.setAttributeOnElementWithValidation("y", value);
+    }
+    /**
+     * Sets the Y attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setYProperty",
+    value: function setYProperty(value) {
+      this.props.y = value;
+    }
+    /**
+     * Sets the Width attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     * @fires
+     */
+
+  }, {
+    key: "setWidthAttribute",
+    value: function setWidthAttribute(value) {
+      this.setAttributeOnElementWithValidation("width", value);
+    }
+    /**
+     * Sets the Width attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setWidthProperty",
+    value: function setWidthProperty(value) {
+      this.props.width = value;
+    }
+    /**
+     * Sets the Height attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setHeightAttribute",
+    value: function setHeightAttribute(value) {
+      this.setAttributeOnElementWithValidation("height", value);
+    }
+    /**
+     * Sets the Height attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setHeightProperty",
+    value: function setHeightProperty(value) {
+      this.props.height = value;
+    }
+    /**
+     * Sets the Href attribute on the shape.
+     * @param {string} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setHrefAttribute",
+    value: function setHrefAttribute(value) {
+      this.setAttributeOnElementWithValidation("href", value);
+    }
+    /**
+     * Sets the Href attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setHrefProperty",
+    value: function setHrefProperty(value) {
+      this.props.href = value;
+    }
+  }]);
+
+  return Image;
+}(svgElement);
+var Path = /*#__PURE__*/function (_svgElement5) {
+  _inherits(Path, _svgElement5);
+
+  var _super5 = _createSuper(Path);
+
+  function Path() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+    _classCallCheck(this, Path);
+
+    return _super5.call(this, "path", props);
+  }
+  /**
+   * Sets the D attribute on the shape.
+   * @param {string} value The value to be given to the attribute.
+   */
+
+
+  _createClass(Path, [{
+    key: "setDAttribute",
+    value: function setDAttribute(value) {
+      this.setAttributeOnElementWithValidation("d", value);
+    }
+    /**
+     * Calls this.getAttribute("d").
+     * @returns the return value of this.getAttribute("d")
+     */
+
+  }, {
+    key: "getDAttribute",
+    value: function getDAttribute() {
+      return this.getAttribute("d");
+    }
+    /**
+     * Sets the D attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setDProperty",
+    value: function setDProperty(value) {
+      this.props.d = value;
+    }
+  }]);
+
+  return Path;
+}(svgElement);
+var Text = /*#__PURE__*/function (_svgElement6) {
+  _inherits(Text, _svgElement6);
+
+  var _super6 = _createSuper(Text);
+
+  function Text() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+    _classCallCheck(this, Text);
+
+    return _super6.call(this, "text", props);
+  }
+
+  _createClass(Text, [{
+    key: "onDrawStart",
+    value: function onDrawStart(evt, cursor) {}
+    /**
+     * Function to be called when the cursor was moved.
+     * @param {Event} evt The event that triggered the function.
+     * @param {{x: number, y: number}} cursor The currect cursor position.
+     */
+
+  }, {
+    key: "onDraw",
+    value: function onDraw(evt, cursor) {
+      this.setAttributeOnElementWithValidation("x", cursor.x);
+      this.setAttributeOnElementWithValidation("y", cursor.y);
+    }
+    /**
+     * Sets the X attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setXAttribute",
+    value: function setXAttribute(value) {
+      this.setAttributeOnElementWithValidation("x", value);
+    }
+    /**
+     * Sets the X attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setXProperty",
+    value: function setXProperty(value) {
+      this.props.x = value;
+    }
+    /**
+     * Sets the Y attribute on the shape.
+     * @param {number} value The value to be given to the attribute.
+     */
+
+  }, {
+    key: "setYAttribute",
+    value: function setYAttribute(value) {
+      this.setAttributeOnElementWithValidation("y", value);
+    }
+    /**
+     * Sets the Y attribute in the props.
+     * @param {number} value The value to be given to the property.
+     */
+
+  }, {
+    key: "setYProperty",
+    value: function setYProperty(value) {
+      this.props.y = value;
+    }
+    /**
+     * Appends the specified text to the text element.
+     * @param {string} text The text to be appended.
+     */
+
+  }, {
+    key: "setTextContent",
+    value: function setTextContent(text) {
+      this.element.textContent = text;
+    }
+  }]);
+
+  return Text;
+}(svgElement);
+var Textbox = /*#__PURE__*/function (_svgElement7) {
+  _inherits(Textbox, _svgElement7);
+
+  var _super7 = _createSuper(Textbox);
+
+  function Textbox() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+    _classCallCheck(this, Textbox);
+
+    return _super7.call(this, "text", props);
+  }
+
+  return _createClass(Textbox);
+}(svgElement);
+var Group = /*#__PURE__*/function (_svgElement8) {
+  _inherits(Group, _svgElement8);
+
+  var _super8 = _createSuper(Group);
+
+  function Group() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
+    _classCallCheck(this, Group);
+
+    return _super8.call(this, "g", props);
+  }
+
+  return _createClass(Group);
+}(svgElement);
+
+/***/ }),
+
+/***/ "./resources/js/drawing/svgShape.js":
+/*!******************************************!*\
+  !*** ./resources/js/drawing/svgShape.js ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Rectangle": () => (/* binding */ Rectangle),
+/* harmony export */   "Circle": () => (/* binding */ Circle),
+/* harmony export */   "Line": () => (/* binding */ Line),
+/* harmony export */   "Text": () => (/* binding */ Text),
+/* harmony export */   "Image": () => (/* binding */ Image),
+/* harmony export */   "Path": () => (/* binding */ Path),
+/* harmony export */   "Grid": () => (/* binding */ Grid),
+/* harmony export */   "Freehand": () => (/* binding */ Freehand)
+/* harmony export */ });
+/* harmony import */ var _constants_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./constants.js */ "./resources/js/drawing/constants.js");
+/* harmony import */ var _svgElement_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./svgElement.js */ "./resources/js/drawing/svgElement.js");
+/* harmony import */ var _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./htmlElement.js */ "./resources/js/drawing/htmlElement.js");
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } Object.defineProperty(subClass, "prototype", { value: Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }), writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); return true; } catch (e) { return false; } }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+
+
+
+/**
+ * @typedef propObj
+ * @type {Object.<string, string|number>}
+ *
+ */
+
+var svgShape = /*#__PURE__*/function () {
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {string} type The type of shape to be made.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
+  function svgShape(shapeId, type, props, parent, drawingApp, Canvas) {
+    var _this = this;
+
+    var withHelperElements = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
+    var withHighlightEvents = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : true;
+
+    _classCallCheck(this, svgShape);
+
+    this.shapeId = shapeId;
+    this.type = type;
+    this.props = props !== null && props !== void 0 ? props : {
+      main: {
+        "class": "main"
+      },
+      group: {
+        "class": "shape draggable",
+        id: "".concat(type, "-").concat(shapeId)
+      }
+    };
+    this.Canvas = Canvas;
+    this.drawingApp = drawingApp;
+    if (!this.props.main) this.props.main = {};
+    if (!this.props.group) this.props.group = {};
+    this.offset = parseInt(this.props.main["stroke-width"]) / 2 + 3 || 5;
+    this.parent = parent; //construct shape group
+
+    this.props.group["class"] = "shape draggable";
+    this.props.group.id = "".concat(this.type, "-").concat(this.shapeId);
+    this.shapeGroup = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Group(this.props.group); // construct main element
+
+    this.props.main["class"] = "main";
+    this.mainElement = this.makeMainElementOfRightType(); //append main element to shape
+
+    this.shapeGroup.appendChild(this.mainElement.element); //append shape to parent
+
+    this.parent.appendChild(this.shapeGroup.element);
+
+    if (withHelperElements) {
+      this.borderElement = this.makeBorderElement();
+      this.shapeGroup.appendChild(this.borderElement.element);
+      this.cornerElements = this.makeCornerElements();
+      this.cornerElements.forEach(function (cornerElement) {
+        _this.shapeGroup.appendChild(cornerElement.element);
+      });
+      this.hideHelperElements();
+    }
+
+    this.withHighlightEvents = withHighlightEvents;
+  }
+
+  _createClass(svgShape, [{
+    key: "makeMainElementOfRightType",
+    value: function makeMainElementOfRightType() {
+      switch (this.type) {
+        case "rect":
+          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle(this.props.main);
+
+        case "circle":
+          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle(this.props.main);
+
+        case "line":
+          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Line(this.props.main);
+
+        case "text":
+          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Text(this.props.main);
+
+        case "image":
+          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Image(this.props.main);
+
+        case "path":
+          return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(this.props.main);
+      }
+    }
+  }, {
+    key: "makeCornerElements",
+    value: function makeCornerElements() {
+      var bbox = this.mainElement.getBoundingBox();
+      return [new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle({
+        "class": "corner left-top",
+        "cx": bbox.x - this.offset,
+        "cy": bbox.y - this.offset,
+        "r": "8px",
+        "stroke": "var(--teacher-Primary)",
+        "stroke-width": "2",
+        "fill": "var(--all-OffWhite)"
+      }), new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle({
+        "class": "corner left-bottom",
+        "cx": bbox.x - this.offset,
+        "cy": bbox.y + bbox.height + this.offset,
+        "r": "8px",
+        "stroke": "var(--teacher-Primary)",
+        "stroke-width": "2",
+        "fill": "var(--all-OffWhite)"
+      }), new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle({
+        "class": "corner right-bottom",
+        "cx": bbox.x + bbox.width + this.offset,
+        "cy": bbox.y + bbox.height + this.offset,
+        "r": "8px",
+        "stroke": "var(--teacher-Primary)",
+        "stroke-width": "2",
+        "fill": "var(--all-OffWhite)"
+      }), new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Circle({
+        "class": "corner right-top",
+        "cx": bbox.x + bbox.width + this.offset,
+        "cy": bbox.y - this.offset,
+        "r": "8px",
+        "stroke": "var(--teacher-Primary)",
+        "stroke-width": "2",
+        "fill": "var(--all-OffWhite)"
+      })];
+    }
+  }, {
+    key: "makeBorderElement",
+    value: function makeBorderElement() {
+      var bbox = this.mainElement.getBoundingBox();
+      return new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Rectangle({
+        "class": "border",
+        "x": bbox.x - this.offset,
+        "y": bbox.y - this.offset,
+        "width": bbox.width + this.offset * 2,
+        "height": bbox.height + this.offset * 2,
+        "stroke": "var(--teacher-Primary)",
+        "stroke-width": "3",
+        "stroke-dasharray": "10",
+        "fill": "red",
+        "fill-opacity": "0"
+      });
+    }
+  }, {
+    key: "updateCornerElements",
+    value: function updateCornerElements() {
+      var bbox = this.mainElement.getBoundingBox();
+      this.cornerElements[0].setCXAttribute(bbox.x - this.offset);
+      this.cornerElements[0].setCYAttribute(bbox.y - this.offset);
+      this.cornerElements[1].setCXAttribute(bbox.x - this.offset);
+      this.cornerElements[1].setCYAttribute(bbox.y + bbox.height + this.offset);
+      this.cornerElements[2].setCXAttribute(bbox.x + bbox.width + this.offset);
+      this.cornerElements[2].setCYAttribute(bbox.y + bbox.height + this.offset);
+      this.cornerElements[3].setCXAttribute(bbox.x + bbox.width + this.offset);
+      this.cornerElements[3].setCYAttribute(bbox.y - this.offset);
+    }
+  }, {
+    key: "updateBorderElement",
+    value: function updateBorderElement() {
+      var bbox = this.mainElement.getBoundingBox();
+      this.borderElement.setXAttribute(bbox.x - this.offset);
+      this.borderElement.setYAttribute(bbox.y - this.offset);
+      this.borderElement.setWidthAttribute(bbox.width + this.offset * 2);
+      this.borderElement.setHeightAttribute(bbox.height + this.offset * 2);
+    }
+  }, {
+    key: "showHelperElements",
+    value: function showHelperElements() {
+      this.showBorderElement();
+      this.showCornerElements();
+    }
+  }, {
+    key: "showBorderElement",
+    value: function showBorderElement() {
+      this.borderElement.setAttribute("stroke", this.borderElement.props.stroke);
+    }
+  }, {
+    key: "showCornerElements",
+    value: function showCornerElements() {
+      this.cornerElements.forEach(function (cornerElement) {
+        cornerElement.show();
+      });
+    }
+  }, {
+    key: "hideHelperElements",
+    value: function hideHelperElements() {
+      this.hideBorderElement();
+      this.hideCornerElements();
+    }
+  }, {
+    key: "hideBorderElement",
+    value: function hideBorderElement() {
+      this.borderElement.setAttribute("stroke", "none");
+    }
+  }, {
+    key: "hideCornerElements",
+    value: function hideCornerElements() {
+      this.cornerElements.forEach(function (cornerElement) {
+        cornerElement.hide();
+      });
+    }
+  }, {
+    key: "toggleLock",
+    value: function toggleLock() {
+      this.shapeGroup.element.classList.toggle("draggable");
+      this.shapeGroup.element.classList.toggle("locked");
+    }
+  }, {
+    key: "isLocked",
+    value: function isLocked() {
+      return !this.shapeGroup.element.classList.contains("draggable");
+    }
+  }, {
+    key: "toggleHide",
+    value: function toggleHide() {
+      if (this.isHidden()) {
+        this.shapeGroup.show();
+      } else {
+        this.shapeGroup.hide();
+      }
+    }
+  }, {
+    key: "isHidden",
+    value: function isHidden() {
+      return this.shapeGroup.element.style.display === "none";
+    }
+  }, {
+    key: "remove",
+    value: function remove() {
+      var _this$marker;
+
+      this.shapeGroup.remove();
+      (_this$marker = this.marker) === null || _this$marker === void 0 ? void 0 : _this$marker.remove();
+      delete this;
+    }
+  }, {
+    key: "getSidebarEntry",
+    value: function getSidebarEntry() {
+      return this.sidebarEntry;
+    }
+  }, {
+    key: "setSidebarEntry",
+    value: function setSidebarEntry(entry) {
+      this.sidebarEntry = entry;
+    }
+  }, {
+    key: "cancelConstruction",
+    value: function cancelConstruction() {
+      this.getSidebarEntry().remove();
+    }
+  }, {
+    key: "onDrawStart",
+    value: function onDrawStart(evt, cursor) {
+      var _this$mainElement$onD, _this$mainElement, _this$onDrawStartShap;
+
+      (_this$mainElement$onD = (_this$mainElement = this.mainElement).onDrawStart) === null || _this$mainElement$onD === void 0 ? void 0 : _this$mainElement$onD.call(_this$mainElement, evt, cursor);
+      (_this$onDrawStartShap = this.onDrawStartShapeSpecific) === null || _this$onDrawStartShap === void 0 ? void 0 : _this$onDrawStartShap.call(this, evt, cursor);
+    }
+  }, {
+    key: "onDraw",
+    value: function onDraw(evt, cursor) {
+      var _this$mainElement$onD2, _this$mainElement2, _this$onDrawShapeSpec;
+
+      (_this$mainElement$onD2 = (_this$mainElement2 = this.mainElement).onDraw) === null || _this$mainElement$onD2 === void 0 ? void 0 : _this$mainElement$onD2.call(_this$mainElement2, evt, cursor);
+      (_this$onDrawShapeSpec = this.onDrawShapeSpecific) === null || _this$onDrawShapeSpec === void 0 ? void 0 : _this$onDrawShapeSpec.call(this, evt, cursor);
+      this.updateBorderElement();
+      this.updateCornerElements();
+    }
+  }, {
+    key: "onDrawEnd",
+    value: function onDrawEnd(evt, cursor) {
+      var _this$mainElement$onD3, _this$mainElement3, _this$onDrawEndShapeS;
+
+      (_this$mainElement$onD3 = (_this$mainElement3 = this.mainElement).onDrawEnd) === null || _this$mainElement$onD3 === void 0 ? void 0 : _this$mainElement$onD3.call(_this$mainElement3, evt, cursor);
+      (_this$onDrawEndShapeS = this.onDrawEndShapeSpecific) === null || _this$onDrawEndShapeS === void 0 ? void 0 : _this$onDrawEndShapeS.call(this, evt, cursor);
+      this.updateBorderElement();
+      this.updateCornerElements();
+      this.showBorderElement();
+    }
+  }, {
+    key: "addHighlightEvents",
+    value: function addHighlightEvents() {
+      var _this2 = this;
+
+      if (!this.withHighlightEvents) return;
+      this.updateBorderElement();
+      this.updateCornerElements();
+      var settings = [{
+        element: this.shapeGroup,
+        events: {
+          "mouseenter touchstart": {
+            callback: function callback() {
+              _this2.highlight();
+
+              _this2.getSidebarEntry().highlight();
+            }
+          },
+          "mouseleave": {
+            callback: function callback() {
+              _this2.unhighlight();
+
+              _this2.getSidebarEntry().unhighlight();
+            }
+          },
+          "click": {
+            callback: function callback() {
+              _this2.highlight();
+
+              _this2.Canvas.setFocusedShape(_this2);
+            }
+          }
+        }
+      }];
+      this.drawingApp.bindEventListeners(settings, this);
+    }
+  }, {
+    key: "highlight",
+    value: function highlight() {
+      this.showBorderElement();
+    }
+  }, {
+    key: "unhighlight",
+    value: function unhighlight() {
+      this.hideBorderElement();
+    }
+  }]);
+
+  return svgShape;
+}();
+
+var Rectangle = /*#__PURE__*/function (_svgShape) {
+  _inherits(Rectangle, _svgShape);
+
+  var _super = _createSuper(Rectangle);
+
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
+  function Rectangle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
+    _classCallCheck(this, Rectangle);
+
+    return _super.call(this, shapeId, "rect", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+  }
+
+  return _createClass(Rectangle);
+}(svgShape);
+var Circle = /*#__PURE__*/function (_svgShape2) {
+  _inherits(Circle, _svgShape2);
+
+  var _super2 = _createSuper(Circle);
+
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
+  function Circle(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
+    _classCallCheck(this, Circle);
+
+    return _super2.call(this, shapeId, "circle", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+  }
+
+  return _createClass(Circle);
+}(svgShape);
+var Line = /*#__PURE__*/function (_svgShape3) {
+  _inherits(Line, _svgShape3);
+
+  var _super3 = _createSuper(Line);
+
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
+  function Line(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
+    var _this3;
+
+    _classCallCheck(this, Line);
+
+    _this3 = _super3.call(this, shapeId, "line", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+    _this3.makeOwnMarkerForThisShape();
+
+    return _this3;
+  }
+
+  _createClass(Line, [{
+    key: "makeOwnMarkerForThisShape",
+    value: function makeOwnMarkerForThisShape() {
+      var markerType = this.getMarkerType();
+      if (markerType === "no-endmarker") return;
+      var newMarker = this.cloneGenericMarker(markerType);
+      UI.svgCanvas.firstElementChild.appendChild(newMarker);
+      var newMarkerId = "".concat(newMarker.id, "-line-").concat(this.shapeId);
+      newMarker.id = newMarkerId;
+      this.props.main["marker-end"] = "url(#".concat(newMarkerId, ")");
+      this.mainElement.setAttributeOnElementWithValidation("marker-end", "url(#".concat(newMarkerId, ")"));
+      var propertyToChange = this.getPropertyToChange(markerType);
+      newMarker.style[propertyToChange] = this.props.main.stroke;
+      this.marker = newMarker;
+    }
+  }, {
+    key: "getMarkerType",
+    value: function getMarkerType() {
+      var type = this.props.main["marker-end"];
+      return type.substring(type.indexOf("svg-") + 4, type.lastIndexOf("-line"));
+    }
+  }, {
+    key: "cloneGenericMarker",
+    value: function cloneGenericMarker(type) {
+      var markerToClone = document.querySelector("marker#svg-".concat(type));
+      return markerToClone.cloneNode(true);
+    }
+  }, {
+    key: "getPropertyToChange",
+    value: function getPropertyToChange(type) {
+      switch (type) {
+        case "filled-arrow":
+        case "filled-dot":
+          return "fill";
+
+        case "two-lines-arrow":
+          return "stroke";
+      }
+    }
+  }]);
+
+  return Line;
+}(svgShape);
+var Text = /*#__PURE__*/function (_svgShape4) {
+  _inherits(Text, _svgShape4);
+
+  var _super4 = _createSuper(Text);
+
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
+  function Text(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
+    var _this4;
+
+    _classCallCheck(this, Text);
+
+    _this4 = _super4.call(this, shapeId, "text", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+    _this4.mainElement.setTextContent(_this4.props.main["data-textcontent"]);
+
+    return _this4;
+  }
+
+  _createClass(Text, [{
+    key: "onDrawEndShapeSpecific",
+    value: function onDrawEndShapeSpecific(evt, cursor) {
+      var _this5 = this;
+
+      var windowCursor = this.drawingApp.convertCanvas2DomCoordinates(cursor);
+      var canvasContainer = document.getElementById("svg-canvas").parentElement;
+      var fontSize = parseFloat(this.mainElement.element.style.fontSize);
+      var textInput = new _htmlElement_js__WEBPACK_IMPORTED_MODULE_2__.htmlElement("input", canvasContainer, {
+        id: "add-text-input",
+        type: "text",
+        placeholder: "Type here...",
+        style: "width: ".concat(canvasContainer.getBoundingClientRect().right - windowCursor.x, "px;                position: absolute;                top: ").concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "px;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                transform-origin: bottom left;                transform: scale(").concat(this.Canvas.params.zoomFactor, ")"),
+        autocomplete: "off",
+        spellcheck: "false"
+      });
+      textInput.focus();
+      textInput.addEventListener("blur", function () {
+        var text = textInput.element.value;
+        textInput.deleteElement();
+
+        if (text.length === 0) {
+          _this5.cancelConstruction();
+
+          return;
+        }
+
+        _this5.mainElement.setTextContent(text);
+
+        _this5.updateBorderElement();
+
+        _this5.updateCornerElements();
+      });
+    }
+  }]);
+
+  return Text;
+}(svgShape);
+var Image = /*#__PURE__*/function (_svgShape5) {
+  _inherits(Image, _svgShape5);
+
+  var _super5 = _createSuper(Image);
+
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
+  function Image(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
+    _classCallCheck(this, Image);
+
+    return _super5.call(this, shapeId, "image", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+  }
+
+  return _createClass(Image);
+}(svgShape);
+var Path = /*#__PURE__*/function (_svgShape6) {
+  _inherits(Path, _svgShape6);
+
+  var _super6 = _createSuper(Path);
+
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
+  function Path(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
+    _classCallCheck(this, Path);
+
+    return _super6.call(this, shapeId, "path", props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+  }
+
+  return _createClass(Path);
+}(svgShape);
+var Grid = /*#__PURE__*/function (_Path) {
+  _inherits(Grid, _Path);
+
+  var _super7 = _createSuper(Grid);
+
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {HTMLElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   */
+  function Grid(shapeId, props, parent, drawingApp, Canvas) {
+    var _this6;
+
+    _classCallCheck(this, Grid);
+
+    _this6 = _super7.call(this, shapeId, props, parent, drawingApp, Canvas, false);
+    _this6.origin = new _svgElement_js__WEBPACK_IMPORTED_MODULE_1__.Path(_this6.props.origin);
+
+    _this6.setDAttributes(_this6.calculateDAttributeForGrid(_this6.props.size), _this6.calculateDAttributeForOrigin(_this6.props.size));
+
+    _this6.shapeGroup.element.appendChild(_this6.origin.element);
+
+    _this6.shapeGroup.element.classList.remove("draggable");
+
+    _this6.shapeGroup.setAttribute("id", "grid");
+
+    return _this6;
+  }
+
+  _createClass(Grid, [{
+    key: "show",
+    value: function show() {
+      this.shapeGroup.show();
+    }
+  }, {
+    key: "hide",
+    value: function hide() {
+      this.shapeGroup.hide();
+    }
+  }, {
+    key: "setDAttributes",
+    value: function setDAttributes(dGrid, dOrigin) {
+      this.mainElement.setAttribute("d", dGrid);
+      this.origin.setAttribute("d", dOrigin);
+    }
+  }, {
+    key: "update",
+    value: function update() {
+      var size = this.drawingApp.params.gridSize;
+      this.setDAttributes(this.calculateDAttributeForGrid(size), this.calculateDAttributeForOrigin(size));
+    }
+  }, {
+    key: "calculateDAttributeForGrid",
+    value: function calculateDAttributeForGrid(size) {
+      var bounds = {};
+
+      if (this.Canvas !== null) {
+        bounds = this.Canvas.params.bounds;
+      }
+
+      if (Object.keys(bounds).length === 0) {
+        bounds = calculatePreviewBounds();
+      }
+
+      var interval = size * _constants_js__WEBPACK_IMPORTED_MODULE_0__.pixelsPerCentimeter,
+          lineAmount = this.calculateAmountOfGridLines(interval, bounds);
+      var strOfPoints = "";
+
+      for (var i = -lineAmount.left; i <= lineAmount.right; i++) {
+        strOfPoints += "M".concat(interval * i, ",").concat(bounds.top, "v").concat(bounds.height, " ");
+      }
+
+      for (var j = -lineAmount.top; j <= lineAmount.bottom; j++) {
+        strOfPoints += "M".concat(bounds.left, ",").concat(interval * j, "h").concat(bounds.width, " ");
+      }
+
+      return strOfPoints;
+    }
+  }, {
+    key: "calculateDAttributeForOrigin",
+    value: function calculateDAttributeForOrigin(size) {
+      var spokeLength = size * _constants_js__WEBPACK_IMPORTED_MODULE_0__.pixelsPerCentimeter / 2;
+      return "M-".concat(spokeLength, ",", 0, "l").concat(spokeLength * 2, ",0m-").concat(spokeLength, ",-").concat(spokeLength, "l0,").concat(spokeLength * 2);
+    }
+  }, {
+    key: "calculateAmountOfGridLines",
+    value: function calculateAmountOfGridLines(interval, bounds) {
+      return {
+        left: Math.trunc(Math.abs(bounds.left) / interval),
+        right: Math.trunc(Math.abs(bounds.right) / interval),
+        top: Math.trunc(Math.abs(bounds.top) / interval),
+        bottom: Math.trunc(Math.abs(bounds.bottom) / interval)
+      };
+    }
+  }]);
+
+  return Grid;
+}(Path);
+var Freehand = /*#__PURE__*/function (_Path2) {
+  _inherits(Freehand, _Path2);
+
+  var _super8 = _createSuper(Freehand);
+
+  /**
+   * @param {number} shapeId The unique identifier the shape gets.
+   * @param {?propObj} props
+   * All properties (attributes) to be assigned to the shape,
+   * when omitted the properties of the shape are loaded.
+   * @param {?SVGElement} parent The parent the shape should be appended to.
+   * @param drawingApp
+   * @param Canvas
+   * @param withHelperElements
+   * @param withHighlightEvents
+   */
+  function Freehand(shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents) {
+    var _this7;
+
+    _classCallCheck(this, Freehand);
+
+    _this7 = _super8.call(this, shapeId, props, parent, drawingApp, Canvas, withHelperElements, withHighlightEvents);
+
+    _this7.shapeGroup.setAttribute("id", "freehand-".concat(shapeId));
+
+    return _this7;
+  }
+
+  _createClass(Freehand, [{
+    key: "onDrawShapeSpecific",
+    value: function onDrawShapeSpecific(evt, cursor) {
+      var path = this.mainElement.getDAttribute();
+      this.mainElement.setDAttribute("".concat(path, " L ").concat(cursor.x, ",").concat(cursor.y));
+    }
+  }]);
+
+  return Freehand;
+}(Path);
+
+/***/ }),
+
+/***/ "./resources/js/drawing/uiElements.js":
+/*!********************************************!*\
+  !*** ./resources/js/drawing/uiElements.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "UIElements": () => (/* binding */ UIElements),
+/* harmony export */   "warningBox": () => (/* binding */ warningBox)
+/* harmony export */ });
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+
+var UIElements = /*#__PURE__*/function () {
+  function UIElements(rootElement) {
+    _classCallCheck(this, UIElements);
+
+    var _iterator = _createForOfIteratorHelper(rootElement.querySelector("#drawing-tool").parentElement.querySelectorAll('[id]:not([id=""])')),
+        _step;
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var node = _step.value;
+        this[this.convertIdToCamelCase(node.id)] = node;
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+  }
+  /**
+   * Converts id parameter to camelCase, i.e. removes all dashes and converts the first character after every dash to upper case.
+   * @example "example-btn-to-explain" becomes "exampleBtnToExplain"
+   * @param {string} id The id string to be converted.
+   * @returns The converted id string.
+   */
+
+
+  _createClass(UIElements, [{
+    key: "convertIdToCamelCase",
+    value: function convertIdToCamelCase(id) {
+      return id.replace(/^([A-Z])|[\s-_]+(\w)/g, function (match, p1, p2, offset) {
+        if (p2) return p2.toUpperCase();
+        return p1.toLowerCase();
+      });
+    }
+  }]);
+
+  return UIElements;
+}();
+var warningBox = /*#__PURE__*/function () {
+  /**
+   * Constructs a warning box that can be shown and hides automatically after a specified amount of time.
+   * @param {string} content Text to be shown in the warning to inform the user.
+   * @param {number} timeDisplayed How long the warning should be displayed (in milliseconds).
+   */
+  function warningBox() {
+    var content = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+    var timeDisplayed = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1000;
+    var rootElement = arguments.length > 2 ? arguments[2] : undefined;
+
+    _classCallCheck(this, warningBox);
+
+    var parent = rootElement.querySelector("div#canvas-sidebar-container");
+    var template = rootElement.querySelector("template#warningbox-template");
+    var templateCopy = template.content.cloneNode(true);
+    this.box = templateCopy.querySelector("div.warning");
+    var textWrapper = this.box.querySelector("div.warning-text");
+    textWrapper.append(content);
+    parent.appendChild(this.box);
+    this.displayTime = timeDisplayed;
+  }
+  /**
+   * Shows the warning box, if no time is specified the time given at initialization is used.
+   * @param {number} displayTime How long the warning should be displayed (in milliseconds).
+   */
+
+
+  _createClass(warningBox, [{
+    key: "show",
+    value: function show() {
+      var _this = this;
+
+      var displayTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.displayTime;
+      this.box.style.top = "var(--top-value-visible)";
+      setTimeout(function () {
+        _this.box.style.top = "var(--top-value-hidden)";
+      }, displayTime);
+    }
+  }]);
+
+  return warningBox;
+}();
+
 /***/ }),
 
 /***/ "./resources/js/notify.js":
@@ -6277,7 +10747,7 @@ RichTextEditor = {
 
     CKEDITOR.replace(editorId, {
       removePlugins: 'pastefromword,pastefromgdocs,advanced,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
-      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
+      extraPlugins: 'blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification,readspeaker',
       toolbar: [{
         name: 'basicstyles',
         items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript']
@@ -6328,7 +10798,6 @@ RichTextEditor = {
     }
 
     CKEDITOR.replace(editorId, {
-      removePlugins: 'pastefromword,simpleuploads,dropoff,copyformatting,image,pastetext,uploadwidget,uploadimage',
       extraPlugins: 'selection,blockimagepaste,quicktable,ckeditor_wiris,autogrow,wordcount,notification',
       toolbar: [{
         name: 'basicstyles',
@@ -53565,7 +58034,7 @@ try {
 /***/ ((module) => {
 
 "use strict";
-module.exports = JSON.parse('{"_args":[["axios@0.21.4","/Volumes/SSD/tlc/test-correct"]],"_development":true,"_from":"axios@0.21.4","_id":"axios@0.21.4","_inBundle":false,"_integrity":"sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==","_location":"/axios","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"axios@0.21.4","name":"axios","escapedName":"axios","rawSpec":"0.21.4","saveSpec":null,"fetchSpec":"0.21.4"},"_requiredBy":["#DEV:/"],"_resolved":"https://registry.npmjs.org/axios/-/axios-0.21.4.tgz","_spec":"0.21.4","_where":"/Volumes/SSD/tlc/test-correct","author":{"name":"Matt Zabriskie"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"bugs":{"url":"https://github.com/axios/axios/issues"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"dependencies":{"follow-redirects":"^1.14.0"},"description":"Promise based HTTP client for the browser and node.js","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"homepage":"https://axios-http.com","jsdelivr":"dist/axios.min.js","keywords":["xhr","http","ajax","promise","node"],"license":"MIT","main":"index.js","name":"axios","repository":{"type":"git","url":"git+https://github.com/axios/axios.git"},"scripts":{"build":"NODE_ENV=production grunt build","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","examples":"node ./examples/server.js","fix":"eslint --fix lib/**/*.js","postversion":"git push && git push --tags","preversion":"npm test","start":"node ./sandbox/server.js","test":"grunt test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},"typings":"./index.d.ts","unpkg":"dist/axios.min.js","version":"0.21.4"}');
+module.exports = JSON.parse('{"name":"axios","version":"0.21.4","description":"Promise based HTTP client for the browser and node.js","main":"index.js","scripts":{"test":"grunt test","start":"node ./sandbox/server.js","build":"NODE_ENV=production grunt build","preversion":"npm test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json","postversion":"git push && git push --tags","examples":"node ./examples/server.js","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","fix":"eslint --fix lib/**/*.js"},"repository":{"type":"git","url":"https://github.com/axios/axios.git"},"keywords":["xhr","http","ajax","promise","node"],"author":"Matt Zabriskie","license":"MIT","bugs":{"url":"https://github.com/axios/axios/issues"},"homepage":"https://axios-http.com","devDependencies":{"coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.3.0","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^23.0.0","grunt-karma":"^4.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^4.0.2","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^6.3.2","karma-chrome-launcher":"^3.1.0","karma-firefox-launcher":"^2.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^4.3.6","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.8","karma-webpack":"^4.0.2","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^8.2.1","sinon":"^4.5.0","terser-webpack-plugin":"^4.2.3","typescript":"^4.0.5","url-search-params":"^0.10.0","webpack":"^4.44.2","webpack-dev-server":"^3.11.0"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"jsdelivr":"dist/axios.min.js","unpkg":"dist/axios.min.js","typings":"./index.d.ts","dependencies":{"follow-redirects":"^1.14.0"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}]}');
 
 /***/ })
 

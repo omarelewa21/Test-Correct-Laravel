@@ -5,7 +5,7 @@ sudo mkdir /loki
 sudo chmod 700 /loki
 sudo chown loki:loki /loki
 cd /usr/local/bin
-sudo curl -fSL -o loki.zip "https://github.com/grafana/loki/releases/download/v2.4.1/loki-linux-amd64.zip"
+sudo curl -fSL -o loki.zip "https://github.com/grafana/loki/releases/download/v2.4.2/loki-linux-amd64.zip"
 sudo unzip loki.zip
 sudo mv loki-linux-amd64 loki
 sudo chmod a+x loki
