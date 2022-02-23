@@ -33,13 +33,10 @@ class MultipleSelectQuestion extends Component
     {
         $this->selectable_answers = $this->question->selectable_answers;
 
-        if (!empty(json_decode($this->answers[$this->question->uuid]['answer']))) {
-            $this->answerStruct = json_decode($this->answers[$this->question->uuid]['answer'], true);
-        } else {
-            $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
-                $this->answerStruct[$answers->id] = 0;
-            });
-        }
+
+        $this->question->multipleChoiceQuestionAnswers->each(function ($answers) use (&$map) {
+            $this->answerStruct[$answers->id] = 0;
+        });
 
         $this->shuffledKeys = array_keys($this->answerStruct);
         if (!$this->question->isCitoQuestion()) {
@@ -63,10 +60,6 @@ class MultipleSelectQuestion extends Component
                 $this->answerStruct[$value] = 1;
             }
         }
-
-        $json = json_encode($this->answerStruct);
-
-        Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
 
         $this->answer = '';
     }
