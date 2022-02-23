@@ -11,6 +11,7 @@ use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Http\Traits\WithUpdatingHandling;
 use tcCore\Question;
+use Illuminate\Support\Str;
 
 class MatchingQuestion extends Component
 {
@@ -48,12 +49,10 @@ class MatchingQuestion extends Component
         $this->answer = $answer;
     }
 
-    public function updateOrder($value)
-    {
-        $dbstring = [];
+    private function matchingUpdateValueOrder($dbstring, $value){
         $databaseStruct = json_decode(
-                                Answer::find($this->answers[$this->question->uuid]['id'])->json,
-                                true);
+            Answer::find($this->answers[$this->question->uuid]['id'])->json,
+            true);
 
         foreach ($value as $key => $value) {
             if ($value['value'] == 'startGroep') {
@@ -75,9 +74,9 @@ class MatchingQuestion extends Component
                         if($prevStoredKeyInDatabase == $prevStoredKeyInDbstring){
                             // stored key in dbstring == stored key in database =>
                             $dbstring[$prevStoredKeyInDbstring] = '';                 // set previous key in dbstring to empty string
-                            $dbstring[$items['value']] = $value['value'];             // set new key to value 
+                            $dbstring[$items['value']] = $value['value'];             // set new key to value
                         }else{
-                            $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value 
+                            $dbstring[$prevStoredKeyInDbstring] = $value['value']; // set previous key in dbstring to value
                             $dbstring[$items['value']] = '';                       // set new key to empty string
                         }
                     }
@@ -87,11 +86,30 @@ class MatchingQuestion extends Component
                 }
             }
         }
+        return $dbstring;
+    }
+
+    public function updateOrder($value)
+    {
+        $dbstring = [];
+        if(Str::lower($this->question->subtype)  == "matching"){
+            $dbstring = $this->matchingUpdateValueOrder($dbstring, $value);
+        }
+        else{
+            foreach ($value as $key => $value) {
+                if ($value['value'] == 'startGroep') {
+                    $value['value'] = '';
+                }
+                foreach ($value['items'] as $items) {
+                    $dbstring[$items['value']] = $value['value'];
+                }
+            }
+        }
 
         $json = json_encode($dbstring);
 
         Answer::updateJson($this->answers[$this->question->uuid]['id'], $json);
-        
+
         $this->answerStruct = $dbstring;
 
         $this->emitTo('question.navigation','current-question-answered', $this->number);

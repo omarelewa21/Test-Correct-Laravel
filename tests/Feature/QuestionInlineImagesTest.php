@@ -70,11 +70,11 @@ class QuestionInlineImagesTest extends TestCase
         $convertedHtml = $questionHtmlConverter->convertImageSourcesWithPatternToNamedRoute('inline-image', Question::INLINE_IMAGE_PATTERN );
         dd($convertedHtml);
     }
+
     /** @test */
     public function integration_test_for_willem_van_oranje_where_question_inline_image_is_rendered_from_portal_not_laravel()
     {
-        $html = '<p style="margin:0cm 0cm 8pt;"><span style="font-size:12pt;"><span><span style="font-family:Calibri, sans-serif;"><b><span><span style="font-family:Arial, sans-serif;">Verdeel de volgende begrippen in duurzame en niet duurzame energie:</span></span></b></span></span></span></p>';
-
+        $html = '<p><img height="142" src="https://testportal.test-correct.nl/custom/imageload.php?filename=f2x9TseUoNmdXZo9BfDw" width="354" alt="imageload.php?filename=f2x9TseUoNmdXZo9BfDw"></p>';
 
         $questionHtmlConverter= new QuestionHtmlConverter($html);
         $convertedHtml = $questionHtmlConverter->convertImageSourcesWithPatternToNamedRoute('inline-image', Question::INLINE_IMAGE_PATTERN );
