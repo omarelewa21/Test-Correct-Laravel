@@ -81,8 +81,7 @@ export class Entry extends sidebarComponent {
                 events: {
                     "click": {
                         callback: () => {
-                            this.remove();
-                            // delete this;
+                            this.showConfirmDelete()
                         },
                     },
                 },
@@ -178,6 +177,12 @@ export class Entry extends sidebarComponent {
             btn.disabled = false;
         }
         this.entryContainer.draggable = true;
+    }
+
+    showConfirmDelete() {
+        if (confirm('Weet je zeker dat je dit element wilt verwijderen?')) {
+            this.remove();
+        }
     }
 }
 

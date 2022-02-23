@@ -5822,7 +5822,7 @@ document.addEventListener('alpine:init', function () {
         }
       },
       makeGridIfNecessary: function makeGridIfNecessary(toolName) {
-        if (this.gridSvg !== '') {
+        if (this.gridSvg !== '' && this.gridSvg !== '0.00') {
           makePreviewGrid(toolName.drawingApp, this.gridSvg);
         }
       }
@@ -6641,7 +6641,7 @@ window.initDrawingQuestion = function (rootElement) {
       }
 
       this.warnings = {
-        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 2000, rootElement)
+        whenAnyToolButDragSelected: new _uiElements_js__WEBPACK_IMPORTED_MODULE_2__.warningBox("Stel de opmaak in voordat je het object tekent", 5000, rootElement)
       };
     },
     convertCanvas2DomCoordinates: function convertCanvas2DomCoordinates(coordinates) {
@@ -7025,6 +7025,11 @@ window.initDrawingQuestion = function (rootElement) {
         callback: function callback() {
           valueWithinBounds(UI.strokeWidth);
         }
+      },
+      "blur": {
+        callback: function callback() {
+          handleStrokeButtonStates();
+        }
       }
     }
   }, {
@@ -7033,6 +7038,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepDown();
+          handleStrokeButtonStates();
         }
       },
       "focus": {
@@ -7052,6 +7058,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.strokeWidth.stepUp();
+          handleStrokeButtonStates();
         }
       },
       "focus": {
@@ -7075,7 +7082,7 @@ window.initDrawingQuestion = function (rootElement) {
       },
       "blur": {
         callback: function callback() {
-          handleDisabledTextSizeButtonStates();
+          handleTextSizeButtonStates();
         }
       }
     }
@@ -7085,7 +7092,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepDown();
-          handleDisabledTextSizeButtonStates();
+          handleTextSizeButtonStates();
         }
       },
       "focus": {
@@ -7105,7 +7112,7 @@ window.initDrawingQuestion = function (rootElement) {
       "click": {
         callback: function callback() {
           UI.textSize.stepUp();
-          handleDisabledTextSizeButtonStates();
+          handleTextSizeButtonStates();
         }
       },
       "focus": {
@@ -7227,7 +7234,7 @@ window.initDrawingQuestion = function (rootElement) {
         },
         "blur": {
           callback: function callback() {
-            handleDisabledGridSizeButtonStates();
+            handleGridSizeButtonStates();
           }
         }
       }
@@ -7237,7 +7244,7 @@ window.initDrawingQuestion = function (rootElement) {
         "click": {
           callback: function callback() {
             UI.gridSize.stepDown();
-            handleDisabledGridSizeButtonStates();
+            handleGridSizeButtonStates();
             updateGrid();
           }
         },
@@ -7258,7 +7265,7 @@ window.initDrawingQuestion = function (rootElement) {
         "click": {
           callback: function callback() {
             UI.gridSize.stepUp();
-            handleDisabledGridSizeButtonStates();
+            handleGridSizeButtonStates();
             updateGrid();
           }
         },
@@ -7330,8 +7337,7 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function fitDrawingToScreen() {
-    panDrawingCenterToScreenCenter();
-
+    // panDrawingCenterToScreenCenter();
     while (!drawingFitsScreen()) {
       zoomOutOneStep();
     }
@@ -7639,8 +7645,9 @@ window.initDrawingQuestion = function (rootElement) {
           "y": cursorPosition.y,
           "fill": UI.textColor.value,
           "stroke-width": 0,
+          "value": 'abc',
           "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-          "style": "".concat(drawingApp.params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(parseInt(UI.textSize.value), "px")
+          "style": "".concat(drawingApp.params.boldText ? "font-weight: bold;" : "", " font-size: ").concat(UI.textSize.value / 16, "rem")
         };
 
       default:
@@ -8345,11 +8352,7 @@ window.initDrawingQuestion = function (rootElement) {
     UI.decrZoom.disabled = false;
   }
 
-  function handleDisabledGridSizeButtonStates() {
-    disableButtonsWhenNecessary(gridSize);
-  }
-
-  function getBoundsForElement(element) {
+  function getBoundsForInputElement(element) {
     var currentValue = parseFloat(element.value);
     var min = parseFloat(element.min);
     var max = parseFloat(element.max);
@@ -8361,52 +8364,44 @@ window.initDrawingQuestion = function (rootElement) {
   }
 
   function getButtonsForElement(element) {
-    var decrButton = "decr".concat(element.capitalize());
-    var incrButton = "incr".concat(element.capitalize());
+    var decrButton = UI["decr".concat(element.capitalize())];
+    var incrButton = UI["incr".concat(element.capitalize())];
     return {
       decrButton: decrButton,
       incrButton: incrButton
     };
   }
 
-  function disableButtonsWhenNecessary(UIElement) {
-    var _getButtonsForElement = getButtonsForElement(UIElement),
+  function disableButtonsWhenNecessary(UIElementString) {
+    var _getButtonsForElement = getButtonsForElement(UIElementString),
         decrButton = _getButtonsForElement.decrButton,
         incrButton = _getButtonsForElement.incrButton;
 
-    var _getBoundsForElement = getBoundsForElement("UI.".concat(UIElement)),
-        currentValue = _getBoundsForElement.currentValue,
-        min = _getBoundsForElement.min,
-        max = _getBoundsForElement.max;
+    var _getBoundsForInputEle = getBoundsForInputElement(UI[UIElementString]),
+        currentValue = _getBoundsForInputEle.currentValue,
+        min = _getBoundsForInputEle.min,
+        max = _getBoundsForInputEle.max;
 
-    UI[decrButton].disabled = false;
-    UI[incrButton].disabled = false;
-
-    if (currentValue === min) {
-      UI[decrButton].disabled = true;
-    }
-
-    if (currentValue === max) {
-      UI[incrButton].disabled = true;
-    }
+    decrButton.disabled = currentValue === min;
+    incrButton.disabled = currentValue === max;
   }
 
-  function handleDisabledTextSizeButtonStates() {
-    var _getBoundsForElement2 = getBoundsForElement(UI.textSize),
-        currentValue = _getBoundsForElement2.currentValue,
-        min = _getBoundsForElement2.min,
-        max = _getBoundsForElement2.max;
+  function handleTextSizeButtonStates() {
+    disableButtonsWhenNecessary('textSize');
+  }
 
-    UI.decrTextSize.disabled = false;
-    UI.incrTextSize.disabled = false;
+  function handleGridSizeButtonStates() {
+    disableButtonsWhenNecessary('gridSize');
+  }
 
-    if (currentValue === min) {
-      UI.decrTextSize.disabled = true;
-    }
+  function handleStrokeButtonStates() {
+    var _getBoundsForInputEle2 = getBoundsForInputElement(UI.strokeWidth),
+        currentValue = _getBoundsForInputEle2.currentValue,
+        min = _getBoundsForInputEle2.min,
+        max = _getBoundsForInputEle2.max;
 
-    if (currentValue === max) {
-      UI.incrTextSize.disabled = true;
-    }
+    UI.decrStroke.disabled = currentValue === min;
+    UI.incrStroke.disabled = currentValue === max;
   }
 
   return {
@@ -8446,7 +8441,7 @@ window.calculatePreviewBounds = function (parent) {
   var matrix = new DOMMatrix();
   var height = parent.clientHeight,
       width = parent.clientWidth;
-  var scale = height / parent.viewBox.baseVal.width;
+  var scale = parent.viewBox.baseVal.width / width;
   return {
     top: -(matrix.f + height) / scale,
     bottom: (height - matrix.f) / scale,
@@ -8715,8 +8710,7 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
         events: {
           "click": {
             callback: function callback() {
-              _this2.remove(); // delete this;
-
+              _this2.showConfirmDelete();
             }
           }
         }
@@ -8824,6 +8818,13 @@ var Entry = /*#__PURE__*/function (_sidebarComponent) {
       }
 
       this.entryContainer.draggable = true;
+    }
+  }, {
+    key: "showConfirmDelete",
+    value: function showConfirmDelete() {
+      if (confirm('Weet je zeker dat je dit element wilt verwijderen?')) {
+        this.remove();
+      }
     }
   }]);
 
@@ -10572,7 +10573,7 @@ var Text = /*#__PURE__*/function (_svgShape4) {
         id: "add-text-input",
         type: "text",
         placeholder: "Type here...",
-        style: "width: ".concat(canvasContainer.getBoundingClientRect().right - windowCursor.x, "px;                position: absolute;                top: ").concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "px;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                transform-origin: bottom left;                transform: scale(").concat(this.Canvas.params.zoomFactor, ")"),
+        style: "width: ".concat(canvasContainer.getBoundingClientRect().right - windowCursor.x, "px;                position: absolute;                top: ").concat(windowCursor.y - fontSize, "px;                left: ").concat(windowCursor.x - 2, "px;                font-size: ").concat(fontSize, "rem;                color: ").concat(this.mainElement.getAttribute("fill"), ";                font-weight: ").concat(this.mainElement.element.style.fontWeight || "normal", ";                transform-origin: bottom left;                transform: scale(").concat(this.Canvas.params.zoomFactor, ")"),
         autocomplete: "off",
         spellcheck: "false"
       });

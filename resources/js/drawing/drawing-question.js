@@ -85,7 +85,7 @@ window.initDrawingQuestion = function (rootElement) {
             this.warnings = {
                 whenAnyToolButDragSelected: new warningBox(
                     "Stel de opmaak in voordat je het object tekent",
-                    2000,
+                    5000,
                     rootElement
                 ),
             };
@@ -435,6 +435,11 @@ window.initDrawingQuestion = function (rootElement) {
                     callback: () => {
                         valueWithinBounds(UI.strokeWidth);
                     }
+                },
+                "blur": {
+                    callback: () => {
+                        handleStrokeButtonStates()
+                    }
                 }
             }
         },
@@ -444,6 +449,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.strokeWidth.stepDown();
+                        handleStrokeButtonStates()
                     },
                 },
                 "focus": {
@@ -464,6 +470,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.strokeWidth.stepUp();
+                        handleStrokeButtonStates()
                     },
                 },
                 "focus": {
@@ -488,7 +495,7 @@ window.initDrawingQuestion = function (rootElement) {
                 },
                 "blur": {
                     callback: () => {
-                        handleDisabledTextSizeButtonStates()
+                        handleTextSizeButtonStates()
                     },
                 },
             }
@@ -499,7 +506,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.textSize.stepDown();
-                        handleDisabledTextSizeButtonStates()
+                        handleTextSizeButtonStates()
                     },
                 },
                 "focus": {
@@ -520,7 +527,7 @@ window.initDrawingQuestion = function (rootElement) {
                 "click": {
                     callback: () => {
                         UI.textSize.stepUp();
-                        handleDisabledTextSizeButtonStates()
+                        handleTextSizeButtonStates()
                     },
                 },
                 "focus": {
@@ -651,7 +658,7 @@ window.initDrawingQuestion = function (rootElement) {
                     },
                     "blur": {
                         callback: () => {
-                            handleDisabledGridSizeButtonStates();
+                            handleGridSizeButtonStates();
                         }
                     }
                 }
@@ -662,7 +669,7 @@ window.initDrawingQuestion = function (rootElement) {
                     "click": {
                         callback: () => {
                             UI.gridSize.stepDown();
-                            handleDisabledGridSizeButtonStates();
+                            handleGridSizeButtonStates();
                             updateGrid();
                         },
                     },
@@ -684,7 +691,7 @@ window.initDrawingQuestion = function (rootElement) {
                     "click": {
                         callback: () => {
                             UI.gridSize.stepUp();
-                            handleDisabledGridSizeButtonStates();
+                            handleGridSizeButtonStates();
                             updateGrid();
                         },
                     },
@@ -758,7 +765,7 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function fitDrawingToScreen() {
-        panDrawingCenterToScreenCenter();
+        // panDrawingCenterToScreenCenter();
 
         while (!drawingFitsScreen()) {
             zoomOutOneStep();
@@ -771,6 +778,7 @@ window.initDrawingQuestion = function (rootElement) {
             dx: -(bbox.x + (bbox.width / 2)),
             dy: -(bbox.y + (bbox.height / 2)),
         };
+
         pan(centerDrawingToOrigin);
     }
 
@@ -1052,10 +1060,9 @@ window.initDrawingQuestion = function (rootElement) {
                     "y": cursorPosition.y,
                     "fill": UI.textColor.value,
                     "stroke-width": 0,
+                    "value": 'abc',
                     "opacity": parseFloat(UI.elemOpacityNumber.value / 100),
-                    "style": `${
-                        drawingApp.params.boldText ? "font-weight: bold;" : ""
-                    } font-size: ${parseInt(UI.textSize.value)}px`,
+                    "style": `${ drawingApp.params.boldText ? "font-weight: bold;" : "" } font-size: ${UI.textSize.value/16}rem`,
                 };
             default:
         }
@@ -1709,11 +1716,7 @@ window.initDrawingQuestion = function (rootElement) {
         UI.decrZoom.disabled = false;
     }
 
-    function handleDisabledGridSizeButtonStates() {
-        disableButtonsWhenNecessary(gridSize);
-    }
-
-    function getBoundsForElement(element) {
+    function getBoundsForInputElement(element) {
         const currentValue = parseFloat(element.value);
         const min = parseFloat(element.min);
         const max = parseFloat(element.max);
@@ -1722,38 +1725,33 @@ window.initDrawingQuestion = function (rootElement) {
     }
 
     function getButtonsForElement(element) {
-        const decrButton = `decr${element.capitalize()}`;
-        const incrButton = `incr${element.capitalize()}`;
+        const decrButton = UI[`decr${element.capitalize()}`];
+        const incrButton = UI[`incr${element.capitalize()}`];
 
         return { decrButton, incrButton };
     }
 
-    function disableButtonsWhenNecessary(UIElement) {
-        const { decrButton, incrButton } = getButtonsForElement(UIElement);
-        const { currentValue, min, max } = getBoundsForElement(`UI.${UIElement}`);
+    function disableButtonsWhenNecessary(UIElementString) {
+        const { decrButton, incrButton } = getButtonsForElement(UIElementString);
+        const { currentValue, min, max } = getBoundsForInputElement(UI[UIElementString]);
 
-        UI[decrButton].disabled = false;
-        UI[incrButton].disabled = false;
-
-        if (currentValue === min){
-            UI[decrButton].disabled = true;
-        }
-        if (currentValue === max) {
-            UI[incrButton].disabled = true;
-        }
+        decrButton.disabled = currentValue === min;
+        incrButton.disabled = currentValue === max;
     }
 
-    function handleDisabledTextSizeButtonStates() {
-        const { currentValue, min, max } = getBoundsForElement(UI.textSize);
-        UI.decrTextSize.disabled = false;
-        UI.incrTextSize.disabled = false;
+    function handleTextSizeButtonStates() {
+        disableButtonsWhenNecessary('textSize');
+    }
 
-        if (currentValue === min){
-            UI.decrTextSize.disabled = true;
-        }
-        if (currentValue === max) {
-            UI.incrTextSize.disabled = true;
-        }
+    function handleGridSizeButtonStates() {
+        disableButtonsWhenNecessary('gridSize');
+    }
+
+    function handleStrokeButtonStates() {
+        const { currentValue, min, max } = getBoundsForInputElement(UI.strokeWidth);
+
+        UI.decrStroke.disabled = currentValue === min;
+        UI.incrStroke.disabled = currentValue === max;
     }
 
     return { UI, Canvas, drawingApp }
@@ -1794,7 +1792,7 @@ window.calculatePreviewBounds = function (parent) {
     const matrix = new DOMMatrix();
     const height = parent.clientHeight,
         width = parent.clientWidth;
-    const scale = height / parent.viewBox.baseVal.width;
+    const scale = parent.viewBox.baseVal.width / width;
     return {
         top: -(matrix.f + (height)) / scale,
         bottom: (height - matrix.f) / scale,

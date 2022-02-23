@@ -426,7 +426,7 @@ export class Text extends svgShape {
                 position: absolute;\
                 top: ${windowCursor.y - fontSize}px;\
                 left: ${windowCursor.x - 2}px;\
-                font-size: ${fontSize}px;\
+                font-size: ${fontSize}rem;\
                 color: ${this.mainElement.getAttribute("fill")};\
                 font-weight: ${this.mainElement.element.style.fontWeight || "normal"};\
                 transform-origin: bottom left;\

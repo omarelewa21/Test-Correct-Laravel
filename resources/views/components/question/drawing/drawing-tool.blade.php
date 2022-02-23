@@ -202,7 +202,7 @@
                     <div id="layers-heading"></div>
                 </div>
                 <div id="submit">
-                    <button class="CTA" id="submit-btn">
+                    <button class="CTA" id="submit-btn" @click="show = false">
                         {{ __('drawing-modal.Opslaan') }}
                     </button>
                 </div>
@@ -276,3 +276,6 @@
     </div>
 </template>
 <template id="svg-layer-to-render"></template>
+<div id="delete-confirm" style="display: none">
+    <div class="title">hoi</div>
+</div>
