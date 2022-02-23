@@ -1,4 +1,5 @@
 <div id="drawing-tool"
+     class="rounded-10"
      wire:ignore
 >
     <div class="section-container">
