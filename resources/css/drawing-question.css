@@ -356,19 +356,16 @@
     margin-top: 15px;
 }
 
-#drawing-tool :-webkit-any(#tools,#properties) :-webkit-any(input,button),
 #drawing-tool :is(#tools,#properties) :is(input,button) {
     margin-right: 0.5rem;
 }
 
-#drawing-tool :-webkit-any(#tools, #properties) button,
 #drawing-tool :is(#tools, #properties) button {
     position: relative;
     width: 2.5rem;
     height: 2.5rem;
 }
 
-#drawing-tool :-webkit-any(#tools, #properties) button > *,
 #drawing-tool :is(#tools, #properties) button > * {
     width: 100%;
     height: 100%;
@@ -578,7 +575,6 @@
     margin: 0;
 }
 
-#drawing-tool #zoom-component :-webkit-any(#decr-zoom, #incr-zoom),
 #drawing-tool #zoom-component :is(#decr-zoom, #incr-zoom) {
     width: 2.5rem;
     height: 2.5rem;
@@ -789,7 +785,6 @@
     opacity: 0.5;
 }
 
-#drawing-tool #sidebar .layer-group.locked .shapes-group :-webkit-any(.shape-title, .btn-group button),
 #drawing-tool #sidebar .layer-group.locked .shapes-group :is(.shape-title, .btn-group button) {
     color: var(--all-MidGrey);
     cursor: var(--cursor-default);
@@ -923,7 +918,6 @@
     background-color: var(--off-white);
 }
 
-#drawing-tool .input-with-button-group :-webkit-any(button, input),
 #drawing-tool .input-with-button-group :is(button, input) {
     margin-right: 0 !important;
 }
