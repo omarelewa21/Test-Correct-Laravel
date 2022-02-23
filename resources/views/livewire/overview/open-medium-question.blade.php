@@ -16,12 +16,6 @@
                                             editor.updateSourceElement();
                                             editor.sourceElement.dispatchEvent(new Event('input'));
                                         }
-                                    },
-                                    mathTypeParameters : {
-                                        serviceProviderProperties : {
-                                            URI : 'integration',
-                                            server : 'php'
-                                        }
                                     }
                                 } )
                                 .then( editor => {
