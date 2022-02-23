@@ -11,6 +11,7 @@ use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Http\Traits\WithUpdatingHandling;
 use tcCore\Question;
+use Illuminate\Support\Str;
 
 class MatchingQuestion extends Component
 {
@@ -48,7 +49,7 @@ class MatchingQuestion extends Component
         $this->answer = $answer;
     }
 
-    private function MatchingUpdateValueOrder($dbstring, $value){
+    private function matchingUpdateValueOrder($dbstring, $value){
         $databaseStruct = json_decode(
             Answer::find($this->answers[$this->question->uuid]['id'])->json,
             true);
@@ -91,9 +92,8 @@ class MatchingQuestion extends Component
     public function updateOrder($value)
     {
         $dbstring = [];
-        
-        if(strtolower($this->question->subtype) == "matching"){
-            $dbstring = $this->MatchingUpdateValueOrder($dbstring, $value);
+        if(Str::lower($this->question->subtype)  == "matching"){
+            $dbstring = $this->matchingUpdateValueOrder($dbstring, $value);
         }
         else{
             foreach ($value as $key => $value) {

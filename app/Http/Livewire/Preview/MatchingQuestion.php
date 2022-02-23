@@ -10,6 +10,7 @@ use tcCore\Http\Traits\WithPreviewGroups;
 use tcCore\Http\Traits\WithNotepad;
 use tcCore\Http\Traits\WithQuestionTimer;
 use tcCore\Question;
+use Illuminate\Support\Str;
 
 class MatchingQuestion extends Component
 {
@@ -37,7 +38,7 @@ class MatchingQuestion extends Component
         $this->shuffledAnswers = $this->question->matchingQuestionAnswers->shuffle();
     }
 
-    private function MatchingUpdateValueOrder($dbstring, $value){
+    private function matchingUpdateValueOrder($dbstring, $value){
         foreach ($value as $key => $value) {
             if ($value['value'] == 'startGroep') {
                 $value['value'] = '';
@@ -77,8 +78,8 @@ class MatchingQuestion extends Component
     public function updateOrder($value)
     {
         $dbstring = [];
-        if(strtolower($this->question->subtype) == "matching"){
-            $dbstring = $this->MatchingUpdateValueOrder($dbstring, $value);
+        if(Str::lower($this->question->subtype) == "matching"){
+            $dbstring = $this->matchingUpdateValueOrder($dbstring, $value);
         }
         else{
             foreach ($value as $key => $value) {
