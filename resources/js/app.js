@@ -224,11 +224,17 @@ countPresentStudents = function (members)
     return activeStudents;
 }
 
-getClosestLivewireComponentByAttribute = function (element, attributeName) {
-    return livewire.find(element.closest(`[${attributeName}]`).getAttribute('wire:id'));
-}
 String.prototype.contains = function (text)
 {
     if (text === '') return false;
     return this.includes(text);
+}
+
+getClosestLivewireComponentByAttribute = function (element, attributeName) {
+    return livewire.find(element.closest(`[${attributeName}]`).getAttribute('wire:id'));
+}
+
+String.prototype.capitalize = function ()
+{
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }

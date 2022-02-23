@@ -133,7 +133,15 @@
     border: 1px solid #006314;
     box-shadow: none;
 }
-
+#drawing-tool button.CTA:disabled {
+    background-color: var(--all-OffWhite);
+    color: var(--all-MidGrey);
+}
+#drawing-tool button.CTA:disabled:hover {
+    background: var(--all-OffWhite);
+    color: var(--all-MidGrey);
+    box-shadow: none;
+}
 
 /* Secondary buttons */
 
@@ -380,9 +388,12 @@ button) {
 }
 
 #drawing-tool #tools::after {
-    content: '|';
-    color: var(--all-BlueGrey);
-    font-size: 1.5rem;
+    content: '';
+    background-color: var(--all-BlueGrey);
+    width: 1px;
+    height: 20px;
+    position: relative;
+    top: 10px;
 }
 
 #drawing-tool #tools .tools-group {
@@ -888,4 +899,18 @@ button) {
 }
 #drawing-tool #layers-heading .header.highlight .header-title[data-layer="answer-group"] + .indicator {
     background: var(--cta-primary-mid-dark);
+}
+
+#drawing-tool .input-with-button-group {
+    position: relative;
+    display:flex;
+    background-color: var(--system-secondary);
+    border-radius: 10px;
+}
+#drawing-tool .input-with-button-group.disabled {
+    background-color: var(--off-white);
+}
+
+#drawing-tool .input-with-button-group :is(button, input) {
+    margin-right: 0!important;
 }
