@@ -45,9 +45,12 @@ class SurveillanceController extends Controller
             'ipAlerts'     => 0,
         ];
 
-        if($request->get('takeUuid')){
+        if($request->has('takeUuid')){
             $take_id = TestTake::whereUuid($request->get('takeUuid'))->value('id');
-            $dataset = $this->getTakesForSurveillance(Auth::user(), $take_id);
+            if(!$take_id){
+                return response('No surveillance is found for that assessment', 500);
+            }
+            $dataset = $this->getTakesForSurveillance(Auth::user(), $take_id);  
         }else{
             $dataset = $this->getTakesForSurveillance(Auth::user());
         }
