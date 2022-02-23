@@ -14,6 +14,10 @@ import Strikethrough from '@ckeditor/ckeditor5-basic-styles/src/strikethrough.js
 import Subscript from '@ckeditor/ckeditor5-basic-styles/src/subscript.js';
 import Superscript from '@ckeditor/ckeditor5-basic-styles/src/superscript.js';
 import Table from '@ckeditor/ckeditor5-table/src/table.js';
+import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar';
+import TableProperties from '@ckeditor/ckeditor5-table/src/tableproperties';
+import TableCellProperties from '@ckeditor/ckeditor5-table/src/tablecellproperties';
+import TableCaption from '@ckeditor/ckeditor5-table/src/tablecaption';
 import Underline from '@ckeditor/ckeditor5-basic-styles/src/underline.js';
 import WordCount from '@ckeditor/ckeditor5-word-count/src/wordcount.js';
 import MathType from '@wiris/mathtype-ckeditor5/src/plugin';
@@ -34,6 +38,10 @@ Editor.builtinPlugins = [
 	Subscript,
 	Superscript,
 	Table,
+	TableToolbar,
+	TableProperties,
+	TableCellProperties,
+	TableCaption,
 	Underline,
 	WordCount,
 	MathType,
@@ -62,7 +70,19 @@ Editor.defaultConfig = {
 			'ChemType'
 		]
 	},
-	language: 'nl'
+	language: 'nl',
+	table: {
+		contentToolbar: [
+			'tableColumn', 'tableRow', 'mergeTableCells',
+			'tableProperties', 'tableCellProperties','toggleTableCaption'
+		],
+		tableProperties: {
+			// ...
+		},
+		tableCellProperties: {
+			// ...
+		}
+	}
 };
 
 export default Editor;
