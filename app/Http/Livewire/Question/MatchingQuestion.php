@@ -92,7 +92,7 @@ class MatchingQuestion extends Component
     {
         $dbstring = [];
         
-        if($this->question->subtype == "Matching"){
+        if(strtolower($this->question->subtype) == "matching"){
             $dbstring = $this->MatchingUpdateValueOrder($dbstring, $value);
         }
         else{
