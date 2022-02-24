@@ -355,18 +355,22 @@
 #drawing-tool #properties {
     margin-top: 15px;
 }
-
-#drawing-tool :is(#tools,#properties) :is(input,button) {
+#drawing-tool #tools input,
+#drawing-tool #tools button,
+#drawing-tool #properties input,
+#drawing-tool #properties button {
     margin-right: 0.5rem;
 }
 
-#drawing-tool :is(#tools, #properties) button {
+#drawing-tool #tools button,
+#drawing-tool #properties button {
     position: relative;
     width: 2.5rem;
     height: 2.5rem;
 }
 
-#drawing-tool :is(#tools, #properties) button > * {
+#drawing-tool #tools button > *,
+#drawing-tool #properties button > * {
     width: 100%;
     height: 100%;
     display: inline-flex;
@@ -575,7 +579,8 @@
     margin: 0;
 }
 
-#drawing-tool #zoom-component :is(#decr-zoom, #incr-zoom) {
+#drawing-tool #zoom-component #decr-zoom,
+#drawing-tool #zoom-component #incr-zoom {
     width: 2.5rem;
     height: 2.5rem;
     display: inline-flex;
@@ -785,7 +790,8 @@
     opacity: 0.5;
 }
 
-#drawing-tool #sidebar .layer-group.locked .shapes-group :is(.shape-title, .btn-group button) {
+#drawing-tool #sidebar .layer-group.locked .shapes-group .shape-title,
+#drawing-tool #sidebar .layer-group.locked .shapes-group .btn-group button {
     color: var(--all-MidGrey);
     cursor: var(--cursor-default);
 }
@@ -844,6 +850,7 @@
     min-height: 60px;
     place-content: center;
     box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+    z-index: 1;
 }
 
 #drawing-tool #layers-heading .header {
@@ -918,6 +925,7 @@
     background-color: var(--off-white);
 }
 
-#drawing-tool .input-with-button-group :is(button, input) {
+#drawing-tool .input-with-button-group button,
+#drawing-tool .input-with-button-group input {
     margin-right: 0 !important;
 }

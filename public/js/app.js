@@ -6097,12 +6097,12 @@ String.prototype.contains = function (text) {
   return this.includes(text);
 };
 
-String.prototype.capitalize = function () {
-  return this.charAt(0).toUpperCase() + this.slice(1);
-};
-
 getClosestLivewireComponentByAttribute = function getClosestLivewireComponentByAttribute(element, attributeName) {
   return livewire.find(element.closest("[".concat(attributeName, "]")).getAttribute('wire:id'));
+};
+
+String.prototype.capitalize = function () {
+  return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
 /***/ }),
