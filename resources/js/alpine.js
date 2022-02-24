@@ -287,9 +287,10 @@ document.addEventListener('alpine:init', () => {
         gridSvg: entanglements.gridSvg,
         isTeacher: isTeacher,
         toolName: null,
+
         init() {
             this.toolName = `drawingTool_${questionId}`;
-            const toolName = window[this.toolName] = initDrawingQuestion(this.$root);
+            const toolName = window[this.toolName] = initDrawingQuestion(this.$root, this.isTeacher);
 
             if(this.isTeacher) {
                 this.makeGridIfNecessary(toolName);
@@ -312,14 +313,15 @@ document.addEventListener('alpine:init', () => {
             toolName.Canvas.setCurrentLayer("answer");
         },
         handleGrid(toolName) {
-            if (this.gridSvg !== '0.00') {
+            if (this.gridSvg !== '0.00' && this.gridSvg !== '') {
                 let parsedGrid = parseFloat(this.gridSvg);
-                if (toolName.drawingApp.isTeacher()) {
-                    toolName.UI.gridSize.value = parsedGrid;
-                    toolName.UI.gridToggle.checked = true;
-                } else {
-                    toolName.drawingApp.params.gridSize = parsedGrid;
-                    toolName.Canvas.layers.grid.params.hidden = false;
+                toolName.UI.gridSize.value = parsedGrid;
+                toolName.UI.gridToggle.checked = true;
+                toolName.drawingApp.params.gridSize = parsedGrid;
+                toolName.Canvas.layers.grid.params.hidden = false;
+
+                if(!this.isTeacher) {
+                    this.$root.querySelector('#grid-background').remove();
                 }
             }
         },

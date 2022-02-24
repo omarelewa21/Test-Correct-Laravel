@@ -46,30 +46,32 @@
                                multiple>
                     @endif
                 </div>
-                @if(Auth::user()->isA('teacher'))
-                    <div id="grid-background" class="tools-group">
-                        <input type="checkbox" id="grid-toggle" style="display: none;" autocomplete="off">
-                        <button title="{{ __('drawing-modal.Zet grid aan/uit') }}" @click="$refs.gridsizegroup.classList.toggle('disabled')">
-                            <label id="grid-toggle-btn" for="grid-toggle">
-                                <x-icon.grid/>
-                            </label>
+                <div id="grid-background" class="tools-group">
+                    <input type="checkbox" id="grid-toggle" style="display: none;" autocomplete="off">
+                    <button title="{{ __('drawing-modal.Zet grid aan/uit') }}"
+                            @click="$refs.gridsizegroup.classList.toggle('disabled')">
+                        <label id="grid-toggle-btn" for="grid-toggle">
+                            <x-icon.grid/>
+                        </label>
+                    </button>
+                    <div class="input-with-button-group disabled" x-ref="gridsizegroup">
+                        <button x-ref="groupbtn" id="decr-grid-size" class="Secondary decrement"
+                                title="{{ __('drawing-modal.Verklein grid') }}" disabled>
+                            <div>
+                                <x-icon.min-2/>
+                            </div>
                         </button>
-                        <div class="input-with-button-group disabled" x-ref="gridsizegroup">
-                            <button x-ref="groupbtn" id="decr-grid-size" class="Secondary decrement" title="{{ __('drawing-modal.Verklein grid') }}" disabled>
-                                <div>
-                                    <x-icon.min-2/>
-                                </div>
-                            </button>
-                            <input type="number" id="grid-size" class="group-value" min="0.5" max="5" value="1" step="0.5" title="{{ __('drawing-modal.Afmeting grid') }}"
-                                   disabled>
-                            <button id="incr-grid-size" class="Secondary increment" title="{{ __('drawing-modal.Vergroot grid') }}" disabled>
-                                <div>
-                                    <x-icon.plus-2/>
-                                </div>
-                            </button>
-                        </div>
+                        <input type="number" id="grid-size" class="group-value" min="0.5" max="5" value="1" step="0.5"
+                               title="{{ __('drawing-modal.Afmeting grid') }}"
+                               disabled>
+                        <button id="incr-grid-size" class="Secondary increment"
+                                title="{{ __('drawing-modal.Vergroot grid') }}" disabled>
+                            <div>
+                                <x-icon.plus-2/>
+                            </div>
+                        </button>
                     </div>
-                @endif
+                </div>
             </div>
             <div id="properties">
                 <div class="property-group" id="text-style">
@@ -265,7 +267,11 @@
             </div>
         </div>
         <div class="shapes-group">
-            <span class="explainer note text-sm text-center" data-text-answer="{{ __('drawing-modal.Explainer answer') }}" data-text-question="{{ __('drawing-modal.Explainer question') }}" style="padding: 1.5rem"></span>
+            <span class="explainer note text-sm text-center"
+                  data-text-answer="{{ __('drawing-modal.Explainer answer') }}"
+                  data-text-question="{{ __('drawing-modal.Explainer question') }}" style="padding: 1.5rem"
+            >
+            </span>
         </div>
     </div>
 </template>
