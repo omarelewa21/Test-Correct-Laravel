@@ -134,6 +134,16 @@
     box-shadow: none;
 }
 
+#drawing-tool button.CTA:disabled {
+    background-color: var(--all-OffWhite);
+    color: var(--all-MidGrey);
+}
+
+#drawing-tool button.CTA:disabled:hover {
+    background: var(--all-OffWhite);
+    color: var(--all-MidGrey);
+    box-shadow: none;
+}
 
 /* Secondary buttons */
 
@@ -345,22 +355,22 @@
 #drawing-tool #properties {
     margin-top: 15px;
 }
-
-#drawing-tool :is(#tools,
-#properties) :is(input,
-button) {
+#drawing-tool #tools input,
+#drawing-tool #tools button,
+#drawing-tool #properties input,
+#drawing-tool #properties button {
     margin-right: 0.5rem;
 }
 
-#drawing-tool :is(#tools,
-#properties) button {
+#drawing-tool #tools button,
+#drawing-tool #properties button {
     position: relative;
     width: 2.5rem;
     height: 2.5rem;
 }
 
-#drawing-tool :is(#tools,
-#properties) button > * {
+#drawing-tool #tools button > *,
+#drawing-tool #properties button > * {
     width: 100%;
     height: 100%;
     display: inline-flex;
@@ -380,9 +390,12 @@ button) {
 }
 
 #drawing-tool #tools::after {
-    content: '|';
-    color: var(--all-BlueGrey);
-    font-size: 1.5rem;
+    content: '';
+    background-color: var(--all-BlueGrey);
+    width: 1px;
+    height: 20px;
+    position: relative;
+    top: 10px;
 }
 
 #drawing-tool #tools .tools-group {
@@ -566,7 +579,8 @@ button) {
     margin: 0;
 }
 
-#drawing-tool #zoom-component :is(#decr-zoom, #incr-zoom) {
+#drawing-tool #zoom-component #decr-zoom,
+#drawing-tool #zoom-component #incr-zoom {
     width: 2.5rem;
     height: 2.5rem;
     display: inline-flex;
@@ -692,7 +706,7 @@ button) {
 }
 
 #drawing-tool #sidebar .shapes-group {
-/*#drawing-tool #sidebar .header {*/
+    /*#drawing-tool #sidebar .header {*/
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -712,6 +726,7 @@ button) {
     transition: background 200ms linear;
     padding: 0 20px;
 }
+
 #drawing-tool #sidebar .shape-container.hide .shape-title {
     color: var(--mid-grey);
 }
@@ -775,7 +790,8 @@ button) {
     opacity: 0.5;
 }
 
-#drawing-tool #sidebar .layer-group.locked .shapes-group :is(.shape-title, .btn-group button) {
+#drawing-tool #sidebar .layer-group.locked .shapes-group .shape-title,
+#drawing-tool #sidebar .layer-group.locked .shapes-group .btn-group button {
     color: var(--all-MidGrey);
     cursor: var(--cursor-default);
 }
@@ -834,7 +850,9 @@ button) {
     min-height: 60px;
     place-content: center;
     box-shadow: 0 3px 8px 0 rgba(4, 31, 116, 0.2);
+    z-index: 1;
 }
+
 #drawing-tool #layers-heading .header {
     height: auto;
 }
@@ -844,13 +862,16 @@ button) {
 #drawing-tool #layers-heading .header-container {
     display: flex;
 }
+
 #drawing-tool #layers-heading .header:first-child .header-container {
     flex-direction: row-reverse;
     margin-right: 1rem;
 }
+
 #drawing-tool #layers-heading .header .header-title-container {
     position: relative;
 }
+
 #drawing-tool #layers-heading .header .header-title-container .indicator {
     position: absolute;
     width: 100%;
@@ -859,10 +880,12 @@ button) {
     bottom: 0;
     left: 0;
 }
+
 #drawing-tool #layers-heading .header .indicator {
     opacity: 0;
     transition: ease-in-out 150ms;
 }
+
 #drawing-tool #layers-heading .header.highlight .indicator {
     opacity: 1;
 }
@@ -886,6 +909,23 @@ button) {
 #drawing-tool #layers-heading .header .header-title[data-layer="answer-group"]:hover {
     color: var(--cta-primary-mid-dark);
 }
+
 #drawing-tool #layers-heading .header.highlight .header-title[data-layer="answer-group"] + .indicator {
     background: var(--cta-primary-mid-dark);
+}
+
+#drawing-tool .input-with-button-group {
+    position: relative;
+    display: flex;
+    background-color: var(--system-secondary);
+    border-radius: 10px;
+}
+
+#drawing-tool .input-with-button-group.disabled {
+    background-color: var(--off-white);
+}
+
+#drawing-tool .input-with-button-group button,
+#drawing-tool .input-with-button-group input {
+    margin-right: 0 !important;
 }
