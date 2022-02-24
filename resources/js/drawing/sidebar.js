@@ -240,7 +240,9 @@ export class Layer extends sidebarComponent {
         this.explainer = templateCopy.querySelector(".explainer")
         this.setCorrectExplainerText();
 
-        layersHeaderContainer.append(this.header);
+        if (this.shouldAddLayerHeader()) {
+            layersHeaderContainer.append(this.header);
+        }
         layersContainer.append(templateCopy);
 
         return layerGroup;
@@ -477,5 +479,9 @@ export class Layer extends sidebarComponent {
         let group = this.props.id.replace('-group', '');
 
         this.explainer.innerText = this.explainer.dataset[`text${group.capitalize()}`];
+    }
+
+    shouldAddLayerHeader() {
+        return !(this.props.id.contains('question') && !this.drawingApp.isTeacher())
     }
 }

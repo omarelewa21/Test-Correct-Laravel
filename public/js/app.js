@@ -8894,7 +8894,11 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
       };
       this.explainer = templateCopy.querySelector(".explainer");
       this.setCorrectExplainerText();
-      layersHeaderContainer.append(this.header);
+
+      if (this.shouldAddLayerHeader()) {
+        layersHeaderContainer.append(this.header);
+      }
+
       layersContainer.append(templateCopy);
       return layerGroup;
     }
@@ -9170,6 +9174,11 @@ var Layer = /*#__PURE__*/function (_sidebarComponent2) {
     value: function setCorrectExplainerText() {
       var group = this.props.id.replace('-group', '');
       this.explainer.innerText = this.explainer.dataset["text".concat(group.capitalize())];
+    }
+  }, {
+    key: "shouldAddLayerHeader",
+    value: function shouldAddLayerHeader() {
+      return !(this.props.id.contains('question') && !this.drawingApp.isTeacher());
     }
   }]);
 
