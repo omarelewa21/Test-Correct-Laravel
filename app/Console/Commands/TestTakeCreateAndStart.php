@@ -9,7 +9,7 @@ use tcCore\Test;
 use tcCore\TestTake;
 use tcCore\User;
 
-class CreateTestTakeAndStart extends Command {
+class TestTakeCreateAndStart extends Command {
 
 	/**
 	 * The console command name.
