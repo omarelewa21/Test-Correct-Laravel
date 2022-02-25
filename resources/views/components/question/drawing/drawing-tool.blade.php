@@ -268,8 +268,14 @@
         </div>
         <div class="shapes-group">
             <span class="explainer note text-sm text-center"
-                  data-text-answer="{{ __('drawing-modal.Explainer answer') }}"
-                  data-text-question="{{ __('drawing-modal.Explainer question') }}" style="padding: 1.5rem"
+                  style="padding: 1.5rem"
+                  @if(Auth::user()->isA('teacher'))
+                  data-text-answer="{{ __('drawing-modal.Explainer answer teacher') }}"
+                  data-text-question="{{ __('drawing-modal.Explainer question teacher') }}"
+                  @else
+                  data-text-answer="{{ __('drawing-modal.Explainer answer student') }}"
+                  data-text-question=""
+                  @endif
             >
             </span>
         </div>
