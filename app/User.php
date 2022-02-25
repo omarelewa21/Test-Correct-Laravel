@@ -1306,7 +1306,7 @@ class User extends BaseModel implements AuthenticatableContract, CanResetPasswor
 
     public function isInExamSchool(): bool
     {
-        if($this->schoolLocation->customer_code==config('custom.examschool_customercode')){
+        if(optional($this->schoolLocation)->customer_code==config('custom.examschool_customercode')){
             return true;
         }
         return false;

@@ -34,7 +34,7 @@ class CompletionQuestion extends Component
     {
         $question->getQuestionHtml();
 
-        $question_text = $question->getQuestionHTML();
+        $question_text = $question->converted_question_html;
 
         $replacementFunction = function ($matches) use ($question) {
             $tag_id = $matches[1] - 1; // the completion_question_answers list is 1 based but the inputs need to be 0 based
@@ -55,7 +55,7 @@ class CompletionQuestion extends Component
             $answerJson = [];
         }
 
-        $question_text = $question->getQuestionHtml();
+        $question_text = $question->converted_question_html;
 
 
         $tags = [];
