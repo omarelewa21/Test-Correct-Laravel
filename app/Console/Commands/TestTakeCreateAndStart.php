@@ -11,34 +11,34 @@ use tcCore\User;
 
 class TestTakeCreateAndStart extends Command {
 
-	/**
-	 * The console command name.
-	 *
-	 * @var string
-	 */
-	protected $name = 'testTake:createAndStart';
+    /**
+     * The console command name.
+     *
+     * @var string
+     */
+    protected $name = 'testTake:createAndStart';
 
-	/**
-	 * The console command description.
-	 *
-	 * @var string
-	 */
-	protected $description = 'create a test take and start';
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'create a test take and start';
 
     protected $defaultTeacherUsername = 'd1@test-correct.nl';
     protected $backupTeacherUsername = 'carloschoep+k999docent14@hotmail.com';
 
-	/**
-	 * Execute the console command.
-	 *
-	 * @return mixed
-	 */
-	public function handle()
-	{
+    /**
+     * Execute the console command.
+     *
+     * @return mixed
+     */
+    public function handle()
+    {
 
         $this->init();
 
-		$teacher = $this->getTeacher();
+        $teacher = $this->getTeacher();
 
         $test = $this->getTest();
 
@@ -89,10 +89,10 @@ class TestTakeCreateAndStart extends Command {
                 return 0;
             }
         }
-    	$this->error("Sorry, the test take could not be created and started");
+        $this->error("Sorry, the test take could not be created and started");
         return 0;
 
-	}
+    }
 
     protected function getTest()
     {
