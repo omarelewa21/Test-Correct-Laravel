@@ -110,3 +110,98 @@
     border-color: var(--primary);
     color: var(--primary);
 }
+
+.question-editor-content {
+    position: relative;
+    top: var(--header-height);
+    margin-bottom: var(--header-height);
+}
+.question-editor-content [id^="cke_"]{
+    width: auto!important;
+}
+
+#cms-container {
+    display: flex;
+    z-index: 1
+}
+
+#sidebar-content {
+    width: var(--sidebar-width);
+    position: absolute;
+    right: 0;
+}
+
+.drawer {
+    display: flex;
+    position: sticky;
+    top: var(--header-height);
+    width: var(--sidebar-width);
+    height: calc(100vh - var(--header-height));
+    background-color: white;
+    box-shadow: var(--main-shadow);
+    z-index: 1;
+    transition: width .5s ease;
+}
+
+.drawer.collapsed {
+    width: 24px;
+}
+
+.drawer .collapse-toggle {
+    display: flex;
+    position: absolute;
+    border-radius: 20px;
+    place-content: center;
+    border: solid 1px;
+}
+.drawer .collapse-toggle.horizontal {
+    width: 40px;
+    height: 30px;
+}
+.drawer .collapse-toggle.vertical {
+    width: 30px;
+    height: 40px;
+}
+.drawer .collapse-toggle.white {
+    color: var(--system-base);
+    background-color: white;
+    border-color: var(--blue-grey)
+}
+
+.drawer .collapse-toggle.blue {
+    background: var(--primary-gradient);
+    color: white;
+    border-color: var(--primary);
+}
+
+.general-settings-grid {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+#sidebar-carousel-container {
+    display: flex;
+    overflow: hidden;
+}
+#sidebar-carousel-container > div {
+    flex: 1 0 100%;
+}
+
+/* Kleiner dan 840*/
+@media only screen and (max-width: 840px) {
+    .drawer {
+        position: fixed;
+    }
+
+    .drawer + div {
+        margin-left: 24px;
+    }
+}
+
+/* Groter dan */
+@media only screen and (min-width: 1100px) {
+    .general-settings-grid {
+        grid-template-columns: repeat(2, minmax(300px, 1fr));
+    }
+}

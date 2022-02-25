@@ -1,4 +1,4 @@
-<div id="cms">
+<div id="cms" class="flex flex-1">
     <div class="question-editor-header z-50">
         <div class="question-title">
             <div class="icon-arrow">
@@ -7,19 +7,17 @@
             <h5 class=" text-white">{{ $this->questionType }}</h5>
         </div>
         <div class="question-test-name">
-            <span><?= __('cms.Toets') ?>:</span>
+            <span>{{ __('cms.Toets') }}:</span>
             <span class="bold">{{ $testName }}</span>
         </div>
     </div>
-    <div class="max-w-7xl mx-auto mt-[70px]">
+    <div class="question-editor-content w-full max-w-7xl mx-auto"
+         x-data=""
+         x-on:question-change.window="console.log($event.detail)"
+    >
         <div class="flex w-full flex-col">
-
-            {{--    Switch these divs to make the line stretch when the drawer is implemented
-                    <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
-                        <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">--}}
-            <div class="flex w-full mt-2.5 px-4 sm:px-6 lg:px-8">
-                <div class="flex w-full border-b border-secondary items-center justify-between py-2.5">
-                    {{--                    --}}
+            <div class="flex w-full border-b border-secondary mt-2.5 py-2.5">
+                <div class="flex w-full items-center px-4 sm:px-6 lg:px-8 justify-between">
                     <div class="flex items-center">
                         <span class="w-8 h-8 rounded-full bg-sysbase text-white text-sm flex items-center justify-center">
                             <span>{{ $this->question['order'] == 0 ? '1' : $this->question['order']}}</span>
@@ -157,10 +155,11 @@
             </div>
 
 
-            <div class="flex flex-col flex-1 pb-20 space-y-4" x-show="openTab === 1"
+            <div class="flex flex-col flex-1 pb-20 space-y-4 relative" x-show="openTab === 1"
                  x-transition:enter="transition duration-200"
                  x-transition:enter-start="opacity-0 delay-200"
                  x-transition:enter-end="opacity-100"
+                 wire:key="{{ $this->testQuestionId }}"
             >
                 @if($this->isPartOfGroupQuestion())
                     <x-partials.group-question-question-section/>
@@ -197,7 +196,7 @@
                 <x-content-section>
                     <x-slot name="title">{{ __('Algemeen') }}</x-slot>
 
-                    <div class="grid grid-cols-2 gap-x-4">
+                    <div class="general-settings-grid">
                         @if($action == 'edit' && !$isCloneRequest)
                             <div class="border-b flex w-full justify-between items-center py-2">
                                 <div class="flex items-center space-x-2.5">

@@ -1,6 +1,6 @@
 .header {
     background: white;
-    height: 70px;
+    height: var(--header-height);
 }
 
 .menu .text-button.active > span {

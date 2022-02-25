@@ -38,6 +38,10 @@ class OpenShort extends Component
 
     public $testId;
 
+    public $type;
+
+    public $subtype;
+
     public $owner;
 
     public $groupQuestionQuestionId;
@@ -58,7 +62,7 @@ class OpenShort extends Component
 
     public $isCloneRequest = false;
 
-    protected $queryString = ['testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'];
+    protected $queryString = ['action', 'type', 'subtype', 'testId', 'testQuestionId', 'groupQuestionQuestionId', 'owner', 'isCloneRequest'];
 
     protected $settingsGeneralPropertiesVisibility = [
         'autoCheckAnswer'              => false,
@@ -180,6 +184,7 @@ class OpenShort extends Component
             'new-video-attachment'  => 'handleNewVideoAttachment',
             'drawing_data_updated'  => 'handleUpdateDrawingData',
             'refresh'               => 'render',
+            'showQuestion'          => 'showQuestion'
         ];
     }
 
@@ -221,10 +226,10 @@ class OpenShort extends Component
     // @TODO mag ik deze test zien;
     // @TODO mag ik deze testQuestion editen?
     // @TODO is deze test uberhaupt onderdeel van deze test?
-    public function mount($action, $type, $subType)
+    public function mount()
     {
         $activeTest = Test::whereUuid($this->testId)->with('testAuthors', 'testAuthors.user')->first();
-        $this->initializeContext($action, $type, $subType, $activeTest);
+        $this->initializeContext($this->action, $this->type, $this->subtype, $activeTest);
         $this->obj = CmsFactory::create($this);
         $this->initializePropertyBag($activeTest);
     }
@@ -250,7 +255,7 @@ class OpenShort extends Component
         return parent::__call($method, $arguments);
     }
 
-    public function save()
+    public function save($withRedirect = true)
     {
         if ($this->obj && method_exists($this->obj, 'prepareForSave')) {
             $this->obj->prepareForSave();
@@ -271,7 +276,9 @@ class OpenShort extends Component
             $this->handleAttachments($response);
         }
 
-        $this->returnToTestOverview();
+        if ($withRedirect) {
+            $this->returnToTestOverview();
+        }
     }
 
     protected function prepareForClone()
@@ -367,7 +374,7 @@ class OpenShort extends Component
     public function render()
     {
         if ($this->obj && method_exists($this->obj, 'getTemplate')) {
-            return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.base');
+            return view('livewire.teacher.questions.' . $this->obj->getTemplate())->layout('layouts.cms');
         }
         throw new \Exception('No template found for this question type.');
     }
@@ -844,5 +851,21 @@ class OpenShort extends Component
     public function setQuestionProperty($property, $value)
     {
         $this->question[$property] = $value;
+    }
+
+    public function showQuestion($newQuestionUuid)
+    {
+//        $this->save(false);
+
+        $testQuestion = TestQuestion::whereUuid($newQuestionUuid)->with('question')->first();
+
+        $this->type = $testQuestion->question->type;
+        $this->subtype = $testQuestion->question->subtype;
+        $this->testQuestionId = $newQuestionUuid;
+
+
+        $this->mount();
+
+        $this->render();
     }
 }

@@ -11,10 +11,6 @@ class CmsFactory
 
     public static function create(OpenShort $instance)
     {
-        if (static::$self) {
-            return static::$self;
-        }
-
         $type = $instance->question['type'];
         $subType = Str::lower($instance->question['subtype']);
 

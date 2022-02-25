@@ -44,6 +44,11 @@
     --white: #ffffff;
     --maintenance-header-bg: #ff6666;
     --deployment-testing-color: darkorange;
+
+    --header-height: 70px;
+    --sidebar-width: 300px;
+
+    --primary-gradient: linear-gradient(to right, var(--teacher-primary) 0%,var(--teacher-primary-light) 100%)
 }
 
 @font-face {
