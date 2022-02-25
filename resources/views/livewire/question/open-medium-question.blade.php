@@ -1,5 +1,5 @@
 <x-partials.question-container :number="$number" :question="$question">
-    <div class="w-full">
+    <div class="w-full" oncontextmenu="return false;">
         <div class="mb-4" questionHtml wire:ignore>
             {!! $question->converted_question_html  !!}
         </div>
@@ -31,6 +31,9 @@
                         const wordCountPlugin = editor.plugins.get( 'WordCount' );
                         const wordCountWrapper = document.getElementById( 'word-count-{{ $editorId }}' );
                         wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
+                        editor.editing.view.change( writer => {
+                            writer.setAttribute( 'spellcheck', 'false', editor.editing.view.document.getRoot() );
+                        } );
                     } )
                     .catch( error => {
                         console.error( error );

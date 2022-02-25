@@ -2224,6 +2224,10 @@ button) {
         display: none;
     }
 }
+/*.ck-editor__top{*/
+/*    z-index: 21;*/
+/*    position: relative !important;*/
+/*}*/
 
 /*! tailwindcss v2.2.19 | MIT License | https://tailwindcss.com */
 

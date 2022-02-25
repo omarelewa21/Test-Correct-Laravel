@@ -92,6 +92,24 @@ Editor.defaultConfig = {
 			'Verdana'
 		]
 	},
+	fontSize: {
+		options: [['1','1.000em'], ['2','1.1250em'], ['3','1.250em'], ['4','1.375em'], ['5','1.4375em'], ['6','1.5em'], ['7','1.625em'], ['8','1.750em'], ['9','2.250em'], ['10','3em']].map(function(val){
+			return {
+				model: val[1],
+				title: val[0],
+				view: {
+					name: 'span',
+					styles: {
+						'font-size': val[1]
+					}
+				}
+			};
+		}),
+		supportAllValues: true
+	},
+	ui: {
+		viewportOffset: { top: 70 }
+	}
 };
 
 export default Editor;
