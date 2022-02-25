@@ -541,7 +541,7 @@ class TestTake extends BaseModel
                     $query->typeNotAssessment();
                     break;
                 case 'takeUuid':
-                    $query->where('test_takes.id', $this->whereUuid($value)->value('id'));
+                    $query->where('test_takes.id', Self::whereUuid($value)->value('id'));
                     break;
                 case 'type_assessment':
                     $query->typeAssessment();

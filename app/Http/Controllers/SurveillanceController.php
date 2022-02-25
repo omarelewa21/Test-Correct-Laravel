@@ -36,7 +36,6 @@ class SurveillanceController extends Controller
             abort(403);
         }
         $this->setIpCheck();
-
         $this->response = [
             'takes'        => [],
             'participants' => [],
@@ -48,7 +47,7 @@ class SurveillanceController extends Controller
         if($request->has('takeUuid')){
             $take_id = TestTake::whereUuid($request->get('takeUuid'))->value('id');
             if(!$take_id){
-                return response('No surveillance is found for that assessment', 500);
+                return response(404);
             }
             $dataset = $this->getTakesForSurveillance(Auth::user(), $take_id);  
         }else{
