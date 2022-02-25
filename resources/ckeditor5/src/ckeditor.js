@@ -82,7 +82,16 @@ Editor.defaultConfig = {
 		tableCellProperties: {
 			// ...
 		}
-	}
+	},
+	fontFamily: {
+		options: [
+			'default',
+			'Arial',
+			'Calibri',
+			'Times New Roman',
+			'Verdana'
+		]
+	},
 };
 
 export default Editor;
