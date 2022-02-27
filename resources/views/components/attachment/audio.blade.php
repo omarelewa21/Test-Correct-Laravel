@@ -1,4 +1,3 @@
-
 <div class="flex flex-col w-full justify-center items-center bg-white space-y-3 rounded-10"
      x-data="{attachment: null}"
      x-init="
@@ -21,17 +20,22 @@
             <h5>{{ __('test_take.time_left_to_answer_after_closing_attachment', ['timeout' => $this->timeout]) }}</h5>
         @endif
     </div>
-    <div>
-        <audio id="player" src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $this->answerId], false) }}"
-               x-ref="player"
+    <div style="width:80%;">
+        <audio id="player" x-ref="player" controls controlsList="nodownload noplaybackrate noplaybutton" style="width:100%;"
                x-on:play="@this.registerPlayStart()"
                @if($attachment->audioOnlyPlayOnce())
                     x-on:ended="@this.registerEndOfAudio($refs.player.currentTime,$refs.player.duration),@this.audioIsPlayedOnce(attachment);@this.closeAttachmentModal()"
                @elseif($attachment->hasAudioTimeout())
                     x-on:ended="@this.registerEndOfAudio($refs.player.currentTime,$refs.player.duration),@this.closeAttachmentModal()"
                @endif
-        ></audio>
-        <div class="flex justify-center">
+               class="--B
+                    @if($attachment->disableAudioTimeline()) --T @endif"
+        >
+            <source src="{{ route('student.question-attachment-show', ['attachment' => $attachment, 'answer' => $this->answerId], false) }}"
+                type="audio/mp3"
+            />
+        </audio>
+        <div class="flex justify-center mt-3">
             <button class="button primary-button
                     @if(!$attachment->audioCanBePlayedAgain()) cursor-default disabled @endif "
                     @if(!$attachment->audioCanBePlayedAgain()) disabled @endif
@@ -51,3 +55,6 @@
     </div>
 </div>
 
+<script>
+    elementMutationActionPrompt($('audio')[0], ['class','style'], 'd-none');
+</script>
