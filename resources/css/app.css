@@ -576,3 +576,10 @@ ul ul ul {
 .draggable-source--is-dragging.sub-item-with-connecting-line::before{
     left:-7px;
 }
+
+.--B::-webkit-media-controls-play-button{
+    display: none;
+}
+.--T::-webkit-media-controls-timeline{
+    pointer-events: none;
+}

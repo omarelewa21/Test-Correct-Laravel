@@ -223,6 +223,22 @@ countPresentStudents = function (members) {
     return activeStudents;
 }
 
+elementMutationActionPrompt = function(element, mutationTypes=[], action=""){
+    let observer = new MutationObserver(function (mutations) {
+        for (let mutation of mutations) {
+            if(mutationTypes.includes(mutation.attributeName)){
+                switch(action){
+                    case "d-none":
+                        element.style.display = "none";
+                        break;
+                    default:
+                }
+            }
+        }
+    });
+    observer.observe(element, {attributes: true});
+}
+
 String.prototype.contains = function (text)
 {
     if (text === '') return false;
